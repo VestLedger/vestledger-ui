@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/auth-context'
 import { Sidebar } from '@/components/sidebar'
+import { Topbar } from '@/components/topbar'
 
 export default function DashboardLayout({
   children,
@@ -26,9 +27,12 @@ export default function DashboardLayout({
   return (
     <div className="flex h-screen bg-[var(--app-bg)] text-[var(--app-text)]">
       <Sidebar />
-      <main className="flex-1 overflow-auto">
-        {children}
-      </main>
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Topbar />
+        <main className="flex-1 overflow-auto">
+          {children}
+        </main>
+      </div>
     </div>
   )
 }

@@ -1,6 +1,6 @@
-# DealSphere UI
+# VestLedger UI
 
-Next.js frontend for DealSphere dashboards. Connects to DealSphere API via `NEXT_PUBLIC_API_BASE_URL`.
+Next.js frontend for VestLedger dashboards. Connects to VestLedger API via `NEXT_PUBLIC_API_BASE_URL`.
 
 ## Prereqs
 - Node 20+

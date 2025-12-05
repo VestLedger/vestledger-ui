@@ -34,7 +34,7 @@ export function UIShowcase() {
         {/* Header */}
         <div>
           <Heading level={1} color="primary">
-            DealSphere UI Library
+            VestLedger UI Library
           </Heading>
           <Text size="lg" color="muted" className="mt-2">
             A showcase of all available components

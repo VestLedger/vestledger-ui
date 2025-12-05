@@ -3,6 +3,8 @@
 import { Building2, DollarSign, Calendar } from 'lucide-react';
 import { Card, Badge, Progress } from '@/ui';
 
+type DealOutcome = 'active' | 'won' | 'lost' | 'withdrawn' | 'passed';
+
 interface Deal {
   id: number;
   name: string;
@@ -16,9 +18,25 @@ interface Deal {
 
 interface DealCardProps {
   deal: Deal;
+  outcome?: DealOutcome;
 }
 
-export function DealCard({ deal }: DealCardProps) {
+export function DealCard({ deal, outcome }: DealCardProps) {
+  const getOutcomeBadgeClass = (outcome: DealOutcome) => {
+    switch (outcome) {
+      case 'won':
+        return 'bg-[var(--app-success-bg)] text-[var(--app-success)] border-[var(--app-success)]';
+      case 'lost':
+        return 'bg-[var(--app-danger-bg)] text-[var(--app-danger)] border-[var(--app-danger)]';
+      case 'withdrawn':
+        return 'bg-[var(--app-text-muted)]/10 text-[var(--app-text-muted)] border-[var(--app-text-muted)]';
+      case 'passed':
+        return 'bg-[var(--app-warning-bg)] text-[var(--app-warning)] border-[var(--app-warning)]';
+      default:
+        return '';
+    }
+  };
+
   return (
     <Card className="hover:border-[var(--app-border-subtle)] transition-all cursor-pointer group" padding="sm">
         <div className="flex items-start justify-between mb-3">
@@ -30,7 +48,14 @@ export function DealCard({ deal }: DealCardProps) {
           </Badge>
         </div>
 
-        <h4 className="mb-2 group-hover:text-[var(--app-primary)] transition-colors">{deal.name}</h4>
+        <div className="flex items-center justify-between mb-2">
+          <h4 className="group-hover:text-[var(--app-primary)] transition-colors">{deal.name}</h4>
+          {outcome && outcome !== 'active' && (
+            <Badge size="sm" variant="flat" className={getOutcomeBadgeClass(outcome)}>
+              {outcome}
+            </Badge>
+          )}
+        </div>
 
         <div className="space-y-2 mb-3">
           <div className="flex items-center gap-2 text-sm text-[var(--app-text-muted)]">

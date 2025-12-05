@@ -3,7 +3,7 @@ import { Providers } from './providers'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'DealSphere - VC Workflow Management System',
+  title: 'VestLedger - VC Workflow Management System',
   description: 'The next-generation workflow management system designed for venture capitalists.',
 }
 

@@ -65,7 +65,7 @@ export function Homepage() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4 sm:gap-8">
-            <h1 className="text-xl sm:text-2xl tracking-tight text-[var(--app-primary)]">dealsphere</h1>
+            <h1 className="text-xl sm:text-2xl tracking-tight text-[var(--app-primary)]">vestledger</h1>
             <div className="hidden md:flex items-center gap-6">
               <a href="#features" className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-text)] transition-colors">Features</a>
               <a href="#about" className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-text)] transition-colors">About</a>
@@ -88,7 +88,7 @@ export function Homepage() {
             Manage Your VC Portfolio with <span className="text-[var(--app-primary)]">Precision</span>
           </h2>
           <p className="text-base sm:text-lg md:text-xl text-[var(--app-text-muted)] mb-6 sm:mb-8 leading-relaxed px-4">
-            dealsphere is the next-generation workflow management system designed for venture capitalists.
+            vestledger is the next-generation workflow management system designed for venture capitalists.
             Track deals, manage due diligence, and analyze portfolio performance—all in one place.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4">
@@ -121,7 +121,7 @@ export function Homepage() {
         <div className="text-center mb-12 sm:mb-16">
           <h3 className="text-2xl sm:text-3xl md:text-4xl mb-3 sm:mb-4">Everything You Need to Scale</h3>
           <p className="text-base sm:text-lg text-[var(--app-text-muted)] max-w-2xl mx-auto px-4">
-            Built by VCs, for VCs. dealsphere provides comprehensive tools to streamline your investment workflow.
+            Built by VCs, for VCs. vestledger provides comprehensive tools to streamline your investment workflow.
           </p>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
@@ -147,7 +147,7 @@ export function Homepage() {
             <div>
               <h3 className="text-2xl sm:text-3xl md:text-4xl mb-4 sm:mb-6">Built for Modern VCs</h3>
               <p className="text-base sm:text-lg text-[var(--app-text-muted)] mb-4 sm:mb-6 leading-relaxed">
-                dealsphere was born from the frustration of managing deals across spreadsheets, emails, and disconnected tools.
+                vestledger was born from the frustration of managing deals across spreadsheets, emails, and disconnected tools.
                 We built a platform that brings everything together in one seamless experience.
               </p>
               <div className="space-y-3 sm:space-y-4">
@@ -190,7 +190,7 @@ export function Homepage() {
           <div className="text-center">
             <h3 className="text-2xl sm:text-3xl md:text-4xl mb-3 sm:mb-4">Ready to Get Started?</h3>
             <p className="text-base sm:text-lg text-[var(--app-text-muted)] mb-6 sm:mb-8 max-w-2xl mx-auto px-4">
-              Join leading venture capital firms who are already using dealsphere to manage their portfolios.
+              Join leading venture capital firms who are already using vestledger to manage their portfolios.
             </p>
             <Button size="lg" color="primary" onPress={() => setShowLoginModal(true)} endContent={<ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />}>
               Start Your Free Trial
@@ -204,7 +204,7 @@ export function Homepage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-6 sm:mb-8">
             <div className="col-span-2 md:col-span-1">
-              <h4 className="text-base sm:text-lg mb-3 sm:mb-4 text-[var(--app-primary)]">dealsphere</h4>
+              <h4 className="text-base sm:text-lg mb-3 sm:mb-4 text-[var(--app-primary)]">vestledger</h4>
               <p className="text-xs sm:text-sm text-[var(--app-text-muted)]">
                 The next-generation VC workflow management platform.
               </p>
@@ -235,7 +235,7 @@ export function Homepage() {
             </div>
           </div>
           <div className="pt-6 sm:pt-8 border-t border-[var(--app-border)] text-xs sm:text-sm text-[var(--app-text-muted)] text-center">
-            © 2024 dealsphere. All rights reserved.
+            © 2024 vestledger. All rights reserved.
           </div>
         </div>
       </footer>
@@ -248,7 +248,7 @@ export function Homepage() {
         title={
           <div className="flex flex-col gap-1">
             <h3 className="text-lg font-medium">Welcome back</h3>
-            <p className="text-sm text-[var(--app-text-muted)]">Sign in to your dealsphere account</p>
+            <p className="text-sm text-[var(--app-text-muted)]">Sign in to your vestledger account</p>
           </div>
         }
       >

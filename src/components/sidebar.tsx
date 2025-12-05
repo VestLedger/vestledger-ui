@@ -3,17 +3,17 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, GitBranch, Briefcase, FileCheck, TrendingUp, Settings, Search, Sun, Moon, LogOut } from 'lucide-react';
+import { LayoutDashboard, GitBranch, Briefcase, Search, TrendingUp, Settings, Sun, Moon, LogOut } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useAuth } from '@/contexts/auth-context';
-import { Button, Input, Switch } from '@/ui';
+import { Button, Switch } from '@/ui';
 import { FundSelector } from '@/components/fund-selector';
 
 const menuItems = [
   { id: 'dashboard', href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'pipeline', href: '/pipeline', label: 'Pipeline', icon: GitBranch },
+  { id: 'deal-intelligence', href: '/deal-intelligence', label: 'Deal Intelligence', icon: Search },
   { id: 'portfolio', href: '/portfolio', label: 'Portfolio', icon: Briefcase },
-  { id: 'due-diligence', href: '/due-diligence', label: 'Due Diligence', icon: FileCheck },
   { id: 'analytics', href: '/analytics', label: 'Analytics', icon: TrendingUp },
 ] as const;
 
@@ -40,17 +40,8 @@ export function Sidebar() {
   return (
     <aside className="w-64 h-full bg-[var(--app-sidebar-bg)] border-r border-[var(--app-sidebar-border)] flex flex-col">
       <div className="p-6 border-b border-[var(--app-sidebar-border)]">
-        <h1 className="text-xl tracking-tight text-[var(--app-primary)]">dealsphere</h1>
+        <h1 className="text-xl tracking-tight text-[var(--app-primary)]">vestledger</h1>
         <p className="text-xs text-[var(--app-text-muted)] mt-1">Venture Capital OS</p>
-      </div>
-
-      <div className="p-4">
-        <Input
-          type="text"
-          placeholder="Search deals..."
-          startContent={<Search className="w-4 h-4 text-[var(--app-text-subtle)]" />}
-          size="sm"
-        />
       </div>
 
       {/* Fund Selector */}

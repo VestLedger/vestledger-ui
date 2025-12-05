@@ -1,6 +1,6 @@
-# DealSphere UI Library
+# VestLedger UI Library
 
-A centralized, type-safe UI component library for the DealSphere application. Built on top of NextUI with custom styling that follows the luxurious, tech-forward, and energetic design system.
+A centralized, type-safe UI component library for the VestLedger application. Built on top of NextUI with custom styling that follows the luxurious, tech-forward, and energetic design system.
 
 ## 🎨 Design Principles
 
@@ -108,7 +108,7 @@ import { Container, Grid, Stack } from '@/ui';
 import { Heading, Text } from '@/ui';
 
 <Heading level={1} color="primary">
-  Welcome to DealSphere
+  Welcome to VestLedger
 </Heading>
 
 <Text size="lg" color="muted">
