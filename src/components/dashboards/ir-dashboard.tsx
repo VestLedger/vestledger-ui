@@ -1,7 +1,7 @@
 'use client';
 
 import { Users, MessageSquare, FileText, TrendingUp, Mail, Calendar, Phone } from 'lucide-react';
-import { Card, Button, Badge } from '@/ui';
+import { Card, Button, Badge, PageContainer } from '@/ui';
 import { MetricCard } from '@/components/metric-card';
 
 export function IRDashboard() {
@@ -49,7 +49,7 @@ export function IRDashboard() {
   ];
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
+    <PageContainer className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold">Relationship Navigator</h2>
@@ -120,6 +120,6 @@ export function IRDashboard() {
           </div>
         </Card>
       </div>
-    </div>
+    </PageContainer>
   );
 }

@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react';
-import { CheckCircle2, Circle, Clock, Eye, FileText, Users, DollarSign, BarChart, Upload, Download, Search, Filter, TrendingUp, AlertCircle, ArrowLeft, Lightbulb } from 'lucide-react';
-import { Card, Badge, Progress, Button, Input, Breadcrumb, PageHeader, Tabs, Tab } from '@/ui';
+import { CheckCircle2, Circle, Clock, Eye, FileText, Users, DollarSign, BarChart, Upload, Download, Search, Filter, TrendingUp, AlertCircle, ArrowLeft, Brain } from 'lucide-react';
+import { Card, Badge, Progress, Button, Input, Breadcrumb, PageHeader, Tabs, Tab, PageContainer } from '@/ui';
 import { useFund } from '@/contexts/fund-context';
 import { getRouteConfig } from '@/config/routes';
 
@@ -436,7 +436,7 @@ export function DealIntelligence() {
   // Fund-Level View
   if (viewMode === 'fund-level') {
     return (
-      <div className="p-4 sm:p-6 lg:p-8">
+      <PageContainer>
         {/* Breadcrumb Navigation */}
         {routeConfig && (
           <div className="mb-4">
@@ -451,7 +451,7 @@ export function DealIntelligence() {
         <PageHeader
           title="Deal Intelligence"
           description={`Track due diligence progress and documentation for ${selectedFund?.name || 'your fund'}`}
-          icon={Lightbulb}
+          icon={Brain}
           aiSummary={{
             text: `${dealsReadyForIC} deals ready for IC. ${overdueDocuments} overdue documents need immediate attention. ${dealsInProgress} deals in active DD. Average DD completion: ${fundAnalytics.ddProgress.avgCompletion}%.`,
             confidence: 0.93
@@ -690,14 +690,14 @@ export function DealIntelligence() {
             ))}
           </div>
         </div>
-      </div>
+      </PageContainer>
     );
   }
 
   // Per-Deal View
   if (viewMode === 'per-deal' && selectedDeal) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8">
+      <PageContainer>
         {/* Back Button */}
         <Button
           variant="flat"
@@ -1183,7 +1183,7 @@ export function DealIntelligence() {
           <Tab key="analysis" title="Analysis & Insights">
             <Card padding="md">
               <div className="text-center py-12 text-[var(--app-text-muted)]">
-                <Lightbulb className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <Brain className="w-12 h-12 mx-auto mb-4 opacity-50" />
                 <p>Investment thesis and analysis coming soon</p>
               </div>
             </Card>
@@ -1198,7 +1198,7 @@ export function DealIntelligence() {
             </Card>
           </Tab>
         </Tabs>
-      </div>
+      </PageContainer>
     );
   }
 

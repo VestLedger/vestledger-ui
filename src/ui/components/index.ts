@@ -42,3 +42,7 @@ export type { PageHeaderProps, PageHeaderTab } from './PageHeader';
 
 export { WorkflowStepper } from './WorkflowStepper';
 export type { WorkflowStepperProps, WorkflowStep } from './WorkflowStepper';
+
+// Layout Components
+export { PageContainer } from './PageContainer';
+export type { PageContainerProps } from './PageContainer';

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react';
-import { Card, Badge, Button, Input } from '@/ui';
+import { Card, Badge, Button, Input, PageContainer } from '@/ui';
 import {
   TrendingUp,
   Package,
@@ -65,7 +65,7 @@ export function PortfolioUpdates() {
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8">
+    <PageContainer>
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4">
         <div>
@@ -206,6 +206,6 @@ export function PortfolioUpdates() {
           </Button>
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 }

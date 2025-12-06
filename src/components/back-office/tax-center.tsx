@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react';
-import { Card, Button, Badge, Progress } from '@/ui';
-import { Tabs, Tab } from '@/ui';
-import { FileText, Download, Send, Calendar, DollarSign, Building2, Users, CheckCircle, Clock, AlertTriangle, Mail, Upload } from 'lucide-react';
+import { Card, Button, Badge, Progress, PageContainer, Breadcrumb, PageHeader, Tabs, Tab } from '@/ui';
+import { Receipt, Download, Send, Calendar, DollarSign, Building2, Users, CheckCircle, Clock, AlertTriangle, Mail, Upload, FileText } from 'lucide-react';
+import { getRouteConfig } from '@/config/routes';
 
 interface TaxDocument {
   id: string;
@@ -184,6 +184,15 @@ const mockPortfolioTax: PortfolioCompanyTax[] = [
 export function TaxCenter() {
   const [selectedTab, setSelectedTab] = useState<string>('overview');
 
+  // Get route config for breadcrumbs and AI suggestions
+  const routeConfig = getRouteConfig('/tax-center');
+
+  // Calculate AI insights
+  const k1sIssued = mockTaxSummaries.reduce((sum, s) => sum + s.k1sIssued, 0);
+  const k1sTotal = mockTaxSummaries.reduce((sum, s) => sum + s.k1sTotal, 0);
+  const form1099Issued = mockTaxSummaries.reduce((sum, s) => sum + s.form1099Issued, 0);
+  const readyDocuments = mockTaxDocuments.filter(d => d.status === 'ready').length;
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -222,30 +231,63 @@ export function TaxCenter() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <PageContainer>
+      <div className="space-y-6">
+      {/* Breadcrumb Navigation */}
+      {routeConfig && (
         <div>
-          <h1 className="text-3xl font-bold text-[var(--app-text)]">Tax Center</h1>
-          <p className="text-[var(--app-text-muted)] mt-1">
-            Manage tax documents, K-1s, and reporting for LPs and portfolio companies
-          </p>
+          <Breadcrumb
+            items={routeConfig.breadcrumbs}
+            aiSuggestion={routeConfig.aiSuggestion}
+          />
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="bordered"
-            startContent={<Upload className="w-4 h-4" />}
-          >
-            Upload Documents
-          </Button>
-          <Button
-            className="bg-[var(--app-primary)] text-white"
-            startContent={<FileText className="w-4 h-4" />}
-          >
-            Generate K-1s
-          </Button>
-        </div>
-      </div>
+      )}
+
+      {/* Page Header with AI Summary */}
+      <PageHeader
+        title="Tax Center"
+        description="Manage tax documents, K-1s, and reporting for LPs and portfolio companies"
+        icon={Receipt}
+        aiSummary={{
+          text: `${k1sIssued} K-1s issued out of ${k1sTotal}. ${form1099Issued} 1099s issued. ${readyDocuments} documents ready to send. Filing deadline: March 15, 2025. AI recommends prioritizing the ${readyDocuments} ready documents for immediate distribution.`,
+          confidence: 0.92
+        }}
+        primaryAction={{
+          label: 'Generate K-1s',
+          onClick: () => console.log('Generate K-1s'),
+          aiSuggested: readyDocuments > 0
+        }}
+        secondaryActions={[
+          {
+            label: 'Upload Documents',
+            onClick: () => console.log('Upload documents')
+          }
+        ]}
+        tabs={[
+          {
+            id: 'overview',
+            label: 'Tax Documents',
+            count: mockTaxDocuments.length
+          },
+          {
+            id: 'fund-summary',
+            label: 'Fund Summary',
+            count: mockTaxSummaries.length
+          },
+          {
+            id: 'portfolio',
+            label: 'Portfolio Companies',
+            count: mockPortfolioTax.filter(c => c.k1Required && !c.k1Received).length,
+            priority: mockPortfolioTax.filter(c => c.k1Required && !c.k1Received).length > 0 ? 'high' : undefined
+          },
+          {
+            id: 'communications',
+            label: 'LP Communications'
+          }
+        ]}
+        activeTab={selectedTab}
+        onTabChange={(tabId) => setSelectedTab(tabId)}
+      />
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -313,17 +355,8 @@ export function TaxCenter() {
         </Card>
       </div>
 
-      <Tabs selectedKey={selectedTab} onSelectionChange={(key) => setSelectedTab(key as string)}>
-        {/* Overview Tab */}
-        <Tab
-          key="overview"
-          title={
-            <div className="flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              <span>Tax Documents</span>
-            </div>
-          }
-        >
+      {/* Overview Tab - Tax Documents */}
+      {selectedTab === 'overview' && (
           <div className="mt-4 space-y-3">
             {mockTaxDocuments.map((doc) => (
               <Card key={doc.id} padding="lg">
@@ -415,18 +448,10 @@ export function TaxCenter() {
               </Card>
             ))}
           </div>
-        </Tab>
+      )}
 
-        {/* Fund Summary Tab */}
-        <Tab
-          key="fund-summary"
-          title={
-            <div className="flex items-center gap-2">
-              <Building2 className="w-4 h-4" />
-              <span>Fund Summary</span>
-            </div>
-          }
-        >
+      {/* Fund Summary Tab */}
+      {selectedTab === 'fund-summary' && (
           <div className="mt-4 space-y-3">
             {mockTaxSummaries.map((summary) => {
               const k1Progress = (summary.k1sIssued / summary.k1sTotal) * 100;
@@ -493,18 +518,10 @@ export function TaxCenter() {
               );
             })}
           </div>
-        </Tab>
+      )}
 
-        {/* Portfolio Companies Tab */}
-        <Tab
-          key="portfolio"
-          title={
-            <div className="flex items-center gap-2">
-              <Building2 className="w-4 h-4" />
-              <span>Portfolio Companies</span>
-            </div>
-          }
-        >
+      {/* Portfolio Companies Tab */}
+      {selectedTab === 'portfolio' && (
           <div className="mt-4">
             <Card padding="lg">
               <h3 className="font-semibold mb-4">K-1 Collection Status</h3>
@@ -567,18 +584,10 @@ export function TaxCenter() {
               </div>
             </Card>
           </div>
-        </Tab>
+      )}
 
-        {/* LP Communications Tab */}
-        <Tab
-          key="communications"
-          title={
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4" />
-              <span>LP Communications</span>
-            </div>
-          }
-        >
+      {/* LP Communications Tab */}
+      {selectedTab === 'communications' && (
           <div className="mt-4">
             <Card padding="lg">
               <h3 className="font-semibold mb-4">Tax Document Distribution</h3>
@@ -655,8 +664,7 @@ export function TaxCenter() {
               </div>
             </Card>
           </div>
-        </Tab>
-      </Tabs>
+      )}
 
       {/* Info Card */}
       <Card padding="md" className="bg-[var(--app-warning-bg)] border-[var(--app-warning)]/20">
@@ -672,6 +680,7 @@ export function TaxCenter() {
           </div>
         </div>
       </Card>
-    </div>
+      </div>
+    </PageContainer>
   );
 }

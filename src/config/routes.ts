@@ -15,6 +15,7 @@ import {
   Receipt,
   FileDown,
   Sparkles,
+  Database,
 } from 'lucide-react';
 import type { BreadcrumbItem, AISuggestion } from '@/ui';
 
@@ -235,6 +236,18 @@ export const routes: Record<string, RouteConfig> = {
       { label: 'AI Tools' },
     ],
     description: 'AI-powered workflows and automation',
+  },
+
+  auditTrail: {
+    path: '/audit-trail',
+    label: 'Audit Trail',
+    icon: Database,
+    breadcrumbs: [
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Back Office', href: '/dashboard' },
+      { label: 'Audit Trail' },
+    ],
+    description: 'Immutable, cryptographically verified transaction history',
   },
 };
 

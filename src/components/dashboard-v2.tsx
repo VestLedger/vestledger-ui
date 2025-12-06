@@ -1,7 +1,6 @@
 'use client'
 
-import { motion } from 'framer-motion';
-import { Layers, DollarSign, TrendingUp, Users, BarChart, Target, Clock } from 'lucide-react';
+import { Layers, DollarSign, TrendingUp, Users, BarChart, Target, Clock, LayoutDashboard } from 'lucide-react';
 import { AIInsightsBanner } from './dashboard/ai-insights-banner';
 import { AlertBar } from './dashboard/alert-bar';
 import { QuickActions } from './dashboard/quick-actions';
@@ -20,20 +19,9 @@ import { LPDashboard } from '@/components/dashboards/lp-dashboard';
 import { AuditorDashboard } from '@/components/dashboards/auditor-dashboard';
 import { FundSelector } from '@/components/fund-selector';
 import { MetricCard } from '@/components/metric-card';
-import { Card, Badge, Button } from '@/ui';
+import { Card, Badge, Button, PageContainer, Breadcrumb, PageHeader } from '@/ui';
+import { getRouteConfig } from '@/config/routes';
 import { Fund } from '@/types/fund';
-
-// Animation wrapper for all dashboards
-const DashboardWrapper = ({ children }: { children: React.ReactNode }) => (
-  <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    transition={{ duration: 0.3 }}
-    className="max-w-[1600px] mx-auto"
-  >
-    {children}
-  </motion.div>
-);
 
 const formatCurrency = (amount: number, showDecimals = false) => {
   if (amount >= 1_000_000_000) {
@@ -49,17 +37,17 @@ export function DashboardV2() {
   // Role-based view switching (non-GP roles get their own dashboards)
   switch (user?.role) {
     case 'analyst':
-      return <DashboardWrapper><AnalystDashboard /></DashboardWrapper>;
+      return <PageContainer padding="none"><AnalystDashboard /></PageContainer>;
     case 'ops':
-      return <DashboardWrapper><OpsDashboard /></DashboardWrapper>;
+      return <PageContainer padding="none"><OpsDashboard /></PageContainer>;
     case 'ir':
-      return <DashboardWrapper><IRDashboard /></DashboardWrapper>;
+      return <PageContainer padding="none"><IRDashboard /></PageContainer>;
     case 'researcher':
-      return <DashboardWrapper><ResearcherDashboard /></DashboardWrapper>;
+      return <PageContainer padding="none"><ResearcherDashboard /></PageContainer>;
     case 'lp':
-      return <DashboardWrapper><LPDashboard /></DashboardWrapper>;
+      return <PageContainer padding="none"><LPDashboard /></PageContainer>;
     case 'auditor':
-      return <DashboardWrapper><AuditorDashboard /></DashboardWrapper>;
+      return <PageContainer padding="none"><AuditorDashboard /></PageContainer>;
     case 'service_provider':
     case 'strategic_partner':
     default:
@@ -95,6 +83,8 @@ export function DashboardV2() {
   // CONSOLIDATED VIEW (No fund selected or consolidated mode)
   // ─────────────────────────────────────────────────────────────────────────────
   if (viewMode === 'consolidated' || !selectedFund) {
+    const routeConfig = getRouteConfig('/dashboard');
+
     const consolidatedMetrics = [
       {
         label: 'Total AUM',
@@ -127,27 +117,33 @@ export function DashboardV2() {
     ];
 
     return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
-        className="p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto"
-      >
-        {/* Consolidated Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-          <div className="flex items-center gap-3">
-            <Layers className="w-7 h-7 text-[var(--app-primary)]" />
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold">Consolidated View</h1>
-              <p className="text-sm text-[var(--app-text-muted)]">
-                Overview across all {summary.totalFunds} funds
-              </p>
-            </div>
-          </div>
-          <div className="w-full sm:w-64">
-            <FundSelector />
-          </div>
-        </div>
+      <PageContainer>
+        {/* Breadcrumb and Page Header */}
+        <Breadcrumb
+          items={routeConfig?.breadcrumbs || [{ label: 'Dashboard' }]}
+          aiSuggestion={routeConfig?.aiSuggestion}
+        />
+        <PageHeader
+          title="Consolidated View"
+          description={`Overview across all ${summary.totalFunds} funds`}
+          icon={LayoutDashboard}
+          aiSummary={{
+            text: `Managing ${summary.totalFunds} funds with ${formatCurrency(summary.totalCommitment)} total AUM. Portfolio of ${summary.totalPortfolioCompanies} companies valued at ${formatCurrency(summary.totalPortfolioValue)}. Average fund IRR: ${(funds.reduce((sum, f) => sum + f.irr, 0) / funds.length).toFixed(1)}%`,
+            confidence: 0.94
+          }}
+          secondaryActions={[
+            {
+              label: 'Select Fund',
+              onClick: () => {
+                // Open fund selector modal or scroll to fund cards
+                const fundCardsElement = document.querySelector('[data-fund-selector-target]');
+                if (fundCardsElement) {
+                  fundCardsElement.scrollIntoView({ behavior: 'smooth' });
+                }
+              },
+            },
+          ]}
+        />
 
         {/* Fund Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
@@ -220,13 +216,15 @@ export function DashboardV2() {
         </div>
 
         <div className="h-8" />
-      </motion.div>
+      </PageContainer>
     );
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
   // INDIVIDUAL FUND VIEW (Fund is selected)
   // ─────────────────────────────────────────────────────────────────────────────
+  const routeConfig = getRouteConfig('/dashboard');
+
   const fundMetrics = [
     {
       label: 'Active Deals',
@@ -259,21 +257,29 @@ export function DashboardV2() {
   ];
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-      className="p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto"
-    >
-      {/* Fund-Specific Header */}
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
-        <div className="flex-1">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2">{selectedFund.name}</h1>
-          <p className="text-sm text-[var(--app-text-muted)]">
-            {selectedFund.description || 'Fund performance and metrics'}
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
+    <PageContainer>
+      {/* Breadcrumb and Page Header */}
+      <Breadcrumb
+        items={routeConfig?.breadcrumbs || [{ label: 'Dashboard' }]}
+        aiSuggestion={routeConfig?.aiSuggestion}
+      />
+      <PageHeader
+        title={selectedFund.name}
+        description={selectedFund.description || 'Fund performance and metrics'}
+        icon={LayoutDashboard}
+        aiSummary={{
+          text: `${formatCurrency(selectedFund.totalCommitment)} fund with ${selectedFund.portfolioCount} portfolio companies. ${((selectedFund.deployedCapital / selectedFund.totalCommitment) * 100).toFixed(0)}% deployed. IRR: ${selectedFund.irr.toFixed(1)}%, TVPI: ${selectedFund.tvpi.toFixed(2)}x, DPI: ${selectedFund.dpi.toFixed(2)}x`,
+          confidence: 0.96
+        }}
+        secondaryActions={[
+          {
+            label: 'View all funds',
+            onClick: handleConsolidatedView,
+          },
+        ]}
+      >
+        {/* Fund Status and Vintage Badges */}
+        <div className="flex flex-wrap items-center gap-2 mt-4">
           <Badge
             size="md"
             variant="bordered"
@@ -284,14 +290,11 @@ export function DashboardV2() {
           <Badge size="md" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">
             Vintage {selectedFund.vintage}
           </Badge>
-          <Button variant="ghost" size="sm" className="text-[var(--app-primary)]" onPress={handleConsolidatedView}>
-            View all funds
-          </Button>
-          <div className="w-full sm:w-64">
+          <div className="flex-1 text-right">
             <FundSelector />
           </div>
         </div>
-      </div>
+      </PageHeader>
 
       {/* Fund Performance Summary Card */}
       <Card padding="md" className="bg-gradient-to-br from-[var(--app-primary-bg)] to-[var(--app-surface)] mb-6">
@@ -343,6 +346,6 @@ export function DashboardV2() {
       </div>
 
       <div className="h-8" />
-    </motion.div>
+    </PageContainer>
   );
 }

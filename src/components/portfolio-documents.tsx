@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Plus, Filter, Search, Upload, Download, Eye, FileText, CheckCircle2, Clock, AlertCircle, Circle } from 'lucide-react';
-import { Button, Card, Badge, Input } from '@/ui';
+import { Button, Card, Badge, Input, PageContainer } from '@/ui';
 
 type DocumentStatus = 'overdue' | 'due-soon' | 'pending-review' | 'current' | 'awaiting-upload' | 'optional';
 type DocumentCategory = 'board-materials' | 'financial-reports' | 'compliance' | 'investor-updates' | 'pre-investment-dd';
@@ -127,7 +127,7 @@ export function PortfolioDocuments() {
   const pendingCount = documents.filter(d => d.status === 'pending-review').length;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8">
+    <PageContainer>
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4">
         <div>
@@ -376,6 +376,6 @@ export function PortfolioDocuments() {
           </div>
         </Card>
       </div>
-    </div>
+    </PageContainer>
   );
 }

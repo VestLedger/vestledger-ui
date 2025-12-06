@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react';
-import { Card, Badge, Button, Progress } from '@/ui';
+import { Card, Badge, Button, Progress, PageContainer } from '@/ui';
 import {
   TrendingUp,
   TrendingDown,
@@ -165,7 +165,7 @@ export function PortfolioDashboard() {
   const unrealizedReturn = ((totalUnrealizedValue / portfolioSummary.totalInvested) * 100);
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8">
+    <PageContainer>
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4">
         <div>
@@ -331,6 +331,6 @@ export function PortfolioDashboard() {
           </Card>
         )}
       </div>
-    </div>
+    </PageContainer>
   );
 }

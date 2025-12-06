@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { useFund } from '@/contexts/fund-context';
 import { Button, Badge, Card, Input } from '@/ui';
 import { useRouter } from 'next/navigation';
+import { useAICopilot } from './ai-copilot-sidebar';
 
 type SearchResultType = 'deal' | 'company' | 'document' | 'contact' | 'action' | 'ai-suggestion';
 
@@ -24,6 +25,7 @@ export function Topbar() {
   const { user, logout } = useAuth();
   const { selectedFund } = useFund();
   const router = useRouter();
+  const { openWithQuery } = useAICopilot();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -194,10 +196,17 @@ export function Topbar() {
         <div className="relative w-full">
           <Input
             type="text"
-            placeholder="Ask AI anything... (e.g., 'show me active deals', 'find Quantum AI')"
+            placeholder="Ask Vesta anything... (e.g., 'show me active deals', 'find Quantum AI')"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => setIsSearchFocused(true)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && searchQuery.trim()) {
+                openWithQuery(searchQuery);
+                setSearchQuery('');
+                setIsSearchFocused(false);
+              }
+            }}
             startContent={
               searchQuery && searchResults.some(r => r.type === 'ai-suggestion') ? (
                 <Sparkles className="w-4 h-4 text-[var(--app-primary)]" />
@@ -250,7 +259,7 @@ export function Topbar() {
                 <div className="px-4 py-2 bg-[var(--app-surface-hover)] border-t border-[var(--app-border)] flex items-center gap-2">
                   <Sparkles className="w-3 h-3 text-[var(--app-primary)]" />
                   <span className="text-xs text-[var(--app-text-muted)]">
-                    AI-powered search • Try natural language queries
+                    Press Enter to ask Vesta • Natural language queries
                   </span>
                 </div>
               </Card>
@@ -263,8 +272,8 @@ export function Topbar() {
               <Card padding="md" className="shadow-lg">
                 <div className="text-center py-4 text-[var(--app-text-muted)]">
                   <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">No results found</p>
-                  <p className="text-xs mt-1">Try using natural language like "show me active deals"</p>
+                  <p className="text-sm">No quick results found</p>
+                  <p className="text-xs mt-1">Press Enter to ask Vesta for help</p>
                 </div>
               </Card>
             </div>

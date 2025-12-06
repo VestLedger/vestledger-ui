@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react';
-import { Card, Button, Badge, Progress } from '@/ui';
-import { ThumbsUp, ThumbsDown, MinusCircle, MessageSquare, Users, Building2, TrendingUp, DollarSign, Target, Lightbulb, Share2, Download, Play, Pause, SkipForward, SkipBack, Maximize2, Plus, Edit3 } from 'lucide-react';
+import { Card, Button, Badge, Progress, PageContainer, Breadcrumb, PageHeader } from '@/ui';
+import { ThumbsUp, ThumbsDown, MinusCircle, MessageSquare, Users, Building2, TrendingUp, DollarSign, Target, Lightbulb, Share2, Download, Play, Pause, SkipForward, SkipBack, Maximize2, Plus, Edit3, FileSearch } from 'lucide-react';
+import { getRouteConfig } from '@/config/routes';
 
 interface Deal {
   id: string;
@@ -161,7 +162,17 @@ export function DealflowReview() {
   const [myVote, setMyVote] = useState<'yes' | 'no' | 'maybe' | null>(null);
   const [voteComment, setVoteComment] = useState('');
 
+  // Get route config for breadcrumbs and AI suggestions
+  const routeConfig = getRouteConfig('/dealflow-review');
+
   const currentSlide = slides[currentSlideIndex];
+
+  // Calculate AI insights for summary
+  const yesVotes = votes.filter(v => v.vote === 'yes').length;
+  const noVotes = votes.filter(v => v.vote === 'no').length;
+  const maybeVotes = votes.filter(v => v.vote === 'maybe').length;
+  const totalVotes = votes.length;
+  const consensusPercentage = totalVotes > 0 ? Math.round((yesVotes / totalVotes) * 100) : 0;
 
   const handleVote = (vote: 'yes' | 'no' | 'maybe') => {
     setMyVote(vote);
@@ -393,31 +404,45 @@ export function DealflowReview() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Dealflow Review Session</h2>
-          <p className="text-sm text-[var(--app-text-muted)] mt-1">
-            Collaborative deal review with slide presentation and voting
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="flat" startContent={<Share2 className="w-4 h-4" />}>
-            Share
-          </Button>
-          <Button variant="flat" startContent={<Download className="w-4 h-4" />}>
-            Export
-          </Button>
-          <Button
-            color="primary"
-            startContent={isPresenting ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-            onPress={() => setIsPresenting(!isPresenting)}
-          >
-            {isPresenting ? 'Stop Presenting' : 'Start Presentation'}
-          </Button>
-        </div>
-      </div>
+    <PageContainer>
+      <div className="space-y-6">
+        {/* Breadcrumb Navigation */}
+        {routeConfig && (
+          <div className="mb-4">
+            <Breadcrumb
+              items={routeConfig.breadcrumbs}
+              aiSuggestion={routeConfig.aiSuggestion}
+            />
+          </div>
+        )}
+
+        {/* Page Header with AI Summary */}
+        <PageHeader
+          title="Dealflow Review"
+          description="Collaborative deal review with slide presentation and team voting"
+          icon={FileSearch}
+          aiSummary={{
+            text: totalVotes > 0
+              ? `${consensusPercentage}% consensus for proceeding (${yesVotes}/${totalVotes} votes in favor). ${maybeVotes} votes requiring more due diligence. Reviewing: ${selectedDeal.companyName}.`
+              : `Ready to review ${selectedDeal.companyName}. No votes cast yet. Waiting for team feedback on ${currentSlide.title}.`,
+            confidence: totalVotes > 0 ? 0.88 : 0.72
+          }}
+          primaryAction={{
+            label: isPresenting ? 'Stop Presenting' : 'Start Presentation',
+            onClick: () => setIsPresenting(!isPresenting),
+            aiSuggested: false
+          }}
+          secondaryActions={[
+            {
+              label: 'Share',
+              onClick: () => console.log('Share clicked')
+            },
+            {
+              label: 'Export',
+              onClick: () => console.log('Export clicked')
+            }
+          ]}
+        />
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Slide Navigation */}
@@ -585,6 +610,7 @@ export function DealflowReview() {
           </Card>
         </div>
       </div>
-    </div>
+      </div>
+    </PageContainer>
   );
 }

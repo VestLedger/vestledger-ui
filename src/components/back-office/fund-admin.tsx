@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react';
-import { Card, Button, Badge, Progress, Input, Select, Breadcrumb, PageHeader } from '@/ui';
-import { DollarSign, Send, Download, Clock, CheckCircle, AlertTriangle, Users, FileText, Mail, ArrowUpRight, ArrowDownRight } from 'lucide-react';
-import { FundSelector } from '../fund-selector';
-import { getRouteConfig } from '@/config/routes';
+import { useState } from 'react'
+import { Card, Button, Badge, Progress, Input, Select, Breadcrumb, PageHeader, PageContainer } from '@/ui'
+import { DollarSign, Send, Download, Clock, CheckCircle, AlertTriangle, Users, FileText, Mail, ArrowUpRight, ArrowDownRight } from 'lucide-react'
+import { FundSelector } from '../fund-selector'
+import { getRouteConfig } from '@/config/routes'
 
 interface CapitalCall {
   id: string;
@@ -222,7 +222,8 @@ export function FundAdmin() {
   const pendingLPs = mockLPResponses.filter(r => r.status === 'pending' || r.status === 'partial').length;
 
   return (
-    <div className="space-y-6">
+    <PageContainer>
+      <div className="space-y-6">
       {/* Breadcrumb Navigation */}
       {routeConfig && (
         <div>
@@ -610,6 +611,7 @@ export function FundAdmin() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </PageContainer>
   );
 }

@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react';
-import { Card, Button, Input, Badge } from '@/ui';
+import { Card, Button, Input, Badge, PageContainer, Breadcrumb, PageHeader } from '@/ui';
 import { User, Mail, Phone, Building2, MapPin, Calendar, Tag, Search, Filter, Plus, Edit3, Trash2, Star, MessageSquare, Video, Send, ExternalLink, Briefcase, Users } from 'lucide-react';
+import { getRouteConfig } from '@/config/routes';
 
 interface Contact {
   id: string;
@@ -131,6 +132,7 @@ const mockInteractions: Interaction[] = [
 ];
 
 export function Contacts() {
+  const routeConfig = getRouteConfig('/contacts');
   const [contacts, setContacts] = useState<Contact[]>(mockContacts);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -161,23 +163,27 @@ export function Contacts() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Contacts & CRM</h2>
-          <p className="text-sm text-[var(--app-text-muted)] mt-1">
-            Manage relationships with founders, investors, and advisors
-          </p>
-        </div>
-        <Button
-          color="primary"
-          startContent={<Plus className="w-4 h-4" />}
-          onPress={() => setShowAddContact(true)}
-        >
-          Add Contact
-        </Button>
-      </div>
+    <PageContainer>
+      <div className="space-y-6">
+        {routeConfig && (
+          <div className="mb-4">
+            <Breadcrumb items={routeConfig.breadcrumbs} aiSuggestion={routeConfig.aiSuggestion} />
+          </div>
+        )}
+
+        <PageHeader
+          title="Contacts & CRM"
+          description="Manage relationships with founders, investors, and advisors"
+          icon={Users}
+          aiSummary={{
+            text: `${contacts.length} total contacts. ${contacts.filter(c => c.starred).length} starred. ${contacts.filter(c => c.nextFollowUp).length} pending follow-ups.`,
+            confidence: 0.91
+          }}
+          primaryAction={{
+            label: 'Add Contact',
+            onClick: () => setShowAddContact(true)
+          }}
+        />
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -498,6 +504,7 @@ export function Contacts() {
           )}
         </div>
       </div>
-    </div>
+      </div>
+    </PageContainer>
   );
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { DollarSign, Shield, FileText, Users, AlertTriangle, CheckSquare, Calendar, Download } from 'lucide-react';
-import { Card, Button, Badge } from '@/ui';
+import { Card, Button, Badge, PageContainer } from '@/ui';
 import { MetricCard } from '@/components/metric-card';
 
 export function OpsDashboard() {
@@ -37,7 +37,7 @@ export function OpsDashboard() {
   ];
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
+    <PageContainer className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold">Operations Center</h2>
@@ -106,6 +106,6 @@ export function OpsDashboard() {
            </div>
         </Card>
       </div>
-    </div>
+    </PageContainer>
   );
 }

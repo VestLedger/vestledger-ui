@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react';
-import { Breadcrumb, PageHeader } from '@/ui';
+import { Breadcrumb, PageHeader, PageContainer } from '@/ui';
 import { Briefcase, LayoutGrid, FileText, MessageSquare } from 'lucide-react';
 import { PortfolioDashboard } from './portfolio-dashboard';
 import { PortfolioDocuments } from './portfolio-documents';
@@ -22,7 +22,7 @@ export function Portfolio() {
   const pendingUpdates = 5;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8">
+    <PageContainer>
       {/* Breadcrumb Navigation */}
       {routeConfig && (
         <div className="mb-4">
@@ -74,6 +74,6 @@ export function Portfolio() {
         {selected === 'updates' && <PortfolioUpdates />}
         {selected === 'documents' && <PortfolioDocuments />}
       </div>
-    </div>
+    </PageContainer>
   );
 }

@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react';
-import { Card, Button, Badge, Progress, Input } from '@/ui';
+import { Card, Button, Badge, Progress, Input, PageContainer, Breadcrumb, PageHeader } from '@/ui';
 import { Tabs, Tab } from '@/ui';
-import { TrendingUp, FileText, Download, Calendar, DollarSign, AlertCircle, CheckCircle, Clock, Building2, ChevronRight } from 'lucide-react';
+import { getRouteConfig } from '@/config/routes';
+import { TrendingUp, FileText, Download, Calendar, DollarSign, AlertCircle, CheckCircle, Clock, Building2, ChevronRight, Calculator } from 'lucide-react';
 
 interface Valuation409A {
   id: string;
@@ -142,6 +143,7 @@ const mockHistory: ValuationHistory[] = [
 
 export function Valuation409A() {
   const [selectedTab, setSelectedTab] = useState<string>('valuations');
+  const routeConfig = getRouteConfig('/409a-valuations');
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -187,24 +189,53 @@ export function Valuation409A() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-[var(--app-text)]">409A Valuations</h1>
-          <p className="text-[var(--app-text-muted)] mt-1">
-            Manage IRS-compliant fair market value determinations for stock options
-          </p>
-        </div>
-        <Button
-          className="bg-[var(--app-primary)] text-white"
-          startContent={<FileText className="w-4 h-4" />}
-        >
-          Request New Valuation
-        </Button>
-      </div>
+    <PageContainer>
+      <div className="space-y-6">
+        {/* Breadcrumb Navigation */}
+        {routeConfig && (
+          <Breadcrumb
+            items={routeConfig.breadcrumbs}
+            aiSuggestion={routeConfig.aiSuggestion}
+          />
+        )}
 
-      {/* Summary Cards */}
+        {/* Page Header with Tabs */}
+        <PageHeader
+          title="409A Valuations"
+          description="Manage IRS-compliant fair market value determinations for stock options"
+          icon={Calculator}
+          aiSummary={{
+            text: `${mockValuations.length} portfolio companies tracked. ${mockValuations.filter(v => v.status === 'current').length} current valuations, ${mockValuations.filter(v => v.status === 'expiring-soon').length} expiring soon. ${mockStrikePrices.filter(sp => sp.status === 'active').length} active option grants.`,
+            confidence: 0.92
+          }}
+          primaryAction={{
+            label: 'Request New Valuation',
+            onClick: () => {
+              // Handle new valuation request
+            },
+          }}
+          tabs={[
+            {
+              id: 'valuations',
+              label: 'Valuations',
+              count: mockValuations.length,
+            },
+            {
+              id: 'strike-prices',
+              label: 'Strike Prices',
+              count: mockStrikePrices.length,
+            },
+            {
+              id: 'history',
+              label: 'Valuation History',
+              count: mockHistory.length,
+            },
+          ]}
+          activeTab={selectedTab}
+          onTabChange={setSelectedTab}
+        />
+
+        {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card padding="lg">
           <div className="flex items-center gap-3">
@@ -263,18 +294,9 @@ export function Valuation409A() {
         </Card>
       </div>
 
-      <Tabs selectedKey={selectedTab} onSelectionChange={(key) => setSelectedTab(key as string)}>
-        {/* Valuations Tab */}
-        <Tab
-          key="valuations"
-          title={
-            <div className="flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              <span>Valuations</span>
-            </div>
-          }
-        >
-          <div className="mt-4 space-y-3">
+      {/* Tab Content */}
+        {selectedTab === 'valuations' && (
+          <div className="space-y-3">
             {mockValuations.map((valuation) => {
               const daysUntilExpiry = getDaysUntilExpiration(valuation.expirationDate);
               return (
@@ -352,19 +374,11 @@ export function Valuation409A() {
               );
             })}
           </div>
-        </Tab>
+        )}
 
         {/* Strike Prices Tab */}
-        <Tab
-          key="strike-prices"
-          title={
-            <div className="flex items-center gap-2">
-              <DollarSign className="w-4 h-4" />
-              <span>Strike Prices</span>
-            </div>
-          }
-        >
-          <div className="mt-4">
+        {selectedTab === 'strike-prices' && (
+          <div>
             <Card padding="lg">
               <h3 className="font-semibold mb-4">Recent Option Grants</h3>
               <div className="space-y-3">
@@ -403,19 +417,11 @@ export function Valuation409A() {
               </div>
             </Card>
           </div>
-        </Tab>
+        )}
 
         {/* History Tab */}
-        <Tab
-          key="history"
-          title={
-            <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4" />
-              <span>Valuation History</span>
-            </div>
-          }
-        >
-          <div className="mt-4">
+        {selectedTab === 'history' && (
+          <div>
             <Card padding="lg">
               <h3 className="font-semibold mb-4">Fair Market Value Timeline</h3>
               <div className="space-y-4">
@@ -450,10 +456,9 @@ export function Valuation409A() {
               </div>
             </Card>
           </div>
-        </Tab>
-      </Tabs>
+        )}
 
-      {/* Info Card */}
+        {/* Info Card */}
       <Card padding="md" className="bg-[var(--app-info-bg)] border-[var(--app-info)]/20">
         <div className="flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-[var(--app-info)] flex-shrink-0 mt-0.5" />
@@ -467,6 +472,7 @@ export function Valuation409A() {
           </div>
         </div>
       </Card>
-    </div>
+      </div>
+    </PageContainer>
   );
 }

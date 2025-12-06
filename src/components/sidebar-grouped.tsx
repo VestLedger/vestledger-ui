@@ -41,6 +41,7 @@ const navigationStructure = {
     allowedRoles: ['gp', 'analyst', 'researcher', 'lp'] as UserRole[],
     items: [
       { id: 'cap-table', href: '/cap-table', label: 'Cap Table', icon: PieChart },
+      { id: 'waterfall', href: '/waterfall', label: 'Waterfall', icon: TrendingUp },
       { id: 'analytics', href: '/analytics', label: 'Analytics', icon: TrendingUp },
     ],
   },
@@ -52,6 +53,7 @@ const navigationStructure = {
     items: [
       { id: 'fund-admin', href: '/fund-admin', label: 'Fund Admin', icon: DollarSign },
       { id: 'lp-management', href: '/lp-management', label: 'LP Management', icon: UserCheck },
+      { id: 'audit-trail', href: '/audit-trail', label: 'Audit Trail', icon: Shield },
       { id: 'compliance', href: '/compliance', label: 'Compliance', icon: Shield },
       { id: '409a-valuations', href: '/409a-valuations', label: '409A Valuations', icon: Receipt },
       { id: 'tax-center', href: '/tax-center', label: 'Tax Center', icon: Scale },

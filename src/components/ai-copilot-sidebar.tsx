@@ -1,10 +1,49 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, createContext, useContext } from 'react';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Send, X, Lightbulb, Zap, Bot } from 'lucide-react';
 import { Button, Input } from '@/ui';
+
+// Context for controlling the AI Copilot from other components
+interface AICopilotContextType {
+  openWithQuery: (query: string) => void;
+}
+
+const AICopilotContext = createContext<AICopilotContextType | undefined>(undefined);
+
+export function useAICopilot() {
+  const context = useContext(AICopilotContext);
+  if (!context) {
+    throw new Error('useAICopilot must be used within AICopilotProvider');
+  }
+  return context;
+}
+
+// Global callback ref for cross-component communication
+let globalOpenQueryCallback: ((query: string) => void) | null = null;
+
+export function setGlobalOpenQueryCallback(callback: (query: string) => void) {
+  globalOpenQueryCallback = callback;
+}
+
+// Provider component that can be used in layout
+export function AICopilotProvider({ children }: { children: React.ReactNode }) {
+  const contextValue = {
+    openWithQuery: (query: string) => {
+      if (globalOpenQueryCallback) {
+        globalOpenQueryCallback(query);
+      }
+    },
+  };
+
+  return (
+    <AICopilotContext.Provider value={contextValue}>
+      {children}
+    </AICopilotContext.Provider>
+  );
+}
 
 interface Message {
   id: string;
@@ -159,7 +198,7 @@ const getQuickActions = (pathname: string): QuickAction[] => {
   ];
 };
 
-export function AICopilotSidebar() {
+function AICopilotSidebarInner() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(true);
@@ -170,6 +209,45 @@ export function AICopilotSidebar() {
 
   const suggestions = getPageSuggestions(pathname);
   const quickActions = getQuickActions(pathname);
+
+  // Function to handle opening with a query from external components
+  const openWithQuery = (query: string) => {
+    setIsMinimized(false);
+    setIsOpen(true);
+
+    // Add user message
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      type: 'user',
+      content: query,
+      timestamp: new Date(),
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setIsTyping(true);
+
+    // Simulate AI processing
+    setTimeout(() => {
+      const aiResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        type: 'ai',
+        content: getContextualResponses(pathname, query),
+        timestamp: new Date(),
+        confidence: Math.random() * 0.2 + 0.75,
+      };
+
+      setMessages(prev => [...prev, aiResponse]);
+      setIsTyping(false);
+    }, 1000 + Math.random() * 1000);
+  };
+
+  // Register the callback when component mounts
+  useEffect(() => {
+    setGlobalOpenQueryCallback(openWithQuery);
+    return () => {
+      setGlobalOpenQueryCallback(() => {});
+    };
+  }, [pathname]); // Re-register when pathname changes to get updated context
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -465,4 +543,9 @@ export function AICopilotSidebar() {
       </AnimatePresence>
     </>
   );
+}
+
+// Main export
+export function AICopilotSidebar() {
+  return <AICopilotSidebarInner />;
 }

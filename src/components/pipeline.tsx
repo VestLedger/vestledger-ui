@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Plus, Filter, Grid, List, GitBranch } from 'lucide-react';
 import { DealCard } from '@/components/deal-card';
-import { Button, Card, Badge, Progress, Breadcrumb, PageHeader } from '@/ui';
+import { Button, Card, Badge, Progress, Breadcrumb, PageHeader, PageContainer } from '@/ui';
 import { ButtonGroup, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@nextui-org/react';
 import { getRouteConfig } from '@/config/routes';
 
@@ -72,7 +72,7 @@ export function Pipeline() {
   });
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8">
+    <PageContainer>
       {/* Breadcrumb Navigation */}
       {routeConfig && (
         <div className="mb-4">
@@ -218,6 +218,6 @@ export function Pipeline() {
           </Table>
         </Card>
       )}
-    </div>
+    </PageContainer>
   );
 }

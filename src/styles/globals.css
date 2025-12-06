@@ -1,86 +1,86 @@
 :root {
-  /* Royal Luxury - Light Mode */
-  --app-bg: #FAF8F5; /* Warm ivory background */
+  /* Energetic Light Mode - Electric & Vibrant */
+  --app-bg: #FAFBFF; /* Cool crisp white with slight blue */
   --app-surface: #FFFFFF; /* Pure white surface */
-  --app-surface-hover: #F5F3EE; /* Warm hover */
-  --app-border: #E8D7C3; /* Champagne gold border */
-  --app-border-subtle: #F0EBE3; /* Subtle ivory border */
-  --app-text: #2D1B4E; /* Deep royal purple */
-  --app-text-muted: #6B5B7A; /* Muted purple-gray */
-  --app-text-subtle: #9B8AA3; /* Light purple-gray */
-  --app-primary: #6B46C1; /* Rich royal purple */
-  --app-primary-hover: #553C9A; /* Deeper purple hover */
-  --app-primary-bg: rgba(107, 70, 193, 0.1); /* Purple background */
-  --app-secondary: #D4AF37; /* Royal gold */
-  --app-secondary-hover: #B8941F; /* Darker gold hover */
-  --app-success: #059669; /* Emerald jewel */
-  --app-success-bg: rgba(5, 150, 105, 0.1); /* Emerald background */
-  --app-warning: #D97706; /* Amber jewel */
-  --app-warning-bg: rgba(217, 119, 6, 0.1); /* Amber background */
-  --app-danger: #DC2626; /* Ruby red */
-  --app-danger-bg: rgba(220, 38, 38, 0.1); /* Ruby background */
-  --app-accent: #9333EA; /* Amethyst accent */
-  --app-accent-hover: #7E22CE; /* Deeper amethyst */
-  --app-info: #1E40AF; /* Sapphire blue */
-  --app-info-bg: rgba(30, 64, 175, 0.1); /* Sapphire background */
+  --app-surface-hover: #F0F4FF; /* Soft electric blue hover */
+  --app-border: #E0E7FF; /* Soft violet border */
+  --app-border-subtle: #F0F4FF; /* Subtle blue border */
+  --app-text: #1A1D3D; /* Deep navy */
+  --app-text-muted: #5C6187; /* Muted navy */
+  --app-text-subtle: #8B91B8; /* Light navy */
+  --app-primary: #6366F1; /* Electric indigo */
+  --app-primary-hover: #4F46E5; /* Deeper indigo hover */
+  --app-primary-bg: rgba(99, 102, 241, 0.12); /* Indigo background */
+  --app-secondary: #F59E0B; /* Vibrant amber */
+  --app-secondary-hover: #D97706; /* Deeper amber hover */
+  --app-success: #10B981; /* Vibrant emerald */
+  --app-success-bg: rgba(16, 185, 129, 0.12); /* Emerald background */
+  --app-warning: #F59E0B; /* Amber */
+  --app-warning-bg: rgba(245, 158, 11, 0.12); /* Amber background */
+  --app-danger: #EF4444; /* Vibrant red */
+  --app-danger-bg: rgba(239, 68, 68, 0.12); /* Red background */
+  --app-accent: #EC4899; /* Hot pink */
+  --app-accent-hover: #DB2777; /* Deeper pink */
+  --app-info: #06B6D4; /* Electric cyan */
+  --app-info-bg: rgba(6, 182, 212, 0.12); /* Cyan background */
   --app-sidebar-bg: #FFFFFF;
-  --app-sidebar-border: #E8D7C3;
+  --app-sidebar-border: #E0E7FF;
 
-  /* Royal gradients */
-  --gradient-royal: linear-gradient(135deg, #6B46C1 0%, #9333EA 50%, #D4AF37 100%);
-  --gradient-jewel: linear-gradient(135deg, #9333EA 0%, #6B46C1 100%);
+  /* Energetic gradients */
+  --gradient-royal: linear-gradient(135deg, #6366F1 0%, #EC4899 50%, #F59E0B 100%);
+  --gradient-jewel: linear-gradient(135deg, #EC4899 0%, #6366F1 100%);
 
-  /* Royal glow effects for light mode */
-  --royal-glow-purple: 0 0 12px rgba(107, 70, 193, 0.25), 0 0 24px rgba(107, 70, 193, 0.15);
-  --royal-glow-gold: 0 0 12px rgba(212, 175, 55, 0.3), 0 0 24px rgba(212, 175, 55, 0.2);
-  --royal-glow-amethyst: 0 0 12px rgba(147, 51, 234, 0.25), 0 0 24px rgba(147, 51, 234, 0.15);
+  /* Glow effects for light mode */
+  --royal-glow-purple: 0 0 20px rgba(99, 102, 241, 0.35), 0 0 40px rgba(99, 102, 241, 0.2);
+  --royal-glow-gold: 0 0 20px rgba(245, 158, 11, 0.4), 0 0 40px rgba(245, 158, 11, 0.25);
+  --royal-glow-amethyst: 0 0 20px rgba(236, 72, 153, 0.35), 0 0 40px rgba(236, 72, 153, 0.2);
 
   /* Tab Component Variables */
-  --tab-cursor: var(--app-secondary);
-  --tab-selected-text-solid: var(--app-text);
+  --tab-cursor: var(--app-primary);
+  --tab-selected-text-solid: white;
   --tab-selected-text-underlined: var(--app-primary);
 }
 
 .dark {
-  /* Royal Luxury - Dark Mode */
-  --app-bg: #0F0A1A; /* Professional deep charcoal with purple undertones */
-  --app-surface: #1A1625; /* Elevated surface - dark slate purple */
-  --app-surface-hover: #241D30; /* Subtle hover state */
-  --app-border: #2D2438; /* Refined border - muted purple-gray */
-  --app-border-subtle: #211C2B; /* Very subtle border */
-  --app-text: #E8E6F0; /* Soft white with slight warmth */
-  --app-text-muted: #A8A3B8; /* Professional muted text */
-  --app-text-subtle: #7C7589; /* Subtle secondary text */
-  --app-primary: #8B7AB8; /* Refined royal purple - more muted */
-  --app-primary-hover: #A594CC; /* Lighter refined purple */
-  --app-primary-bg: rgba(139, 122, 184, 0.15); /* Subtle purple background */
-  --app-secondary: #D4AF37; /* Royal gold */
-  --app-secondary-hover: #E0C050; /* Lighter gold hover */
-  --app-success: #34D399; /* Bright emerald jewel */
-  --app-success-bg: rgba(52, 211, 153, 0.15); /* Emerald background */
-  --app-warning: #FBBF24; /* Bright amber jewel */
-  --app-warning-bg: rgba(251, 191, 36, 0.15); /* Amber background */
-  --app-danger: #F87171; /* Bright ruby */
-  --app-danger-bg: rgba(248, 113, 113, 0.15); /* Ruby background */
-  --app-accent: #9D8BC9; /* Refined amethyst */
-  --app-accent-hover: #B5A6D8; /* Lighter amethyst */
-  --app-info: #7C93E8; /* Refined sapphire */
-  --app-info-bg: rgba(124, 147, 232, 0.15); /* Sapphire background */
-  --app-sidebar-bg: #14111D;
-  --app-sidebar-border: #2D2438;
+  /* Energetic Dark Mode - Electric & Vibrant */
+  --app-bg: #0A0A1B; /* Deep space black with blue undertones */
+  --app-surface: #12122B; /* Rich dark indigo surface */
+  --app-surface-hover: #1A1A3E; /* Electric hover */
+  --app-border: #2A2A5A; /* Vibrant purple-blue border */
+  --app-border-subtle: #1E1E42; /* Subtle border */
+  --app-text: #F0F0FF; /* Bright white with cool tint */
+  --app-text-muted: #A5A5D4; /* Soft lavender muted */
+  --app-text-subtle: #7575A8; /* Lighter lavender */
+  --app-primary: #818CF8; /* Bright electric indigo */
+  --app-primary-hover: #A5B4FC; /* Lighter indigo hover */
+  --app-primary-bg: rgba(129, 140, 248, 0.2); /* Vibrant indigo background */
+  --app-secondary: #FBBF24; /* Bright gold */
+  --app-secondary-hover: #FCD34D; /* Lighter gold hover */
+  --app-success: #34D399; /* Bright neon green */
+  --app-success-bg: rgba(52, 211, 153, 0.2); /* Neon green background */
+  --app-warning: #FBBF24; /* Bright amber */
+  --app-warning-bg: rgba(251, 191, 36, 0.2); /* Amber background */
+  --app-danger: #F87171; /* Bright coral red */
+  --app-danger-bg: rgba(248, 113, 113, 0.2); /* Coral background */
+  --app-accent: #F472B6; /* Bright hot pink */
+  --app-accent-hover: #F9A8D4; /* Lighter pink */
+  --app-info: #22D3EE; /* Bright cyan */
+  --app-info-bg: rgba(34, 211, 238, 0.2); /* Cyan background */
+  --app-sidebar-bg: #0D0D20;
+  --app-sidebar-border: #2A2A5A;
 
-  /* Royal gradients */
-  --gradient-royal: linear-gradient(135deg, #8B7AB8 0%, #9D8BC9 50%, #D4AF37 100%);
-  --gradient-jewel: linear-gradient(135deg, #9D8BC9 0%, #8B7AB8 100%);
+  /* Energetic gradients */
+  --gradient-royal: linear-gradient(135deg, #818CF8 0%, #F472B6 50%, #FBBF24 100%);
+  --gradient-jewel: linear-gradient(135deg, #F472B6 0%, #818CF8 100%);
 
-  /* Royal glow effects for dark mode - more subtle */
-  --royal-glow-purple: 0 0 12px rgba(139, 122, 184, 0.3), 0 0 24px rgba(139, 122, 184, 0.15);
-  --royal-glow-gold: 0 0 12px rgba(212, 175, 55, 0.3), 0 0 24px rgba(212, 175, 55, 0.15);
-  --royal-glow-amethyst: 0 0 12px rgba(157, 139, 201, 0.3), 0 0 24px rgba(157, 139, 201, 0.15);
+  /* Neon glow effects for dark mode */
+  --royal-glow-purple: 0 0 20px rgba(129, 140, 248, 0.5), 0 0 40px rgba(129, 140, 248, 0.3), 0 0 60px rgba(129, 140, 248, 0.15);
+  --royal-glow-gold: 0 0 20px rgba(251, 191, 36, 0.5), 0 0 40px rgba(251, 191, 36, 0.3);
+  --royal-glow-amethyst: 0 0 20px rgba(244, 114, 182, 0.5), 0 0 40px rgba(244, 114, 182, 0.3);
 
   /* Tab Component Variables */
   --tab-cursor: var(--app-primary);
-  --tab-selected-text-solid: var(--app-primary);
+  --tab-selected-text-solid: var(--app-bg);
   --tab-selected-text-underlined: var(--app-primary);
 }
 
@@ -88,13 +88,15 @@ html {
   font-size: 16px;
 }
 
-/* Neon glow animations */
+/* Energetic pulse animations */
 @keyframes neon-pulse {
   0%, 100% {
     filter: brightness(1);
+    box-shadow: var(--royal-glow-purple);
   }
   50% {
-    filter: brightness(1.3);
+    filter: brightness(1.15);
+    box-shadow: var(--royal-glow-amethyst);
   }
 }
 
@@ -103,14 +105,20 @@ html {
     opacity: 1;
   }
   20%, 24%, 55% {
-    opacity: 0.8;
+    opacity: 0.85;
   }
 }
 
-/* Apply neon effects to interactive elements */
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Apply subtle glow to interactive elements on hover */
 button:hover,
 a:hover {
-  animation: neon-pulse 1.5s ease-in-out infinite;
+  animation: neon-pulse 2s ease-in-out infinite;
 }
 
 /* Scrollbar styling */
@@ -121,4 +129,10 @@ a:hover {
 html {
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
+}
+
+/* Energetic card hover effects */
+.hover-glow:hover {
+  box-shadow: var(--royal-glow-purple);
+  transition: box-shadow 0.3s ease;
 }

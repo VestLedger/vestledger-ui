@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react';
-import { Card, Button, Badge, Progress, Breadcrumb, PageHeader, Tabs, Tab } from '@/ui';
-import { Shield, FileText, AlertTriangle, CheckCircle, Clock, Download, Upload, Calendar, Users, Building2, Scale, BookOpen, Bell } from 'lucide-react';
+import { Card, Button, Badge, Breadcrumb, PageHeader, PageContainer } from '@/ui';
+import { Shield, FileText, AlertTriangle, CheckCircle, Clock, Download, Calendar, Users, Building2, Scale, Bell } from 'lucide-react';
 import { getRouteConfig } from '@/config/routes';
 
 interface ComplianceItem {
@@ -232,134 +232,130 @@ export function Compliance() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Breadcrumb Navigation */}
-      {routeConfig && (
-        <div>
-          <Breadcrumb
-            items={routeConfig.breadcrumbs}
-            aiSuggestion={routeConfig.aiSuggestion}
-          />
+    <PageContainer>
+      <div className="space-y-6">
+        {/* Breadcrumb Navigation */}
+        {routeConfig && (
+          <div>
+            <Breadcrumb
+              items={routeConfig.breadcrumbs}
+              aiSuggestion={routeConfig.aiSuggestion}
+            />
+          </div>
+        )}
+
+        {/* Page Header with AI Summary and Tab Navigation */}
+        <PageHeader
+          title="Compliance & Regulatory"
+          description="Track regulatory filings, audits, and compliance requirements"
+          icon={Shield}
+          aiSummary={{
+            text: `${overdueItems} overdue items require immediate attention. ${inProgressItems} items in progress. ${upcomingHighPriority} high-priority deadlines approaching. AI recommends prioritizing Form ADV and annual certification.`,
+            confidence: 0.94
+          }}
+          primaryAction={{
+            label: 'Upload Document',
+            onClick: () => console.log('Upload document'),
+            aiSuggested: false
+          }}
+          secondaryActions={[
+            {
+              label: 'Export Report',
+              onClick: () => console.log('Export report')
+            }
+          ]}
+          tabs={[
+            {
+              id: 'overview',
+              label: 'Overview',
+              count: overdueItems,
+              priority: overdueItems > 0 ? 'high' : undefined
+            },
+            {
+              id: 'filings',
+              label: 'Regulatory Filings'
+            },
+            {
+              id: 'audits',
+              label: 'Audit Schedule',
+              count: mockAuditSchedule.filter(a => a.status === 'in-progress').length
+            },
+            {
+              id: 'resources',
+              label: 'Resources'
+            }
+          ]}
+          activeTab={selectedTab}
+          onTabChange={(tabId) => setSelectedTab(tabId)}
+        />
+
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card padding="lg">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-lg bg-[var(--app-danger-bg)]">
+                <AlertTriangle className="w-6 h-6 text-[var(--app-danger)]" />
+              </div>
+              <div>
+                <p className="text-sm text-[var(--app-text-muted)]">Overdue Items</p>
+                <p className="text-2xl font-bold text-[var(--app-danger)]">
+                  {mockComplianceItems.filter(i => i.status === 'overdue').length}
+                </p>
+              </div>
+            </div>
+          </Card>
+
+          <Card padding="lg">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-lg bg-[var(--app-warning-bg)]">
+                <Clock className="w-6 h-6 text-[var(--app-warning)]" />
+              </div>
+              <div>
+                <p className="text-sm text-[var(--app-text-muted)]">In Progress</p>
+                <p className="text-2xl font-bold">
+                  {mockComplianceItems.filter(i => i.status === 'in-progress').length}
+                </p>
+              </div>
+            </div>
+          </Card>
+
+          <Card padding="lg">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-lg bg-[var(--app-info-bg)]">
+                <Calendar className="w-6 h-6 text-[var(--app-info)]" />
+              </div>
+              <div>
+                <p className="text-sm text-[var(--app-text-muted)]">Due This Month</p>
+                <p className="text-2xl font-bold">
+                  {mockComplianceItems.filter(i => {
+                    const dueDate = new Date(i.dueDate);
+                    const today = new Date();
+                    return dueDate.getMonth() === today.getMonth() &&
+                           dueDate.getFullYear() === today.getFullYear();
+                  }).length}
+                </p>
+              </div>
+            </div>
+          </Card>
+
+          <Card padding="lg">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-lg bg-[var(--app-success-bg)]">
+                <CheckCircle className="w-6 h-6 text-[var(--app-success)]" />
+              </div>
+              <div>
+                <p className="text-sm text-[var(--app-text-muted)]">Completed</p>
+                <p className="text-2xl font-bold">
+                  {mockComplianceItems.filter(i => i.status === 'completed').length}
+                </p>
+              </div>
+            </div>
+          </Card>
         </div>
-      )}
 
-      {/* Page Header with AI Summary */}
-      <PageHeader
-        title="Compliance & Regulatory"
-        description="Track regulatory filings, audits, and compliance requirements"
-        icon={Shield}
-        aiSummary={{
-          text: `${overdueItems} overdue items require immediate attention. ${inProgressItems} items in progress. ${upcomingHighPriority} high-priority deadlines approaching. AI recommends prioritizing Form ADV and annual certification.`,
-          confidence: 0.94
-        }}
-        primaryAction={{
-          label: 'Upload Document',
-          onClick: () => console.log('Upload document'),
-          aiSuggested: false
-        }}
-        secondaryActions={[
-          {
-            label: 'Export Report',
-            onClick: () => console.log('Export report')
-          }
-        ]}
-        tabs={[
-          {
-            id: 'overview',
-            label: 'Overview',
-            count: overdueItems,
-            priority: overdueItems > 0 ? 'high' : undefined
-          },
-          {
-            id: 'filings',
-            label: 'Regulatory Filings'
-          },
-          {
-            id: 'audits',
-            label: 'Audit Schedule',
-            count: mockAuditSchedule.filter(a => a.status === 'in-progress').length
-          }
-        ]}
-        activeTab={selectedTab}
-        onTabChange={(tabId) => setSelectedTab(tabId)}
-      />
-
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-danger-bg)]">
-              <AlertTriangle className="w-6 h-6 text-[var(--app-danger)]" />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--app-text-muted)]">Overdue Items</p>
-              <p className="text-2xl font-bold text-[var(--app-danger)]">
-                {mockComplianceItems.filter(i => i.status === 'overdue').length}
-              </p>
-            </div>
-          </div>
-        </Card>
-
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-warning-bg)]">
-              <Clock className="w-6 h-6 text-[var(--app-warning)]" />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--app-text-muted)]">In Progress</p>
-              <p className="text-2xl font-bold">
-                {mockComplianceItems.filter(i => i.status === 'in-progress').length}
-              </p>
-            </div>
-          </div>
-        </Card>
-
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-info-bg)]">
-              <Calendar className="w-6 h-6 text-[var(--app-info)]" />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--app-text-muted)]">Due This Month</p>
-              <p className="text-2xl font-bold">
-                {mockComplianceItems.filter(i => {
-                  const dueDate = new Date(i.dueDate);
-                  const today = new Date();
-                  return dueDate.getMonth() === today.getMonth() &&
-                         dueDate.getFullYear() === today.getFullYear();
-                }).length}
-              </p>
-            </div>
-          </div>
-        </Card>
-
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-success-bg)]">
-              <CheckCircle className="w-6 h-6 text-[var(--app-success)]" />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--app-text-muted)]">Completed</p>
-              <p className="text-2xl font-bold">
-                {mockComplianceItems.filter(i => i.status === 'completed').length}
-              </p>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      <Tabs selectedKey={selectedTab} onSelectionChange={(key) => setSelectedTab(key as string)}>
         {/* Overview Tab */}
-        <Tab
-          key="overview"
-          title={
-            <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4" />
-              <span>Overview</span>
-            </div>
-          }
-        >
-          <div className="mt-4 space-y-3">
+        {selectedTab === 'overview' && (
+          <div className="space-y-3">
             {mockComplianceItems
               .sort((a, b) => {
                 // Sort by priority and status
@@ -451,19 +447,11 @@ export function Compliance() {
                 </Card>
               ))}
           </div>
-        </Tab>
+        )}
 
         {/* Regulatory Filings Tab */}
-        <Tab
-          key="filings"
-          title={
-            <div className="flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              <span>Regulatory Filings</span>
-            </div>
-          }
-        >
-          <div className="mt-4">
+        {selectedTab === 'filings' && (
+          <div>
             <Card padding="lg">
               <h3 className="font-semibold mb-4">Required Filings</h3>
               <div className="space-y-3">
@@ -514,19 +502,11 @@ export function Compliance() {
               </div>
             </Card>
           </div>
-        </Tab>
+        )}
 
         {/* Audit Schedule Tab */}
-        <Tab
-          key="audits"
-          title={
-            <div className="flex items-center gap-2">
-              <Scale className="w-4 h-4" />
-              <span>Audits</span>
-            </div>
-          }
-        >
-          <div className="mt-4">
+        {selectedTab === 'audits' && (
+          <div>
             <Card padding="lg">
               <h3 className="font-semibold mb-4">Audit Schedule</h3>
               <div className="space-y-3">
@@ -574,19 +554,11 @@ export function Compliance() {
               </div>
             </Card>
           </div>
-        </Tab>
+        )}
 
         {/* Resources Tab */}
-        <Tab
-          key="resources"
-          title={
-            <div className="flex items-center gap-2">
-              <BookOpen className="w-4 h-4" />
-              <span>Resources</span>
-            </div>
-          }
-        >
-          <div className="mt-4 space-y-4">
+        {selectedTab === 'resources' && (
+          <div className="space-y-4">
             <Card padding="lg">
               <h3 className="font-semibold mb-4">Compliance Documents</h3>
               <div className="grid grid-cols-2 gap-3">
@@ -624,8 +596,8 @@ export function Compliance() {
               </div>
             </Card>
           </div>
-        </Tab>
-      </Tabs>
-    </div>
+        )}
+      </div>
+    </PageContainer>
   );
 }

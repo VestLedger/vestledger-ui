@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react';
-import { Card, Button, Badge, Progress, Input } from '@/ui';
+import { Card, Button, Badge, Progress, Input, PageContainer, Breadcrumb, PageHeader } from '@/ui';
 import { Tabs, Tab } from '@/ui';
 import { Users, PieChart, TrendingUp, DollarSign, Plus, Edit3, Download, Share2, AlertCircle, Building2, Calendar, Percent, History, Calculator } from 'lucide-react';
+import { getRouteConfig } from '@/config/routes';
 import { FundSelector } from '../fund-selector';
 
 interface Shareholder {
@@ -186,6 +187,8 @@ export function CapTable() {
   const [selectedTab, setSelectedTab] = useState<string>('overview');
   const [showAddShareholder, setShowAddShareholder] = useState(false);
 
+  const routeConfig = getRouteConfig('/cap-table');
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -213,97 +216,118 @@ export function CapTable() {
   const totalInvestment = mockShareholders.reduce((sum, sh) => sum + (sh.investmentAmount || 0), 0);
 
   return (
-    <div className="space-y-6">
-      {/* Header with Fund Selector */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-bold">Cap Table Management</h2>
-          <p className="text-sm text-[var(--app-text-muted)] mt-1">
-            Track ownership, share classes, and equity distribution
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="w-full sm:w-64">
+    <PageContainer>
+      <div className="space-y-6">
+        {/* Breadcrumb Navigation */}
+        {routeConfig && (
+          <Breadcrumb
+            items={routeConfig.breadcrumbs}
+            aiSuggestion={routeConfig.aiSuggestion}
+          />
+        )}
+
+        {/* Page Header */}
+        <PageHeader
+          title={routeConfig?.label || 'Cap Table'}
+          description={routeConfig?.description}
+          icon={routeConfig?.icon}
+          aiSummary={{
+            text: `${mockShareholders.length} shareholders holding ${formatShares(totalShares)} total shares. ${mockShareClasses.length} share classes with ${formatCurrency(totalInvestment)} total invested across ${mockRounds.length} funding rounds.`,
+            confidence: 0.93
+          }}
+          tabs={[
+            { id: 'overview', label: 'Ownership' },
+            { id: 'classes', label: 'Share Classes' },
+            { id: 'vesting', label: 'Vesting' },
+            { id: 'history', label: 'Funding History' },
+            { id: 'modeling', label: 'Scenarios' },
+          ]}
+          activeTab={selectedTab}
+          onTabChange={(tabId) => setSelectedTab(tabId)}
+          secondaryActions={[
+            {
+              label: 'Share',
+              onClick: () => {
+                // Handle share action
+              },
+            },
+            {
+              label: 'Export',
+              onClick: () => {
+                // Handle export action
+              },
+            },
+          ]}
+          primaryAction={{
+            label: 'Add Shareholder',
+            onClick: () => setShowAddShareholder(true),
+          }}
+        >
+          {/* Fund Selector */}
+          <div className="mt-4 w-full sm:w-64">
             <FundSelector />
           </div>
-          <Button variant="flat" startContent={<Share2 className="w-4 h-4" />}>
-            Share
-          </Button>
-          <Button variant="flat" startContent={<Download className="w-4 h-4" />}>
-            Export
-          </Button>
-          <Button color="primary" startContent={<Plus className="w-4 h-4" />}>
-            Add Shareholder
-          </Button>
-        </div>
-      </div>
+        </PageHeader>
 
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card padding="md">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-[var(--app-primary-bg)]">
-              <Users className="w-5 h-5 text-[var(--app-primary)]" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{mockShareholders.length}</p>
-              <p className="text-xs text-[var(--app-text-muted)]">Shareholders</p>
-            </div>
+        {/* Tab Content */}
+        <div className="space-y-6">
+          {/* Key Metrics */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Card padding="md">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-[var(--app-primary-bg)]">
+                  <Users className="w-5 h-5 text-[var(--app-primary)]" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{mockShareholders.length}</p>
+                  <p className="text-xs text-[var(--app-text-muted)]">Shareholders</p>
+                </div>
+              </div>
+            </Card>
+
+            <Card padding="md">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-[var(--app-success-bg)]">
+                  <TrendingUp className="w-5 h-5 text-[var(--app-success)]" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{formatShares(totalShares)}</p>
+                  <p className="text-xs text-[var(--app-text-muted)]">Total Shares</p>
+                </div>
+              </div>
+            </Card>
+
+            <Card padding="md">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-[var(--app-warning-bg)]">
+                  <DollarSign className="w-5 h-5 text-[var(--app-warning)]" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{formatCurrency(100000000)}</p>
+                  <p className="text-xs text-[var(--app-text-muted)]">Post-Money Valuation</p>
+                </div>
+              </div>
+            </Card>
+
+            <Card padding="md">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-[var(--app-info-bg)]">
+                  <Percent className="w-5 h-5 text-[var(--app-info)]" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">
+                    {((mockShareClasses.reduce((sum, sc) => sum + sc.available, 0) /
+                       mockShareClasses.reduce((sum, sc) => sum + sc.authorized, 0)) * 100).toFixed(1)}%
+                  </p>
+                  <p className="text-xs text-[var(--app-text-muted)]">Available Pool</p>
+                </div>
+              </div>
+            </Card>
           </div>
-        </Card>
 
-        <Card padding="md">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-[var(--app-success-bg)]">
-              <TrendingUp className="w-5 h-5 text-[var(--app-success)]" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{formatShares(totalShares)}</p>
-              <p className="text-xs text-[var(--app-text-muted)]">Total Shares</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card padding="md">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-[var(--app-warning-bg)]">
-              <DollarSign className="w-5 h-5 text-[var(--app-warning)]" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{formatCurrency(100000000)}</p>
-              <p className="text-xs text-[var(--app-text-muted)]">Post-Money Valuation</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card padding="md">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-[var(--app-info-bg)]">
-              <Percent className="w-5 h-5 text-[var(--app-info)]" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">
-                {((mockShareClasses.reduce((sum, sc) => sum + sc.available, 0) /
-                   mockShareClasses.reduce((sum, sc) => sum + sc.authorized, 0)) * 100).toFixed(1)}%
-              </p>
-              <p className="text-xs text-[var(--app-text-muted)]">Available Pool</p>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      <Tabs selectedKey={selectedTab} onSelectionChange={(key) => setSelectedTab(key as string)}>
-        {/* Ownership Tab */}
-        <Tab
-          key="overview"
-          title={
-            <div className="flex items-center gap-2">
-              <PieChart className="w-4 h-4" />
-              <span>Ownership</span>
-            </div>
-          }
-        >
-          <div className="mt-4 space-y-4">
+          {/* Ownership Tab Content */}
+          {selectedTab === 'overview' && (
+          <div className="space-y-4">
             {/* Ownership Breakdown */}
             <Card padding="lg">
               <h3 className="font-semibold mb-4">Ownership Distribution</h3>
@@ -399,19 +423,11 @@ export function CapTable() {
               </div>
             </Card>
           </div>
-        </Tab>
+          )}
 
-        {/* Share Classes Tab */}
-        <Tab
-          key="classes"
-          title={
-            <div className="flex items-center gap-2">
-              <Building2 className="w-4 h-4" />
-              <span>Share Classes</span>
-            </div>
-          }
-        >
-          <div className="mt-4 space-y-4">
+          {/* Share Classes Tab Content */}
+          {selectedTab === 'classes' && (
+          <div className="space-y-4">
             {mockShareClasses.map((shareClass) => (
               <Card key={shareClass.id} padding="lg">
                 <div className="flex items-start justify-between mb-4">
@@ -478,19 +494,11 @@ export function CapTable() {
               </Card>
             ))}
           </div>
-        </Tab>
+          )}
 
-        {/* Vesting Tab */}
-        <Tab
-          key="vesting"
-          title={
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              <span>Vesting</span>
-            </div>
-          }
-        >
-          <div className="mt-4 space-y-4">
+          {/* Vesting Tab Content */}
+          {selectedTab === 'vesting' && (
+          <div className="space-y-4">
             {mockShareholders
               .filter(sh => sh.vestingSchedule)
               .map((shareholder) => (
@@ -548,19 +556,11 @@ export function CapTable() {
                 </Card>
               ))}
           </div>
-        </Tab>
+          )}
 
-        {/* Funding History Tab */}
-        <Tab
-          key="history"
-          title={
-            <div className="flex items-center gap-2">
-              <History className="w-4 h-4" />
-              <span>Funding History</span>
-            </div>
-          }
-        >
-          <div className="mt-4 space-y-4">
+          {/* Funding History Tab Content */}
+          {selectedTab === 'history' && (
+          <div className="space-y-4">
             {mockRounds.map((round) => (
               <Card key={round.id} padding="lg">
                 <div className="flex items-start justify-between mb-4">
@@ -612,19 +612,11 @@ export function CapTable() {
               </Card>
             ))}
           </div>
-        </Tab>
+          )}
 
-        {/* Scenario Modeling Tab */}
-        <Tab
-          key="modeling"
-          title={
-            <div className="flex items-center gap-2">
-              <Calculator className="w-4 h-4" />
-              <span>Scenarios</span>
-            </div>
-          }
-        >
-          <div className="mt-4">
+          {/* Scenario Modeling Tab Content */}
+          {selectedTab === 'modeling' && (
+          <div>
             <Card padding="lg">
               <div className="flex items-center gap-2 mb-4">
                 <AlertCircle className="w-5 h-5 text-[var(--app-info)]" />
@@ -665,8 +657,9 @@ export function CapTable() {
               </div>
             </Card>
           </div>
-        </Tab>
-      </Tabs>
-    </div>
+          )}
+        </div>
+      </div>
+    </PageContainer>
   );
 }

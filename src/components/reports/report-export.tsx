@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react';
-import { Card, Button, Badge, Progress } from '@/ui';
+import { Card, Button, Badge, Progress, Select, PageContainer, Breadcrumb, PageHeader } from '@/ui';
 import { Download, FileText, File, Table, Image, Calendar, Filter, Check, Settings, Mail, Clock, Repeat } from 'lucide-react';
+import { getRouteConfig } from '@/config/routes';
 
 interface ReportTemplate {
   id: string;
@@ -108,6 +109,7 @@ const mockExportJobs: ExportJob[] = [
 ];
 
 export function ReportExport() {
+  const routeConfig = getRouteConfig('/reports');
   const [selectedTemplate, setSelectedTemplate] = useState<ReportTemplate | null>(null);
   const [exportFormat, setExportFormat] = useState<'pdf' | 'excel' | 'csv' | 'ppt'>('pdf');
   const [dateRange, setDateRange] = useState({ start: '2024-01-01', end: '2024-12-31' });
@@ -177,19 +179,34 @@ export function ReportExport() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Report Export & Generation</h2>
-          <p className="text-sm text-[var(--app-text-muted)] mt-1">
-            Generate and export reports in multiple formats
-          </p>
-        </div>
-        <Button variant="flat" startContent={<Settings className="w-4 h-4" />}>
-          Report Settings
-        </Button>
-      </div>
+    <PageContainer>
+      <div className="space-y-6">
+        {/* Breadcrumb Navigation */}
+        {routeConfig && (
+          <Breadcrumb
+            items={routeConfig.breadcrumbs}
+            aiSuggestion={routeConfig.aiSuggestion}
+          />
+        )}
+
+        {/* Page Header */}
+        {routeConfig && (
+          <PageHeader
+            title={routeConfig.label}
+            description={routeConfig.description}
+            icon={routeConfig.icon}
+            aiSummary={{
+              text: `${reportTemplates.length} report templates available. ${exportJobs.filter(j => j.status === 'completed').length} reports completed, ${exportJobs.filter(j => j.status === 'processing').length} currently processing.`,
+              confidence: 0.90
+            }}
+            secondaryActions={[
+              {
+                label: 'Report Settings',
+                onClick: () => {},
+              },
+            ]}
+          />
+        )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Report Templates */}
@@ -442,6 +459,7 @@ export function ReportExport() {
           </Card>
         </div>
       </div>
-    </div>
+      </div>
+    </PageContainer>
   );
 }

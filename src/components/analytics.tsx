@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react';
-import { Breadcrumb, PageHeader } from '@/ui';
+import { Breadcrumb, PageHeader, PageContainer } from '@/ui';
 import { TrendingUp, BarChart3, PieChart, Activity } from 'lucide-react';
 import { FundPerformanceOverview } from './analytics/fund-performance-overview';
 import { JCurveChart } from './analytics/j-curve-chart';
@@ -17,7 +17,7 @@ export function Analytics() {
   const routeConfig = getRouteConfig('/analytics');
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8">
+    <PageContainer>
       {routeConfig && (
         <div className="mb-4">
           <Breadcrumb items={routeConfig.breadcrumbs} aiSuggestion={routeConfig.aiSuggestion} />
@@ -86,6 +86,6 @@ export function Analytics() {
           </div>
         )}
       </div>
-    </div>
+    </PageContainer>
   );
 }

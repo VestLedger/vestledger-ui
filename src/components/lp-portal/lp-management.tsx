@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react';
-import { Card, Button, Badge, Progress } from '@/ui';
-import { Tabs, Tab } from '@/ui';
-import { TrendingUp, DollarSign, Building2, Download, Eye, Lock, Unlock, Send, FileText, PieChart, BarChart3, Calendar, Users, ArrowUpRight, ArrowDownRight, Activity } from 'lucide-react';
+import { Card, Button, Badge, Progress, PageContainer, Breadcrumb, PageHeader } from '@/ui';
+import { TrendingUp, DollarSign, Building2, Download, Eye, Lock, Unlock, Send, FileText, PieChart, BarChart3, Calendar, Users, ArrowUpRight, ArrowDownRight, Activity, UserCheck } from 'lucide-react';
+import { getRouteConfig } from '@/config/routes';
 
 interface LP {
   id: string;
@@ -183,6 +183,9 @@ export function LPManagement() {
   const [selectedTab, setSelectedTab] = useState<string>('overview');
   const [selectedLP, setSelectedLP] = useState<LP | null>(null);
 
+  // Get route config for breadcrumbs and AI suggestions
+  const routeConfig = getRouteConfig('/lp-management');
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -209,28 +212,74 @@ export function LPManagement() {
     }
   };
 
+  // Calculate LP metrics for AI summary
+  const totalLPs = mockLPs.length;
+  const totalCommitments = mockLPs.reduce((sum, lp) => sum + lp.commitmentAmount, 0);
+  const averageIRR = (mockLPs.reduce((sum, lp) => sum + lp.irr, 0) / mockLPs.length).toFixed(1);
+  const pendingCapitalCalls = mockCapitalCalls.filter(c => c.status === 'pending').length;
+  const publishedReports = mockReports.filter(r => r.status === 'published').length;
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">LP Management & Reporting</h2>
-          <p className="text-sm text-[var(--app-text-muted)] mt-1">
-            Manage Limited Partners, generate reports, and track capital activities
-          </p>
+    <PageContainer>
+      {/* Breadcrumb Navigation */}
+      {routeConfig && (
+        <div className="mb-4">
+          <Breadcrumb
+            items={routeConfig.breadcrumbs}
+            aiSuggestion={routeConfig.aiSuggestion}
+          />
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="flat" startContent={<Send className="w-4 h-4" />}>
-            Send Update
-          </Button>
-          <Button color="primary" startContent={<Download className="w-4 h-4" />}>
-            Generate Report
-          </Button>
-        </div>
-      </div>
+      )}
+
+      {/* Page Header with AI Summary and Tabs */}
+      <PageHeader
+        title="LP Management"
+        description="Manage Limited Partners, generate reports, and track capital activities"
+        icon={UserCheck}
+        aiSummary={{
+          text: `${totalLPs} Limited Partners with ${formatCurrency(totalCommitments)} in commitments. Average IRR: ${averageIRR}%. ${pendingCapitalCalls} pending capital call(s), ${publishedReports} published report(s).`,
+          confidence: 0.88
+        }}
+        primaryAction={{
+          label: 'Generate Report',
+          onClick: () => console.log('Generate report clicked'),
+          aiSuggested: true,
+          confidence: 0.82
+        }}
+        secondaryActions={[
+          {
+            label: 'Send Update',
+            onClick: () => console.log('Send update clicked')
+          }
+        ]}
+        tabs={[
+          {
+            id: 'overview',
+            label: 'LP Overview',
+            count: totalLPs,
+          },
+          {
+            id: 'reports',
+            label: 'Reports',
+            count: publishedReports,
+          },
+          {
+            id: 'capital',
+            label: 'Capital Activity',
+            count: pendingCapitalCalls,
+            priority: pendingCapitalCalls > 0 ? 'high' : undefined
+          },
+          {
+            id: 'performance',
+            label: 'Performance',
+          }
+        ]}
+        activeTab={selectedTab}
+        onTabChange={(tabId) => setSelectedTab(tabId)}
+      />
 
       {/* Fund Overview Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card padding="md">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-[var(--app-primary-bg)]">
@@ -284,18 +333,11 @@ export function LPManagement() {
         </Card>
       </div>
 
-      <Tabs selectedKey={selectedTab} onSelectionChange={(key) => setSelectedTab(key as string)}>
+      {/* Tab Content */}
+      <div className="mt-6">
         {/* LP Overview Tab */}
-        <Tab
-          key="overview"
-          title={
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4" />
-              <span>LP Overview</span>
-            </div>
-          }
-        >
-          <div className="space-y-4 mt-4">
+        {selectedTab === 'overview' && (
+          <div className="space-y-4">
             {mockLPs.map((lp) => (
               <Card key={lp.id} padding="lg">
                 <div className="flex items-start justify-between mb-4">
@@ -358,19 +400,11 @@ export function LPManagement() {
               </Card>
             ))}
           </div>
-        </Tab>
+        )}
 
         {/* Reports Tab */}
-        <Tab
-          key="reports"
-          title={
-            <div className="flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              <span>Reports</span>
-            </div>
-          }
-        >
-          <div className="space-y-4 mt-4">
+        {selectedTab === 'reports' && (
+          <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {mockReports.map((report) => (
                 <Card key={report.id} padding="lg">
@@ -417,19 +451,11 @@ export function LPManagement() {
               ))}
             </div>
           </div>
-        </Tab>
+        )}
 
         {/* Capital Activity Tab */}
-        <Tab
-          key="capital"
-          title={
-            <div className="flex items-center gap-2">
-              <Activity className="w-4 h-4" />
-              <span>Capital Activity</span>
-            </div>
-          }
-        >
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
+        {selectedTab === 'capital' && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Capital Calls */}
             <div>
               <h3 className="font-semibold mb-4 flex items-center gap-2">
@@ -488,19 +514,11 @@ export function LPManagement() {
               </div>
             </div>
           </div>
-        </Tab>
+        )}
 
         {/* Performance Tab */}
-        <Tab
-          key="performance"
-          title={
-            <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4" />
-              <span>Performance</span>
-            </div>
-          }
-        >
-          <div className="mt-4">
+        {selectedTab === 'performance' && (
+          <div>
             <Card padding="lg">
               <h3 className="font-semibold mb-4">Fund Performance Summary</h3>
 
@@ -555,8 +573,8 @@ export function LPManagement() {
               </div>
             </Card>
           </div>
-        </Tab>
-      </Tabs>
-    </div>
+        )}
+      </div>
+    </PageContainer>
   );
 }

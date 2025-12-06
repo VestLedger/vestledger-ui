@@ -1,7 +1,7 @@
 'use client';
 
 import { Shield, FileCheck, AlertTriangle, CheckCircle2, Clock, FileText, Search, Download } from 'lucide-react';
-import { Card, Button, Badge } from '@/ui';
+import { Card, Button, Badge, PageContainer } from '@/ui';
 import { MetricCard } from '@/components/metric-card';
 
 export function AuditorDashboard() {
@@ -51,7 +51,7 @@ export function AuditorDashboard() {
   ];
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6">
+    <PageContainer className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold">Auditor View</h2>
@@ -121,6 +121,6 @@ export function AuditorDashboard() {
           </div>
         </Card>
       </div>
-    </div>
+    </PageContainer>
   );
 }
