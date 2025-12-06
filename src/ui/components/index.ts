@@ -29,3 +29,6 @@ export type { SwitchProps } from './Switch';
 
 export { Textarea } from './Textarea';
 export type { TextareaProps } from './Textarea';
+
+export { Tabs, Tab } from './Tabs';
+export type { TabsProps, TabProps } from './Tabs';

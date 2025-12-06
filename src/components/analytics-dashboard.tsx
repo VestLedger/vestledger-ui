@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react';
-import { Tabs, Tab } from '@nextui-org/react';
+import { Tabs, Tab } from '@/ui';
 import { TrendingUp, BarChart3, PieChart, Activity, Layers, DollarSign } from 'lucide-react';
 import { FundPerformanceOverview } from './analytics/fund-performance-overview';
 import { JCurveChart } from './analytics/j-curve-chart';
@@ -18,13 +18,6 @@ export function AnalyticsDashboard() {
       <Tabs
         selectedKey={selected}
         onSelectionChange={(key) => setSelected(key as string)}
-        classNames={{
-          base: "px-4 sm:px-6 lg:px-8",
-          tabList: "gap-4 border-b border-[var(--app-border)]",
-          cursor: "bg-[var(--app-primary)]",
-          tab: "px-4 py-3",
-          tabContent: "group-data-[selected=true]:text-[var(--app-primary)]"
-        }}
       >
         <Tab
           key="performance"

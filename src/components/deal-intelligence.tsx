@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { CheckCircle2, Circle, Clock, Eye, FileText, Users, DollarSign, BarChart, Upload, Download, Search, Filter, TrendingUp, AlertCircle, ArrowLeft, Lightbulb } from 'lucide-react';
 import { Card, Badge, Progress, Button, Input } from '@/ui';
-import { Tabs, Tab } from '@nextui-org/react';
+import { Tabs, Tab } from '@/ui';
 import { useFund } from '@/contexts/fund-context';
 
 type DocumentCategory =

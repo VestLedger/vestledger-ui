@@ -1,0 +1,594 @@
+'use client'
+
+import { useState } from 'react';
+import { Card, Button, Badge, Progress } from '@/ui';
+import { Tabs, Tab } from '@/ui';
+import { Shield, FileText, AlertTriangle, CheckCircle, Clock, Download, Upload, Calendar, Users, Building2, Scale, BookOpen, Bell } from 'lucide-react';
+
+interface ComplianceItem {
+  id: string;
+  title: string;
+  type: 'filing' | 'report' | 'certification' | 'audit';
+  dueDate: string;
+  status: 'completed' | 'in-progress' | 'upcoming' | 'overdue';
+  assignedTo: string;
+  priority: 'high' | 'medium' | 'low';
+  description: string;
+  relatedFund?: string;
+}
+
+interface RegulatoryFiling {
+  id: string;
+  filingType: string;
+  regulator: string;
+  frequency: string;
+  lastFiled: string;
+  nextDue: string;
+  status: 'current' | 'due-soon' | 'overdue';
+  fundName: string;
+}
+
+interface AuditSchedule {
+  id: string;
+  auditType: string;
+  auditor: string;
+  year: number;
+  startDate: string;
+  completionDate: string | null;
+  status: 'scheduled' | 'in-progress' | 'completed';
+  fundName: string;
+}
+
+const mockComplianceItems: ComplianceItem[] = [
+  {
+    id: '1',
+    title: 'Form ADV Annual Update',
+    type: 'filing',
+    dueDate: '2025-03-30',
+    status: 'upcoming',
+    assignedTo: 'Compliance Team',
+    priority: 'high',
+    description: 'Annual amendment to Form ADV with SEC',
+    relatedFund: 'All Funds'
+  },
+  {
+    id: '2',
+    title: 'Q4 2024 LP Report',
+    type: 'report',
+    dueDate: '2025-01-15',
+    status: 'in-progress',
+    assignedTo: 'Sarah Johnson',
+    priority: 'high',
+    description: 'Quarterly performance report for Limited Partners',
+    relatedFund: 'Acme Ventures Fund II'
+  },
+  {
+    id: '3',
+    title: 'Annual Compliance Certification',
+    type: 'certification',
+    dueDate: '2024-12-31',
+    status: 'overdue',
+    assignedTo: 'Michael Chen',
+    priority: 'high',
+    description: 'Code of Ethics and Compliance Manual certification',
+    relatedFund: 'All Funds'
+  },
+  {
+    id: '4',
+    title: 'Form PF Filing - Large Hedge Fund',
+    type: 'filing',
+    dueDate: '2025-02-28',
+    status: 'upcoming',
+    assignedTo: 'Compliance Team',
+    priority: 'medium',
+    description: 'Private Fund reporting to SEC',
+    relatedFund: 'Acme Ventures Fund III'
+  },
+  {
+    id: '5',
+    title: 'AML/KYC Review',
+    type: 'audit',
+    dueDate: '2024-12-20',
+    status: 'completed',
+    assignedTo: 'Emily Rodriguez',
+    priority: 'medium',
+    description: 'Annual Anti-Money Laundering review',
+    relatedFund: 'All Funds'
+  }
+];
+
+const mockRegulatoryFilings: RegulatoryFiling[] = [
+  {
+    id: '1',
+    filingType: 'Form ADV',
+    regulator: 'SEC',
+    frequency: 'Annual',
+    lastFiled: '2024-03-25',
+    nextDue: '2025-03-30',
+    status: 'current',
+    fundName: 'All Funds'
+  },
+  {
+    id: '2',
+    filingType: 'Form PF',
+    regulator: 'SEC',
+    frequency: 'Quarterly',
+    lastFiled: '2024-11-15',
+    nextDue: '2025-02-28',
+    status: 'current',
+    fundName: 'Acme Ventures Fund III'
+  },
+  {
+    id: '3',
+    filingType: 'Form D',
+    regulator: 'SEC',
+    frequency: 'As Needed',
+    lastFiled: '2024-06-10',
+    nextDue: 'N/A',
+    status: 'current',
+    fundName: 'Acme Ventures Fund II'
+  },
+  {
+    id: '4',
+    filingType: 'State Registration',
+    regulator: 'State Securities',
+    frequency: 'Annual',
+    lastFiled: '2024-01-15',
+    nextDue: '2025-01-15',
+    status: 'due-soon',
+    fundName: 'All Funds'
+  }
+];
+
+const mockAuditSchedule: AuditSchedule[] = [
+  {
+    id: '1',
+    auditType: 'Financial Audit',
+    auditor: 'KPMG',
+    year: 2024,
+    startDate: '2025-01-15',
+    completionDate: null,
+    status: 'scheduled',
+    fundName: 'Acme Ventures Fund II'
+  },
+  {
+    id: '2',
+    auditType: 'Compliance Audit',
+    auditor: 'Deloitte',
+    year: 2024,
+    startDate: '2024-11-01',
+    completionDate: '2024-11-30',
+    status: 'completed',
+    fundName: 'All Funds'
+  },
+  {
+    id: '3',
+    auditType: 'IT Security Audit',
+    auditor: 'PwC',
+    year: 2024,
+    startDate: '2024-12-01',
+    completionDate: null,
+    status: 'in-progress',
+    fundName: 'All Funds'
+  }
+];
+
+export function Compliance() {
+  const [selectedTab, setSelectedTab] = useState<string>('overview');
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed':
+      case 'current':
+        return 'bg-[var(--app-success-bg)] text-[var(--app-success)]';
+      case 'in-progress':
+        return 'bg-[var(--app-warning-bg)] text-[var(--app-warning)]';
+      case 'upcoming':
+      case 'due-soon':
+      case 'scheduled':
+        return 'bg-[var(--app-info-bg)] text-[var(--app-info)]';
+      case 'overdue':
+        return 'bg-[var(--app-danger-bg)] text-[var(--app-danger)]';
+      default:
+        return 'bg-[var(--app-surface)]';
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high':
+        return 'text-[var(--app-danger)]';
+      case 'medium':
+        return 'text-[var(--app-warning)]';
+      case 'low':
+        return 'text-[var(--app-info)]';
+      default:
+        return 'text-[var(--app-text-muted)]';
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'completed':
+      case 'current':
+        return <CheckCircle className="w-4 h-4" />;
+      case 'in-progress':
+        return <Clock className="w-4 h-4" />;
+      case 'overdue':
+        return <AlertTriangle className="w-4 h-4" />;
+      default:
+        return <Bell className="w-4 h-4" />;
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-[var(--app-text)]">Compliance & Regulatory</h1>
+          <p className="text-[var(--app-text-muted)] mt-1">
+            Track regulatory filings, audits, and compliance requirements
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="bordered"
+            startContent={<Download className="w-4 h-4" />}
+          >
+            Export Report
+          </Button>
+          <Button
+            className="bg-[var(--app-primary)] text-white"
+            startContent={<Upload className="w-4 h-4" />}
+          >
+            Upload Document
+          </Button>
+        </div>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card padding="lg">
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-lg bg-[var(--app-danger-bg)]">
+              <AlertTriangle className="w-6 h-6 text-[var(--app-danger)]" />
+            </div>
+            <div>
+              <p className="text-sm text-[var(--app-text-muted)]">Overdue Items</p>
+              <p className="text-2xl font-bold text-[var(--app-danger)]">
+                {mockComplianceItems.filter(i => i.status === 'overdue').length}
+              </p>
+            </div>
+          </div>
+        </Card>
+
+        <Card padding="lg">
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-lg bg-[var(--app-warning-bg)]">
+              <Clock className="w-6 h-6 text-[var(--app-warning)]" />
+            </div>
+            <div>
+              <p className="text-sm text-[var(--app-text-muted)]">In Progress</p>
+              <p className="text-2xl font-bold">
+                {mockComplianceItems.filter(i => i.status === 'in-progress').length}
+              </p>
+            </div>
+          </div>
+        </Card>
+
+        <Card padding="lg">
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-lg bg-[var(--app-info-bg)]">
+              <Calendar className="w-6 h-6 text-[var(--app-info)]" />
+            </div>
+            <div>
+              <p className="text-sm text-[var(--app-text-muted)]">Due This Month</p>
+              <p className="text-2xl font-bold">
+                {mockComplianceItems.filter(i => {
+                  const dueDate = new Date(i.dueDate);
+                  const today = new Date();
+                  return dueDate.getMonth() === today.getMonth() &&
+                         dueDate.getFullYear() === today.getFullYear();
+                }).length}
+              </p>
+            </div>
+          </div>
+        </Card>
+
+        <Card padding="lg">
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-lg bg-[var(--app-success-bg)]">
+              <CheckCircle className="w-6 h-6 text-[var(--app-success)]" />
+            </div>
+            <div>
+              <p className="text-sm text-[var(--app-text-muted)]">Completed</p>
+              <p className="text-2xl font-bold">
+                {mockComplianceItems.filter(i => i.status === 'completed').length}
+              </p>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      <Tabs selectedKey={selectedTab} onSelectionChange={(key) => setSelectedTab(key as string)}>
+        {/* Overview Tab */}
+        <Tab
+          key="overview"
+          title={
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4" />
+              <span>Overview</span>
+            </div>
+          }
+        >
+          <div className="mt-4 space-y-3">
+            {mockComplianceItems
+              .sort((a, b) => {
+                // Sort by priority and status
+                const priorityOrder = { high: 0, medium: 1, low: 2 };
+                const statusOrder = { overdue: 0, 'in-progress': 1, upcoming: 2, completed: 3 };
+                return (
+                  statusOrder[a.status as keyof typeof statusOrder] - statusOrder[b.status as keyof typeof statusOrder] ||
+                  priorityOrder[a.priority as keyof typeof priorityOrder] - priorityOrder[b.priority as keyof typeof priorityOrder]
+                );
+              })
+              .map((item) => (
+                <Card key={item.id} padding="lg">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-4 flex-1">
+                      <div className={`p-3 rounded-lg ${
+                        item.status === 'overdue' ? 'bg-[var(--app-danger-bg)]' :
+                        item.status === 'in-progress' ? 'bg-[var(--app-warning-bg)]' :
+                        item.status === 'completed' ? 'bg-[var(--app-success-bg)]' :
+                        'bg-[var(--app-info-bg)]'
+                      }`}>
+                        {item.type === 'filing' && <FileText className={`w-6 h-6 ${
+                          item.status === 'overdue' ? 'text-[var(--app-danger)]' :
+                          item.status === 'in-progress' ? 'text-[var(--app-warning)]' :
+                          item.status === 'completed' ? 'text-[var(--app-success)]' :
+                          'text-[var(--app-info)]'
+                        }`} />}
+                        {item.type === 'report' && <FileText className={`w-6 h-6 ${
+                          item.status === 'overdue' ? 'text-[var(--app-danger)]' :
+                          item.status === 'in-progress' ? 'text-[var(--app-warning)]' :
+                          item.status === 'completed' ? 'text-[var(--app-success)]' :
+                          'text-[var(--app-info)]'
+                        }`} />}
+                        {item.type === 'certification' && <Shield className={`w-6 h-6 ${
+                          item.status === 'overdue' ? 'text-[var(--app-danger)]' :
+                          item.status === 'in-progress' ? 'text-[var(--app-warning)]' :
+                          item.status === 'completed' ? 'text-[var(--app-success)]' :
+                          'text-[var(--app-info)]'
+                        }`} />}
+                        {item.type === 'audit' && <Scale className={`w-6 h-6 ${
+                          item.status === 'overdue' ? 'text-[var(--app-danger)]' :
+                          item.status === 'in-progress' ? 'text-[var(--app-warning)]' :
+                          item.status === 'completed' ? 'text-[var(--app-success)]' :
+                          'text-[var(--app-info)]'
+                        }`} />}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="font-semibold text-lg">{item.title}</h3>
+                          <Badge size="sm" className={getStatusColor(item.status)}>
+                            <div className="flex items-center gap-1">
+                              {getStatusIcon(item.status)}
+                              <span className="capitalize">{item.status.replace('-', ' ')}</span>
+                            </div>
+                          </Badge>
+                          <Badge size="sm" className={`${getPriorityColor(item.priority)} bg-opacity-10`}>
+                            {item.priority.toUpperCase()}
+                          </Badge>
+                        </div>
+
+                        <p className="text-sm text-[var(--app-text-muted)] mb-3">{item.description}</p>
+
+                        <div className="flex items-center gap-4 text-sm text-[var(--app-text-subtle)]">
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-4 h-4" />
+                            <span>Due: {new Date(item.dueDate).toLocaleDateString()}</span>
+                          </div>
+                          <span>•</span>
+                          <div className="flex items-center gap-1">
+                            <Users className="w-4 h-4" />
+                            <span>{item.assignedTo}</span>
+                          </div>
+                          {item.relatedFund && (
+                            <>
+                              <span>•</span>
+                              <div className="flex items-center gap-1">
+                                <Building2 className="w-4 h-4" />
+                                <span>{item.relatedFund}</span>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <Button variant="flat" size="sm">
+                      View Details
+                    </Button>
+                  </div>
+                </Card>
+              ))}
+          </div>
+        </Tab>
+
+        {/* Regulatory Filings Tab */}
+        <Tab
+          key="filings"
+          title={
+            <div className="flex items-center gap-2">
+              <FileText className="w-4 h-4" />
+              <span>Regulatory Filings</span>
+            </div>
+          }
+        >
+          <div className="mt-4">
+            <Card padding="lg">
+              <h3 className="font-semibold mb-4">Required Filings</h3>
+              <div className="space-y-3">
+                {mockRegulatoryFilings.map((filing) => (
+                  <div key={filing.id} className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h4 className="font-semibold">{filing.filingType}</h4>
+                          <Badge size="sm" className={getStatusColor(filing.status)}>
+                            <div className="flex items-center gap-1">
+                              {getStatusIcon(filing.status)}
+                              <span className="capitalize">{filing.status.replace('-', ' ')}</span>
+                            </div>
+                          </Badge>
+                        </div>
+
+                        <div className="grid grid-cols-5 gap-4 text-sm">
+                          <div>
+                            <p className="text-[var(--app-text-muted)]">Regulator</p>
+                            <p className="font-medium">{filing.regulator}</p>
+                          </div>
+                          <div>
+                            <p className="text-[var(--app-text-muted)]">Frequency</p>
+                            <p className="font-medium">{filing.frequency}</p>
+                          </div>
+                          <div>
+                            <p className="text-[var(--app-text-muted)]">Last Filed</p>
+                            <p className="font-medium">{new Date(filing.lastFiled).toLocaleDateString()}</p>
+                          </div>
+                          <div>
+                            <p className="text-[var(--app-text-muted)]">Next Due</p>
+                            <p className="font-medium">{filing.nextDue !== 'N/A' ? new Date(filing.nextDue).toLocaleDateString() : 'N/A'}</p>
+                          </div>
+                          <div>
+                            <p className="text-[var(--app-text-muted)]">Fund</p>
+                            <p className="font-medium">{filing.fundName}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <Button variant="flat" size="sm" startContent={<Download className="w-4 h-4" />}>
+                        Download
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+        </Tab>
+
+        {/* Audit Schedule Tab */}
+        <Tab
+          key="audits"
+          title={
+            <div className="flex items-center gap-2">
+              <Scale className="w-4 h-4" />
+              <span>Audits</span>
+            </div>
+          }
+        >
+          <div className="mt-4">
+            <Card padding="lg">
+              <h3 className="font-semibold mb-4">Audit Schedule</h3>
+              <div className="space-y-3">
+                {mockAuditSchedule.map((audit) => (
+                  <div key={audit.id} className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-semibold">{audit.auditType} - {audit.year}</h4>
+                          <Badge size="sm" className={getStatusColor(audit.status)}>
+                            <div className="flex items-center gap-1">
+                              {getStatusIcon(audit.status)}
+                              <span className="capitalize">{audit.status.replace('-', ' ')}</span>
+                            </div>
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-[var(--app-text-muted)]">
+                          Auditor: {audit.auditor} • Fund: {audit.fundName}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-4 text-sm">
+                      <div>
+                        <p className="text-[var(--app-text-muted)]">Start Date</p>
+                        <p className="font-medium">{new Date(audit.startDate).toLocaleDateString()}</p>
+                      </div>
+                      <div>
+                        <p className="text-[var(--app-text-muted)]">Completion Date</p>
+                        <p className="font-medium">
+                          {audit.completionDate ? new Date(audit.completionDate).toLocaleDateString() : 'In Progress'}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[var(--app-text-muted)]">Duration</p>
+                        <p className="font-medium">
+                          {audit.completionDate
+                            ? `${Math.ceil((new Date(audit.completionDate).getTime() - new Date(audit.startDate).getTime()) / (1000 * 60 * 60 * 24))} days`
+                            : 'Ongoing'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+        </Tab>
+
+        {/* Resources Tab */}
+        <Tab
+          key="resources"
+          title={
+            <div className="flex items-center gap-2">
+              <BookOpen className="w-4 h-4" />
+              <span>Resources</span>
+            </div>
+          }
+        >
+          <div className="mt-4 space-y-4">
+            <Card padding="lg">
+              <h3 className="font-semibold mb-4">Compliance Documents</h3>
+              <div className="grid grid-cols-2 gap-3">
+                <Button variant="bordered" className="justify-start" startContent={<FileText className="w-4 h-4" />}>
+                  Code of Ethics
+                </Button>
+                <Button variant="bordered" className="justify-start" startContent={<FileText className="w-4 h-4" />}>
+                  Compliance Manual
+                </Button>
+                <Button variant="bordered" className="justify-start" startContent={<FileText className="w-4 h-4" />}>
+                  Privacy Policy
+                </Button>
+                <Button variant="bordered" className="justify-start" startContent={<FileText className="w-4 h-4" />}>
+                  AML/KYC Procedures
+                </Button>
+                <Button variant="bordered" className="justify-start" startContent={<FileText className="w-4 h-4" />}>
+                  Cybersecurity Policy
+                </Button>
+                <Button variant="bordered" className="justify-start" startContent={<FileText className="w-4 h-4" />}>
+                  Business Continuity Plan
+                </Button>
+              </div>
+            </Card>
+
+            <Card padding="md" className="bg-[var(--app-info-bg)] border-[var(--app-info)]/20">
+              <div className="flex items-start gap-3">
+                <Shield className="w-5 h-5 text-[var(--app-info)] flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-[var(--app-info)] mb-1">Compliance Reminders</p>
+                  <p className="text-xs text-[var(--app-text-muted)]">
+                    Stay up-to-date with regulatory requirements. Set up automated reminders for recurring
+                    filings and certifications. Contact the compliance team for any questions or concerns.
+                  </p>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </Tab>
+      </Tabs>
+    </div>
+  );
+}

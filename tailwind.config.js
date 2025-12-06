@@ -17,73 +17,73 @@ module.exports = {
       themes: {
         light: {
           colors: {
-            background: "#FAFBFC", // Clean light background
-            foreground: "#1A1F36", // Deep tech gray
+            background: "#FAF8F5", // Warm ivory background
+            foreground: "#2D1B4E", // Deep royal purple
             primary: {
-              DEFAULT: "#8B5CF6", // Rich violet
+              DEFAULT: "#6B46C1", // Rich royal purple
               foreground: "#FFFFFF",
             },
             secondary: {
-              DEFAULT: "#06B6D4", // Premium teal/cyan
+              DEFAULT: "#D4AF37", // Royal gold
               foreground: "#FFFFFF",
             },
             success: {
-              DEFAULT: "#10B981", // Emerald green
+              DEFAULT: "#059669", // Emerald jewel
               foreground: "#FFFFFF",
             },
             warning: {
-              DEFAULT: "#F59E0B", // Amber gold
-              foreground: "#1A1F36",
+              DEFAULT: "#D97706", // Amber jewel
+              foreground: "#FFFFFF",
             },
             danger: {
-              DEFAULT: "#EF4444", // Clean red
+              DEFAULT: "#DC2626", // Ruby red
               foreground: "#FFFFFF",
             },
             default: {
-              DEFAULT: "#F7F8FA", // Light surface
-              foreground: "#1A1F36",
+              DEFAULT: "#FFFFFF", // Pure white surface
+              foreground: "#2D1B4E",
             },
-            focus: "#8B5CF6", // Violet focus
+            focus: "#6B46C1", // Royal purple focus
             content1: "#FFFFFF", // Pure white cards
-            content2: "#FAFBFC",
-            content3: "#F7F8FA",
-            content4: "#F0F2F5",
+            content2: "#FAF8F5", // Warm ivory
+            content3: "#F5F3EE", // Warm hover
+            content4: "#F0EBE3", // Subtle ivory
           },
           extend: "light",
         },
         dark: {
           colors: {
-            background: "#0D0E14", // Deep space black
-            foreground: "#F0F2F5", // Bright metallic white
+            background: "#0F0A1A", // Professional deep charcoal
+            foreground: "#E8E6F0", // Soft white
             primary: {
-              DEFAULT: "#A78BFA", // Bright violet
-              foreground: "#0D0E14",
+              DEFAULT: "#8B7AB8", // Refined royal purple
+              foreground: "#FFFFFF",
             },
             secondary: {
-              DEFAULT: "#22D3EE", // Bright teal/cyan
-              foreground: "#0D0E14",
+              DEFAULT: "#D4AF37", // Royal gold
+              foreground: "#0F0A1A",
             },
             success: {
-              DEFAULT: "#34D399", // Bright emerald
-              foreground: "#0D0E14",
+              DEFAULT: "#34D399", // Bright emerald jewel
+              foreground: "#0F0A1A",
             },
             warning: {
-              DEFAULT: "#FBBF24", // Bright amber
-              foreground: "#0D0E14",
+              DEFAULT: "#FBBF24", // Bright amber jewel
+              foreground: "#0F0A1A",
             },
             danger: {
-              DEFAULT: "#F87171", // Bright red
-              foreground: "#0D0E14",
+              DEFAULT: "#F87171", // Bright ruby
+              foreground: "#0F0A1A",
             },
             default: {
-              DEFAULT: "#161822", // Dark metallic surface
-              foreground: "#F0F2F5",
+              DEFAULT: "#1A1625", // Dark slate purple surface
+              foreground: "#E8E6F0",
             },
-            focus: "#A78BFA", // Violet focus
-            content1: "#161822", // Dark cards
-            content2: "#1F212E",
-            content3: "#2A2D3A",
-            content4: "#353845",
+            focus: "#8B7AB8", // Refined purple focus
+            content1: "#1A1625", // Dark slate surface
+            content2: "#241D30", // Subtle hover
+            content3: "#2D2438", // Medium surface
+            content4: "#36304A", // Elevated surface
           },
           extend: "dark",
         },

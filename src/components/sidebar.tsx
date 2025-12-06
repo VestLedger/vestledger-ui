@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, GitBranch, Briefcase, Search, TrendingUp, Settings, Sun, Moon, LogOut } from 'lucide-react';
+import { LayoutDashboard, GitBranch, Briefcase, Search, TrendingUp, Settings, Sun, Moon, LogOut, Users, Vote, PieChart, Sparkles, FileDown, UserCheck, Shield, DollarSign, Scale, Receipt } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useAuth } from '@/contexts/auth-context';
 import { Button, Switch } from '@/ui';
@@ -13,8 +13,18 @@ const menuItems = [
   { id: 'dashboard', href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'pipeline', href: '/pipeline', label: 'Pipeline', icon: GitBranch },
   { id: 'deal-intelligence', href: '/deal-intelligence', label: 'Deal Intelligence', icon: Search },
+  { id: 'dealflow-review', href: '/dealflow-review', label: 'Dealflow Review', icon: Vote },
   { id: 'portfolio', href: '/portfolio', label: 'Portfolio', icon: Briefcase },
+  { id: 'cap-table', href: '/cap-table', label: 'Cap Table', icon: PieChart },
   { id: 'analytics', href: '/analytics', label: 'Analytics', icon: TrendingUp },
+  { id: 'contacts', href: '/contacts', label: 'Contacts', icon: Users },
+  { id: 'lp-management', href: '/lp-management', label: 'LP Management', icon: UserCheck },
+  { id: 'fund-admin', href: '/fund-admin', label: 'Fund Admin', icon: DollarSign },
+  { id: '409a-valuations', href: '/409a-valuations', label: '409A Valuations', icon: Receipt },
+  { id: 'compliance', href: '/compliance', label: 'Compliance', icon: Shield },
+  { id: 'tax-center', href: '/tax-center', label: 'Tax Center', icon: Scale },
+  { id: 'reports', href: '/reports', label: 'Reports', icon: FileDown },
+  { id: 'ai-tools', href: '/ai-tools', label: 'AI Tools', icon: Sparkles },
 ] as const;
 
 export function Sidebar() {

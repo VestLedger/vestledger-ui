@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react';
-import { Tabs, Tab } from '@nextui-org/react';
+import { Tabs, Tab } from '@/ui';
 import { LayoutGrid, FileText, TrendingUp, MessageSquare } from 'lucide-react';
 import { PortfolioDashboard } from './portfolio-dashboard';
 import { PortfolioDocuments } from './portfolio-documents';
@@ -15,13 +15,6 @@ export function Portfolio() {
       <Tabs
         selectedKey={selected}
         onSelectionChange={(key) => setSelected(key as string)}
-        classNames={{
-          base: "px-4 sm:px-6 lg:px-8",
-          tabList: "gap-4 border-b border-[var(--app-border)]",
-          cursor: "bg-[var(--app-primary)]",
-          tab: "px-4 py-3",
-          tabContent: "group-data-[selected=true]:text-[var(--app-primary)]"
-        }}
       >
         <Tab
           key="overview"
