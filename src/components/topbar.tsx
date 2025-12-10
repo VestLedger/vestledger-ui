@@ -7,6 +7,8 @@ import { useFund } from '@/contexts/fund-context';
 import { Button, Badge, Card, Input } from '@/ui';
 import { useRouter } from 'next/navigation';
 import { useAICopilot } from './ai-copilot-sidebar';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { fetchAlerts, markAlertRead } from '@/store/slices/alertsSlice';
 
 type SearchResultType = 'deal' | 'company' | 'document' | 'contact' | 'action' | 'ai-suggestion';
 
@@ -26,6 +28,8 @@ export function Topbar() {
   const { selectedFund } = useFund();
   const router = useRouter();
   const { openWithQuery } = useAICopilot();
+  const dispatch = useAppDispatch();
+  const { items: notifications } = useAppSelector((state) => state.alerts);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -38,13 +42,9 @@ export function Topbar() {
     router.push('/');
   };
 
-  // Mock notifications
-  const notifications = [
-    { id: 1, type: 'deal', title: 'New deal added to pipeline', message: 'Quantum AI - Series A', time: '5m ago', unread: true },
-    { id: 2, type: 'report', title: 'Q3 Report uploaded', message: 'DataSync Pro submitted quarterly report', time: '2h ago', unread: true },
-    { id: 3, type: 'alert', title: 'Due diligence deadline', message: 'NeuroLink DD checklist due in 2 days', time: '1d ago', unread: false },
-    { id: 4, type: 'system', title: 'System update', message: 'New analytics features available', time: '3d ago', unread: false },
-  ];
+  useEffect(() => {
+    dispatch(fetchAlerts());
+  }, [dispatch]);
 
   const unreadCount = notifications.filter(n => n.unread).length;
 
@@ -324,12 +324,22 @@ export function Topbar() {
                     )}
                   </div>
                   <div className="max-h-96 overflow-y-auto">
+                    {notifications.length === 0 && (
+                      <div className="px-4 py-6 text-center text-[var(--app-text-muted)] text-sm">
+                        No notifications yet
+                      </div>
+                    )}
                     {notifications.map((notification) => (
                       <button
                         key={notification.id}
                         className={`w-full px-4 py-3 text-left hover:bg-[var(--app-surface-hover)] transition-colors border-b border-[var(--app-border)] last:border-0 ${
                           notification.unread ? 'bg-[var(--app-primary-bg)]' : ''
                         }`}
+                        onClick={() => {
+                          if (notification.unread) {
+                            dispatch(markAlertRead(notification.id));
+                          }
+                        }}
                       >
                         <div className="flex items-start justify-between gap-2 mb-1">
                           <span className="text-sm font-medium">{notification.title}</span>

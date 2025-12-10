@@ -5,6 +5,7 @@ import { CheckCircle2, Circle, Clock, Eye, FileText, Users, DollarSign, BarChart
 import { Card, Badge, Progress, Button, Input, Breadcrumb, PageHeader, Tabs, Tab, PageContainer } from '@/ui';
 import { useFund } from '@/contexts/fund-context';
 import { getRouteConfig } from '@/config/routes';
+import { CompanySearch } from './deal-intelligence/company-search';
 
 type DocumentCategory =
   | 'financial'
@@ -621,6 +622,19 @@ export function DealIntelligence() {
         </div>
 
         {/* Active Deals Section */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-medium flex items-center gap-2">
+              <Search className="w-5 h-5 text-[var(--app-primary)]" />
+              AI Deal Sourcing
+            </h3>
+            <Badge size="sm" variant="flat" className="bg-[var(--app-success-bg)] text-[var(--app-success)]">
+              New Leads
+            </Badge>
+          </div>
+          <CompanySearch />
+        </div>
+
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-medium flex items-center gap-2">

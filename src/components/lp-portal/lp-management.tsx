@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Card, Button, Badge, Progress, PageContainer, Breadcrumb, PageHeader } from '@/ui';
 import { TrendingUp, DollarSign, Building2, Download, Eye, Lock, Unlock, Send, FileText, PieChart, BarChart3, Calendar, Users, ArrowUpRight, ArrowDownRight, Activity, UserCheck } from 'lucide-react';
 import { getRouteConfig } from '@/config/routes';
+import { LPInvestorPortal } from './lp-investor-portal';
 
 interface LP {
   id: string;
@@ -332,6 +333,19 @@ export function LPManagement() {
           </div>
         </Card>
       </div>
+
+      <Card padding="lg" className="mt-6">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-4">
+          <div>
+            <h3 className="text-lg font-semibold">LP Portal Preview</h3>
+            <p className="text-sm text-[var(--app-text-muted)]">See the investor-facing experience your LPs will use.</p>
+          </div>
+          <Badge size="sm" variant="flat" className="bg-[var(--app-info-bg)] text-[var(--app-info)] w-fit">
+            Preview
+          </Badge>
+        </div>
+        <LPInvestorPortal />
+      </Card>
 
       {/* Tab Content */}
       <div className="mt-6">

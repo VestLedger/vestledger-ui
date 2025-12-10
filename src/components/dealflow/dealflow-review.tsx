@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Card, Button, Badge, Progress, PageContainer, Breadcrumb, PageHeader } from '@/ui';
 import { ThumbsUp, ThumbsDown, MinusCircle, MessageSquare, Users, Building2, TrendingUp, DollarSign, Target, Lightbulb, Share2, Download, Play, Pause, SkipForward, SkipBack, Maximize2, Plus, Edit3, FileSearch } from 'lucide-react';
 import { getRouteConfig } from '@/config/routes';
+import { CompanyScoring } from './company-scoring';
 
 interface Deal {
   id: string;
@@ -607,6 +608,14 @@ export function DealflowReview() {
               value={voteComment}
               onChange={(e) => setVoteComment(e.target.value)}
             />
+          </Card>
+
+          <Card padding="lg" className="mt-4">
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <Target className="w-4 h-4 text-[var(--app-primary)]" />
+              Partner Scoring
+            </h3>
+            <CompanyScoring companyId={Number(selectedDeal.id)} companyName={selectedDeal.companyName} />
           </Card>
         </div>
       </div>

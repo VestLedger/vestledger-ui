@@ -1,11 +1,13 @@
 'use client'
 
 import { useState } from 'react';
-import { Plus, Filter, Grid, List, GitBranch } from 'lucide-react';
+import { Plus, Filter, Grid, List, GitBranch, Sparkles } from 'lucide-react';
 import { DealCard } from '@/components/deal-card';
 import { Button, Card, Badge, Progress, Breadcrumb, PageHeader, PageContainer } from '@/ui';
 import { ButtonGroup, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@nextui-org/react';
 import { getRouteConfig } from '@/config/routes';
+import { StartupApplicationForm } from './dealflow/startup-application-form';
+import { AISuggestionTooltip } from './ai-suggestion-tooltip';
 
 type DealOutcome = 'active' | 'won' | 'lost' | 'withdrawn' | 'passed';
 
@@ -114,6 +116,26 @@ export function Pipeline() {
         activeTab={showClosedDeals ? 'closed' : 'active'}
         onTabChange={(tabId) => setShowClosedDeals(tabId === 'closed')}
       />
+
+      <div className="flex flex-col gap-4 mb-6">
+        <Card padding="md" className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold">Capture inbound deal flow</p>
+            <p className="text-xs text-[var(--app-text-muted)]">Share the startup application form to auto-enrich your pipeline.</p>
+          </div>
+          <AISuggestionTooltip
+            suggestion="Publish the application form to source AI-scored inbound startups directly into the pipeline."
+            reasoning="Reduces manual intake and prioritizes high-match submissions using your thesis filters."
+            confidence={0.82}
+          >
+            <Button variant="flat" startContent={<Sparkles className="w-4 h-4" />}>
+              AI Suggestion
+            </Button>
+          </AISuggestionTooltip>
+        </Card>
+
+        <StartupApplicationForm />
+      </div>
 
       {/* Action Bar */}
       <div className="flex items-center gap-2 sm:gap-3 mb-6">
