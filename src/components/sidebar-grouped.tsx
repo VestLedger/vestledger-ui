@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import { Switch } from '@/ui';
-import { LayoutDashboard, GitBranch, Briefcase, Search, Vote, PieChart, TrendingUp, Users, UserCheck, DollarSign, Shield, Scale, Receipt, FileDown, Sparkles, Activity, BarChart3, Sun, Moon } from 'lucide-react';
+import { LayoutDashboard, GitBranch, Briefcase, Search, Vote, PieChart, TrendingUp, Users, UserCheck, DollarSign, Shield, Scale, Receipt, FileDown, Sparkles, Activity, BarChart3, Sun, Moon, Settings } from 'lucide-react';
 import { NavigationGroup } from './navigation-group';
 import { NavigationItem } from './navigation-item';
 import { useNavigation } from '@/contexts/navigation-context';
@@ -36,7 +36,7 @@ const navigationStructure = {
   },
   portfolioManagement: {
     id: 'portfolio-management',
-    label: 'Portfolio Management',
+    label: 'Portfolio Mgmt',
     icon: TrendingUp,
     allowedRoles: ['gp', 'analyst', 'researcher', 'lp'] as UserRole[],
     items: [
@@ -105,10 +105,9 @@ export function SidebarGrouped() {
   return (
     <aside className="
       flex flex-col h-full w-64 bg-[var(--app-sidebar-bg)] border-r border-[var(--app-sidebar-border)]
-      overflow-y-auto
     ">
       {/* Header / Branding */}
-      <div className="p-4 border-b border-[var(--app-sidebar-border)]">
+      <div className="p-4 border-b border-[var(--app-sidebar-border)] flex-shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-secondary)] flex items-center justify-center">
             <span className="text-white font-bold text-sm">VL</span>
@@ -121,7 +120,7 @@ export function SidebarGrouped() {
       </div>
 
       {/* Navigation Groups */}
-      <nav className="flex-1 p-4 space-y-4">
+      <nav className="flex-1 p-4 space-y-4 overflow-y-auto">
         {/* Core Operations - Always Expanded */}
         <NavigationGroup
           id={navigationStructure.coreOperations.id}
@@ -237,18 +236,13 @@ export function SidebarGrouped() {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-[var(--app-sidebar-border)] space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm text-[var(--app-text-muted)]">
-            {theme === 'dark' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
-            <span>{theme === 'dark' ? 'Dark' : 'Light'}</span>
-          </div>
-          <Switch
-            size="sm"
-            isSelected={theme === 'dark'}
-            onValueChange={(isSelected) => setTheme(isSelected ? 'dark' : 'light')}
-          />
-        </div>
+      <div className="p-4 border-t border-[var(--app-sidebar-border)] space-y-3 flex-shrink-0">
+        <NavigationItem
+          id="settings"
+          href="/settings"
+          label="Settings"
+          icon={Settings}
+        />
         <p className="text-xs text-center text-[var(--app-text-subtle)]">
           AI-Powered Fund Management
         </p>

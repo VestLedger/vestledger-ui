@@ -6,6 +6,7 @@ import { Tabs, Tab } from '@/ui';
 import { Users, PieChart, TrendingUp, DollarSign, Plus, Edit3, Download, Share2, AlertCircle, Building2, Calendar, Percent, History, Calculator } from 'lucide-react';
 import { getRouteConfig } from '@/config/routes';
 import { FundSelector } from '../fund-selector';
+import { AdvancedTable, ColumnDef } from '@/components/data-table/advanced-table';
 
 interface Shareholder {
   id: string;
@@ -215,6 +216,73 @@ export function CapTable() {
   const totalShares = mockShareholders.reduce((sum, sh) => sum + sh.shares, 0);
   const totalInvestment = mockShareholders.reduce((sum, sh) => sum + (sh.investmentAmount || 0), 0);
 
+  // Define columns for AdvancedTable
+  const shareholderColumns: ColumnDef<Shareholder>[] = [
+    {
+      key: 'name',
+      label: 'Name',
+      sortable: true,
+      render: (shareholder) => (
+        <div>
+          <p className="font-medium">{shareholder.name}</p>
+          <p className="text-xs text-[var(--app-text-muted)]">{shareholder.shareClass}</p>
+        </div>
+      ),
+    },
+    {
+      key: 'type',
+      label: 'Type',
+      sortable: true,
+      render: (shareholder) => (
+        <Badge size="sm" className={getShareholderTypeColor(shareholder.type)}>
+          {shareholder.type}
+        </Badge>
+      ),
+    },
+    {
+      key: 'shares',
+      label: 'Shares',
+      sortable: true,
+      align: 'right',
+      render: (shareholder) => <span className="font-medium">{formatShares(shareholder.shares)}</span>,
+    },
+    {
+      key: 'ownership',
+      label: 'Ownership',
+      sortable: true,
+      align: 'right',
+      render: (shareholder) => <span className="font-semibold">{shareholder.ownership.toFixed(2)}%</span>,
+    },
+    {
+      key: 'fullyDiluted',
+      label: 'Fully Diluted',
+      sortable: true,
+      align: 'right',
+      render: (shareholder) => (
+        <span className="text-[var(--app-text-muted)]">{shareholder.fullyDiluted.toFixed(2)}%</span>
+      ),
+    },
+    {
+      key: 'investmentAmount',
+      label: 'Investment',
+      sortable: true,
+      align: 'right',
+      render: (shareholder) => (
+        shareholder.investmentAmount ? formatCurrency(shareholder.investmentAmount) : '-'
+      ),
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      align: 'center',
+      render: () => (
+        <Button size="sm" variant="flat" isIconOnly>
+          <Edit3 className="w-3 h-3" />
+        </Button>
+      ),
+    },
+  ];
+
   return (
     <PageContainer>
       <div className="space-y-6">
@@ -365,63 +433,18 @@ export function CapTable() {
               </div>
             </Card>
 
-            {/* Shareholder Details Table */}
-            <Card padding="lg">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold">Detailed Breakdown</h3>
-                <Button size="sm" variant="flat" startContent={<Download className="w-3 h-3" />}>
-                  Export CSV
-                </Button>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-[var(--app-border)]">
-                      <th className="text-left py-3 px-2 text-sm font-medium text-[var(--app-text-muted)]">Name</th>
-                      <th className="text-left py-3 px-2 text-sm font-medium text-[var(--app-text-muted)]">Type</th>
-                      <th className="text-right py-3 px-2 text-sm font-medium text-[var(--app-text-muted)]">Shares</th>
-                      <th className="text-right py-3 px-2 text-sm font-medium text-[var(--app-text-muted)]">Ownership</th>
-                      <th className="text-right py-3 px-2 text-sm font-medium text-[var(--app-text-muted)]">Fully Diluted</th>
-                      <th className="text-right py-3 px-2 text-sm font-medium text-[var(--app-text-muted)]">Investment</th>
-                      <th className="text-center py-3 px-2 text-sm font-medium text-[var(--app-text-muted)]">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {mockShareholders.map((shareholder) => (
-                      <tr key={shareholder.id} className="border-b border-[var(--app-border)] hover:bg-[var(--app-surface-hover)]">
-                        <td className="py-3 px-2">
-                          <p className="font-medium">{shareholder.name}</p>
-                          <p className="text-xs text-[var(--app-text-muted)]">{shareholder.shareClass}</p>
-                        </td>
-                        <td className="py-3 px-2">
-                          <Badge size="sm" className={getShareholderTypeColor(shareholder.type)}>
-                            {shareholder.type}
-                          </Badge>
-                        </td>
-                        <td className="text-right py-3 px-2 font-medium">
-                          {formatShares(shareholder.shares)}
-                        </td>
-                        <td className="text-right py-3 px-2 font-semibold">
-                          {shareholder.ownership.toFixed(2)}%
-                        </td>
-                        <td className="text-right py-3 px-2 text-[var(--app-text-muted)]">
-                          {shareholder.fullyDiluted.toFixed(2)}%
-                        </td>
-                        <td className="text-right py-3 px-2">
-                          {shareholder.investmentAmount ? formatCurrency(shareholder.investmentAmount) : '-'}
-                        </td>
-                        <td className="text-center py-3 px-2">
-                          <Button size="sm" variant="flat" isIconOnly>
-                            <Edit3 className="w-3 h-3" />
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </Card>
+            {/* Shareholder Details Table - Using AdvancedTable */}
+            <AdvancedTable
+              data={mockShareholders}
+              columns={shareholderColumns}
+              searchable={true}
+              searchPlaceholder="Search shareholders..."
+              searchKeys={['name', 'shareClass', 'type']}
+              exportable={true}
+              exportFilename="cap-table-shareholders.csv"
+              pageSize={10}
+              showColumnToggle={true}
+            />
           </div>
           )}
 

@@ -1,39 +1,39 @@
 :root {
-  /* Energetic Light Mode - Electric & Vibrant */
-  --app-bg: #FAFBFF; /* Cool crisp white with slight blue */
-  --app-surface: #FFFFFF; /* Pure white surface */
-  --app-surface-hover: #F0F4FF; /* Soft electric blue hover */
-  --app-border: #E0E7FF; /* Soft violet border */
-  --app-border-subtle: #F0F4FF; /* Subtle blue border */
-  --app-text: #1A1D3D; /* Deep navy */
-  --app-text-muted: #5C6187; /* Muted navy */
-  --app-text-subtle: #8B91B8; /* Light navy */
-  --app-primary: #6366F1; /* Electric indigo */
-  --app-primary-hover: #4F46E5; /* Deeper indigo hover */
-  --app-primary-bg: rgba(99, 102, 241, 0.12); /* Indigo background */
-  --app-secondary: #F59E0B; /* Vibrant amber */
-  --app-secondary-hover: #D97706; /* Deeper amber hover */
-  --app-success: #10B981; /* Vibrant emerald */
-  --app-success-bg: rgba(16, 185, 129, 0.12); /* Emerald background */
-  --app-warning: #F59E0B; /* Amber */
-  --app-warning-bg: rgba(245, 158, 11, 0.12); /* Amber background */
-  --app-danger: #EF4444; /* Vibrant red */
-  --app-danger-bg: rgba(239, 68, 68, 0.12); /* Red background */
-  --app-accent: #EC4899; /* Hot pink */
-  --app-accent-hover: #DB2777; /* Deeper pink */
-  --app-info: #06B6D4; /* Electric cyan */
-  --app-info-bg: rgba(6, 182, 212, 0.12); /* Cyan background */
-  --app-sidebar-bg: #FFFFFF;
-  --app-sidebar-border: #E0E7FF;
+  /* Calmer Light Mode */
+  --app-bg: #f6f7fa;
+  --app-surface: #ffffff;
+  --app-surface-hover: #eef1f6;
+  --app-border: #dfe3eb;
+  --app-border-subtle: #e7eaf1;
+  --app-text: #1f2430;
+  --app-text-muted: #5b6275;
+  --app-text-subtle: #8a90a2;
+  --app-primary: #4f63c7;
+  --app-primary-hover: #4155b5;
+  --app-primary-bg: rgba(79, 99, 199, 0.08);
+  --app-secondary: #c48d3b;
+  --app-secondary-hover: #b27c2f;
+  --app-success: #2f9d63;
+  --app-success-bg: rgba(47, 157, 99, 0.08);
+  --app-warning: #d48a28;
+  --app-warning-bg: rgba(212, 138, 40, 0.08);
+  --app-danger: #d35454;
+  --app-danger-bg: rgba(211, 84, 84, 0.08);
+  --app-accent: #be6b92;
+  --app-accent-hover: #a95c80;
+  --app-info: #3b93b6;
+  --app-info-bg: rgba(59, 147, 182, 0.08);
+  --app-sidebar-bg: #ffffff;
+  --app-sidebar-border: #dfe3eb;
 
-  /* Energetic gradients */
-  --gradient-royal: linear-gradient(135deg, #6366F1 0%, #EC4899 50%, #F59E0B 100%);
-  --gradient-jewel: linear-gradient(135deg, #EC4899 0%, #6366F1 100%);
+  /* Gentle gradients */
+  --gradient-royal: linear-gradient(135deg, #4f63c7 0%, #be6b92 50%, #c48d3b 100%);
+  --gradient-jewel: linear-gradient(135deg, #be6b92 0%, #4f63c7 100%);
 
-  /* Glow effects for light mode */
-  --royal-glow-purple: 0 0 20px rgba(99, 102, 241, 0.35), 0 0 40px rgba(99, 102, 241, 0.2);
-  --royal-glow-gold: 0 0 20px rgba(245, 158, 11, 0.4), 0 0 40px rgba(245, 158, 11, 0.25);
-  --royal-glow-amethyst: 0 0 20px rgba(236, 72, 153, 0.35), 0 0 40px rgba(236, 72, 153, 0.2);
+  /* Subtle glows */
+  --royal-glow-purple: 0 0 12px rgba(79, 99, 199, 0.18);
+  --royal-glow-gold: 0 0 12px rgba(196, 141, 59, 0.2);
+  --royal-glow-amethyst: 0 0 12px rgba(190, 107, 146, 0.18);
 
   /* Tab Component Variables */
   --tab-cursor: var(--app-primary);
@@ -42,41 +42,41 @@
 }
 
 .dark {
-  /* Energetic Dark Mode - Electric & Vibrant */
-  --app-bg: #0A0A1B; /* Deep space black with blue undertones */
-  --app-surface: #12122B; /* Rich dark indigo surface */
-  --app-surface-hover: #1A1A3E; /* Electric hover */
-  --app-border: #2A2A5A; /* Vibrant purple-blue border */
-  --app-border-subtle: #1E1E42; /* Subtle border */
-  --app-text: #F0F0FF; /* Bright white with cool tint */
-  --app-text-muted: #A5A5D4; /* Soft lavender muted */
-  --app-text-subtle: #7575A8; /* Lighter lavender */
-  --app-primary: #818CF8; /* Bright electric indigo */
-  --app-primary-hover: #A5B4FC; /* Lighter indigo hover */
-  --app-primary-bg: rgba(129, 140, 248, 0.2); /* Vibrant indigo background */
-  --app-secondary: #FBBF24; /* Bright gold */
-  --app-secondary-hover: #FCD34D; /* Lighter gold hover */
-  --app-success: #34D399; /* Bright neon green */
-  --app-success-bg: rgba(52, 211, 153, 0.2); /* Neon green background */
-  --app-warning: #FBBF24; /* Bright amber */
-  --app-warning-bg: rgba(251, 191, 36, 0.2); /* Amber background */
-  --app-danger: #F87171; /* Bright coral red */
-  --app-danger-bg: rgba(248, 113, 113, 0.2); /* Coral background */
-  --app-accent: #F472B6; /* Bright hot pink */
-  --app-accent-hover: #F9A8D4; /* Lighter pink */
-  --app-info: #22D3EE; /* Bright cyan */
-  --app-info-bg: rgba(34, 211, 238, 0.2); /* Cyan background */
-  --app-sidebar-bg: #0D0D20;
-  --app-sidebar-border: #2A2A5A;
+  /* Calmer Dark Mode */
+  --app-bg: #0f1117;
+  --app-surface: #161922;
+  --app-surface-hover: #1d202b;
+  --app-border: #222633;
+  --app-border-subtle: #1a1d27;
+  --app-text: #e6e8ee;
+  --app-text-muted: #a5acb8;
+  --app-text-subtle: #7f8694;
+  --app-primary: #6c7ad8;
+  --app-primary-hover: #8390e4;
+  --app-primary-bg: rgba(108, 122, 216, 0.12);
+  --app-secondary: #cfa86a;
+  --app-secondary-hover: #dfba7d;
+  --app-success: #4bb181;
+  --app-success-bg: rgba(75, 177, 129, 0.12);
+  --app-warning: #e0a54f;
+  --app-warning-bg: rgba(224, 165, 79, 0.12);
+  --app-danger: #d66c6c;
+  --app-danger-bg: rgba(214, 108, 108, 0.12);
+  --app-accent: #c07ea4;
+  --app-accent-hover: #d49aba;
+  --app-info: #4ca4c4;
+  --app-info-bg: rgba(76, 164, 196, 0.12);
+  --app-sidebar-bg: #121520;
+  --app-sidebar-border: #222633;
 
-  /* Energetic gradients */
-  --gradient-royal: linear-gradient(135deg, #818CF8 0%, #F472B6 50%, #FBBF24 100%);
-  --gradient-jewel: linear-gradient(135deg, #F472B6 0%, #818CF8 100%);
+  /* Gentle gradients */
+  --gradient-royal: linear-gradient(135deg, #6c7ad8 0%, #c07ea4 50%, #cfa86a 100%);
+  --gradient-jewel: linear-gradient(135deg, #c07ea4 0%, #6c7ad8 100%);
 
-  /* Neon glow effects for dark mode */
-  --royal-glow-purple: 0 0 20px rgba(129, 140, 248, 0.5), 0 0 40px rgba(129, 140, 248, 0.3), 0 0 60px rgba(129, 140, 248, 0.15);
-  --royal-glow-gold: 0 0 20px rgba(251, 191, 36, 0.5), 0 0 40px rgba(251, 191, 36, 0.3);
-  --royal-glow-amethyst: 0 0 20px rgba(244, 114, 182, 0.5), 0 0 40px rgba(244, 114, 182, 0.3);
+  /* Subtle glows */
+  --royal-glow-purple: 0 0 12px rgba(108, 122, 216, 0.22);
+  --royal-glow-gold: 0 0 12px rgba(207, 168, 106, 0.22);
+  --royal-glow-amethyst: 0 0 12px rgba(192, 126, 164, 0.22);
 
   /* Tab Component Variables */
   --tab-cursor: var(--app-primary);
@@ -88,39 +88,12 @@ html {
   font-size: 16px;
 }
 
-/* Energetic pulse animations */
-@keyframes neon-pulse {
-  0%, 100% {
-    filter: brightness(1);
-    box-shadow: var(--royal-glow-purple);
-  }
-  50% {
-    filter: brightness(1.15);
-    box-shadow: var(--royal-glow-amethyst);
-  }
-}
+/* Remove loud hover animation; keep things steady */
 
-@keyframes neon-flicker {
-  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
-    opacity: 1;
-  }
-  20%, 24%, 55% {
-    opacity: 0.85;
-  }
+/* Ensure any uncolored borders fall back to the theme border */
+*, *::before, *::after {
+  border-color: var(--app-border);
 }
-
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* Apply subtle glow to interactive elements on hover */
-button:hover,
-a:hover {
-  animation: neon-pulse 2s ease-in-out infinite;
-}
-
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   display: none;

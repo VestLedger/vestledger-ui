@@ -60,7 +60,7 @@ export function QuickActions({ actions }: QuickActionsProps) {
                 className={`
                   relative w-full p-4 rounded-lg border transition-all duration-200
                   ${action.aiSuggested
-                    ? 'bg-gradient-to-br from-[var(--app-primary)]/10 to-[var(--app-accent)]/5 border-[var(--app-primary)]/30 hover:border-[var(--app-primary)]/50'
+                    ? 'bg-gradient-to-br from-[var(--app-primary)]/10 to-[var(--app-accent)]/5 border-[var(--app-border)] hover:border-[var(--app-primary)]/40'
                     : 'bg-[var(--app-surface)] border-[var(--app-border)] hover:border-[var(--app-primary)]/30'
                   }
                   hover:shadow-lg

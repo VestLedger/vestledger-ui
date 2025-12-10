@@ -7,6 +7,7 @@ import { NavigationProvider } from '@/contexts/navigation-context'
 import { SidebarGrouped } from '@/components/sidebar-grouped'
 import { AICopilotSidebar, AICopilotProvider } from '@/components/ai-copilot-sidebar'
 import { Topbar } from '@/components/topbar'
+import { CommandPalette } from '@/components/command-palette'
 
 export default function DashboardLayout({
   children,
@@ -38,6 +39,7 @@ export default function DashboardLayout({
             </main>
           </div>
           <AICopilotSidebar />
+          <CommandPalette />
         </div>
       </AICopilotProvider>
     </NavigationProvider>

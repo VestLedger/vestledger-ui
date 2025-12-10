@@ -38,9 +38,9 @@ export function AITaskPrioritizer({ tasks, onTaskClick }: AITaskPrioritizerProps
   };
 
   const getPriorityBg = (score: number) => {
-    if (score >= 80) return 'bg-[var(--app-danger-bg)] border-[var(--app-danger)]/20';
-    if (score >= 50) return 'bg-[var(--app-warning-bg)] border-[var(--app-warning)]/20';
-    return 'bg-[var(--app-info-bg)] border-[var(--app-info)]/20';
+    if (score >= 80) return 'bg-[var(--app-danger-bg)] border-[var(--app-border)]';
+    if (score >= 50) return 'bg-[var(--app-warning-bg)] border-[var(--app-border)]';
+    return 'bg-[var(--app-info-bg)] border-[var(--app-border)]';
   };
 
   return (
@@ -163,7 +163,7 @@ export function AITaskPrioritizer({ tasks, onTaskClick }: AITaskPrioritizerProps
 
                   {/* Delegation Suggestion */}
                   {task.delegationSuggestion && (
-                    <div className="flex items-start gap-2 p-2 rounded bg-[var(--app-primary)]/5 border border-[var(--app-primary)]/10">
+                    <div className="flex items-start gap-2 p-2 rounded bg-[var(--app-primary)]/5 border border-[var(--app-border)]">
                       <User className="w-3 h-3 text-[var(--app-primary)] mt-0.5 flex-shrink-0" />
                       <div className="flex-1">
                         <p className="text-xs text-[var(--app-text)] mb-0.5">

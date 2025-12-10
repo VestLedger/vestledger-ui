@@ -68,11 +68,11 @@ export function AlertBar({ alerts, maxVisible = 3 }: AlertBarProps) {
   const getAlertBg = (type: string) => {
     switch (type) {
       case 'critical':
-        return 'bg-[var(--app-danger-bg)] border-[var(--app-danger)]/30';
+        return 'bg-[var(--app-danger-bg)] border-[var(--app-border)]';
       case 'warning':
-        return 'bg-[var(--app-warning-bg)] border-[var(--app-warning)]/30';
+        return 'bg-[var(--app-warning-bg)] border-[var(--app-border)]';
       default:
-        return 'bg-[var(--app-info-bg)] border-[var(--app-info)]/30';
+        return 'bg-[var(--app-info-bg)] border-[var(--app-border)]';
     }
   };
 
@@ -139,7 +139,7 @@ export function AlertBar({ alerts, maxVisible = 3 }: AlertBarProps) {
 
               {/* Prediction */}
               {alert.prediction && (
-                <div className="flex items-center gap-2 mb-3 p-2 rounded bg-[var(--app-primary)]/5 border border-[var(--app-primary)]/10">
+                <div className="flex items-center gap-2 mb-3 p-2 rounded bg-[var(--app-primary)]/5 border border-[var(--app-border)]">
                   <div className="flex-1">
                     <p className="text-xs text-[var(--app-text-muted)] mb-0.5">
                       {alert.prediction.label}

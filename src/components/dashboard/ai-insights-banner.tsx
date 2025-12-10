@@ -56,13 +56,13 @@ export function AIInsightsBanner({ insight }: AIInsightsBannerProps) {
   const getCategoryBg = (category: string) => {
     switch (category) {
       case 'urgent':
-        return 'bg-[var(--app-danger-bg)] border-[var(--app-danger)]/20';
+        return 'bg-[var(--app-danger-bg)]';
       case 'warning':
-        return 'bg-[var(--app-warning-bg)] border-[var(--app-warning)]/20';
+        return 'bg-[var(--app-warning-bg)]';
       case 'success':
-        return 'bg-[var(--app-success-bg)] border-[var(--app-success)]/20';
+        return 'bg-[var(--app-success-bg)]';
       default:
-        return 'bg-[var(--app-info-bg)] border-[var(--app-info)]/20';
+        return 'bg-[var(--app-info-bg)]';
     }
   };
 
@@ -73,7 +73,7 @@ export function AIInsightsBanner({ insight }: AIInsightsBannerProps) {
       transition={{ duration: 0.3 }}
       className="sticky top-0 z-10 mb-6"
     >
-      <div className="bg-gradient-to-r from-[var(--app-primary)]/10 to-[var(--app-accent)]/10 border border-[var(--app-primary)]/20 rounded-xl p-6 backdrop-blur-sm">
+      <div className="bg-gradient-to-r from-[var(--app-primary)]/8 to-[var(--app-accent)]/8 border border-[var(--app-border)] rounded-xl p-6 backdrop-blur-sm">
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3 flex-1">
@@ -133,7 +133,7 @@ export function AIInsightsBanner({ insight }: AIInsightsBannerProps) {
                 {insight.details.map((detail) => (
                   <div
                     key={detail.id}
-                    className={`p-4 rounded-lg border ${getCategoryBg(detail.category)}`}
+                    className={`p-4 rounded-lg border border-[var(--app-border)] ${getCategoryBg(detail.category)}`}
                   >
                     <div className="flex items-start gap-3">
                       {getCategoryIcon(detail.category)}

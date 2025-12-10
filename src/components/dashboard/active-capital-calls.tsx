@@ -168,7 +168,7 @@ export function ActiveCapitalCalls({ calls }: ActiveCapitalCallsProps) {
                 </div>
 
                 {/* AI Prediction */}
-                <div className="p-3 rounded-lg bg-[var(--app-primary)]/5 border border-[var(--app-primary)]/10">
+                <div className="p-3 rounded-lg bg-[var(--app-primary)]/5 border border-[var(--app-border)]">
                   <div className="flex items-start gap-2 mb-2">
                     <Sparkles className="w-4 h-4 text-[var(--app-primary)] mt-0.5 flex-shrink-0" />
                     <div className="flex-1">

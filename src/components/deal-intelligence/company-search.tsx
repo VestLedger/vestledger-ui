@@ -316,7 +316,7 @@ export function CompanySearch() {
             </div>
 
             {/* AI Reasoning */}
-            <div className="p-3 rounded-lg border border-[var(--app-primary)]/20 bg-[var(--app-primary-bg)]/30 mb-4">
+            <div className="p-3 rounded-lg border border-[var(--app-border)] bg-[var(--app-primary-bg)]/30 mb-4">
               <div className="flex items-center gap-2 text-sm font-medium text-[var(--app-primary)] mb-1">
                 <Sparkles className="w-4 h-4" />
                 AI Analysis

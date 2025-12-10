@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import { Card, Button, Badge, Progress, PageContainer, Breadcrumb, PageHeader } from '@/ui';
-import { TrendingUp, DollarSign, Building2, Download, Eye, Lock, Unlock, Send, FileText, PieChart, BarChart3, Calendar, Users, ArrowUpRight, ArrowDownRight, Activity, UserCheck } from 'lucide-react';
+import { TrendingUp, DollarSign, Building2, Download, Eye, Lock, Unlock, Send, FileText, PieChart, BarChart3, Calendar, Users, ArrowUpRight, ArrowDownRight, Activity, UserCheck, Mail } from 'lucide-react';
 import { getRouteConfig } from '@/config/routes';
 import { LPInvestorPortal } from './lp-investor-portal';
+import { AdvancedTable, ColumnDef } from '@/components/data-table/advanced-table';
+import { BulkActionsToolbar, useBulkSelection, BulkAction } from '@/components/bulk-actions-toolbar';
 
 interface LP {
   id: string;
@@ -184,6 +186,15 @@ export function LPManagement() {
   const [selectedTab, setSelectedTab] = useState<string>('overview');
   const [selectedLP, setSelectedLP] = useState<LP | null>(null);
 
+  // Bulk selection for LPs
+  const {
+    selectedCount,
+    toggleSelection,
+    selectAll,
+    clearSelection,
+    isSelected,
+  } = useBulkSelection(mockLPs);
+
   // Get route config for breadcrumbs and AI suggestions
   const routeConfig = getRouteConfig('/lp-management');
 
@@ -219,6 +230,117 @@ export function LPManagement() {
   const averageIRR = (mockLPs.reduce((sum, lp) => sum + lp.irr, 0) / mockLPs.length).toFixed(1);
   const pendingCapitalCalls = mockCapitalCalls.filter(c => c.status === 'pending').length;
   const publishedReports = mockReports.filter(r => r.status === 'published').length;
+
+  // LP Type badge colors
+  const getLPTypeBadge = (type: LP['type']) => {
+    switch (type) {
+      case 'institution': return 'bg-[var(--app-primary-bg)] text-[var(--app-primary)]';
+      case 'family-office': return 'bg-[var(--app-success-bg)] text-[var(--app-success)]';
+      case 'individual': return 'bg-[var(--app-info-bg)] text-[var(--app-info)]';
+      case 'corporate': return 'bg-[var(--app-warning-bg)] text-[var(--app-warning)]';
+      default: return 'bg-[var(--app-surface-hover)] text-[var(--app-text-muted)]';
+    }
+  };
+
+  // Bulk actions for LPs
+  const bulkActions: BulkAction[] = [
+    {
+      id: 'send-report',
+      label: 'Send Report',
+      icon: <Mail className="w-4 h-4" />,
+      onClick: () => console.log('Send report to selected LPs'),
+    },
+    {
+      id: 'send-capital-call',
+      label: 'Send Capital Call',
+      icon: <Send className="w-4 h-4" />,
+      onClick: () => console.log('Send capital call to selected LPs'),
+    },
+    {
+      id: 'export',
+      label: 'Export Data',
+      icon: <Download className="w-4 h-4" />,
+      onClick: () => console.log('Export selected LPs'),
+    },
+  ];
+
+  // LP Table columns with checkbox
+  const lpColumns: ColumnDef<LP>[] = [
+    {
+      key: 'select',
+      label: '',
+      width: '40px',
+      render: (lp) => (
+        <input
+          type="checkbox"
+          checked={isSelected(lp.id)}
+          onChange={() => toggleSelection(lp.id)}
+          className="rounded border-[var(--app-border)]"
+          onClick={(e) => e.stopPropagation()}
+        />
+      ),
+    },
+    {
+      key: 'name',
+      label: 'LP Name',
+      sortable: true,
+      render: (lp) => (
+        <div>
+          <p className="font-medium">{lp.name}</p>
+          <p className="text-xs text-[var(--app-text-muted)]">{lp.contactPerson}</p>
+        </div>
+      ),
+    },
+    {
+      key: 'type',
+      label: 'Type',
+      sortable: true,
+      render: (lp) => (
+        <Badge size="sm" className={getLPTypeBadge(lp.type)}>
+          {lp.type.replace('-', ' ')}
+        </Badge>
+      ),
+    },
+    {
+      key: 'commitmentAmount',
+      label: 'Commitment',
+      sortable: true,
+      align: 'right',
+      render: (lp) => <span className="font-medium">{formatCurrency(lp.commitmentAmount)}</span>,
+    },
+    {
+      key: 'calledCapital',
+      label: 'Called',
+      sortable: true,
+      align: 'right',
+      render: (lp) => formatCurrency(lp.calledCapital),
+    },
+    {
+      key: 'distributedCapital',
+      label: 'Distributed',
+      sortable: true,
+      align: 'right',
+      render: (lp) => formatCurrency(lp.distributedCapital),
+    },
+    {
+      key: 'tvpi',
+      label: 'TVPI',
+      sortable: true,
+      align: 'right',
+      render: (lp) => <span className="font-semibold">{lp.tvpi.toFixed(2)}x</span>,
+    },
+    {
+      key: 'irr',
+      label: 'IRR',
+      sortable: true,
+      align: 'right',
+      render: (lp) => (
+        <span className={lp.irr > 20 ? 'text-[var(--app-success)] font-semibold' : 'font-semibold'}>
+          {formatPercent(lp.irr)}
+        </span>
+      ),
+    },
+  ];
 
   return (
     <PageContainer>
@@ -349,70 +471,29 @@ export function LPManagement() {
 
       {/* Tab Content */}
       <div className="mt-6">
-        {/* LP Overview Tab */}
+        {/* LP Overview Tab - with AdvancedTable and Bulk Actions */}
         {selectedTab === 'overview' && (
           <div className="space-y-4">
-            {mockLPs.map((lp) => (
-              <Card key={lp.id} padding="lg">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h3 className="text-lg font-semibold">{lp.name}</h3>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge size="sm" className={getStatusColor(lp.type)}>
-                        {lp.type.replace('-', ' ')}
-                      </Badge>
-                      <span className="text-sm text-[var(--app-text-muted)]">
-                        Since {new Date(lp.joinDate).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="flat"
-                    onPress={() => setSelectedLP(lp)}
-                  >
-                    View Details
-                  </Button>
-                </div>
+            <BulkActionsToolbar
+              selectedCount={selectedCount}
+              totalCount={mockLPs.length}
+              onClear={clearSelection}
+              onSelectAll={selectAll}
+              actions={bulkActions}
+            />
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                  <div>
-                    <p className="text-xs text-[var(--app-text-muted)] mb-1">Commitment</p>
-                    <p className="text-lg font-semibold">{formatCurrency(lp.commitmentAmount)}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-[var(--app-text-muted)] mb-1">Called Capital</p>
-                    <p className="text-lg font-semibold">{formatCurrency(lp.calledCapital)}</p>
-                    <p className="text-xs text-[var(--app-text-subtle)]">
-                      {((lp.calledCapital / lp.commitmentAmount) * 100).toFixed(0)}% deployed
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-[var(--app-text-muted)] mb-1">NAV</p>
-                    <p className="text-lg font-semibold">{formatCurrency(lp.navValue)}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-[var(--app-text-muted)] mb-1">Distributions</p>
-                    <p className="text-lg font-semibold">{formatCurrency(lp.distributedCapital)}</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-4 pt-4 border-t border-[var(--app-border)]">
-                  <div className="text-center">
-                    <p className="text-xs text-[var(--app-text-muted)] mb-1">TVPI</p>
-                    <p className="text-xl font-bold text-[var(--app-success)]">{lp.tvpi.toFixed(2)}x</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-xs text-[var(--app-text-muted)] mb-1">DPI</p>
-                    <p className="text-xl font-bold text-[var(--app-info)]">{lp.dpi.toFixed(2)}x</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-xs text-[var(--app-text-muted)] mb-1">IRR</p>
-                    <p className="text-xl font-bold text-[var(--app-primary)]">{formatPercent(lp.irr)}</p>
-                  </div>
-                </div>
-              </Card>
-            ))}
+            <AdvancedTable
+              data={mockLPs}
+              columns={lpColumns}
+              searchable={true}
+              searchPlaceholder="Search LPs by name, contact, or email..."
+              searchKeys={['name', 'contactPerson', 'email', 'type']}
+              exportable={true}
+              exportFilename="lp-management-data.csv"
+              pageSize={10}
+              showColumnToggle={true}
+              onRowClick={(lp) => setSelectedLP(lp)}
+            />
           </div>
         )}
 

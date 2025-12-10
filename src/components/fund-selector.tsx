@@ -65,7 +65,7 @@ export function FundSelector() {
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute left-3 right-3 top-full mt-2 z-50">
+        <div className="absolute top-full right-0 mt-2 z-50 w-80 min-w-[260px] max-w-[calc(100vw-1rem)]">
           <Card padding="sm" className="shadow-lg">
             <div className="space-y-1">
               {/* Consolidated View Option */}

@@ -583,7 +583,7 @@ export function DealIntelligence() {
 
         {/* DD Status Summary */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <Card padding="md" className="border-[var(--app-success)]">
+          <Card padding="md" className="border-[var(--app-border)]">
             <div className="flex items-center gap-3">
               <CheckCircle2 className="w-5 h-5 text-[var(--app-success)]" />
               <div>
@@ -592,7 +592,7 @@ export function DealIntelligence() {
               </div>
             </div>
           </Card>
-          <Card padding="md" className="border-[var(--app-info)]">
+          <Card padding="md" className="border-[var(--app-border)]">
             <div className="flex items-center gap-3">
               <Clock className="w-5 h-5 text-[var(--app-info)]" />
               <div>
@@ -601,7 +601,7 @@ export function DealIntelligence() {
               </div>
             </div>
           </Card>
-          <Card padding="md" className="border-[var(--app-danger)]">
+          <Card padding="md" className="border-[var(--app-border)]">
             <div className="flex items-center gap-3">
               <AlertCircle className="w-5 h-5 text-[var(--app-danger)]" />
               <div>
@@ -610,7 +610,7 @@ export function DealIntelligence() {
               </div>
             </div>
           </Card>
-          <Card padding="md" className="border-[var(--app-warning)]">
+          <Card padding="md" className="border-[var(--app-border)]">
             <div className="flex items-center gap-3">
               <Eye className="w-5 h-5 text-[var(--app-warning)]" />
               <div>

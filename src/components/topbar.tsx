@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Search, Bell, Settings, User, ChevronDown, LogOut, HelpCircle, Sparkles, TrendingUp, FileText, Building2, Users, DollarSign, Clock } from 'lucide-react';
+import { Search, Bell, Settings, User, ChevronDown, LogOut, HelpCircle, Sparkles, TrendingUp, FileText, Building2, Users, DollarSign, Clock, Moon, Sun } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 import { useFund } from '@/contexts/fund-context';
 import { Button, Badge, Card, Input } from '@/ui';
@@ -9,6 +9,8 @@ import { useRouter } from 'next/navigation';
 import { useAICopilot } from './ai-copilot-sidebar';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchAlerts, markAlertRead } from '@/store/slices/alertsSlice';
+import { NotificationCenter, Notification } from '@/components/notification-center';
+import { useTheme } from 'next-themes';
 
 type SearchResultType = 'deal' | 'company' | 'document' | 'contact' | 'action' | 'ai-suggestion';
 
@@ -29,9 +31,9 @@ export function Topbar() {
   const router = useRouter();
   const { openWithQuery } = useAICopilot();
   const dispatch = useAppDispatch();
-  const { items: notifications } = useAppSelector((state) => state.alerts);
+  const { items: reduxNotifications } = useAppSelector((state) => state.alerts);
+  const { theme, setTheme } = useTheme();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -46,7 +48,28 @@ export function Topbar() {
     dispatch(fetchAlerts());
   }, [dispatch]);
 
-  const unreadCount = notifications.filter(n => n.unread).length;
+  // Convert Redux alerts to Notification format
+  const notifications: Notification[] = reduxNotifications.map((alert) => ({
+    id: alert.id,
+    type: alert.type === 'alert' ? 'warning' : 'info',
+    category: alert.type === 'deal' ? 'deal' : alert.type === 'report' ? 'document' : 'alert',
+    title: alert.title,
+    message: alert.message,
+    timestamp: new Date(alert.time || Date.now()),
+    read: !alert.unread,
+  }));
+
+  const handleMarkAsRead = (id: string) => {
+    dispatch(markAlertRead(id));
+  };
+
+  const handleMarkAllAsRead = () => {
+    reduxNotifications.forEach((notif) => {
+      if (notif.unread) {
+        dispatch(markAlertRead(notif.id));
+      }
+    });
+  };
 
   // AI-powered search logic
   useEffect(() => {
@@ -214,7 +237,6 @@ export function Topbar() {
                 <Search className="w-4 h-4 text-[var(--app-text-subtle)]" />
               )
             }
-            size="sm"
             className="w-full"
             classNames={{
               inputWrapper: searchResults.length > 0 && isSearchFocused
@@ -283,102 +305,31 @@ export function Topbar() {
 
       {/* Right: Actions and User */}
       <div className="flex items-center gap-2 ml-4">
-        {/* Quick Actions */}
+        {/* Theme Toggle */}
         <Button
           variant="light"
-          size="sm"
           isIconOnly
+          onPress={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
           className="text-[var(--app-text-muted)] hover:text-[var(--app-text)]"
         >
-          <HelpCircle className="w-5 h-5" />
-        </Button>
-
-        {/* Notifications */}
-        <div className="relative">
-          <Button
-            variant="light"
-            size="sm"
-            isIconOnly
-            className="text-[var(--app-text-muted)] hover:text-[var(--app-text)] relative"
-            onPress={() => setIsNotificationsOpen(!isNotificationsOpen)}
-          >
-            <Bell className="w-5 h-5" />
-            {unreadCount > 0 && (
-              <span className="absolute top-0 right-0 w-4 h-4 bg-[var(--app-danger)] text-white text-xs flex items-center justify-center rounded-full">
-                {unreadCount}
-              </span>
-            )}
-          </Button>
-
-          {/* Notifications Dropdown */}
-          {isNotificationsOpen && (
-            <>
-              <div className="absolute right-0 top-full mt-2 w-80 z-50">
-                <Card padding="none" className="shadow-lg overflow-hidden">
-                  <div className="px-4 py-3 border-b border-[var(--app-border)] flex items-center justify-between">
-                    <h3 className="font-medium">Notifications</h3>
-                    {unreadCount > 0 && (
-                      <Badge size="sm" variant="flat" className="bg-[var(--app-danger-bg)] text-[var(--app-danger)]">
-                        {unreadCount} new
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="max-h-96 overflow-y-auto">
-                    {notifications.length === 0 && (
-                      <div className="px-4 py-6 text-center text-[var(--app-text-muted)] text-sm">
-                        No notifications yet
-                      </div>
-                    )}
-                    {notifications.map((notification) => (
-                      <button
-                        key={notification.id}
-                        className={`w-full px-4 py-3 text-left hover:bg-[var(--app-surface-hover)] transition-colors border-b border-[var(--app-border)] last:border-0 ${
-                          notification.unread ? 'bg-[var(--app-primary-bg)]' : ''
-                        }`}
-                        onClick={() => {
-                          if (notification.unread) {
-                            dispatch(markAlertRead(notification.id));
-                          }
-                        }}
-                      >
-                        <div className="flex items-start justify-between gap-2 mb-1">
-                          <span className="text-sm font-medium">{notification.title}</span>
-                          {notification.unread && (
-                            <div className="w-2 h-2 rounded-full bg-[var(--app-primary)] flex-shrink-0 mt-1" />
-                          )}
-                        </div>
-                        <p className="text-xs text-[var(--app-text-muted)] mb-1">{notification.message}</p>
-                        <span className="text-xs text-[var(--app-text-subtle)]">{notification.time}</span>
-                      </button>
-                    ))}
-                  </div>
-                  <div className="px-4 py-2 border-t border-[var(--app-border)] text-center">
-                    <button className="text-sm text-[var(--app-primary)] hover:underline">
-                      View all notifications
-                    </button>
-                  </div>
-                </Card>
-              </div>
-              <div className="fixed inset-0 z-40" onClick={() => setIsNotificationsOpen(false)} />
-            </>
+          {theme === 'dark' ? (
+            <Sun className="w-5 h-5" />
+          ) : (
+            <Moon className="w-5 h-5" />
           )}
-        </div>
-
-        {/* Settings */}
-        <Button
-          variant="light"
-          size="sm"
-          isIconOnly
-          className="text-[var(--app-text-muted)] hover:text-[var(--app-text)]"
-        >
-          <Settings className="w-5 h-5" />
         </Button>
+
+        {/* Notifications - Using new NotificationCenter component */}
+        <NotificationCenter
+          notifications={notifications}
+          onMarkAsRead={handleMarkAsRead}
+          onMarkAllAsRead={handleMarkAllAsRead}
+        />
 
         {/* User Profile Dropdown */}
         <div className="relative">
           <Button
             variant="flat"
-            size="sm"
             className="gap-2"
             endContent={<ChevronDown className={`w-4 h-4 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />}
             onPress={() => setIsProfileOpen(!isProfileOpen)}
@@ -388,9 +339,6 @@ export function Topbar() {
             </div>
             <div className="hidden sm:flex flex-col items-start">
               <span className="text-xs font-medium">{user?.name || 'User'}</span>
-              {selectedFund && (
-                <span className="text-xs text-[var(--app-text-subtle)]">{selectedFund.displayName}</span>
-              )}
             </div>
           </Button>
 
@@ -413,30 +361,13 @@ export function Topbar() {
                   </div>
 
                   {/* Menu Items */}
-                  <div className="space-y-1">
-                    <button className="w-full px-3 py-2 rounded-lg text-left text-sm hover:bg-[var(--app-surface-hover)] transition-colors flex items-center gap-2">
-                      <User className="w-4 h-4" />
-                      <span>Profile Settings</span>
-                    </button>
-                    <button className="w-full px-3 py-2 rounded-lg text-left text-sm hover:bg-[var(--app-surface-hover)] transition-colors flex items-center gap-2">
-                      <Settings className="w-4 h-4" />
-                      <span>Preferences</span>
-                    </button>
-                    <button className="w-full px-3 py-2 rounded-lg text-left text-sm hover:bg-[var(--app-surface-hover)] transition-colors flex items-center gap-2">
-                      <HelpCircle className="w-4 h-4" />
-                      <span>Help & Support</span>
-                    </button>
-                  </div>
-
-                  <div className="border-t border-[var(--app-border)] mt-2 pt-2">
-                    <button
+                  <button
                       onClick={handleLogout}
                       className="w-full px-3 py-2 rounded-lg text-left text-sm hover:bg-[var(--app-danger-bg)] text-[var(--app-danger)] transition-colors flex items-center gap-2"
                     >
                       <LogOut className="w-4 h-4" />
                       <span>Sign Out</span>
-                    </button>
-                  </div>
+                  </button>
                 </Card>
               </div>
               <div className="fixed inset-0 z-40" onClick={() => setIsProfileOpen(false)} />

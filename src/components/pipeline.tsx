@@ -8,6 +8,7 @@ import { ButtonGroup, Table, TableHeader, TableColumn, TableBody, TableRow, Tabl
 import { getRouteConfig } from '@/config/routes';
 import { StartupApplicationForm } from './dealflow/startup-application-form';
 import { AISuggestionTooltip } from './ai-suggestion-tooltip';
+import { KanbanBoard } from '@/components/kanban-board';
 
 type DealOutcome = 'active' | 'won' | 'lost' | 'withdrawn' | 'passed';
 
@@ -43,6 +44,7 @@ const deals: Deal[] = [
 export function Pipeline() {
   const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
   const [showClosedDeals, setShowClosedDeals] = useState(false);
+  const [localDeals, setLocalDeals] = useState(deals);
 
   const getOutcomeBadgeClass = (outcome: DealOutcome) => {
     switch (outcome) {
@@ -59,9 +61,19 @@ export function Pipeline() {
     }
   };
 
-  const filteredDeals = showClosedDeals ? deals : deals.filter(d => d.outcome === 'active');
-  const activeDealsCount = deals.filter(d => d.outcome === 'active').length;
-  const closedDealsCount = deals.filter(d => d.outcome !== 'active').length;
+  const filteredDeals = showClosedDeals ? localDeals : localDeals.filter(d => d.outcome === 'active');
+  const activeDealsCount = localDeals.filter(d => d.outcome === 'active').length;
+  const closedDealsCount = localDeals.filter(d => d.outcome !== 'active').length;
+
+  const handleItemMove = (itemId: number | string, newStage: string) => {
+    setLocalDeals(prevDeals =>
+      prevDeals.map(deal =>
+        deal.id === itemId
+          ? { ...deal, stage: newStage }
+          : deal
+      )
+    );
+  };
 
   // Get route config for breadcrumbs and AI suggestions
   const routeConfig = getRouteConfig('/pipeline');
@@ -100,22 +112,16 @@ export function Pipeline() {
           aiSuggested: true,
           confidence: 0.78
         }}
-        tabs={[
-          {
-            id: 'active',
-            label: 'Active',
-            count: activeDealsCount,
-            priority: stalledDeals.length > 0 ? 'high' : undefined
-          },
-          {
-            id: 'closed',
-            label: 'Closed',
-            count: closedDealsCount
-          }
-        ]}
-        activeTab={showClosedDeals ? 'closed' : 'active'}
-        onTabChange={(tabId) => setShowClosedDeals(tabId === 'closed')}
-      />
+      >
+        <div className="flex flex-wrap items-center gap-3 mt-4">
+          <Badge size="md" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">
+            {activeDealsCount}  Active Deals
+          </Badge>
+          <Badge size="md" variant="bordered" className="text-[var(--app-text-muted)] border-[var(--app-border)]">
+            {closedDealsCount} Closed Deals
+          </Badge>
+        </div>
+      </PageHeader>
 
       <div className="flex flex-col gap-4 mb-6">
         <Card padding="md" className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -163,27 +169,19 @@ export function Pipeline() {
       </div>
 
       {viewMode === 'kanban' ? (
-        <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
-          {stages.map((stage) => (
-            <div key={stage} className="flex-shrink-0 w-72 sm:w-80">
-              <Card className="mb-3" padding="sm">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm">{stage}</h3>
-                  <Badge size="sm" variant="flat" className="bg-[var(--app-surface-hover)] text-[var(--app-text-muted)]">
-                    {filteredDeals.filter(d => d.stage === stage).length}
-                  </Badge>
-                </div>
-              </Card>
-              <div className="space-y-3">
-                {filteredDeals
-                  .filter(deal => deal.stage === stage)
-                  .map(deal => (
-                    <DealCard key={deal.id} deal={deal} outcome={deal.outcome} />
-                  ))}
-              </div>
-            </div>
-          ))}
-        </div>
+        <KanbanBoard
+          columns={stages.map(stage => ({
+            id: stage,
+            title: stage,
+            items: filteredDeals
+              .filter(deal => deal.stage === stage)
+              .map(deal => ({ ...deal, id: deal.id }))
+          }))}
+          onItemMove={handleItemMove}
+          renderItem={(item) => (
+            <DealCard deal={item as Deal} outcome={(item as Deal).outcome} />
+          )}
+        />
       ) : (
         <Card>
           <Table aria-label="Deals table" classNames={{ wrapper: "bg-transparent shadow-none" }}>

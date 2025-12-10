@@ -21,6 +21,7 @@ export interface PageHeaderProps {
     text: string;
     confidence: number;
   };
+  actionContent?: ReactNode;
   primaryAction?: {
     label: string;
     onClick: () => void;
@@ -42,6 +43,7 @@ export function PageHeader({
   description,
   icon: Icon,
   aiSummary,
+  actionContent,
   primaryAction,
   secondaryActions,
   tabs,
@@ -146,9 +148,11 @@ export function PageHeader({
         </div>
 
         {/* Actions */}
-        {(primaryAction || secondaryActions) && (
+        {(actionContent || primaryAction || secondaryActions) && (
           <div className="flex items-center gap-3">
-            {secondaryActions?.map((action, index) => (
+            {actionContent}
+
+            {!actionContent && secondaryActions?.map((action, index) => (
               <Button
                 key={index}
                 variant="bordered"
@@ -158,7 +162,7 @@ export function PageHeader({
               </Button>
             ))}
 
-            {primaryAction && (
+            {!actionContent && primaryAction && (
               <div className="relative">
                 <Button
                   onClick={primaryAction.onClick}

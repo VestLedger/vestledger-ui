@@ -4,6 +4,11 @@ import { useState } from 'react';
 import { Card, Button, Input, Badge, PageContainer, Breadcrumb, PageHeader } from '@/ui';
 import { User, Mail, Phone, Building2, MapPin, Calendar, Tag, Search, Filter, Plus, Edit3, Trash2, Star, MessageSquare, Video, Send, ExternalLink, Briefcase, Users } from 'lucide-react';
 import { getRouteConfig } from '@/config/routes';
+import { SideDrawer } from '@/components/side-drawer';
+import { RelationshipScore, calculateRelationshipScore, type RelationshipMetrics } from '@/components/crm/relationship-score';
+import { SmartLists, type SmartList, type FilterCondition } from '@/components/crm/smart-lists';
+import { EmailIntegration, type EmailAccount } from '@/components/crm/email-integration';
+import { InteractionTimeline, type TimelineInteraction } from '@/components/crm/interaction-timeline';
 
 interface Contact {
   id: string;
@@ -23,6 +28,8 @@ interface Contact {
   starred: boolean;
   deals: string[];
   interactions: number;
+  responseRate?: number; // 0-100
+  interactionFrequency?: number; // interactions per month
 }
 
 interface Interaction {
@@ -51,7 +58,9 @@ const mockContacts: Contact[] = [
     linkedin: 'https://linkedin.com/in/sarahchen',
     starred: true,
     deals: ['Quantum AI - Series A'],
-    interactions: 12
+    interactions: 12,
+    responseRate: 85,
+    interactionFrequency: 3
   },
   {
     id: '2',
@@ -69,7 +78,9 @@ const mockContacts: Contact[] = [
     linkedin: 'https://linkedin.com/in/mrodriguez',
     starred: false,
     deals: ['NeuroLink - Seed'],
-    interactions: 8
+    interactions: 8,
+    responseRate: 70,
+    interactionFrequency: 2
   },
   {
     id: '3',
@@ -86,7 +97,9 @@ const mockContacts: Contact[] = [
     notes: 'CTO background. Built engineering teams at Stripe and AWS.',
     starred: true,
     deals: ['CloudScale - Series B'],
-    interactions: 15
+    interactions: 15,
+    responseRate: 95,
+    interactionFrequency: 5
   },
   {
     id: '4',
@@ -100,7 +113,9 @@ const mockContacts: Contact[] = [
     linkedCompanies: [],
     starred: false,
     deals: [],
-    interactions: 5
+    interactions: 5,
+    responseRate: 60,
+    interactionFrequency: 1
   }
 ];
 
@@ -131,21 +146,170 @@ const mockInteractions: Interaction[] = [
   }
 ];
 
+const mockEmailAccounts: EmailAccount[] = [
+  {
+    id: '1',
+    email: 'investor@vestledger.com',
+    provider: 'gmail',
+    status: 'connected',
+    lastSync: new Date('2024-12-10T10:30:00'),
+    syncedEmails: 1247,
+    autoCapture: true,
+  },
+];
+
+const mockTimelineInteractions: TimelineInteraction[] = [
+  {
+    id: '1',
+    type: 'email',
+    direction: 'outbound',
+    subject: 'Introduction to Quantum AI opportunity',
+    description: 'Sent initial pitch deck and investment thesis.',
+    date: new Date('2024-11-28T14:30:00'),
+    isAutoCaptured: true,
+    tags: ['pitch', 'Series A'],
+    outcome: 'positive',
+  },
+  {
+    id: '2',
+    type: 'call',
+    direction: 'inbound',
+    subject: 'Follow-up call on investment terms',
+    description: 'Discussed valuation, allocation, and board seat requirements.',
+    date: new Date('2024-11-25T10:00:00'),
+    duration: 45,
+    participants: ['Sarah Chen', 'Co-founder Alex'],
+    outcome: 'positive',
+    linkedDeal: 'Quantum AI - Series A',
+  },
+  {
+    id: '3',
+    type: 'meeting',
+    direction: 'inbound',
+    subject: 'Due diligence presentation',
+    description: 'Deep dive into technology architecture, team background, and market opportunity.',
+    date: new Date('2024-11-20T15:00:00'),
+    duration: 90,
+    participants: ['Sarah Chen', 'CTO Mike'],
+    attachments: 3,
+    outcome: 'positive',
+    tags: ['due diligence', 'technical'],
+    linkedDeal: 'Quantum AI - Series A',
+  },
+  {
+    id: '4',
+    type: 'email',
+    direction: 'inbound',
+    subject: 'Financial projections and unit economics',
+    description: 'Received updated financial model with 5-year projections.',
+    date: new Date('2024-11-18T09:15:00'),
+    attachments: 2,
+    isAutoCaptured: true,
+    tags: ['financials'],
+  },
+  {
+    id: '5',
+    type: 'note',
+    subject: 'First meeting notes',
+    description: 'Great first impression. Strong technical team with deep AI expertise. Product has clear PMF with Fortune 500 customers.',
+    date: new Date('2024-11-15T16:45:00'),
+    tags: ['first meeting', 'notes'],
+    outcome: 'positive',
+  },
+];
+
 export function Contacts() {
   const routeConfig = getRouteConfig('/contacts');
   const [contacts, setContacts] = useState<Contact[]>(mockContacts);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterRole, setFilterRole] = useState<string>('all');
-  const [showAddContact, setShowAddContact] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [smartLists, setSmartLists] = useState<SmartList[]>([]);
+  const [activeSmartList, setActiveSmartList] = useState<SmartList | null>(null);
+  const [emailAccounts, setEmailAccounts] = useState<EmailAccount[]>(mockEmailAccounts);
+  const [activeTab, setActiveTab] = useState<'overview' | 'timeline' | 'email'>('overview');
+
+  // Helper to get relationship metrics for a contact
+  const getRelationshipMetrics = (contact: Contact): RelationshipMetrics => {
+    const daysSinceLastContact = contact.lastContact
+      ? Math.floor((new Date().getTime() - new Date(contact.lastContact).getTime()) / (1000 * 60 * 60 * 24))
+      : 365;
+
+    return calculateRelationshipScore(
+      contact.interactions,
+      daysSinceLastContact,
+      contact.responseRate || 50,
+      contact.interactionFrequency || 1
+    );
+  };
+
+  // Apply smart list filters
+  const applySmartListFilters = (contact: Contact): boolean => {
+    if (!activeSmartList || activeSmartList.conditions.length === 0) return true;
+
+    return activeSmartList.conditions.every(condition => {
+      const metrics = getRelationshipMetrics(contact);
+
+      switch (condition.field) {
+        case 'role':
+          return condition.operator === 'equals'
+            ? contact.role === condition.value
+            : contact.role.includes(String(condition.value));
+        case 'tags':
+          return contact.tags.some(tag => tag.toLowerCase().includes(String(condition.value).toLowerCase()));
+        case 'location':
+          return contact.location?.toLowerCase().includes(String(condition.value).toLowerCase()) || false;
+        case 'relationshipScore':
+          if (condition.operator === 'greaterThan') return metrics.score > Number(condition.value);
+          if (condition.operator === 'lessThan') return metrics.score < Number(condition.value);
+          return false;
+        case 'lastContact':
+          const days = parseInt(String(condition.value));
+          if (condition.operator === 'inLast') return metrics.daysSinceLastContact <= days;
+          if (condition.operator === 'notInLast') return metrics.daysSinceLastContact > days;
+          return false;
+        case 'deals':
+          return condition.operator === 'greaterThan'
+            ? contact.deals.length > Number(condition.value)
+            : false;
+        case 'starred':
+          return contact.starred === Boolean(condition.value);
+        default:
+          return true;
+      }
+    });
+  };
 
   const filteredContacts = contacts.filter(contact => {
     const matchesSearch = contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          contact.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          contact.company?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesRole = filterRole === 'all' || contact.role === filterRole;
-    return matchesSearch && matchesRole;
+    const matchesSmartList = applySmartListFilters(contact);
+    return matchesSearch && matchesRole && matchesSmartList;
   });
+
+  const handleListSave = (list: SmartList) => {
+    setSmartLists(prev => {
+      const exists = prev.find(l => l.id === list.id);
+      if (exists) {
+        return prev.map(l => l.id === list.id ? list : l);
+      }
+      return [...prev, { ...list, id: `list-${Date.now()}` }];
+    });
+  };
+
+  const handleListDelete = (listId: string) => {
+    setSmartLists(prev => prev.filter(l => l.id !== listId));
+    if (activeSmartList?.id === listId) {
+      setActiveSmartList(null);
+    }
+  };
+
+  const handleListSelect = (list: SmartList) => {
+    setActiveSmartList(list);
+  };
 
   const toggleStar = (contactId: string) => {
     setContacts(prev => prev.map(c =>
@@ -181,7 +345,7 @@ export function Contacts() {
           }}
           primaryAction={{
             label: 'Add Contact',
-            onClick: () => setShowAddContact(true)
+            onClick: () => console.log('Add contact clicked')
           }}
         />
 
@@ -236,11 +400,39 @@ export function Contacts() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Contact List */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Smart Lists Sidebar */}
         <div className="lg:col-span-1">
+          <SmartLists
+            lists={smartLists}
+            onListSelect={handleListSelect}
+            onListSave={handleListSave}
+            onListDelete={handleListDelete}
+            selectedListId={activeSmartList?.id}
+          />
+        </div>
+
+        {/* Contact List */}
+        <div className="lg:col-span-3">
           <Card padding="none">
             <div className="p-4 border-b border-[var(--app-border)]">
+              {activeSmartList && (
+                <div className="mb-3 p-3 rounded-lg bg-[var(--app-primary-bg)] border border-[var(--app-primary)] flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Badge size="sm" variant="flat" className="bg-[var(--app-primary)] text-white">
+                      Active Filter
+                    </Badge>
+                    <span className="text-sm font-medium">{activeSmartList.name}</span>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="light"
+                    onPress={() => setActiveSmartList(null)}
+                  >
+                    Clear
+                  </Button>
+                </div>
+              )}
               <Input
                 placeholder="Search contacts..."
                 value={searchQuery}
@@ -267,7 +459,10 @@ export function Contacts() {
               {filteredContacts.map((contact) => (
                 <div
                   key={contact.id}
-                  onClick={() => setSelectedContact(contact)}
+                  onClick={() => {
+                    setSelectedContact(contact);
+                    setIsDrawerOpen(true);
+                  }}
                   className={`p-4 border-b border-[var(--app-border)] cursor-pointer transition-colors hover:bg-[var(--app-surface-hover)] ${
                     selectedContact?.id === contact.id ? 'bg-[var(--app-primary-bg)]' : ''
                   }`}
@@ -297,22 +492,63 @@ export function Contacts() {
                       </span>
                     )}
                   </div>
-                  <div className="flex items-center justify-between text-xs text-[var(--app-text-subtle)]">
-                    <span>{contact.interactions} interactions</span>
-                    {contact.lastContact && (
-                      <span>Last: {new Date(contact.lastContact).toLocaleDateString()}</span>
-                    )}
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-[var(--app-text-subtle)]">{contact.interactions} interactions</span>
+                    <RelationshipScore metrics={getRelationshipMetrics(contact)} compact />
                   </div>
                 </div>
               ))}
             </div>
           </Card>
         </div>
+      </div>
 
-        {/* Contact Detail */}
-        <div className="lg:col-span-2">
-          {selectedContact ? (
-            <Card padding="lg">
+      {/* Contact Detail SideDrawer */}
+      <SideDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        title={selectedContact?.name}
+        subtitle={selectedContact?.company}
+        width="lg"
+      >
+        {selectedContact && (
+          <div>
+              {/* Tabs */}
+              <div className="flex gap-2 mb-6 border-b border-[var(--app-border)]">
+                <button
+                  onClick={() => setActiveTab('overview')}
+                  className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
+                    activeTab === 'overview'
+                      ? 'border-[var(--app-primary)] text-[var(--app-primary)]'
+                      : 'border-transparent text-[var(--app-text-muted)] hover:text-[var(--app-text)]'
+                  }`}
+                >
+                  Overview
+                </button>
+                <button
+                  onClick={() => setActiveTab('timeline')}
+                  className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
+                    activeTab === 'timeline'
+                      ? 'border-[var(--app-primary)] text-[var(--app-primary)]'
+                      : 'border-transparent text-[var(--app-text-muted)] hover:text-[var(--app-text)]'
+                  }`}
+                >
+                  Timeline
+                </button>
+                <button
+                  onClick={() => setActiveTab('email')}
+                  className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
+                    activeTab === 'email'
+                      ? 'border-[var(--app-primary)] text-[var(--app-primary)]'
+                      : 'border-transparent text-[var(--app-text-muted)] hover:text-[var(--app-text)]'
+                  }`}
+                >
+                  Email Settings
+                </button>
+              </div>
+
+              {/* Overview Tab */}
+              {activeTab === 'overview' && (
               <div className="space-y-6">
                 {/* Header */}
                 <div className="flex items-start justify-between">
@@ -351,6 +587,9 @@ export function Contacts() {
                     </Button>
                   </div>
                 </div>
+
+                {/* Relationship Health Score */}
+                <RelationshipScore metrics={getRelationshipMetrics(selectedContact)} />
 
                 {/* Contact Info */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -491,19 +730,37 @@ export function Contacts() {
                   </div>
                 </div>
               </div>
-            </Card>
-          ) : (
-            <Card padding="lg" className="h-full flex items-center justify-center">
-              <div className="text-center">
-                <Users className="w-16 h-16 text-[var(--app-text-subtle)] mx-auto mb-4" />
-                <p className="text-lg font-medium text-[var(--app-text-muted)]">
-                  Select a contact to view details
-                </p>
-              </div>
-            </Card>
-          )}
-        </div>
-      </div>
+              )}
+
+              {/* Timeline Tab */}
+              {activeTab === 'timeline' && (
+                <InteractionTimeline
+                  interactions={mockTimelineInteractions}
+                  contactName={selectedContact.name}
+                  onAddInteraction={(type) => console.log('Add interaction:', type)}
+                  onEditInteraction={(id) => console.log('Edit interaction:', id)}
+                  onDeleteInteraction={(id) => console.log('Delete interaction:', id)}
+                  onLinkToDeal={(id) => console.log('Link to deal:', id)}
+                />
+              )}
+
+              {/* Email Settings Tab */}
+              {activeTab === 'email' && (
+                <EmailIntegration
+                  accounts={emailAccounts}
+                  onConnect={(provider) => console.log('Connect:', provider)}
+                  onDisconnect={(id) => console.log('Disconnect:', id)}
+                  onSync={(id) => console.log('Sync:', id)}
+                  onToggleAutoCapture={(id, enabled) => {
+                    setEmailAccounts(prev => prev.map(acc =>
+                      acc.id === id ? { ...acc, autoCapture: enabled } : acc
+                    ));
+                  }}
+                />
+              )}
+            </div>
+        )}
+      </SideDrawer>
       </div>
     </PageContainer>
   );

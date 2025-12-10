@@ -152,7 +152,7 @@ export function PortfolioHealth({ companies }: PortfolioHealthProps) {
 
                 {/* Anomalies */}
                 {company.anomalies && company.anomalies.length > 0 && (
-                  <div className="mb-3 p-2 rounded-lg bg-[var(--app-warning-bg)] border border-[var(--app-warning)]/20">
+                  <div className="mb-3 p-2 rounded-lg bg-[var(--app-warning-bg)] border border-[var(--app-border)]">
                     <div className="flex items-start gap-2">
                       <AlertTriangle className="w-4 h-4 text-[var(--app-warning)] mt-0.5 flex-shrink-0" />
                       <div className="flex-1">
@@ -180,7 +180,7 @@ export function PortfolioHealth({ companies }: PortfolioHealthProps) {
                 )}
 
                 {/* AI Prediction */}
-                <div className="p-3 rounded-lg bg-[var(--app-primary)]/5 border border-[var(--app-primary)]/10">
+                <div className="p-3 rounded-lg bg-[var(--app-primary)]/5 border border-[var(--app-border)]">
                   <div className="flex items-start gap-2">
                     <Sparkles className="w-4 h-4 text-[var(--app-primary)] mt-0.5 flex-shrink-0" />
                     <div className="flex-1">

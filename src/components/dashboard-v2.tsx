@@ -17,9 +17,9 @@ import { IRDashboard } from '@/components/dashboards/ir-dashboard';
 import { ResearcherDashboard } from '@/components/dashboards/researcher-dashboard';
 import { LPDashboard } from '@/components/dashboards/lp-dashboard';
 import { AuditorDashboard } from '@/components/dashboards/auditor-dashboard';
-import { FundSelector } from '@/components/fund-selector';
 import { MetricCard } from '@/components/metric-card';
 import { Card, Badge, Button, PageContainer, Breadcrumb, PageHeader } from '@/ui';
+import { FundSelector } from '@/components/fund-selector';
 import { getRouteConfig } from '@/config/routes';
 import { Fund } from '@/types/fund';
 
@@ -131,22 +131,54 @@ export function DashboardV2() {
             text: `Managing ${summary.totalFunds} funds with ${formatCurrency(summary.totalCommitment)} total AUM. Portfolio of ${summary.totalPortfolioCompanies} companies valued at ${formatCurrency(summary.totalPortfolioValue)}. Average fund IRR: ${(funds.reduce((sum, f) => sum + f.irr, 0) / funds.length).toFixed(1)}%`,
             confidence: 0.94
           }}
-          secondaryActions={[
-            {
-              label: 'Select Fund',
-              onClick: () => {
-                // Open fund selector modal or scroll to fund cards
-                const fundCardsElement = document.querySelector('[data-fund-selector-target]');
-                if (fundCardsElement) {
-                  fundCardsElement.scrollIntoView({ behavior: 'smooth' });
-                }
-              },
-            },
-          ]}
-        />
+          actionContent={<FundSelector />}
+        >
+            <div className="flex flex-wrap items-center gap-3 mt-4">
+              <Badge size="md" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">
+                {summary.totalFunds} funds
+              </Badge>
+              <Badge size="md" variant="bordered" className="text-[var(--app-text-muted)] border-[var(--app-border)]">
+                Portfolio: {summary.totalPortfolioCompanies} companies
+              </Badge>
+            </div>
+          </PageHeader>
+
+        {/* Consolidated Performance Summary */}
+        <Card padding="md" className="bg-gradient-to-br from-[var(--app-primary-bg)] to-[var(--app-surface)] mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div>
+              <div className="text-xs text-[var(--app-text-muted)] mb-1">Total Commitment</div>
+              <div className="text-xl sm:text-2xl font-medium">{formatCurrency(summary.totalCommitment, true)}</div>
+            </div>
+            <div>
+              <div className="text-xs text-[var(--app-text-muted)] mb-1">Portfolio Value</div>
+              <div className="text-xl sm:text-2xl font-medium">{formatCurrency(summary.totalPortfolioValue, true)}</div>
+            </div>
+            <div>
+              <div className="text-xs text-[var(--app-text-muted)] mb-1">Average IRR</div>
+              <div className="text-xl sm:text-2xl font-medium text-[var(--app-success)]">
+                {(funds.reduce((sum, f) => sum + f.irr, 0) / funds.length).toFixed(1)}%
+              </div>
+            </div>
+            <div>
+              <div className="text-xs text-[var(--app-text-muted)] mb-1">Portfolio Companies</div>
+              <div className="text-xl sm:text-2xl font-medium">{summary.totalPortfolioCompanies}</div>
+            </div>
+          </div>
+        </Card>
+
+        {/* AI Insights Banner */}
+        <AIInsightsBanner insight={insight} />
+
+        {/* Consolidated Metrics */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          {consolidatedMetrics.map((metric, index) => (
+            <MetricCard key={index} {...metric} />
+          ))}
+        </div>
 
         {/* Fund Summary Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6" data-fund-selector-target>
           {funds.map((fund) => (
             <Card
               key={fund.id}
@@ -185,19 +217,6 @@ export function DashboardV2() {
                 </div>
               </div>
             </Card>
-          ))}
-        </div>
-
-        {/* AI Insights Banner */}
-        <AIInsightsBanner insight={insight} />
-
-        {/* Alert Bar */}
-        <AlertBar alerts={alerts} maxVisible={3} />
-
-        {/* Consolidated Metrics */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          {consolidatedMetrics.map((metric, index) => (
-            <MetricCard key={index} {...metric} />
           ))}
         </div>
 
@@ -271,12 +290,7 @@ export function DashboardV2() {
           text: `${formatCurrency(selectedFund.totalCommitment)} fund with ${selectedFund.portfolioCount} portfolio companies. ${((selectedFund.deployedCapital / selectedFund.totalCommitment) * 100).toFixed(0)}% deployed. IRR: ${selectedFund.irr.toFixed(1)}%, TVPI: ${selectedFund.tvpi.toFixed(2)}x, DPI: ${selectedFund.dpi.toFixed(2)}x`,
           confidence: 0.96
         }}
-        secondaryActions={[
-          {
-            label: 'View all funds',
-            onClick: handleConsolidatedView,
-          },
-        ]}
+        actionContent={<FundSelector />}
       >
         {/* Fund Status and Vintage Badges */}
         <div className="flex flex-wrap items-center gap-2 mt-4">
@@ -290,9 +304,6 @@ export function DashboardV2() {
           <Badge size="md" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">
             Vintage {selectedFund.vintage}
           </Badge>
-          <div className="flex-1 text-right">
-            <FundSelector />
-          </div>
         </div>
       </PageHeader>
 
@@ -320,9 +331,6 @@ export function DashboardV2() {
 
       {/* AI Insights Banner */}
       <AIInsightsBanner insight={insight} />
-
-      {/* Alert Bar */}
-      <AlertBar alerts={alerts} maxVisible={3} />
 
       {/* Fund Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
