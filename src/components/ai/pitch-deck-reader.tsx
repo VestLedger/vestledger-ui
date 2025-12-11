@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react';
-import { Card, Button, Badge, Progress, PageContainer } from '@/ui';
+import { Card, Button, Badge, Progress } from '@/ui';
 import { Upload, FileText, Sparkles, CheckCircle2, Clock, AlertCircle, Download, Eye } from 'lucide-react';
 
 interface PitchDeckAnalysis {
@@ -204,7 +204,6 @@ export function PitchDeckReader() {
 
   if (selectedAnalysis) {
     return (
-      <PageContainer>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-start justify-between">
@@ -396,7 +395,6 @@ export function PitchDeckReader() {
           </Card>
         </div>
       </div>
-      </PageContainer>
     );
   }
 

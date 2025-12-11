@@ -1,9 +1,8 @@
 'use client'
 
 import { useState } from 'react';
-import { Card, Button, Badge, Input, PageContainer, Breadcrumb, PageHeader } from '@/ui';
-import { getRouteConfig } from '@/config/routes';
-import { Sparkles, Send, Copy, Download, ThumbsDown, AlertCircle, Check, FileText, Edit3, RefreshCw, Wand2, MessageSquare, PenTool } from 'lucide-react';
+import { Card, Button, Badge, Input } from '@/ui';
+import { Sparkles, Send, Copy, Download, ThumbsDown, AlertCircle, Check, FileText, Edit3, RefreshCw, Wand2, MessageSquare } from 'lucide-react';
 
 interface RejectionReason {
   id: string;
@@ -44,8 +43,6 @@ const toneOptions = [
 ];
 
 export function DecisionWriter() {
-  const routeConfig = getRouteConfig('/ai-tools');
-
   const [dealInfo, setDealInfo] = useState<DealInfo>({
     companyName: 'Quantum AI',
     founderName: 'Sarah Chen',
@@ -145,27 +142,7 @@ export function DecisionWriter() {
   };
 
   return (
-    <PageContainer>
-      <div className="space-y-6">
-        {/* Breadcrumb */}
-        {routeConfig && (
-          <Breadcrumb
-            items={routeConfig.breadcrumbs}
-            aiSuggestion={routeConfig.aiSuggestion}
-          />
-        )}
-
-        {/* Page Header */}
-        <PageHeader
-          title="AI Decision Writer"
-          description="Generate thoughtful, personalized rejection letters with AI"
-          icon={PenTool}
-          aiSummary={{
-            text: `${reasons.filter(r => r.selected).length} rejection reasons selected. Tone: ${toneOptions.find(t => t.value === tone)?.label}. ${generatedLetter ? 'Letter generated and ready to send.' : 'Configure options and generate letter.'}`,
-            confidence: 0.88
-          }}
-        />
-
+    <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Input Section */}
         <div className="space-y-6">
@@ -431,7 +408,6 @@ export function DecisionWriter() {
           </Card>
         </div>
       </div>
-      </div>
-    </PageContainer>
+    </div>
   );
 }
