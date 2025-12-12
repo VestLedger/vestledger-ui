@@ -1,9 +1,9 @@
 'use client'
 
+import { useEffect } from 'react';
 import { Layers, DollarSign, TrendingUp, Users, BarChart, Target, Clock, LayoutDashboard } from 'lucide-react';
 import { AIInsightsBanner } from './dashboard/ai-insights-banner';
 import { AlertBar } from './dashboard/alert-bar';
-import { QuickActions } from './dashboard/quick-actions';
 import { ActiveCapitalCalls } from './dashboard/active-capital-calls';
 import { PortfolioHealth } from './dashboard/portfolio-health';
 import { AITaskPrioritizer } from './dashboard/ai-task-prioritizer';
@@ -22,6 +22,7 @@ import { Card, Badge, Button, PageContainer, Breadcrumb, PageHeader } from '@/ui
 import { FundSelector } from '@/components/fund-selector';
 import { getRouteConfig } from '@/config/routes';
 import { Fund } from '@/types/fund';
+import { setGlobalQuickActions, clearGlobalQuickActions } from '@/components/ai-copilot-sidebar';
 
 const formatCurrency = (amount: number, showDecimals = false) => {
   if (amount >= 1_000_000_000) {
@@ -63,6 +64,14 @@ export function DashboardV2() {
     tasks,
     metrics,
   } = useDashboardData();
+
+  // Surface dashboard quick actions inside the AI Copilot sidebar
+  useEffect(() => {
+    setGlobalQuickActions(quickActions);
+    return () => {
+      clearGlobalQuickActions();
+    };
+  }, [quickActions]);
 
   const insight = useAIInsights(metrics);
   const summary = getFundSummary();
@@ -170,13 +179,6 @@ export function DashboardV2() {
         {/* AI Insights Banner */}
         <AIInsightsBanner insight={insight} />
 
-        {/* Consolidated Metrics */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          {consolidatedMetrics.map((metric, index) => (
-            <MetricCard key={index} {...metric} />
-          ))}
-        </div>
-
         {/* Fund Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6" data-fund-selector-target>
           {funds.map((fund) => (
@@ -219,9 +221,6 @@ export function DashboardV2() {
             </Card>
           ))}
         </div>
-
-        {/* Quick Actions */}
-        <QuickActions actions={quickActions} />
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -338,9 +337,6 @@ export function DashboardV2() {
           <MetricCard key={index} {...metric} />
         ))}
       </div>
-
-      {/* Quick Actions */}
-      <QuickActions actions={quickActions} />
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

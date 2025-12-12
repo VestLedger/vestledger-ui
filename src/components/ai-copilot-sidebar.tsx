@@ -3,7 +3,8 @@
 import { useState, useRef, useEffect, createContext, useContext } from 'react';
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Sparkles, Send, Lightbulb, Zap, Bot, ChevronRight } from 'lucide-react';
+import { Sparkles, Lightbulb, Zap, Bot, ChevronRight, Send } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { Button, Input } from '@/ui';
 import { AICopilotBubble } from './ai-copilot-bubble';
 import { useNavigation } from '@/contexts/navigation-context';
@@ -58,8 +59,12 @@ interface Message {
 interface QuickAction {
   id: string;
   label: string;
-  icon: typeof Zap;
-  action: string;
+  icon: LucideIcon;
+  action?: string;
+  description?: string;
+  aiSuggested?: boolean;
+  confidence?: number;
+  onClick?: () => void;
 }
 
 interface Suggestion {
@@ -182,8 +187,8 @@ const getPageSuggestions = (pathname: string): Suggestion[] => {
 const getQuickActions = (pathname: string): QuickAction[] => {
   const baseActions: Record<string, QuickAction[]> = {
     '/dashboard': [
-      { id: 'summarize', label: 'Summarize Today', icon: Sparkles, action: 'Generate daily summary' },
-      { id: 'urgent', label: 'Show Urgent Items', icon: Zap, action: 'Filter urgent tasks' },
+      { id: 'summarize', label: 'Summarize Today', icon: Sparkles, action: 'Generate daily summary', aiSuggested: true, confidence: 0.9 },
+      { id: 'urgent', label: 'Show Urgent Items', icon: Zap, action: 'Filter urgent tasks', aiSuggested: true, confidence: 0.86 },
     ],
     '/pipeline': [
       { id: 'analyze', label: 'Analyze Deals', icon: Sparkles, action: 'Run deal analysis' },
@@ -200,6 +205,24 @@ const getQuickActions = (pathname: string): QuickAction[] => {
   ];
 };
 
+// Shared quick action channel for dashboard to populate the Copilot bar
+let globalQuickActions: QuickAction[] | null = null;
+let globalQuickActionsCallback: ((actions: QuickAction[]) => void) | null = null;
+
+export function setGlobalQuickActions(actions: QuickAction[]) {
+  globalQuickActions = actions;
+  if (globalQuickActionsCallback) {
+    globalQuickActionsCallback(actions);
+  }
+}
+
+export function clearGlobalQuickActions() {
+  globalQuickActions = null;
+  if (globalQuickActionsCallback) {
+    globalQuickActionsCallback([]);
+  }
+}
+
 function AICopilotSidebarInner() {
   const pathname = usePathname();
   const { sidebarState, toggleRightSidebar } = useNavigation();
@@ -210,7 +233,9 @@ function AICopilotSidebarInner() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const suggestions = getPageSuggestions(pathname);
-  const quickActions = getQuickActions(pathname);
+  const [quickActions, setQuickActions] = useState<QuickAction[]>(
+    () => globalQuickActions ?? getQuickActions(pathname)
+  );
 
   // Function to handle opening with a query from external components
   const openWithQuery = (query: string) => {
@@ -247,6 +272,24 @@ function AICopilotSidebarInner() {
       setGlobalOpenQueryCallback(() => {});
     };
   }, [pathname]); // Re-register when pathname changes to get updated context
+
+  // Keep Copilot quick actions in sync with global dashboard actions or path defaults
+  useEffect(() => {
+    const fallback = getQuickActions(pathname);
+    setQuickActions(globalQuickActions ?? fallback);
+
+    globalQuickActionsCallback = (actions: QuickAction[]) => {
+      if (actions.length > 0) {
+        setQuickActions(actions);
+      } else {
+        setQuickActions(getQuickActions(pathname));
+      }
+    };
+
+    return () => {
+      globalQuickActionsCallback = null;
+    };
+  }, [pathname]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -296,6 +339,8 @@ function AICopilotSidebarInner() {
   };
 
   const handleQuickAction = (action: QuickAction) => {
+    action.onClick?.();
+
     const userMessage: Message = {
       id: Date.now().toString(),
       type: 'user',
@@ -307,12 +352,13 @@ function AICopilotSidebarInner() {
     setIsTyping(true);
 
     setTimeout(() => {
+      const actionText = action.action || action.description || `Working on "${action.label}"`;
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
         type: 'ai',
-        content: `I'm working on "${action.action}". This will take a moment...`,
+        content: `I'm working on "${actionText}". This will take a moment...`,
         timestamp: new Date(),
-        confidence: 0.88,
+        confidence: action.confidence ?? 0.88,
       };
 
       setMessages(prev => [...prev, aiResponse]);
@@ -416,7 +462,8 @@ function AICopilotSidebarInner() {
               size="sm"
               variant="flat"
               onClick={() => handleQuickAction(action)}
-              className="text-xs"
+              title={action.description || action.action}
+              className={`text-xs ${action.aiSuggested ? 'bg-[var(--app-primary-bg)]' : ''}`}
             >
               <action.icon className="w-3 h-3 mr-1" />
               {action.label}
