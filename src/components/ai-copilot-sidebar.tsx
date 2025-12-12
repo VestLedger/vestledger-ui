@@ -2,8 +2,8 @@
 
 import { useState, useRef, useEffect, createContext, useContext } from 'react';
 import { usePathname } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Send, X, Lightbulb, Zap, Bot } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Sparkles, Send, Lightbulb, Zap, Bot } from 'lucide-react';
 import { Button, Input } from '@/ui';
 
 // Context for controlling the AI Copilot from other components
@@ -200,8 +200,6 @@ const getQuickActions = (pathname: string): QuickAction[] => {
 
 function AICopilotSidebarInner() {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -212,9 +210,6 @@ function AICopilotSidebarInner() {
 
   // Function to handle opening with a query from external components
   const openWithQuery = (query: string) => {
-    setIsMinimized(false);
-    setIsOpen(true);
-
     // Add user message
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -347,201 +342,152 @@ function AICopilotSidebarInner() {
   };
 
   return (
-    <>
-      {/* Floating Bubble Button - Like MS Office Assistant */}
-      <AnimatePresence>
-        {isMinimized && (
-          <motion.button
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => {
-              setIsMinimized(false);
-              setIsOpen(true);
-            }}
-            className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-secondary)] shadow-lg flex items-center justify-center cursor-pointer group"
-          >
-            <Bot className="w-6 h-6 text-white" />
-            {/* Pulse animation */}
-            <span className="absolute inset-0 rounded-full bg-[var(--app-primary)] opacity-75 animate-ping" />
-          </motion.button>
-        )}
-      </AnimatePresence>
+    <div className="h-full flex flex-col">
+      {/* Header */}
+      <div className="flex items-center gap-2 px-4 h-[69px] border-b border-[var(--app-border)] bg-gradient-to-r from-[var(--app-primary-bg)] to-transparent">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-secondary)] flex items-center justify-center">
+          <Bot className="w-4 h-4 text-white" />
+        </div>
+        <h2 className="text-sm font-semibold text-[var(--app-text)]">Vesta AI Copilot</h2>
+      </div>
 
-      {/* Floating Bubble Panel */}
-      <AnimatePresence>
-        {isOpen && !isMinimized && (
-          <motion.div
-            initial={{ scale: 0, opacity: 0, y: 20 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0, opacity: 0, y: 20 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-6 right-6 z-50 w-96 h-[600px] bg-[var(--app-surface)] border border-[var(--app-border)] rounded-2xl shadow-2xl flex flex-col overflow-hidden"
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-[var(--app-border)] bg-gradient-to-r from-[var(--app-primary-bg)] to-transparent">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-secondary)] flex items-center justify-center">
-                  <Bot className="w-4 h-4 text-white" />
-                </div>
-                <h2 className="text-sm font-semibold text-[var(--app-text)]">Vesta</h2>
-              </div>
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => {
-                    setIsOpen(false);
-                    setIsMinimized(true);
-                  }}
-                  className="p-1.5 rounded hover:bg-[var(--app-surface-hover)] transition-colors"
-                  aria-label="Minimize"
-                >
-                  <X className="w-4 h-4 text-[var(--app-text-muted)]" />
-                </button>
-              </div>
-            </div>
-
-            {/* Suggestions Section */}
-            {suggestions.length > 0 && messages.length <= 1 && (
-              <div className="p-4 border-b border-[var(--app-border)] space-y-2">
-                <div className="flex items-center gap-2 mb-2">
-                  <Lightbulb className="w-4 h-4 text-[var(--app-warning)]" />
-                  <span className="text-xs font-semibold text-[var(--app-text-muted)]">
-                    SUGGESTIONS
-                  </span>
-                </div>
-                {suggestions.map(suggestion => (
-                  <button
-                    key={suggestion.id}
-                    onClick={() => handleSuggestionClick(suggestion)}
-                    className="w-full text-left p-2 rounded-lg bg-[var(--app-surface-hover)] hover:bg-[var(--app-border)] transition-colors"
-                  >
-                    <p className="text-sm text-[var(--app-text)] mb-1">{suggestion.text}</p>
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs text-[var(--app-text-subtle)]">{suggestion.reasoning}</p>
-                      <span className={`
-                        text-xs font-semibold
-                        ${suggestion.confidence >= 0.8 ? 'text-green-500' : suggestion.confidence >= 0.6 ? 'text-yellow-500' : 'text-red-500'}
-                      `}>
-                        {Math.round(suggestion.confidence * 100)}%
-                      </span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {/* Quick Actions */}
-            <div className="p-4 border-b border-[var(--app-border)]">
-              <div className="flex items-center gap-2 mb-2">
-                <Zap className="w-4 h-4 text-[var(--app-primary)]" />
-                <span className="text-xs font-semibold text-[var(--app-text-muted)]">
-                  QUICK ACTIONS
+      {/* Suggestions Section */}
+      {suggestions.length > 0 && messages.length <= 1 && (
+        <div className="p-4 border-b border-[var(--app-border)] space-y-2">
+          <div className="flex items-center gap-2 mb-2">
+            <Lightbulb className="w-4 h-4 text-[var(--app-warning)]" />
+            <span className="text-xs font-semibold text-[var(--app-text-muted)]">
+              SUGGESTIONS
+            </span>
+          </div>
+          {suggestions.map(suggestion => (
+            <button
+              key={suggestion.id}
+              onClick={() => handleSuggestionClick(suggestion)}
+              className="w-full text-left p-2 rounded-lg bg-[var(--app-surface-hover)] hover:bg-[var(--app-border)] transition-colors"
+            >
+              <p className="text-sm text-[var(--app-text)] mb-1">{suggestion.text}</p>
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-[var(--app-text-subtle)]">{suggestion.reasoning}</p>
+                <span className={`
+                  text-xs font-semibold
+                  ${suggestion.confidence >= 0.8 ? 'text-green-500' : suggestion.confidence >= 0.6 ? 'text-yellow-500' : 'text-red-500'}
+                `}>
+                  {Math.round(suggestion.confidence * 100)}%
                 </span>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {quickActions.map(action => (
-                  <Button
-                    key={action.id}
-                    size="sm"
-                    variant="flat"
-                    onClick={() => handleQuickAction(action)}
-                    className="text-xs"
-                  >
-                    <action.icon className="w-3 h-3 mr-1" />
-                    {action.label}
-                  </Button>
-                ))}
-              </div>
-            </div>
+            </button>
+          ))}
+        </div>
+      )}
 
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {messages.map(message => (
-                <motion.div
-                  key={message.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`
-                      max-w-[85%] px-3 py-2 rounded-lg
-                      ${message.type === 'user'
-                        ? 'bg-[var(--app-primary)] text-white'
-                        : 'bg-[var(--app-surface-hover)] text-[var(--app-text)]'
-                      }
-                    `}
-                  >
-                    <p className="text-sm">{message.content}</p>
-                    {message.type === 'ai' && message.confidence && (
-                      <p className="text-xs mt-1 opacity-70">
-                        Confidence: {Math.round(message.confidence * 100)}%
-                      </p>
-                    )}
-                  </div>
-                </motion.div>
-              ))}
+      {/* Quick Actions */}
+      <div className="p-4 border-b border-[var(--app-border)]">
+        <div className="flex items-center gap-2 mb-2">
+          <Zap className="w-4 h-4 text-[var(--app-primary)]" />
+          <span className="text-xs font-semibold text-[var(--app-text-muted)]">
+            QUICK ACTIONS
+          </span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {quickActions.map(action => (
+            <Button
+              key={action.id}
+              size="sm"
+              variant="flat"
+              onClick={() => handleQuickAction(action)}
+              className="text-xs"
+            >
+              <action.icon className="w-3 h-3 mr-1" />
+              {action.label}
+            </Button>
+          ))}
+        </div>
+      </div>
 
-              {isTyping && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex justify-start"
-                >
-                  <div className="bg-[var(--app-surface-hover)] px-3 py-2 rounded-lg">
-                    <div className="flex gap-1">
-                      <motion.div
-                        animate={{ opacity: [0.3, 1, 0.3] }}
-                        transition={{ duration: 1.5, repeat: Infinity, delay: 0 }}
-                        className="w-2 h-2 bg-[var(--app-text-muted)] rounded-full"
-                      />
-                      <motion.div
-                        animate={{ opacity: [0.3, 1, 0.3] }}
-                        transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }}
-                        className="w-2 h-2 bg-[var(--app-text-muted)] rounded-full"
-                      />
-                      <motion.div
-                        animate={{ opacity: [0.3, 1, 0.3] }}
-                        transition={{ duration: 1.5, repeat: Infinity, delay: 0.4 }}
-                        className="w-2 h-2 bg-[var(--app-text-muted)] rounded-full"
-                      />
-                    </div>
-                  </div>
-                </motion.div>
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {messages.map(message => (
+          <motion.div
+            key={message.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2 }}
+            className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+          >
+            <div
+              className={`
+                max-w-[85%] px-3 py-2 rounded-lg
+                ${message.type === 'user'
+                  ? 'bg-[var(--app-primary)] text-white'
+                  : 'bg-[var(--app-surface-hover)] text-[var(--app-text)]'
+                }
+              `}
+            >
+              <p className="text-sm">{message.content}</p>
+              {message.type === 'ai' && message.confidence && (
+                <p className="text-xs mt-1 opacity-70">
+                  Confidence: {Math.round(message.confidence * 100)}%
+                </p>
               )}
-
-              <div ref={messagesEndRef} />
             </div>
+          </motion.div>
+        ))}
 
-            {/* Input */}
-            <div className="p-4 border-t border-[var(--app-border)] bg-[var(--app-surface)]">
-              <div className="flex gap-2">
-                <Input
-                  value={inputValue}
-                  onChange={e => setInputValue(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
-                  placeholder="Ask me anything..."
-                  size="sm"
-                  className="flex-1"
-                  disabled={isTyping}
+        {isTyping && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex justify-start"
+          >
+            <div className="bg-[var(--app-surface-hover)] px-3 py-2 rounded-lg">
+              <div className="flex gap-1">
+                <motion.div
+                  animate={{ opacity: [0.3, 1, 0.3] }}
+                  transition={{ duration: 1.5, repeat: Infinity, delay: 0 }}
+                  className="w-2 h-2 bg-[var(--app-text-muted)] rounded-full"
                 />
-                <Button
-                  size="sm"
-                  onClick={handleSendMessage}
-                  disabled={!inputValue.trim() || isTyping}
-                  className="px-3"
-                >
-                  <Send className="w-4 h-4" />
-                </Button>
+                <motion.div
+                  animate={{ opacity: [0.3, 1, 0.3] }}
+                  transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }}
+                  className="w-2 h-2 bg-[var(--app-text-muted)] rounded-full"
+                />
+                <motion.div
+                  animate={{ opacity: [0.3, 1, 0.3] }}
+                  transition={{ duration: 1.5, repeat: Infinity, delay: 0.4 }}
+                  className="w-2 h-2 bg-[var(--app-text-muted)] rounded-full"
+                />
               </div>
             </div>
           </motion.div>
         )}
-      </AnimatePresence>
-    </>
+
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input */}
+      <div className="p-4 border-t border-[var(--app-border)]">
+        <div className="flex gap-2">
+          <Input
+            value={inputValue}
+            onChange={e => setInputValue(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
+            placeholder="Ask me anything..."
+            size="sm"
+            className="flex-1"
+            disabled={isTyping}
+          />
+          <Button
+            size="sm"
+            onClick={handleSendMessage}
+            disabled={!inputValue.trim() || isTyping}
+            className="px-3"
+          >
+            <Send className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 }
 

@@ -38,7 +38,10 @@ export default function DashboardLayout({
               {children}
             </main>
           </div>
-          <AICopilotSidebar />
+          {/* AI Copilot Sidebar - Fixed right panel */}
+          <div className="w-96 border-l border-[var(--app-border)] bg-[var(--app-surface)] flex flex-col">
+            <AICopilotSidebar />
+          </div>
           <CommandPalette />
         </div>
       </AICopilotProvider>
