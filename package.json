@@ -21,6 +21,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@nextui-org/react": "^2.6.11",
     "@reduxjs/toolkit": "^2.11.1",
+    "canvas": "^3.2.0",
     "cmdk": "^1.1.1",
     "framer-motion": "^11.18.0",
     "lucide-react": "^0.487.0",
