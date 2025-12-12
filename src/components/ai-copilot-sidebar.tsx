@@ -3,8 +3,10 @@
 import { useState, useRef, useEffect, createContext, useContext } from 'react';
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Sparkles, Send, Lightbulb, Zap, Bot } from 'lucide-react';
+import { Sparkles, Send, Lightbulb, Zap, Bot, ChevronRight } from 'lucide-react';
 import { Button, Input } from '@/ui';
+import { AICopilotBubble } from './ai-copilot-bubble';
+import { useNavigation } from '@/contexts/navigation-context';
 
 // Context for controlling the AI Copilot from other components
 interface AICopilotContextType {
@@ -200,6 +202,8 @@ const getQuickActions = (pathname: string): QuickAction[] => {
 
 function AICopilotSidebarInner() {
   const pathname = usePathname();
+  const { sidebarState, toggleRightSidebar } = useNavigation();
+  const isCollapsed = sidebarState.rightCollapsed;
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -341,14 +345,30 @@ function AICopilotSidebarInner() {
     }, 1200);
   };
 
+  // Return floating bubble when collapsed
+  if (isCollapsed) {
+    return <AICopilotBubble onClick={toggleRightSidebar} />;
+  }
+
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="flex items-center gap-2 px-4 h-[69px] border-b border-[var(--app-border)] bg-gradient-to-r from-[var(--app-primary-bg)] to-transparent">
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-secondary)] flex items-center justify-center">
-          <Bot className="w-4 h-4 text-white" />
+      <div className="flex items-center justify-between gap-2 px-4 h-[69px] border-b border-[var(--app-border)] bg-gradient-to-r from-[var(--app-primary-bg)] to-transparent">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-secondary)] flex items-center justify-center">
+            <Bot className="w-4 h-4 text-white" />
+          </div>
+          <h2 className="text-sm font-semibold text-[var(--app-text)]">Vesta AI Copilot</h2>
         </div>
-        <h2 className="text-sm font-semibold text-[var(--app-text)]">Vesta AI Copilot</h2>
+        {/* Minimize button */}
+        <button
+          onClick={toggleRightSidebar}
+          className="p-1.5 rounded-lg hover:bg-[var(--app-surface-hover)]
+                     transition-colors"
+          aria-label="Minimize AI Copilot"
+        >
+          <ChevronRight className="w-4 h-4 text-[var(--app-text-muted)]" />
+        </button>
       </div>
 
       {/* Suggestions Section */}
@@ -466,7 +486,7 @@ function AICopilotSidebarInner() {
       </div>
 
       {/* Input */}
-      <div className="p-4 border-t border-[var(--app-border)]">
+      <div className="p-8">
         <div className="flex gap-2">
           <Input
             value={inputValue}

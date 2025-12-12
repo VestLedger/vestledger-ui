@@ -8,16 +8,26 @@ interface NavigationBadge {
   tooltip?: string;
 }
 
+interface SidebarState {
+  leftCollapsed: boolean;
+  rightCollapsed: boolean;
+}
+
 interface NavigationContextType {
   expandedGroups: Set<string>;
   toggleGroup: (groupId: string) => void;
   badges: Record<string, NavigationBadge>;
   updateBadge: (itemId: string, badge: NavigationBadge | null) => void;
+  sidebarState: SidebarState;
+  toggleLeftSidebar: () => void;
+  toggleRightSidebar: () => void;
 }
 
 const NavigationContext = createContext<NavigationContextType | undefined>(undefined);
 
 const STORAGE_KEY = 'vestledger-nav-expanded-groups';
+const SIDEBAR_LEFT_KEY = 'vestledger-sidebar-left-collapsed';
+const SIDEBAR_RIGHT_KEY = 'vestledger-sidebar-right-collapsed';
 const DEFAULT_EXPANDED = new Set(['core-operations']); // Core Operations always expanded
 
 interface NavigationProviderProps {
@@ -27,6 +37,10 @@ interface NavigationProviderProps {
 export function NavigationProvider({ children }: NavigationProviderProps) {
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(DEFAULT_EXPANDED);
   const [badges, setBadges] = useState<Record<string, NavigationBadge>>({});
+  const [sidebarState, setSidebarState] = useState<SidebarState>({
+    leftCollapsed: false,
+    rightCollapsed: false,
+  });
 
   // Load expanded state from localStorage on mount
   useEffect(() => {
@@ -44,6 +58,17 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
     }
   }, []);
 
+  // Load sidebar state from localStorage on mount
+  useEffect(() => {
+    try {
+      const leftCollapsed = localStorage.getItem(SIDEBAR_LEFT_KEY) === 'true';
+      const rightCollapsed = localStorage.getItem(SIDEBAR_RIGHT_KEY) === 'true';
+      setSidebarState({ leftCollapsed, rightCollapsed });
+    } catch (error) {
+      console.error('Failed to load sidebar state:', error);
+    }
+  }, []);
+
   // Save expanded state to localStorage (debounced)
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -57,6 +82,46 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
 
     return () => clearTimeout(timeoutId);
   }, [expandedGroups]);
+
+  // Save sidebar state to localStorage (debounced)
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      try {
+        localStorage.setItem(SIDEBAR_LEFT_KEY, String(sidebarState.leftCollapsed));
+        localStorage.setItem(SIDEBAR_RIGHT_KEY, String(sidebarState.rightCollapsed));
+      } catch (error) {
+        console.error('Failed to save sidebar state:', error);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [sidebarState]);
+
+  // Responsive behavior: auto-collapse on small screens
+  useEffect(() => {
+    let resizeTimeout: NodeJS.Timeout;
+
+    const handleResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        if (window.innerWidth < 1080) {
+          setSidebarState({
+            leftCollapsed: true,
+            rightCollapsed: true,
+          });
+        }
+      }, 100);
+    };
+
+    // Check on mount
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(resizeTimeout);
+    };
+  }, []);
 
   const toggleGroup = useCallback((groupId: string) => {
     // Don't allow collapsing core-operations
@@ -76,7 +141,7 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
   const updateBadge = useCallback((itemId: string, badge: NavigationBadge | null) => {
     setBadges(prev => {
       if (badge === null) {
-        const { [itemId]: _, ...rest } = prev;
+        const { [itemId]: _, ...rest} = prev;
         return rest;
       }
       return {
@@ -86,11 +151,22 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
     });
   }, []);
 
+  const toggleLeftSidebar = useCallback(() => {
+    setSidebarState(prev => ({ ...prev, leftCollapsed: !prev.leftCollapsed }));
+  }, []);
+
+  const toggleRightSidebar = useCallback(() => {
+    setSidebarState(prev => ({ ...prev, rightCollapsed: !prev.rightCollapsed }));
+  }, []);
+
   const value = {
     expandedGroups,
     toggleGroup,
     badges,
     updateBadge,
+    sidebarState,
+    toggleLeftSidebar,
+    toggleRightSidebar,
   };
 
   return (

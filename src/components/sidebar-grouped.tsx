@@ -1,11 +1,13 @@
 'use client'
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTheme } from 'next-themes';
+import { motion } from 'framer-motion';
 import { Switch } from '@/ui';
 import { LayoutDashboard, GitBranch, Briefcase, Search, Vote, PieChart, TrendingUp, Users, UserCheck, DollarSign, Shield, Scale, Receipt, FileDown, Sparkles, Activity, BarChart3, Sun, Moon, Settings, FileText, Plug } from 'lucide-react';
 import { NavigationGroup } from './navigation-group';
 import { NavigationItem } from './navigation-item';
+import { SidebarToggleButton } from './sidebar-toggle-button';
 import { useNavigation } from '@/contexts/navigation-context';
 import { useAIBadges } from '@/hooks/use-ai-badges';
 import { useAuth, UserRole } from '@/contexts/auth-context';
@@ -86,17 +88,22 @@ const navigationStructure = {
 };
 
 export function SidebarGrouped() {
-  const { updateBadge } = useNavigation();
+  const { updateBadge, sidebarState, toggleLeftSidebar } = useNavigation();
   const aiBadges = useAIBadges();
   const { theme, setTheme } = useTheme();
   const { user } = useAuth();
-  
+  const isCollapsed = sidebarState.leftCollapsed;
+  const [isHovered, setIsHovered] = useState(false);
+
   // Helper to check if a group is accessible
   const isAccessible = (allowedRoles?: UserRole[]) => {
     if (!allowedRoles) return true; // Accessible by all if not defined
     if (!user) return true; // Default to showing if no user (should rely on auth guard, but safe fallback)
     return allowedRoles.includes(user.role);
   };
+
+  // Determine effective collapsed state (collapsed but temporarily expanded on hover)
+  const effectivelyCollapsed = isCollapsed && !isHovered;
 
   // Update navigation badges from AI calculations
   useEffect(() => {
@@ -106,30 +113,66 @@ export function SidebarGrouped() {
   }, [aiBadges, updateBadge]);
 
   return (
-    <aside className="
-      flex flex-col h-full w-64 bg-[var(--app-sidebar-bg)] border-r border-[var(--app-sidebar-border)]
-    ">
+    <motion.aside
+      animate={{
+        width: effectivelyCollapsed ? '64px' : '256px',
+      }}
+      transition={{ duration: 0.2, ease: 'easeInOut' }}
+      className="relative flex flex-col h-full bg-[var(--app-sidebar-bg)] border-r border-[var(--app-sidebar-border)]"
+      style={{ willChange: 'width' }}
+    >
+      {/* Toggle Button */}
+      <div
+        onMouseEnter={(e) => {
+          e.stopPropagation();
+        }}
+      >
+        <SidebarToggleButton
+          isCollapsed={isCollapsed}
+          onToggle={toggleLeftSidebar}
+          side="left"
+          ariaLabel={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        />
+      </div>
+
       {/* Header / Branding */}
-      <div className="p-4 border-b border-[var(--app-sidebar-border)] flex-shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-secondary)] flex items-center justify-center">
-            <span className="text-white font-bold text-sm">VL</span>
+      <div
+        className="px-4 h-[69px] border-b border-[var(--app-sidebar-border)] flex-shrink-0 flex items-center"
+        onMouseEnter={() => isCollapsed && setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        {effectivelyCollapsed ? (
+          <div className="flex items-center justify-center w-full">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-secondary)] flex items-center justify-center">
+              <span className="text-white font-bold text-sm">VL</span>
+            </div>
           </div>
-          <div>
-            <h1 className="text-sm font-bold text-[var(--app-text)]">VestLedger</h1>
-            <p className="text-xs text-[var(--app-text-muted)]">AI-Powered VC</p>
+        ) : (
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-secondary)] flex items-center justify-center">
+              <span className="text-white font-bold text-sm">VL</span>
+            </div>
+            <div>
+              <h1 className="text-sm font-bold text-[var(--app-text)]">VestLedger</h1>
+              <p className="text-xs text-[var(--app-text-muted)]">AI-Powered VC</p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Navigation Groups */}
-      <nav className="flex-1 p-4 space-y-4 overflow-y-auto">
+      <nav
+        className="flex-1 p-4 space-y-4 overflow-y-auto"
+        onMouseEnter={() => isCollapsed && setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
         {/* Core Operations - Always Expanded */}
         <NavigationGroup
           id={navigationStructure.coreOperations.id}
           label={navigationStructure.coreOperations.label}
           icon={navigationStructure.coreOperations.icon}
           alwaysExpanded={navigationStructure.coreOperations.alwaysExpanded}
+          isCollapsed={effectivelyCollapsed}
         >
           {navigationStructure.coreOperations.items.map(item => (
             <NavigationItem
@@ -138,6 +181,7 @@ export function SidebarGrouped() {
               href={item.href}
               label={item.label}
               icon={item.icon}
+              isCollapsed={effectivelyCollapsed}
             />
           ))}
         </NavigationGroup>
@@ -148,6 +192,7 @@ export function SidebarGrouped() {
             id={navigationStructure.dealManagement.id}
             label={navigationStructure.dealManagement.label}
             icon={navigationStructure.dealManagement.icon}
+            isCollapsed={effectivelyCollapsed}
           >
             {navigationStructure.dealManagement.items.map(item => (
               <NavigationItem
@@ -156,6 +201,7 @@ export function SidebarGrouped() {
                 href={item.href}
                 label={item.label}
                 icon={item.icon}
+                isCollapsed={effectivelyCollapsed}
               />
             ))}
           </NavigationGroup>
@@ -167,6 +213,7 @@ export function SidebarGrouped() {
             id={navigationStructure.portfolioManagement.id}
             label={navigationStructure.portfolioManagement.label}
             icon={navigationStructure.portfolioManagement.icon}
+            isCollapsed={effectivelyCollapsed}
           >
             {navigationStructure.portfolioManagement.items.map(item => (
               <NavigationItem
@@ -175,6 +222,7 @@ export function SidebarGrouped() {
                 href={item.href}
                 label={item.label}
                 icon={item.icon}
+                isCollapsed={effectivelyCollapsed}
               />
             ))}
           </NavigationGroup>
@@ -186,6 +234,7 @@ export function SidebarGrouped() {
             id={navigationStructure.backOffice.id}
             label={navigationStructure.backOffice.label}
             icon={navigationStructure.backOffice.icon}
+            isCollapsed={effectivelyCollapsed}
           >
             {navigationStructure.backOffice.items.map(item => (
               <NavigationItem
@@ -194,6 +243,7 @@ export function SidebarGrouped() {
                 href={item.href}
                 label={item.label}
                 icon={item.icon}
+                isCollapsed={effectivelyCollapsed}
               />
             ))}
           </NavigationGroup>
@@ -205,6 +255,7 @@ export function SidebarGrouped() {
             id={navigationStructure.lpPortal.id}
             label={navigationStructure.lpPortal.label}
             icon={navigationStructure.lpPortal.icon}
+            isCollapsed={effectivelyCollapsed}
           >
             {navigationStructure.lpPortal.items.map(item => (
               <NavigationItem
@@ -213,6 +264,7 @@ export function SidebarGrouped() {
                 href={item.href}
                 label={item.label}
                 icon={item.icon}
+                isCollapsed={effectivelyCollapsed}
               />
             ))}
           </NavigationGroup>
@@ -224,6 +276,7 @@ export function SidebarGrouped() {
             id={navigationStructure.utilities.id}
             label={navigationStructure.utilities.label}
             icon={navigationStructure.utilities.icon}
+            isCollapsed={effectivelyCollapsed}
           >
             {navigationStructure.utilities.items.map(item => (
               <NavigationItem
@@ -232,6 +285,7 @@ export function SidebarGrouped() {
                 href={item.href}
                 label={item.label}
                 icon={item.icon}
+                isCollapsed={effectivelyCollapsed}
               />
             ))}
           </NavigationGroup>
@@ -239,14 +293,19 @@ export function SidebarGrouped() {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-[var(--app-sidebar-border)] space-y-3 flex-shrink-0">
+      <div
+        className="p-4 border-t border-[var(--app-sidebar-border)] space-y-3 flex-shrink-0"
+        onMouseEnter={() => isCollapsed && setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
         <NavigationItem
           id="settings"
           href="/settings"
           label="Settings"
           icon={Settings}
+          isCollapsed={effectivelyCollapsed}
         />
       </div>
-    </aside>
+    </motion.aside>
   );
 }
