@@ -1,10 +1,12 @@
 'use client'
 
 import { Card, Progress } from '@/ui';
-import { deploymentPacing, currentFund } from '@/data/mocks/mock-fund-analytics-data';
+import { getCurrentFundMetrics, getDeploymentPacing } from '@/services/analytics/fundAnalyticsService';
 import { Activity, TrendingUp } from 'lucide-react';
 
 export function DeploymentPacing() {
+  const deploymentPacing = getDeploymentPacing();
+  const currentFund = getCurrentFundMetrics();
   // Calculate dimensions for the chart
   const maxDeployed = Math.max(...deploymentPacing.map(d => d.deployed));
   const maxCumulative = Math.max(...deploymentPacing.map(d => d.cumulativeDeployed));

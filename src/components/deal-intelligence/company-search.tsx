@@ -19,14 +19,22 @@ import {
   Globe,
   Briefcase
 } from 'lucide-react';
-import { industries, mockCompanies, stages } from '@/data/mocks/deal-intelligence/company-search';
 import { useUIKey } from '@/store/ui';
+import {
+  getCompanySearchCompanies,
+  getCompanySearchIndustries,
+  getCompanySearchStages,
+} from '@/services/dealIntelligence/companySearchService';
 
 export function CompanySearch() {
+  const industries = getCompanySearchIndustries();
+  const stages = getCompanySearchStages();
+  const companies = getCompanySearchCompanies();
+
   const { value: ui, patch: patchUI } = useUIKey('company-search', {
     searchQuery: '',
-    selectedIndustry: 'All Industries',
-    selectedStage: 'All Stages',
+    selectedIndustry: industries[0] ?? '',
+    selectedStage: stages[0] ?? '',
     showAIOnly: true,
   });
   const { searchQuery, selectedIndustry, selectedStage, showAIOnly } = ui;
@@ -45,11 +53,11 @@ export function CompanySearch() {
     return 'var(--app-text-muted)';
   };
 
-  const filteredCompanies = mockCompanies.filter(company => {
+  const filteredCompanies = companies.filter(company => {
     if (searchQuery && !company.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
         !company.description.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-    if (selectedIndustry !== 'All Industries' && company.industry !== selectedIndustry) return false;
-    if (selectedStage !== 'All Stages' && company.funding.lastRound !== selectedStage) return false;
+    if (selectedIndustry && selectedIndustry !== industries[0] && company.industry !== selectedIndustry) return false;
+    if (selectedStage && selectedStage !== stages[0] && company.funding.lastRound !== selectedStage) return false;
     return true;
   }).sort((a, b) => b.aiMatchScore - a.aiMatchScore);
 
@@ -70,7 +78,7 @@ export function CompanySearch() {
         </div>
         <Badge variant="flat" className="bg-[var(--app-success-bg)] text-[var(--app-success)]">
           <Zap className="w-3 h-3 mr-1" />
-          {mockCompanies.length} AI-Matched Companies
+          {companies.length} AI-Matched Companies
         </Badge>
       </div>
 

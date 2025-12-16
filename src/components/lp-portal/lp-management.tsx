@@ -8,15 +8,15 @@ import { LPInvestorPortal } from './lp-investor-portal';
 import { AdvancedTable, ColumnDef } from '@/components/data-table/advanced-table';
 import { BulkActionsToolbar, useBulkSelection, BulkAction } from '@/components/bulk-actions-toolbar';
 import {
-  mockCapitalCalls,
-  mockDistributions,
-  mockLPs,
-  mockReports,
   type CapitalCall,
   type Distribution,
   type LP,
   type Report,
-} from '@/data/mocks/lp-portal/lp-management';
+  getLPCapitalCalls,
+  getLPDistributions,
+  getLPReports,
+  getLPs,
+} from '@/services/lpPortal/lpManagementService';
 
 export function LPManagement() {
   const { value: ui, patch: patchUI } = useUIKey<{
@@ -28,6 +28,11 @@ export function LPManagement() {
   });
   const { selectedTab, selectedLP } = ui;
 
+  const lps = getLPs();
+  const reports = getLPReports();
+  const capitalCalls = getLPCapitalCalls();
+  const distributions = getLPDistributions();
+
   // Bulk selection for LPs
   const {
     selectedCount,
@@ -35,7 +40,7 @@ export function LPManagement() {
     selectAll,
     clearSelection,
     isSelected,
-  } = useBulkSelection(mockLPs, 'lp-management:lps');
+  } = useBulkSelection(lps, 'lp-management:lps');
 
   // Get route config for breadcrumbs and AI suggestions
   const routeConfig = getRouteConfig('/lp-management');
@@ -67,11 +72,11 @@ export function LPManagement() {
   };
 
   // Calculate LP metrics for AI summary
-  const totalLPs = mockLPs.length;
-  const totalCommitments = mockLPs.reduce((sum, lp) => sum + lp.commitmentAmount, 0);
-  const averageIRR = (mockLPs.reduce((sum, lp) => sum + lp.irr, 0) / mockLPs.length).toFixed(1);
-  const pendingCapitalCalls = mockCapitalCalls.filter(c => c.status === 'pending').length;
-  const publishedReports = mockReports.filter(r => r.status === 'published').length;
+  const totalLPs = lps.length;
+  const totalCommitments = lps.reduce((sum, lp) => sum + lp.commitmentAmount, 0);
+  const averageIRR = (lps.reduce((sum, lp) => sum + lp.irr, 0) / lps.length).toFixed(1);
+  const pendingCapitalCalls = capitalCalls.filter(c => c.status === 'pending').length;
+  const publishedReports = reports.filter(r => r.status === 'published').length;
 
   // LP Type badge colors
   const getLPTypeBadge = (type: LP['type']) => {
@@ -251,7 +256,7 @@ export function LPManagement() {
               <Users className="w-5 h-5 text-[var(--app-primary)]" />
             </div>
             <div>
-              <p className="text-2xl font-bold">{mockLPs.length}</p>
+              <p className="text-2xl font-bold">{lps.length}</p>
               <p className="text-xs text-[var(--app-text-muted)]">Limited Partners</p>
             </div>
           </div>
@@ -263,7 +268,7 @@ export function LPManagement() {
               <DollarSign className="w-5 h-5 text-[var(--app-warning)]" />
             </div>
             <div>
-              <p className="text-2xl font-bold">{formatCurrency(mockLPs.reduce((sum, lp) => sum + lp.commitmentAmount, 0))}</p>
+              <p className="text-2xl font-bold">{formatCurrency(lps.reduce((sum, lp) => sum + lp.commitmentAmount, 0))}</p>
               <p className="text-xs text-[var(--app-text-muted)]">Total Commitments</p>
             </div>
           </div>
@@ -276,7 +281,7 @@ export function LPManagement() {
             </div>
             <div>
               <p className="text-2xl font-bold">
-                {formatPercent(mockLPs.reduce((sum, lp) => sum + lp.irr, 0) / mockLPs.length)}
+                {formatPercent(lps.reduce((sum, lp) => sum + lp.irr, 0) / lps.length)}
               </p>
               <p className="text-xs text-[var(--app-text-muted)]">Average IRR</p>
             </div>
@@ -290,7 +295,7 @@ export function LPManagement() {
             </div>
             <div>
               <p className="text-2xl font-bold">
-                {(mockLPs.reduce((sum, lp) => sum + lp.tvpi, 0) / mockLPs.length).toFixed(2)}x
+                {(lps.reduce((sum, lp) => sum + lp.tvpi, 0) / lps.length).toFixed(2)}x
               </p>
               <p className="text-xs text-[var(--app-text-muted)]">Average TVPI</p>
             </div>
@@ -318,7 +323,7 @@ export function LPManagement() {
           <div className="space-y-4">
             <BulkActionsToolbar
               selectedCount={selectedCount}
-              totalCount={mockLPs.length}
+              totalCount={lps.length}
               onClear={clearSelection}
               onSelectAll={selectAll}
               actions={bulkActions}
@@ -326,7 +331,7 @@ export function LPManagement() {
 
             <AdvancedTable
               stateKey="lp-management:overview"
-              data={mockLPs}
+              data={lps}
               columns={lpColumns}
               searchable={true}
               searchPlaceholder="Search LPs by name, contact, or email..."
@@ -344,7 +349,7 @@ export function LPManagement() {
         {selectedTab === 'reports' && (
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {mockReports.map((report) => (
+              {reports.map((report) => (
                 <Card key={report.id} padding="lg">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-2">
@@ -401,7 +406,7 @@ export function LPManagement() {
                 Capital Calls
               </h3>
               <div className="space-y-3">
-                {mockCapitalCalls.map((call) => (
+                {capitalCalls.map((call) => (
                   <Card key={call.id} padding="md">
                     <div className="flex items-start justify-between mb-3">
                       <div>
@@ -428,7 +433,7 @@ export function LPManagement() {
                 Distributions
               </h3>
               <div className="space-y-3">
-                {mockDistributions.map((dist) => (
+                {distributions.map((dist) => (
                   <Card key={dist.id} padding="md">
                     <div className="flex items-start justify-between mb-3">
                       <div>
@@ -464,7 +469,7 @@ export function LPManagement() {
                 <div className="p-4 rounded-lg bg-[var(--app-success-bg)]">
                   <p className="text-sm text-[var(--app-text-muted)] mb-1">Total Value to Paid-In (TVPI)</p>
                   <p className="text-3xl font-bold text-[var(--app-success)]">
-                    {(mockLPs.reduce((sum, lp) => sum + lp.tvpi, 0) / mockLPs.length).toFixed(2)}x
+                    {(lps.reduce((sum, lp) => sum + lp.tvpi, 0) / lps.length).toFixed(2)}x
                   </p>
                   <p className="text-xs text-[var(--app-text-muted)] mt-1">Average across all LPs</p>
                 </div>
@@ -472,7 +477,7 @@ export function LPManagement() {
                 <div className="p-4 rounded-lg bg-[var(--app-info-bg)]">
                   <p className="text-sm text-[var(--app-text-muted)] mb-1">Distributions to Paid-In (DPI)</p>
                   <p className="text-3xl font-bold text-[var(--app-info)]">
-                    {(mockLPs.reduce((sum, lp) => sum + lp.dpi, 0) / mockLPs.length).toFixed(2)}x
+                    {(lps.reduce((sum, lp) => sum + lp.dpi, 0) / lps.length).toFixed(2)}x
                   </p>
                   <p className="text-xs text-[var(--app-text-muted)] mt-1">Realized returns</p>
                 </div>
@@ -480,7 +485,7 @@ export function LPManagement() {
                 <div className="p-4 rounded-lg bg-[var(--app-primary-bg)]">
                   <p className="text-sm text-[var(--app-text-muted)] mb-1">Internal Rate of Return (IRR)</p>
                   <p className="text-3xl font-bold text-[var(--app-primary)]">
-                    {formatPercent(mockLPs.reduce((sum, lp) => sum + lp.irr, 0) / mockLPs.length)}
+                    {formatPercent(lps.reduce((sum, lp) => sum + lp.irr, 0) / lps.length)}
                   </p>
                   <p className="text-xs text-[var(--app-text-muted)] mt-1">Net to LPs</p>
                 </div>
@@ -489,7 +494,7 @@ export function LPManagement() {
               <div className="border-t border-[var(--app-border)] pt-6">
                 <h4 className="font-medium mb-4">Capital Deployment</h4>
                 <div className="space-y-4">
-                  {mockLPs.map((lp) => (
+                  {lps.map((lp) => (
                     <div key={lp.id}>
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-medium">{lp.name}</span>

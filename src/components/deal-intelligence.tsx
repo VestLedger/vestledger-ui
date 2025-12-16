@@ -7,16 +7,12 @@ import { useFund } from '@/contexts/fund-context';
 import { getRouteConfig } from '@/config/routes';
 import { CompanySearch } from './deal-intelligence/company-search';
 import {
-  activeDeals,
-  dealAnalyticsData,
-  documentCategories,
-  fundAnalytics,
-  mockDocuments,
   type ActiveDeal,
   type DocumentCategory,
   type DocumentStatus,
   type ICStatus,
-} from '@/data/mocks/deal-intelligence/deal-intelligence';
+} from '@/services/dealIntelligence/dealIntelligenceService';
+import { getDealIntelligenceData } from '@/services/dealIntelligence/dealIntelligenceService';
 
 interface DealIntelligenceUIState {
   viewMode: 'fund-level' | 'per-deal';
@@ -28,6 +24,13 @@ interface DealIntelligenceUIState {
 
 export function DealIntelligence() {
   const { selectedFund } = useFund();
+  const {
+    activeDeals,
+    dealAnalyticsData,
+    documentCategories,
+    fundAnalytics,
+    mockDocuments,
+  } = getDealIntelligenceData();
   const { value: ui, patch: patchUI } = useUIKey<DealIntelligenceUIState>('deal-intelligence', {
     viewMode: 'fund-level',
     selectedDeal: null,

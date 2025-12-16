@@ -10,10 +10,10 @@ import {
   type CopilotMessage,
 } from '@/store/slices/copilotSlice';
 import {
-  getMockCopilotContextualResponse,
   type QuickAction,
   type Suggestion,
-} from '@/data/mocks/ai/copilot';
+  getCopilotContextualResponse,
+} from '@/services/ai/copilotService';
 
 const randomConfidence = () => Math.random() * 0.2 + 0.75;
 const nextId = () => Date.now().toString();
@@ -36,7 +36,7 @@ function* openWithQueryWorker(action: ReturnType<typeof openWithQueryRequested>)
   const aiMessage: CopilotMessage = {
     id: nextId(),
     type: 'ai',
-    content: getMockCopilotContextualResponse(pathname, query),
+    content: getCopilotContextualResponse(pathname, query),
     timestamp: new Date(),
     confidence: randomConfidence(),
   };
@@ -66,7 +66,7 @@ function* sendMessageWorker(action: ReturnType<typeof sendMessageRequested>) {
   const aiMessage: CopilotMessage = {
     id: nextId(),
     type: 'ai',
-    content: getMockCopilotContextualResponse(pathname, trimmed),
+    content: getCopilotContextualResponse(pathname, trimmed),
     timestamp: new Date(),
     confidence: randomConfidence(),
   };
@@ -137,4 +137,3 @@ export function* copilotSaga() {
   yield takeLatest(quickActionInvoked.type, quickActionWorker);
   yield takeLatest(suggestionInvoked.type, suggestionWorker);
 }
-

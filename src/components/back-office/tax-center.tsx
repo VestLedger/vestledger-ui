@@ -4,8 +4,8 @@ import { Card, Button, Badge, Progress, PageContainer, Breadcrumb, PageHeader, T
 import { Receipt, Download, Send, Calendar, DollarSign, Building2, Users, CheckCircle, Clock, AlertTriangle, Mail, Upload, FileText , Scale} from 'lucide-react';
 import { getRouteConfig } from '@/config/routes';
 import { K1Generator } from '../tax/k1-generator';
-import { mockPortfolioTax, mockTaxDocuments, mockTaxSummaries } from '@/data/mocks/back-office/tax-center';
 import { useUIKey } from '@/store/ui';
+import { getPortfolioTax, getTaxDocuments, getTaxFilingDeadline, getTaxSummaries } from '@/services/backOffice/taxCenterService';
 
 export function TaxCenter() {
   const { value: ui, patch: patchUI } = useUIKey('back-office-tax-center', { selectedTab: 'overview' });
@@ -14,11 +14,16 @@ export function TaxCenter() {
   // Get route config for breadcrumbs and AI suggestions
   const routeConfig = getRouteConfig('/tax-center');
 
+  const taxDocuments = getTaxDocuments();
+  const taxSummaries = getTaxSummaries();
+  const portfolioTax = getPortfolioTax();
+  const filingDeadline = getTaxFilingDeadline();
+
   // Calculate AI insights
-  const k1sIssued = mockTaxSummaries.reduce((sum, s) => sum + s.k1sIssued, 0);
-  const k1sTotal = mockTaxSummaries.reduce((sum, s) => sum + s.k1sTotal, 0);
-  const form1099Issued = mockTaxSummaries.reduce((sum, s) => sum + s.form1099Issued, 0);
-  const readyDocuments = mockTaxDocuments.filter(d => d.status === 'ready').length;
+  const k1sIssued = taxSummaries.reduce((sum, s) => sum + s.k1sIssued, 0);
+  const k1sTotal = taxSummaries.reduce((sum, s) => sum + s.k1sTotal, 0);
+  const form1099Issued = taxSummaries.reduce((sum, s) => sum + s.form1099Issued, 0);
+  const readyDocuments = taxDocuments.filter(d => d.status === 'ready').length;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -75,7 +80,7 @@ export function TaxCenter() {
         description="Manage tax documents, K-1s, and reporting for LPs and portfolio companies"
         icon={Receipt}
         aiSummary={{
-          text: `${k1sIssued} K-1s issued out of ${k1sTotal}. ${form1099Issued} 1099s issued. ${readyDocuments} documents ready to send. Filing deadline: March 15, 2025. AI recommends prioritizing the ${readyDocuments} ready documents for immediate distribution.`,
+          text: `${k1sIssued} K-1s issued out of ${k1sTotal}. ${form1099Issued} 1099s issued. ${readyDocuments} documents ready to send. Filing deadline: ${filingDeadline.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}. AI recommends prioritizing the ${readyDocuments} ready documents for immediate distribution.`,
           confidence: 0.92
         }}
         primaryAction={{
@@ -93,7 +98,7 @@ export function TaxCenter() {
           {
             id: 'overview',
             label: 'Tax Documents',
-            count: mockTaxDocuments.length
+            count: taxDocuments.length
           },
           {
             id: 'k1-generator',
@@ -102,13 +107,13 @@ export function TaxCenter() {
           {
             id: 'fund-summary',
             label: 'Fund Summary',
-            count: mockTaxSummaries.length
+            count: taxSummaries.length
           },
           {
             id: 'portfolio',
             label: 'Portfolio Companies',
-            count: mockPortfolioTax.filter(c => c.k1Required && !c.k1Received).length,
-            priority: mockPortfolioTax.filter(c => c.k1Required && !c.k1Received).length > 0 ? 'high' : undefined
+            count: portfolioTax.filter(c => c.k1Required && !c.k1Received).length,
+            priority: portfolioTax.filter(c => c.k1Required && !c.k1Received).length > 0 ? 'high' : undefined
           },
           {
             id: 'communications',
@@ -129,10 +134,10 @@ export function TaxCenter() {
             <div>
               <p className="text-sm text-[var(--app-text-muted)]">K-1s Issued</p>
               <p className="text-2xl font-bold">
-                {mockTaxSummaries.reduce((sum, s) => sum + s.k1sIssued, 0)}
+                {taxSummaries.reduce((sum, s) => sum + s.k1sIssued, 0)}
               </p>
               <p className="text-xs text-[var(--app-text-subtle)] mt-1">
-                of {mockTaxSummaries.reduce((sum, s) => sum + s.k1sTotal, 0)} total
+                of {taxSummaries.reduce((sum, s) => sum + s.k1sTotal, 0)} total
               </p>
             </div>
           </div>
@@ -146,10 +151,10 @@ export function TaxCenter() {
             <div>
               <p className="text-sm text-[var(--app-text-muted)]">1099s Issued</p>
               <p className="text-2xl font-bold">
-                {mockTaxSummaries.reduce((sum, s) => sum + s.form1099Issued, 0)}
+                {taxSummaries.reduce((sum, s) => sum + s.form1099Issued, 0)}
               </p>
               <p className="text-xs text-[var(--app-text-subtle)] mt-1">
-                of {mockTaxSummaries.reduce((sum, s) => sum + s.form1099Total, 0)} total
+                of {taxSummaries.reduce((sum, s) => sum + s.form1099Total, 0)} total
               </p>
             </div>
           </div>
@@ -163,7 +168,7 @@ export function TaxCenter() {
             <div>
               <p className="text-sm text-[var(--app-text-muted)]">Est. Taxes Paid</p>
               <p className="text-2xl font-bold">
-                {formatCurrency(mockTaxSummaries.reduce((sum, s) => sum + s.estimatedTaxesPaid, 0))}
+                {formatCurrency(taxSummaries.reduce((sum, s) => sum + s.estimatedTaxesPaid, 0))}
               </p>
             </div>
           </div>
@@ -176,9 +181,9 @@ export function TaxCenter() {
             </div>
             <div>
               <p className="text-sm text-[var(--app-text-muted)]">Filing Deadline</p>
-              <p className="text-lg font-bold">Mar 15, 2025</p>
+              <p className="text-lg font-bold">{filingDeadline.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
               <p className="text-xs text-[var(--app-text-subtle)] mt-1">
-                {Math.ceil((new Date('2025-03-15').getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days remaining
+                {Math.ceil((filingDeadline.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days remaining
               </p>
             </div>
           </div>
@@ -188,7 +193,7 @@ export function TaxCenter() {
       {/* Overview Tab - Tax Documents */}
       {selectedTab === 'overview' && (
           <div className="mt-4 space-y-3">
-            {mockTaxDocuments.map((doc) => (
+            {taxDocuments.map((doc) => (
               <Card key={doc.id} padding="lg">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-4">
@@ -300,7 +305,7 @@ export function TaxCenter() {
       {/* Fund Summary Tab */}
       {selectedTab === 'fund-summary' && (
           <div className="mt-4 space-y-3">
-            {mockTaxSummaries.map((summary) => {
+            {taxSummaries.map((summary) => {
               const k1Progress = (summary.k1sIssued / summary.k1sTotal) * 100;
               const form1099Progress = (summary.form1099Issued / summary.form1099Total) * 100;
 
@@ -373,7 +378,7 @@ export function TaxCenter() {
             <Card padding="lg">
               <h3 className="font-semibold mb-4">K-1 Collection Status</h3>
               <div className="space-y-3">
-                {mockPortfolioTax.map((company) => (
+                {portfolioTax.map((company) => (
                   <div key={company.id} className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">

@@ -3,7 +3,7 @@
 import { Card, Button, Badge, Progress, Select, PageContainer, Breadcrumb, PageHeader } from '@/ui';
 import { Download, FileText, File, Table, Image, Calendar, Filter, Check, Settings, Mail, Clock, Repeat , FileDown} from 'lucide-react';
 import { getRouteConfig } from '@/config/routes';
-import { mockExportJobs, reportTemplates, type ExportJob, type ReportTemplate } from '@/data/mocks/reports/report-export';
+import { getInitialExportJobs, getReportTemplates, type ExportJob, type ReportTemplate } from '@/services/reports/reportExportService';
 import { useUIKey } from '@/store/ui';
 import { useAppDispatch } from '@/store/hooks';
 import { reportExportRequested } from '@/store/slices/uiEffectsSlice';
@@ -20,7 +20,7 @@ const defaultReportExportState: {
   exportFormat: 'pdf',
   dateRange: { start: '2024-01-01', end: '2024-12-31' },
   selectedSections: [],
-  exportJobs: mockExportJobs,
+  exportJobs: getInitialExportJobs(),
   scheduleEnabled: false,
 };
 
@@ -29,6 +29,7 @@ export function ReportExport() {
   const routeConfig = getRouteConfig('/reports');
   const { value: ui, patch: patchUI } = useUIKey('report-export', defaultReportExportState);
   const { selectedTemplate, exportFormat, dateRange, selectedSections, exportJobs, scheduleEnabled } = ui;
+  const reportTemplates = getReportTemplates();
 
   const handleExport = () => {
     if (!selectedTemplate) return;

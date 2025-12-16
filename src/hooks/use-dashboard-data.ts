@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { useFund } from '@/contexts/fund-context';
-import { getMockDashboardData } from '@/data/mocks/hooks/dashboard-data';
+import { getDashboardData } from '@/services/dashboard/dashboardDataService';
 
 /**
  * Hook to provide mock dashboard data for all widgets
@@ -17,6 +17,6 @@ export function useDashboardData() {
   const { selectedFund, viewMode } = useFund();
   
   return useMemo(() => {
-    return getMockDashboardData(selectedFund, viewMode);
+    return getDashboardData(selectedFund, viewMode);
   }, [selectedFund, viewMode]);
 }

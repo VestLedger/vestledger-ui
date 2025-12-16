@@ -9,7 +9,7 @@ import { CarriedInterestTracker } from '../fund-admin/carried-interest-tracker'
 import { ExpenseTracker } from '../fund-admin/expense-tracker'
 import { NAVCalculator } from '../fund-admin/nav-calculator'
 import { TransferSecondary } from '../fund-admin/transfer-secondary'
-import { mockCapitalCalls, mockDistributions, mockLPResponses } from '@/data/mocks/back-office/fund-admin'
+import { getCapitalCalls, getDistributions, getLPResponses } from '@/services/backOffice/fundAdminService'
 
 export function FundAdmin() {
   const { value: ui, patch: patchUI } = useUIKey('back-office-fund-admin', { selectedTab: 'capital-calls' });
@@ -17,6 +17,10 @@ export function FundAdmin() {
 
   // Get route config for breadcrumbs and AI suggestions
   const routeConfig = getRouteConfig('/fund-admin');
+
+  const capitalCalls = getCapitalCalls();
+  const distributions = getDistributions();
+  const lpResponses = getLPResponses();
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -63,11 +67,11 @@ export function FundAdmin() {
   };
 
   // Calculate AI insights
-  const activeCallsCount = mockCapitalCalls.filter(c => c.status === 'in-progress').length;
-  const totalOutstanding = mockCapitalCalls
+  const activeCallsCount = capitalCalls.filter(c => c.status === 'in-progress').length;
+  const totalOutstanding = capitalCalls
     .filter(c => c.status === 'in-progress')
     .reduce((sum, c) => sum + (c.totalAmount - c.amountReceived), 0);
-  const pendingLPs = mockLPResponses.filter(r => r.status === 'pending' || r.status === 'partial').length;
+  const pendingLPs = lpResponses.filter(r => r.status === 'pending' || r.status === 'partial').length;
 
   return (
     <PageContainer>
@@ -155,11 +159,11 @@ export function FundAdmin() {
             <div>
               <p className="text-sm text-[var(--app-text-muted)]">Active Calls</p>
               <p className="text-2xl font-bold">
-                {mockCapitalCalls.filter(c => c.status === 'in-progress').length}
+                {capitalCalls.filter(c => c.status === 'in-progress').length}
               </p>
               <p className="text-xs text-[var(--app-text-subtle)] mt-1">
                 {formatCurrency(
-                  mockCapitalCalls
+                  capitalCalls
                     .filter(c => c.status === 'in-progress')
                     .reduce((sum, c) => sum + c.totalAmount, 0)
                 )}
@@ -176,11 +180,11 @@ export function FundAdmin() {
             <div>
               <p className="text-sm text-[var(--app-text-muted)]">YTD Distributions</p>
               <p className="text-2xl font-bold">
-                {mockDistributions.filter(d => d.status === 'completed').length}
+                {distributions.filter(d => d.status === 'completed').length}
               </p>
               <p className="text-xs text-[var(--app-text-subtle)] mt-1">
                 {formatCurrency(
-                  mockDistributions
+                  distributions
                     .filter(d => d.status === 'completed')
                     .reduce((sum, d) => sum + d.totalAmount, 0)
                 )}
@@ -198,7 +202,7 @@ export function FundAdmin() {
               <p className="text-sm text-[var(--app-text-muted)]">Outstanding</p>
               <p className="text-2xl font-bold">
                 {formatCurrency(
-                  mockCapitalCalls
+                  capitalCalls
                     .filter(c => c.status === 'in-progress')
                     .reduce((sum, c) => sum + (c.totalAmount - c.amountReceived), 0)
                 )}
@@ -215,7 +219,7 @@ export function FundAdmin() {
             <div>
               <p className="text-sm text-[var(--app-text-muted)]">Total LPs</p>
               <p className="text-2xl font-bold">
-                {Math.max(...mockCapitalCalls.map(c => c.lpCount))}
+                {Math.max(...capitalCalls.map(c => c.lpCount))}
               </p>
             </div>
           </div>
@@ -226,7 +230,7 @@ export function FundAdmin() {
       <div>
         {selectedTab === 'capital-calls' && (
           <div className="space-y-3">
-            {mockCapitalCalls.map((call) => {
+            {capitalCalls.map((call) => {
               const responseRate = (call.lpsResponded / call.lpCount) * 100;
               const collectionRate = (call.amountReceived / call.totalAmount) * 100;
 
@@ -334,7 +338,7 @@ export function FundAdmin() {
 
         {selectedTab === 'distributions' && (
           <div className="space-y-3">
-            {mockDistributions.map((dist) => (
+            {distributions.map((dist) => (
               <Card key={dist.id} padding="lg">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-4">
@@ -421,7 +425,7 @@ export function FundAdmin() {
               </div>
 
               <div className="space-y-3">
-                {mockLPResponses.map((response) => {
+                {lpResponses.map((response) => {
                   const paymentProgress = (response.amountPaid / response.callAmount) * 100;
 
                   return (

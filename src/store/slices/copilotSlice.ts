@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import type { QuickAction, Suggestion } from '@/data/mocks/ai/copilot';
+import type { QuickAction, Suggestion } from '@/services/ai/copilotService';
 
 export interface CopilotMessage {
   id: string;
@@ -122,4 +122,3 @@ export const {
 } = copilotSlice.actions;
 
 export const copilotReducer = copilotSlice.reducer;
-

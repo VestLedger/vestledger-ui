@@ -2,7 +2,7 @@
 
 import { Card, Button, Badge, Progress } from '@/ui';
 import { Star, User, TrendingUp, Target, Users, Lightbulb, CheckCircle2, Edit3 } from 'lucide-react';
-import { mockScoreData, type CompanyScoreData } from '@/data/mocks/dealflow/company-scoring';
+import { getCompanyScoreData, type CompanyScoreData } from '@/services/dealflow/companyScoringService';
 import { useUIKey } from '@/store/ui';
 
 interface ScoringCriteria {
@@ -52,7 +52,7 @@ const defaultCriteria: ScoringCriteria[] = [
 ];
 
 export function CompanyScoring({ companyId, companyName }: { companyId: number; companyName: string }) {
-  const scoreData = mockScoreData;
+  const scoreData = getCompanyScoreData();
   const { value: ui, patch: patchUI } = useUIKey<{
     isEditingScores: boolean;
     currentUserScore: Record<string, number>;

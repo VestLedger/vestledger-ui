@@ -4,15 +4,8 @@ import { Card, Button, Badge, Progress, PageContainer, Breadcrumb, PageHeader } 
 import { ThumbsUp, ThumbsDown, MinusCircle, MessageSquare, Users, Building2, TrendingUp, DollarSign, Target, Lightbulb, Share2, Download, Play, Pause, SkipForward, SkipBack, Maximize2, Plus, Edit3, FileSearch , Vote} from 'lucide-react';
 import { getRouteConfig } from '@/config/routes';
 import { CompanyScoring } from './company-scoring';
-import { mockDeals, type Deal } from '@/data/mocks/dealflow/dealflow-review';
+import { getDealflowDeals, getDealflowReviewSlides, type DealflowReviewSlide } from '@/services/dealflow/dealflowReviewService';
 import { useUIKey } from '@/store/ui';
-
-interface SlideContent {
-  id: string;
-  type: 'overview' | 'team' | 'market' | 'product' | 'financials' | 'competition' | 'ask';
-  title: string;
-  content: any;
-}
 
 interface Vote {
   partnerId: string;
@@ -31,90 +24,10 @@ interface ReviewSession {
   decision?: 'proceed' | 'pass' | 'defer';
 }
 
-const generateSlides = (deal: Deal): SlideContent[] => [
-  {
-    id: '1',
-    type: 'overview',
-    title: 'Company Overview',
-    content: {
-      companyName: deal.companyName,
-      oneLiner: deal.oneLiner,
-      founder: deal.founderName,
-      location: deal.location,
-      sector: deal.sector,
-      stage: deal.stage
-    }
-  },
-  {
-    id: '2',
-    type: 'market',
-    title: 'Market Opportunity',
-    content: {
-      tam: '$50B',
-      sam: '$15B',
-      som: '$2B',
-      growth: '25% CAGR',
-      competitors: ['Competitor A', 'Competitor B', 'Competitor C']
-    }
-  },
-  {
-    id: '3',
-    type: 'product',
-    title: 'Product & Technology',
-    content: {
-      description: 'Hybrid quantum-classical computing platform',
-      differentiators: ['API-first approach', 'Enterprise security', 'Easy integration'],
-      techStack: ['Quantum algorithms', 'Cloud infrastructure', 'RESTful APIs']
-    }
-  },
-  {
-    id: '4',
-    type: 'financials',
-    title: 'Financial Metrics',
-    content: {
-      arr: deal.arr,
-      growth: deal.growth,
-      burn: 400000,
-      runway: 18,
-      ltv: 250000,
-      cac: 50000,
-      grossMargin: 75
-    }
-  },
-  {
-    id: '5',
-    type: 'team',
-    title: 'Team',
-    content: {
-      founder: deal.founderName,
-      team: [
-        { name: 'Sarah Chen', role: 'CEO', background: 'Stanford PhD, ex-Google' },
-        { name: 'David Kim', role: 'CTO', background: 'MIT PhD, ex-IBM Quantum' },
-        { name: 'Lisa Wang', role: 'VP Sales', background: 'ex-Salesforce, 15yr enterprise' }
-      ],
-      advisors: ['Prof. John Smith (Stanford)', 'Dr. Emily Brown (MIT)']
-    }
-  },
-  {
-    id: '6',
-    type: 'ask',
-    title: 'Investment Ask',
-    content: {
-      amount: deal.askAmount,
-      valuation: deal.valuation,
-      useOfFunds: [
-        { category: 'Product Development', percentage: 40 },
-        { category: 'Sales & Marketing', percentage: 35 },
-        { category: 'Operations', percentage: 15 },
-        { category: 'Hiring', percentage: 10 }
-      ]
-    }
-  }
-];
-
 export function DealflowReview() {
-  const selectedDeal = mockDeals[0];
-  const slides = generateSlides(selectedDeal);
+  const deals = getDealflowDeals();
+  const selectedDeal = deals[0];
+  const slides = selectedDeal ? getDealflowReviewSlides(selectedDeal) : [];
   const { value: ui, patch: patchUI } = useUIKey<{
     currentSlideIndex: number;
     isPresenting: boolean;
@@ -133,7 +46,31 @@ export function DealflowReview() {
   // Get route config for breadcrumbs and AI suggestions
   const routeConfig = getRouteConfig('/dealflow-review');
 
-  const currentSlide = slides[currentSlideIndex];
+  if (!selectedDeal) {
+    return (
+      <PageContainer>
+        <div className="space-y-6">
+          {routeConfig && (
+            <div className="mb-4">
+              <Breadcrumb items={routeConfig.breadcrumbs} aiSuggestion={routeConfig.aiSuggestion} />
+            </div>
+          )}
+          <PageHeader
+            title="Dealflow Review"
+            description="No deals available to review yet"
+            icon={FileSearch}
+          />
+          <Card padding="lg">
+            <div className="text-sm text-[var(--app-text-muted)]">Add deals via the backend integration when ready.</div>
+          </Card>
+        </div>
+      </PageContainer>
+    );
+  }
+
+  const safeSlideIndex =
+    slides.length === 0 ? 0 : Math.min(Math.max(currentSlideIndex, 0), slides.length - 1);
+  const currentSlide: DealflowReviewSlide | undefined = slides[safeSlideIndex];
 
   // Calculate AI insights for summary
   const yesVotes = votes.filter(v => v.vote === 'yes').length;
@@ -161,18 +98,19 @@ export function DealflowReview() {
   };
 
   const nextSlide = () => {
-    if (currentSlideIndex < slides.length - 1) {
-      patchUI({ currentSlideIndex: currentSlideIndex + 1 });
+    if (safeSlideIndex < slides.length - 1) {
+      patchUI({ currentSlideIndex: safeSlideIndex + 1 });
     }
   };
 
   const prevSlide = () => {
-    if (currentSlideIndex > 0) {
-      patchUI({ currentSlideIndex: currentSlideIndex - 1 });
+    if (safeSlideIndex > 0) {
+      patchUI({ currentSlideIndex: safeSlideIndex - 1 });
     }
   };
 
   const renderSlideContent = () => {
+    if (!currentSlide) return null;
     switch (currentSlide.type) {
       case 'overview':
         return (
@@ -391,7 +329,7 @@ export function DealflowReview() {
           aiSummary={{
             text: totalVotes > 0
               ? `${consensusPercentage}% consensus for proceeding (${yesVotes}/${totalVotes} votes in favor). ${maybeVotes} votes requiring more due diligence. Reviewing: ${selectedDeal.companyName}.`
-              : `Ready to review ${selectedDeal.companyName}. No votes cast yet. Waiting for team feedback on ${currentSlide.title}.`,
+              : `Ready to review ${selectedDeal.companyName}. No votes cast yet. Waiting for team feedback on ${currentSlide?.title ?? 'the deck'}.`,
             confidence: totalVotes > 0 ? 0.88 : 0.72
           }}
           primaryAction={{

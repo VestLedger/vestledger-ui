@@ -3,9 +3,11 @@
 import { Search, CheckCircle2, Clock } from 'lucide-react';
 import { Card, Button, Badge, PageContainer } from '@/ui';
 import { MetricCard } from '@/components/metric-card';
-import { analystDashboardMetrics, analystRecentDeals, analystUrgentTasks } from '@/data/mocks/dashboards/analyst-dashboard';
+import { getAnalystDashboardSnapshot } from '@/services/dashboards/analystDashboardService';
 
 export function AnalystDashboard() {
+  const { metrics, recentDeals, urgentTasks } = getAnalystDashboardSnapshot();
+
   return (
     <PageContainer className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -21,7 +23,7 @@ export function AnalystDashboard() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {analystDashboardMetrics.map((metric, index) => (
+        {metrics.map((metric, index) => (
           <MetricCard key={index} {...metric} />
         ))}
       </div>
@@ -33,7 +35,7 @@ export function AnalystDashboard() {
              <Button size="sm" variant="light">View All</Button>
            </div>
            <div className="space-y-4">
-             {analystRecentDeals.map((deal, idx) => (
+             {recentDeals.map((deal, idx) => (
                <div key={idx} className="flex items-center justify-between p-3 rounded-lg border border-[var(--app-border-subtle)] hover:bg-[var(--app-surface-hover)] transition-colors">
                  <div className="flex items-center gap-3">
                    <div className="w-10 h-10 rounded-full bg-[var(--app-primary-bg)] flex items-center justify-center text-[var(--app-primary)] font-bold">
@@ -61,7 +63,7 @@ export function AnalystDashboard() {
         <Card padding="md">
           <h3 className="text-lg font-medium mb-4">Urgent Tasks</h3>
           <div className="space-y-3">
-            {analystUrgentTasks.map((item, i) => (
+            {urgentTasks.map((item, i) => (
               <div key={i} className="flex items-start gap-3 p-2">
                  <CheckCircle2 className="w-5 h-5 text-[var(--app-text-muted)] mt-0.5" />
                  <div>

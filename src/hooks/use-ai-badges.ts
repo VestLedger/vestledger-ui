@@ -1,7 +1,7 @@
 'use client'
 
 import { useUIKey } from '@/store/ui';
-import type { BadgeData } from '@/data/mocks/hooks/ai-badges';
+import type { BadgeData } from '@/services/ai/aiBadgesService';
 
 export function useAIBadges(): BadgeData {
   const { value: badges } = useUIKey<BadgeData>('ai-badges', {});

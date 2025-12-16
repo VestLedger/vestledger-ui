@@ -3,14 +3,10 @@
 import { BarChart3, TrendingUp, FileText, DollarSign, Download, Calendar, CheckCircle2, AlertCircle, Clock, CreditCard, Pen, Shield, ChevronRight, Wallet } from 'lucide-react';
 import { Card, Button, Badge, Progress, PageContainer } from '@/ui';
 import { MetricCard } from '@/components/metric-card';
-import { lpDashboardCapitalActivity, lpDashboardDocuments, lpDashboardMetrics, pendingCalls, pendingSignatures } from '@/data/mocks/dashboards/lp-dashboard';
+import { getLPDashboardSnapshot } from '@/services/dashboards/lpDashboardService';
 
 export function LPDashboard() {
-  const metrics = lpDashboardMetrics;
-
-  const documents = lpDashboardDocuments;
-
-  const capitalActivity = lpDashboardCapitalActivity;
+  const { metrics, documents, capitalActivity, pendingCalls, pendingSignatures, commitment } = getLPDashboardSnapshot();
 
   const formatCurrency = (amount: number) => {
     if (amount >= 1_000_000) return `$${(amount / 1_000_000).toFixed(1)}M`;
@@ -26,8 +22,8 @@ export function LPDashboard() {
   };
 
   // Commitment tracking
-  const totalCommitment = 10_000_000;
-  const calledAmount = 6_500_000;
+  const totalCommitment = commitment.totalCommitment;
+  const calledAmount = commitment.calledAmount;
   const unfundedCommitment = totalCommitment - calledAmount;
 
   return (

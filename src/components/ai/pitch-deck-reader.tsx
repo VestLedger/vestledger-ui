@@ -3,7 +3,7 @@
 import { Card, Button, Badge, Progress } from '@/ui';
 import { Upload, FileText, Sparkles, CheckCircle2, Clock, AlertCircle, Download, Eye } from 'lucide-react';
 import { DocumentPreviewModal, useDocumentPreview, getMockDocumentUrl } from '@/components/documents/preview';
-import { mockAnalyses, type PitchDeckAnalysis } from '@/data/mocks/ai/pitch-deck-reader';
+import { getPitchDeckAnalyses, type PitchDeckAnalysis } from '@/services/ai/pitchDeckService';
 import { useUIKey } from '@/store/ui';
 import { useAppDispatch } from '@/store/hooks';
 import { pitchDeckUploadRequested } from '@/store/slices/uiEffectsSlice';
@@ -15,7 +15,7 @@ const defaultPitchDeckReaderState = {
 
 export function PitchDeckReader() {
   const dispatch = useAppDispatch();
-  const analyses: PitchDeckAnalysis[] = mockAnalyses;
+  const analyses: PitchDeckAnalysis[] = getPitchDeckAnalyses();
   const { value: ui, patch: patchUI } = useUIKey<{ selectedAnalysisId: string | null; isUploading: boolean }>(
     'pitch-deck-reader',
     defaultPitchDeckReaderState

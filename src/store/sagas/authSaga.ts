@@ -1,5 +1,5 @@
 import { call, put, select, take, takeLatest } from 'redux-saga/effects';
-import { createMockUser } from '@/data/mocks/auth';
+import { createUser } from '@/services/authService';
 import type { RootState } from '@/store/rootReducer';
 import type { User, UserRole } from '@/types/auth';
 import {
@@ -44,7 +44,7 @@ function* hydrateAuthWorker() {
 
 function* loginWorker(action: ReturnType<typeof loginRequested>) {
   const { email, role } = action.payload;
-  const user: User = createMockUser(email, role);
+  const user: User = createUser(email, role);
 
   yield put(loginSucceeded(user));
 

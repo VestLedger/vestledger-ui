@@ -6,6 +6,7 @@ import { navigationReducer } from './slices/navigationSlice';
 import { copilotReducer } from './slices/copilotSlice';
 import { uiReducer } from './slices/uiSlice';
 import { uiEffectsReducer } from './slices/uiEffectsSlice';
+import { documentsReducer } from './slices/documentsSlice';
 
 export const rootReducer = combineReducers({
   alerts: alertsReducer,
@@ -15,6 +16,7 @@ export const rootReducer = combineReducers({
   copilot: copilotReducer,
   ui: uiReducer,
   uiEffects: uiEffectsReducer,
+  documents: documentsReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

@@ -1,25 +1,34 @@
 'use client';
 
+import { useEffect } from 'react';
 import { PageContainer, PageHeader, Breadcrumb } from '@/ui';
 import { getRouteConfig } from '@/config/routes';
-import { DocumentManager, type Document, type DocumentFolder, type DocumentCategory, type AccessLevel } from './document-manager';
+import { DocumentManager, type AccessLevel } from './document-manager';
 import { DocumentPreviewModal, useDocumentPreview, getMockDocumentUrl, type PreviewDocument } from './preview';
-import { mockDocuments, mockFolders } from '@/data/mocks/documents';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import {
+  documentAccessUpdated,
+  documentDeleted,
+  documentFavoriteToggled,
+  documentMoved,
+  documentsRequested,
+} from '@/store/slices/documentsSlice';
 import { useUIKey } from '@/store/ui';
 
 export function Documents() {
   const routeConfig = getRouteConfig('/documents');
-  const { value: ui, patch: patchUI } = useUIKey<{
-    documents: Document[];
-    folders: DocumentFolder[];
-    currentFolderId: string | null;
-  }>('documents-page', {
-    documents: mockDocuments,
-    folders: mockFolders,
+  const dispatch = useAppDispatch();
+  const documents = useAppSelector((state) => state.documents.documents);
+  const folders = useAppSelector((state) => state.documents.folders);
+  const { value: ui, patch: patchUI } = useUIKey<{ currentFolderId: string | null }>('documents-page', {
     currentFolderId: null,
   });
-  const { documents, folders, currentFolderId } = ui;
+  const { currentFolderId } = ui;
   const preview = useDocumentPreview();
+
+  useEffect(() => {
+    dispatch(documentsRequested());
+  }, [dispatch]);
 
   const handleUpload = (folderId?: string | null) => {
     console.log('Upload file to folder:', folderId);
@@ -38,7 +47,7 @@ export function Documents() {
         id: doc.id,
         name: doc.name,
         type: doc.type,
-        url: getMockDocumentUrl(doc.type),
+        url: doc.url ?? getMockDocumentUrl(doc.type),
         size: doc.size,
         uploadedBy: doc.uploadedBy,
         uploadedDate: doc.uploadedDate,
@@ -51,7 +60,7 @@ export function Documents() {
         id: d.id,
         name: d.name,
         type: d.type,
-        url: getMockDocumentUrl(d.type),
+        url: d.url ?? getMockDocumentUrl(d.type),
         size: d.size,
         uploadedBy: d.uploadedBy,
         uploadedDate: d.uploadedDate,
@@ -75,33 +84,21 @@ export function Documents() {
 
   const handleDeleteDocument = (documentId: string) => {
     console.log('Delete document:', documentId);
-    patchUI({ documents: documents.filter((doc) => doc.id !== documentId) });
+    dispatch(documentDeleted(documentId));
   };
 
   const handleToggleFavorite = (documentId: string) => {
-    patchUI({
-      documents: documents.map((doc) =>
-        doc.id === documentId ? { ...doc, isFavorite: !doc.isFavorite } : doc
-      ),
-    });
+    dispatch(documentFavoriteToggled(documentId));
   };
 
   const handleMoveDocument = (documentId: string, newFolderId: string | null) => {
     console.log('Move document:', documentId, newFolderId);
-    patchUI({
-      documents: documents.map((doc) =>
-        doc.id === documentId ? { ...doc, folderId: newFolderId } : doc
-      ),
-    });
+    dispatch(documentMoved({ documentId, newFolderId }));
   };
 
   const handleUpdateAccess = (documentId: string, accessLevel: AccessLevel) => {
     console.log('Update access:', documentId, accessLevel);
-    patchUI({
-      documents: documents.map((doc) =>
-        doc.id === documentId ? { ...doc, accessLevel } : doc
-      ),
-    });
+    dispatch(documentAccessUpdated({ documentId, accessLevel }));
   };
 
   return (

@@ -11,17 +11,17 @@ import {
   reportExportRequested,
   startupApplicationSubmitRequested,
 } from '@/store/slices/uiEffectsSlice';
-import { getMockDDChatResponse, mockConversations, type Message } from '@/data/mocks/ai/dd-chat-assistant';
+import { getDDChatAssistantResponse, getInitialDDChatConversation, type Message } from '@/services/ai/ddChatService';
 import {
-  generateMockRejectionLetter,
-  mockDealInfo,
-  rejectionReasons,
   type DealInfo,
   type DecisionWriterTone,
   type RejectionReason,
-} from '@/data/mocks/ai/decision-writer';
-import { calculateAIBadges, type BadgeData } from '@/data/mocks/hooks/ai-badges';
-import type { ExportJob, ReportTemplate } from '@/data/mocks/reports/report-export';
+  generateRejectionLetter,
+  getDecisionWriterRejectionReasons,
+  getDecisionWriterSeedDealInfo,
+} from '@/services/ai/decisionWriterService';
+import { calculateBadges, type BadgeData } from '@/services/ai/aiBadgesService';
+import type { ExportJob, ReportTemplate } from '@/services/reports/reportExportService';
 
 type EOIState = { submitted: boolean; loading: boolean };
 type StartupApplicationState = { isSubmitting: boolean; isSubmitted: boolean };
@@ -89,8 +89,8 @@ function* decisionWriterGenerateWorker(): SagaGenerator {
   const stored = (yield select(selectUIKey<DecisionWriterState>(key))) as DecisionWriterState | undefined;
   const current: DecisionWriterState =
     stored ?? {
-      dealInfo: mockDealInfo,
-      reasons: rejectionReasons,
+      dealInfo: getDecisionWriterSeedDealInfo(),
+      reasons: getDecisionWriterRejectionReasons(),
       customReason: '',
       tone: 'warm' as DecisionWriterTone,
       generatedLetter: '',
@@ -104,7 +104,7 @@ function* decisionWriterGenerateWorker(): SagaGenerator {
   yield delay(2000);
 
   const selectedReasons = current.reasons.filter((reason) => reason.selected);
-  const letter = generateMockRejectionLetter(current.dealInfo, selectedReasons, current.customReason, current.tone);
+  const letter = generateRejectionLetter(current.dealInfo, selectedReasons, current.customReason, current.tone);
   yield put(patchUIState({ key, patch: { generatedLetter: letter, isGenerating: false } }));
 }
 
@@ -135,7 +135,7 @@ function* ddChatSendWorker(
   const stored = (yield select(selectUIKey<DDChatState>(key))) as DDChatState | undefined;
   const current: DDChatState =
     stored ?? {
-      messages: mockConversations,
+      messages: getInitialDDChatConversation(),
       inputValue: '',
       isTyping: false,
     };
@@ -158,7 +158,7 @@ function* ddChatSendWorker(
 
   yield delay(1500);
 
-  const aiResponse = getMockDDChatResponse(trimmed, dealName);
+  const aiResponse = getDDChatAssistantResponse(trimmed, dealName);
   const latest = (yield select(selectUIKey<DDChatState>(key))) as DDChatState | undefined;
   const latestValue = latest ?? current;
   const latestMessages = latestValue.messages ?? nextMessages;
@@ -210,7 +210,7 @@ function* reportExportWorker(): SagaGenerator {
 function* aiBadgesLoop(): SagaGenerator {
   const key = 'ai-badges';
   while (true) {
-    const badges: BadgeData = calculateAIBadges();
+    const badges: BadgeData = calculateBadges();
     yield put(setUIState({ key, value: badges }));
     yield delay(60000);
   }

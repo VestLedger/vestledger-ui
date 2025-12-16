@@ -2,7 +2,12 @@
 
 import { Card, Button, Badge } from '@/ui';
 import { Layers, TrendingUp, ArrowUpRight, ArrowDownRight } from 'lucide-react';
-import { cohortsByVintage, cohortsBySector, cohortsByStage, type CohortPerformance } from '@/data/mocks/mock-fund-analytics-data';
+import {
+  getCohortsBySector,
+  getCohortsByStage,
+  getCohortsByVintage,
+  type CohortPerformance,
+} from '@/services/analytics/fundAnalyticsService';
 import { useUIKey } from '@/store/ui';
 
 type CohortType = 'vintage' | 'sector' | 'stage';
@@ -99,6 +104,9 @@ function CohortRow({ cohort, bestMOIC, bestIRR }: CohortRowProps) {
 }
 
 export function CohortAnalysis() {
+  const cohortsByVintage = getCohortsByVintage();
+  const cohortsBySector = getCohortsBySector();
+  const cohortsByStage = getCohortsByStage();
   const { value: ui, patch: patchUI } = useUIKey<{ selectedType: CohortType }>('cohort-analysis', {
     selectedType: 'vintage',
   });

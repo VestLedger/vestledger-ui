@@ -2,7 +2,7 @@
 
 import { Card, Progress } from '@/ui';
 import { TrendingUp, DollarSign, PieChart, Target, Calendar, Activity } from 'lucide-react';
-import { currentFund, benchmarkData } from '@/data/mocks/mock-fund-analytics-data';
+import { getBenchmarkData, getCurrentFundMetrics } from '@/services/analytics/fundAnalyticsService';
 
 interface MetricCardProps {
   title: string;
@@ -79,6 +79,9 @@ function MetricCard({ title, value, subtitle, icon, benchmark }: MetricCardProps
 }
 
 export function FundPerformanceOverview() {
+  const currentFund = getCurrentFundMetrics();
+  const benchmarkData = getBenchmarkData();
+
   const formatCurrency = (value: number) => {
     if (value >= 1000000) {
       return `$${(value / 1000000).toFixed(1)}M`;

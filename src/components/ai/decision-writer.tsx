@@ -6,14 +6,14 @@ import { useUIKey } from '@/store/ui';
 import { useAppDispatch } from '@/store/hooks';
 import { decisionWriterCopyRequested, decisionWriterGenerateRequested } from '@/store/slices/uiEffectsSlice';
 import {
-  mockDealInfo,
-  rejectionReasons,
-  toneOptions,
+  getDecisionWriterRejectionReasons,
+  getDecisionWriterSeedDealInfo,
+  getDecisionWriterToneOptions,
   type DealInfo,
   type DecisionWriterTone,
   type RejectionReason,
   type RejectionReasonCategory,
-} from '@/data/mocks/ai/decision-writer';
+} from '@/services/ai/decisionWriterService';
 
 const defaultDecisionWriterState: {
   dealInfo: DealInfo;
@@ -24,8 +24,8 @@ const defaultDecisionWriterState: {
   isGenerating: boolean;
   letterCopied: boolean;
 } = {
-  dealInfo: mockDealInfo,
-  reasons: rejectionReasons,
+  dealInfo: getDecisionWriterSeedDealInfo(),
+  reasons: getDecisionWriterRejectionReasons(),
   customReason: '',
   tone: 'warm',
   generatedLetter: '',
@@ -37,6 +37,7 @@ export function DecisionWriter() {
   const dispatch = useAppDispatch();
   const { value: ui, patch: patchUI } = useUIKey('decision-writer', defaultDecisionWriterState);
   const { dealInfo, reasons, customReason, tone, generatedLetter, isGenerating, letterCopied } = ui;
+  const toneOptions = getDecisionWriterToneOptions();
 
   const toggleReason = (reasonId: string) => {
     patchUI({

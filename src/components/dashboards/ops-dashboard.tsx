@@ -3,9 +3,11 @@
 import { DollarSign, AlertTriangle, Calendar, Download } from 'lucide-react';
 import { Card, Button, Badge, PageContainer } from '@/ui';
 import { MetricCard } from '@/components/metric-card';
-import { opsDashboardMetrics, opsComplianceAlerts, opsUpcomingDistributions } from '@/data/mocks/dashboards/ops-dashboard';
+import { getOpsDashboardSnapshot } from '@/services/dashboards/opsDashboardService';
 
 export function OpsDashboard() {
+  const { metrics, complianceAlerts, upcomingDistributions } = getOpsDashboardSnapshot();
+
   return (
     <PageContainer className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -24,7 +26,7 @@ export function OpsDashboard() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {opsDashboardMetrics.map((metric, index) => (
+        {metrics.map((metric, index) => (
           <MetricCard key={index} {...metric} />
         ))}
       </div>
@@ -36,7 +38,7 @@ export function OpsDashboard() {
              Compliance Alerts
            </h3>
            <div className="space-y-3">
-             {opsComplianceAlerts.map((alert, i) => (
+             {complianceAlerts.map((alert, i) => (
                <div key={i} className="p-3 bg-[var(--app-surface-hover)]/30 rounded-lg border-l-2 border-amber-500">
                   <div className="flex justify-between items-start">
                     <div className="font-medium text-sm">{alert.title}</div>
@@ -54,7 +56,7 @@ export function OpsDashboard() {
              Upcoming Distributions
            </h3>
            <div className="space-y-4">
-             {opsUpcomingDistributions.map((dist, i) => (
+             {upcomingDistributions.map((dist, i) => (
                <div key={i} className="flex items-center justify-between pb-3 border-b border-[var(--app-border-subtle)] last:border-0 last:pb-0">
                   <div>
                     <div className="font-medium text-sm">{dist.event}</div>

@@ -3,9 +3,11 @@
 import { TrendingUp, FileText, Search, Download } from 'lucide-react';
 import { Card, Button, Badge, PageContainer } from '@/ui';
 import { MetricCard } from '@/components/metric-card';
-import { researcherDashboardMetrics, researcherRecentReports, researcherTrendingTopics } from '@/data/mocks/dashboards/researcher-dashboard';
+import { getResearcherDashboardSnapshot } from '@/services/dashboards/researcherDashboardService';
 
 export function ResearcherDashboard() {
+  const { metrics, recentReports, trendingTopics } = getResearcherDashboardSnapshot();
+
   return (
     <PageContainer className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -24,7 +26,7 @@ export function ResearcherDashboard() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {researcherDashboardMetrics.map((metric, index) => (
+        {metrics.map((metric, index) => (
           <MetricCard key={index} {...metric} />
         ))}
       </div>
@@ -36,7 +38,7 @@ export function ResearcherDashboard() {
              <Button size="sm" variant="light">View All</Button>
            </div>
            <div className="space-y-4">
-             {researcherRecentReports.map((report, idx) => (
+             {recentReports.map((report, idx) => (
                <div key={idx} className="flex items-center justify-between p-3 rounded-lg border border-[var(--app-border-subtle)] hover:bg-[var(--app-surface-hover)] transition-colors">
                  <div className="flex items-center gap-3">
                    <div className="w-10 h-10 rounded-lg bg-[var(--app-primary-bg)] flex items-center justify-center text-[var(--app-primary)]">
@@ -66,7 +68,7 @@ export function ResearcherDashboard() {
             Trending Topics
           </h3>
           <div className="space-y-3">
-            {researcherTrendingTopics.map((item, i) => (
+            {trendingTopics.map((item, i) => (
               <div key={i} className="flex items-center justify-between p-2">
                  <div>
                    <div className="text-sm font-medium">{item.topic}</div>

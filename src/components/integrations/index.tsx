@@ -4,7 +4,7 @@ import { PageContainer, PageHeader, Breadcrumb, Card, Button, Badge } from '@/ui
 import { Plug, Calendar, Mail, Slack, Github, CheckCircle2, AlertCircle, Settings } from 'lucide-react';
 import { getRouteConfig } from '@/config/routes';
 import { CalendarIntegration, type CalendarAccount, type CalendarEvent } from './calendar-integration';
-import { mockCalendarAccounts, mockCalendarEvents } from '@/data/mocks/integrations';
+import { getCalendarSnapshot } from '@/services/integrationsService';
 import { useUIKey } from '@/store/ui';
 
 interface Integration {
@@ -53,8 +53,7 @@ const availableIntegrations: Integration[] = [
 
 export function Integrations() {
   const routeConfig = getRouteConfig('/integrations');
-  const calendarAccounts: CalendarAccount[] = mockCalendarAccounts;
-  const calendarEvents: CalendarEvent[] = mockCalendarEvents;
+  const { accounts: calendarAccounts, events: calendarEvents } = getCalendarSnapshot();
   const { value: ui, patch: patchUI } = useUIKey('integrations', { selectedCategory: 'all' });
   const { selectedCategory } = ui;
 

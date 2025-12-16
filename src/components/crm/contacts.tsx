@@ -11,13 +11,12 @@ import { InteractionTimeline, type TimelineInteraction } from '@/components/crm/
 import { NetworkGraph } from './network-graph';
 import { useUIKey } from '@/store/ui';
 import {
-  mockContacts,
-  mockEmailAccounts,
-  mockInteractions,
-  mockTimelineInteractions,
-  type Contact,
-  type Interaction,
-} from '@/data/mocks/crm/contacts';
+  getCRMContacts,
+  getCRMEmailAccounts,
+  getCRMInteractions,
+  getCRMTimelineInteractions,
+} from '@/services/crm/contactsService';
+import type { Contact, Interaction } from '@/services/crm/contactsService';
 
 interface ContactsUIState {
   contacts: Contact[];
@@ -34,6 +33,10 @@ interface ContactsUIState {
 
 export function Contacts() {
   const routeConfig = getRouteConfig('/contacts');
+  const mockContacts = getCRMContacts();
+  const mockEmailAccounts = getCRMEmailAccounts();
+  const mockInteractions = getCRMInteractions();
+  const mockTimelineInteractions = getCRMTimelineInteractions();
   const { value: ui, patch: patchUI } = useUIKey<ContactsUIState>('crm-contacts', {
     contacts: mockContacts,
     selectedContact: null,

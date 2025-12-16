@@ -3,9 +3,11 @@
 import { Shield, CheckCircle2, Search, Download } from 'lucide-react';
 import { Card, Button, Badge, PageContainer } from '@/ui';
 import { MetricCard } from '@/components/metric-card';
-import { auditorDashboardMetrics, auditorAuditTrail, auditorComplianceItems } from '@/data/mocks/dashboards/auditor-dashboard';
+import { getAuditorDashboardSnapshot } from '@/services/dashboards/auditorDashboardService';
 
 export function AuditorDashboard() {
+  const { metrics, auditTrail, complianceItems } = getAuditorDashboardSnapshot();
+
   return (
     <PageContainer className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -24,7 +26,7 @@ export function AuditorDashboard() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {auditorDashboardMetrics.map((metric, index) => (
+        {metrics.map((metric, index) => (
           <MetricCard key={index} {...metric} />
         ))}
       </div>
@@ -36,7 +38,7 @@ export function AuditorDashboard() {
              <Button size="sm" variant="light">View Full Log</Button>
            </div>
            <div className="space-y-3">
-             {auditorAuditTrail.map((entry, idx) => (
+             {auditTrail.map((entry, idx) => (
                <div key={idx} className="flex items-center justify-between p-3 rounded-lg border border-[var(--app-border-subtle)] hover:bg-[var(--app-surface-hover)] transition-colors">
                  <div className="flex items-center gap-3">
                    <div className="w-10 h-10 rounded-lg bg-[var(--app-success-bg)] flex items-center justify-center text-[var(--app-success)]">
@@ -63,7 +65,7 @@ export function AuditorDashboard() {
             Compliance Status
           </h3>
           <div className="space-y-3">
-            {auditorComplianceItems.map((item, i) => (
+            {complianceItems.map((item, i) => (
               <div key={i} className="flex items-center justify-between p-2">
                  <div>
                    <div className="text-sm font-medium">{item.item}</div>

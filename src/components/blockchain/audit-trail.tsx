@@ -16,12 +16,12 @@ import {
   Copy,
   Search,
   Filter
-} from 'lucide-react';
-import { getRouteConfig } from '@/config/routes';
-import { mockAuditEvents, type AuditEvent } from '@/data/mocks/blockchain/audit-trail';
-import { useUIKey } from '@/store/ui';
+	} from 'lucide-react';
+	import { getRouteConfig } from '@/config/routes';
+	import { getAuditEvents, type AuditEvent } from '@/services/blockchain/auditTrailService';
+	import { useUIKey } from '@/store/ui';
 
-export function BlockchainAuditTrail() {
+	export function BlockchainAuditTrail() {
   const { value: ui, patch: patchUI } = useUIKey<{
     searchQuery: string;
     selectedEvent: AuditEvent | null;
@@ -31,9 +31,10 @@ export function BlockchainAuditTrail() {
     selectedEvent: null,
     filter: 'all',
   });
-  const { searchQuery, selectedEvent, filter } = ui;
+	  const { searchQuery, selectedEvent, filter } = ui;
 
-  const routeConfig = getRouteConfig('/audit-trail');
+	  const routeConfig = getRouteConfig('/audit-trail');
+	  const mockAuditEvents = getAuditEvents();
 
   const formatCurrency = (amount: number) => {
     if (amount >= 1_000_000) return `$${(amount / 1_000_000).toFixed(1)}M`;

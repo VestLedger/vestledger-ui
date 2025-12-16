@@ -4,8 +4,8 @@ import { Card, Button, Badge, Breadcrumb, PageHeader, PageContainer } from '@/ui
 import { Shield, FileText, AlertTriangle, CheckCircle, Clock, Download, Calendar, Users, Building2, Scale, Bell } from 'lucide-react';
 import { getRouteConfig } from '@/config/routes';
 import { AMLKYCWorkflow } from '../compliance/aml-kyc-workflow';
-import { mockAuditSchedule, mockComplianceItems, mockRegulatoryFilings } from '@/data/mocks/back-office/compliance';
 import { useUIKey } from '@/store/ui';
+import { getAuditSchedule, getComplianceItems, getRegulatoryFilings } from '@/services/backOffice/complianceService';
 
 export function Compliance() {
   const { value: ui, patch: patchUI } = useUIKey('back-office-compliance', { selectedTab: 'overview' });
@@ -14,10 +14,14 @@ export function Compliance() {
   // Get route config for breadcrumbs and AI suggestions
   const routeConfig = getRouteConfig('/compliance');
 
+  const complianceItems = getComplianceItems();
+  const regulatoryFilings = getRegulatoryFilings();
+  const auditSchedule = getAuditSchedule();
+
   // Calculate AI insights
-  const overdueItems = mockComplianceItems.filter(item => item.status === 'overdue').length;
-  const inProgressItems = mockComplianceItems.filter(item => item.status === 'in-progress').length;
-  const upcomingHighPriority = mockComplianceItems.filter(
+  const overdueItems = complianceItems.filter(item => item.status === 'overdue').length;
+  const inProgressItems = complianceItems.filter(item => item.status === 'in-progress').length;
+  const upcomingHighPriority = complianceItems.filter(
     item => item.status === 'upcoming' && item.priority === 'high'
   ).length;
 
@@ -113,7 +117,7 @@ export function Compliance() {
             {
               id: 'audits',
               label: 'Audit Schedule',
-              count: mockAuditSchedule.filter(a => a.status === 'in-progress').length
+              count: auditSchedule.filter(a => a.status === 'in-progress').length
             },
             {
               id: 'aml-kyc',
@@ -138,7 +142,7 @@ export function Compliance() {
               <div>
                 <p className="text-sm text-[var(--app-text-muted)]">Overdue Items</p>
                 <p className="text-2xl font-bold text-[var(--app-danger)]">
-                  {mockComplianceItems.filter(i => i.status === 'overdue').length}
+                  {complianceItems.filter(i => i.status === 'overdue').length}
                 </p>
               </div>
             </div>
@@ -152,7 +156,7 @@ export function Compliance() {
               <div>
                 <p className="text-sm text-[var(--app-text-muted)]">In Progress</p>
                 <p className="text-2xl font-bold">
-                  {mockComplianceItems.filter(i => i.status === 'in-progress').length}
+                  {complianceItems.filter(i => i.status === 'in-progress').length}
                 </p>
               </div>
             </div>
@@ -166,7 +170,7 @@ export function Compliance() {
               <div>
                 <p className="text-sm text-[var(--app-text-muted)]">Due This Month</p>
                 <p className="text-2xl font-bold">
-                  {mockComplianceItems.filter(i => {
+                  {complianceItems.filter(i => {
                     const dueDate = new Date(i.dueDate);
                     const today = new Date();
                     return dueDate.getMonth() === today.getMonth() &&
@@ -185,7 +189,7 @@ export function Compliance() {
               <div>
                 <p className="text-sm text-[var(--app-text-muted)]">Completed</p>
                 <p className="text-2xl font-bold">
-                  {mockComplianceItems.filter(i => i.status === 'completed').length}
+                  {complianceItems.filter(i => i.status === 'completed').length}
                 </p>
               </div>
             </div>
@@ -195,7 +199,7 @@ export function Compliance() {
         {/* Overview Tab */}
         {selectedTab === 'overview' && (
           <div className="space-y-3">
-            {mockComplianceItems
+            {complianceItems
               .sort((a, b) => {
                 // Sort by priority and status
                 const priorityOrder = { high: 0, medium: 1, low: 2 };
@@ -294,7 +298,7 @@ export function Compliance() {
             <Card padding="lg">
               <h3 className="font-semibold mb-4">Required Filings</h3>
               <div className="space-y-3">
-                {mockRegulatoryFilings.map((filing) => (
+                {regulatoryFilings.map((filing) => (
                   <div key={filing.id} className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
@@ -349,7 +353,7 @@ export function Compliance() {
             <Card padding="lg">
               <h3 className="font-semibold mb-4">Audit Schedule</h3>
               <div className="space-y-3">
-                {mockAuditSchedule.map((audit) => (
+                {auditSchedule.map((audit) => (
                   <div key={audit.id} className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
                     <div className="flex items-start justify-between mb-3">
                       <div>

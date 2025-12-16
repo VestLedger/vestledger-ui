@@ -11,7 +11,7 @@ import { fetchAlerts, markAlertRead } from '@/store/slices/alertsSlice';
 import { NotificationCenter } from '@/components/notification-center';
 import type { Notification } from '@/types/notification';
 import { useTheme } from 'next-themes';
-import { getMockTopbarSearchResults, type TopbarSearchResult } from '@/data/mocks/topbar/search';
+import { searchTopbar, type TopbarSearchResult } from '@/services/topbarSearchService';
 import { useUIKey } from '@/store/ui';
 
 export function Topbar() {
@@ -61,7 +61,7 @@ export function Topbar() {
   };
 
   const searchResults = useMemo(
-    () => getMockTopbarSearchResults(topbarUI.searchQuery),
+    () => searchTopbar(topbarUI.searchQuery),
     [topbarUI.searchQuery]
   );
 

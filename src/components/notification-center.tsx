@@ -20,7 +20,6 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import type { Notification, NotificationCategory, NotificationType } from '@/types/notification';
-import { mockNotifications } from '@/data/mocks/notifications';
 import { useUIKey } from '@/store/ui';
 
 export interface NotificationCenterProps {
@@ -80,7 +79,7 @@ const getRelativeTime = (timestamp: Date) => {
 };
 
 export function NotificationCenter({
-  notifications = mockNotifications,
+  notifications = [],
   onNotificationClick,
   onMarkAsRead,
   onMarkAllAsRead,

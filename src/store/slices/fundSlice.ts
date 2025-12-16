@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { Fund, FundViewMode } from '@/types/fund';
-import { mockFunds } from '@/data/mocks/funds';
 
 interface FundState {
   hydrated: boolean;
@@ -11,8 +10,8 @@ interface FundState {
 
 const initialState: FundState = {
   hydrated: false,
-  funds: mockFunds,
-  selectedFundId: mockFunds[1]?.id ?? null,
+  funds: [],
+  selectedFundId: null,
   viewMode: 'individual',
 };
 
@@ -20,6 +19,12 @@ const fundSlice = createSlice({
   name: 'fund',
   initialState,
   reducers: {
+    fundsLoaded: (state, action: PayloadAction<Fund[]>) => {
+      state.funds = action.payload;
+      if (state.selectedFundId === null && action.payload.length > 0) {
+        state.selectedFundId = action.payload[0]!.id;
+      }
+    },
     fundHydrated: (state, action: PayloadAction<{ selectedFundId: string | null; viewMode: FundViewMode }>) => {
       state.hydrated = true;
       state.selectedFundId = action.payload.selectedFundId;
@@ -34,6 +39,5 @@ const fundSlice = createSlice({
   },
 });
 
-export const { fundHydrated, setSelectedFundId, setViewMode } = fundSlice.actions;
+export const { fundsLoaded, fundHydrated, setSelectedFundId, setViewMode } = fundSlice.actions;
 export const fundReducer = fundSlice.reducer;
-

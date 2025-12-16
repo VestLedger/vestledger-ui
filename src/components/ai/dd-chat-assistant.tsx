@@ -4,13 +4,13 @@ import { useRef, useEffect } from 'react';
 import { Card, Button, Input, Badge } from '@/ui';
 import { Send, Sparkles, User, Bot, Lightbulb, TrendingUp, AlertCircle, FileText } from 'lucide-react';
 import { DocumentPreviewModal, useDocumentPreview, getMockDocumentUrl } from '@/components/documents/preview';
-import { mockConversations, type Message } from '@/data/mocks/ai/dd-chat-assistant';
+import { getInitialDDChatConversation, type Message } from '@/services/ai/ddChatService';
 import { useUIKey } from '@/store/ui';
 import { useAppDispatch } from '@/store/hooks';
 import { ddChatSendRequested } from '@/store/slices/uiEffectsSlice';
 
 const defaultDDChatAssistantState = {
-  messages: mockConversations,
+  messages: getInitialDDChatConversation(),
   inputValue: '',
   isTyping: false,
 };

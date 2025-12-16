@@ -7,8 +7,8 @@ import { PortfolioDocuments } from './portfolio-documents';
 import { PortfolioUpdates } from './portfolio-updates';
 import { FundSelector } from './fund-selector';
 import { getRouteConfig } from '@/config/routes';
-import { portfolioPageMetrics, portfolioPageHealthyCompanies } from '@/data/mocks/portfolio/page-metrics';
 import { useUIKey } from '@/store/ui';
+import { getPortfolioHealthyCompanies, getPortfolioPageMetrics } from '@/services/portfolio/portfolioPageMetricsService';
 
 export function Portfolio() {
   const { value: ui, patch: patchUI } = useUIKey('portfolio', { selected: 'overview' });
@@ -16,6 +16,9 @@ export function Portfolio() {
 
   // Get route config for breadcrumbs and AI suggestions
   const routeConfig = getRouteConfig('/portfolio');
+
+  const portfolioPageMetrics = getPortfolioPageMetrics();
+  const portfolioPageHealthyCompanies = getPortfolioHealthyCompanies();
 
   const totalCompanies = portfolioPageMetrics.totalCompanies;
   const healthyCompanies = portfolioPageHealthyCompanies;

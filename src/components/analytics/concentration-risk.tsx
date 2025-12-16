@@ -2,12 +2,7 @@
 
 import { Card, Button, Badge, Progress } from '@/ui';
 import { AlertTriangle, PieChart } from 'lucide-react';
-import {
-  concentrationByCompany,
-  concentrationBySector,
-  concentrationByStage,
-  type ConcentrationMetric
-} from '@/data/mocks/mock-fund-analytics-data';
+import { getConcentrationRiskMetrics, type ConcentrationMetric } from '@/services/analytics/fundAnalyticsService';
 import { useUIKey } from '@/store/ui';
 
 type ConcentrationView = 'company' | 'sector' | 'stage';
@@ -90,6 +85,8 @@ function ConcentrationRow({ item, maxPercentage, isHighRisk }: ConcentrationRowP
 }
 
 export function ConcentrationRisk() {
+  const { byCompany: concentrationByCompany, bySector: concentrationBySector, byStage: concentrationByStage } =
+    getConcentrationRiskMetrics();
   const { value: ui, patch: patchUI } = useUIKey<{ selectedView: ConcentrationView }>(
     'concentration-risk',
     { selectedView: 'company' }

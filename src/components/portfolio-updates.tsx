@@ -11,8 +11,8 @@ import {
   Filter,
   Calendar,
 } from 'lucide-react';
-import { portfolioUpdates, portfolioCompanies } from '@/data/mocks/mock-portfolio-data';
 import { useUIKey } from '@/store/ui';
+import { getPortfolioUpdates } from '@/services/portfolio/portfolioDataService';
 
 const updateIcons = {
   financial: <DollarSign className="w-5 h-5" />,
@@ -39,6 +39,7 @@ const updateBadgeColors = {
 };
 
 export function PortfolioUpdates() {
+  const portfolioUpdates = getPortfolioUpdates();
   const { value: ui, patch: patchUI } = useUIKey('portfolio-updates', {
     selectedType: 'all',
     searchQuery: '',

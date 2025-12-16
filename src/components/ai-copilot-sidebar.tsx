@@ -16,8 +16,7 @@ import {
   setShowSuggestions,
   suggestionInvoked,
 } from '@/store/slices/copilotSlice';
-import { getMockCopilotPageSuggestions, getMockCopilotQuickActions } from '@/data/mocks/ai/copilot';
-import type { QuickAction, Suggestion } from '@/data/mocks/ai/copilot';
+import { getCopilotPageSuggestions, getCopilotQuickActions, type QuickAction, type Suggestion } from '@/services/ai/copilotService';
 
 export function useAICopilot() {
   const dispatch = useAppDispatch();
@@ -47,12 +46,12 @@ export function AICopilotSidebar() {
   const suggestionsOverride = useAppSelector((state) => state.copilot.suggestionsOverride);
 
   const suggestions = useMemo(() => {
-    const fallback = getMockCopilotPageSuggestions(pathname);
+    const fallback = getCopilotPageSuggestions(pathname);
     return suggestionsOverride && suggestionsOverride.length > 0 ? suggestionsOverride : fallback;
   }, [pathname, suggestionsOverride]);
 
   const quickActions = useMemo(() => {
-    const fallback = getMockCopilotQuickActions(pathname);
+    const fallback = getCopilotQuickActions(pathname);
     return quickActionsOverride && quickActionsOverride.length > 0 ? quickActionsOverride : fallback;
   }, [pathname, quickActionsOverride]);
 
@@ -254,4 +253,3 @@ export function AICopilotSidebar() {
     </div>
   );
 }
-

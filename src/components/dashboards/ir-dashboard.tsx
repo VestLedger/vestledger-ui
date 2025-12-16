@@ -3,9 +3,11 @@
 import { Mail, Calendar, Phone } from 'lucide-react';
 import { Card, Button, Badge, PageContainer } from '@/ui';
 import { MetricCard } from '@/components/metric-card';
-import { irDashboardMetrics, irRecentInteractions, irUpcomingTasks } from '@/data/mocks/dashboards/ir-dashboard';
+import { getIRDashboardSnapshot } from '@/services/dashboards/irDashboardService';
 
 export function IRDashboard() {
+  const { metrics, recentInteractions, upcomingTasks } = getIRDashboardSnapshot();
+
   return (
     <PageContainer className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -24,7 +26,7 @@ export function IRDashboard() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {irDashboardMetrics.map((metric, index) => (
+        {metrics.map((metric, index) => (
           <MetricCard key={index} {...metric} />
         ))}
       </div>
@@ -36,7 +38,7 @@ export function IRDashboard() {
              <Button size="sm" variant="light">View All</Button>
            </div>
            <div className="space-y-4">
-             {irRecentInteractions.map((interaction, idx) => (
+             {recentInteractions.map((interaction, idx) => (
                <div key={idx} className="flex items-center justify-between p-3 rounded-lg border border-[var(--app-border-subtle)] hover:bg-[var(--app-surface-hover)] transition-colors">
                  <div className="flex items-center gap-3">
                    <div className="w-10 h-10 rounded-full bg-[var(--app-secondary-bg)] flex items-center justify-center text-[var(--app-secondary)] font-bold">
@@ -64,7 +66,7 @@ export function IRDashboard() {
             Upcoming Tasks
           </h3>
           <div className="space-y-3">
-            {irUpcomingTasks.map((item, i) => (
+            {upcomingTasks.map((item, i) => (
               <div key={i} className="flex items-center justify-between p-2 rounded border-l-2 border-[var(--app-primary)]">
                  <div>
                    <div className="text-sm font-medium">{item.task}</div>

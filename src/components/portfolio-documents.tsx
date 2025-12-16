@@ -5,16 +5,15 @@ import { Button, Card, Badge, Input, PageContainer } from '@/ui';
 import { DocumentPreviewModal, useDocumentPreview, getMockDocumentUrl, inferDocumentType } from './documents/preview';
 import { useUIKey } from '@/store/ui';
 import {
-  portfolioDocumentCompanies as portfolioCompanies,
-  portfolioDocuments as documents,
-  portfolioDocumentCategories as documentCategories,
+  getPortfolioDocumentsSnapshot,
   type PortfolioDocumentCompany as PortfolioCompany,
   type PortfolioDocument as Document,
   type PortfolioDocumentCategory as DocumentCategory,
   type PortfolioDocumentStatus as DocumentStatus,
-} from '@/data/mocks/portfolio/documents';
+} from '@/services/portfolio/portfolioDocumentsService';
 
 export function PortfolioDocuments() {
+  const { companies: portfolioCompanies, documents, categories: documentCategories } = getPortfolioDocumentsSnapshot();
   const { value: ui, patch: patchUI } = useUIKey<{
     selectedCompany: PortfolioCompany | null;
     selectedCategory: DocumentCategory | 'all';

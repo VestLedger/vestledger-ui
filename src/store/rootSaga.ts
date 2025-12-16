@@ -5,6 +5,7 @@ import { fundSaga } from './sagas/fundSaga';
 import { navigationSaga } from './sagas/navigationSaga';
 import { copilotSaga } from './sagas/copilotSaga';
 import { uiEffectsSaga } from './sagas/uiEffectsSaga';
+import { documentsSaga } from './sagas/documentsSaga';
 
 export function* rootSaga() {
   yield all([
@@ -14,5 +15,6 @@ export function* rootSaga() {
     call(navigationSaga),
     call(copilotSaga),
     call(uiEffectsSaga),
+    call(documentsSaga),
   ]);
 }

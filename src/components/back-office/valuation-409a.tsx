@@ -4,13 +4,17 @@ import { Card, Button, Badge, Progress, Input, PageContainer, Breadcrumb, PageHe
 import { Tabs, Tab } from '@/ui';
 import { getRouteConfig } from '@/config/routes';
 import { TrendingUp, FileText, Download, Calendar, DollarSign, AlertCircle, CheckCircle, Clock, Building2, ChevronRight, Calculator , Receipt} from 'lucide-react';
-import { mockHistory, mockStrikePrices, mockValuations } from '@/data/mocks/back-office/valuation-409a';
 import { useUIKey } from '@/store/ui';
+import { getStrikePrices, getValuationHistory, getValuations409a } from '@/services/backOffice/valuation409aService';
 
 export function Valuation409A() {
   const { value: ui, patch: patchUI } = useUIKey('back-office-valuation-409a', { selectedTab: 'valuations' });
   const { selectedTab } = ui;
   const routeConfig = getRouteConfig('/409a-valuations');
+
+  const valuations = getValuations409a();
+  const strikePrices = getStrikePrices();
+  const history = getValuationHistory();
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -72,7 +76,7 @@ export function Valuation409A() {
           description="Manage IRS-compliant fair market value determinations for stock options"
           icon={Calculator}
           aiSummary={{
-            text: `${mockValuations.length} portfolio companies tracked. ${mockValuations.filter(v => v.status === 'current').length} current valuations, ${mockValuations.filter(v => v.status === 'expiring-soon').length} expiring soon. ${mockStrikePrices.filter(sp => sp.status === 'active').length} active option grants.`,
+            text: `${valuations.length} portfolio companies tracked. ${valuations.filter(v => v.status === 'current').length} current valuations, ${valuations.filter(v => v.status === 'expiring-soon').length} expiring soon. ${strikePrices.filter(sp => sp.status === 'active').length} active option grants.`,
             confidence: 0.92
           }}
           primaryAction={{
@@ -85,17 +89,17 @@ export function Valuation409A() {
             {
               id: 'valuations',
               label: 'Valuations',
-              count: mockValuations.length,
+              count: valuations.length,
             },
             {
               id: 'strike-prices',
               label: 'Strike Prices',
-              count: mockStrikePrices.length,
+              count: strikePrices.length,
             },
             {
               id: 'history',
               label: 'Valuation History',
-              count: mockHistory.length,
+              count: history.length,
             },
           ]}
           activeTab={selectedTab}
@@ -112,7 +116,7 @@ export function Valuation409A() {
             <div>
               <p className="text-sm text-[var(--app-text-muted)]">Active Valuations</p>
               <p className="text-2xl font-bold">
-                {mockValuations.filter(v => v.status === 'current').length}
+                {valuations.filter(v => v.status === 'current').length}
               </p>
             </div>
           </div>
@@ -126,7 +130,7 @@ export function Valuation409A() {
             <div>
               <p className="text-sm text-[var(--app-text-muted)]">Expiring Soon</p>
               <p className="text-2xl font-bold">
-                {mockValuations.filter(v => v.status === 'expiring-soon').length}
+                {valuations.filter(v => v.status === 'expiring-soon').length}
               </p>
             </div>
           </div>
@@ -139,7 +143,7 @@ export function Valuation409A() {
             </div>
             <div>
               <p className="text-sm text-[var(--app-text-muted)]">Portfolio Companies</p>
-              <p className="text-2xl font-bold">{mockValuations.length}</p>
+              <p className="text-2xl font-bold">{valuations.length}</p>
             </div>
           </div>
         </Card>
@@ -153,7 +157,7 @@ export function Valuation409A() {
               <p className="text-sm text-[var(--app-text-muted)]">Avg. FMV</p>
               <p className="text-2xl font-bold">
                 {formatCurrency(
-                  mockValuations.reduce((acc, v) => acc + v.fairMarketValue, 0) / mockValuations.length
+                  valuations.reduce((acc, v) => acc + v.fairMarketValue, 0) / valuations.length
                 )}
               </p>
             </div>
@@ -164,7 +168,7 @@ export function Valuation409A() {
       {/* Tab Content */}
         {selectedTab === 'valuations' && (
           <div className="space-y-3">
-            {mockValuations.map((valuation) => {
+            {valuations.map((valuation) => {
               const daysUntilExpiry = getDaysUntilExpiration(valuation.expirationDate);
               return (
                 <Card key={valuation.id} padding="lg">
@@ -249,7 +253,7 @@ export function Valuation409A() {
             <Card padding="lg">
               <h3 className="font-semibold mb-4">Recent Option Grants</h3>
               <div className="space-y-3">
-                {mockStrikePrices.map((grant) => (
+                {strikePrices.map((grant) => (
                   <div key={grant.id} className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
@@ -292,9 +296,9 @@ export function Valuation409A() {
             <Card padding="lg">
               <h3 className="font-semibold mb-4">Fair Market Value Timeline</h3>
               <div className="space-y-4">
-                {mockHistory.map((item, index) => (
+                {history.map((item, index) => (
                   <div key={item.id} className="relative">
-                    {index !== mockHistory.length - 1 && (
+                    {index !== history.length - 1 && (
                       <div className="absolute left-[19px] top-10 bottom-0 w-0.5 bg-[var(--app-border)]" />
                     )}
                     <div className="flex items-start gap-4">

@@ -11,15 +11,18 @@ import { useAppDispatch } from '@/store/hooks';
 import { setSuggestionsOverride } from '@/store/slices/copilotSlice';
 import { useUIKey } from '@/store/ui';
 import {
-  pipelineCopilotSuggestions,
-  pipelineDeals,
-  pipelineStages,
+  getPipelineCopilotSuggestions,
+  getPipelineDeals,
+  getPipelineStages,
   type PipelineDeal as Deal,
   type PipelineDealOutcome as DealOutcome,
-} from '@/data/mocks/pipeline';
+} from '@/services/pipelineService';
 
 export function Pipeline() {
   const dispatch = useAppDispatch();
+  const pipelineDeals = getPipelineDeals();
+  const pipelineStages = getPipelineStages();
+  const pipelineCopilotSuggestions = getPipelineCopilotSuggestions();
   const { value: pipelineUI, patch: patchPipelineUI } = useUIKey('pipeline', {
     viewMode: 'kanban' as 'kanban' | 'list',
     showClosedDeals: false,

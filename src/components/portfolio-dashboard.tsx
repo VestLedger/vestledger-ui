@@ -14,13 +14,13 @@ import {
   Filter,
   Download,
 } from 'lucide-react';
-import {
-  portfolioCompanies,
-  portfolioSummary,
-  performanceData,
-  assetAllocation,
-} from '@/data/mocks/mock-portfolio-data';
 import { AdvancedTable, ColumnDef } from '@/components/data-table/advanced-table';
+import {
+  getPortfolioAssetAllocation,
+  getPortfolioCompanies,
+  getPortfolioPerformanceData,
+  getPortfolioSummary,
+} from '@/services/portfolio/portfolioDataService';
 
 interface MetricCardProps {
   title: string;
@@ -73,7 +73,20 @@ const getStatusBadge = (status: string) => {
 };
 
 export function PortfolioDashboard() {
+  const portfolioCompanies = getPortfolioCompanies();
+  const portfolioSummary = getPortfolioSummary();
+  const performanceData = getPortfolioPerformanceData();
+  const assetAllocation = getPortfolioAssetAllocation();
+
   const filteredCompanies = portfolioCompanies;
+
+  const portfolioValueChange = (() => {
+    if (performanceData.length < 2) return undefined;
+    const previous = performanceData[performanceData.length - 2];
+    const latest = performanceData[performanceData.length - 1];
+    const denominator = previous.portfolioValue || 1;
+    return ((latest.portfolioValue - previous.portfolioValue) / denominator) * 100;
+  })();
 
   const formatCurrency = (value: number) => {
     if (value >= 1000000) {
@@ -118,8 +131,8 @@ export function PortfolioDashboard() {
         <MetricCard
           title="Total Portfolio Value"
           value={formatCurrency(portfolioSummary.totalCurrentValue)}
-          change={12.5}
-          trend="up"
+          change={portfolioValueChange !== undefined ? Number(portfolioValueChange.toFixed(1)) : undefined}
+          trend={portfolioValueChange !== undefined && portfolioValueChange >= 0 ? 'up' : 'down'}
           icon={<DollarSign className="w-5 h-5" />}
           subtitle={`${formatCurrency(portfolioSummary.totalInvested)} deployed`}
         />
@@ -132,16 +145,12 @@ export function PortfolioDashboard() {
         <MetricCard
           title="Average MOIC"
           value={`${portfolioSummary.averageMOIC.toFixed(1)}x`}
-          change={8.3}
-          trend="up"
           icon={<Target className="w-5 h-5" />}
           subtitle={`${portfolioSummary.averageIRR.toFixed(1)}% avg IRR`}
         />
         <MetricCard
           title="Portfolio Health"
           value={`${portfolioSummary.averageHealthScore.toFixed(0)}%`}
-          change={4.2}
-          trend="up"
           icon={<Activity className="w-5 h-5" />}
           subtitle="Average health score"
         />
