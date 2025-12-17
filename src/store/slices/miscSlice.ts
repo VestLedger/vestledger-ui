@@ -2,11 +2,14 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { AsyncState, NormalizedError } from '@/store/types/AsyncState';
 import { createInitialAsyncState } from '@/store/types/AsyncState';
 import type { RootState } from '../rootReducer';
+import type { CalendarAccount, CalendarEvent } from '@/components/integrations/calendar-integration';
+import type { IntegrationSummary } from '@/types/integrations';
 
 // Types for each feature
 interface IntegrationsData {
-  accounts: any[];
-  events: any[];
+  accounts: CalendarAccount[];
+  events: CalendarEvent[];
+  integrations: IntegrationSummary[];
 }
 
 interface LPPortalData {

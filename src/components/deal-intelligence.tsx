@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 import { useUIKey } from '@/store/ui';
 import { CheckCircle2, Circle, Clock, Eye, FileText, Users, DollarSign, BarChart, Upload, Download, Search, Filter, TrendingUp, AlertCircle, ArrowLeft, Brain } from 'lucide-react';
 import { Card, Badge, Progress, Button, Input, Breadcrumb, PageHeader, Tabs, Tab, PageContainer } from '@/ui';
-import { useFund } from '@/contexts/fund-context';
 import { getRouteConfig } from '@/config/routes';
 import { CompanySearch } from './deal-intelligence/company-search';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
@@ -29,7 +28,6 @@ interface DealIntelligenceUIState {
 
 export function DealIntelligence() {
   const dispatch = useAppDispatch();
-  const { selectedFund } = useFund();
 
   // Use centralized selectors
   const data = useAppSelector(dealIntelligenceSelectors.selectData);
@@ -43,12 +41,10 @@ export function DealIntelligence() {
   );
   const { viewMode, selectedDeal, searchQuery, selectedCategory, selectedDetailTab } = ui;
 
-  // Dispatch request on mount with fundId
+  // Dispatch request on mount
   useEffect(() => {
-    if (selectedFund?.id) {
-      dispatch(dealIntelligenceRequested({ fundId: selectedFund.id }));
-    }
-  }, [dispatch, selectedFund?.id]);
+    dispatch(dealIntelligenceRequested({}));
+  }, [dispatch]);
 
   // Loading state
   if (status === 'loading') {
@@ -61,7 +57,7 @@ export function DealIntelligence() {
       <ErrorState
         error={error}
         title="Failed to Load Deal Intelligence"
-        onRetry={() => dispatch(dealIntelligenceRequested({ fundId: selectedFund?.id || null }))}
+        onRetry={() => dispatch(dealIntelligenceRequested({}))}
       />
     );
   }
@@ -174,7 +170,7 @@ export function DealIntelligence() {
         {/* Page Header with AI Summary */}
         <PageHeader
           title="Deal Intelligence"
-          description={`Track due diligence progress and documentation for ${selectedFund?.name || 'your fund'}`}
+          description="Track due diligence progress and documentation across your deal pipeline"
           icon={Brain}
           aiSummary={{
             text: `${dealsReadyForIC} deals ready for IC. ${overdueDocuments} overdue documents need immediate attention. ${dealsInProgress} deals in active DD. Average DD completion: ${fundAnalytics.ddProgress.avgCompletion}%.`,

@@ -11,6 +11,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { setSuggestionsOverride } from '@/store/slices/copilotSlice';
 import { pipelineDataRequested, dealStageUpdated, pipelineSelectors } from '@/store/slices/pipelineSlice';
 import { useUIKey } from '@/store/ui';
+import { ErrorState, LoadingState } from '@/components/ui/async-states';
 import type { PipelineDeal as Deal, PipelineDealOutcome as DealOutcome } from '@/services/pipelineService';
 
 export function Pipeline() {
@@ -19,6 +20,7 @@ export function Pipeline() {
   // Use centralized selectors
   const data = useAppSelector(pipelineSelectors.selectData);
   const status = useAppSelector(pipelineSelectors.selectStatus);
+  const error = useAppSelector(pipelineSelectors.selectError);
 
   const pipelineStages = data?.stages || [];
   const pipelineDeals = data?.deals || [];
@@ -116,6 +118,15 @@ export function Pipeline() {
           </Badge>
         </div>
       </PageHeader>
+
+      {status === 'loading' && <LoadingState message="Loading pipeline…" fullHeight={false} />}
+      {status === 'failed' && error && (
+        <ErrorState
+          error={error}
+          title="Failed to load pipeline"
+          onRetry={() => dispatch(pipelineDataRequested({}))}
+        />
+      )}
 
       {/* Action Bar */}
       <div className="flex items-center gap-2 sm:gap-3 mb-6">

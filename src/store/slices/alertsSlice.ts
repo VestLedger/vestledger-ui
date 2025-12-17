@@ -20,7 +20,6 @@ export interface AlertsData {
 }
 
 export interface GetAlertsParams extends Partial<StandardQueryParams> {
-  fundId?: string | null;
   unreadOnly?: boolean;
 }
 

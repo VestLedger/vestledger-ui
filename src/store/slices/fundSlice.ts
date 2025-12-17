@@ -4,6 +4,7 @@ import { createInitialAsyncState } from '@/store/types/AsyncState';
 import { createAsyncSelectors } from '@/store/utils/createAsyncSelectors';
 import type { Fund, FundViewMode } from '@/types/fund';
 import type { StandardQueryParams } from '@/types/serviceParams';
+import type { RootState } from '@/store/rootReducer';
 
 export interface FundsData {
   funds: Fund[];
@@ -70,10 +71,10 @@ export const fundsSelectors = createAsyncSelectors<FundsData>('fund');
 
 // Additional custom selectors for UI state
 export const fundUISelectors = {
-  selectHydrated: (state: any) => state.fund.hydrated,
-  selectSelectedFundId: (state: any) => state.fund.selectedFundId,
-  selectViewMode: (state: any) => state.fund.viewMode,
-  selectSelectedFund: (state: any) => {
+  selectHydrated: (state: RootState) => state.fund.hydrated,
+  selectSelectedFundId: (state: RootState) => state.fund.selectedFundId,
+  selectViewMode: (state: RootState) => state.fund.viewMode,
+  selectSelectedFund: (state: RootState): Fund | null => {
     const fundId = state.fund.selectedFundId;
     const funds = state.fund.data?.funds || [];
     return funds.find((f: Fund) => f.id === fundId) || null;

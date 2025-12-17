@@ -12,13 +12,13 @@ import { NAVCalculator } from '../fund-admin/nav-calculator'
 import { TransferSecondary } from '../fund-admin/transfer-secondary'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { fundAdminRequested, fundAdminSelectors } from '@/store/slices/backOfficeSlice'
+import { ErrorState, LoadingState } from '@/components/ui/async-states'
 
 export function FundAdmin() {
   const dispatch = useAppDispatch();
   const data = useAppSelector(fundAdminSelectors.selectData);
   const status = useAppSelector(fundAdminSelectors.selectStatus);
   const error = useAppSelector(fundAdminSelectors.selectError);
-  const loading = status === 'loading';
 
   // Load fund admin data on mount
   useEffect(() => {
@@ -34,6 +34,17 @@ export function FundAdmin() {
   const capitalCalls = data?.capitalCalls || [];
   const distributions = data?.distributions || [];
   const lpResponses = data?.lpResponses || [];
+
+  if (status === 'loading') return <LoadingState message="Loading fund administration…" />;
+  if (status === 'failed' && error) {
+    return (
+      <ErrorState
+        error={error}
+        title="Failed to load fund administration"
+        onRetry={() => dispatch(fundAdminRequested())}
+      />
+    );
+  }
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {

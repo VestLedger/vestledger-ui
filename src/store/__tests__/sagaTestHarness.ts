@@ -17,12 +17,12 @@ import type { NormalizedError } from '../types/AsyncState';
  * import { getSagaErrorExpectations } from '@/store/__tests__/sagaTestHarness';
  *
  * it('handles service errors', () => {
- *   const action = dealIntelligenceRequested({ fundId: '123' });
+ *   const action = dealIntelligenceRequested({});
  *   const generator = loadDealIntelligenceWorker(action);
  *
  *   const expectations = getSagaErrorExpectations({
  *     service: getDealIntelligenceData,
- *     params: { fundId: '123' },
+ *     params: {},
  *     failedAction: dealIntelligenceFailed,
  *   });
  *

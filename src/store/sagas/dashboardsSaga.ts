@@ -32,6 +32,7 @@ import { getOpsDashboardSnapshot } from '@/services/dashboards/opsDashboardServi
 import { getAuditorDashboardSnapshot } from '@/services/dashboards/auditorDashboardService';
 import { getIRDashboardSnapshot } from '@/services/dashboards/irDashboardService';
 import { getResearcherDashboardSnapshot } from '@/services/dashboards/researcherDashboardService';
+import { normalizeError } from '@/store/utils/normalizeError';
 
 /**
  * Worker saga: Load LP dashboard data
@@ -40,9 +41,9 @@ function* loadLPDashboardWorker(): SagaIterator {
   try {
     const data: LPDashboardData = yield call(getLPDashboardSnapshot);
     yield put(lpDashboardLoaded(data));
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to load LP dashboard', error);
-    yield put(lpDashboardFailed(error?.message || 'Failed to load LP dashboard'));
+    yield put(lpDashboardFailed(normalizeError(error)));
   }
 }
 
@@ -53,9 +54,9 @@ function* loadAnalystDashboardWorker(): SagaIterator {
   try {
     const data: AnalystDashboardData = yield call(getAnalystDashboardSnapshot);
     yield put(analystDashboardLoaded(data));
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to load analyst dashboard', error);
-    yield put(analystDashboardFailed(error?.message || 'Failed to load analyst dashboard'));
+    yield put(analystDashboardFailed(normalizeError(error)));
   }
 }
 
@@ -66,9 +67,9 @@ function* loadOpsDashboardWorker(): SagaIterator {
   try {
     const data: OpsDashboardData = yield call(getOpsDashboardSnapshot);
     yield put(opsDashboardLoaded(data));
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to load ops dashboard', error);
-    yield put(opsDashboardFailed(error?.message || 'Failed to load ops dashboard'));
+    yield put(opsDashboardFailed(normalizeError(error)));
   }
 }
 
@@ -79,9 +80,9 @@ function* loadAuditorDashboardWorker(): SagaIterator {
   try {
     const data: AuditorDashboardData = yield call(getAuditorDashboardSnapshot);
     yield put(auditorDashboardLoaded(data));
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to load auditor dashboard', error);
-    yield put(auditorDashboardFailed(error?.message || 'Failed to load auditor dashboard'));
+    yield put(auditorDashboardFailed(normalizeError(error)));
   }
 }
 
@@ -92,9 +93,9 @@ function* loadIRDashboardWorker(): SagaIterator {
   try {
     const data: IRDashboardData = yield call(getIRDashboardSnapshot);
     yield put(irDashboardLoaded(data));
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to load IR dashboard', error);
-    yield put(irDashboardFailed(error?.message || 'Failed to load IR dashboard'));
+    yield put(irDashboardFailed(normalizeError(error)));
   }
 }
 
@@ -105,9 +106,9 @@ function* loadResearcherDashboardWorker(): SagaIterator {
   try {
     const data: ResearcherDashboardData = yield call(getResearcherDashboardSnapshot);
     yield put(researcherDashboardLoaded(data));
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to load researcher dashboard', error);
-    yield put(researcherDashboardFailed(error?.message || 'Failed to load researcher dashboard'));
+    yield put(researcherDashboardFailed(normalizeError(error)));
   }
 }
 

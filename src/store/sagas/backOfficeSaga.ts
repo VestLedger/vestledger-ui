@@ -39,6 +39,7 @@ import {
   getStrikePrices,
   getValuationHistory,
 } from '@/services/backOffice/valuation409aService';
+import { normalizeError } from '@/store/utils/normalizeError';
 
 /**
  * Worker saga: Load compliance data
@@ -56,9 +57,9 @@ function* loadComplianceWorker(): SagaIterator {
     };
 
     yield put(complianceLoaded(data));
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to load compliance data', error);
-    yield put(complianceFailed(error?.message || 'Failed to load compliance data'));
+    yield put(complianceFailed(normalizeError(error)));
   }
 }
 
@@ -78,9 +79,9 @@ function* loadFundAdminWorker(): SagaIterator {
     };
 
     yield put(fundAdminLoaded(data));
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to load fund admin data', error);
-    yield put(fundAdminFailed(error?.message || 'Failed to load fund admin data'));
+    yield put(fundAdminFailed(normalizeError(error)));
   }
 }
 
@@ -102,9 +103,9 @@ function* loadTaxCenterWorker(): SagaIterator {
     };
 
     yield put(taxCenterLoaded(data));
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to load tax center data', error);
-    yield put(taxCenterFailed(error?.message || 'Failed to load tax center data'));
+    yield put(taxCenterFailed(normalizeError(error)));
   }
 }
 
@@ -124,9 +125,9 @@ function* loadValuation409aWorker(): SagaIterator {
     };
 
     yield put(valuation409aLoaded(data));
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to load 409A valuation data', error);
-    yield put(valuation409aFailed(error?.message || 'Failed to load 409A valuation data'));
+    yield put(valuation409aFailed(normalizeError(error)));
   }
 }
 

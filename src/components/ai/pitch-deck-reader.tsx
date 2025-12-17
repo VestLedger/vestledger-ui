@@ -9,6 +9,7 @@ import { useUIKey } from '@/store/ui';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { pitchDeckUploadRequested } from '@/store/slices/uiEffectsSlice';
 import { pitchDeckAnalysesRequested, pitchDeckSelectors } from '@/store/slices/aiSlice';
+import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
 
 const defaultPitchDeckReaderState = {
   selectedAnalysisId: null as string | null,
@@ -19,6 +20,7 @@ export function PitchDeckReader() {
   const dispatch = useAppDispatch();
   const data = useAppSelector(pitchDeckSelectors.selectData);
   const status = useAppSelector(pitchDeckSelectors.selectStatus);
+  const error = useAppSelector(pitchDeckSelectors.selectError);
 
   const analyses = data?.analyses || [];
 
@@ -37,6 +39,31 @@ export function PitchDeckReader() {
   const handleFileUpload = () => {
     dispatch(pitchDeckUploadRequested());
   };
+
+  if (status === 'idle' || status === 'loading') return <LoadingState message="Loading pitch deck analyses…" />;
+  if (status === 'failed' && error) {
+    return (
+      <ErrorState
+        error={error}
+        title="Failed to load pitch deck analyses"
+        onRetry={() => dispatch(pitchDeckAnalysesRequested({}))}
+      />
+    );
+  }
+  if (status === 'succeeded' && analyses.length === 0) {
+    return (
+      <EmptyState
+        icon={Upload}
+        title="No pitch decks yet"
+        message="Upload a pitch deck to generate an AI analysis."
+        action={
+          <Button color="primary" onPress={handleFileUpload}>
+            Upload Pitch Deck
+          </Button>
+        }
+      />
+    );
+  }
 
   const getStatusIcon = (status: PitchDeckAnalysis['status']) => {
     switch (status) {

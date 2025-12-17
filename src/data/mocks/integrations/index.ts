@@ -1,4 +1,5 @@
 import type { CalendarAccount, CalendarEvent } from '@/components/integrations/calendar-integration';
+import type { IntegrationSummary } from '@/types/integrations';
 
 export const mockCalendarAccounts: CalendarAccount[] = [
   {
@@ -6,7 +7,7 @@ export const mockCalendarAccounts: CalendarAccount[] = [
     provider: 'google',
     email: 'john@vestledger.com',
     status: 'connected',
-    lastSync: new Date(),
+    lastSync: new Date('2024-12-15T11:05:00.000Z'),
     autoCapture: true,
     captureRules: [],
     syncedCalendars: ['Primary'],
@@ -65,3 +66,37 @@ export const mockCalendarEvents: CalendarEvent[] = [
   },
 ];
 
+export const mockIntegrations: IntegrationSummary[] = [
+  {
+    id: 'calendar',
+    name: 'Calendar',
+    description: 'Sync meetings and deadlines with Google Calendar, Outlook, and more',
+    icon: 'calendar',
+    status: 'connected',
+    category: 'productivity',
+  },
+  {
+    id: 'email',
+    name: 'Email',
+    description: 'Connect your email for deal flow tracking and LP communications',
+    icon: 'email',
+    status: 'available',
+    category: 'communication',
+  },
+  {
+    id: 'slack',
+    name: 'Slack',
+    description: 'Get notifications and updates directly in your Slack workspace',
+    icon: 'slack',
+    status: 'available',
+    category: 'communication',
+  },
+  {
+    id: 'github',
+    name: 'GitHub',
+    description: 'Track technical due diligence and code metrics for portfolio companies',
+    icon: 'github',
+    status: 'coming-soon',
+    category: 'development',
+  },
+];

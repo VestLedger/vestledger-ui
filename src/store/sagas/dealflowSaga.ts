@@ -16,7 +16,7 @@ function* loadDealflowDealsWorker(
 ): SagaIterator {
   try {
     const params = action.payload;
-    const deals = yield call(getDealflowDeals);
+    const deals = yield call(getDealflowDeals, params);
     yield put(dealflowDealsLoaded({ deals }));
   } catch (error: unknown) {
     console.error('Failed to load dealflow deals', error);

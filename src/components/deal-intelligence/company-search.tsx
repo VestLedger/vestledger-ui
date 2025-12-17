@@ -23,18 +23,29 @@ import {
 import { useUIKey } from '@/store/ui';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { companySearchRequested, companySearchSelectors } from '@/store/slices/miscSlice';
+import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
 
 export function CompanySearch() {
   const dispatch = useAppDispatch();
   const data = useAppSelector(companySearchSelectors.selectData);
   const status = useAppSelector(companySearchSelectors.selectStatus);
   const error = useAppSelector(companySearchSelectors.selectError);
-  const loading = status === 'loading';
 
   // Load company search data on mount
   useEffect(() => {
     dispatch(companySearchRequested());
   }, [dispatch]);
+
+  if (status === 'loading' || status === 'idle') return <LoadingState message="Loading company search…" fullHeight={false} />;
+  if (status === 'failed' && error) {
+    return (
+      <ErrorState
+        error={error}
+        title="Failed to load company search"
+        onRetry={() => dispatch(companySearchRequested())}
+      />
+    );
+  }
 
   const industries = data?.industries || [];
   const stages = data?.stages || [];
@@ -42,8 +53,8 @@ export function CompanySearch() {
 
   const { value: ui, patch: patchUI } = useUIKey('company-search', {
     searchQuery: '',
-    selectedIndustry: industries[0] ?? '',
-    selectedStage: stages[0] ?? '',
+    selectedIndustry: 'All Industries',
+    selectedStage: 'All Stages',
     showAIOnly: true,
   });
   const { searchQuery, selectedIndustry, selectedStage, showAIOnly } = ui;
@@ -69,6 +80,10 @@ export function CompanySearch() {
     if (selectedStage && selectedStage !== stages[0] && company.funding.lastRound !== selectedStage) return false;
     return true;
   }).sort((a, b) => b.aiMatchScore - a.aiMatchScore);
+
+  if (status === 'succeeded' && companies.length === 0) {
+    return <EmptyState icon={Sparkles} title="No companies found" message="Try adjusting your filters." />;
+  }
 
   return (
     <div className="space-y-6">

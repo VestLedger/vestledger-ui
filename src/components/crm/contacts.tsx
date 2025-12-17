@@ -14,6 +14,7 @@ import { useUIKey } from '@/store/ui';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { crmDataRequested, crmSelectors } from '@/store/slices/crmSlice';
 import type { Contact, Interaction } from '@/services/crm/contactsService';
+import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
 
 interface ContactsUIState {
   contacts: Contact[];
@@ -33,6 +34,7 @@ export function Contacts() {
   const routeConfig = getRouteConfig('/contacts');
   const data = useAppSelector(crmSelectors.selectData);
   const status = useAppSelector(crmSelectors.selectStatus);
+  const error = useAppSelector(crmSelectors.selectError);
 
   // Load CRM data on mount
   useEffect(() => {
@@ -43,6 +45,31 @@ export function Contacts() {
   const mockEmailAccounts = data?.emailAccounts || [];
   const mockInteractions = data?.interactions || [];
   const mockTimelineInteractions = data?.timelineInteractions || [];
+
+  if (status === 'idle' || status === 'loading') return <LoadingState message="Loading contacts…" />;
+  if (status === 'failed' && error) {
+    return (
+      <ErrorState
+        error={error}
+        title="Failed to load contacts"
+        onRetry={() => dispatch(crmDataRequested({}))}
+      />
+    );
+  }
+
+  if (status === 'succeeded' && mockContacts.length === 0) {
+    return (
+      <PageContainer className="space-y-6">
+        {routeConfig && (
+          <div className="mb-4">
+            <Breadcrumb items={routeConfig.breadcrumbs} aiSuggestion={routeConfig.aiSuggestion} />
+          </div>
+        )}
+        <PageHeader title="Contacts & CRM" description="Manage relationships and track communications" icon={Users} />
+        <EmptyState icon={Users} title="No contacts yet" message="Create a contact to get started." />
+      </PageContainer>
+    );
+  }
   const { value: ui, patch: patchUI } = useUIKey<Omit<ContactsUIState, 'contacts' | 'emailAccounts'>>('crm-contacts', {
     selectedContact: null,
     searchQuery: '',

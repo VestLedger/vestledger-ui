@@ -6,6 +6,7 @@ import { Card, Button, Badge, PageContainer } from '@/ui';
 import { MetricCard } from '@/components/metric-card';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { analystDashboardRequested, analystDashboardSelectors } from '@/store/slices/dashboardsSlice';
+import { ErrorState, LoadingState } from '@/components/ui/async-states';
 
 export function AnalystDashboard() {
   const dispatch = useAppDispatch();
@@ -14,7 +15,6 @@ export function AnalystDashboard() {
   const data = useAppSelector(analystDashboardSelectors.selectData);
   const status = useAppSelector(analystDashboardSelectors.selectStatus);
   const error = useAppSelector(analystDashboardSelectors.selectError);
-  const loading = status === 'loading';
 
   // Load analyst dashboard data on mount
   useEffect(() => {
@@ -25,6 +25,17 @@ export function AnalystDashboard() {
   const metrics = data?.metrics || [];
   const recentDeals = data?.recentDeals || [];
   const urgentTasks = data?.urgentTasks || [];
+
+  if (status === 'loading') return <LoadingState message="Loading analyst dashboard…" />;
+  if (status === 'failed' && error) {
+    return (
+      <ErrorState
+        error={error}
+        title="Failed to load analyst dashboard"
+        onRetry={() => dispatch(analystDashboardRequested())}
+      />
+    );
+  }
 
   return (
     <PageContainer className="space-y-6">

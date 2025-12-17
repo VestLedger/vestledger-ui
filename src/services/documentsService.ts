@@ -2,6 +2,7 @@ import type { AccessLevel, Document, DocumentFolder, DocumentType } from '@/comp
 import { isMockMode } from '@/config/data-mode';
 import { mockDocuments, mockFolders } from '@/data/mocks/documents';
 import { getMockDocumentUrl } from '@/data/mocks/documents/preview';
+import type { GetDocumentsParams } from '@/store/slices/documentsSlice';
 
 export type ListDocumentsResponse = {
   documents: Document[];
@@ -15,7 +16,7 @@ function withMockUrls(documents: Document[]): Document[] {
   }));
 }
 
-export async function listDocuments(): Promise<ListDocumentsResponse> {
+export async function listDocuments(_params?: GetDocumentsParams): Promise<ListDocumentsResponse> {
   if (isMockMode()) {
     return { documents: withMockUrls(mockDocuments), folders: mockFolders };
   }
@@ -39,4 +40,3 @@ export async function updateDocumentAccess(
   if (isMockMode()) return;
   throw new Error('Documents API not implemented yet');
 }
-

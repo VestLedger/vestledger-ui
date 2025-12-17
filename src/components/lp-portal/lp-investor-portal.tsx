@@ -7,6 +7,7 @@ import { TrendingUp, DollarSign, Download, FileText, Calendar, Activity, BarChar
 import { useUIKey } from '@/store/ui';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { lpPortalRequested, lpPortalSelectors } from '@/store/slices/miscSlice';
+import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
 
 export function LPInvestorPortal() {
   const dispatch = useAppDispatch();
@@ -15,14 +16,29 @@ export function LPInvestorPortal() {
   const data = useAppSelector(lpPortalSelectors.selectData);
   const status = useAppSelector(lpPortalSelectors.selectStatus);
   const error = useAppSelector(lpPortalSelectors.selectError);
-  const loading = status === 'loading';
 
   // Load LP portal data on mount
   useEffect(() => {
     dispatch(lpPortalRequested());
   }, [dispatch]);
 
-  const investor = data?.investor || { fundName: '', name: '', lastUpdate: new Date(), commitmentAmount: 0, calledCapital: 0, navValue: 0, distributedCapital: 0, dpi: 0, irr: 0, tvpi: 0, rvpi: 0, joinDate: new Date() };
+  if (status === 'loading') return <LoadingState message="Loading LP portal…" />;
+  if (status === 'failed' && error) {
+    return (
+      <ErrorState
+        error={error}
+        title="Failed to load LP portal"
+        onRetry={() => dispatch(lpPortalRequested())}
+      />
+    );
+  }
+  if (status === 'idle') return <LoadingState message="Loading LP portal…" />;
+
+  const investor = data?.investor;
+  if (status === 'succeeded' && !investor) {
+    return <EmptyState icon={PieChart} title="No investor data available" message="Try again in a moment." />;
+  }
+
   const reports = data?.reports || [];
   const transactions = data?.transactions || [];
 

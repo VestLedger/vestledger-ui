@@ -1,5 +1,7 @@
 import type { Notification } from '@/types/notification';
 
+const MOCK_NOW = new Date('2025-01-01T12:00:00.000Z').getTime();
+
 export const mockNotifications: Notification[] = [
   {
     id: '1',
@@ -7,7 +9,7 @@ export const mockNotifications: Notification[] = [
     category: 'deal',
     title: 'Deal Review Pending',
     message: 'CloudScale Series B requires IC review by Dec 15',
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+    timestamp: new Date(MOCK_NOW - 2 * 60 * 60 * 1000), // 2 hours ago
     read: false,
     actionLabel: 'Review Deal',
     actionUrl: '/pipeline',
@@ -18,7 +20,7 @@ export const mockNotifications: Notification[] = [
     category: 'lp',
     title: 'Capital Call Funded',
     message: 'Acme Ventures committed $5M to Fund III',
-    timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
+    timestamp: new Date(MOCK_NOW - 4 * 60 * 60 * 1000), // 4 hours ago
     read: false,
   },
   {
@@ -27,7 +29,7 @@ export const mockNotifications: Notification[] = [
     category: 'document',
     title: 'New Document Available',
     message: 'Q4 2024 LP Report is ready for review',
-    timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
+    timestamp: new Date(MOCK_NOW - 24 * 60 * 60 * 1000), // 1 day ago
     read: true,
     actionLabel: 'View Report',
   },
@@ -37,9 +39,8 @@ export const mockNotifications: Notification[] = [
     category: 'alert',
     title: 'Compliance Deadline',
     message: 'Form ADV filing due in 7 days',
-    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+    timestamp: new Date(MOCK_NOW - 2 * 24 * 60 * 60 * 1000), // 2 days ago
     read: false,
     actionLabel: 'File Now',
   },
 ];
-

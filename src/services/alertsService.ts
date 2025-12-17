@@ -9,7 +9,7 @@ import { mockAlerts } from '@/data/mocks/store/alerts';
 export async function fetchAlerts(params: GetAlertsParams): Promise<Alert[]> {
   if (isMockMode()) {
     // Mock mode: Accept params but return static data
-    // Future: Filter by fundId, unreadOnly, etc.
+    // Future: Filter by unreadOnly, etc.
     return mockAlerts;
   }
 

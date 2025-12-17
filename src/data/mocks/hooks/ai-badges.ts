@@ -24,8 +24,10 @@ export interface PortfolioCompany {
   lastUpdate: Date;
 }
 
+const MOCK_NOW = new Date('2025-01-01T12:00:00.000Z');
+
 export const getMockCapitalCalls = (): CapitalCall[] => {
-  const today = new Date();
+  const today = new Date(MOCK_NOW.getTime());
   return [
     {
       id: '1',
@@ -63,7 +65,7 @@ export const getMockCapitalCalls = (): CapitalCall[] => {
 };
 
 export const getMockComplianceTasks = (): ComplianceTask[] => {
-  const today = new Date();
+  const today = new Date(MOCK_NOW.getTime());
   return [
     {
       id: '1',
@@ -97,7 +99,7 @@ export const getMockPortfolioCompanies = (): PortfolioCompany[] => {
       runway: 8, // months
       burnRate: 150000,
       health: 78,
-      lastUpdate: new Date(),
+      lastUpdate: new Date(MOCK_NOW.getTime()),
     },
     {
       id: '2',
@@ -105,7 +107,7 @@ export const getMockPortfolioCompanies = (): PortfolioCompany[] => {
       runway: 6, // months
       burnRate: 200000,
       health: 65,
-      lastUpdate: new Date(),
+      lastUpdate: new Date(MOCK_NOW.getTime()),
     },
     {
       id: '3',
@@ -113,7 +115,7 @@ export const getMockPortfolioCompanies = (): PortfolioCompany[] => {
       runway: 18, // months
       burnRate: 100000,
       health: 92,
-      lastUpdate: new Date(),
+      lastUpdate: new Date(MOCK_NOW.getTime()),
     },
     {
       id: '4',
@@ -121,7 +123,7 @@ export const getMockPortfolioCompanies = (): PortfolioCompany[] => {
       runway: 24, // months
       burnRate: 75000,
       health: 88,
-      lastUpdate: new Date(),
+      lastUpdate: new Date(MOCK_NOW.getTime()),
     },
   ];
 };
@@ -141,11 +143,11 @@ const calculateFundAdminBadge = (capitalCalls: CapitalCall[]): NavigationBadge |
   if (overdueCalls.length === 0) return null;
 
   const totalOverdueAmount = overdueCalls.reduce((sum, call) => sum + call.amount, 0);
-  const avgDaysOverdue =
-    overdueCalls.reduce((sum, call) => {
-      const daysOverdue = Math.floor((Date.now() - call.dueDate.getTime()) / (24 * 60 * 60 * 1000));
-      return sum + daysOverdue;
-    }, 0) / overdueCalls.length;
+	  const avgDaysOverdue =
+	    overdueCalls.reduce((sum, call) => {
+	      const daysOverdue = Math.floor((MOCK_NOW.getTime() - call.dueDate.getTime()) / (24 * 60 * 60 * 1000));
+	      return sum + daysOverdue;
+	    }, 0) / overdueCalls.length;
 
   return {
     count: overdueCalls.length,
@@ -155,7 +157,7 @@ const calculateFundAdminBadge = (capitalCalls: CapitalCall[]): NavigationBadge |
 };
 
 const calculateComplianceBadge = (tasks: ComplianceTask[]): NavigationBadge | null => {
-  const today = new Date();
+  const today = new Date(MOCK_NOW.getTime());
   const upcomingTasks = tasks.filter((task) => {
     const daysUntilDeadline = (task.deadline.getTime() - today.getTime()) / (24 * 60 * 60 * 1000);
     return daysUntilDeadline <= 7 && daysUntilDeadline > 0 && task.status !== 'completed';
@@ -206,7 +208,7 @@ const calculateLPManagementBadge = (capitalCalls: CapitalCall[]): NavigationBadg
 };
 
 const calculate409ABadge = (): NavigationBadge | null => {
-  const today = new Date();
+  const today = new Date(MOCK_NOW.getTime());
   const lastValuation = new Date(today.getTime() - 11 * 30 * 24 * 60 * 60 * 1000); // 11 months ago
   const monthsSinceValuation = (today.getTime() - lastValuation.getTime()) / (30 * 24 * 60 * 60 * 1000);
 

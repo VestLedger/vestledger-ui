@@ -22,7 +22,7 @@ export type {
 export function getDealIntelligenceData(params: GetDealIntelligenceParams) {
   if (isMockMode('dealIntelligence')) {
     // Mock mode: Accept params but return static data
-    // Future: Filter by fundId, apply pagination/sorting
+    // Future: Apply pagination/sorting
     return {
       activeDeals,
       dealAnalyticsData,

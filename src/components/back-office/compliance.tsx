@@ -8,18 +8,29 @@ import { AMLKYCWorkflow } from '../compliance/aml-kyc-workflow';
 import { useUIKey } from '@/store/ui';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { complianceRequested, complianceSelectors } from '@/store/slices/backOfficeSlice';
+import { ErrorState, LoadingState } from '@/components/ui/async-states';
 
 export function Compliance() {
   const dispatch = useAppDispatch();
   const data = useAppSelector(complianceSelectors.selectData);
   const status = useAppSelector(complianceSelectors.selectStatus);
   const error = useAppSelector(complianceSelectors.selectError);
-  const loading = status === 'loading';
 
   // Load compliance data on mount
   useEffect(() => {
     dispatch(complianceRequested());
   }, [dispatch]);
+
+  if (status === 'loading') return <LoadingState message="Loading compliance…" />;
+  if (status === 'failed' && error) {
+    return (
+      <ErrorState
+        error={error}
+        title="Failed to load compliance"
+        onRetry={() => dispatch(complianceRequested())}
+      />
+    );
+  }
 
   const { value: ui, patch: patchUI } = useUIKey('back-office-compliance', { selectedTab: 'overview' });
   const { selectedTab } = ui;

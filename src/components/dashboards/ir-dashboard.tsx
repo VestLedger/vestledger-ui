@@ -6,6 +6,7 @@ import { Card, Button, Badge, PageContainer } from '@/ui';
 import { MetricCard } from '@/components/metric-card';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { irDashboardRequested, irDashboardSelectors } from '@/store/slices/dashboardsSlice';
+import { ErrorState, LoadingState } from '@/components/ui/async-states';
 
 export function IRDashboard() {
   const dispatch = useAppDispatch();
@@ -14,7 +15,6 @@ export function IRDashboard() {
   const data = useAppSelector(irDashboardSelectors.selectData);
   const status = useAppSelector(irDashboardSelectors.selectStatus);
   const error = useAppSelector(irDashboardSelectors.selectError);
-  const loading = status === 'loading';
 
   // Load IR dashboard data on mount
   useEffect(() => {
@@ -25,6 +25,17 @@ export function IRDashboard() {
   const metrics = data?.metrics || [];
   const recentInteractions = data?.recentInteractions || [];
   const upcomingTasks = data?.upcomingTasks || [];
+
+  if (status === 'loading') return <LoadingState message="Loading IR dashboard…" />;
+  if (status === 'failed' && error) {
+    return (
+      <ErrorState
+        error={error}
+        title="Failed to load IR dashboard"
+        onRetry={() => dispatch(irDashboardRequested())}
+      />
+    );
+  }
 
   return (
     <PageContainer className="space-y-6">

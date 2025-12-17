@@ -16,7 +16,7 @@ export type { Contact, Interaction } from '@/data/mocks/crm/contacts';
 export function getCRMContacts(params: GetCRMDataParams) {
   if (isMockMode()) {
     // Mock mode: Accept params but return static data
-    // Future: Filter by fundId, contactType, apply pagination
+    // Future: Filter by contactType, apply pagination
     return mockContacts;
   }
 

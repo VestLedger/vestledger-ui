@@ -2,56 +2,22 @@
 
 import { useEffect } from 'react';
 import { PageContainer, PageHeader, Breadcrumb, Card, Button, Badge } from '@/ui';
-import { Plug, Calendar, Mail, Slack, Github, CheckCircle2, AlertCircle, Settings } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { Plug, Calendar, Mail, Slack, Github, CheckCircle2, Settings } from 'lucide-react';
 import { getRouteConfig } from '@/config/routes';
-import { CalendarIntegration, type CalendarAccount, type CalendarEvent } from './calendar-integration';
+import { CalendarIntegration } from './calendar-integration';
 import { useUIKey } from '@/store/ui';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { integrationsRequested, integrationsSelectors } from '@/store/slices/miscSlice';
+import type { IntegrationSummary } from '@/types/integrations';
+import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
 
-interface Integration {
-  id: string;
-  name: string;
-  description: string;
-  icon: any;
-  status: 'connected' | 'available' | 'coming-soon';
-  category: 'productivity' | 'communication' | 'development' | 'finance';
-}
-
-const availableIntegrations: Integration[] = [
-  {
-    id: 'calendar',
-    name: 'Calendar',
-    description: 'Sync meetings and deadlines with Google Calendar, Outlook, and more',
-    icon: Calendar,
-    status: 'connected',
-    category: 'productivity',
-  },
-  {
-    id: 'email',
-    name: 'Email',
-    description: 'Connect your email for deal flow tracking and LP communications',
-    icon: Mail,
-    status: 'available',
-    category: 'communication',
-  },
-  {
-    id: 'slack',
-    name: 'Slack',
-    description: 'Get notifications and updates directly in your Slack workspace',
-    icon: Slack,
-    status: 'available',
-    category: 'communication',
-  },
-  {
-    id: 'github',
-    name: 'GitHub',
-    description: 'Track technical due diligence and code metrics for portfolio companies',
-    icon: Github,
-    status: 'coming-soon',
-    category: 'development',
-  },
-];
+const integrationIconMap = {
+  calendar: Calendar,
+  email: Mail,
+  slack: Slack,
+  github: Github,
+} as const satisfies Record<IntegrationSummary['icon'], LucideIcon>;
 
 export function Integrations() {
   const dispatch = useAppDispatch();
@@ -59,23 +25,39 @@ export function Integrations() {
   const data = useAppSelector(integrationsSelectors.selectData);
   const status = useAppSelector(integrationsSelectors.selectStatus);
   const error = useAppSelector(integrationsSelectors.selectError);
-  const loading = status === 'loading';
 
   // Load integrations data on mount
   useEffect(() => {
     dispatch(integrationsRequested());
   }, [dispatch]);
 
+  if (status === 'idle' || status === 'loading') return <LoadingState message="Loading integrations…" />;
+  if (status === 'failed' && error) {
+    return (
+      <ErrorState
+        error={error}
+        title="Failed to load integrations"
+        onRetry={() => dispatch(integrationsRequested())}
+      />
+    );
+  }
+
+  const integrations = data?.integrations || [];
+  if (status === 'succeeded' && integrations.length === 0) {
+    return <EmptyState icon={Plug} title="No integrations configured" message="Connect a tool to get started." />;
+  }
+
   const calendarAccounts = data?.accounts || [];
   const calendarEvents = data?.events || [];
   const { value: ui, patch: patchUI } = useUIKey('integrations', { selectedCategory: 'all' });
   const { selectedCategory } = ui;
 
+  const categories = ['all', ...Array.from(new Set(integrations.map((i) => i.category)))];
   const filteredIntegrations = selectedCategory === 'all'
-    ? availableIntegrations
-    : availableIntegrations.filter(i => i.category === selectedCategory);
+    ? integrations
+    : integrations.filter((i) => i.category === selectedCategory);
 
-  const getStatusBadge = (status: Integration['status']) => {
+  const getStatusBadge = (status: IntegrationSummary['status']) => {
     switch (status) {
       case 'connected':
         return <Badge color="success" startContent={<CheckCircle2 className="w-3 h-3" />}>Connected</Badge>;
@@ -98,7 +80,7 @@ export function Integrations() {
       <div className="space-y-8">
         {/* Category Filter */}
         <div className="flex gap-2">
-          {['all', 'productivity', 'communication', 'development', 'finance'].map((category) => (
+          {categories.map((category) => (
             <Button
               key={category}
               variant={selectedCategory === category ? 'solid' : 'bordered'}
@@ -114,7 +96,7 @@ export function Integrations() {
         {/* Integration Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredIntegrations.map((integration) => {
-            const Icon = integration.icon;
+            const Icon = integrationIconMap[integration.icon];
             return (
               <Card key={integration.id} padding="lg" className="hover:border-[var(--app-primary)] transition-colors">
                 <div className="flex items-start justify-between mb-4">

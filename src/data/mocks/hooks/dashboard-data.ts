@@ -24,7 +24,7 @@ export interface DashboardData {
 }
 
 export function getMockDashboardData(selectedFund: Fund | null, viewMode: FundViewMode): DashboardData {
-  const today = new Date();
+  const today = new Date('2025-01-01T12:00:00.000Z');
   const fundName = selectedFund?.displayName || 'All Funds';
   void viewMode;
 
@@ -320,4 +320,3 @@ export function getMockDashboardData(selectedFund: Fund | null, viewMode: FundVi
     selectedFundName: fundName,
   };
 }
-

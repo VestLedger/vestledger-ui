@@ -18,13 +18,15 @@ export interface PendingSignature {
   urgency: 'high' | 'medium' | 'low';
 }
 
+const MOCK_NOW = new Date('2025-01-01T12:00:00.000Z').getTime();
+
 export const pendingCalls: PendingCapitalCall[] = [
   {
     id: '1',
     fundName: 'Quantum Ventures Fund III',
     callNumber: 3,
     amount: 750000,
-    dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    dueDate: new Date(MOCK_NOW + 7 * 24 * 60 * 60 * 1000),
     status: 'pending',
     paidAmount: 0,
   },
@@ -35,14 +37,14 @@ export const pendingSignatures: PendingSignature[] = [
     id: '1',
     documentName: 'Side Letter Amendment',
     documentType: 'Legal Amendment',
-    requestedDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+    requestedDate: new Date(MOCK_NOW - 2 * 24 * 60 * 60 * 1000),
     urgency: 'high',
   },
   {
     id: '2',
     documentName: 'Q4 Consent Form',
     documentType: 'Consent',
-    requestedDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+    requestedDate: new Date(MOCK_NOW - 5 * 24 * 60 * 60 * 1000),
     urgency: 'medium',
   },
 ];

@@ -6,6 +6,7 @@ import { Card, Button, Badge, Progress, PageContainer } from '@/ui';
 import { MetricCard } from '@/components/metric-card';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { lpDashboardRequested, lpDashboardSelectors } from '@/store/slices/dashboardsSlice';
+import { ErrorState, LoadingState } from '@/components/ui/async-states';
 
 export function LPDashboard() {
   const dispatch = useAppDispatch();
@@ -14,7 +15,6 @@ export function LPDashboard() {
   const data = useAppSelector(lpDashboardSelectors.selectData);
   const status = useAppSelector(lpDashboardSelectors.selectStatus);
   const error = useAppSelector(lpDashboardSelectors.selectError);
-  const loading = status === 'loading';
 
   // Load LP dashboard data on mount
   useEffect(() => {
@@ -28,6 +28,17 @@ export function LPDashboard() {
   const pendingCalls = data?.pendingCalls || [];
   const pendingSignatures = data?.pendingSignatures || [];
   const commitment = data?.commitment || { totalCommitment: 0, calledAmount: 0 };
+
+  if (status === 'loading') return <LoadingState message="Loading LP dashboard…" />;
+  if (status === 'failed' && error) {
+    return (
+      <ErrorState
+        error={error}
+        title="Failed to load LP dashboard"
+        onRetry={() => dispatch(lpDashboardRequested())}
+      />
+    );
+  }
 
   const formatCurrency = (amount: number) => {
     if (amount >= 1_000_000) return `$${(amount / 1_000_000).toFixed(1)}M`;

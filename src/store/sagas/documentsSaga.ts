@@ -6,13 +6,16 @@ import {
   documentsLoaded,
   documentsRequested,
 } from '@/store/slices/documentsSlice';
+import { normalizeError } from '@/store/utils/normalizeError';
 
-function* loadDocumentsWorker(): SagaIterator {
+function* loadDocumentsWorker(action: ReturnType<typeof documentsRequested>): SagaIterator {
   try {
-    const { documents, folders } = yield call(listDocuments);
+    const params = action.payload;
+    const { documents, folders } = yield call(listDocuments, params);
     yield put(documentsLoaded({ documents, folders }));
-  } catch (error: any) {
-    yield put(documentsFailed(error?.message ?? 'Failed to load documents'));
+  } catch (error: unknown) {
+    console.error('Failed to load documents', error);
+    yield put(documentsFailed(normalizeError(error)));
   }
 }
 

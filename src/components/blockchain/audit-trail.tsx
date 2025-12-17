@@ -20,9 +20,10 @@ import {
 	} from 'lucide-react';
 	import { getRouteConfig } from '@/config/routes';
 	import type { AuditEvent } from '@/services/blockchain/auditTrailService';
-	import { useUIKey } from '@/store/ui';
-	import { useAppDispatch, useAppSelector } from '@/store/hooks';
-	import { auditTrailRequested, auditTrailSelectors } from '@/store/slices/miscSlice';
+		import { useUIKey } from '@/store/ui';
+		import { useAppDispatch, useAppSelector } from '@/store/hooks';
+		import { auditTrailRequested, auditTrailSelectors } from '@/store/slices/miscSlice';
+		import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
 
 	export function BlockchainAuditTrail() {
   const dispatch = useAppDispatch();
@@ -38,17 +39,30 @@ import {
 	  const { searchQuery, selectedEvent, filter } = ui;
 
 	  const routeConfig = getRouteConfig('/audit-trail');
-	  const data = useAppSelector(auditTrailSelectors.selectData);
-	  const status = useAppSelector(auditTrailSelectors.selectStatus);
-	  const error = useAppSelector(auditTrailSelectors.selectError);
-	  const loading = status === 'loading';
+		  const data = useAppSelector(auditTrailSelectors.selectData);
+		  const status = useAppSelector(auditTrailSelectors.selectStatus);
+		  const error = useAppSelector(auditTrailSelectors.selectError);
 
 	  // Load audit trail data on mount
-	  useEffect(() => {
-	    dispatch(auditTrailRequested());
-	  }, [dispatch]);
+		  useEffect(() => {
+		    dispatch(auditTrailRequested());
+		  }, [dispatch]);
 
-	  const mockAuditEvents = data?.events || [];
+		  if (status === 'loading' || status === 'idle') return <LoadingState message="Loading audit trail…" />;
+		  if (status === 'failed' && error) {
+		    return (
+		      <ErrorState
+		        error={error}
+		        title="Failed to load audit trail"
+		        onRetry={() => dispatch(auditTrailRequested())}
+		      />
+		    );
+		  }
+
+		  const auditEvents = data?.events || [];
+		  if (status === 'succeeded' && auditEvents.length === 0) {
+		    return <EmptyState icon={Database} title="No audit events" message="Activity will appear here." />;
+		  }
 
   const formatCurrency = (amount: number) => {
     if (amount >= 1_000_000) return `$${(amount / 1_000_000).toFixed(1)}M`;
@@ -107,12 +121,12 @@ import {
     }
   };
 
-  const filteredEvents = mockAuditEvents.filter(event => {
-    if (filter !== 'all' && event.eventType !== filter) return false;
-    if (searchQuery && !event.description.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        !event.txHash.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-    return true;
-  });
+	  const filteredEvents = auditEvents.filter(event => {
+	    if (filter !== 'all' && event.eventType !== filter) return false;
+	    if (searchQuery && !event.description.toLowerCase().includes(searchQuery.toLowerCase()) &&
+	        !event.txHash.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+	    return true;
+	  });
 
   return (
     <PageContainer>
@@ -131,7 +145,7 @@ import {
             description={routeConfig.description}
             icon={Database}
             aiSummary={{
-              text: `${mockAuditEvents.length} blockchain events recorded. ${mockAuditEvents.filter(e => e.verificationStatus === 'verified').length} verified transactions across ${new Set(mockAuditEvents.map(e => e.eventType)).size} event types. Latest block: ${Math.max(...mockAuditEvents.map(e => e.blockNumber)).toLocaleString()}`,
+              text: `${auditEvents.length} blockchain events recorded. ${auditEvents.filter(e => e.verificationStatus === 'verified').length} verified transactions across ${new Set(auditEvents.map(e => e.eventType)).size} event types. Latest block: ${Math.max(...auditEvents.map(e => e.blockNumber)).toLocaleString()}`,
               confidence: 0.95
             }}
           />
@@ -139,20 +153,20 @@ import {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <Card padding="md">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-[var(--app-primary)]">{mockAuditEvents.length}</div>
-            <div className="text-xs text-[var(--app-text-muted)]">Total Events</div>
-          </div>
-        </Card>
-        <Card padding="md">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-[var(--app-success)]">
-              {mockAuditEvents.filter(e => e.verificationStatus === 'verified').length}
-            </div>
-            <div className="text-xs text-[var(--app-text-muted)]">Verified</div>
-          </div>
-        </Card>
+	        <Card padding="md">
+	          <div className="text-center">
+	            <div className="text-2xl font-bold text-[var(--app-primary)]">{auditEvents.length}</div>
+	            <div className="text-xs text-[var(--app-text-muted)]">Total Events</div>
+	          </div>
+	        </Card>
+	        <Card padding="md">
+	          <div className="text-center">
+	            <div className="text-2xl font-bold text-[var(--app-success)]">
+	              {auditEvents.filter(e => e.verificationStatus === 'verified').length}
+	            </div>
+	            <div className="text-xs text-[var(--app-text-muted)]">Verified</div>
+	          </div>
+	        </Card>
         <Card padding="md">
           <div className="text-center">
             <div className="text-2xl font-bold">18.2M</div>

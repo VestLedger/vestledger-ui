@@ -13,7 +13,6 @@ export interface PipelineData {
 }
 
 export interface GetPipelineParams extends Partial<StandardQueryParams> {
-  fundId?: string | null;
   stageFilter?: string;
 }
 

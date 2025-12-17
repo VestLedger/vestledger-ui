@@ -44,7 +44,7 @@ export function getPipelineCopilotSuggestions() {
 export function getPipelineData(params: GetPipelineParams): PipelineData {
   if (isMockMode()) {
     // Mock mode: Accept params but return static data
-    // Future: Filter by fundId, stageFilter, apply pagination
+    // Future: Filter by stageFilter, apply pagination
     return {
       stages: pipelineStages,
       deals: pipelineDeals,

@@ -7,7 +7,7 @@ import { Button, Badge, Card, Input } from '@/ui';
 import { useRouter } from 'next/navigation';
 import { useAICopilot } from './ai-copilot-sidebar';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { alertsRequested, markAlertRead } from '@/store/slices/alertsSlice';
+import { alertsRequested, alertsSelectors, markAlertRead } from '@/store/slices/alertsSlice';
 import { searchRequested, searchCleared, searchSelectors } from '@/store/slices/searchSlice';
 import { NotificationCenter } from '@/components/notification-center';
 import type { Notification } from '@/types/notification';
@@ -21,7 +21,8 @@ export function Topbar() {
   const router = useRouter();
   const { openWithQuery } = useAICopilot();
   const dispatch = useAppDispatch();
-  const reduxNotifications = useAppSelector((state) => state.alerts.data?.items || []);
+  const alertsData = useAppSelector(alertsSelectors.selectData);
+  const reduxNotifications = alertsData?.items || [];
   const { theme, setTheme } = useTheme();
 
   // Use centralized UI state defaults

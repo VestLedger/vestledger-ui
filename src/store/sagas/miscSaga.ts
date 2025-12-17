@@ -14,7 +14,7 @@ import {
   companySearchLoaded,
   companySearchFailed,
 } from '../slices/miscSlice';
-import { getCalendarSnapshot } from '@/services/integrationsService';
+import { getIntegrationsSnapshot } from '@/services/integrationsService';
 import { getInvestorSnapshot } from '@/services/lpPortal/lpInvestorPortalService';
 import { getAuditEvents } from '@/services/blockchain/auditTrailService';
 import {
@@ -22,17 +22,18 @@ import {
   getCompanySearchIndustries,
   getCompanySearchStages,
 } from '@/services/dealIntelligence/companySearchService';
+import { normalizeError } from '@/store/utils/normalizeError';
 
 /**
  * Worker saga: Load integrations data
  */
 function* loadIntegrationsWorker(): SagaIterator {
   try {
-    const data = yield call(getCalendarSnapshot);
+    const data = yield call(getIntegrationsSnapshot);
     yield put(integrationsLoaded(data));
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to load integrations data', error);
-    yield put(integrationsFailed(error?.message || 'Failed to load integrations data'));
+    yield put(integrationsFailed(normalizeError(error)));
   }
 }
 
@@ -43,9 +44,9 @@ function* loadLPPortalWorker(): SagaIterator {
   try {
     const data = yield call(getInvestorSnapshot);
     yield put(lpPortalLoaded(data));
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to load LP portal data', error);
-    yield put(lpPortalFailed(error?.message || 'Failed to load LP portal data'));
+    yield put(lpPortalFailed(normalizeError(error)));
   }
 }
 
@@ -56,9 +57,9 @@ function* loadAuditTrailWorker(): SagaIterator {
   try {
     const events = yield call(getAuditEvents);
     yield put(auditTrailLoaded({ events }));
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to load audit trail data', error);
-    yield put(auditTrailFailed(error?.message || 'Failed to load audit trail data'));
+    yield put(auditTrailFailed(normalizeError(error)));
   }
 }
 
@@ -73,9 +74,9 @@ function* loadCompanySearchWorker(): SagaIterator {
       call(getCompanySearchStages),
     ]);
     yield put(companySearchLoaded({ companies, industries, stages }));
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to load company search data', error);
-    yield put(companySearchFailed(error?.message || 'Failed to load company search data'));
+    yield put(companySearchFailed(normalizeError(error)));
   }
 }
 

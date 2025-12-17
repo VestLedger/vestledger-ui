@@ -6,6 +6,7 @@ import { Card, Button, Badge, PageContainer } from '@/ui';
 import { MetricCard } from '@/components/metric-card';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { opsDashboardRequested, opsDashboardSelectors } from '@/store/slices/dashboardsSlice';
+import { ErrorState, LoadingState } from '@/components/ui/async-states';
 
 export function OpsDashboard() {
   const dispatch = useAppDispatch();
@@ -14,7 +15,6 @@ export function OpsDashboard() {
   const data = useAppSelector(opsDashboardSelectors.selectData);
   const status = useAppSelector(opsDashboardSelectors.selectStatus);
   const error = useAppSelector(opsDashboardSelectors.selectError);
-  const loading = status === 'loading';
 
   // Load ops dashboard data on mount
   useEffect(() => {
@@ -25,6 +25,17 @@ export function OpsDashboard() {
   const metrics = data?.metrics || [];
   const complianceAlerts = data?.complianceAlerts || [];
   const upcomingDistributions = data?.upcomingDistributions || [];
+
+  if (status === 'loading') return <LoadingState message="Loading ops dashboard…" />;
+  if (status === 'failed' && error) {
+    return (
+      <ErrorState
+        error={error}
+        title="Failed to load ops dashboard"
+        onRetry={() => dispatch(opsDashboardRequested())}
+      />
+    );
+  }
 
   return (
     <PageContainer className="space-y-6">

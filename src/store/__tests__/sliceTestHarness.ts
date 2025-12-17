@@ -26,7 +26,7 @@ import type { NormalizedError } from '../types/AsyncState';
  *   });
  *
  *   it('sets loading state on requested', () => {
- *     const state = reducer(expectations.initialState, actions.dealIntelligenceRequested({ fundId: '123' }));
+ *     const state = reducer(expectations.initialState, actions.dealIntelligenceRequested({}));
  *     expect(state.status).toBe('loading');
  *     expect(state.error).toBeUndefined();
  *   });

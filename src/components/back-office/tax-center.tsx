@@ -8,13 +8,13 @@ import { K1Generator } from '../tax/k1-generator';
 import { useUIKey } from '@/store/ui';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { taxCenterRequested, taxCenterSelectors } from '@/store/slices/backOfficeSlice';
+import { ErrorState, LoadingState } from '@/components/ui/async-states';
 
 export function TaxCenter() {
   const dispatch = useAppDispatch();
   const data = useAppSelector(taxCenterSelectors.selectData);
   const status = useAppSelector(taxCenterSelectors.selectStatus);
   const error = useAppSelector(taxCenterSelectors.selectError);
-  const loading = status === 'loading';
 
   // Load tax center data on mount
   useEffect(() => {
@@ -31,6 +31,17 @@ export function TaxCenter() {
   const taxSummaries = data?.taxSummaries || [];
   const portfolioTax = data?.portfolioTax || [];
   const filingDeadline = data?.filingDeadline || new Date();
+
+  if (status === 'loading') return <LoadingState message="Loading tax center…" />;
+  if (status === 'failed' && error) {
+    return (
+      <ErrorState
+        error={error}
+        title="Failed to load tax center"
+        onRetry={() => dispatch(taxCenterRequested())}
+      />
+    );
+  }
 
   // Calculate AI insights
   const k1sIssued = taxSummaries.reduce((sum, s) => sum + s.k1sIssued, 0);

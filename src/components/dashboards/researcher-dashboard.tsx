@@ -6,6 +6,7 @@ import { Card, Button, Badge, PageContainer } from '@/ui';
 import { MetricCard } from '@/components/metric-card';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { researcherDashboardRequested, researcherDashboardSelectors } from '@/store/slices/dashboardsSlice';
+import { ErrorState, LoadingState } from '@/components/ui/async-states';
 
 export function ResearcherDashboard() {
   const dispatch = useAppDispatch();
@@ -14,7 +15,6 @@ export function ResearcherDashboard() {
   const data = useAppSelector(researcherDashboardSelectors.selectData);
   const status = useAppSelector(researcherDashboardSelectors.selectStatus);
   const error = useAppSelector(researcherDashboardSelectors.selectError);
-  const loading = status === 'loading';
 
   // Load researcher dashboard data on mount
   useEffect(() => {
@@ -25,6 +25,17 @@ export function ResearcherDashboard() {
   const metrics = data?.metrics || [];
   const recentReports = data?.recentReports || [];
   const trendingTopics = data?.trendingTopics || [];
+
+  if (status === 'loading') return <LoadingState message="Loading researcher dashboard…" />;
+  if (status === 'failed' && error) {
+    return (
+      <ErrorState
+        error={error}
+        title="Failed to load researcher dashboard"
+        onRetry={() => dispatch(researcherDashboardRequested())}
+      />
+    );
+  }
 
   return (
     <PageContainer className="space-y-6">

@@ -24,9 +24,7 @@ export interface DealIntelligenceData {
   documents: Document[];
 }
 
-export interface GetDealIntelligenceParams extends Partial<StandardQueryParams> {
-  fundId: string | null;
-}
+export interface GetDealIntelligenceParams extends Partial<StandardQueryParams> {}
 
 type DealIntelligenceState = AsyncState<DealIntelligenceData>;
 
