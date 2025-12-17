@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react';
 import { Card, Button, Input, Badge, PageContainer, Breadcrumb, PageHeader } from '@/ui';
 import { User, Mail, Phone, Building2, MapPin, Calendar, Tag, Search, Filter, Plus, Edit3, Trash2, Star, MessageSquare, Video, Send, ExternalLink, Briefcase, Users, Network } from 'lucide-react';
 import { getRouteConfig } from '@/config/routes';
@@ -10,12 +11,8 @@ import { EmailIntegration, type EmailAccount } from '@/components/crm/email-inte
 import { InteractionTimeline, type TimelineInteraction } from '@/components/crm/interaction-timeline';
 import { NetworkGraph } from './network-graph';
 import { useUIKey } from '@/store/ui';
-import {
-  getCRMContacts,
-  getCRMEmailAccounts,
-  getCRMInteractions,
-  getCRMTimelineInteractions,
-} from '@/services/crm/contactsService';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { crmDataRequested } from '@/store/slices/crmSlice';
 import type { Contact, Interaction } from '@/services/crm/contactsService';
 
 interface ContactsUIState {
@@ -32,11 +29,19 @@ interface ContactsUIState {
 }
 
 export function Contacts() {
+  const dispatch = useAppDispatch();
   const routeConfig = getRouteConfig('/contacts');
-  const mockContacts = getCRMContacts();
-  const mockEmailAccounts = getCRMEmailAccounts();
-  const mockInteractions = getCRMInteractions();
-  const mockTimelineInteractions = getCRMTimelineInteractions();
+  const { data, loading, error } = useAppSelector((state) => state.crm);
+
+  // Load CRM data on mount
+  useEffect(() => {
+    dispatch(crmDataRequested());
+  }, [dispatch]);
+
+  const mockContacts = data?.contacts || [];
+  const mockEmailAccounts = data?.emailAccounts || [];
+  const mockInteractions = data?.interactions || [];
+  const mockTimelineInteractions = data?.timelineInteractions || [];
   const { value: ui, patch: patchUI } = useUIKey<ContactsUIState>('crm-contacts', {
     contacts: mockContacts,
     selectedContact: null,

@@ -1,5 +1,5 @@
 import { eventChannel } from 'redux-saga';
-import { all, call, delay, put, select, take, takeLatest } from 'redux-saga/effects';
+import { all, call, delay, put, race, select, take, takeLatest } from 'redux-saga/effects';
 import type { RootState } from '@/store/rootReducer';
 import {
   navigationHydrated,
@@ -11,68 +11,37 @@ import {
   type SidebarState,
 } from '@/store/slices/navigationSlice';
 import { clientMounted } from '@/store/slices/uiEffectsSlice';
+import { safeLocalStorage } from '@/lib/storage/safeLocalStorage';
 
 const STORAGE_KEY = 'vestledger-nav-expanded-groups';
 const SIDEBAR_LEFT_KEY = 'vestledger-sidebar-left-collapsed';
 const SIDEBAR_RIGHT_KEY = 'vestledger-sidebar-right-collapsed';
 
 function* hydrateNavigationWorker() {
-  if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
-    yield put(
-      navigationHydrated({
-        expandedGroups: [],
-        sidebarState: { leftCollapsed: false, rightCollapsed: false },
-      })
-    );
-    return;
-  }
+  const expandedGroups = safeLocalStorage.getJSON<string[]>(STORAGE_KEY) || [];
+  const leftCollapsed = safeLocalStorage.getItem(SIDEBAR_LEFT_KEY) === 'true';
+  const rightCollapsed = safeLocalStorage.getItem(SIDEBAR_RIGHT_KEY) === 'true';
 
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    const expandedGroups = stored ? (JSON.parse(stored) as string[]) : [];
-
-    const leftCollapsed = localStorage.getItem(SIDEBAR_LEFT_KEY) === 'true';
-    const rightCollapsed = localStorage.getItem(SIDEBAR_RIGHT_KEY) === 'true';
-
-    yield put(
-      navigationHydrated({
-        expandedGroups,
-        sidebarState: { leftCollapsed, rightCollapsed },
-      })
-    );
-  } catch (error) {
-    console.error('Failed to hydrate navigation state', error);
-    yield put(
-      navigationHydrated({
-        expandedGroups: [],
-        sidebarState: { leftCollapsed: false, rightCollapsed: false },
-      })
-    );
-  }
+  yield put(
+    navigationHydrated({
+      expandedGroups,
+      sidebarState: { leftCollapsed, rightCollapsed },
+    })
+  );
 }
 
 function* persistExpandedGroupsWorker() {
   yield delay(300);
   const expandedGroups: string[] = yield select((state: RootState) => state.navigation.expandedGroups);
-  if (typeof window === 'undefined' || typeof localStorage === 'undefined') return;
-  try {
-    const toStore = expandedGroups.filter((g) => g !== 'core-operations');
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(toStore));
-  } catch (error) {
-    console.error('Failed to persist expanded groups', error);
-  }
+  const toStore = expandedGroups.filter((g) => g !== 'core-operations');
+  safeLocalStorage.setJSON(STORAGE_KEY, toStore);
 }
 
 function* persistSidebarStateWorker() {
   yield delay(300);
   const sidebarState: SidebarState = yield select((state: RootState) => state.navigation.sidebarState);
-  if (typeof window === 'undefined' || typeof localStorage === 'undefined') return;
-  try {
-    localStorage.setItem(SIDEBAR_LEFT_KEY, String(sidebarState.leftCollapsed));
-    localStorage.setItem(SIDEBAR_RIGHT_KEY, String(sidebarState.rightCollapsed));
-  } catch (error) {
-    console.error('Failed to persist sidebar state', error);
-  }
+  safeLocalStorage.setItem(SIDEBAR_LEFT_KEY, String(sidebarState.leftCollapsed));
+  safeLocalStorage.setItem(SIDEBAR_RIGHT_KEY, String(sidebarState.rightCollapsed));
 }
 
 function createResizeChannel() {
@@ -108,7 +77,11 @@ function* watchResizeWorker() {
 
 export function* navigationSaga() {
   if (typeof window !== 'undefined') {
-    yield take(clientMounted.type);
+    // Wait for clientMounted with a 5 second timeout fallback
+    yield race({
+      mounted: take(clientMounted.type),
+      timeout: delay(5000),
+    });
   }
   yield all([
     call(hydrateNavigationWorker),

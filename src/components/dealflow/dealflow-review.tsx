@@ -1,11 +1,14 @@
 'use client'
 
+import { useEffect } from 'react';
 import { Card, Button, Badge, Progress, PageContainer, Breadcrumb, PageHeader } from '@/ui';
 import { ThumbsUp, ThumbsDown, MinusCircle, MessageSquare, Users, Building2, TrendingUp, DollarSign, Target, Lightbulb, Share2, Download, Play, Pause, SkipForward, SkipBack, Maximize2, Plus, Edit3, FileSearch , Vote} from 'lucide-react';
 import { getRouteConfig } from '@/config/routes';
 import { CompanyScoring } from './company-scoring';
-import { getDealflowDeals, getDealflowReviewSlides, type DealflowReviewSlide } from '@/services/dealflow/dealflowReviewService';
+import { getDealflowReviewSlides, type DealflowReviewSlide } from '@/services/dealflow/dealflowReviewService';
 import { useUIKey } from '@/store/ui';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { dealflowDealsRequested } from '@/store/slices/dealflowSlice';
 
 interface Vote {
   partnerId: string;
@@ -25,7 +28,14 @@ interface ReviewSession {
 }
 
 export function DealflowReview() {
-  const deals = getDealflowDeals();
+  const dispatch = useAppDispatch();
+  const { deals, dealsLoading, dealsError } = useAppSelector((state) => state.dealflow);
+
+  // Load dealflow deals on mount
+  useEffect(() => {
+    dispatch(dealflowDealsRequested());
+  }, [dispatch]);
+
   const selectedDeal = deals[0];
   const slides = selectedDeal ? getDealflowReviewSlides(selectedDeal) : [];
   const { value: ui, patch: patchUI } = useUIKey<{

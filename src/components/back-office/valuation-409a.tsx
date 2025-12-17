@@ -1,20 +1,30 @@
 'use client'
 
+import { useEffect } from 'react';
 import { Card, Button, Badge, Progress, Input, PageContainer, Breadcrumb, PageHeader } from '@/ui';
 import { Tabs, Tab } from '@/ui';
 import { getRouteConfig } from '@/config/routes';
 import { TrendingUp, FileText, Download, Calendar, DollarSign, AlertCircle, CheckCircle, Clock, Building2, ChevronRight, Calculator , Receipt} from 'lucide-react';
 import { useUIKey } from '@/store/ui';
-import { getStrikePrices, getValuationHistory, getValuations409a } from '@/services/backOffice/valuation409aService';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { valuation409aRequested } from '@/store/slices/backOfficeSlice';
 
 export function Valuation409A() {
+  const dispatch = useAppDispatch();
+  const { data, loading, error } = useAppSelector((state) => state.backOffice.valuation409a);
+
+  // Load 409A valuation data on mount
+  useEffect(() => {
+    dispatch(valuation409aRequested());
+  }, [dispatch]);
+
   const { value: ui, patch: patchUI } = useUIKey('back-office-valuation-409a', { selectedTab: 'valuations' });
   const { selectedTab } = ui;
   const routeConfig = getRouteConfig('/409a-valuations');
 
-  const valuations = getValuations409a();
-  const strikePrices = getStrikePrices();
-  const history = getValuationHistory();
+  const valuations = data?.valuations || [];
+  const strikePrices = data?.strikePrices || [];
+  const history = data?.history || [];
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {

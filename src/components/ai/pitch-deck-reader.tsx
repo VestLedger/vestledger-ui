@@ -1,12 +1,14 @@
 'use client'
 
+import { useEffect } from 'react';
 import { Card, Button, Badge, Progress } from '@/ui';
 import { Upload, FileText, Sparkles, CheckCircle2, Clock, AlertCircle, Download, Eye } from 'lucide-react';
 import { DocumentPreviewModal, useDocumentPreview, getMockDocumentUrl } from '@/components/documents/preview';
-import { getPitchDeckAnalyses, type PitchDeckAnalysis } from '@/services/ai/pitchDeckService';
+import type { PitchDeckAnalysis } from '@/services/ai/pitchDeckService';
 import { useUIKey } from '@/store/ui';
-import { useAppDispatch } from '@/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { pitchDeckUploadRequested } from '@/store/slices/uiEffectsSlice';
+import { pitchDeckAnalysesRequested } from '@/store/slices/aiSlice';
 
 const defaultPitchDeckReaderState = {
   selectedAnalysisId: null as string | null,
@@ -15,7 +17,12 @@ const defaultPitchDeckReaderState = {
 
 export function PitchDeckReader() {
   const dispatch = useAppDispatch();
-  const analyses: PitchDeckAnalysis[] = getPitchDeckAnalyses();
+  const { analyses, loading, error } = useAppSelector((state) => state.ai.pitchDeck);
+
+  // Load pitch deck analyses on mount
+  useEffect(() => {
+    dispatch(pitchDeckAnalysesRequested());
+  }, [dispatch]);
   const { value: ui, patch: patchUI } = useUIKey<{ selectedAnalysisId: string | null; isUploading: boolean }>(
     'pitch-deck-reader',
     defaultPitchDeckReaderState

@@ -1,5 +1,18 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
+/**
+ * UI Effects Slice
+ *
+ * This slice has no state and serves solely as a trigger mechanism for sagas.
+ * Actions defined here are meant to be intercepted by sagas to perform side effects
+ * (e.g., API calls, localStorage operations, navigation, etc.) without storing data
+ * in Redux state.
+ *
+ * This pattern is useful for:
+ * - One-off operations that don't need state (e.g., export reports, copy to clipboard)
+ * - Coordinating multiple saga operations from a single action
+ * - Lifecycle events (e.g., clientMounted for hydration timing)
+ */
 interface UIEffectsState {}
 
 const initialState: UIEffectsState = {};

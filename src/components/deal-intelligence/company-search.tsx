@@ -1,15 +1,16 @@
 'use client';
 
+import { useEffect } from 'react';
 import { Card, Button, Badge, Input, Progress } from '@/ui';
-import { 
-  Search, 
-  Sparkles, 
-  Building2, 
-  MapPin, 
-  Users, 
-  DollarSign, 
-  TrendingUp, 
-  Plus, 
+import {
+  Search,
+  Sparkles,
+  Building2,
+  MapPin,
+  Users,
+  DollarSign,
+  TrendingUp,
+  Plus,
   ExternalLink,
   Filter,
   Star,
@@ -20,16 +21,21 @@ import {
   Briefcase
 } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
-import {
-  getCompanySearchCompanies,
-  getCompanySearchIndustries,
-  getCompanySearchStages,
-} from '@/services/dealIntelligence/companySearchService';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { companySearchRequested } from '@/store/slices/miscSlice';
 
 export function CompanySearch() {
-  const industries = getCompanySearchIndustries();
-  const stages = getCompanySearchStages();
-  const companies = getCompanySearchCompanies();
+  const dispatch = useAppDispatch();
+  const { data, loading, error } = useAppSelector((state) => state.misc.companySearch);
+
+  // Load company search data on mount
+  useEffect(() => {
+    dispatch(companySearchRequested());
+  }, [dispatch]);
+
+  const industries = data?.industries || [];
+  const stages = data?.stages || [];
+  const companies = data?.companies || [];
 
   const { value: ui, patch: patchUI } = useUIKey('company-search', {
     searchQuery: '',

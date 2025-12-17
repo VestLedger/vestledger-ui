@@ -1,16 +1,27 @@
 'use client'
 
+import { useEffect } from 'react';
 import { Card, Button, Badge, Progress } from '@/ui';
 import { Tabs, Tab } from '@/ui';
 import { TrendingUp, DollarSign, Download, FileText, Calendar, Activity, BarChart3, PieChart, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
-import { getInvestorSnapshot } from '@/services/lpPortal/lpInvestorPortalService';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { lpPortalRequested } from '@/store/slices/miscSlice';
 
 export function LPInvestorPortal() {
+  const dispatch = useAppDispatch();
   const { value: ui, patch: patchUI } = useUIKey('lp-investor-portal', { selectedTab: 'overview' });
   const { selectedTab } = ui;
+  const { data, loading, error } = useAppSelector((state) => state.misc.lpPortal);
 
-  const { investor, reports, transactions } = getInvestorSnapshot();
+  // Load LP portal data on mount
+  useEffect(() => {
+    dispatch(lpPortalRequested());
+  }, [dispatch]);
+
+  const investor = data?.investor || { fundName: '', name: '', lastUpdate: new Date(), commitmentAmount: 0, calledCapital: 0, navValue: 0, distributedCapital: 0, dpi: 0, irr: 0, tvpi: 0, rvpi: 0, joinDate: new Date() };
+  const reports = data?.reports || [];
+  const transactions = data?.transactions || [];
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {

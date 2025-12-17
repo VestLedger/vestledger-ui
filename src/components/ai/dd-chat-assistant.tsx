@@ -4,13 +4,13 @@ import { useRef, useEffect } from 'react';
 import { Card, Button, Input, Badge } from '@/ui';
 import { Send, Sparkles, User, Bot, Lightbulb, TrendingUp, AlertCircle, FileText } from 'lucide-react';
 import { DocumentPreviewModal, useDocumentPreview, getMockDocumentUrl } from '@/components/documents/preview';
-import { getInitialDDChatConversation, type Message } from '@/services/ai/ddChatService';
+import type { Message } from '@/services/ai/ddChatService';
 import { useUIKey } from '@/store/ui';
-import { useAppDispatch } from '@/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { ddChatSendRequested } from '@/store/slices/uiEffectsSlice';
+import { ddChatConversationRequested } from '@/store/slices/aiSlice';
 
 const defaultDDChatAssistantState = {
-  messages: getInitialDDChatConversation(),
   inputValue: '',
   isTyping: false,
 };
@@ -18,11 +18,25 @@ const defaultDDChatAssistantState = {
 export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealName?: string }) {
   const dispatch = useAppDispatch();
   const stateKey = `dd-chat-assistant:${dealId ?? dealName ?? 'default'}`;
-  const { value: ui, patch: patchUI } = useUIKey<{ messages: Message[]; inputValue: string; isTyping: boolean }>(
+  const conversationKey = (dealId ?? dealName ?? 'default').toString();
+
+  // Load conversation from Redux
+  const conversation = useAppSelector((state) => state.ai.ddChat.conversations[conversationKey]);
+  const loading = useAppSelector((state) => state.ai.ddChat.loading);
+
+  // Load conversation on mount if not already loaded
+  useEffect(() => {
+    if (!conversation && dealId) {
+      dispatch(ddChatConversationRequested(dealId));
+    }
+  }, [dispatch, dealId, conversation]);
+
+  const { value: ui, patch: patchUI } = useUIKey<{ inputValue: string; isTyping: boolean }>(
     stateKey,
     defaultDDChatAssistantState
   );
-  const { messages, inputValue, isTyping } = ui;
+  const { inputValue, isTyping } = ui;
+  const messages = conversation || [];
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const preview = useDocumentPreview();
 

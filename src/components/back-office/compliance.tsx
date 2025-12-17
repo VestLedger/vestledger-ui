@@ -1,22 +1,32 @@
 'use client'
 
+import { useEffect } from 'react';
 import { Card, Button, Badge, Breadcrumb, PageHeader, PageContainer } from '@/ui';
 import { Shield, FileText, AlertTriangle, CheckCircle, Clock, Download, Calendar, Users, Building2, Scale, Bell } from 'lucide-react';
 import { getRouteConfig } from '@/config/routes';
 import { AMLKYCWorkflow } from '../compliance/aml-kyc-workflow';
 import { useUIKey } from '@/store/ui';
-import { getAuditSchedule, getComplianceItems, getRegulatoryFilings } from '@/services/backOffice/complianceService';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { complianceRequested } from '@/store/slices/backOfficeSlice';
 
 export function Compliance() {
+  const dispatch = useAppDispatch();
+  const { data, loading, error } = useAppSelector((state) => state.backOffice.compliance);
+
+  // Load compliance data on mount
+  useEffect(() => {
+    dispatch(complianceRequested());
+  }, [dispatch]);
+
   const { value: ui, patch: patchUI } = useUIKey('back-office-compliance', { selectedTab: 'overview' });
   const { selectedTab } = ui;
 
   // Get route config for breadcrumbs and AI suggestions
   const routeConfig = getRouteConfig('/compliance');
 
-  const complianceItems = getComplianceItems();
-  const regulatoryFilings = getRegulatoryFilings();
-  const auditSchedule = getAuditSchedule();
+  const complianceItems = data?.complianceItems || [];
+  const regulatoryFilings = data?.regulatoryFilings || [];
+  const auditSchedule = data?.auditSchedule || [];
 
   // Calculate AI insights
   const overdueItems = complianceItems.filter(item => item.status === 'overdue').length;

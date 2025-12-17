@@ -1,9 +1,11 @@
 'use client'
 
+import { useEffect } from 'react';
 import { Card, Button, Badge, Progress } from '@/ui';
 import { Star, User, TrendingUp, Target, Users, Lightbulb, CheckCircle2, Edit3 } from 'lucide-react';
-import { getCompanyScoreData, type CompanyScoreData } from '@/services/dealflow/companyScoringService';
 import { useUIKey } from '@/store/ui';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { companyScoringRequested } from '@/store/slices/dealflowSlice';
 
 interface ScoringCriteria {
   id: string;
@@ -52,7 +54,14 @@ const defaultCriteria: ScoringCriteria[] = [
 ];
 
 export function CompanyScoring({ companyId, companyName }: { companyId: number; companyName: string }) {
-  const scoreData = getCompanyScoreData();
+  const dispatch = useAppDispatch();
+  const { scoreData, scoreLoading, scoreError } = useAppSelector((state) => state.dealflow);
+
+  // Load company scoring data on mount
+  useEffect(() => {
+    dispatch(companyScoringRequested());
+  }, [dispatch]);
+
   const { value: ui, patch: patchUI } = useUIKey<{
     isEditingScores: boolean;
     currentUserScore: Record<string, number>;
@@ -67,6 +76,11 @@ export function CompanyScoring({ companyId, companyName }: { companyId: number; 
     },
   });
   const { isEditingScores, currentUserScore } = ui;
+
+  // Return early if no data
+  if (!scoreData) {
+    return <div className="text-sm text-[var(--app-text-muted)]">Loading scoring data...</div>;
+  }
 
   const calculateWeightedScore = (scores: { [key: string]: number }) => {
     let totalScore = 0;
@@ -163,7 +177,7 @@ export function CompanyScoring({ companyId, companyName }: { companyId: number; 
         <h4 className="font-semibold mb-4">Score Breakdown by Criteria</h4>
         <div className="space-y-4">
           {defaultCriteria.map(criteria => {
-            const avgScore = scoreData.individualScores.reduce((sum, score) =>
+            const avgScore = scoreData.individualScores.reduce((sum: number, score: any) =>
               sum + (score.scores[criteria.id] || 0), 0) / scoreData.individualScores.length;
 
             return (
@@ -211,7 +225,7 @@ export function CompanyScoring({ companyId, companyName }: { companyId: number; 
       <div>
         <h4 className="font-semibold mb-4">Individual Partner Scores</h4>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {scoreData.individualScores.map(partnerScore => (
+          {scoreData.individualScores.map((partnerScore: any) => (
             <Card key={partnerScore.partnerId} padding="md">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">

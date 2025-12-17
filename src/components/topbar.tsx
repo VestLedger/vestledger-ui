@@ -7,7 +7,7 @@ import { Button, Badge, Card, Input } from '@/ui';
 import { useRouter } from 'next/navigation';
 import { useAICopilot } from './ai-copilot-sidebar';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { fetchAlerts, markAlertRead } from '@/store/slices/alertsSlice';
+import { alertsRequested, markAlertRead } from '@/store/slices/alertsSlice';
 import { NotificationCenter } from '@/components/notification-center';
 import type { Notification } from '@/types/notification';
 import { useTheme } from 'next-themes';
@@ -34,7 +34,7 @@ export function Topbar() {
   };
 
   useEffect(() => {
-    dispatch(fetchAlerts());
+    dispatch(alertsRequested());
   }, [dispatch]);
 
   // Convert Redux alerts to Notification format

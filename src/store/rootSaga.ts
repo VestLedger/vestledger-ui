@@ -11,6 +11,10 @@ import { pipelineSaga } from './sagas/pipelineSaga';
 import { dashboardsSaga } from './sagas/dashboardsSaga';
 import { dealflowSaga } from './sagas/dealflowSaga';
 import { backOfficeSaga } from './sagas/backOfficeSaga';
+import { aiSaga } from './sagas/aiSaga';
+import { dealIntelligenceSaga } from './sagas/dealIntelligenceSaga';
+import { crmSaga } from './sagas/crmSaga';
+import { miscSaga } from './sagas/miscSaga';
 
 export function* rootSaga() {
   yield all([
@@ -26,5 +30,9 @@ export function* rootSaga() {
     call(dashboardsSaga),
     call(dealflowSaga),
     call(backOfficeSaga),
+    call(aiSaga),
+    call(dealIntelligenceSaga),
+    call(crmSaga),
+    call(miscSaga),
   ]);
 }

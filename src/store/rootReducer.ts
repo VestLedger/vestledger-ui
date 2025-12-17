@@ -12,6 +12,10 @@ import { pipelineReducer } from './slices/pipelineSlice';
 import { dashboardsReducer } from './slices/dashboardsSlice';
 import { dealflowReducer } from './slices/dealflowSlice';
 import { backOfficeReducer } from './slices/backOfficeSlice';
+import { aiReducer } from './slices/aiSlice';
+import { dealIntelligenceReducer } from './slices/dealIntelligenceSlice';
+import { crmReducer } from './slices/crmSlice';
+import { miscReducer } from './slices/miscSlice';
 
 export const rootReducer = combineReducers({
   alerts: alertsReducer,
@@ -27,6 +31,10 @@ export const rootReducer = combineReducers({
   dashboards: dashboardsReducer,
   dealflow: dealflowReducer,
   backOffice: backOfficeReducer,
+  ai: aiReducer,
+  dealIntelligence: dealIntelligenceReducer,
+  crm: crmReducer,
+  misc: miscReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

@@ -1,11 +1,13 @@
 'use client';
 
+import { useEffect } from 'react';
 import { PageContainer, PageHeader, Breadcrumb, Card, Button, Badge } from '@/ui';
 import { Plug, Calendar, Mail, Slack, Github, CheckCircle2, AlertCircle, Settings } from 'lucide-react';
 import { getRouteConfig } from '@/config/routes';
 import { CalendarIntegration, type CalendarAccount, type CalendarEvent } from './calendar-integration';
-import { getCalendarSnapshot } from '@/services/integrationsService';
 import { useUIKey } from '@/store/ui';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { integrationsRequested } from '@/store/slices/miscSlice';
 
 interface Integration {
   id: string;
@@ -52,8 +54,17 @@ const availableIntegrations: Integration[] = [
 ];
 
 export function Integrations() {
+  const dispatch = useAppDispatch();
   const routeConfig = getRouteConfig('/integrations');
-  const { accounts: calendarAccounts, events: calendarEvents } = getCalendarSnapshot();
+  const { data, loading, error } = useAppSelector((state) => state.misc.integrations);
+
+  // Load integrations data on mount
+  useEffect(() => {
+    dispatch(integrationsRequested());
+  }, [dispatch]);
+
+  const calendarAccounts = data?.accounts || [];
+  const calendarEvents = data?.events || [];
   const { value: ui, patch: patchUI } = useUIKey('integrations', { selectedCategory: 'all' });
   const { selectedCategory } = ui;
 

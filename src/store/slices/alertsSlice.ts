@@ -26,15 +26,15 @@ const alertsSlice = createSlice({
   name: 'alerts',
   initialState,
   reducers: {
-    fetchAlerts: (state) => {
+    alertsRequested: (state) => {
       state.loading = true;
       state.error = undefined;
     },
-    fetchAlertsSuccess: (state, action: PayloadAction<Alert[]>) => {
+    alertsLoaded: (state, action: PayloadAction<Alert[]>) => {
       state.items = action.payload;
       state.loading = false;
     },
-    fetchAlertsFailure: (state, action: PayloadAction<string>) => {
+    alertsFailed: (state, action: PayloadAction<string>) => {
       state.loading = false;
       state.error = action.payload;
     },
@@ -48,9 +48,9 @@ const alertsSlice = createSlice({
 });
 
 export const {
-  fetchAlerts,
-  fetchAlertsSuccess,
-  fetchAlertsFailure,
+  alertsRequested,
+  alertsLoaded,
+  alertsFailed,
   markAlertRead,
 } = alertsSlice.actions;
 

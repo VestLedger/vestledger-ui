@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useUIKey } from '@/store/ui'
 import { Card, Button, Badge, Progress, Input, Select, Breadcrumb, PageHeader, PageContainer } from '@/ui'
 import { DollarSign, Send, Download, Clock, CheckCircle, AlertTriangle, Users, FileText, Mail, ArrowUpRight, ArrowDownRight } from 'lucide-react'
@@ -9,18 +10,27 @@ import { CarriedInterestTracker } from '../fund-admin/carried-interest-tracker'
 import { ExpenseTracker } from '../fund-admin/expense-tracker'
 import { NAVCalculator } from '../fund-admin/nav-calculator'
 import { TransferSecondary } from '../fund-admin/transfer-secondary'
-import { getCapitalCalls, getDistributions, getLPResponses } from '@/services/backOffice/fundAdminService'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
+import { fundAdminRequested } from '@/store/slices/backOfficeSlice'
 
 export function FundAdmin() {
+  const dispatch = useAppDispatch();
+  const { data, loading, error } = useAppSelector((state) => state.backOffice.fundAdmin);
+
+  // Load fund admin data on mount
+  useEffect(() => {
+    dispatch(fundAdminRequested());
+  }, [dispatch]);
+
   const { value: ui, patch: patchUI } = useUIKey('back-office-fund-admin', { selectedTab: 'capital-calls' });
   const { selectedTab } = ui;
 
   // Get route config for breadcrumbs and AI suggestions
   const routeConfig = getRouteConfig('/fund-admin');
 
-  const capitalCalls = getCapitalCalls();
-  const distributions = getDistributions();
-  const lpResponses = getLPResponses();
+  const capitalCalls = data?.capitalCalls || [];
+  const distributions = data?.distributions || [];
+  const lpResponses = data?.lpResponses || [];
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -355,7 +365,7 @@ export function FundAdmin() {
                           </div>
                         </Badge>
                         <Badge size="sm" className="bg-[var(--app-surface-hover)]">
-                          {dist.type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                          {dist.type.split('-').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                         </Badge>
                       </div>
                       <p className="text-sm text-[var(--app-text-muted)] mb-1">{dist.fundName}</p>

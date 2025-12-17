@@ -1,5 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { Deal, CompanyScoreData } from '@/services/dealflow/dealflowReviewService';
+import type { Deal } from '@/services/dealflow/dealflowReviewService';
+import type { CompanyScoreData } from '@/services/dealflow/companyScoringService';
 
 interface DealflowState {
   // Dealflow Review

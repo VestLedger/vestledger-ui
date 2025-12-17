@@ -1,4 +1,4 @@
-import { call, put, select, take, takeLatest } from 'redux-saga/effects';
+import { call, delay, put, race, select, take, takeLatest } from 'redux-saga/effects';
 import { createUser } from '@/services/authService';
 import type { RootState } from '@/store/rootReducer';
 import type { User, UserRole } from '@/types/auth';
@@ -13,34 +13,25 @@ import {
   userUpdated,
 } from '@/store/slices/authSlice';
 import { clientMounted } from '@/store/slices/uiEffectsSlice';
+import { safeLocalStorage } from '@/lib/storage/safeLocalStorage';
 
 const STORAGE_AUTH_KEY = 'isAuthenticated';
 const STORAGE_USER_KEY = 'user';
 
 function* hydrateAuthWorker() {
-  if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
-    yield put(authHydrated({ isAuthenticated: false, user: null }));
+  const savedAuth = safeLocalStorage.getItem(STORAGE_AUTH_KEY);
+  const savedUser = safeLocalStorage.getJSON<User>(STORAGE_USER_KEY);
+
+  if (savedAuth === 'true' && savedUser) {
+    // Ensure role exists for backwards compatibility
+    if (!('role' in savedUser) || !savedUser.role) {
+      (savedUser as any).role = 'gp';
+    }
+    yield put(authHydrated({ isAuthenticated: true, user: savedUser }));
     return;
   }
 
-  try {
-    const savedAuth = localStorage.getItem(STORAGE_AUTH_KEY);
-    const savedUser = localStorage.getItem(STORAGE_USER_KEY);
-
-    if (savedAuth === 'true' && savedUser) {
-      const parsedUser = JSON.parse(savedUser) as User;
-      if (!('role' in parsedUser) || !parsedUser.role) {
-        (parsedUser as any).role = 'gp';
-      }
-      yield put(authHydrated({ isAuthenticated: true, user: parsedUser }));
-      return;
-    }
-
-    yield put(authHydrated({ isAuthenticated: false, user: null }));
-  } catch (error) {
-    console.error('Failed to hydrate auth from localStorage', error);
-    yield put(authHydrated({ isAuthenticated: false, user: null }));
-  }
+  yield put(authHydrated({ isAuthenticated: false, user: null }));
 }
 
 function* loginWorker(action: ReturnType<typeof loginRequested>) {
@@ -50,14 +41,9 @@ function* loginWorker(action: ReturnType<typeof loginRequested>) {
 
     yield put(loginSucceeded(user));
 
-    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
-      try {
-        localStorage.setItem(STORAGE_AUTH_KEY, 'true');
-        localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(user));
-      } catch (error) {
-        console.error('Failed to persist auth to localStorage', error);
-      }
-    }
+    // Persist to localStorage
+    safeLocalStorage.setItem(STORAGE_AUTH_KEY, 'true');
+    safeLocalStorage.setJSON(STORAGE_USER_KEY, user);
   } catch (error: any) {
     console.error('Login failed', error);
     yield put(loginFailed(error?.message || 'Login failed'));
@@ -65,13 +51,8 @@ function* loginWorker(action: ReturnType<typeof loginRequested>) {
 }
 
 function* logoutWorker() {
-  try {
-    localStorage.removeItem(STORAGE_AUTH_KEY);
-    localStorage.removeItem(STORAGE_USER_KEY);
-  } catch (error) {
-    console.error('Failed to clear auth from localStorage', error);
-  }
-
+  safeLocalStorage.removeItem(STORAGE_AUTH_KEY);
+  safeLocalStorage.removeItem(STORAGE_USER_KEY);
   yield put(loggedOut());
 }
 
@@ -83,16 +64,16 @@ function* switchRoleWorker(action: ReturnType<typeof switchRoleRequested>) {
   const updatedUser: User = { ...user, role: nextRole };
   yield put(userUpdated(updatedUser));
 
-  try {
-    localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(updatedUser));
-  } catch (error) {
-    console.error('Failed to persist updated user to localStorage', error);
-  }
+  safeLocalStorage.setJSON(STORAGE_USER_KEY, updatedUser);
 }
 
 export function* authSaga() {
   if (typeof window !== 'undefined') {
-    yield take(clientMounted.type);
+    // Wait for clientMounted with a 5 second timeout fallback
+    yield race({
+      mounted: take(clientMounted.type),
+      timeout: delay(5000),
+    });
   }
   yield call(hydrateAuthWorker);
   yield takeLatest(loginRequested.type, loginWorker);

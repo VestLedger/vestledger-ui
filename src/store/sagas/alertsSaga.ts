@@ -1,9 +1,9 @@
 import { all, call, delay, put, takeLatest } from 'redux-saga/effects';
 import type { SagaIterator } from 'redux-saga';
 import {
-  fetchAlerts,
-  fetchAlertsFailure,
-  fetchAlertsSuccess,
+  alertsRequested,
+  alertsFailed,
+  alertsLoaded,
 } from '../slices/alertsSlice';
 import { fetchAlerts as fetchAlertsService } from '@/services/alertsService';
 
@@ -12,14 +12,14 @@ function* fetchAlertsWorker(): SagaIterator {
     // Simulate network latency and return mock alerts.
     yield delay(300);
     const alerts = yield call(fetchAlertsService);
-    yield put(fetchAlertsSuccess(alerts));
+    yield put(alertsLoaded(alerts));
   } catch (error: any) {
-    yield put(fetchAlertsFailure(error?.message ?? 'Failed to load alerts'));
+    yield put(alertsFailed(error?.message ?? 'Failed to load alerts'));
   }
 }
 
 function* watchFetchAlerts(): SagaIterator {
-  yield takeLatest(fetchAlerts.type, fetchAlertsWorker);
+  yield takeLatest(alertsRequested.type, fetchAlertsWorker);
 }
 
 export function* alertsSaga(): SagaIterator {

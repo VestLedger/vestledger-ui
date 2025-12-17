@@ -1,18 +1,20 @@
 'use client'
 
+import { useEffect } from 'react';
 import { useUIKey } from '@/store/ui';
 import { CheckCircle2, Circle, Clock, Eye, FileText, Users, DollarSign, BarChart, Upload, Download, Search, Filter, TrendingUp, AlertCircle, ArrowLeft, Brain } from 'lucide-react';
 import { Card, Badge, Progress, Button, Input, Breadcrumb, PageHeader, Tabs, Tab, PageContainer } from '@/ui';
 import { useFund } from '@/contexts/fund-context';
 import { getRouteConfig } from '@/config/routes';
 import { CompanySearch } from './deal-intelligence/company-search';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { dealIntelligenceRequested } from '@/store/slices/dealIntelligenceSlice';
 import {
   type ActiveDeal,
   type DocumentCategory,
   type DocumentStatus,
   type ICStatus,
 } from '@/services/dealIntelligence/dealIntelligenceService';
-import { getDealIntelligenceData } from '@/services/dealIntelligence/dealIntelligenceService';
 
 interface DealIntelligenceUIState {
   viewMode: 'fund-level' | 'per-deal';
@@ -23,14 +25,24 @@ interface DealIntelligenceUIState {
 }
 
 export function DealIntelligence() {
+  const dispatch = useAppDispatch();
   const { selectedFund } = useFund();
-  const {
-    activeDeals,
-    dealAnalyticsData,
-    documentCategories,
-    fundAnalytics,
-    mockDocuments,
-  } = getDealIntelligenceData();
+  const { data, loading, error } = useAppSelector((state) => state.dealIntelligence);
+
+  // Load deal intelligence data on mount
+  useEffect(() => {
+    dispatch(dealIntelligenceRequested());
+  }, [dispatch]);
+
+  const activeDeals = data?.activeDeals || [];
+  const dealAnalyticsData = data?.dealAnalyticsData || [];
+  const documentCategories = data?.documentCategories || [];
+  const fundAnalytics = data?.fundAnalytics || {
+    dealFlowMetrics: { activeDeals: 0, avgTimeInDD: 0, ddToICConversionRate: 0, readyForIC: 0 },
+    dealDistribution: { byStage: [], bySector: [] },
+    ddProgress: { avgCompletion: 0, onTrack: 0, atRisk: 0, blocked: 0 }
+  };
+  const mockDocuments = data?.mockDocuments || [];
   const { value: ui, patch: patchUI } = useUIKey<DealIntelligenceUIState>('deal-intelligence', {
     viewMode: 'fund-level',
     selectedDeal: null,
@@ -98,7 +110,7 @@ export function DealIntelligence() {
     patchUI({ viewMode: 'fund-level', selectedDeal: null });
   };
 
-  const filteredDocuments = mockDocuments.filter(doc => {
+  const filteredDocuments = mockDocuments.filter((doc: any) => {
     const matchesDeal = !selectedDeal || doc.dealId === selectedDeal.id;
     const matchesCategory = selectedCategory === 'all' || doc.category === selectedCategory;
     const matchesSearch = searchQuery === '' ||
@@ -107,10 +119,10 @@ export function DealIntelligence() {
     return matchesDeal && matchesCategory && matchesSearch;
   });
 
-  const dealsReadyForIC = activeDeals.filter(d => d.icStatus === 'ready-for-ic').length;
-  const dealsInProgress = activeDeals.filter(d => d.icStatus === 'dd-in-progress').length;
-  const overdueDocuments = mockDocuments.filter(d => d.status === 'overdue').length;
-  const pendingReviews = mockDocuments.filter(d => d.status === 'pending').length;
+  const dealsReadyForIC = activeDeals.filter((d: any) => d.icStatus === 'ready-for-ic').length;
+  const dealsInProgress = activeDeals.filter((d: any) => d.icStatus === 'dd-in-progress').length;
+  const overdueDocuments = mockDocuments.filter((d: any) => d.status === 'overdue').length;
+  const pendingReviews = mockDocuments.filter((d: any) => d.status === 'pending').length;
 
   // Get route config for breadcrumbs and AI suggestions
   const routeConfig = getRouteConfig('/deal-intelligence');
@@ -186,7 +198,7 @@ export function DealIntelligence() {
             <Card padding="md">
               <h4 className="text-sm font-medium mb-4">Deals by Stage</h4>
               <div className="space-y-3">
-                {fundAnalytics.dealDistribution.byStage.map((item) => (
+                {fundAnalytics.dealDistribution.byStage.map((item: any) => (
                   <div key={item.stage}>
                     <div className="flex items-center justify-between text-sm mb-1">
                       <span className="text-[var(--app-text-muted)]">{item.stage}</span>
@@ -207,7 +219,7 @@ export function DealIntelligence() {
             <Card padding="md">
               <h4 className="text-sm font-medium mb-4">Deals by Sector</h4>
               <div className="space-y-3">
-                {fundAnalytics.dealDistribution.bySector.map((item) => (
+                {fundAnalytics.dealDistribution.bySector.map((item: any) => (
                   <div key={item.sector}>
                     <div className="flex items-center justify-between text-sm mb-1">
                       <span className="text-[var(--app-text-muted)]">{item.sector}</span>
@@ -334,7 +346,7 @@ export function DealIntelligence() {
 
           {/* Active Deals Cards */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            {activeDeals.map((deal) => (
+            {activeDeals.map((deal: any) => (
               <Card
                 key={deal.id}
                 isPressable
@@ -372,7 +384,7 @@ export function DealIntelligence() {
 
                 <div className="space-y-1.5 text-xs">
                   <div className="text-[var(--app-text-muted)] font-medium mb-1">Document Completion:</div>
-                  {deal.categoryProgress.map((cat) => (
+                  {deal.categoryProgress.map((cat: any) => (
                     <div key={cat.category} className="flex items-center justify-between">
                       <span className="text-[var(--app-text-muted)] capitalize">{cat.category}:</span>
                       <span className="font-medium">
@@ -450,8 +462,8 @@ export function DealIntelligence() {
               <Card padding="md">
                 <h3 className="text-lg font-medium mb-4">Due Diligence Progress</h3>
                 <div className="space-y-4">
-                  {selectedDeal.categoryProgress.map((cat) => {
-                    const categoryInfo = documentCategories.find(c => c.id === cat.category);
+                  {selectedDeal.categoryProgress.map((cat: any) => {
+                    const categoryInfo = documentCategories.find((c: any) => c.id === cat.category);
                     const CategoryIcon = categoryInfo?.icon || FileText;
                     const percentage = (cat.completed / cat.total) * 100;
 
@@ -515,7 +527,7 @@ export function DealIntelligence() {
 
           <Tab key="analytics" title="Deal Analytics">
             {(() => {
-              const analytics = dealAnalyticsData.find(d => d.dealId === selectedDeal.id);
+              const analytics = dealAnalyticsData.find((d: any) => d.dealId === selectedDeal.id);
               if (!analytics) {
                 return (
                   <Card padding="md">
@@ -764,9 +776,9 @@ export function DealIntelligence() {
 
               {/* Document Categories Stats */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-                {documentCategories.map((category) => {
+                {documentCategories.map((category: any) => {
                   const CategoryIcon = category.icon;
-                  const count = mockDocuments.filter(d => d.dealId === selectedDeal.id && d.category === category.id).length;
+                  const count = mockDocuments.filter((d: any) => d.dealId === selectedDeal.id && d.category === category.id).length;
                   return (
                     <Card
                       key={category.id}
@@ -814,7 +826,7 @@ export function DealIntelligence() {
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    {filteredDocuments.map((doc) => (
+                    {filteredDocuments.map((doc: any) => (
                       <Card
                         key={doc.id}
                         padding="sm"

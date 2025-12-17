@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { Bell, AlertCircle, AlertTriangle, CheckCircle, Info } from 'lucide-react';
 import { PageContainer, PageHeader, Card, Badge, Breadcrumb } from '@/ui';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { fetchAlerts, markAlertRead } from '@/store/slices/alertsSlice';
+import { alertsRequested, markAlertRead } from '@/store/slices/alertsSlice';
 import { getRouteConfig } from '@/config/routes';
 
 const getIcon = (type: string) => {
@@ -27,7 +27,7 @@ export default function NotificationsPage() {
   const { items: reduxNotifications } = useAppSelector((state) => state.alerts);
 
   useEffect(() => {
-    dispatch(fetchAlerts());
+    dispatch(alertsRequested());
   }, [dispatch]);
 
   const routeConfig = getRouteConfig('/notifications');

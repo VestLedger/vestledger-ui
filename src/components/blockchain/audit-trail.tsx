@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { Card, Button, Badge, Input, Progress, PageContainer, Breadcrumb, PageHeader } from '@/ui';
 import {
   Shield,
@@ -18,10 +19,13 @@ import {
   Filter
 	} from 'lucide-react';
 	import { getRouteConfig } from '@/config/routes';
-	import { getAuditEvents, type AuditEvent } from '@/services/blockchain/auditTrailService';
+	import type { AuditEvent } from '@/services/blockchain/auditTrailService';
 	import { useUIKey } from '@/store/ui';
+	import { useAppDispatch, useAppSelector } from '@/store/hooks';
+	import { auditTrailRequested } from '@/store/slices/miscSlice';
 
 	export function BlockchainAuditTrail() {
+  const dispatch = useAppDispatch();
   const { value: ui, patch: patchUI } = useUIKey<{
     searchQuery: string;
     selectedEvent: AuditEvent | null;
@@ -34,7 +38,14 @@ import {
 	  const { searchQuery, selectedEvent, filter } = ui;
 
 	  const routeConfig = getRouteConfig('/audit-trail');
-	  const mockAuditEvents = getAuditEvents();
+	  const { data, loading, error } = useAppSelector((state) => state.misc.auditTrail);
+
+	  // Load audit trail data on mount
+	  useEffect(() => {
+	    dispatch(auditTrailRequested());
+	  }, [dispatch]);
+
+	  const mockAuditEvents = data?.events || [];
 
   const formatCurrency = (amount: number) => {
     if (amount >= 1_000_000) return `$${(amount / 1_000_000).toFixed(1)}M`;
