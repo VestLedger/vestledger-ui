@@ -12,7 +12,7 @@ export function FundProvider({ children }: { children: ReactNode }) {
 
 export function useFund() {
   const dispatch = useAppDispatch();
-  const funds = useAppSelector((state) => state.fund.funds);
+  const funds = useAppSelector((state) => state.fund.data?.funds || []);
   const selectedFundId = useAppSelector((state) => state.fund.selectedFundId);
   const viewMode = useAppSelector((state) => state.fund.viewMode);
 

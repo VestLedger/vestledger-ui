@@ -21,7 +21,7 @@ export function Topbar() {
   const router = useRouter();
   const { openWithQuery } = useAICopilot();
   const dispatch = useAppDispatch();
-  const { items: reduxNotifications } = useAppSelector((state) => state.alerts);
+  const reduxNotifications = useAppSelector((state) => state.alerts.data?.items || []);
   const { theme, setTheme } = useTheme();
 
   // Use centralized UI state defaults
@@ -42,7 +42,7 @@ export function Topbar() {
   };
 
   useEffect(() => {
-    dispatch(alertsRequested());
+    dispatch(alertsRequested({}));
   }, [dispatch]);
 
   // Convert Redux alerts to Notification format

@@ -9,21 +9,24 @@ import { getRouteConfig } from '@/config/routes';
 import { KanbanBoard } from '@/components/kanban-board';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { setSuggestionsOverride } from '@/store/slices/copilotSlice';
-import { pipelineDataRequested, dealStageUpdated } from '@/store/slices/pipelineSlice';
+import { pipelineDataRequested, dealStageUpdated, pipelineSelectors } from '@/store/slices/pipelineSlice';
 import { useUIKey } from '@/store/ui';
 import type { PipelineDeal as Deal, PipelineDealOutcome as DealOutcome } from '@/services/pipelineService';
 
 export function Pipeline() {
   const dispatch = useAppDispatch();
 
-  // Get pipeline data from Redux
-  const { stages: pipelineStages, deals: pipelineDeals, copilotSuggestions: pipelineCopilotSuggestions, loading, error } = useAppSelector(
-    (state) => state.pipeline
-  );
+  // Use centralized selectors
+  const data = useAppSelector(pipelineSelectors.selectData);
+  const status = useAppSelector(pipelineSelectors.selectStatus);
+
+  const pipelineStages = data?.stages || [];
+  const pipelineDeals = data?.deals || [];
+  const pipelineCopilotSuggestions = data?.copilotSuggestions || [];
 
   // Load pipeline data on mount
   useEffect(() => {
-    dispatch(pipelineDataRequested());
+    dispatch(pipelineDataRequested({}));
   }, [dispatch]);
 
   const { value: pipelineUI, patch: patchPipelineUI } = useUIKey('pipeline', {

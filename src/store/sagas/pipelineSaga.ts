@@ -5,33 +5,20 @@ import {
   pipelineDataLoaded,
   pipelineDataFailed,
 } from '../slices/pipelineSlice';
-import {
-  getPipelineStages,
-  getPipelineDeals,
-  getPipelineCopilotSuggestions,
-  type PipelineDeal,
-} from '@/services/pipelineService';
-import type { Suggestion } from '@/data/mocks/ai/copilot';
+import { getPipelineData } from '@/services/pipelineService';
+import { normalizeError } from '@/store/utils/normalizeError';
 
 /**
  * Worker saga: Load pipeline data (stages, deals, copilot suggestions)
  */
-function* loadPipelineDataWorker(): SagaIterator {
+function* loadPipelineDataWorker(action: ReturnType<typeof pipelineDataRequested>): SagaIterator {
   try {
-    const stages: string[] = yield call(getPipelineStages);
-    const deals: PipelineDeal[] = yield call(getPipelineDeals);
-    const copilotSuggestions: Suggestion[] = yield call(getPipelineCopilotSuggestions);
-
-    yield put(
-      pipelineDataLoaded({
-        stages,
-        deals,
-        copilotSuggestions,
-      })
-    );
-  } catch (error: any) {
+    const params = action.payload;
+    const data = yield call(getPipelineData, params);
+    yield put(pipelineDataLoaded(data));
+  } catch (error: unknown) {
     console.error('Failed to load pipeline data', error);
-    yield put(pipelineDataFailed(error?.message || 'Failed to load pipeline data'));
+    yield put(pipelineDataFailed(normalizeError(error)));
   }
 }
 

@@ -24,10 +24,10 @@ const getIcon = (type: string) => {
 
 export default function NotificationsPage() {
   const dispatch = useAppDispatch();
-  const { items: reduxNotifications } = useAppSelector((state) => state.alerts);
+  const reduxNotifications = useAppSelector((state) => state.alerts.data?.items || []);
 
   useEffect(() => {
-    dispatch(alertsRequested());
+    dispatch(alertsRequested({}));
   }, [dispatch]);
 
   const routeConfig = getRouteConfig('/notifications');

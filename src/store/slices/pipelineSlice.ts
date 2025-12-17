@@ -1,47 +1,41 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import type { AsyncState, NormalizedError } from '@/store/types/AsyncState';
+import { createInitialAsyncState } from '@/store/types/AsyncState';
+import { createAsyncSelectors } from '@/store/utils/createAsyncSelectors';
 import type { PipelineDeal } from '@/services/pipelineService';
 import type { Suggestion } from '@/data/mocks/ai/copilot';
+import type { StandardQueryParams } from '@/types/serviceParams';
 
-interface PipelineState {
+export interface PipelineData {
   stages: string[];
   deals: PipelineDeal[];
   copilotSuggestions: Suggestion[];
-  loading: boolean;
-  error: string | null;
 }
 
-const initialState: PipelineState = {
-  stages: [],
-  deals: [],
-  copilotSuggestions: [],
-  loading: false,
-  error: null,
-};
+export interface GetPipelineParams extends Partial<StandardQueryParams> {
+  fundId?: string | null;
+  stageFilter?: string;
+}
+
+type PipelineState = AsyncState<PipelineData>;
+
+const initialState: PipelineState = createInitialAsyncState<PipelineData>();
 
 const pipelineSlice = createSlice({
   name: 'pipeline',
   initialState,
   reducers: {
-    pipelineDataRequested: (state) => {
-      state.loading = true;
-      state.error = null;
+    pipelineDataRequested: (state, action: PayloadAction<GetPipelineParams>) => {
+      state.status = 'loading';
+      state.error = undefined;
     },
-    pipelineDataLoaded: (
-      state,
-      action: PayloadAction<{
-        stages: string[];
-        deals: PipelineDeal[];
-        copilotSuggestions: Suggestion[];
-      }>
-    ) => {
-      state.stages = action.payload.stages;
-      state.deals = action.payload.deals;
-      state.copilotSuggestions = action.payload.copilotSuggestions;
-      state.loading = false;
-      state.error = null;
+    pipelineDataLoaded: (state, action: PayloadAction<PipelineData>) => {
+      state.data = action.payload;
+      state.status = 'succeeded';
+      state.error = undefined;
     },
-    pipelineDataFailed: (state, action: PayloadAction<string>) => {
-      state.loading = false;
+    pipelineDataFailed: (state, action: PayloadAction<NormalizedError>) => {
+      state.status = 'failed';
       state.error = action.payload;
     },
     // Update a deal's stage (for kanban drag-and-drop)
@@ -49,9 +43,11 @@ const pipelineSlice = createSlice({
       state,
       action: PayloadAction<{ dealId: number | string; newStage: string }>
     ) => {
-      const deal = state.deals.find((d) => d.id === action.payload.dealId);
-      if (deal) {
-        deal.stage = action.payload.newStage;
+      if (state.data) {
+        const deal = state.data.deals.find((d) => d.id === action.payload.dealId);
+        if (deal) {
+          deal.stage = action.payload.newStage;
+        }
       }
     },
   },
@@ -63,5 +59,8 @@ export const {
   pipelineDataFailed,
   dealStageUpdated,
 } = pipelineSlice.actions;
+
+// Centralized selectors
+export const pipelineSelectors = createAsyncSelectors<PipelineData>('pipeline');
 
 export const pipelineReducer = pipelineSlice.reducer;

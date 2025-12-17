@@ -6,15 +6,18 @@ import {
   alertsLoaded,
 } from '../slices/alertsSlice';
 import { fetchAlerts as fetchAlertsService } from '@/services/alertsService';
+import { normalizeError } from '@/store/utils/normalizeError';
 
-function* fetchAlertsWorker(): SagaIterator {
+function* fetchAlertsWorker(action: ReturnType<typeof alertsRequested>): SagaIterator {
   try {
-    // Simulate network latency and return mock alerts.
+    const params = action.payload;
+    // Simulate network latency and return mock alerts
     yield delay(300);
-    const alerts = yield call(fetchAlertsService);
-    yield put(alertsLoaded(alerts));
-  } catch (error: any) {
-    yield put(alertsFailed(error?.message ?? 'Failed to load alerts'));
+    const alerts = yield call(fetchAlertsService, params);
+    yield put(alertsLoaded({ items: alerts }));
+  } catch (error: unknown) {
+    console.error('Failed to load alerts', error);
+    yield put(alertsFailed(normalizeError(error)));
   }
 }
 
