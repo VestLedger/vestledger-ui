@@ -3,6 +3,7 @@
 import { useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Command } from 'cmdk';
+import { DialogDescription, DialogTitle } from '@radix-ui/react-dialog';
 import {
   Search,
   FileText,
@@ -181,6 +182,10 @@ export function CommandPalette() {
         label="Global Command Menu"
         className="command-palette"
       >
+        <DialogTitle className="sr-only">Global Command Menu</DialogTitle>
+        <DialogDescription className="sr-only">
+          Search for pages and actions, then press Enter to run the selected command.
+        </DialogDescription>
         <div className="command-palette-header">
           <Search className="command-palette-icon" />
           <Command.Input
