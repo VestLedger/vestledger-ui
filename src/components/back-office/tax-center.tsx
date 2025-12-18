@@ -9,6 +9,8 @@ import { useUIKey } from '@/store/ui';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { taxCenterRequested, taxCenterSelectors } from '@/store/slices/backOfficeSlice';
 import { ErrorState, LoadingState } from '@/components/ui/async-states';
+import { formatCurrency } from '@/utils/formatting';
+import { StatusBadge, StatsCard } from '@/components/ui';
 
 export function TaxCenter() {
   const dispatch = useAppDispatch();
@@ -49,55 +51,18 @@ export function TaxCenter() {
   const form1099Issued = taxSummaries.reduce((sum, s) => sum + s.form1099Issued, 0);
   const readyDocuments = taxDocuments.filter(d => d.status === 'ready').length;
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'sent':
-      case 'filed':
-        return 'bg-[var(--app-success-bg)] text-[var(--app-success)]';
-      case 'ready':
-        return 'bg-[var(--app-info-bg)] text-[var(--app-info)]';
-      case 'draft':
-        return 'bg-[var(--app-warning-bg)] text-[var(--app-warning)]';
-      default:
-        return 'bg-[var(--app-surface)]';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'sent':
-      case 'filed':
-        return <CheckCircle className="w-4 h-4" />;
-      case 'ready':
-        return <Clock className="w-4 h-4" />;
-      case 'draft':
-        return <AlertTriangle className="w-4 h-4" />;
-      default:
-        return null;
-    }
-  };
-
   return (
     <PageContainer>
-      <div className="space-y-6">
       {/* Breadcrumb Navigation */}
       {routeConfig && (
-        <div>
+        <div className="mb-4">
           <Breadcrumb
             items={routeConfig.breadcrumbs}
             aiSuggestion={routeConfig.aiSuggestion}
           />
         </div>
-        )}
+      )}
+
       {/* Page Header with AI Summary */}
       <PageHeader
         title="Tax Center"
@@ -149,69 +114,37 @@ export function TaxCenter() {
       />
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-success-bg)]">
-              <FileText className="w-6 h-6 text-[var(--app-success)]" />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--app-text-muted)]">K-1s Issued</p>
-              <p className="text-2xl font-bold">
-                {taxSummaries.reduce((sum, s) => sum + s.k1sIssued, 0)}
-              </p>
-              <p className="text-xs text-[var(--app-text-subtle)] mt-1">
-                of {taxSummaries.reduce((sum, s) => sum + s.k1sTotal, 0)} total
-              </p>
-            </div>
-          </div>
-        </Card>
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+        <StatsCard
+          title="K-1s Issued"
+          value={taxSummaries.reduce((sum, s) => sum + s.k1sIssued, 0)}
+          icon={FileText}
+          variant="success"
+          subtitle={`of ${taxSummaries.reduce((sum, s) => sum + s.k1sTotal, 0)} total`}
+        />
 
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-info-bg)]">
-              <FileText className="w-6 h-6 text-[var(--app-info)]" />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--app-text-muted)]">1099s Issued</p>
-              <p className="text-2xl font-bold">
-                {taxSummaries.reduce((sum, s) => sum + s.form1099Issued, 0)}
-              </p>
-              <p className="text-xs text-[var(--app-text-subtle)] mt-1">
-                of {taxSummaries.reduce((sum, s) => sum + s.form1099Total, 0)} total
-              </p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="1099s Issued"
+          value={taxSummaries.reduce((sum, s) => sum + s.form1099Issued, 0)}
+          icon={FileText}
+          variant="primary"
+          subtitle={`of ${taxSummaries.reduce((sum, s) => sum + s.form1099Total, 0)} total`}
+        />
 
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-warning-bg)]">
-              <DollarSign className="w-6 h-6 text-[var(--app-warning)]" />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--app-text-muted)]">Est. Taxes Paid</p>
-              <p className="text-2xl font-bold">
-                {formatCurrency(taxSummaries.reduce((sum, s) => sum + s.estimatedTaxesPaid, 0))}
-              </p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="Est. Taxes Paid"
+          value={formatCurrency(taxSummaries.reduce((sum, s) => sum + s.estimatedTaxesPaid, 0))}
+          icon={DollarSign}
+          variant="warning"
+        />
 
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-primary-bg)]">
-              <Calendar className="w-6 h-6 text-[var(--app-primary)]" />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--app-text-muted)]">Filing Deadline</p>
-              <p className="text-lg font-bold">{filingDeadline.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
-              <p className="text-xs text-[var(--app-text-subtle)] mt-1">
-                {Math.ceil((filingDeadline.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days remaining
-              </p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="Filing Deadline"
+          value={filingDeadline.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+          icon={Calendar}
+          variant="neutral"
+          subtitle={`${Math.ceil((filingDeadline.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days remaining`}
+        />
       </div>
 
       {/* Overview Tab - Tax Documents */}
@@ -227,12 +160,7 @@ export function TaxCenter() {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-semibold">{doc.documentType}</h3>
-                        <Badge size="sm" className={getStatusColor(doc.status)}>
-                          <div className="flex items-center gap-1">
-                            {getStatusIcon(doc.status)}
-                            <span className="capitalize">{doc.status}</span>
-                          </div>
-                        </Badge>
+                        <StatusBadge status={doc.status} domain="tax" showIcon size="sm" />
                         <Badge size="sm" className="bg-[var(--app-surface-hover)]">
                           Tax Year {doc.taxYear}
                         </Badge>
@@ -409,12 +337,12 @@ export function TaxCenter() {
                         <div className="flex items-center gap-2 mb-2">
                           <h4 className="font-semibold">{company.companyName}</h4>
                           {company.k1Required && (
-                            <Badge size="sm" className={company.k1Received ? 'bg-[var(--app-success-bg)] text-[var(--app-success)]' : 'bg-[var(--app-warning-bg)] text-[var(--app-warning)]'}>
-                              <div className="flex items-center gap-1">
-                                {company.k1Received ? <CheckCircle className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
-                                <span>{company.k1Received ? 'K-1 Received' : 'K-1 Pending'}</span>
-                              </div>
-                            </Badge>
+                            <StatusBadge
+                              status={company.k1Received ? 'received' : 'pending'}
+                              domain="tax"
+                              showIcon
+                              size="sm"
+                            />
                           )}
                           {!company.k1Required && (
                             <Badge size="sm" className="bg-[var(--app-surface)]">
@@ -556,7 +484,6 @@ export function TaxCenter() {
           </div>
         </div>
       </Card>
-      </div>
     </PageContainer>
   );
 }

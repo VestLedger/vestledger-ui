@@ -9,12 +9,17 @@ import { useUIKey } from '@/store/ui';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { valuation409aRequested, valuation409aSelectors } from '@/store/slices/backOfficeSlice';
 import { ErrorState, LoadingState } from '@/components/ui/async-states';
+import { formatCurrency } from '@/utils/formatting';
+import { StatsCard } from '@/components/ui';
 
 export function Valuation409A() {
   const dispatch = useAppDispatch();
   const data = useAppSelector(valuation409aSelectors.selectData);
   const status = useAppSelector(valuation409aSelectors.selectStatus);
   const error = useAppSelector(valuation409aSelectors.selectError);
+  const { value: ui, patch: patchUI } = useUIKey('back-office-valuation-409a', { selectedTab: 'valuations' });
+  const { selectedTab } = ui;
+  const routeConfig = getRouteConfig('/409a-valuations');
 
   // Load 409A valuation data on mount
   useEffect(() => {
@@ -32,22 +37,9 @@ export function Valuation409A() {
     );
   }
 
-  const { value: ui, patch: patchUI } = useUIKey('back-office-valuation-409a', { selectedTab: 'valuations' });
-  const { selectedTab } = ui;
-  const routeConfig = getRouteConfig('/409a-valuations');
-
   const valuations = data?.valuations || [];
   const strikePrices = data?.strikePrices || [];
   const history = data?.history || [];
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
-  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -132,61 +124,35 @@ export function Valuation409A() {
 
         {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-success-bg)]">
-              <CheckCircle className="w-6 h-6 text-[var(--app-success)]" />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--app-text-muted)]">Active Valuations</p>
-              <p className="text-2xl font-bold">
-                {valuations.filter(v => v.status === 'current').length}
-              </p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="Active Valuations"
+          value={valuations.filter(v => v.status === 'current').length}
+          icon={CheckCircle}
+          variant="success"
+        />
 
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-warning-bg)]">
-              <Clock className="w-6 h-6 text-[var(--app-warning)]" />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--app-text-muted)]">Expiring Soon</p>
-              <p className="text-2xl font-bold">
-                {valuations.filter(v => v.status === 'expiring-soon').length}
-              </p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="Expiring Soon"
+          value={valuations.filter(v => v.status === 'expiring-soon').length}
+          icon={Clock}
+          variant="warning"
+        />
 
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-info-bg)]">
-              <Building2 className="w-6 h-6 text-[var(--app-info)]" />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--app-text-muted)]">Portfolio Companies</p>
-              <p className="text-2xl font-bold">{valuations.length}</p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="Portfolio Companies"
+          value={valuations.length}
+          icon={Building2}
+          variant="info"
+        />
 
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-primary-bg)]">
-              <DollarSign className="w-6 h-6 text-[var(--app-primary)]" />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--app-text-muted)]">Avg. FMV</p>
-              <p className="text-2xl font-bold">
-                {formatCurrency(
-                  valuations.reduce((acc, v) => acc + v.fairMarketValue, 0) / valuations.length
-                )}
-              </p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="Avg. FMV"
+          value={formatCurrency(
+            valuations.reduce((acc, v) => acc + v.fairMarketValue, 0) / valuations.length
+          )}
+          icon={DollarSign}
+          variant="primary"
+        />
       </div>
 
       {/* Tab Content */}

@@ -9,12 +9,15 @@ import { useUIKey } from '@/store/ui';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { complianceRequested, complianceSelectors } from '@/store/slices/backOfficeSlice';
 import { ErrorState, LoadingState } from '@/components/ui/async-states';
+import { StatusBadge, StatsCard } from '@/components/ui';
 
 export function Compliance() {
   const dispatch = useAppDispatch();
   const data = useAppSelector(complianceSelectors.selectData);
   const status = useAppSelector(complianceSelectors.selectStatus);
   const error = useAppSelector(complianceSelectors.selectError);
+  const { value: ui, patch: patchUI } = useUIKey('back-office-compliance', { selectedTab: 'overview' });
+  const { selectedTab } = ui;
 
   // Load compliance data on mount
   useEffect(() => {
@@ -32,9 +35,6 @@ export function Compliance() {
     );
   }
 
-  const { value: ui, patch: patchUI } = useUIKey('back-office-compliance', { selectedTab: 'overview' });
-  const { selectedTab } = ui;
-
   // Get route config for breadcrumbs and AI suggestions
   const routeConfig = getRouteConfig('/compliance');
 
@@ -49,24 +49,6 @@ export function Compliance() {
     item => item.status === 'upcoming' && item.priority === 'high'
   ).length;
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-      case 'current':
-        return 'bg-[var(--app-success-bg)] text-[var(--app-success)]';
-      case 'in-progress':
-        return 'bg-[var(--app-warning-bg)] text-[var(--app-warning)]';
-      case 'upcoming':
-      case 'due-soon':
-      case 'scheduled':
-        return 'bg-[var(--app-info-bg)] text-[var(--app-info)]';
-      case 'overdue':
-        return 'bg-[var(--app-danger-bg)] text-[var(--app-danger)]';
-      default:
-        return 'bg-[var(--app-surface)]';
-    }
-  };
-
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'high':
@@ -80,35 +62,20 @@ export function Compliance() {
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'completed':
-      case 'current':
-        return <CheckCircle className="w-4 h-4" />;
-      case 'in-progress':
-        return <Clock className="w-4 h-4" />;
-      case 'overdue':
-        return <AlertTriangle className="w-4 h-4" />;
-      default:
-        return <Bell className="w-4 h-4" />;
-    }
-  };
-
   return (
     <PageContainer>
-      <div className="space-y-6">
-        {/* Breadcrumb Navigation */}
-        {routeConfig && (
-          <div>
-            <Breadcrumb
-              items={routeConfig.breadcrumbs}
-              aiSuggestion={routeConfig.aiSuggestion}
-            />
-          </div>
-        )}
+      {/* Breadcrumb Navigation */}
+      {routeConfig && (
+        <div className="mb-4">
+          <Breadcrumb
+            items={routeConfig.breadcrumbs}
+            aiSuggestion={routeConfig.aiSuggestion}
+          />
+        </div>
+      )}
 
-        {/* Page Header with AI Summary and Tab Navigation */}
-        <PageHeader
+      {/* Page Header with AI Summary and Tab Navigation */}
+      <PageHeader
           title="Compliance & Regulatory"
           description="Track regulatory filings, audits, and compliance requirements"
           icon={Shield}
@@ -156,68 +123,40 @@ export function Compliance() {
           onTabChange={(tabId) => patchUI({ selectedTab: tabId })}
         />
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card padding="lg">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-lg bg-[var(--app-danger-bg)]">
-                <AlertTriangle className="w-6 h-6 text-[var(--app-danger)]" />
-              </div>
-              <div>
-                <p className="text-sm text-[var(--app-text-muted)]">Overdue Items</p>
-                <p className="text-2xl font-bold text-[var(--app-danger)]">
-                  {complianceItems.filter(i => i.status === 'overdue').length}
-                </p>
-              </div>
-            </div>
-          </Card>
+      {/* Summary Cards */}
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+          <StatsCard
+            title="Overdue Items"
+            value={complianceItems.filter(i => i.status === 'overdue').length}
+            icon={AlertTriangle}
+            variant="danger"
+          />
 
-          <Card padding="lg">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-lg bg-[var(--app-warning-bg)]">
-                <Clock className="w-6 h-6 text-[var(--app-warning)]" />
-              </div>
-              <div>
-                <p className="text-sm text-[var(--app-text-muted)]">In Progress</p>
-                <p className="text-2xl font-bold">
-                  {complianceItems.filter(i => i.status === 'in-progress').length}
-                </p>
-              </div>
-            </div>
-          </Card>
+          <StatsCard
+            title="In Progress"
+            value={complianceItems.filter(i => i.status === 'in-progress').length}
+            icon={Clock}
+            variant="warning"
+          />
 
-          <Card padding="lg">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-lg bg-[var(--app-info-bg)]">
-                <Calendar className="w-6 h-6 text-[var(--app-info)]" />
-              </div>
-              <div>
-                <p className="text-sm text-[var(--app-text-muted)]">Due This Month</p>
-                <p className="text-2xl font-bold">
-                  {complianceItems.filter(i => {
-                    const dueDate = new Date(i.dueDate);
-                    const today = new Date();
-                    return dueDate.getMonth() === today.getMonth() &&
-                           dueDate.getFullYear() === today.getFullYear();
-                  }).length}
-                </p>
-              </div>
-            </div>
-          </Card>
+          <StatsCard
+            title="Due This Month"
+            value={complianceItems.filter(i => {
+              const dueDate = new Date(i.dueDate);
+              const today = new Date();
+              return dueDate.getMonth() === today.getMonth() &&
+                     dueDate.getFullYear() === today.getFullYear();
+            }).length}
+            icon={Calendar}
+            variant="info"
+          />
 
-          <Card padding="lg">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-lg bg-[var(--app-success-bg)]">
-                <CheckCircle className="w-6 h-6 text-[var(--app-success)]" />
-              </div>
-              <div>
-                <p className="text-sm text-[var(--app-text-muted)]">Completed</p>
-                <p className="text-2xl font-bold">
-                  {complianceItems.filter(i => i.status === 'completed').length}
-                </p>
-              </div>
-            </div>
-          </Card>
+          <StatsCard
+            title="Completed"
+            value={complianceItems.filter(i => i.status === 'completed').length}
+            icon={CheckCircle}
+            variant="success"
+          />
         </div>
 
         {/* Overview Tab */}
@@ -271,12 +210,7 @@ export function Compliance() {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <h3 className="font-semibold text-lg">{item.title}</h3>
-                          <Badge size="sm" className={getStatusColor(item.status)}>
-                            <div className="flex items-center gap-1">
-                              {getStatusIcon(item.status)}
-                              <span className="capitalize">{item.status.replace('-', ' ')}</span>
-                            </div>
-                          </Badge>
+                          <StatusBadge status={item.status} domain="compliance" showIcon size="sm" />
                           <Badge size="sm" className={`${getPriorityColor(item.priority)} bg-opacity-10`}>
                             {item.priority.toUpperCase()}
                           </Badge>
@@ -328,12 +262,7 @@ export function Compliance() {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <h4 className="font-semibold">{filing.filingType}</h4>
-                          <Badge size="sm" className={getStatusColor(filing.status)}>
-                            <div className="flex items-center gap-1">
-                              {getStatusIcon(filing.status)}
-                              <span className="capitalize">{filing.status.replace('-', ' ')}</span>
-                            </div>
-                          </Badge>
+                          <StatusBadge status={filing.status} domain="compliance" showIcon size="sm" />
                         </div>
 
                         <div className="grid grid-cols-5 gap-4 text-sm">
@@ -383,12 +312,7 @@ export function Compliance() {
                       <div>
                         <div className="flex items-center gap-2 mb-1">
                           <h4 className="font-semibold">{audit.auditType} - {audit.year}</h4>
-                          <Badge size="sm" className={getStatusColor(audit.status)}>
-                            <div className="flex items-center gap-1">
-                              {getStatusIcon(audit.status)}
-                              <span className="capitalize">{audit.status.replace('-', ' ')}</span>
-                            </div>
-                          </Badge>
+                          <StatusBadge status={audit.status} domain="compliance" showIcon size="sm" />
                         </div>
                         <p className="text-sm text-[var(--app-text-muted)]">
                           Auditor: {audit.auditor} • Fund: {audit.fundName}
@@ -482,7 +406,6 @@ export function Compliance() {
             </Card>
           </div>
         )}
-      </div>
     </PageContainer>
   );
 }

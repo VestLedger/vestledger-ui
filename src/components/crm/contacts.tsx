@@ -46,30 +46,7 @@ export function Contacts() {
   const mockInteractions = data?.interactions || [];
   const mockTimelineInteractions = data?.timelineInteractions || [];
 
-  if (status === 'idle' || status === 'loading') return <LoadingState message="Loading contacts…" />;
-  if (status === 'failed' && error) {
-    return (
-      <ErrorState
-        error={error}
-        title="Failed to load contacts"
-        onRetry={() => dispatch(crmDataRequested({}))}
-      />
-    );
-  }
-
-  if (status === 'succeeded' && mockContacts.length === 0) {
-    return (
-      <PageContainer className="space-y-6">
-        {routeConfig && (
-          <div className="mb-4">
-            <Breadcrumb items={routeConfig.breadcrumbs} aiSuggestion={routeConfig.aiSuggestion} />
-          </div>
-        )}
-        <PageHeader title="Contacts & CRM" description="Manage relationships and track communications" icon={Users} />
-        <EmptyState icon={Users} title="No contacts yet" message="Create a contact to get started." />
-      </PageContainer>
-    );
-  }
+  // UI state MUST be called before any early returns (Rules of Hooks)
   const { value: ui, patch: patchUI } = useUIKey<Omit<ContactsUIState, 'contacts' | 'emailAccounts'>>('crm-contacts', {
     selectedContact: null,
     searchQuery: '',
@@ -95,6 +72,31 @@ export function Contacts() {
   // Use contacts directly from Redux, not from UI state
   const contacts = mockContacts;
   const emailAccounts = mockEmailAccounts;
+
+  if (status === 'idle' || status === 'loading') return <LoadingState message="Loading contacts…" />;
+  if (status === 'failed' && error) {
+    return (
+      <ErrorState
+        error={error}
+        title="Failed to load contacts"
+        onRetry={() => dispatch(crmDataRequested({}))}
+      />
+    );
+  }
+
+  if (status === 'succeeded' && mockContacts.length === 0) {
+    return (
+      <PageContainer className="space-y-6">
+        {routeConfig && (
+          <div className="mb-4">
+            <Breadcrumb items={routeConfig.breadcrumbs} aiSuggestion={routeConfig.aiSuggestion} />
+          </div>
+        )}
+        <PageHeader title="Contacts & CRM" description="Manage relationships and track communications" icon={Users} />
+        <EmptyState icon={Users} title="No contacts yet" message="Create a contact to get started." />
+      </PageContainer>
+    );
+  }
 
   // Helper to get relationship metrics for a contact
   const getRelationshipMetrics = (contact: Contact): RelationshipMetrics => {

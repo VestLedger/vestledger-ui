@@ -24,12 +24,22 @@ import { useUIKey } from '@/store/ui';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { companySearchRequested, companySearchSelectors } from '@/store/slices/miscSlice';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
+import { formatCurrencyCompact } from '@/utils/formatting';
 
 export function CompanySearch() {
   const dispatch = useAppDispatch();
   const data = useAppSelector(companySearchSelectors.selectData);
   const status = useAppSelector(companySearchSelectors.selectStatus);
   const error = useAppSelector(companySearchSelectors.selectError);
+
+  // UI state MUST be called before any early returns (Rules of Hooks)
+  const { value: ui, patch: patchUI } = useUIKey('company-search', {
+    searchQuery: '',
+    selectedIndustry: 'All Industries',
+    selectedStage: 'All Stages',
+    showAIOnly: true,
+  });
+  const { searchQuery, selectedIndustry, selectedStage, showAIOnly } = ui;
 
   // Load company search data on mount
   useEffect(() => {
@@ -50,21 +60,6 @@ export function CompanySearch() {
   const industries = data?.industries || [];
   const stages = data?.stages || [];
   const companies = data?.companies || [];
-
-  const { value: ui, patch: patchUI } = useUIKey('company-search', {
-    searchQuery: '',
-    selectedIndustry: 'All Industries',
-    selectedStage: 'All Stages',
-    showAIOnly: true,
-  });
-  const { searchQuery, selectedIndustry, selectedStage, showAIOnly } = ui;
-
-  const formatCurrency = (amount: number) => {
-    if (amount >= 1_000_000_000) return `$${(amount / 1_000_000_000).toFixed(1)}B`;
-    if (amount >= 1_000_000) return `$${(amount / 1_000_000).toFixed(1)}M`;
-    if (amount >= 1_000) return `$${(amount / 1_000).toFixed(0)}K`;
-    return `$${amount.toFixed(0)}`;
-  };
 
   const getMatchScoreColor = (score: number) => {
     if (score >= 90) return 'var(--app-success)';
@@ -206,12 +201,12 @@ export function CompanySearch() {
             {/* Metrics Grid */}
             <div className="grid grid-cols-3 gap-3 mb-4 p-3 rounded-lg bg-[var(--app-surface-hover)]">
               <div className="text-center">
-                <div className="text-lg font-semibold">{formatCurrency(company.funding.total)}</div>
+                <div className="text-lg font-semibold">{formatCurrencyCompact(company.funding.total)}</div>
                 <div className="text-xs text-[var(--app-text-muted)]">Total Raised</div>
               </div>
               {company.metrics.revenue && (
                 <div className="text-center">
-                  <div className="text-lg font-semibold">{formatCurrency(company.metrics.revenue)}</div>
+                  <div className="text-lg font-semibold">{formatCurrencyCompact(company.metrics.revenue)}</div>
                   <div className="text-xs text-[var(--app-text-muted)]">ARR</div>
                 </div>
               )}

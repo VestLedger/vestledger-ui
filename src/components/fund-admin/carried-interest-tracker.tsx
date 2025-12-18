@@ -3,6 +3,7 @@
 import { Card, Button, Badge, Input } from '@/ui';
 import { TrendingUp, DollarSign, Calendar, ChevronRight, ChevronDown, Info, Download, RefreshCw } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
+import { formatCurrency, formatPercent } from '@/utils/formatting';
 
 export interface CarriedInterestTerm {
   id: string;
@@ -101,23 +102,6 @@ export function CarriedInterestTracker({
     filteredAccruals.find((accrual) => accrual.id === selectedAccrualId) ??
     filteredAccruals[0] ??
     null;
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const formatPercent = (percent: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'percent',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(percent / 100);
-  };
 
   const getStatusBadge = (status: CarryAccrual['status']) => {
     switch (status) {

@@ -11,6 +11,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { dealflowDealsRequested, dealflowSelectors } from '@/store/slices/dealflowSlice';
 import { LoadingState, ErrorState, EmptyState } from '@/components/ui/async-states';
 import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys';
+import { formatCurrencyCompact } from '@/utils/formatting';
 
 interface Vote {
   partnerId: string;
@@ -82,21 +83,21 @@ export function DealflowReview() {
   if (!selectedDeal) {
     return (
       <PageContainer>
-        <div className="space-y-6">
-          {routeConfig && (
-            <div className="mb-4">
-              <Breadcrumb items={routeConfig.breadcrumbs} aiSuggestion={routeConfig.aiSuggestion} />
-            </div>
-          )}
-          <PageHeader
-            title="Dealflow Review"
-            description="No deals available to review yet"
-            icon={FileSearch}
-          />
-          <Card padding="lg">
-            <div className="text-sm text-[var(--app-text-muted)]">Add deals via the backend integration when ready.</div>
-          </Card>
-        </div>
+        {routeConfig && (
+          <div className="mb-4">
+            <Breadcrumb items={routeConfig.breadcrumbs} aiSuggestion={routeConfig.aiSuggestion} />
+          </div>
+        )}
+
+        <PageHeader
+          title="Dealflow Review"
+          description="No deals available to review yet"
+          icon={FileSearch}
+        />
+
+        <Card padding="lg" className="mt-6">
+          <div className="text-sm text-[var(--app-text-muted)]">Add deals via the backend integration when ready.</div>
+        </Card>
       </PageContainer>
     );
   }
@@ -122,13 +123,6 @@ export function DealflowReview() {
     };
     patchMyVote(vote);
     patchVotes([...votes, newVote]);
-  };
-
-  const formatCurrency = (amount: number) => {
-    if (amount >= 1000000) {
-      return `$${(amount / 1000000).toFixed(1)}M`;
-    }
-    return `$${(amount / 1000).toFixed(0)}K`;
   };
 
   const nextSlide = () => {
@@ -241,7 +235,7 @@ export function DealflowReview() {
             <div className="grid grid-cols-2 gap-4">
               <div className="p-6 rounded-lg bg-[var(--app-success-bg)] text-center">
                 <p className="text-sm text-[var(--app-text-muted)] mb-2">ARR</p>
-                <p className="text-3xl font-bold text-[var(--app-success)]">{formatCurrency(currentSlide.content.arr)}</p>
+                <p className="text-3xl font-bold text-[var(--app-success)]">{formatCurrencyCompact(currentSlide.content.arr)}</p>
               </div>
               <div className="p-6 rounded-lg bg-[var(--app-primary-bg)] text-center">
                 <p className="text-sm text-[var(--app-text-muted)] mb-2">YoY Growth</p>
@@ -249,7 +243,7 @@ export function DealflowReview() {
               </div>
               <div className="p-6 rounded-lg bg-[var(--app-warning-bg)] text-center">
                 <p className="text-sm text-[var(--app-text-muted)] mb-2">Monthly Burn</p>
-                <p className="text-3xl font-bold text-[var(--app-warning)]">{formatCurrency(currentSlide.content.burn)}</p>
+                <p className="text-3xl font-bold text-[var(--app-warning)]">{formatCurrencyCompact(currentSlide.content.burn)}</p>
               </div>
               <div className="p-6 rounded-lg bg-[var(--app-info-bg)] text-center">
                 <p className="text-sm text-[var(--app-text-muted)] mb-2">Runway</p>
@@ -259,11 +253,11 @@ export function DealflowReview() {
             <div className="grid grid-cols-3 gap-4">
               <div className="p-4 rounded-lg bg-[var(--app-surface-hover)] text-center">
                 <p className="text-sm text-[var(--app-text-muted)] mb-1">LTV</p>
-                <p className="text-xl font-bold">{formatCurrency(currentSlide.content.ltv)}</p>
+                <p className="text-xl font-bold">{formatCurrencyCompact(currentSlide.content.ltv)}</p>
               </div>
               <div className="p-4 rounded-lg bg-[var(--app-surface-hover)] text-center">
                 <p className="text-sm text-[var(--app-text-muted)] mb-1">CAC</p>
-                <p className="text-xl font-bold">{formatCurrency(currentSlide.content.cac)}</p>
+                <p className="text-xl font-bold">{formatCurrencyCompact(currentSlide.content.cac)}</p>
               </div>
               <div className="p-4 rounded-lg bg-[var(--app-surface-hover)] text-center">
                 <p className="text-sm text-[var(--app-text-muted)] mb-1">LTV:CAC</p>
@@ -314,10 +308,10 @@ export function DealflowReview() {
             <div className="text-center p-8 rounded-lg bg-gradient-to-br from-[var(--app-primary-bg)] to-[var(--app-secondary)] bg-opacity-10">
               <p className="text-sm text-[var(--app-text-muted)] mb-2">Raising</p>
               <p className="text-5xl font-bold mb-4 bg-gradient-to-r from-[var(--app-primary)] to-[var(--app-secondary)] bg-clip-text text-transparent">
-                {formatCurrency(currentSlide.content.amount)}
+                {formatCurrencyCompact(currentSlide.content.amount)}
               </p>
               <p className="text-sm text-[var(--app-text-muted)]">
-                at {formatCurrency(currentSlide.content.valuation)} pre-money valuation
+                at {formatCurrencyCompact(currentSlide.content.valuation)} pre-money valuation
               </p>
             </div>
             <div>

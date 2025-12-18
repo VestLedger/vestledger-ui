@@ -60,10 +60,13 @@ export function Breadcrumb({ items, aiSuggestion }: BreadcrumbProps) {
             <span>Frequently visited next: {aiSuggestion.label}</span>
           </button>
 
+          {/* Invisible bridge to prevent tooltip from closing when cursor moves to it */}
+          <div className="absolute top-full left-0 w-full h-2 opacity-0 group-hover:opacity-100 pointer-events-auto" />
+
           {/* Tooltip */}
           <motion.div
             initial={false}
-            className="absolute top-full left-0 mt-2 z-10 opacity-0 translate-y-[-5px] pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:translate-y-0 group-focus-within:pointer-events-auto transition-all duration-150"
+            className="absolute top-full left-0 mt-2 z-10 opacity-0 translate-y-[-5px] pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-150"
           >
             <div className="bg-[var(--app-surface)] border border-[var(--app-border)] rounded-lg shadow-xl p-3 min-w-[280px]">
               <div className="flex items-start gap-2 mb-2">

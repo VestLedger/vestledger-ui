@@ -17,16 +17,28 @@ import {
   Copy,
   Search,
   Filter
-	} from 'lucide-react';
-	import { getRouteConfig } from '@/config/routes';
-	import type { AuditEvent } from '@/services/blockchain/auditTrailService';
-		import { useUIKey } from '@/store/ui';
-		import { useAppDispatch, useAppSelector } from '@/store/hooks';
-		import { auditTrailRequested, auditTrailSelectors } from '@/store/slices/miscSlice';
-		import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
+} from 'lucide-react';
+import { getRouteConfig } from '@/config/routes';
+import type { AuditEvent } from '@/services/blockchain/auditTrailService';
+import { useUIKey } from '@/store/ui';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { auditTrailRequested, auditTrailSelectors } from '@/store/slices/miscSlice';
+import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
+import { formatCurrencyCompact, formatTimestamp, truncateHash } from '@/utils/formatting';
 
-	export function BlockchainAuditTrail() {
+export function BlockchainAuditTrail() {
   const dispatch = useAppDispatch();
+  const routeConfig = getRouteConfig('/audit-trail');
+  const data = useAppSelector(auditTrailSelectors.selectData);
+  const status = useAppSelector(auditTrailSelectors.selectStatus);
+  const error = useAppSelector(auditTrailSelectors.selectError);
+
+  // Load audit trail data on mount
+  useEffect(() => {
+    dispatch(auditTrailRequested());
+  }, [dispatch]);
+
+  // UI state MUST be called before any early returns (Rules of Hooks)
   const { value: ui, patch: patchUI } = useUIKey<{
     searchQuery: string;
     selectedEvent: AuditEvent | null;
@@ -36,50 +48,23 @@ import {
     selectedEvent: null,
     filter: 'all',
   });
-	  const { searchQuery, selectedEvent, filter } = ui;
+  const { searchQuery, selectedEvent, filter } = ui;
 
-	  const routeConfig = getRouteConfig('/audit-trail');
-		  const data = useAppSelector(auditTrailSelectors.selectData);
-		  const status = useAppSelector(auditTrailSelectors.selectStatus);
-		  const error = useAppSelector(auditTrailSelectors.selectError);
+  if (status === 'loading' || status === 'idle') return <LoadingState message="Loading audit trail…" />;
+  if (status === 'failed' && error) {
+    return (
+      <ErrorState
+        error={error}
+        title="Failed to load audit trail"
+        onRetry={() => dispatch(auditTrailRequested())}
+      />
+    );
+  }
 
-	  // Load audit trail data on mount
-		  useEffect(() => {
-		    dispatch(auditTrailRequested());
-		  }, [dispatch]);
-
-		  if (status === 'loading' || status === 'idle') return <LoadingState message="Loading audit trail…" />;
-		  if (status === 'failed' && error) {
-		    return (
-		      <ErrorState
-		        error={error}
-		        title="Failed to load audit trail"
-		        onRetry={() => dispatch(auditTrailRequested())}
-		      />
-		    );
-		  }
-
-		  const auditEvents = data?.events || [];
-		  if (status === 'succeeded' && auditEvents.length === 0) {
-		    return <EmptyState icon={Database} title="No audit events" message="Activity will appear here." />;
-		  }
-
-  const formatCurrency = (amount: number) => {
-    if (amount >= 1_000_000) return `$${(amount / 1_000_000).toFixed(1)}M`;
-    if (amount >= 1_000) return `$${(amount / 1_000).toFixed(0)}K`;
-    return `$${amount.toFixed(0)}`;
-  };
-
-  const formatTimestamp = (date: Date) => {
-    const now = new Date();
-    const diffHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    if (diffHours < 24) return `${diffHours}h ago`;
-    const diffDays = Math.floor(diffHours / 24);
-    if (diffDays < 7) return `${diffDays}d ago`;
-    return date.toLocaleDateString();
-  };
-
-  const truncateHash = (hash: string) => `${hash.slice(0, 10)}...${hash.slice(-8)}`;
+  const auditEvents = data?.events || [];
+  if (status === 'succeeded' && auditEvents.length === 0) {
+    return <EmptyState icon={Database} title="No audit events" message="Activity will appear here." />;
+  }
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -121,38 +106,40 @@ import {
     }
   };
 
-	  const filteredEvents = auditEvents.filter(event => {
-	    if (filter !== 'all' && event.eventType !== filter) return false;
-	    if (searchQuery && !event.description.toLowerCase().includes(searchQuery.toLowerCase()) &&
-	        !event.txHash.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-	    return true;
-	  });
+  const filteredEvents = auditEvents.filter(event => {
+    if (filter !== 'all' && event.eventType !== filter) return false;
+    if (searchQuery && !event.description.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        !event.txHash.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    return true;
+  });
 
   return (
     <PageContainer>
-      <div className="space-y-6">
-        {/* Breadcrumb Navigation */}
-        {routeConfig && (
+      {/* Breadcrumb Navigation */}
+      {routeConfig && (
+        <div className="mb-4">
           <Breadcrumb
             items={routeConfig.breadcrumbs}
+            aiSuggestion={routeConfig.aiSuggestion}
           />
-        )}
+        </div>
+      )}
 
-        {/* Page Header */}
-        {routeConfig && (
-          <PageHeader
-            title="On-Chain Audit Trail"
-            description={routeConfig.description}
-            icon={Database}
-            aiSummary={{
-              text: `${auditEvents.length} blockchain events recorded. ${auditEvents.filter(e => e.verificationStatus === 'verified').length} verified transactions across ${new Set(auditEvents.map(e => e.eventType)).size} event types. Latest block: ${Math.max(...auditEvents.map(e => e.blockNumber)).toLocaleString()}`,
-              confidence: 0.95
-            }}
-          />
-        )}
+      {/* Page Header */}
+      {routeConfig && (
+        <PageHeader
+          title="On-Chain Audit Trail"
+          description={routeConfig.description}
+          icon={Database}
+          aiSummary={{
+            text: `${auditEvents.length} blockchain events recorded. ${auditEvents.filter(e => e.verificationStatus === 'verified').length} verified transactions across ${new Set(auditEvents.map(e => e.eventType)).size} event types. Latest block: ${Math.max(...auditEvents.map(e => e.blockNumber)).toLocaleString()}`,
+            confidence: 0.95
+          }}
+        />
+      )}
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
 	        <Card padding="md">
 	          <div className="text-center">
 	            <div className="text-2xl font-bold text-[var(--app-primary)]">{auditEvents.length}</div>
@@ -244,7 +231,7 @@ import {
                         </Badge>
                         {event.amount && (
                           <span className="text-sm font-medium text-[var(--app-success)]">
-                            {formatCurrency(event.amount)}
+                            {formatCurrencyCompact(event.amount)}
                           </span>
                         )}
                       </div>
@@ -348,7 +335,6 @@ import {
           </div>
         </Card>
       )}
-    </div>
     </PageContainer>
   );
 }

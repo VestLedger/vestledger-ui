@@ -86,6 +86,34 @@ export function AICopilotSidebar() {
       const state = uiState['deal-intelligence'] as any;
       return state?.viewMode || null;
     }
+    if (pathname === '/fund-admin') {
+      const state = uiState['back-office-fund-admin'] as any;
+      return state?.selectedTab || null;
+    }
+    if (pathname === '/compliance') {
+      const state = uiState['back-office-compliance'] as any;
+      return state?.selectedTab || null;
+    }
+    if (pathname === '/tax-center') {
+      const state = uiState['back-office-tax-center'] as any;
+      return state?.selectedTab || null;
+    }
+    if (pathname === '/409a-valuations') {
+      const state = uiState['back-office-valuation-409a'] as any;
+      return state?.selectedTab || null;
+    }
+    if (pathname === '/analytics') {
+      const state = uiState['analytics'] as any;
+      return state?.selected || null;
+    }
+    if (pathname === '/portfolio') {
+      const state = uiState['portfolio'] as any;
+      return state?.selected || null;
+    }
+    if (pathname === '/ai-tools') {
+      const state = uiState['ai-tools'] as any;
+      return state?.selected || null;
+    }
     return null;
   }, [pathname, uiState]);
 

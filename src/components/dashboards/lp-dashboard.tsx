@@ -7,6 +7,7 @@ import { MetricCard } from '@/components/metric-card';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { lpDashboardRequested, lpDashboardSelectors } from '@/store/slices/dashboardsSlice';
 import { ErrorState, LoadingState } from '@/components/ui/async-states';
+import { formatCurrencyCompact } from '@/utils/formatting';
 
 export function LPDashboard() {
   const dispatch = useAppDispatch();
@@ -39,12 +40,6 @@ export function LPDashboard() {
       />
     );
   }
-
-  const formatCurrency = (amount: number) => {
-    if (amount >= 1_000_000) return `$${(amount / 1_000_000).toFixed(1)}M`;
-    if (amount >= 1_000) return `$${(amount / 1_000).toFixed(0)}K`;
-    return `$${amount.toFixed(0)}`;
-  };
 
   const getDaysUntilDue = (date: Date) => {
     const diff = Math.ceil((date.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
@@ -111,15 +106,15 @@ export function LPDashboard() {
         <div className="grid sm:grid-cols-3 gap-4 mb-4">
           <div>
             <div className="text-xs text-[var(--app-text-muted)] mb-1">Total Commitment</div>
-            <div className="text-xl font-bold">{formatCurrency(totalCommitment)}</div>
+            <div className="text-xl font-bold">{formatCurrencyCompact(totalCommitment)}</div>
           </div>
           <div>
             <div className="text-xs text-[var(--app-text-muted)] mb-1">Called to Date</div>
-            <div className="text-xl font-bold text-[var(--app-success)]">{formatCurrency(calledAmount)}</div>
+            <div className="text-xl font-bold text-[var(--app-success)]">{formatCurrencyCompact(calledAmount)}</div>
           </div>
           <div>
             <div className="text-xs text-[var(--app-text-muted)] mb-1">Unfunded Commitment</div>
-            <div className="text-xl font-bold text-[var(--app-warning)]">{formatCurrency(unfundedCommitment)}</div>
+            <div className="text-xl font-bold text-[var(--app-warning)]">{formatCurrencyCompact(unfundedCommitment)}</div>
           </div>
         </div>
         <div>
@@ -162,7 +157,7 @@ export function LPDashboard() {
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-2xl font-bold">{formatCurrency(call.amount)}</div>
+                      <div className="text-2xl font-bold">{formatCurrencyCompact(call.amount)}</div>
                       <div className="text-xs text-[var(--app-text-muted)]">Due: {call.dueDate.toLocaleDateString()}</div>
                     </div>
                     <Button color="primary" startContent={<CreditCard className="w-4 h-4" />}>

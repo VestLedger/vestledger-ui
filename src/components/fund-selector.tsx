@@ -5,15 +5,12 @@ import { useFund } from '@/contexts/fund-context';
 import { Button, Badge, Card } from '@/ui';
 import { Fund } from '@/types/fund';
 import { useUIKey } from '@/store/ui';
+import { formatCurrencyCompact } from '@/utils/formatting';
 
 export function FundSelector() {
   const { funds, selectedFund, viewMode, setSelectedFund, setViewMode, getFundSummary } = useFund();
   const { value: ui, patch: patchUI } = useUIKey('fund-selector', { isOpen: false });
   const { isOpen } = ui;
-
-  const formatCurrency = (amount: number) => {
-    return `$${(amount / 1_000_000).toFixed(0)}M`;
-  };
 
   const summary = getFundSummary();
 
@@ -84,7 +81,7 @@ export function FundSelector() {
                     <div>
                       <div className="text-sm font-medium">All Funds (Consolidated)</div>
                       <div className="text-xs text-[var(--app-text-muted)]">
-                        {summary.totalFunds} funds • {formatCurrency(summary.totalCommitment)} AUM
+                        {summary.totalFunds} funds • {formatCurrencyCompact(summary.totalCommitment)} AUM
                       </div>
                     </div>
                   </div>
@@ -118,7 +115,7 @@ export function FundSelector() {
                         </Badge>
                       </div>
                       <div className="text-xs text-[var(--app-text-muted)]">
-                        {formatCurrency(fund.totalCommitment)} • {fund.portfolioCount} companies
+                        {formatCurrencyCompact(fund.totalCommitment)} • {fund.portfolioCount} companies
                       </div>
                       <div className="text-xs text-[var(--app-text-subtle)]">
                         IRR: {fund.irr.toFixed(1)}% • TVPI: {fund.tvpi.toFixed(2)}x

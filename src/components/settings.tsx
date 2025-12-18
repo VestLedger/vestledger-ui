@@ -463,13 +463,16 @@ export function Settings() {
 
   return (
     <PageContainer>
-      <Breadcrumb items={routeConfig?.breadcrumbs || []} />
+      <div className="mb-4">
+        <Breadcrumb items={routeConfig?.breadcrumbs || []} aiSuggestion={routeConfig?.aiSuggestion} />
+      </div>
+
       <PageHeader
         title="Settings"
         description="Manage your account settings and preferences"
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="mt-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Settings Navigation */}
         <div className="lg:col-span-1">
           <Card padding="sm">

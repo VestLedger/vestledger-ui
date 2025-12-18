@@ -3,6 +3,7 @@
 import { useUIKey } from '@/store/ui';
 import { Card, Button, Badge } from '@/ui';
 import { Calculator, TrendingUp, TrendingDown, Calendar, Download, RefreshCw, CheckCircle, AlertCircle } from 'lucide-react';
+import { formatCurrency, formatPercent } from '@/utils/formatting';
 
 export interface NAVCalculation {
   id: string;
@@ -75,23 +76,6 @@ export function NAVCalculator({
     filteredCalculations.find((calc) => calc.id === selectedCalculationId) ??
     filteredCalculations[0] ??
     null;
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2,
-    }).format(amount);
-  };
-
-  const formatPercent = (percent: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'percent',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-      signDisplay: 'always',
-    }).format(percent / 100);
-  };
 
   const getStatusBadge = (status: NAVCalculation['status']) => {
     switch (status) {
@@ -183,7 +167,7 @@ export function NAVCalculator({
                   </div>
 
                   <div className="text-lg font-bold mb-1">
-                    {formatCurrency(calc.navPerShare)} / share
+                    {formatCurrency(calc.navPerShare, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} / share
                   </div>
 
                   {calc.changePercent !== undefined && (
@@ -276,7 +260,7 @@ export function NAVCalculator({
                 <div className="p-4 rounded-lg bg-[var(--app-success-bg)]">
                   <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">NAV per Share</p>
                   <p className="text-2xl font-bold text-[var(--app-success)]">
-                    {formatCurrency(selectedCalculation.navPerShare)}
+                    {formatCurrency(selectedCalculation.navPerShare, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                   {selectedCalculation.changePercent !== undefined && (
                     <div className={`text-sm mt-1 ${
@@ -290,7 +274,7 @@ export function NAVCalculator({
                 <div className="p-4 rounded-lg bg-[var(--app-primary-bg)]">
                   <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Net Assets</p>
                   <p className="text-2xl font-bold text-[var(--app-primary)]">
-                    {formatCurrency(selectedCalculation.netAssets)}
+                    {formatCurrency(selectedCalculation.netAssets, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                   <p className="text-xs text-[var(--app-text-subtle)] mt-1">
                     {selectedCalculation.outstandingShares.toLocaleString()} shares
@@ -300,10 +284,10 @@ export function NAVCalculator({
                 <div className="p-4 rounded-lg bg-[var(--app-info-bg)]">
                   <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Total Assets</p>
                   <p className="text-2xl font-bold text-[var(--app-info)]">
-                    {formatCurrency(selectedCalculation.totalAssets)}
+                    {formatCurrency(selectedCalculation.totalAssets, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                   <p className="text-xs text-[var(--app-text-subtle)] mt-1">
-                    Liabilities: {formatCurrency(selectedCalculation.totalLiabilities)}
+                    Liabilities: {formatCurrency(selectedCalculation.totalLiabilities, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                 </div>
               </div>
@@ -341,7 +325,7 @@ export function NAVCalculator({
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold">{formatCurrency(component.value)}</p>
+                      <p className="text-lg font-bold">{formatCurrency(component.value, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                       <p className="text-xs text-[var(--app-text-subtle)] capitalize">
                         {component.category}
                       </p>
@@ -382,7 +366,7 @@ export function NAVCalculator({
                         <p className={`text-lg font-bold ${
                           adjustment.amount >= 0 ? 'text-[var(--app-success)]' : 'text-[var(--app-danger)]'
                         }`}>
-                          {formatCurrency(adjustment.amount)}
+                          {formatCurrency(adjustment.amount, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </p>
                       </div>
                     </div>

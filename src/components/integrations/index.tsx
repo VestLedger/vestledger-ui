@@ -31,6 +31,10 @@ export function Integrations() {
     dispatch(integrationsRequested());
   }, [dispatch]);
 
+  // UI state MUST be called before any early returns (Rules of Hooks)
+  const { value: ui, patch: patchUI } = useUIKey('integrations', { selectedCategory: 'all' });
+  const { selectedCategory } = ui;
+
   if (status === 'idle' || status === 'loading') return <LoadingState message="Loading integrations…" />;
   if (status === 'failed' && error) {
     return (
@@ -49,8 +53,6 @@ export function Integrations() {
 
   const calendarAccounts = data?.accounts || [];
   const calendarEvents = data?.events || [];
-  const { value: ui, patch: patchUI } = useUIKey('integrations', { selectedCategory: 'all' });
-  const { selectedCategory } = ui;
 
   const categories = ['all', ...Array.from(new Set(integrations.map((i) => i.category)))];
   const filteredIntegrations = selectedCategory === 'all'
@@ -70,14 +72,17 @@ export function Integrations() {
 
   return (
     <PageContainer>
-      <Breadcrumb items={routeConfig?.breadcrumbs || []} />
+      <div className="mb-4">
+        <Breadcrumb items={routeConfig?.breadcrumbs || []} aiSuggestion={routeConfig?.aiSuggestion} />
+      </div>
+
       <PageHeader
         title="Integrations"
         description="Connect external tools and services to streamline your workflow"
         icon={Plug}
       />
 
-      <div className="space-y-8">
+      <div className="mt-6 space-y-8">
         {/* Category Filter */}
         <div className="flex gap-2">
           {categories.map((category) => (

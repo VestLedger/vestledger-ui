@@ -13,6 +13,8 @@ import { TransferSecondary } from '../fund-admin/transfer-secondary'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { fundAdminRequested, fundAdminSelectors } from '@/store/slices/backOfficeSlice'
 import { ErrorState, LoadingState } from '@/components/ui/async-states'
+import { formatCurrency } from '@/utils/formatting'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 
 export function FundAdmin() {
   const dispatch = useAppDispatch();
@@ -45,50 +47,6 @@ export function FundAdmin() {
       />
     );
   }
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-      case 'paid':
-        return 'bg-[var(--app-success-bg)] text-[var(--app-success)]';
-      case 'in-progress':
-      case 'processing':
-      case 'partial':
-        return 'bg-[var(--app-warning-bg)] text-[var(--app-warning)]';
-      case 'draft':
-      case 'pending':
-        return 'bg-[var(--app-info-bg)] text-[var(--app-info)]';
-      case 'overdue':
-        return 'bg-[var(--app-danger-bg)] text-[var(--app-danger)]';
-      default:
-        return 'bg-[var(--app-surface)]';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'completed':
-      case 'paid':
-        return <CheckCircle className="w-4 h-4" />;
-      case 'in-progress':
-      case 'processing':
-      case 'partial':
-        return <Clock className="w-4 h-4" />;
-      case 'overdue':
-        return <AlertTriangle className="w-4 h-4" />;
-      default:
-        return null;
-    }
-  };
 
   // Calculate AI insights
   const activeCallsCount = capitalCalls.filter(c => c.status === 'in-progress').length;
@@ -269,12 +227,7 @@ export function FundAdmin() {
                         <div>
                           <div className="flex items-center gap-2 mb-1">
                             <h3 className="font-semibold text-lg">Capital Call #{call.callNumber}</h3>
-                            <Badge size="sm" className={getStatusColor(call.status)}>
-                              <div className="flex items-center gap-1">
-                                {getStatusIcon(call.status)}
-                                <span className="capitalize">{call.status.replace('-', ' ')}</span>
-                              </div>
-                            </Badge>
+                            <StatusBadge status={call.status} domain="fund-admin" showIcon size="sm" />
                           </div>
                           <p className="text-sm text-[var(--app-text-muted)] mb-1">{call.fundName}</p>
                           <p className="text-sm text-[var(--app-text-subtle)]">{call.purpose}</p>
@@ -372,12 +325,7 @@ export function FundAdmin() {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-semibold text-lg">Distribution #{dist.distributionNumber}</h3>
-                        <Badge size="sm" className={getStatusColor(dist.status)}>
-                          <div className="flex items-center gap-1">
-                            {getStatusIcon(dist.status)}
-                            <span className="capitalize">{dist.status}</span>
-                          </div>
-                        </Badge>
+                        <StatusBadge status={dist.status} domain="fund-admin" showIcon size="sm" />
                         <Badge size="sm" className="bg-[var(--app-surface-hover)]">
                           {dist.type.split('-').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                         </Badge>
@@ -458,12 +406,7 @@ export function FundAdmin() {
                         <div>
                           <div className="flex items-center gap-2 mb-1">
                             <p className="font-semibold">{response.lpName}</p>
-                            <Badge size="sm" className={getStatusColor(response.status)}>
-                              <div className="flex items-center gap-1">
-                                {getStatusIcon(response.status)}
-                                <span className="capitalize">{response.status}</span>
-                              </div>
-                            </Badge>
+                            <StatusBadge status={response.status} domain="fund-admin" showIcon size="sm" />
                           </div>
                           <p className="text-sm text-[var(--app-text-muted)]">
                             Commitment: {formatCurrency(response.commitment)}

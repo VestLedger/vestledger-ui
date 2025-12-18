@@ -17,6 +17,7 @@ import {
   getLPReports,
   getLPs,
 } from '@/services/lpPortal/lpManagementService';
+import { formatCurrency, formatPercent } from '@/utils/formatting';
 
 export function LPManagement() {
   const { value: ui, patch: patchUI } = useUIKey<{
@@ -44,19 +45,6 @@ export function LPManagement() {
 
   // Get route config for breadcrumbs and AI suggestions
   const routeConfig = getRouteConfig('/lp-management');
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const formatPercent = (value: number) => {
-    return `${value.toFixed(1)}%`;
-  };
 
   const getStatusColor = (status: string) => {
     switch (status) {

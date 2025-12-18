@@ -4,6 +4,7 @@ import { Card, Button, Badge, Input, Progress, PageContainer, Breadcrumb, PageHe
 import { TrendingDown, DollarSign, TrendingUp, PieChart, Plus, Trash2, Play, Download, Layers, ArrowRight, Globe, Flag, Info, Calculator } from 'lucide-react';
 import { getRouteConfig } from '@/config/routes';
 import { useUIKey } from '@/store/ui';
+import { formatCurrencyCompact } from '@/utils/formatting';
 
 type WaterfallModel = 'european' | 'american';
 
@@ -90,13 +91,6 @@ export function WaterfallModeling() {
   const routeConfig = getRouteConfig('/waterfall');
 
   const totalInvested = investorClasses.reduce((sum, ic) => sum + ic.investedAmount, 0);
-
-  const formatCurrency = (amount: number) => {
-    if (amount >= 1_000_000_000) return `$${(amount / 1_000_000_000).toFixed(1)}B`;
-    if (amount >= 1_000_000) return `$${(amount / 1_000_000).toFixed(1)}M`;
-    if (amount >= 1_000) return `$${(amount / 1_000).toFixed(0)}K`;
-    return `$${amount.toFixed(0)}`;
-  };
 
   const calculateWaterfall = (exitVal: number, model: WaterfallModel): { results: { classId: string; distribution: number; multiple: number }[]; gpCarry: number } => {
     let remaining = exitVal;
@@ -210,7 +204,7 @@ export function WaterfallModeling() {
     const { results, gpCarry } = calculateWaterfall(exitValue, waterfallModel);
     const newScenario: Scenario = {
       id: `scenario-${Date.now()}`,
-      name: `${formatCurrency(exitValue)} Exit (${waterfallModel === 'european' ? 'EU' : 'US'})`,
+      name: `${formatCurrencyCompact(exitValue)} Exit (${waterfallModel === 'european' ? 'EU' : 'US'})`,
       exitValue,
       model: waterfallModel,
       results,
@@ -231,13 +225,15 @@ export function WaterfallModeling() {
   };
 
   return (
-    <PageContainer className="space-y-6">
+    <PageContainer>
       {/* Breadcrumb Navigation */}
       {routeConfig && (
-        <Breadcrumb
-          items={routeConfig.breadcrumbs}
-          aiSuggestion={routeConfig.aiSuggestion}
-        />
+        <div className="mb-4">
+          <Breadcrumb
+            items={routeConfig.breadcrumbs}
+            aiSuggestion={routeConfig.aiSuggestion}
+          />
+        </div>
       )}
 
       {/* Page Header */}
@@ -246,7 +242,7 @@ export function WaterfallModeling() {
         description="Model exit scenarios and distribution waterfalls"
         icon={TrendingDown}
         aiSummary={{
-          text: `${investorClasses.length} investor classes totaling ${formatCurrency(totalInvested)} invested. ${scenarios.length} scenario${scenarios.length !== 1 ? 's' : ''} modeled. Current model: ${waterfallModel === 'european' ? 'European (whole-fund)' : 'American (deal-by-deal)'} waterfall.`,
+          text: `${investorClasses.length} investor classes totaling ${formatCurrencyCompact(totalInvested)} invested. ${scenarios.length} scenario${scenarios.length !== 1 ? 's' : ''} modeled. Current model: ${waterfallModel === 'european' ? 'European (whole-fund)' : 'American (deal-by-deal)'} waterfall.`,
           confidence: 0.91
         }}
         secondaryActions={[
@@ -261,7 +257,7 @@ export function WaterfallModeling() {
         }}
       />
 
-      <div className="grid lg:grid-cols-3 gap-6">
+      <div className="mt-6 grid lg:grid-cols-3 gap-6">
         {/* Left: Investor Classes */}
         <div className="lg:col-span-2 space-y-4">
           <Card padding="lg">
@@ -296,7 +292,7 @@ export function WaterfallModeling() {
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
                     <div>
                       <div className="text-[var(--app-text-muted)] mb-1">Invested</div>
-                      <div className="font-medium">{formatCurrency(ic.investedAmount)}</div>
+                      <div className="font-medium">{formatCurrencyCompact(ic.investedAmount)}</div>
                     </div>
                     <div>
                       <div className="text-[var(--app-text-muted)] mb-1">Ownership</div>
@@ -320,7 +316,7 @@ export function WaterfallModeling() {
             <div className="mt-4 pt-4 border-t border-[var(--app-border)]">
               <div className="flex justify-between text-sm">
                 <span className="text-[var(--app-text-muted)]">Total Invested</span>
-                <span className="font-semibold">{formatCurrency(totalInvested)}</span>
+                <span className="font-semibold">{formatCurrencyCompact(totalInvested)}</span>
               </div>
             </div>
           </Card>
@@ -350,14 +346,14 @@ export function WaterfallModeling() {
                         <td className="py-3 px-2">
                           <div className="font-medium">{scenario.name}</div>
                           <div className="text-xs text-[var(--app-text-muted)]">
-                            {formatCurrency(scenario.exitValue)} exit
+                            {formatCurrencyCompact(scenario.exitValue)} exit
                           </div>
                         </td>
                         {investorClasses.map((ic) => {
                           const result = scenario.results.find(r => r.classId === ic.id);
                           return (
                             <td key={ic.id} className="text-right py-3 px-2">
-                              <div className="font-medium">{formatCurrency(result?.distribution || 0)}</div>
+                              <div className="font-medium">{formatCurrencyCompact(result?.distribution || 0)}</div>
                               <div className={`text-xs ${(result?.multiple || 0) >= 1 ? 'text-[var(--app-success)]' : 'text-[var(--app-danger)]'}`}>
                                 {(result?.multiple || 0).toFixed(2)}x
                               </div>
@@ -475,7 +471,7 @@ export function WaterfallModeling() {
                       color={exitValue === val ? 'primary' : 'default'}
                       onPress={() => patchUI({ exitValue: val })}
                     >
-                      {formatCurrency(val)}
+                      {formatCurrencyCompact(val)}
                     </Button>
                   ))}
                 </div>

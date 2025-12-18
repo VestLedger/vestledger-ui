@@ -8,6 +8,7 @@ import { useUIKey } from '@/store/ui';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { lpPortalRequested, lpPortalSelectors } from '@/store/slices/miscSlice';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
+import { formatCurrency } from '@/utils/formatting';
 
 export function LPInvestorPortal() {
   const dispatch = useAppDispatch();
@@ -41,15 +42,6 @@ export function LPInvestorPortal() {
 
   const reports = data?.reports || [];
   const transactions = data?.transactions || [];
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
 
   const formatPercent = (value: number) => {
     return `${value.toFixed(1)}%`;

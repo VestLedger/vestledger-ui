@@ -3,6 +3,7 @@
 import { useUIKey } from '@/store/ui';
 import { Card, Button, Badge, Input } from '@/ui';
 import { ArrowRightLeft, Users, DollarSign, FileText, CheckCircle, XCircle, Clock, AlertCircle, Search, Filter } from 'lucide-react';
+import { formatCurrency, formatPercent } from '@/utils/formatting';
 
 export type TransferType = 'direct' | 'secondary-sale' | 'inheritance' | 'gift' | 'court-order';
 export type TransferStatus =
@@ -128,24 +129,6 @@ export function TransferSecondary({
     selectedTransfer: null,
   });
   const { searchQuery, filterStatus, filterType, selectedTransfer } = ui;
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const formatPercent = (percent: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'percent',
-      minimumFractionDigits: 1,
-      maximumFractionDigits: 1,
-      signDisplay: 'always',
-    }).format(percent / 100);
-  };
 
   const getStatusBadge = (status: TransferStatus) => {
     switch (status) {

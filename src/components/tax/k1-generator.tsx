@@ -3,6 +3,7 @@
 import { Card, Button, Badge, Input } from '@/ui';
 import { FileText, Download, Settings, Calendar, CheckCircle, AlertCircle, RefreshCw, Send, Eye } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
+import { formatCurrency as formatCurrencyBase } from '@/utils/formatting';
 
 export type K1IncomeType =
   | 'ordinary-business-income'
@@ -230,11 +231,7 @@ export function K1Generator({
 
   const formatCurrency = (amount: number) => {
     const isNegative = amount < 0;
-    const formatted = new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2,
-    }).format(Math.abs(amount));
+    const formatted = formatCurrencyBase(Math.abs(amount), { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     return isNegative ? `(${formatted})` : formatted;
   };
 

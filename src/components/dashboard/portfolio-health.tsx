@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { TrendingUp, TrendingDown, Activity, AlertTriangle, Sparkles, Info } from 'lucide-react';
 import { Card, ProgressBar, Badge } from '@/ui';
+import { formatCurrencyCompact } from '@/utils/formatting';
 
 export interface PortfolioCompany {
   id: string;
@@ -36,15 +37,6 @@ export function PortfolioHealth({ companies }: PortfolioHealthProps) {
     if (health >= 60) return 'primary';
     if (health >= 40) return 'warning';
     return 'danger';
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      notation: 'compact',
-      maximumFractionDigits: 0,
-    }).format(amount);
   };
 
   return (
@@ -109,7 +101,7 @@ export function PortfolioHealth({ companies }: PortfolioHealthProps) {
                       </span>
                       <span className="text-[var(--app-text-subtle)]">•</span>
                       <span className="text-[var(--app-text-muted)]">
-                        Burn: {formatCurrency(company.burnRate)}/mo
+                        Burn: {formatCurrencyCompact(company.burnRate)}/mo
                       </span>
                     </div>
                   </div>
