@@ -1,38 +1,29 @@
 'use client';
 
-import { useEffect } from 'react';
+
 import { Mail, Calendar, Phone } from 'lucide-react';
 import { Card, Button, Badge, PageContainer } from '@/ui';
 import { MetricCard } from '@/components/metric-card';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { useAppDispatch } from '@/store/hooks';
 import { irDashboardRequested, irDashboardSelectors } from '@/store/slices/dashboardsSlice';
 import { ErrorState, LoadingState } from '@/components/ui/async-states';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function IRDashboard() {
-  const dispatch = useAppDispatch();
-
-  // Get IR dashboard data from Redux
-  const data = useAppSelector(irDashboardSelectors.selectData);
-  const status = useAppSelector(irDashboardSelectors.selectStatus);
-  const error = useAppSelector(irDashboardSelectors.selectError);
-
-  // Load IR dashboard data on mount
-  useEffect(() => {
-    dispatch(irDashboardRequested());
-  }, [dispatch]);
+  const { data, isLoading, error, refetch } = useAsyncData(irDashboardRequested, irDashboardSelectors.selectState);
 
   // Extract data with defaults
   const metrics = data?.metrics || [];
   const recentInteractions = data?.recentInteractions || [];
   const upcomingTasks = data?.upcomingTasks || [];
 
-  if (status === 'loading') return <LoadingState message="Loading IR dashboard…" />;
-  if (status === 'failed' && error) {
+  if (isLoading) return <LoadingState message="Loading IR dashboard…" />;
+  if (error) {
     return (
       <ErrorState
         error={error}
         title="Failed to load IR dashboard"
-        onRetry={() => dispatch(irDashboardRequested())}
+        onRetry={refetch}
       />
     );
   }

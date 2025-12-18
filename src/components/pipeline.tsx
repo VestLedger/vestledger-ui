@@ -7,29 +7,22 @@ import { Button, Card, Badge, Progress, Breadcrumb, PageHeader, PageContainer } 
 import { ButtonGroup, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@nextui-org/react';
 import { getRouteConfig } from '@/config/routes';
 import { KanbanBoard } from '@/components/kanban-board';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { useAppDispatch } from '@/store/hooks';
 import { setSuggestionsOverride } from '@/store/slices/copilotSlice';
 import { pipelineDataRequested, dealStageUpdated, pipelineSelectors } from '@/store/slices/pipelineSlice';
 import { useUIKey } from '@/store/ui';
 import { ErrorState, LoadingState } from '@/components/ui/async-states';
 import type { PipelineDeal as Deal, PipelineDealOutcome as DealOutcome } from '@/services/pipelineService';
+import { useAsyncData } from '@/hooks/useAsyncData';
+import { dealOutcomeClasses } from '@/utils/styling';
 
 export function Pipeline() {
   const dispatch = useAppDispatch();
-
-  // Use centralized selectors
-  const data = useAppSelector(pipelineSelectors.selectData);
-  const status = useAppSelector(pipelineSelectors.selectStatus);
-  const error = useAppSelector(pipelineSelectors.selectError);
+  const { data, isLoading, error, refetch } = useAsyncData(pipelineDataRequested, pipelineSelectors.selectState, { params: {} });
 
   const pipelineStages = data?.stages || [];
   const pipelineDeals = data?.deals || [];
   const pipelineCopilotSuggestions = data?.copilotSuggestions || [];
-
-  // Load pipeline data on mount
-  useEffect(() => {
-    dispatch(pipelineDataRequested({}));
-  }, [dispatch]);
 
   const { value: pipelineUI, patch: patchPipelineUI } = useUIKey('pipeline', {
     viewMode: 'kanban' as 'kanban' | 'list',
@@ -37,21 +30,6 @@ export function Pipeline() {
   });
   const viewMode = pipelineUI.viewMode;
   const showClosedDeals = pipelineUI.showClosedDeals;
-
-  const getOutcomeBadgeClass = (outcome: DealOutcome) => {
-    switch (outcome) {
-      case 'won':
-        return 'bg-[var(--app-success-bg)] text-[var(--app-success)] border-[var(--app-success)]';
-      case 'lost':
-        return 'bg-[var(--app-danger-bg)] text-[var(--app-danger)] border-[var(--app-danger)]';
-      case 'withdrawn':
-        return 'bg-[var(--app-text-muted)]/10 text-[var(--app-text-muted)] border-[var(--app-text-muted)]';
-      case 'passed':
-        return 'bg-[var(--app-warning-bg)] text-[var(--app-warning)] border-[var(--app-warning)]';
-      default:
-        return '';
-    }
-  };
 
   const filteredDeals = showClosedDeals ? pipelineDeals : pipelineDeals.filter(d => d.outcome === 'active');
   const activeDealsCount = pipelineDeals.filter(d => d.outcome === 'active').length;
@@ -119,12 +97,12 @@ export function Pipeline() {
         </div>
       </PageHeader>
 
-      {status === 'loading' && <LoadingState message="Loading pipeline…" fullHeight={false} />}
-      {status === 'failed' && error && (
+      {isLoading && <LoadingState message="Loading pipeline…" fullHeight={false} />}
+      {error && (
         <ErrorState
           error={error}
           title="Failed to load pipeline"
-          onRetry={() => dispatch(pipelineDataRequested({}))}
+          onRetry={refetch}
         />
       )}
 
@@ -190,7 +168,7 @@ export function Pipeline() {
                       <div className="flex flex-col">
                         <span>{deal.name}</span>
                         {deal.outcome !== 'active' && (
-                          <Badge size="sm" variant="flat" className={`${getOutcomeBadgeClass(deal.outcome)} mt-1 w-fit`}>
+                          <Badge size="sm" variant="flat" className={`${dealOutcomeClasses[deal.outcome as keyof typeof dealOutcomeClasses] || ''} mt-1 w-fit`}>
                             {deal.outcome}
                           </Badge>
                         )}

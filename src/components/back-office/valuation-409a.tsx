@@ -1,38 +1,29 @@
 'use client'
 
-import { useEffect } from 'react';
 import { Card, Button, Badge, Progress, Input, PageContainer, Breadcrumb, PageHeader } from '@/ui';
 import { Tabs, Tab } from '@/ui';
 import { getRouteConfig } from '@/config/routes';
 import { TrendingUp, FileText, Download, Calendar, DollarSign, AlertCircle, CheckCircle, Clock, Building2, ChevronRight, Calculator , Receipt} from 'lucide-react';
 import { useUIKey } from '@/store/ui';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { valuation409aRequested, valuation409aSelectors } from '@/store/slices/backOfficeSlice';
 import { ErrorState, LoadingState } from '@/components/ui/async-states';
 import { formatCurrency } from '@/utils/formatting';
 import { StatsCard } from '@/components/ui';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function Valuation409A() {
-  const dispatch = useAppDispatch();
-  const data = useAppSelector(valuation409aSelectors.selectData);
-  const status = useAppSelector(valuation409aSelectors.selectStatus);
-  const error = useAppSelector(valuation409aSelectors.selectError);
+  const { data, isLoading, error, refetch } = useAsyncData(valuation409aRequested, valuation409aSelectors.selectState);
   const { value: ui, patch: patchUI } = useUIKey('back-office-valuation-409a', { selectedTab: 'valuations' });
   const { selectedTab } = ui;
   const routeConfig = getRouteConfig('/409a-valuations');
 
-  // Load 409A valuation data on mount
-  useEffect(() => {
-    dispatch(valuation409aRequested());
-  }, [dispatch]);
-
-  if (status === 'loading') return <LoadingState message="Loading 409A valuations…" />;
-  if (status === 'failed' && error) {
+  if (isLoading) return <LoadingState message="Loading 409A valuations…" />;
+  if (error) {
     return (
       <ErrorState
         error={error}
         title="Failed to load 409A valuations"
-        onRetry={() => dispatch(valuation409aRequested())}
+        onRetry={refetch}
       />
     );
   }
@@ -142,7 +133,7 @@ export function Valuation409A() {
           title="Portfolio Companies"
           value={valuations.length}
           icon={Building2}
-          variant="info"
+          variant="primary"
         />
 
         <StatsCard

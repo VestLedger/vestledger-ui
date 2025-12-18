@@ -1,38 +1,29 @@
 'use client';
 
-import { useEffect } from 'react';
+
 import { TrendingUp, FileText, Search, Download } from 'lucide-react';
 import { Card, Button, Badge, PageContainer } from '@/ui';
 import { MetricCard } from '@/components/metric-card';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { useAppDispatch } from '@/store/hooks';
 import { researcherDashboardRequested, researcherDashboardSelectors } from '@/store/slices/dashboardsSlice';
 import { ErrorState, LoadingState } from '@/components/ui/async-states';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function ResearcherDashboard() {
-  const dispatch = useAppDispatch();
-
-  // Get researcher dashboard data from Redux
-  const data = useAppSelector(researcherDashboardSelectors.selectData);
-  const status = useAppSelector(researcherDashboardSelectors.selectStatus);
-  const error = useAppSelector(researcherDashboardSelectors.selectError);
-
-  // Load researcher dashboard data on mount
-  useEffect(() => {
-    dispatch(researcherDashboardRequested());
-  }, [dispatch]);
+  const { data, isLoading, error, refetch } = useAsyncData(researcherDashboardRequested, researcherDashboardSelectors.selectState);
 
   // Extract data with defaults
   const metrics = data?.metrics || [];
   const recentReports = data?.recentReports || [];
   const trendingTopics = data?.trendingTopics || [];
 
-  if (status === 'loading') return <LoadingState message="Loading researcher dashboard…" />;
-  if (status === 'failed' && error) {
+  if (isLoading) return <LoadingState message="Loading researcher dashboard…" />;
+  if (error) {
     return (
       <ErrorState
         error={error}
         title="Failed to load researcher dashboard"
-        onRetry={() => dispatch(researcherDashboardRequested())}
+        onRetry={refetch}
       />
     );
   }

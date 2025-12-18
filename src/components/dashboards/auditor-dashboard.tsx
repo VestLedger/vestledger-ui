@@ -1,38 +1,29 @@
 'use client';
 
-import { useEffect } from 'react';
+
 import { Shield, CheckCircle2, Search, Download } from 'lucide-react';
 import { Card, Button, Badge, PageContainer } from '@/ui';
 import { MetricCard } from '@/components/metric-card';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { useAppDispatch } from '@/store/hooks';
 import { auditorDashboardRequested, auditorDashboardSelectors } from '@/store/slices/dashboardsSlice';
 import { ErrorState, LoadingState } from '@/components/ui/async-states';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function AuditorDashboard() {
-  const dispatch = useAppDispatch();
-
-  // Get auditor dashboard data from Redux
-  const data = useAppSelector(auditorDashboardSelectors.selectData);
-  const status = useAppSelector(auditorDashboardSelectors.selectStatus);
-  const error = useAppSelector(auditorDashboardSelectors.selectError);
-
-  // Load auditor dashboard data on mount
-  useEffect(() => {
-    dispatch(auditorDashboardRequested());
-  }, [dispatch]);
+  const { data, isLoading, error, refetch } = useAsyncData(auditorDashboardRequested, auditorDashboardSelectors.selectState);
 
   // Extract data with defaults
   const metrics = data?.metrics || [];
   const auditTrail = data?.auditTrail || [];
   const complianceItems = data?.complianceItems || [];
 
-  if (status === 'loading') return <LoadingState message="Loading auditor dashboard…" />;
-  if (status === 'failed' && error) {
+  if (isLoading) return <LoadingState message="Loading auditor dashboard…" />;
+  if (error) {
     return (
       <ErrorState
         error={error}
         title="Failed to load auditor dashboard"
-        onRetry={() => dispatch(auditorDashboardRequested())}
+        onRetry={refetch}
       />
     );
   }

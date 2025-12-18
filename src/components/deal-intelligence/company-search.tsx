@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
 import { Card, Button, Badge, Input, Progress } from '@/ui';
 import {
   Search,
@@ -21,16 +20,13 @@ import {
   Briefcase
 } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { companySearchRequested, companySearchSelectors } from '@/store/slices/miscSlice';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
 import { formatCurrencyCompact } from '@/utils/formatting';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function CompanySearch() {
-  const dispatch = useAppDispatch();
-  const data = useAppSelector(companySearchSelectors.selectData);
-  const status = useAppSelector(companySearchSelectors.selectStatus);
-  const error = useAppSelector(companySearchSelectors.selectError);
+  const { data, isLoading, error, refetch } = useAsyncData(companySearchRequested, companySearchSelectors.selectState);
 
   // UI state MUST be called before any early returns (Rules of Hooks)
   const { value: ui, patch: patchUI } = useUIKey('company-search', {
@@ -41,18 +37,13 @@ export function CompanySearch() {
   });
   const { searchQuery, selectedIndustry, selectedStage, showAIOnly } = ui;
 
-  // Load company search data on mount
-  useEffect(() => {
-    dispatch(companySearchRequested());
-  }, [dispatch]);
-
-  if (status === 'loading' || status === 'idle') return <LoadingState message="Loading company search…" fullHeight={false} />;
-  if (status === 'failed' && error) {
+  if (isLoading) return <LoadingState message="Loading company search…" fullHeight={false} />;
+  if (error) {
     return (
       <ErrorState
         error={error}
         title="Failed to load company search"
-        onRetry={() => dispatch(companySearchRequested())}
+        onRetry={refetch}
       />
     );
   }

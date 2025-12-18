@@ -1,38 +1,29 @@
 'use client';
 
-import { useEffect } from 'react';
+
 import { Search, CheckCircle2, Clock } from 'lucide-react';
 import { Card, Button, Badge, PageContainer } from '@/ui';
 import { MetricCard } from '@/components/metric-card';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { useAppDispatch } from '@/store/hooks';
 import { analystDashboardRequested, analystDashboardSelectors } from '@/store/slices/dashboardsSlice';
 import { ErrorState, LoadingState } from '@/components/ui/async-states';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function AnalystDashboard() {
-  const dispatch = useAppDispatch();
-
-  // Get analyst dashboard data from Redux
-  const data = useAppSelector(analystDashboardSelectors.selectData);
-  const status = useAppSelector(analystDashboardSelectors.selectStatus);
-  const error = useAppSelector(analystDashboardSelectors.selectError);
-
-  // Load analyst dashboard data on mount
-  useEffect(() => {
-    dispatch(analystDashboardRequested());
-  }, [dispatch]);
+  const { data, isLoading, error, refetch } = useAsyncData(analystDashboardRequested, analystDashboardSelectors.selectState);
 
   // Extract data with defaults
   const metrics = data?.metrics || [];
   const recentDeals = data?.recentDeals || [];
   const urgentTasks = data?.urgentTasks || [];
 
-  if (status === 'loading') return <LoadingState message="Loading analyst dashboard…" />;
-  if (status === 'failed' && error) {
+  if (isLoading) return <LoadingState message="Loading analyst dashboard…" />;
+  if (error) {
     return (
       <ErrorState
         error={error}
         title="Failed to load analyst dashboard"
-        onRetry={() => dispatch(analystDashboardRequested())}
+        onRetry={refetch}
       />
     );
   }

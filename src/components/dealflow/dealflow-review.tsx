@@ -1,17 +1,16 @@
 'use client'
 
-import { useEffect } from 'react';
 import { Card, Button, Badge, Progress, PageContainer, Breadcrumb, PageHeader } from '@/ui';
 import { ThumbsUp, ThumbsDown, MinusCircle, MessageSquare, Users, Building2, TrendingUp, DollarSign, Target, Lightbulb, Share2, Download, Play, Pause, SkipForward, SkipBack, Maximize2, Plus, Edit3, FileSearch , Vote} from 'lucide-react';
 import { getRouteConfig } from '@/config/routes';
 import { CompanyScoring } from './company-scoring';
 import { getDealflowReviewSlides, type DealflowReviewSlide } from '@/services/dealflow/dealflowReviewService';
 import { useUIKey } from '@/store/ui';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { dealflowDealsRequested, dealflowSelectors } from '@/store/slices/dealflowSlice';
 import { LoadingState, ErrorState, EmptyState } from '@/components/ui/async-states';
 import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys';
 import { formatCurrencyCompact } from '@/utils/formatting';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
 interface Vote {
   partnerId: string;
@@ -31,17 +30,7 @@ interface ReviewSession {
 }
 
 export function DealflowReview() {
-  const dispatch = useAppDispatch();
-
-  // Use centralized selectors
-  const data = useAppSelector(dealflowSelectors.selectData);
-  const status = useAppSelector(dealflowSelectors.selectStatus);
-  const error = useAppSelector(dealflowSelectors.selectError);
-
-  // Load dealflow deals on mount
-  useEffect(() => {
-    dispatch(dealflowDealsRequested({}));
-  }, [dispatch]);
+  const { data, isLoading, error, refetch } = useAsyncData(dealflowDealsRequested, dealflowSelectors.selectState, { params: {} });
 
   // Use centralized UI state defaults
   const { value: ui, patch: patchUI } = useUIKey(
@@ -61,17 +50,17 @@ export function DealflowReview() {
   const routeConfig = getRouteConfig('/dealflow-review');
 
   // Loading state
-  if (status === 'loading') {
+  if (isLoading) {
     return <LoadingState message="Loading dealflow deals..." />;
   }
 
   // Error state
-  if (status === 'failed' && error) {
+  if (error) {
     return (
       <ErrorState
         error={error}
         title="Failed to Load Dealflow Deals"
-        onRetry={() => dispatch(dealflowDealsRequested({}))}
+        onRetry={refetch}
       />
     );
   }

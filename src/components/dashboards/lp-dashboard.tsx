@@ -1,26 +1,15 @@
 'use client';
 
-import { useEffect } from 'react';
 import { BarChart3, TrendingUp, FileText, DollarSign, Download, Calendar, CheckCircle2, AlertCircle, Clock, CreditCard, Pen, Shield, ChevronRight, Wallet } from 'lucide-react';
 import { Card, Button, Badge, Progress, PageContainer } from '@/ui';
 import { MetricCard } from '@/components/metric-card';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { lpDashboardRequested, lpDashboardSelectors } from '@/store/slices/dashboardsSlice';
 import { ErrorState, LoadingState } from '@/components/ui/async-states';
 import { formatCurrencyCompact } from '@/utils/formatting';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function LPDashboard() {
-  const dispatch = useAppDispatch();
-
-  // Get LP dashboard data from Redux
-  const data = useAppSelector(lpDashboardSelectors.selectData);
-  const status = useAppSelector(lpDashboardSelectors.selectStatus);
-  const error = useAppSelector(lpDashboardSelectors.selectError);
-
-  // Load LP dashboard data on mount
-  useEffect(() => {
-    dispatch(lpDashboardRequested());
-  }, [dispatch]);
+  const { data, isLoading, error, refetch } = useAsyncData(lpDashboardRequested, lpDashboardSelectors.selectState);
 
   // Extract data with defaults
   const metrics = data?.metrics || [];
@@ -30,13 +19,13 @@ export function LPDashboard() {
   const pendingSignatures = data?.pendingSignatures || [];
   const commitment = data?.commitment || { totalCommitment: 0, calledAmount: 0 };
 
-  if (status === 'loading') return <LoadingState message="Loading LP dashboard…" />;
-  if (status === 'failed' && error) {
+  if (isLoading) return <LoadingState message="Loading LP dashboard…" />;
+  if (error) {
     return (
       <ErrorState
         error={error}
         title="Failed to load LP dashboard"
-        onRetry={() => dispatch(lpDashboardRequested())}
+        onRetry={refetch}
       />
     );
   }

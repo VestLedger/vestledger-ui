@@ -1,11 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
 import { PageContainer, PageHeader, Breadcrumb } from '@/ui';
 import { getRouteConfig } from '@/config/routes';
 import { DocumentManager, type AccessLevel } from './document-manager';
 import { DocumentPreviewModal, useDocumentPreview, getMockDocumentUrl, type PreviewDocument } from './preview';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { useAppDispatch } from '@/store/hooks';
 import {
   documentAccessUpdated,
   documentDeleted,
@@ -15,11 +14,12 @@ import {
   documentsSelectors,
 } from '@/store/slices/documentsSlice';
 import { useUIKey } from '@/store/ui';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function Documents() {
   const routeConfig = getRouteConfig('/documents');
   const dispatch = useAppDispatch();
-  const data = useAppSelector(documentsSelectors.selectData);
+  const { data } = useAsyncData(documentsRequested, documentsSelectors.selectState, { params: {} });
   const documents = data?.documents || [];
   const folders = data?.folders || [];
   const { value: ui, patch: patchUI } = useUIKey<{ currentFolderId: string | null }>('documents-page', {
@@ -27,10 +27,6 @@ export function Documents() {
   });
   const { currentFolderId } = ui;
   const preview = useDocumentPreview();
-
-  useEffect(() => {
-    dispatch(documentsRequested({}));
-  }, [dispatch]);
 
   const handleUpload = (folderId?: string | null) => {
     console.log('Upload file to folder:', folderId);

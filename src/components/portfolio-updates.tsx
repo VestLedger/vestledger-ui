@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect } from 'react';
 import { Card, Badge, Button, Input, PageContainer } from '@/ui';
 import {
   TrendingUp,
@@ -13,13 +12,13 @@ import {
   Calendar,
 } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   portfolioUpdatesRequested,
   portfolioSelectors,
 } from '@/store/slices/portfolioSlice';
 import { LoadingState, ErrorState, EmptyState } from '@/components/ui/async-states';
 import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
 const updateIcons = {
   financial: <DollarSign className="w-5 h-5" />,
@@ -46,12 +45,7 @@ const updateBadgeColors = {
 };
 
 export function PortfolioUpdates() {
-  const dispatch = useAppDispatch();
-
-  // Use centralized selectors
-  const data = useAppSelector(portfolioSelectors.selectData);
-  const status = useAppSelector(portfolioSelectors.selectStatus);
-  const error = useAppSelector(portfolioSelectors.selectError);
+  const { data, isLoading, error, refetch } = useAsyncData(portfolioUpdatesRequested, portfolioSelectors.selectState, { params: {} });
 
   // Use centralized UI state defaults
   const { value: ui, patch: patchUI } = useUIKey(
@@ -60,23 +54,18 @@ export function PortfolioUpdates() {
   );
   const { selectedType, searchQuery } = ui;
 
-  // Dispatch request on mount
-  useEffect(() => {
-    dispatch(portfolioUpdatesRequested({}));
-  }, [dispatch]);
-
   // Loading state
-  if (status === 'loading') {
+  if (isLoading) {
     return <LoadingState message="Loading portfolio updates..." />;
   }
 
   // Error state
-  if (status === 'failed' && error) {
+  if (error) {
     return (
       <ErrorState
         error={error}
         title="Failed to Load Portfolio Updates"
-        onRetry={() => dispatch(portfolioUpdatesRequested({}))}
+        onRetry={refetch}
       />
     );
   }

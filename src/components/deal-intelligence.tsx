@@ -1,15 +1,14 @@
 'use client'
 
-import { useEffect } from 'react';
 import { useUIKey } from '@/store/ui';
 import { CheckCircle2, Circle, Clock, Eye, FileText, Users, DollarSign, BarChart, Upload, Download, Search, Filter, TrendingUp, AlertCircle, ArrowLeft, Brain } from 'lucide-react';
 import { Card, Badge, Progress, Button, Input, Breadcrumb, PageHeader, Tabs, Tab, PageContainer } from '@/ui';
 import { getRouteConfig } from '@/config/routes';
 import { CompanySearch } from './deal-intelligence/company-search';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { dealIntelligenceRequested, dealIntelligenceSelectors } from '@/store/slices/dealIntelligenceSlice';
 import { LoadingState, ErrorState, EmptyState } from '@/components/ui/async-states';
 import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys';
+import { useAsyncData } from '@/hooks/useAsyncData';
 import {
   type ActiveDeal,
   type DocumentCategory,
@@ -27,12 +26,7 @@ interface DealIntelligenceUIState {
 }
 
 export function DealIntelligence() {
-  const dispatch = useAppDispatch();
-
-  // Use centralized selectors
-  const data = useAppSelector(dealIntelligenceSelectors.selectData);
-  const status = useAppSelector(dealIntelligenceSelectors.selectStatus);
-  const error = useAppSelector(dealIntelligenceSelectors.selectError);
+  const { data, isLoading, error, refetch } = useAsyncData(dealIntelligenceRequested, dealIntelligenceSelectors.selectState, { params: {} });
 
   // Use UI state constants
   const { value: ui, patch: patchUI } = useUIKey(
@@ -41,29 +35,24 @@ export function DealIntelligence() {
   );
   const { viewMode, selectedDeal, searchQuery, selectedCategory, selectedDetailTab } = ui;
 
-  // Dispatch request on mount
-  useEffect(() => {
-    dispatch(dealIntelligenceRequested({}));
-  }, [dispatch]);
-
   // Loading state
-  if (status === 'loading') {
+  if (isLoading) {
     return <LoadingState message="Loading deal intelligence..." />;
   }
 
   // Error state
-  if (status === 'failed' && error) {
+  if (error) {
     return (
       <ErrorState
         error={error}
         title="Failed to Load Deal Intelligence"
-        onRetry={() => dispatch(dealIntelligenceRequested({}))}
+        onRetry={refetch}
       />
     );
   }
 
   // Empty state
-  if (status === 'succeeded' && !data) {
+  if (!data) {
     return <EmptyState icon={Brain} title="No deal intelligence data available" />;
   }
 

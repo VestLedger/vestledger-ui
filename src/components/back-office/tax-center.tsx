@@ -1,28 +1,18 @@
 'use client'
 
-import { useEffect } from 'react';
 import { Card, Button, Badge, Progress, PageContainer, Breadcrumb, PageHeader, Tabs, Tab } from '@/ui';
 import { Receipt, Download, Send, Calendar, DollarSign, Building2, Users, CheckCircle, Clock, AlertTriangle, Mail, Upload, FileText , Scale} from 'lucide-react';
 import { getRouteConfig } from '@/config/routes';
 import { K1Generator } from '../tax/k1-generator';
 import { useUIKey } from '@/store/ui';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { taxCenterRequested, taxCenterSelectors } from '@/store/slices/backOfficeSlice';
 import { ErrorState, LoadingState } from '@/components/ui/async-states';
 import { formatCurrency } from '@/utils/formatting';
 import { StatusBadge, StatsCard } from '@/components/ui';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function TaxCenter() {
-  const dispatch = useAppDispatch();
-  const data = useAppSelector(taxCenterSelectors.selectData);
-  const status = useAppSelector(taxCenterSelectors.selectStatus);
-  const error = useAppSelector(taxCenterSelectors.selectError);
-
-  // Load tax center data on mount
-  useEffect(() => {
-    dispatch(taxCenterRequested());
-  }, [dispatch]);
-
+  const { data, isLoading, error, refetch } = useAsyncData(taxCenterRequested, taxCenterSelectors.selectState);
   const { value: ui, patch: patchUI } = useUIKey('back-office-tax-center', { selectedTab: 'overview' });
   const { selectedTab } = ui;
 
@@ -34,13 +24,13 @@ export function TaxCenter() {
   const portfolioTax = data?.portfolioTax || [];
   const filingDeadline = data?.filingDeadline || new Date();
 
-  if (status === 'loading') return <LoadingState message="Loading tax center…" />;
-  if (status === 'failed' && error) {
+  if (isLoading) return <LoadingState message="Loading tax center…" />;
+  if (error) {
     return (
       <ErrorState
         error={error}
         title="Failed to load tax center"
-        onRetry={() => dispatch(taxCenterRequested())}
+        onRetry={refetch}
       />
     );
   }

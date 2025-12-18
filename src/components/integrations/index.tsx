@@ -1,16 +1,15 @@
 'use client';
 
-import { useEffect } from 'react';
 import { PageContainer, PageHeader, Breadcrumb, Card, Button, Badge } from '@/ui';
 import type { LucideIcon } from 'lucide-react';
 import { Plug, Calendar, Mail, Slack, Github, CheckCircle2, Settings } from 'lucide-react';
 import { getRouteConfig } from '@/config/routes';
 import { CalendarIntegration } from './calendar-integration';
 import { useUIKey } from '@/store/ui';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { integrationsRequested, integrationsSelectors } from '@/store/slices/miscSlice';
 import type { IntegrationSummary } from '@/types/integrations';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
 const integrationIconMap = {
   calendar: Calendar,
@@ -20,34 +19,26 @@ const integrationIconMap = {
 } as const satisfies Record<IntegrationSummary['icon'], LucideIcon>;
 
 export function Integrations() {
-  const dispatch = useAppDispatch();
+  const { data, isLoading, error, refetch } = useAsyncData(integrationsRequested, integrationsSelectors.selectState);
   const routeConfig = getRouteConfig('/integrations');
-  const data = useAppSelector(integrationsSelectors.selectData);
-  const status = useAppSelector(integrationsSelectors.selectStatus);
-  const error = useAppSelector(integrationsSelectors.selectError);
-
-  // Load integrations data on mount
-  useEffect(() => {
-    dispatch(integrationsRequested());
-  }, [dispatch]);
 
   // UI state MUST be called before any early returns (Rules of Hooks)
   const { value: ui, patch: patchUI } = useUIKey('integrations', { selectedCategory: 'all' });
   const { selectedCategory } = ui;
 
-  if (status === 'idle' || status === 'loading') return <LoadingState message="Loading integrations…" />;
-  if (status === 'failed' && error) {
+  if (isLoading) return <LoadingState message="Loading integrations…" />;
+  if (error) {
     return (
       <ErrorState
         error={error}
         title="Failed to load integrations"
-        onRetry={() => dispatch(integrationsRequested())}
+        onRetry={refetch}
       />
     );
   }
 
   const integrations = data?.integrations || [];
-  if (status === 'succeeded' && integrations.length === 0) {
+  if (integrations.length === 0) {
     return <EmptyState icon={Plug} title="No integrations configured" message="Connect a tool to get started." />;
   }
 

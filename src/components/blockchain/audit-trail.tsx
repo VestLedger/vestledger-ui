@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
 import { Card, Button, Badge, Input, Progress, PageContainer, Breadcrumb, PageHeader } from '@/ui';
 import {
   Shield,
@@ -21,22 +20,14 @@ import {
 import { getRouteConfig } from '@/config/routes';
 import type { AuditEvent } from '@/services/blockchain/auditTrailService';
 import { useUIKey } from '@/store/ui';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { auditTrailRequested, auditTrailSelectors } from '@/store/slices/miscSlice';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
 import { formatCurrencyCompact, formatTimestamp, truncateHash } from '@/utils/formatting';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function BlockchainAuditTrail() {
-  const dispatch = useAppDispatch();
+  const { data, isLoading, error, refetch } = useAsyncData(auditTrailRequested, auditTrailSelectors.selectState);
   const routeConfig = getRouteConfig('/audit-trail');
-  const data = useAppSelector(auditTrailSelectors.selectData);
-  const status = useAppSelector(auditTrailSelectors.selectStatus);
-  const error = useAppSelector(auditTrailSelectors.selectError);
-
-  // Load audit trail data on mount
-  useEffect(() => {
-    dispatch(auditTrailRequested());
-  }, [dispatch]);
 
   // UI state MUST be called before any early returns (Rules of Hooks)
   const { value: ui, patch: patchUI } = useUIKey<{
@@ -50,19 +41,19 @@ export function BlockchainAuditTrail() {
   });
   const { searchQuery, selectedEvent, filter } = ui;
 
-  if (status === 'loading' || status === 'idle') return <LoadingState message="Loading audit trail…" />;
-  if (status === 'failed' && error) {
+  if (isLoading) return <LoadingState message="Loading audit trail…" />;
+  if (error) {
     return (
       <ErrorState
         error={error}
         title="Failed to load audit trail"
-        onRetry={() => dispatch(auditTrailRequested())}
+        onRetry={refetch}
       />
     );
   }
 
   const auditEvents = data?.events || [];
-  if (status === 'succeeded' && auditEvents.length === 0) {
+  if (auditEvents.length === 0) {
     return <EmptyState icon={Database} title="No audit events" message="Activity will appear here." />;
   }
 

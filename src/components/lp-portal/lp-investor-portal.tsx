@@ -1,42 +1,32 @@
 'use client'
 
-import { useEffect } from 'react';
 import { Card, Button, Badge, Progress } from '@/ui';
 import { Tabs, Tab } from '@/ui';
 import { TrendingUp, DollarSign, Download, FileText, Calendar, Activity, BarChart3, PieChart, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { lpPortalRequested, lpPortalSelectors } from '@/store/slices/miscSlice';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
 import { formatCurrency } from '@/utils/formatting';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function LPInvestorPortal() {
-  const dispatch = useAppDispatch();
+  const { data, isLoading, error, refetch } = useAsyncData(lpPortalRequested, lpPortalSelectors.selectState);
   const { value: ui, patch: patchUI } = useUIKey('lp-investor-portal', { selectedTab: 'overview' });
   const { selectedTab } = ui;
-  const data = useAppSelector(lpPortalSelectors.selectData);
-  const status = useAppSelector(lpPortalSelectors.selectStatus);
-  const error = useAppSelector(lpPortalSelectors.selectError);
 
-  // Load LP portal data on mount
-  useEffect(() => {
-    dispatch(lpPortalRequested());
-  }, [dispatch]);
-
-  if (status === 'loading') return <LoadingState message="Loading LP portal…" />;
-  if (status === 'failed' && error) {
+  if (isLoading) return <LoadingState message="Loading LP portal…" />;
+  if (error) {
     return (
       <ErrorState
         error={error}
         title="Failed to load LP portal"
-        onRetry={() => dispatch(lpPortalRequested())}
+        onRetry={refetch}
       />
     );
   }
-  if (status === 'idle') return <LoadingState message="Loading LP portal…" />;
 
   const investor = data?.investor;
-  if (status === 'succeeded' && !investor) {
+  if (!investor) {
     return <EmptyState icon={PieChart} title="No investor data available" message="Try again in a moment." />;
   }
 

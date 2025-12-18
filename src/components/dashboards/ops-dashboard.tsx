@@ -1,38 +1,29 @@
 'use client';
 
-import { useEffect } from 'react';
+
 import { DollarSign, AlertTriangle, Calendar, Download } from 'lucide-react';
 import { Card, Button, Badge, PageContainer } from '@/ui';
 import { MetricCard } from '@/components/metric-card';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { useAppDispatch } from '@/store/hooks';
 import { opsDashboardRequested, opsDashboardSelectors } from '@/store/slices/dashboardsSlice';
 import { ErrorState, LoadingState } from '@/components/ui/async-states';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function OpsDashboard() {
-  const dispatch = useAppDispatch();
-
-  // Get ops dashboard data from Redux
-  const data = useAppSelector(opsDashboardSelectors.selectData);
-  const status = useAppSelector(opsDashboardSelectors.selectStatus);
-  const error = useAppSelector(opsDashboardSelectors.selectError);
-
-  // Load ops dashboard data on mount
-  useEffect(() => {
-    dispatch(opsDashboardRequested());
-  }, [dispatch]);
+  const { data, isLoading, error, refetch } = useAsyncData(opsDashboardRequested, opsDashboardSelectors.selectState);
 
   // Extract data with defaults
   const metrics = data?.metrics || [];
   const complianceAlerts = data?.complianceAlerts || [];
   const upcomingDistributions = data?.upcomingDistributions || [];
 
-  if (status === 'loading') return <LoadingState message="Loading ops dashboard…" />;
-  if (status === 'failed' && error) {
+  if (isLoading) return <LoadingState message="Loading ops dashboard…" />;
+  if (error) {
     return (
       <ErrorState
         error={error}
         title="Failed to load ops dashboard"
-        onRetry={() => dispatch(opsDashboardRequested())}
+        onRetry={refetch}
       />
     );
   }

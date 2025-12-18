@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect } from 'react'
 import { useUIKey } from '@/store/ui'
 import { Card, Button, Badge, Progress, Input, Select, Breadcrumb, PageHeader, PageContainer } from '@/ui'
 import { DollarSign, Send, Download, Clock, CheckCircle, AlertTriangle, Users, FileText, Mail, ArrowUpRight, ArrowDownRight } from 'lucide-react'
@@ -10,22 +9,14 @@ import { CarriedInterestTracker } from '../fund-admin/carried-interest-tracker'
 import { ExpenseTracker } from '../fund-admin/expense-tracker'
 import { NAVCalculator } from '../fund-admin/nav-calculator'
 import { TransferSecondary } from '../fund-admin/transfer-secondary'
-import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { fundAdminRequested, fundAdminSelectors } from '@/store/slices/backOfficeSlice'
 import { ErrorState, LoadingState } from '@/components/ui/async-states'
 import { formatCurrency } from '@/utils/formatting'
-import { StatusBadge } from '@/components/ui/StatusBadge'
+import { StatusBadge, StatsCard } from '@/components/ui'
+import { useAsyncData } from '@/hooks/useAsyncData'
 
 export function FundAdmin() {
-  const dispatch = useAppDispatch();
-  const data = useAppSelector(fundAdminSelectors.selectData);
-  const status = useAppSelector(fundAdminSelectors.selectStatus);
-  const error = useAppSelector(fundAdminSelectors.selectError);
-
-  // Load fund admin data on mount
-  useEffect(() => {
-    dispatch(fundAdminRequested());
-  }, [dispatch]);
+  const { data, isLoading, error, refetch } = useAsyncData(fundAdminRequested, fundAdminSelectors.selectState);
 
   const { value: ui, patch: patchUI } = useUIKey('back-office-fund-admin', { selectedTab: 'capital-calls' });
   const { selectedTab } = ui;
@@ -37,13 +28,13 @@ export function FundAdmin() {
   const distributions = data?.distributions || [];
   const lpResponses = data?.lpResponses || [];
 
-  if (status === 'loading') return <LoadingState message="Loading fund administration…" />;
-  if (status === 'failed' && error) {
+  if (isLoading) return <LoadingState message="Loading fund administration…" />;
+  if (error) {
     return (
       <ErrorState
         error={error}
         title="Failed to load fund administration"
-        onRetry={() => dispatch(fundAdminRequested())}
+        onRetry={refetch}
       />
     );
   }
@@ -133,79 +124,47 @@ export function FundAdmin() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-warning-bg)]">
-              <ArrowUpRight className="w-6 h-6 text-[var(--app-warning)]" />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--app-text-muted)]">Active Calls</p>
-              <p className="text-2xl font-bold">
-                {capitalCalls.filter(c => c.status === 'in-progress').length}
-              </p>
-              <p className="text-xs text-[var(--app-text-subtle)] mt-1">
-                {formatCurrency(
-                  capitalCalls
-                    .filter(c => c.status === 'in-progress')
-                    .reduce((sum, c) => sum + c.totalAmount, 0)
-                )}
-              </p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="Active Calls"
+          value={capitalCalls.filter(c => c.status === 'in-progress').length}
+          icon={ArrowUpRight}
+          variant="warning"
+          subtitle={formatCurrency(
+            capitalCalls
+              .filter(c => c.status === 'in-progress')
+              .reduce((sum, c) => sum + c.totalAmount, 0)
+          )}
+        />
 
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-success-bg)]">
-              <ArrowDownRight className="w-6 h-6 text-[var(--app-success)]" />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--app-text-muted)]">YTD Distributions</p>
-              <p className="text-2xl font-bold">
-                {distributions.filter(d => d.status === 'completed').length}
-              </p>
-              <p className="text-xs text-[var(--app-text-subtle)] mt-1">
-                {formatCurrency(
-                  distributions
-                    .filter(d => d.status === 'completed')
-                    .reduce((sum, d) => sum + d.totalAmount, 0)
-                )}
-              </p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="YTD Distributions"
+          value={distributions.filter(d => d.status === 'completed').length}
+          icon={ArrowDownRight}
+          variant="success"
+          subtitle={formatCurrency(
+            distributions
+              .filter(d => d.status === 'completed')
+              .reduce((sum, d) => sum + d.totalAmount, 0)
+          )}
+        />
 
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-info-bg)]">
-              <DollarSign className="w-6 h-6 text-[var(--app-info)]" />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--app-text-muted)]">Outstanding</p>
-              <p className="text-2xl font-bold">
-                {formatCurrency(
-                  capitalCalls
-                    .filter(c => c.status === 'in-progress')
-                    .reduce((sum, c) => sum + (c.totalAmount - c.amountReceived), 0)
-                )}
-              </p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="Outstanding"
+          value={formatCurrency(
+            capitalCalls
+              .filter(c => c.status === 'in-progress')
+              .reduce((sum, c) => sum + (c.totalAmount - c.amountReceived), 0)
+          )}
+          icon={DollarSign}
+          variant="primary"
+        />
 
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-primary-bg)]">
-              <Users className="w-6 h-6 text-[var(--app-primary)]" />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--app-text-muted)]">Total LPs</p>
-              <p className="text-2xl font-bold">
-                {Math.max(...capitalCalls.map(c => c.lpCount))}
-              </p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="Total LPs"
+          value={Math.max(...capitalCalls.map(c => c.lpCount))}
+          icon={Users}
+          variant="primary"
+        />
       </div>
 
       {/* Tab Content */}

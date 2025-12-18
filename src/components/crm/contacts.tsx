@@ -11,10 +11,11 @@ import { EmailIntegration, type EmailAccount } from '@/components/crm/email-inte
 import { InteractionTimeline, type TimelineInteraction } from '@/components/crm/interaction-timeline';
 import { NetworkGraph } from './network-graph';
 import { useUIKey } from '@/store/ui';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { crmDataRequested, crmSelectors } from '@/store/slices/crmSlice';
 import type { Contact, Interaction } from '@/services/crm/contactsService';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
+import { StatsCard } from '@/components/ui';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
 interface ContactsUIState {
   contacts: Contact[];
@@ -30,16 +31,8 @@ interface ContactsUIState {
 }
 
 export function Contacts() {
-  const dispatch = useAppDispatch();
   const routeConfig = getRouteConfig('/contacts');
-  const data = useAppSelector(crmSelectors.selectData);
-  const status = useAppSelector(crmSelectors.selectStatus);
-  const error = useAppSelector(crmSelectors.selectError);
-
-  // Load CRM data on mount
-  useEffect(() => {
-    dispatch(crmDataRequested({}));
-  }, [dispatch]);
+  const { data, isLoading, error, refetch } = useAsyncData(crmDataRequested, crmSelectors.selectState, { params: {} });
 
   const mockContacts = data?.contacts || [];
   const mockEmailAccounts = data?.emailAccounts || [];
@@ -73,18 +66,18 @@ export function Contacts() {
   const contacts = mockContacts;
   const emailAccounts = mockEmailAccounts;
 
-  if (status === 'idle' || status === 'loading') return <LoadingState message="Loading contacts…" />;
-  if (status === 'failed' && error) {
+  if (isLoading) return <LoadingState message="Loading contacts…" />;
+  if (error) {
     return (
       <ErrorState
         error={error}
         title="Failed to load contacts"
-        onRetry={() => dispatch(crmDataRequested({}))}
+        onRetry={refetch}
       />
     );
   }
 
-  if (status === 'succeeded' && mockContacts.length === 0) {
+  if (mockContacts.length === 0) {
     return (
       <PageContainer className="space-y-6">
         {routeConfig && (
@@ -224,53 +217,33 @@ export function Contacts() {
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card padding="md">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-[var(--app-primary-bg)]">
-              <Users className="w-5 h-5 text-[var(--app-primary)]" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{contacts.length}</p>
-              <p className="text-xs text-[var(--app-text-muted)]">Total Contacts</p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="Total Contacts"
+          value={contacts.length}
+          icon={Users}
+          variant="primary"
+        />
 
-        <Card padding="md">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-[var(--app-warning-bg)]">
-              <Building2 className="w-5 h-5 text-[var(--app-warning)]" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{contacts.filter(c => c.role === 'founder' || c.role === 'ceo').length}</p>
-              <p className="text-xs text-[var(--app-text-muted)]">Founders</p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="Founders"
+          value={contacts.filter(c => c.role === 'founder' || c.role === 'ceo').length}
+          icon={Building2}
+          variant="warning"
+        />
 
-        <Card padding="md">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-[var(--app-success-bg)]">
-              <Star className="w-5 h-5 text-[var(--app-success)]" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{contacts.filter(c => c.starred).length}</p>
-              <p className="text-xs text-[var(--app-text-muted)]">Starred</p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="Starred"
+          value={contacts.filter(c => c.starred).length}
+          icon={Star}
+          variant="success"
+        />
 
-        <Card padding="md">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-[var(--app-info-bg)]">
-              <Calendar className="w-5 h-5 text-[var(--app-info)]" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{contacts.filter(c => c.nextFollowUp).length}</p>
-              <p className="text-xs text-[var(--app-text-muted)]">Follow-ups Due</p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="Follow-ups Due"
+          value={contacts.filter(c => c.nextFollowUp).length}
+          icon={Calendar}
+          variant="primary"
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
