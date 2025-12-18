@@ -12,7 +12,8 @@
     "test:cov": "vitest run --coverage",
     "cypress": "cypress open",
     "cypress:run": "cypress run",
-    "test:e2e": "start-server-and-test dev http://localhost:3000 cypress:run"
+    "test:e2e": "start-server-and-test dev http://localhost:3000 cypress:run",
+    "prepare": "husky"
   },
   "dependencies": {
     "@apollo/client": "^4.0.11",
@@ -46,6 +47,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
     "cypress": "^13.16.0",
+    "husky": "^9.1.7",
     "jsdom": "^25.0.1",
     "postcss": "^8.4.38",
     "start-server-and-test": "^2.0.8",
