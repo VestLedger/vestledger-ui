@@ -1,6 +1,6 @@
 # VestLedger UI
 
-Next.js frontend for VestLedger dashboards. Connects to VestLedger API via `NEXT_PUBLIC_API_BASE_URL`.
+Next.js frontend for VestLedger dashboards. Connects to VestLedger REST API via `NEXT_PUBLIC_API_BASE_URL`.
 
 ## Prereqs
 - Node 20+
@@ -18,3 +18,8 @@ pnpm install
 
 ## Env
 - `NEXT_PUBLIC_API_BASE_URL` (defaults to `http://localhost:3001`)
+
+
+## OpenAPI
+- Generate TypeScript types: `pnpm run gen:openapi --openapi-spec=</path/or/url>`
+- Or set `OPENAPI_SPEC` env var (defaults to `../vestledger-api/openapi.json`).

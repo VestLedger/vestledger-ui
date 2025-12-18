@@ -1,10 +1,15 @@
 import type { NormalizedError } from '../types/AsyncState';
+import { ApiError, normalizeApiError } from '@/api/errors';
 
 /**
  * Normalize any error into structured format
  * Used by all sagas for consistent error handling
  */
 export function normalizeError(error: unknown): NormalizedError {
+  if (error instanceof ApiError) {
+    return normalizeApiError(error);
+  }
+
   // GraphQL errors
   if (error && typeof error === 'object') {
     if ('graphQLErrors' in error && Array.isArray((error as any).graphQLErrors)) {
