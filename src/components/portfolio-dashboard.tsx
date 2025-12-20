@@ -15,6 +15,7 @@ import {
   Download,
 } from 'lucide-react';
 import { AdvancedTable, ColumnDef } from '@/components/data-table/advanced-table';
+import { PortfolioTabHeader } from '@/components/portfolio-tab-header';
 import {
   getPortfolioAssetAllocation,
   getPortfolioCompanies,
@@ -101,30 +102,28 @@ export function PortfolioDashboard() {
   return (
     <div>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-bold mb-2">Portfolio Management</h2>
-          <p className="text-sm sm:text-base text-[var(--app-text-muted)]">
-            Real-time insights and performance tracking
-          </p>
-        </div>
-        <div className="flex items-center gap-2 sm:gap-3">
-          <Button
-            variant="flat"
-            size="sm"
-            startContent={<Filter className="w-4 h-4" />}
-          >
-            Filters
-          </Button>
-          <Button
-            variant="flat"
-            size="sm"
-            startContent={<Download className="w-4 h-4" />}
-          >
-            Export Report
-          </Button>
-        </div>
-      </div>
+      <PortfolioTabHeader
+        title="Portfolio Management"
+        description="Real-time insights and performance tracking"
+        actions={(
+          <>
+            <Button
+              variant="flat"
+              size="sm"
+              startContent={<Filter className="w-4 h-4" />}
+            >
+              Filters
+            </Button>
+            <Button
+              variant="flat"
+              size="sm"
+              startContent={<Download className="w-4 h-4" />}
+            >
+              Export Report
+            </Button>
+          </>
+        )}
+      />
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

@@ -19,6 +19,7 @@ import {
 import { LoadingState, ErrorState, EmptyState } from '@/components/ui/async-states';
 import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys';
 import { useAsyncData } from '@/hooks/useAsyncData';
+import { PortfolioTabHeader } from '@/components/portfolio-tab-header';
 
 const updateIcons = {
   financial: <DollarSign className="w-5 h-5" />,
@@ -95,16 +96,12 @@ export function PortfolioUpdates() {
   };
 
   return (
-    <PageContainer>
+    <div>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-bold mb-2">Portfolio Updates</h2>
-          <p className="text-sm sm:text-base text-[var(--app-text-muted)]">
-            Latest communications and milestones from portfolio companies
-          </p>
-        </div>
-      </div>
+      <PortfolioTabHeader
+        title="Portfolio Updates"
+        description="Latest communications and milestones from portfolio companies"
+      />
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
@@ -236,6 +233,6 @@ export function PortfolioUpdates() {
           </Button>
         </div>
       )}
-    </PageContainer>
+    </div>
   );
 }

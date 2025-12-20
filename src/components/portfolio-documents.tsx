@@ -4,6 +4,7 @@ import { Plus, Filter, Search, Upload, Download, Eye, FileText, CheckCircle2, Cl
 import { Button, Card, Badge, Input, PageContainer } from '@/ui';
 import { DocumentPreviewModal, useDocumentPreview, getMockDocumentUrl, inferDocumentType } from './documents/preview';
 import { useUIKey } from '@/store/ui';
+import { PortfolioTabHeader } from '@/components/portfolio-tab-header';
 import {
   getPortfolioDocumentsSnapshot,
   type PortfolioDocumentCompany as PortfolioCompany,
@@ -73,16 +74,12 @@ export function PortfolioDocuments() {
   const pendingCount = documents.filter(d => d.status === 'pending-review').length;
 
   return (
-    <PageContainer>
+    <div>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4">
-        <div>
-          <h2 className="text-2xl sm:text-3xl mb-2">Portfolio</h2>
-          <p className="text-sm sm:text-base text-[var(--app-text-muted)]">
-            Document management for portfolio companies
-          </p>
-        </div>
-        <div className="flex items-center gap-2 sm:gap-3">
+      <PortfolioTabHeader
+        title="Portfolio Documents"
+        description="Document management for portfolio companies"
+        actions={(
           <Button
             variant="flat"
             size="sm"
@@ -91,8 +88,8 @@ export function PortfolioDocuments() {
           >
             Upload Document
           </Button>
-        </div>
-      </div>
+        )}
+      />
 
       {/* Attention Items */}
       {(overdueCount > 0 || pendingCount > 0) && (
@@ -347,6 +344,6 @@ export function PortfolioDocuments() {
           onClose={preview.closePreview}
         />
       )}
-    </PageContainer>
+    </div>
   );
 }
