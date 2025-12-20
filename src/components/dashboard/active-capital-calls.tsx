@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { DollarSign, TrendingUp, AlertCircle, Clock, Users, Sparkles } from 'lucide-react';
 import { Card, ProgressBar } from '@/ui';
+import { formatCurrencyCompact } from '@/utils/formatting';
 
 export interface CapitalCall {
   id: string;
@@ -28,15 +29,6 @@ interface ActiveCapitalCallsProps {
 }
 
 export function ActiveCapitalCalls({ calls }: ActiveCapitalCallsProps) {
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      notation: 'compact',
-      maximumFractionDigits: 1,
-    }).format(amount);
-  };
-
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
       month: 'short',
@@ -132,10 +124,10 @@ export function ActiveCapitalCalls({ calls }: ActiveCapitalCallsProps) {
                 <div className="mb-3">
                   <div className="flex items-baseline justify-between mb-1">
                     <span className="text-lg font-bold text-[var(--app-text)]">
-                      {formatCurrency(call.collected)}
+                      {formatCurrencyCompact(call.collected)}
                     </span>
                     <span className="text-sm text-[var(--app-text-muted)]">
-                      of {formatCurrency(call.amount)}
+                      of {formatCurrencyCompact(call.amount)}
                     </span>
                   </div>
 

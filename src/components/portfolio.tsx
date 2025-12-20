@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { Breadcrumb, PageHeader, PageContainer } from '@/ui';
 import { Briefcase, LayoutGrid, FileText, MessageSquare } from 'lucide-react';
 import { PortfolioDashboard } from './portfolio-dashboard';
@@ -8,17 +8,21 @@ import { PortfolioDocuments } from './portfolio-documents';
 import { PortfolioUpdates } from './portfolio-updates';
 import { FundSelector } from './fund-selector';
 import { getRouteConfig } from '@/config/routes';
+import { useUIKey } from '@/store/ui';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 
 export function Portfolio() {
-  const [selected, setSelected] = useState<string>('overview');
+  const { value: ui, patch: patchUI } = useUIKey('portfolio', { selected: 'overview' });
+  const { selected } = ui;
 
   // Get route config for breadcrumbs and AI suggestions
   const routeConfig = getRouteConfig('/portfolio');
 
-  // Mock portfolio metrics for AI summary
-  const totalCompanies = 24;
-  const healthyCompanies = 18;
-  const atRiskCompanies = 3;
+  // TODO: Restore metrics loading via separate metrics slice
+  // For now using placeholder values since we migrated portfolio slice to handle updates only
+  const totalCompanies = 12;
+  const healthyCompanies = 10;
+  const atRiskCompanies = 2;
   const pendingUpdates = 5;
 
   return (
@@ -60,7 +64,7 @@ export function Portfolio() {
           }
         ]}
         activeTab={selected}
-        onTabChange={(tabId) => setSelected(tabId)}
+        onTabChange={(tabId) => patchUI({ selected: tabId })}
         actionContent={<FundSelector />}
       />
 

@@ -1,190 +1,38 @@
 'use client'
 
-import { useState } from 'react';
+import { useUIKey } from '@/store/ui';
 import { Card, Button, Badge, Progress, PageContainer, Breadcrumb, PageHeader } from '@/ui';
 import { TrendingUp, DollarSign, Building2, Download, Eye, Lock, Unlock, Send, FileText, PieChart, BarChart3, Calendar, Users, ArrowUpRight, ArrowDownRight, Activity, UserCheck, Mail } from 'lucide-react';
 import { getRouteConfig } from '@/config/routes';
 import { LPInvestorPortal } from './lp-investor-portal';
 import { AdvancedTable, ColumnDef } from '@/components/data-table/advanced-table';
 import { BulkActionsToolbar, useBulkSelection, BulkAction } from '@/components/bulk-actions-toolbar';
-
-interface LP {
-  id: string;
-  name: string;
-  type: 'institution' | 'family-office' | 'individual' | 'corporate';
-  commitmentAmount: number;
-  calledCapital: number;
-  distributedCapital: number;
-  navValue: number;
-  dpi: number;
-  tvpi: number;
-  irr: number;
-  joinDate: string;
-  contactPerson: string;
-  email: string;
-}
-
-interface Report {
-  id: string;
-  title: string;
-  type: 'quarterly' | 'annual' | 'monthly' | 'special';
-  quarter?: string;
-  year: number;
-  publishedDate: string;
-  status: 'published' | 'draft' | 'scheduled';
-  downloadUrl?: string;
-  viewCount: number;
-}
-
-interface CapitalCall {
-  id: string;
-  callNumber: number;
-  amount: number;
-  dueDate: string;
-  purpose: string;
-  status: 'pending' | 'paid' | 'overdue';
-}
-
-interface Distribution {
-  id: string;
-  distributionNumber: number;
-  amount: number;
-  paymentDate: string;
-  type: 'realized-gains' | 'dividends' | 'return-of-capital';
-  status: 'paid' | 'pending' | 'processing';
-}
-
-const mockLPs: LP[] = [
-  {
-    id: '1',
-    name: 'University Endowment Fund',
-    type: 'institution',
-    commitmentAmount: 50000000,
-    calledCapital: 30000000,
-    distributedCapital: 12000000,
-    navValue: 42000000,
-    dpi: 0.4,
-    tvpi: 1.8,
-    irr: 24.5,
-    joinDate: '2021-03-15',
-    contactPerson: 'Dr. James Wilson',
-    email: 'jwilson@university-endowment.edu'
-  },
-  {
-    id: '2',
-    name: 'Smith Family Office',
-    type: 'family-office',
-    commitmentAmount: 25000000,
-    calledCapital: 20000000,
-    distributedCapital: 8000000,
-    navValue: 28000000,
-    dpi: 0.4,
-    tvpi: 1.8,
-    irr: 22.3,
-    joinDate: '2021-06-20',
-    contactPerson: 'Sarah Smith',
-    email: 'sarah@smithfamilyoffice.com'
-  },
-  {
-    id: '3',
-    name: 'Global Pension Fund',
-    type: 'institution',
-    commitmentAmount: 100000000,
-    calledCapital: 75000000,
-    distributedCapital: 25000000,
-    navValue: 105000000,
-    dpi: 0.33,
-    tvpi: 1.73,
-    irr: 21.8,
-    joinDate: '2021-01-10',
-    contactPerson: 'Michael Chen',
-    email: 'mchen@globalpension.com'
-  }
-];
-
-const mockReports: Report[] = [
-  {
-    id: '1',
-    title: 'Q3 2024 Quarterly Report',
-    type: 'quarterly',
-    quarter: 'Q3',
-    year: 2024,
-    publishedDate: '2024-10-15',
-    status: 'published',
-    viewCount: 45
-  },
-  {
-    id: '2',
-    title: '2023 Annual Report',
-    type: 'annual',
-    year: 2023,
-    publishedDate: '2024-03-31',
-    status: 'published',
-    viewCount: 152
-  },
-  {
-    id: '3',
-    title: 'Q2 2024 Quarterly Report',
-    type: 'quarterly',
-    quarter: 'Q2',
-    year: 2024,
-    publishedDate: '2024-07-15',
-    status: 'published',
-    viewCount: 89
-  },
-  {
-    id: '4',
-    title: 'Q4 2024 Quarterly Report',
-    type: 'quarterly',
-    quarter: 'Q4',
-    year: 2024,
-    publishedDate: '2025-01-15',
-    status: 'draft',
-    viewCount: 0
-  }
-];
-
-const mockCapitalCalls: CapitalCall[] = [
-  {
-    id: '1',
-    callNumber: 8,
-    amount: 15000000,
-    dueDate: '2024-12-15',
-    purpose: 'Series B investment in CloudScale and NeuroLink',
-    status: 'pending'
-  },
-  {
-    id: '2',
-    callNumber: 7,
-    amount: 12000000,
-    dueDate: '2024-09-15',
-    purpose: 'Series A follow-on in Quantum AI',
-    status: 'paid'
-  }
-];
-
-const mockDistributions: Distribution[] = [
-  {
-    id: '1',
-    distributionNumber: 5,
-    amount: 8500000,
-    paymentDate: '2024-11-30',
-    type: 'realized-gains',
-    status: 'paid'
-  },
-  {
-    id: '2',
-    distributionNumber: 4,
-    amount: 3200000,
-    paymentDate: '2024-08-31',
-    type: 'realized-gains',
-    status: 'paid'
-  }
-];
+import {
+  type CapitalCall,
+  type Distribution,
+  type LP,
+  type Report,
+  getLPCapitalCalls,
+  getLPDistributions,
+  getLPReports,
+  getLPs,
+} from '@/services/lpPortal/lpManagementService';
+import { formatCurrency, formatPercent } from '@/utils/formatting';
 
 export function LPManagement() {
-  const [selectedTab, setSelectedTab] = useState<string>('overview');
-  const [selectedLP, setSelectedLP] = useState<LP | null>(null);
+  const { value: ui, patch: patchUI } = useUIKey<{
+    selectedTab: string;
+    selectedLP: LP | null;
+  }>('lp-management', {
+    selectedTab: 'overview',
+    selectedLP: null,
+  });
+  const { selectedTab, selectedLP } = ui;
+
+  const lps = getLPs();
+  const reports = getLPReports();
+  const capitalCalls = getLPCapitalCalls();
+  const distributions = getLPDistributions();
 
   // Bulk selection for LPs
   const {
@@ -193,23 +41,10 @@ export function LPManagement() {
     selectAll,
     clearSelection,
     isSelected,
-  } = useBulkSelection(mockLPs);
+  } = useBulkSelection(lps, 'lp-management:lps');
 
   // Get route config for breadcrumbs and AI suggestions
   const routeConfig = getRouteConfig('/lp-management');
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const formatPercent = (value: number) => {
-    return `${value.toFixed(1)}%`;
-  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -225,11 +60,11 @@ export function LPManagement() {
   };
 
   // Calculate LP metrics for AI summary
-  const totalLPs = mockLPs.length;
-  const totalCommitments = mockLPs.reduce((sum, lp) => sum + lp.commitmentAmount, 0);
-  const averageIRR = (mockLPs.reduce((sum, lp) => sum + lp.irr, 0) / mockLPs.length).toFixed(1);
-  const pendingCapitalCalls = mockCapitalCalls.filter(c => c.status === 'pending').length;
-  const publishedReports = mockReports.filter(r => r.status === 'published').length;
+  const totalLPs = lps.length;
+  const totalCommitments = lps.reduce((sum, lp) => sum + lp.commitmentAmount, 0);
+  const averageIRR = (lps.reduce((sum, lp) => sum + lp.irr, 0) / lps.length).toFixed(1);
+  const pendingCapitalCalls = capitalCalls.filter(c => c.status === 'pending').length;
+  const publishedReports = reports.filter(r => r.status === 'published').length;
 
   // LP Type badge colors
   const getLPTypeBadge = (type: LP['type']) => {
@@ -398,7 +233,7 @@ export function LPManagement() {
           }
         ]}
         activeTab={selectedTab}
-        onTabChange={(tabId) => setSelectedTab(tabId)}
+        onTabChange={(tabId) => patchUI({ selectedTab: tabId })}
       />
 
       {/* Fund Overview Stats */}
@@ -409,7 +244,7 @@ export function LPManagement() {
               <Users className="w-5 h-5 text-[var(--app-primary)]" />
             </div>
             <div>
-              <p className="text-2xl font-bold">{mockLPs.length}</p>
+              <p className="text-2xl font-bold">{lps.length}</p>
               <p className="text-xs text-[var(--app-text-muted)]">Limited Partners</p>
             </div>
           </div>
@@ -421,7 +256,7 @@ export function LPManagement() {
               <DollarSign className="w-5 h-5 text-[var(--app-warning)]" />
             </div>
             <div>
-              <p className="text-2xl font-bold">{formatCurrency(mockLPs.reduce((sum, lp) => sum + lp.commitmentAmount, 0))}</p>
+              <p className="text-2xl font-bold">{formatCurrency(lps.reduce((sum, lp) => sum + lp.commitmentAmount, 0))}</p>
               <p className="text-xs text-[var(--app-text-muted)]">Total Commitments</p>
             </div>
           </div>
@@ -434,7 +269,7 @@ export function LPManagement() {
             </div>
             <div>
               <p className="text-2xl font-bold">
-                {formatPercent(mockLPs.reduce((sum, lp) => sum + lp.irr, 0) / mockLPs.length)}
+                {formatPercent(lps.reduce((sum, lp) => sum + lp.irr, 0) / lps.length)}
               </p>
               <p className="text-xs text-[var(--app-text-muted)]">Average IRR</p>
             </div>
@@ -448,7 +283,7 @@ export function LPManagement() {
             </div>
             <div>
               <p className="text-2xl font-bold">
-                {(mockLPs.reduce((sum, lp) => sum + lp.tvpi, 0) / mockLPs.length).toFixed(2)}x
+                {(lps.reduce((sum, lp) => sum + lp.tvpi, 0) / lps.length).toFixed(2)}x
               </p>
               <p className="text-xs text-[var(--app-text-muted)]">Average TVPI</p>
             </div>
@@ -476,14 +311,15 @@ export function LPManagement() {
           <div className="space-y-4">
             <BulkActionsToolbar
               selectedCount={selectedCount}
-              totalCount={mockLPs.length}
+              totalCount={lps.length}
               onClear={clearSelection}
               onSelectAll={selectAll}
               actions={bulkActions}
             />
 
             <AdvancedTable
-              data={mockLPs}
+              stateKey="lp-management:overview"
+              data={lps}
               columns={lpColumns}
               searchable={true}
               searchPlaceholder="Search LPs by name, contact, or email..."
@@ -492,7 +328,7 @@ export function LPManagement() {
               exportFilename="lp-management-data.csv"
               pageSize={10}
               showColumnToggle={true}
-              onRowClick={(lp) => setSelectedLP(lp)}
+              onRowClick={(lp) => patchUI({ selectedLP: lp })}
             />
           </div>
         )}
@@ -501,7 +337,7 @@ export function LPManagement() {
         {selectedTab === 'reports' && (
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {mockReports.map((report) => (
+              {reports.map((report) => (
                 <Card key={report.id} padding="lg">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-2">
@@ -558,7 +394,7 @@ export function LPManagement() {
                 Capital Calls
               </h3>
               <div className="space-y-3">
-                {mockCapitalCalls.map((call) => (
+                {capitalCalls.map((call) => (
                   <Card key={call.id} padding="md">
                     <div className="flex items-start justify-between mb-3">
                       <div>
@@ -585,7 +421,7 @@ export function LPManagement() {
                 Distributions
               </h3>
               <div className="space-y-3">
-                {mockDistributions.map((dist) => (
+                {distributions.map((dist) => (
                   <Card key={dist.id} padding="md">
                     <div className="flex items-start justify-between mb-3">
                       <div>
@@ -621,7 +457,7 @@ export function LPManagement() {
                 <div className="p-4 rounded-lg bg-[var(--app-success-bg)]">
                   <p className="text-sm text-[var(--app-text-muted)] mb-1">Total Value to Paid-In (TVPI)</p>
                   <p className="text-3xl font-bold text-[var(--app-success)]">
-                    {(mockLPs.reduce((sum, lp) => sum + lp.tvpi, 0) / mockLPs.length).toFixed(2)}x
+                    {(lps.reduce((sum, lp) => sum + lp.tvpi, 0) / lps.length).toFixed(2)}x
                   </p>
                   <p className="text-xs text-[var(--app-text-muted)] mt-1">Average across all LPs</p>
                 </div>
@@ -629,7 +465,7 @@ export function LPManagement() {
                 <div className="p-4 rounded-lg bg-[var(--app-info-bg)]">
                   <p className="text-sm text-[var(--app-text-muted)] mb-1">Distributions to Paid-In (DPI)</p>
                   <p className="text-3xl font-bold text-[var(--app-info)]">
-                    {(mockLPs.reduce((sum, lp) => sum + lp.dpi, 0) / mockLPs.length).toFixed(2)}x
+                    {(lps.reduce((sum, lp) => sum + lp.dpi, 0) / lps.length).toFixed(2)}x
                   </p>
                   <p className="text-xs text-[var(--app-text-muted)] mt-1">Realized returns</p>
                 </div>
@@ -637,7 +473,7 @@ export function LPManagement() {
                 <div className="p-4 rounded-lg bg-[var(--app-primary-bg)]">
                   <p className="text-sm text-[var(--app-text-muted)] mb-1">Internal Rate of Return (IRR)</p>
                   <p className="text-3xl font-bold text-[var(--app-primary)]">
-                    {formatPercent(mockLPs.reduce((sum, lp) => sum + lp.irr, 0) / mockLPs.length)}
+                    {formatPercent(lps.reduce((sum, lp) => sum + lp.irr, 0) / lps.length)}
                   </p>
                   <p className="text-xs text-[var(--app-text-muted)] mt-1">Net to LPs</p>
                 </div>
@@ -646,7 +482,7 @@ export function LPManagement() {
               <div className="border-t border-[var(--app-border)] pt-6">
                 <h4 className="font-medium mb-4">Capital Deployment</h4>
                 <div className="space-y-4">
-                  {mockLPs.map((lp) => (
+                  {lps.map((lp) => (
                     <div key={lp.id}>
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-medium">{lp.name}</span>
@@ -658,6 +494,7 @@ export function LPManagement() {
                         value={(lp.calledCapital / lp.commitmentAmount) * 100}
                         maxValue={100}
                         className="h-2"
+                        aria-label={`${lp.name} capital deployment ${((lp.calledCapital / lp.commitmentAmount) * 100).toFixed(1)}%`}
                       />
                       <p className="text-xs text-[var(--app-text-subtle)] mt-1">
                         {((lp.calledCapital / lp.commitmentAmount) * 100).toFixed(1)}% deployed

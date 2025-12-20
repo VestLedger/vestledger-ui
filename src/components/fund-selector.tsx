@@ -3,16 +3,14 @@
 import { Check, ChevronDown, BarChart3, Layers } from 'lucide-react';
 import { useFund } from '@/contexts/fund-context';
 import { Button, Badge, Card } from '@/ui';
-import { useState } from 'react';
 import { Fund } from '@/types/fund';
+import { useUIKey } from '@/store/ui';
+import { formatCurrencyCompact } from '@/utils/formatting';
 
 export function FundSelector() {
   const { funds, selectedFund, viewMode, setSelectedFund, setViewMode, getFundSummary } = useFund();
-  const [isOpen, setIsOpen] = useState(false);
-
-  const formatCurrency = (amount: number) => {
-    return `$${(amount / 1_000_000).toFixed(0)}M`;
-  };
+  const { value: ui, patch: patchUI } = useUIKey('fund-selector', { isOpen: false });
+  const { isOpen } = ui;
 
   const summary = getFundSummary();
 
@@ -27,7 +25,7 @@ export function FundSelector() {
 
   const handleFundSelect = (fund: Fund | null) => {
     setSelectedFund(fund);
-    setIsOpen(false);
+    patchUI({ isOpen: false });
     if (fund) {
       setViewMode('individual');
     }
@@ -36,7 +34,7 @@ export function FundSelector() {
   const handleConsolidatedView = () => {
     setSelectedFund(null);
     setViewMode('consolidated');
-    setIsOpen(false);
+    patchUI({ isOpen: false });
   };
 
   return (
@@ -46,7 +44,7 @@ export function FundSelector() {
         variant="flat"
         className="w-full justify-between bg-[var(--app-surface-hover)] hover:bg-[var(--app-border-subtle)] text-left"
         endContent={<ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />}
-        onPress={() => setIsOpen(!isOpen)}
+        onPress={() => patchUI({ isOpen: !isOpen })}
       >
         <div className="flex items-center gap-2 flex-1 min-w-0">
           {viewMode === 'consolidated' ? (
@@ -83,7 +81,7 @@ export function FundSelector() {
                     <div>
                       <div className="text-sm font-medium">All Funds (Consolidated)</div>
                       <div className="text-xs text-[var(--app-text-muted)]">
-                        {summary.totalFunds} funds • {formatCurrency(summary.totalCommitment)} AUM
+                        {summary.totalFunds} funds • {formatCurrencyCompact(summary.totalCommitment)} AUM
                       </div>
                     </div>
                   </div>
@@ -117,7 +115,7 @@ export function FundSelector() {
                         </Badge>
                       </div>
                       <div className="text-xs text-[var(--app-text-muted)]">
-                        {formatCurrency(fund.totalCommitment)} • {fund.portfolioCount} companies
+                        {formatCurrencyCompact(fund.totalCommitment)} • {fund.portfolioCount} companies
                       </div>
                       <div className="text-xs text-[var(--app-text-subtle)]">
                         IRR: {fund.irr.toFixed(1)}% • TVPI: {fund.tvpi.toFixed(2)}x
@@ -138,7 +136,7 @@ export function FundSelector() {
       {isOpen && (
         <div
           className="fixed inset-0 z-40"
-          onClick={() => setIsOpen(false)}
+          onClick={() => patchUI({ isOpen: false })}
         />
       )}
     </div>

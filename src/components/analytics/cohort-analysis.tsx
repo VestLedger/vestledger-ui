@@ -1,9 +1,14 @@
 'use client'
 
-import { useState } from 'react';
 import { Card, Button, Badge } from '@/ui';
 import { Layers, TrendingUp, ArrowUpRight, ArrowDownRight } from 'lucide-react';
-import { cohortsByVintage, cohortsBySector, cohortsByStage, type CohortPerformance } from '@/data/mock-fund-analytics-data';
+import {
+  getCohortsBySector,
+  getCohortsByStage,
+  getCohortsByVintage,
+  type CohortPerformance,
+} from '@/services/analytics/fundAnalyticsService';
+import { useUIKey } from '@/store/ui';
 
 type CohortType = 'vintage' | 'sector' | 'stage';
 
@@ -99,7 +104,13 @@ function CohortRow({ cohort, bestMOIC, bestIRR }: CohortRowProps) {
 }
 
 export function CohortAnalysis() {
-  const [selectedType, setSelectedType] = useState<CohortType>('vintage');
+  const cohortsByVintage = getCohortsByVintage();
+  const cohortsBySector = getCohortsBySector();
+  const cohortsByStage = getCohortsByStage();
+  const { value: ui, patch: patchUI } = useUIKey<{ selectedType: CohortType }>('cohort-analysis', {
+    selectedType: 'vintage',
+  });
+  const { selectedType } = ui;
 
   const getCohortData = (): CohortPerformance[] => {
     switch (selectedType) {
@@ -139,7 +150,7 @@ export function CohortAnalysis() {
             <Button
               variant={selectedType === 'vintage' ? 'solid' : 'flat'}
               size="sm"
-              onPress={() => setSelectedType('vintage')}
+              onPress={() => patchUI({ selectedType: 'vintage' })}
               className={selectedType === 'vintage' ? 'bg-[var(--app-primary)] text-white' : ''}
             >
               By Vintage
@@ -147,7 +158,7 @@ export function CohortAnalysis() {
             <Button
               variant={selectedType === 'sector' ? 'solid' : 'flat'}
               size="sm"
-              onPress={() => setSelectedType('sector')}
+              onPress={() => patchUI({ selectedType: 'sector' })}
               className={selectedType === 'sector' ? 'bg-[var(--app-primary)] text-white' : ''}
             >
               By Sector
@@ -155,7 +166,7 @@ export function CohortAnalysis() {
             <Button
               variant={selectedType === 'stage' ? 'solid' : 'flat'}
               size="sm"
-              onPress={() => setSelectedType('stage')}
+              onPress={() => patchUI({ selectedType: 'stage' })}
               className={selectedType === 'stage' ? 'bg-[var(--app-primary)] text-white' : ''}
             >
               By Stage

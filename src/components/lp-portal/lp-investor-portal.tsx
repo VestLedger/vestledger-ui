@@ -1,129 +1,37 @@
 'use client'
 
-import { useState } from 'react';
 import { Card, Button, Badge, Progress } from '@/ui';
 import { Tabs, Tab } from '@/ui';
 import { TrendingUp, DollarSign, Download, FileText, Calendar, Activity, BarChart3, PieChart, ArrowUpRight, ArrowDownRight } from 'lucide-react';
-
-interface InvestorData {
-  name: string;
-  fundName: string;
-  commitmentAmount: number;
-  calledCapital: number;
-  distributedCapital: number;
-  navValue: number;
-  dpi: number;
-  tvpi: number;
-  rvpi: number;
-  irr: number;
-  moic: number;
-  joinDate: string;
-  lastUpdate: string;
-}
-
-interface QuarterlyReport {
-  id: string;
-  quarter: string;
-  year: number;
-  publishedDate: string;
-  downloadUrl: string;
-}
-
-interface Transaction {
-  id: string;
-  type: 'capital-call' | 'distribution';
-  amount: number;
-  date: string;
-  description: string;
-  status: 'completed' | 'pending';
-}
-
-const mockInvestorData: InvestorData = {
-  name: 'University Endowment Fund',
-  fundName: 'Acme Ventures Fund II',
-  commitmentAmount: 50000000,
-  calledCapital: 30000000,
-  distributedCapital: 12000000,
-  navValue: 42000000,
-  dpi: 0.4,
-  tvpi: 1.8,
-  rvpi: 1.4,
-  irr: 24.5,
-  moic: 1.8,
-  joinDate: '2021-03-15',
-  lastUpdate: '2024-11-28'
-};
-
-const mockReports: QuarterlyReport[] = [
-  {
-    id: '1',
-    quarter: 'Q3',
-    year: 2024,
-    publishedDate: '2024-10-15',
-    downloadUrl: '#'
-  },
-  {
-    id: '2',
-    quarter: 'Q2',
-    year: 2024,
-    publishedDate: '2024-07-15',
-    downloadUrl: '#'
-  },
-  {
-    id: '3',
-    quarter: 'Q1',
-    year: 2024,
-    publishedDate: '2024-04-15',
-    downloadUrl: '#'
-  }
-];
-
-const mockTransactions: Transaction[] = [
-  {
-    id: '1',
-    type: 'distribution',
-    amount: 2500000,
-    date: '2024-11-30',
-    description: 'Q3 2024 Distribution - CloudScale exit proceeds',
-    status: 'completed'
-  },
-  {
-    id: '2',
-    type: 'capital-call',
-    amount: 3000000,
-    date: '2024-12-15',
-    description: 'Capital Call #8 - Series B investments',
-    status: 'pending'
-  },
-  {
-    id: '3',
-    type: 'distribution',
-    amount: 1800000,
-    date: '2024-08-31',
-    description: 'Q2 2024 Distribution - Portfolio returns',
-    status: 'completed'
-  },
-  {
-    id: '4',
-    type: 'capital-call',
-    amount: 2500000,
-    date: '2024-09-15',
-    description: 'Capital Call #7 - Follow-on investments',
-    status: 'completed'
-  }
-];
+import { useUIKey } from '@/store/ui';
+import { lpPortalRequested, lpPortalSelectors } from '@/store/slices/miscSlice';
+import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
+import { formatCurrency } from '@/utils/formatting';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function LPInvestorPortal() {
-  const [selectedTab, setSelectedTab] = useState<string>('overview');
+  const { data, isLoading, error, refetch } = useAsyncData(lpPortalRequested, lpPortalSelectors.selectState);
+  const { value: ui, patch: patchUI } = useUIKey('lp-investor-portal', { selectedTab: 'overview' });
+  const { selectedTab } = ui;
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
+  if (isLoading) return <LoadingState message="Loading LP portal…" />;
+  if (error) {
+    return (
+      <ErrorState
+        error={error}
+        title="Failed to load LP portal"
+        onRetry={refetch}
+      />
+    );
+  }
+
+  const investor = data?.investor;
+  if (!investor) {
+    return <EmptyState icon={PieChart} title="No investor data available" message="Try again in a moment." />;
+  }
+
+  const reports = data?.reports || [];
+  const transactions = data?.transactions || [];
 
   const formatPercent = (value: number) => {
     return `${value.toFixed(1)}%`;
@@ -134,9 +42,9 @@ export function LPInvestorPortal() {
       {/* Header */}
       <div className="bg-gradient-to-r from-[var(--app-primary)] to-[var(--app-accent)] text-white p-8">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold mb-2">{mockInvestorData.fundName}</h1>
-          <p className="text-lg opacity-90">{mockInvestorData.name}</p>
-          <p className="text-sm opacity-75 mt-1">Last updated: {new Date(mockInvestorData.lastUpdate).toLocaleDateString()}</p>
+          <h1 className="text-3xl font-bold mb-2">{investor.fundName}</h1>
+          <p className="text-lg opacity-90">{investor.name}</p>
+          <p className="text-sm opacity-75 mt-1">Last updated: {new Date(investor.lastUpdate).toLocaleDateString()}</p>
         </div>
       </div>
 
@@ -145,41 +53,42 @@ export function LPInvestorPortal() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card padding="lg">
             <p className="text-sm text-[var(--app-text-muted)] mb-1">Total Commitment</p>
-            <p className="text-2xl font-bold">{formatCurrency(mockInvestorData.commitmentAmount)}</p>
+            <p className="text-2xl font-bold">{formatCurrency(investor.commitmentAmount)}</p>
             <Progress
-              value={(mockInvestorData.calledCapital / mockInvestorData.commitmentAmount) * 100}
+              value={(investor.calledCapital / investor.commitmentAmount) * 100}
               maxValue={100}
               className="h-2 mt-3"
+              aria-label={`Capital deployment ${((investor.calledCapital / investor.commitmentAmount) * 100).toFixed(0)}%`}
             />
             <p className="text-xs text-[var(--app-text-subtle)] mt-1">
-              {((mockInvestorData.calledCapital / mockInvestorData.commitmentAmount) * 100).toFixed(0)}% deployed
+              {((investor.calledCapital / investor.commitmentAmount) * 100).toFixed(0)}% deployed
             </p>
           </Card>
 
           <Card padding="lg">
             <p className="text-sm text-[var(--app-text-muted)] mb-1">Net Asset Value</p>
-            <p className="text-2xl font-bold text-[var(--app-success)]">{formatCurrency(mockInvestorData.navValue)}</p>
+            <p className="text-2xl font-bold text-[var(--app-success)]">{formatCurrency(investor.navValue)}</p>
             <div className="flex items-center gap-1 mt-3 text-[var(--app-success)]">
               <TrendingUp className="w-4 h-4" />
               <span className="text-sm font-medium">
-                {((mockInvestorData.navValue / mockInvestorData.calledCapital - 1) * 100).toFixed(1)}%
+                {((investor.navValue / investor.calledCapital - 1) * 100).toFixed(1)}%
               </span>
             </div>
           </Card>
 
           <Card padding="lg">
             <p className="text-sm text-[var(--app-text-muted)] mb-1">Distributions</p>
-            <p className="text-2xl font-bold text-[var(--app-info)]">{formatCurrency(mockInvestorData.distributedCapital)}</p>
+            <p className="text-2xl font-bold text-[var(--app-info)]">{formatCurrency(investor.distributedCapital)}</p>
             <p className="text-xs text-[var(--app-text-subtle)] mt-3">
-              DPI: {mockInvestorData.dpi.toFixed(2)}x
+              DPI: {investor.dpi.toFixed(2)}x
             </p>
           </Card>
 
           <Card padding="lg">
             <p className="text-sm text-[var(--app-text-muted)] mb-1">IRR</p>
-            <p className="text-2xl font-bold text-[var(--app-primary)]">{formatPercent(mockInvestorData.irr)}</p>
+            <p className="text-2xl font-bold text-[var(--app-primary)]">{formatPercent(investor.irr)}</p>
             <p className="text-xs text-[var(--app-text-subtle)] mt-3">
-              TVPI: {mockInvestorData.tvpi.toFixed(2)}x
+              TVPI: {investor.tvpi.toFixed(2)}x
             </p>
           </Card>
         </div>
@@ -190,27 +99,27 @@ export function LPInvestorPortal() {
           <div className="grid grid-cols-3 gap-6">
             <div className="text-center p-4 rounded-lg bg-[var(--app-surface-hover)]">
               <p className="text-sm text-[var(--app-text-muted)] mb-2">Total Value to Paid-In</p>
-              <p className="text-3xl font-bold text-[var(--app-success)]">{mockInvestorData.tvpi.toFixed(2)}x</p>
+              <p className="text-3xl font-bold text-[var(--app-success)]">{investor.tvpi.toFixed(2)}x</p>
               <p className="text-xs text-[var(--app-text-subtle)] mt-1">
-                {formatCurrency(mockInvestorData.navValue + mockInvestorData.distributedCapital)} total value
+                {formatCurrency(investor.navValue + investor.distributedCapital)} total value
               </p>
             </div>
 
             <div className="text-center p-4 rounded-lg bg-[var(--app-surface-hover)]">
               <p className="text-sm text-[var(--app-text-muted)] mb-2">Distributions to Paid-In</p>
-              <p className="text-3xl font-bold text-[var(--app-info)]">{mockInvestorData.dpi.toFixed(2)}x</p>
+              <p className="text-3xl font-bold text-[var(--app-info)]">{investor.dpi.toFixed(2)}x</p>
               <p className="text-xs text-[var(--app-text-subtle)] mt-1">Realized returns</p>
             </div>
 
             <div className="text-center p-4 rounded-lg bg-[var(--app-surface-hover)]">
               <p className="text-sm text-[var(--app-text-muted)] mb-2">Residual Value to Paid-In</p>
-              <p className="text-3xl font-bold text-[var(--app-primary)]">{mockInvestorData.rvpi.toFixed(2)}x</p>
+              <p className="text-3xl font-bold text-[var(--app-primary)]">{investor.rvpi.toFixed(2)}x</p>
               <p className="text-xs text-[var(--app-text-subtle)] mt-1">Unrealized value</p>
             </div>
           </div>
         </Card>
 
-        <Tabs selectedKey={selectedTab} onSelectionChange={(key) => setSelectedTab(key as string)}>
+        <Tabs selectedKey={selectedTab} onSelectionChange={(key) => patchUI({ selectedTab: key as string })}>
           {/* Reports Tab */}
           <Tab
             key="reports"
@@ -222,7 +131,7 @@ export function LPInvestorPortal() {
             }
           >
             <div className="mt-4 space-y-3">
-              {mockReports.map((report) => (
+              {reports.map((report) => (
                 <Card key={report.id} padding="md">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -259,7 +168,7 @@ export function LPInvestorPortal() {
             }
           >
             <div className="mt-4 space-y-3">
-              {mockTransactions.map((transaction) => (
+              {transactions.map((transaction) => (
                 <Card key={transaction.id} padding="md">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3">
@@ -333,7 +242,7 @@ export function LPInvestorPortal() {
                       <span className="text-sm font-medium">Early Stage (Seed/Series A)</span>
                       <span className="text-sm text-[var(--app-text-muted)]">45%</span>
                     </div>
-                    <Progress value={45} maxValue={100} className="h-2" />
+                    <Progress value={45} maxValue={100} className="h-2" aria-label="Early Stage portfolio 45%" />
                   </div>
 
                   <div>
@@ -341,7 +250,7 @@ export function LPInvestorPortal() {
                       <span className="text-sm font-medium">Growth Stage (Series B+)</span>
                       <span className="text-sm text-[var(--app-text-muted)]">35%</span>
                     </div>
-                    <Progress value={35} maxValue={100} className="h-2" />
+                    <Progress value={35} maxValue={100} className="h-2" aria-label="Growth Stage portfolio 35%" />
                   </div>
 
                   <div>
@@ -349,7 +258,7 @@ export function LPInvestorPortal() {
                       <span className="text-sm font-medium">Realized/Exits</span>
                       <span className="text-sm text-[var(--app-text-muted)]">20%</span>
                     </div>
-                    <Progress value={20} maxValue={100} className="h-2" />
+                    <Progress value={20} maxValue={100} className="h-2" aria-label="Realized Exits portfolio 20%" />
                   </div>
                 </div>
               </Card>
@@ -372,28 +281,28 @@ export function LPInvestorPortal() {
                 <div className="grid grid-cols-2 gap-6">
                   <div>
                     <p className="text-sm text-[var(--app-text-muted)] mb-1">Investor</p>
-                    <p className="font-medium">{mockInvestorData.name}</p>
+                    <p className="font-medium">{investor.name}</p>
                   </div>
                   <div>
                     <p className="text-sm text-[var(--app-text-muted)] mb-1">Fund</p>
-                    <p className="font-medium">{mockInvestorData.fundName}</p>
+                    <p className="font-medium">{investor.fundName}</p>
                   </div>
                   <div>
                     <p className="text-sm text-[var(--app-text-muted)] mb-1">Investment Date</p>
-                    <p className="font-medium">{new Date(mockInvestorData.joinDate).toLocaleDateString()}</p>
+                    <p className="font-medium">{new Date(investor.joinDate).toLocaleDateString()}</p>
                   </div>
                   <div>
                     <p className="text-sm text-[var(--app-text-muted)] mb-1">Commitment</p>
-                    <p className="font-medium">{formatCurrency(mockInvestorData.commitmentAmount)}</p>
+                    <p className="font-medium">{formatCurrency(investor.commitmentAmount)}</p>
                   </div>
                   <div>
                     <p className="text-sm text-[var(--app-text-muted)] mb-1">Called to Date</p>
-                    <p className="font-medium">{formatCurrency(mockInvestorData.calledCapital)}</p>
+                    <p className="font-medium">{formatCurrency(investor.calledCapital)}</p>
                   </div>
                   <div>
                     <p className="text-sm text-[var(--app-text-muted)] mb-1">Remaining Commitment</p>
                     <p className="font-medium">
-                      {formatCurrency(mockInvestorData.commitmentAmount - mockInvestorData.calledCapital)}
+                      {formatCurrency(investor.commitmentAmount - investor.calledCapital)}
                     </p>
                   </div>
                 </div>

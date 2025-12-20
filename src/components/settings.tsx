@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useUIKey } from '@/store/ui';
 import { Card, Button, Input, PageContainer, PageHeader, Breadcrumb, Badge } from '@/ui';
 import {
   User,
@@ -76,9 +76,14 @@ const settingsSections: SettingsSection[] = [
 
 export function Settings() {
   const routeConfig = getRouteConfig('/settings');
-  const [activeSection, setActiveSection] = useState('profile');
-  const [showPassword, setShowPassword] = useState(false);
-  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+  const { value: settingsUI, patch: patchSettingsUI } = useUIKey('settings', {
+    activeSection: 'profile',
+    showPassword: false,
+    twoFactorEnabled: false,
+  });
+  const activeSection = settingsUI.activeSection;
+  const showPassword = settingsUI.showPassword;
+  const twoFactorEnabled = settingsUI.twoFactorEnabled;
 
   const renderSectionContent = () => {
     switch (activeSection) {
@@ -178,7 +183,7 @@ export function Settings() {
                     placeholder="Enter current password"
                     startContent={<Lock className="w-4 h-4" />}
                     endContent={
-                      <button onClick={() => setShowPassword(!showPassword)}>
+                      <button onClick={() => patchSettingsUI({ showPassword: !showPassword })}>
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
                     }
@@ -214,7 +219,7 @@ export function Settings() {
                 <Button
                   color={twoFactorEnabled ? "default" : "primary"}
                   variant={twoFactorEnabled ? "bordered" : "solid"}
-                  onClick={() => setTwoFactorEnabled(!twoFactorEnabled)}
+                  onClick={() => patchSettingsUI({ twoFactorEnabled: !twoFactorEnabled })}
                 >
                   {twoFactorEnabled ? 'Disable' : 'Enable'} 2FA
                 </Button>
@@ -458,13 +463,16 @@ export function Settings() {
 
   return (
     <PageContainer>
-      <Breadcrumb items={routeConfig?.breadcrumbs || []} />
+      <div className="mb-4">
+        <Breadcrumb items={routeConfig?.breadcrumbs || []} aiSuggestion={routeConfig?.aiSuggestion} />
+      </div>
+
       <PageHeader
         title="Settings"
         description="Manage your account settings and preferences"
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="mt-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Settings Navigation */}
         <div className="lg:col-span-1">
           <Card padding="sm">
@@ -475,7 +483,7 @@ export function Settings() {
                 return (
                   <button
                     key={section.id}
-                    onClick={() => setActiveSection(section.id)}
+                    onClick={() => patchSettingsUI({ activeSection: section.id })}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                       isActive
                         ? 'bg-[var(--app-primary-bg)] text-[var(--app-primary)]'

@@ -1,77 +1,42 @@
 'use client'
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Filter, Grid, List, GitBranch } from 'lucide-react';
 import { DealCard } from '@/components/deal-card';
 import { Button, Card, Badge, Progress, Breadcrumb, PageHeader, PageContainer } from '@/ui';
 import { ButtonGroup, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@nextui-org/react';
 import { getRouteConfig } from '@/config/routes';
 import { KanbanBoard } from '@/components/kanban-board';
-import { setGlobalSuggestions, clearGlobalSuggestions } from './ai-copilot-sidebar';
-
-type DealOutcome = 'active' | 'won' | 'lost' | 'withdrawn' | 'passed';
-
-interface Deal {
-  id: number;
-  name: string;
-  stage: string;
-  outcome: DealOutcome;
-  sector: string;
-  amount: string;
-  probability: number;
-  founder: string;
-  lastContact: string;
-}
-
-const stages = ['Sourced', 'First Meeting', 'Due Diligence', 'Term Sheet', 'Closed'];
-
-const deals: Deal[] = [
-  { id: 1, name: 'Quantum AI', stage: 'Due Diligence', outcome: 'active', sector: 'AI/ML', amount: '$2.5M', probability: 75, founder: 'Sarah Chen', lastContact: '2 days ago' },
-  { id: 2, name: 'BioTech Labs', stage: 'Term Sheet', outcome: 'active', sector: 'Healthcare', amount: '$1.8M', probability: 85, founder: 'Dr. James Wilson', lastContact: '1 day ago' },
-  { id: 3, name: 'CloudScale', stage: 'Due Diligence', outcome: 'active', sector: 'SaaS', amount: '$3.2M', probability: 70, founder: 'Maria Rodriguez', lastContact: '3 days ago' },
-  { id: 4, name: 'FinFlow', stage: 'First Meeting', outcome: 'active', sector: 'FinTech', amount: '$2.0M', probability: 45, founder: 'Alex Kumar', lastContact: '1 week ago' },
-  { id: 5, name: 'DataStream', stage: 'Sourced', outcome: 'active', sector: 'Analytics', amount: '$1.5M', probability: 30, founder: 'Emma Thompson', lastContact: '2 weeks ago' },
-  { id: 6, name: 'EcoEnergy', stage: 'First Meeting', outcome: 'active', sector: 'CleanTech', amount: '$4.0M', probability: 50, founder: 'John Park', lastContact: '5 days ago' },
-  { id: 7, name: 'NeuroLink', stage: 'Due Diligence', outcome: 'active', sector: 'MedTech', amount: '$2.8M', probability: 80, founder: 'Lisa Zhang', lastContact: '1 day ago' },
-  { id: 8, name: 'SpaceLogix', stage: 'Sourced', outcome: 'active', sector: 'Aerospace', amount: '$5.0M', probability: 25, founder: 'Mike Anderson', lastContact: '3 weeks ago' },
-  // Closed deals
-  { id: 9, name: 'TechVision', stage: 'Closed', outcome: 'won', sector: 'AI/ML', amount: '$3.5M', probability: 100, founder: 'Rachel Kim', lastContact: '1 month ago' },
-  { id: 10, name: 'HealthPlus', stage: 'Closed', outcome: 'lost', sector: 'Healthcare', amount: '$2.2M', probability: 0, founder: 'Tom Chen', lastContact: '2 months ago' },
-  { id: 11, name: 'GreenTech', stage: 'Closed', outcome: 'withdrawn', sector: 'CleanTech', amount: '$1.8M', probability: 0, founder: 'Sam Park', lastContact: '3 months ago' },
-];
+import { useAppDispatch } from '@/store/hooks';
+import { setSuggestionsOverride } from '@/store/slices/copilotSlice';
+import { pipelineDataRequested, dealStageUpdated, pipelineSelectors } from '@/store/slices/pipelineSlice';
+import { useUIKey } from '@/store/ui';
+import { ErrorState, LoadingState } from '@/components/ui/async-states';
+import type { PipelineDeal as Deal, PipelineDealOutcome as DealOutcome } from '@/services/pipelineService';
+import { useAsyncData } from '@/hooks/useAsyncData';
+import { dealOutcomeClasses } from '@/utils/styling';
 
 export function Pipeline() {
-  const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
-  const [showClosedDeals, setShowClosedDeals] = useState(false);
-  const [localDeals, setLocalDeals] = useState(deals);
+  const dispatch = useAppDispatch();
+  const { data, isLoading, error, refetch } = useAsyncData(pipelineDataRequested, pipelineSelectors.selectState, { params: {} });
 
-  const getOutcomeBadgeClass = (outcome: DealOutcome) => {
-    switch (outcome) {
-      case 'won':
-        return 'bg-[var(--app-success-bg)] text-[var(--app-success)] border-[var(--app-success)]';
-      case 'lost':
-        return 'bg-[var(--app-danger-bg)] text-[var(--app-danger)] border-[var(--app-danger)]';
-      case 'withdrawn':
-        return 'bg-[var(--app-text-muted)]/10 text-[var(--app-text-muted)] border-[var(--app-text-muted)]';
-      case 'passed':
-        return 'bg-[var(--app-warning-bg)] text-[var(--app-warning)] border-[var(--app-warning)]';
-      default:
-        return '';
-    }
-  };
+  const pipelineStages = data?.stages || [];
+  const pipelineDeals = data?.deals || [];
+  const pipelineCopilotSuggestions = data?.copilotSuggestions || [];
 
-  const filteredDeals = showClosedDeals ? localDeals : localDeals.filter(d => d.outcome === 'active');
-  const activeDealsCount = localDeals.filter(d => d.outcome === 'active').length;
-  const closedDealsCount = localDeals.filter(d => d.outcome !== 'active').length;
+  const { value: pipelineUI, patch: patchPipelineUI } = useUIKey('pipeline', {
+    viewMode: 'kanban' as 'kanban' | 'list',
+    showClosedDeals: false,
+  });
+  const viewMode = pipelineUI.viewMode;
+  const showClosedDeals = pipelineUI.showClosedDeals;
+
+  const filteredDeals = showClosedDeals ? pipelineDeals : pipelineDeals.filter(d => d.outcome === 'active');
+  const activeDealsCount = pipelineDeals.filter(d => d.outcome === 'active').length;
+  const closedDealsCount = pipelineDeals.filter(d => d.outcome !== 'active').length;
 
   const handleItemMove = (itemId: number | string, newStage: string) => {
-    setLocalDeals(prevDeals =>
-      prevDeals.map(deal =>
-        deal.id === itemId
-          ? { ...deal, stage: newStage }
-          : deal
-      )
-    );
+    dispatch(dealStageUpdated({ dealId: itemId, newStage }));
   };
 
   // Get route config for breadcrumbs and AI suggestions
@@ -86,19 +51,13 @@ export function Pipeline() {
 
   // Surface the inbound deal-flow suggestion inside the Copilot suggestions panel when on this page
   useEffect(() => {
-    setGlobalSuggestions([
-      {
-        id: 'pipeline-inbound',
-        text: 'Publish the startup application form',
-        reasoning: 'Auto-enrich the pipeline with AI-scored inbound deals and prioritize high-match submissions.',
-        confidence: 0.82,
-      },
-    ]);
-
+    if (pipelineCopilotSuggestions.length > 0) {
+      dispatch(setSuggestionsOverride(pipelineCopilotSuggestions));
+    }
     return () => {
-      clearGlobalSuggestions();
+      dispatch(setSuggestionsOverride(null));
     };
-  }, []);
+  }, [dispatch, pipelineCopilotSuggestions]);
 
   return (
     <PageContainer>
@@ -138,6 +97,15 @@ export function Pipeline() {
         </div>
       </PageHeader>
 
+      {isLoading && <LoadingState message="Loading pipeline…" fullHeight={false} />}
+      {error && (
+        <ErrorState
+          error={error}
+          title="Failed to load pipeline"
+          onRetry={refetch}
+        />
+      )}
+
       {/* Action Bar */}
       <div className="flex items-center gap-2 sm:gap-3 mb-6">
         <Button variant="bordered" className="text-[var(--app-text-muted)]" startContent={<Filter className="w-4 h-4" />}>
@@ -147,7 +115,7 @@ export function Pipeline() {
           <Button
             isIconOnly
             variant={viewMode === 'kanban' ? 'solid' : 'bordered'}
-            onPress={() => setViewMode('kanban')}
+            onPress={() => patchPipelineUI({ viewMode: 'kanban' })}
             aria-label="Kanban view"
           >
             <Grid className="w-4 h-4" />
@@ -155,7 +123,7 @@ export function Pipeline() {
           <Button
             isIconOnly
             variant={viewMode === 'list' ? 'solid' : 'bordered'}
-            onPress={() => setViewMode('list')}
+            onPress={() => patchPipelineUI({ viewMode: 'list' })}
             aria-label="List view"
           >
             <List className="w-4 h-4" />
@@ -165,7 +133,7 @@ export function Pipeline() {
 
       {viewMode === 'kanban' ? (
         <KanbanBoard
-          columns={stages.map(stage => ({
+          columns={pipelineStages.map(stage => ({
             id: stage,
             title: stage,
             items: filteredDeals
@@ -200,7 +168,7 @@ export function Pipeline() {
                       <div className="flex flex-col">
                         <span>{deal.name}</span>
                         {deal.outcome !== 'active' && (
-                          <Badge size="sm" variant="flat" className={`${getOutcomeBadgeClass(deal.outcome)} mt-1 w-fit`}>
+                          <Badge size="sm" variant="flat" className={`${dealOutcomeClasses[deal.outcome as keyof typeof dealOutcomeClasses] || ''} mt-1 w-fit`}>
                             {deal.outcome}
                           </Badge>
                         )}
@@ -221,6 +189,7 @@ export function Pipeline() {
                         size="sm"
                         color="primary"
                         className="w-16"
+                        aria-label={`${deal.name} probability ${deal.probability}%`}
                       />
                       <span className="text-sm text-[var(--app-text-muted)] w-8">{deal.probability}%</span>
                     </div>

@@ -1,51 +1,88 @@
-import { useState } from 'react';
+import { useCallback } from 'react';
+import { useUIKey } from '@/store/ui';
 import { PreviewDocument } from '../types';
 
 export function useDocumentPreview() {
-  const [previewDocument, setPreviewDocument] = useState<PreviewDocument | null>(null);
-  const [previewDocuments, setPreviewDocuments] = useState<PreviewDocument[]>([]);
-  const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const { value: ui, patch: patchUI } = useUIKey<{
+    previewDocument: PreviewDocument | null;
+    previewDocuments: PreviewDocument[];
+    currentIndex: number;
+  }>('document-preview', {
+    previewDocument: null,
+    previewDocuments: [],
+    currentIndex: 0,
+  });
+  const { previewDocument, previewDocuments, currentIndex } = ui;
 
-  const openPreview = (document: PreviewDocument, documents?: PreviewDocument[]) => {
-    setPreviewDocument(document);
-    if (documents && documents.length > 0) {
-      setPreviewDocuments(documents);
-      const index = documents.findIndex((d) => d.id === document.id);
-      setCurrentIndex(index >= 0 ? index : 0);
-    } else {
-      setPreviewDocuments([document]);
-      setCurrentIndex(0);
-    }
-  };
+  const openPreview = useCallback(
+    (document: PreviewDocument, documents?: PreviewDocument[]) => {
+      if (documents && documents.length > 0) {
+        const index = documents.findIndex((d) => d.id === document.id);
+        patchUI({
+          previewDocument: document,
+          previewDocuments: documents,
+          currentIndex: index >= 0 ? index : 0,
+        });
+      } else {
+        patchUI({
+          previewDocument: document,
+          previewDocuments: [document],
+          currentIndex: 0,
+        });
+      }
+    },
+    [patchUI]
+  );
 
-  const closePreview = () => {
-    setPreviewDocument(null);
-    setPreviewDocuments([]);
-    setCurrentIndex(0);
-  };
+  const closePreview = useCallback(() => {
+    patchUI({
+      previewDocument: null,
+      previewDocuments: [],
+      currentIndex: 0,
+    });
+  }, [patchUI]);
 
-  const navigateToDocument = (index: number) => {
-    if (index >= 0 && index < previewDocuments.length) {
-      setCurrentIndex(index);
-      setPreviewDocument(previewDocuments[index]);
-    }
-  };
+  const navigateToDocument = useCallback(
+    (index: number) => {
+      if (index >= 0 && index < previewDocuments.length) {
+        patchUI({
+          currentIndex: index,
+          previewDocument: previewDocuments[index],
+        });
+      }
+    },
+    [patchUI, previewDocuments]
+  );
 
-  const navigateNext = () => {
+  const navigateNext = useCallback(() => {
     if (currentIndex < previewDocuments.length - 1) {
       navigateToDocument(currentIndex + 1);
     }
-  };
+  }, [currentIndex, navigateToDocument, previewDocuments.length]);
 
-  const navigatePrevious = () => {
+  const navigatePrevious = useCallback(() => {
     if (currentIndex > 0) {
       navigateToDocument(currentIndex - 1);
     }
-  };
+  }, [currentIndex, navigateToDocument]);
 
   const canNavigateNext = currentIndex < previewDocuments.length - 1;
   const canNavigatePrevious = currentIndex > 0;
   const hasMultipleDocuments = previewDocuments.length > 1;
+
+  const setPreviewDocument = useCallback(
+    (document: PreviewDocument | null) => {
+      patchUI({ previewDocument: document });
+    },
+    [patchUI]
+  );
+
+  const setCurrentIndex = useCallback(
+    (index: number) => {
+      patchUI({ currentIndex: index });
+    },
+    [patchUI]
+  );
 
   return {
     previewDocument,

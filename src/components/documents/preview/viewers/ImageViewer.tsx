@@ -1,23 +1,25 @@
 'use client';
 
-import { useState } from 'react';
 import Zoom from 'react-medium-image-zoom';
 import { Spinner } from '@/ui';
 import { ImageViewerProps } from '../types';
 import 'react-medium-image-zoom/dist/styles.css';
+import { useUIKey } from '@/store/ui';
 
 export function ImageViewer({ url, alt, className = '', onLoadSuccess, onLoadError }: ImageViewerProps) {
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [hasError, setHasError] = useState<boolean>(false);
+  const { value: ui, patch: patchUI } = useUIKey(`image-viewer:${url}`, {
+    isLoading: true,
+    hasError: false,
+  });
+  const { isLoading, hasError } = ui;
 
   const handleLoad = () => {
-    setIsLoading(false);
+    patchUI({ isLoading: false, hasError: false });
     onLoadSuccess?.();
   };
 
   const handleError = () => {
-    setIsLoading(false);
-    setHasError(true);
+    patchUI({ isLoading: false, hasError: true });
     onLoadError?.(new Error('Failed to load image'));
   };
 

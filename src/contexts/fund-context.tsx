@@ -1,118 +1,41 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode, useCallback, useMemo } from 'react';
-import { Fund, FundContextType, FundViewMode, FundSummary } from '@/types/fund';
-
-const FundContext = createContext<FundContextType | undefined>(undefined);
-
-// Mock data for demonstration - In production, this would come from an API
-const mockFunds: Fund[] = [
-  {
-    id: 'fund-1',
-    name: 'Quantum Ventures Fund I',
-    displayName: 'Fund I',
-    fundNumber: 1,
-    status: 'closed',
-    strategy: 'early-stage',
-    totalCommitment: 50_000_000,
-    deployedCapital: 48_000_000,
-    availableCapital: 2_000_000,
-    vintage: 2018,
-    startDate: '2018-01-15',
-    endDate: '2028-01-15',
-    fundTerm: 10,
-    portfolioCount: 23,
-    activeDeals: 8,
-    totalInvestments: 23,
-    portfolioValue: 180_000_000,
-    irr: 38.5,
-    tvpi: 3.75,
-    dpi: 1.2,
-    minInvestment: 500_000,
-    maxInvestment: 3_000_000,
-    targetSectors: ['AI/ML', 'SaaS', 'FinTech'],
-    targetStages: ['Seed', 'Series A'],
-    managers: ['Alex Chen', 'Sarah Martinez'],
-    description: 'Early-stage technology fund focused on AI and enterprise software',
-    createdAt: '2018-01-15T00:00:00Z',
-    updatedAt: '2024-11-20T10:30:00Z',
-  },
-  {
-    id: 'fund-2',
-    name: 'Quantum Ventures Fund II',
-    displayName: 'Fund II',
-    fundNumber: 2,
-    status: 'active',
-    strategy: 'multi-stage',
-    totalCommitment: 150_000_000,
-    deployedCapital: 92_000_000,
-    availableCapital: 58_000_000,
-    vintage: 2021,
-    startDate: '2021-03-01',
-    fundTerm: 10,
-    portfolioCount: 18,
-    activeDeals: 12,
-    totalInvestments: 18,
-    portfolioValue: 285_000_000,
-    irr: 45.2,
-    tvpi: 3.1,
-    dpi: 0.8,
-    minInvestment: 1_000_000,
-    maxInvestment: 8_000_000,
-    targetSectors: ['AI/ML', 'HealthTech', 'CleanTech'],
-    targetStages: ['Seed', 'Series A', 'Series B'],
-    managers: ['Alex Chen', 'Michael Park', 'Emma Wilson'],
-    description: 'Multi-stage fund with focus on emerging technologies and sustainability',
-    createdAt: '2021-03-01T00:00:00Z',
-    updatedAt: '2024-11-20T10:30:00Z',
-  },
-  {
-    id: 'fund-3',
-    name: 'Quantum Ventures Fund III',
-    displayName: 'Fund III',
-    fundNumber: 3,
-    status: 'active',
-    strategy: 'growth',
-    totalCommitment: 300_000_000,
-    deployedCapital: 45_000_000,
-    availableCapital: 255_000_000,
-    vintage: 2024,
-    startDate: '2024-01-15',
-    fundTerm: 10,
-    portfolioCount: 6,
-    activeDeals: 15,
-    totalInvestments: 6,
-    portfolioValue: 78_000_000,
-    irr: 52.1,
-    tvpi: 1.73,
-    dpi: 0.0,
-    minInvestment: 3_000_000,
-    maxInvestment: 15_000_000,
-    targetSectors: ['AI/ML', 'FinTech', 'Enterprise SaaS'],
-    targetStages: ['Series B', 'Series C'],
-    managers: ['Alex Chen', 'Michael Park', 'Emma Wilson', 'David Lee'],
-    description: 'Growth-stage fund targeting established startups with proven product-market fit',
-    createdAt: '2024-01-15T00:00:00Z',
-    updatedAt: '2024-11-20T10:30:00Z',
-  },
-];
+import type { ReactNode } from 'react';
+import { useCallback, useMemo } from 'react';
+import type { Fund, FundContextType, FundSummary, FundViewMode } from '@/types/fund';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { fundUISelectors, fundsSelectors, setSelectedFundId, setViewMode } from '@/store/slices/fundSlice';
 
 export function FundProvider({ children }: { children: ReactNode }) {
-  const [funds] = useState<Fund[]>(mockFunds);
-  const [selectedFund, setSelectedFund] = useState<Fund | null>(mockFunds[1]); // Default to Fund II (most active)
-  const [viewMode, setViewMode] = useState<FundViewMode>('individual');
+  return children;
+}
 
-  const getActiveFunds = useCallback(() => {
-    return funds.filter(fund => fund.status === 'active');
+export function useFund() {
+  const dispatch = useAppDispatch();
+  const fundsData = useAppSelector(fundsSelectors.selectData);
+  const funds = fundsData?.funds || [];
+  const selectedFundId = useAppSelector(fundUISelectors.selectSelectedFundId);
+  const viewMode = useAppSelector(fundUISelectors.selectViewMode);
+
+  const selectedFund = useMemo(
+    () => (selectedFundId ? funds.find((f) => f.id === selectedFundId) ?? null : null),
+    [funds, selectedFundId]
+  );
+
+  const getActiveFunds = useCallback<FundContextType['getActiveFunds']>(() => {
+    return funds.filter((fund) => fund.status === 'active');
   }, [funds]);
 
-  const getFundById = useCallback((id: string) => {
-    return funds.find(fund => fund.id === id);
-  }, [funds]);
+  const getFundById = useCallback<FundContextType['getFundById']>(
+    (id) => {
+      return funds.find((fund) => fund.id === id);
+    },
+    [funds]
+  );
 
-  const getFundSummary = useCallback((): FundSummary => {
-    const activeFundsCount = funds.filter(f => f.status === 'active').length;
-    const closedFundsCount = funds.filter(f => f.status === 'closed').length;
+  const getFundSummary = useCallback<FundContextType['getFundSummary']>(() => {
+    const activeFundsCount = funds.filter((f) => f.status === 'active').length;
+    const closedFundsCount = funds.filter((f) => f.status === 'closed').length;
 
     return {
       totalFunds: funds.length,
@@ -120,30 +43,34 @@ export function FundProvider({ children }: { children: ReactNode }) {
       totalDeployed: funds.reduce((sum, f) => sum + f.deployedCapital, 0),
       totalPortfolioValue: funds.reduce((sum, f) => sum + f.portfolioValue, 0),
       totalPortfolioCompanies: funds.reduce((sum, f) => sum + f.portfolioCount, 0),
-      averageIRR: funds.reduce((sum, f) => sum + f.irr, 0) / funds.length,
+      averageIRR: funds.reduce((sum, f) => sum + f.irr, 0) / Math.max(funds.length, 1),
       activeFunds: activeFundsCount,
       closedFunds: closedFundsCount,
-    };
+    } satisfies FundSummary;
   }, [funds]);
 
-  const value = useMemo(() => ({
+  const setSelectedFund = useCallback<FundContextType['setSelectedFund']>(
+    (fund) => {
+      dispatch(setSelectedFundId(fund ? fund.id : null));
+    },
+    [dispatch]
+  );
+
+  const setFundViewMode = useCallback<FundContextType['setViewMode']>(
+    (mode) => {
+      dispatch(setViewMode(mode as FundViewMode));
+    },
+    [dispatch]
+  );
+
+  return {
     funds,
     selectedFund,
     viewMode,
     setSelectedFund,
-    setViewMode,
+    setViewMode: setFundViewMode,
     getActiveFunds,
     getFundById,
     getFundSummary,
-  }), [funds, selectedFund, viewMode, getActiveFunds, getFundById, getFundSummary]);
-
-  return <FundContext.Provider value={value}>{children}</FundContext.Provider>;
-}
-
-export function useFund() {
-  const context = useContext(FundContext);
-  if (context === undefined) {
-    throw new Error('useFund must be used within a FundProvider');
-  }
-  return context;
+  };
 }

@@ -1,8 +1,10 @@
 'use client'
 
-import { useState } from 'react';
 import { Card, Button, Input, Badge } from '@/ui';
 import { Building2, User, Mail, Globe, DollarSign, Users, TrendingUp, FileText, CheckCircle2, Copy, Code } from 'lucide-react';
+import { useUIKey } from '@/store/ui';
+import { useAppDispatch } from '@/store/hooks';
+import { startupApplicationSubmitRequested } from '@/store/slices/uiEffectsSlice';
 
 interface FormData {
   companyName: string;
@@ -43,23 +45,26 @@ const initialFormData: FormData = {
 };
 
 export function StartupApplicationForm({ embedded = false }: { embedded?: boolean }) {
-  const [formData, setFormData] = useState<FormData>(initialFormData);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [showEmbedCode, setShowEmbedCode] = useState(false);
+  const dispatch = useAppDispatch();
+  const { value: ui, patch: patchUI } = useUIKey<{
+    formData: FormData;
+    isSubmitting: boolean;
+    isSubmitted: boolean;
+    showEmbedCode: boolean;
+  }>('startup-application-form', {
+    formData: initialFormData,
+    isSubmitting: false,
+    isSubmitted: false,
+    showEmbedCode: false,
+  });
+  const { formData, isSubmitting, isSubmitted, showEmbedCode } = ui;
 
   const handleChange = (field: keyof FormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    patchUI({ formData: { ...formData, [field]: value } });
   };
 
-  const handleSubmit = async () => {
-    setIsSubmitting(true);
-    // Simulate submission
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSubmitted(true);
-      // In real implementation, this would POST to backend API
-    }, 1500);
+  const handleSubmit = () => {
+    dispatch(startupApplicationSubmitRequested());
   };
 
   const embedCode = `<!-- VestLedger Startup Application Form -->
@@ -90,8 +95,7 @@ export function StartupApplicationForm({ embedded = false }: { embedded?: boolea
             <Button
               variant="flat"
               onPress={() => {
-                setIsSubmitted(false);
-                setFormData(initialFormData);
+                patchUI({ isSubmitted: false, formData: initialFormData });
               }}
             >
               Submit Another Application
@@ -116,7 +120,7 @@ export function StartupApplicationForm({ embedded = false }: { embedded?: boolea
             <Button
               variant="flat"
               startContent={showEmbedCode ? <Code className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              onPress={() => setShowEmbedCode(!showEmbedCode)}
+              onPress={() => patchUI({ showEmbedCode: !showEmbedCode })}
             >
               {showEmbedCode ? 'Hide' : 'Get'} Embed Code
             </Button>

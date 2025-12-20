@@ -1,14 +1,9 @@
 'use client'
 
-import { useState } from 'react';
 import { Card, Button, Badge, Progress } from '@/ui';
 import { AlertTriangle, PieChart } from 'lucide-react';
-import {
-  concentrationByCompany,
-  concentrationBySector,
-  concentrationByStage,
-  type ConcentrationMetric
-} from '@/data/mock-fund-analytics-data';
+import { getConcentrationRiskMetrics, type ConcentrationMetric } from '@/services/analytics/fundAnalyticsService';
+import { useUIKey } from '@/store/ui';
 
 type ConcentrationView = 'company' | 'sector' | 'stage';
 
@@ -81,6 +76,7 @@ function ConcentrationRow({ item, maxPercentage, isHighRisk }: ConcentrationRowP
         value={item.percentage}
         maxValue={maxPercentage}
         className="mb-1"
+        aria-label={`${item.category} concentration ${item.percentage.toFixed(1)}%`}
         style={{
           '--progress-color': getRiskColor(item.percentage)
         } as React.CSSProperties}
@@ -90,7 +86,13 @@ function ConcentrationRow({ item, maxPercentage, isHighRisk }: ConcentrationRowP
 }
 
 export function ConcentrationRisk() {
-  const [selectedView, setSelectedView] = useState<ConcentrationView>('company');
+  const { byCompany: concentrationByCompany, bySector: concentrationBySector, byStage: concentrationByStage } =
+    getConcentrationRiskMetrics();
+  const { value: ui, patch: patchUI } = useUIKey<{ selectedView: ConcentrationView }>(
+    'concentration-risk',
+    { selectedView: 'company' }
+  );
+  const { selectedView } = ui;
 
   const getConcentrationData = (): ConcentrationMetric[] => {
     switch (selectedView) {
@@ -131,7 +133,7 @@ export function ConcentrationRisk() {
             <Button
               variant={selectedView === 'company' ? 'solid' : 'flat'}
               size="sm"
-              onPress={() => setSelectedView('company')}
+              onPress={() => patchUI({ selectedView: 'company' })}
               className={selectedView === 'company' ? 'bg-[var(--app-primary)] text-white' : ''}
             >
               By Company
@@ -139,7 +141,7 @@ export function ConcentrationRisk() {
             <Button
               variant={selectedView === 'sector' ? 'solid' : 'flat'}
               size="sm"
-              onPress={() => setSelectedView('sector')}
+              onPress={() => patchUI({ selectedView: 'sector' })}
               className={selectedView === 'sector' ? 'bg-[var(--app-primary)] text-white' : ''}
             >
               By Sector
@@ -147,7 +149,7 @@ export function ConcentrationRisk() {
             <Button
               variant={selectedView === 'stage' ? 'solid' : 'flat'}
               size="sm"
-              onPress={() => setSelectedView('stage')}
+              onPress={() => patchUI({ selectedView: 'stage' })}
               className={selectedView === 'stage' ? 'bg-[var(--app-primary)] text-white' : ''}
             >
               By Stage
@@ -193,6 +195,7 @@ export function ConcentrationRisk() {
                 maxValue={data.length}
                 className="mb-1"
                 color="danger"
+                aria-label={`High risk positions: ${highRiskCount} of ${data.length}`}
               />
             </div>
             <div>
@@ -205,6 +208,7 @@ export function ConcentrationRisk() {
                 maxValue={data.length}
                 className="mb-1"
                 color="warning"
+                aria-label={`Medium risk positions: ${mediumRiskCount} of ${data.length}`}
               />
             </div>
             <div>
@@ -217,6 +221,7 @@ export function ConcentrationRisk() {
                 maxValue={data.length}
                 className="mb-1"
                 color="success"
+                aria-label={`Low risk positions: ${data.length - highRiskCount - mediumRiskCount} of ${data.length}`}
               />
             </div>
           </div>

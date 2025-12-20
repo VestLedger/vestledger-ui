@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
 import DocViewer, { DocViewerRenderers } from '@cyntler/react-doc-viewer';
 import { Spinner, Button } from '@/ui';
 import { Download, AlertCircle } from 'lucide-react';
 import { OfficeDocViewerProps } from '../types';
+import { useUIKey } from '@/store/ui';
 
 export function OfficeDocViewer({
   url,
@@ -14,17 +14,19 @@ export function OfficeDocViewer({
   onLoadSuccess,
   onLoadError,
 }: OfficeDocViewerProps) {
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [hasError, setHasError] = useState<boolean>(false);
+  const { value: ui, patch: patchUI } = useUIKey(`office-doc-viewer:${url}`, {
+    isLoading: true,
+    hasError: false,
+  });
+  const { isLoading, hasError } = ui;
 
   const handleDocumentLoad = () => {
-    setIsLoading(false);
+    patchUI({ isLoading: false, hasError: false });
     onLoadSuccess?.();
   };
 
   const handleDocumentError = (error: Error) => {
-    setIsLoading(false);
-    setHasError(true);
+    patchUI({ isLoading: false, hasError: true });
     onLoadError?.(error);
   };
 
@@ -84,6 +86,7 @@ export function OfficeDocViewer({
       <DocViewer
         documents={docs}
         pluginRenderers={DocViewerRenderers}
+        onDocumentChange={handleDocumentLoad}
         config={{
           header: {
             disableHeader: true,

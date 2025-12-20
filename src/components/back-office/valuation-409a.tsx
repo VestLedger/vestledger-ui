@@ -1,158 +1,36 @@
 'use client'
 
-import { useState } from 'react';
 import { Card, Button, Badge, Progress, Input, PageContainer, Breadcrumb, PageHeader } from '@/ui';
 import { Tabs, Tab } from '@/ui';
 import { getRouteConfig } from '@/config/routes';
 import { TrendingUp, FileText, Download, Calendar, DollarSign, AlertCircle, CheckCircle, Clock, Building2, ChevronRight, Calculator , Receipt} from 'lucide-react';
-
-interface Valuation409A {
-  id: string;
-  company: string;
-  valuationDate: string;
-  expirationDate: string;
-  fairMarketValue: number;
-  commonStock: number;
-  preferredStock: number;
-  status: 'current' | 'expiring-soon' | 'expired';
-  provider: string;
-  reportUrl: string;
-  methodology: string;
-}
-
-interface StrikePrice {
-  id: string;
-  grantDate: string;
-  strikePrice: number;
-  sharesGranted: number;
-  recipient: string;
-  vestingSchedule: string;
-  status: 'active' | 'exercised' | 'expired';
-}
-
-interface ValuationHistory {
-  id: string;
-  date: string;
-  fmv: number;
-  change: number;
-  trigger: string;
-}
-
-const mockValuations: Valuation409A[] = [
-  {
-    id: '1',
-    company: 'CloudScale Inc.',
-    valuationDate: '2024-09-15',
-    expirationDate: '2025-09-15',
-    fairMarketValue: 12.50,
-    commonStock: 12.50,
-    preferredStock: 28.75,
-    status: 'current',
-    provider: 'Aranca Valuation',
-    reportUrl: '#',
-    methodology: 'OPM (Option Pricing Model)'
-  },
-  {
-    id: '2',
-    company: 'DataFlow Systems',
-    valuationDate: '2024-11-01',
-    expirationDate: '2025-11-01',
-    fairMarketValue: 8.25,
-    commonStock: 8.25,
-    preferredStock: 18.50,
-    status: 'current',
-    provider: 'Carta Valuation Services',
-    reportUrl: '#',
-    methodology: 'PWERM (Probability-Weighted Expected Return)'
-  },
-  {
-    id: '3',
-    company: 'FinTech Solutions',
-    valuationDate: '2024-03-20',
-    expirationDate: '2025-03-20',
-    fairMarketValue: 15.75,
-    commonStock: 15.75,
-    preferredStock: 32.00,
-    status: 'expiring-soon',
-    provider: 'RSM Valuation',
-    reportUrl: '#',
-    methodology: 'Hybrid (OPM + Market)'
-  }
-];
-
-const mockStrikePrices: StrikePrice[] = [
-  {
-    id: '1',
-    grantDate: '2024-10-01',
-    strikePrice: 12.50,
-    sharesGranted: 50000,
-    recipient: 'Sarah Johnson (CTO)',
-    vestingSchedule: '4-year, 1-year cliff',
-    status: 'active'
-  },
-  {
-    id: '2',
-    grantDate: '2024-10-15',
-    strikePrice: 12.50,
-    sharesGranted: 25000,
-    recipient: 'Michael Chen (VP Engineering)',
-    vestingSchedule: '4-year, 1-year cliff',
-    status: 'active'
-  },
-  {
-    id: '3',
-    grantDate: '2024-11-05',
-    strikePrice: 8.25,
-    sharesGranted: 30000,
-    recipient: 'Emily Rodriguez (Head of Product)',
-    vestingSchedule: '4-year, 1-year cliff',
-    status: 'active'
-  }
-];
-
-const mockHistory: ValuationHistory[] = [
-  {
-    id: '1',
-    date: '2024-11-01',
-    fmv: 8.25,
-    change: 0,
-    trigger: 'Annual refresh'
-  },
-  {
-    id: '2',
-    date: '2024-09-15',
-    fmv: 12.50,
-    change: 25.0,
-    trigger: 'Series B funding ($25M)'
-  },
-  {
-    id: '3',
-    date: '2024-03-20',
-    fmv: 15.75,
-    change: 57.5,
-    trigger: 'Material event - new revenue milestone'
-  },
-  {
-    id: '4',
-    date: '2023-09-10',
-    fmv: 10.00,
-    change: 42.9,
-    trigger: 'Series A funding ($10M)'
-  }
-];
+import { useUIKey } from '@/store/ui';
+import { valuation409aRequested, valuation409aSelectors } from '@/store/slices/backOfficeSlice';
+import { ErrorState, LoadingState } from '@/components/ui/async-states';
+import { formatCurrency } from '@/utils/formatting';
+import { StatsCard } from '@/components/ui';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function Valuation409A() {
-  const [selectedTab, setSelectedTab] = useState<string>('valuations');
+  const { data, isLoading, error, refetch } = useAsyncData(valuation409aRequested, valuation409aSelectors.selectState);
+  const { value: ui, patch: patchUI } = useUIKey('back-office-valuation-409a', { selectedTab: 'valuations' });
+  const { selectedTab } = ui;
   const routeConfig = getRouteConfig('/409a-valuations');
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
-  };
+  if (isLoading) return <LoadingState message="Loading 409A valuations…" />;
+  if (error) {
+    return (
+      <ErrorState
+        error={error}
+        title="Failed to load 409A valuations"
+        onRetry={refetch}
+      />
+    );
+  }
+
+  const valuations = data?.valuations || [];
+  const strikePrices = data?.strikePrices || [];
+  const history = data?.history || [];
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -205,7 +83,7 @@ export function Valuation409A() {
           description="Manage IRS-compliant fair market value determinations for stock options"
           icon={Calculator}
           aiSummary={{
-            text: `${mockValuations.length} portfolio companies tracked. ${mockValuations.filter(v => v.status === 'current').length} current valuations, ${mockValuations.filter(v => v.status === 'expiring-soon').length} expiring soon. ${mockStrikePrices.filter(sp => sp.status === 'active').length} active option grants.`,
+            text: `${valuations.length} portfolio companies tracked. ${valuations.filter(v => v.status === 'current').length} current valuations, ${valuations.filter(v => v.status === 'expiring-soon').length} expiring soon. ${strikePrices.filter(sp => sp.status === 'active').length} active option grants.`,
             confidence: 0.92
           }}
           primaryAction={{
@@ -218,86 +96,60 @@ export function Valuation409A() {
             {
               id: 'valuations',
               label: 'Valuations',
-              count: mockValuations.length,
+              count: valuations.length,
             },
             {
               id: 'strike-prices',
               label: 'Strike Prices',
-              count: mockStrikePrices.length,
+              count: strikePrices.length,
             },
             {
               id: 'history',
               label: 'Valuation History',
-              count: mockHistory.length,
+              count: history.length,
             },
           ]}
           activeTab={selectedTab}
-          onTabChange={setSelectedTab}
+          onTabChange={(tabId) => patchUI({ selectedTab: tabId })}
         />
 
         {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-success-bg)]">
-              <CheckCircle className="w-6 h-6 text-[var(--app-success)]" />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--app-text-muted)]">Active Valuations</p>
-              <p className="text-2xl font-bold">
-                {mockValuations.filter(v => v.status === 'current').length}
-              </p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="Active Valuations"
+          value={valuations.filter(v => v.status === 'current').length}
+          icon={CheckCircle}
+          variant="success"
+        />
 
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-warning-bg)]">
-              <Clock className="w-6 h-6 text-[var(--app-warning)]" />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--app-text-muted)]">Expiring Soon</p>
-              <p className="text-2xl font-bold">
-                {mockValuations.filter(v => v.status === 'expiring-soon').length}
-              </p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="Expiring Soon"
+          value={valuations.filter(v => v.status === 'expiring-soon').length}
+          icon={Clock}
+          variant="warning"
+        />
 
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-info-bg)]">
-              <Building2 className="w-6 h-6 text-[var(--app-info)]" />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--app-text-muted)]">Portfolio Companies</p>
-              <p className="text-2xl font-bold">{mockValuations.length}</p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="Portfolio Companies"
+          value={valuations.length}
+          icon={Building2}
+          variant="primary"
+        />
 
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-primary-bg)]">
-              <DollarSign className="w-6 h-6 text-[var(--app-primary)]" />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--app-text-muted)]">Avg. FMV</p>
-              <p className="text-2xl font-bold">
-                {formatCurrency(
-                  mockValuations.reduce((acc, v) => acc + v.fairMarketValue, 0) / mockValuations.length
-                )}
-              </p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="Avg. FMV"
+          value={formatCurrency(
+            valuations.reduce((acc, v) => acc + v.fairMarketValue, 0) / valuations.length
+          )}
+          icon={DollarSign}
+          variant="primary"
+        />
       </div>
 
       {/* Tab Content */}
         {selectedTab === 'valuations' && (
           <div className="space-y-3">
-            {mockValuations.map((valuation) => {
+            {valuations.map((valuation) => {
               const daysUntilExpiry = getDaysUntilExpiration(valuation.expirationDate);
               return (
                 <Card key={valuation.id} padding="lg">
@@ -382,7 +234,7 @@ export function Valuation409A() {
             <Card padding="lg">
               <h3 className="font-semibold mb-4">Recent Option Grants</h3>
               <div className="space-y-3">
-                {mockStrikePrices.map((grant) => (
+                {strikePrices.map((grant) => (
                   <div key={grant.id} className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
@@ -425,9 +277,9 @@ export function Valuation409A() {
             <Card padding="lg">
               <h3 className="font-semibold mb-4">Fair Market Value Timeline</h3>
               <div className="space-y-4">
-                {mockHistory.map((item, index) => (
+                {history.map((item, index) => (
                   <div key={item.id} className="relative">
-                    {index !== mockHistory.length - 1 && (
+                    {index !== history.length - 1 && (
                       <div className="absolute left-[19px] top-10 bottom-0 w-0.5 bg-[var(--app-border)]" />
                     )}
                     <div className="flex items-start gap-4">

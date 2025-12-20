@@ -1,161 +1,47 @@
 'use client'
 
-import { useState } from 'react';
 import { Card, Button, Badge, Progress, Select, PageContainer, Breadcrumb, PageHeader } from '@/ui';
 import { Download, FileText, File, Table, Image, Calendar, Filter, Check, Settings, Mail, Clock, Repeat , FileDown} from 'lucide-react';
 import { getRouteConfig } from '@/config/routes';
+import { getInitialExportJobs, getReportTemplates, type ExportJob, type ReportTemplate } from '@/services/reports/reportExportService';
+import { useUIKey } from '@/store/ui';
+import { useAppDispatch } from '@/store/hooks';
+import { reportExportRequested } from '@/store/slices/uiEffectsSlice';
 
-interface ReportTemplate {
-  id: string;
-  name: string;
-  type: 'quarterly' | 'annual' | 'custom' | 'monthly';
-  description: string;
-  format: 'pdf' | 'excel' | 'csv' | 'ppt';
-  sections: string[];
-  estimatedPages?: number;
-}
-
-interface ExportJob {
-  id: string;
-  reportName: string;
-  format: string;
-  status: 'queued' | 'processing' | 'completed' | 'failed';
-  progress: number;
-  createdAt: string;
-  downloadUrl?: string;
-}
-
-const reportTemplates: ReportTemplate[] = [
-  {
-    id: '1',
-    name: 'Quarterly LP Report',
-    type: 'quarterly',
-    description: 'Comprehensive quarterly report for Limited Partners with fund performance, portfolio updates, and financial statements',
-    format: 'pdf',
-    sections: ['Executive Summary', 'Fund Performance', 'Portfolio Companies', 'Financials', 'Pipeline'],
-    estimatedPages: 25
-  },
-  {
-    id: '2',
-    name: 'Annual Fund Report',
-    type: 'annual',
-    description: 'Complete annual overview including full year performance, all portfolio activity, and detailed analytics',
-    format: 'pdf',
-    sections: ['Year in Review', 'Performance Metrics', 'Portfolio Deep Dive', 'Market Analysis', 'Looking Ahead'],
-    estimatedPages: 50
-  },
-  {
-    id: '3',
-    name: 'Portfolio Dashboard Export',
-    type: 'custom',
-    description: 'Export current portfolio data including metrics, valuations, and company details',
-    format: 'excel',
-    sections: ['Company List', 'Metrics', 'Valuations', 'Ownership', 'Returns']
-  },
-  {
-    id: '4',
-    name: 'Deal Pipeline Report',
-    type: 'custom',
-    description: 'Current dealflow pipeline with company details, stages, and scoring',
-    format: 'excel',
-    sections: ['Active Deals', 'Sourcing', 'Due Diligence', 'Scoring']
-  },
-  {
-    id: '5',
-    name: 'Fund Performance Deck',
-    type: 'quarterly',
-    description: 'Presentation-ready performance deck for board meetings and LP updates',
-    format: 'ppt',
-    sections: ['Key Metrics', 'Portfolio Highlights', 'Recent Activity', 'Market Insights'],
-    estimatedPages: 15
-  },
-  {
-    id: '6',
-    name: 'Cap Table Export',
-    type: 'custom',
-    description: 'Detailed capitalization table with all shareholders, share classes, and ownership percentages',
-    format: 'excel',
-    sections: ['Shareholders', 'Share Classes', 'Vesting', 'Dilution Analysis']
-  }
-];
-
-const mockExportJobs: ExportJob[] = [
-  {
-    id: '1',
-    reportName: 'Q3 2024 LP Report',
-    format: 'PDF',
-    status: 'completed',
-    progress: 100,
-    createdAt: '2024-11-28T14:30:00',
-    downloadUrl: '#'
-  },
-  {
-    id: '2',
-    reportName: 'Portfolio Dashboard',
-    format: 'Excel',
-    status: 'completed',
-    progress: 100,
-    createdAt: '2024-11-27T10:15:00',
-    downloadUrl: '#'
-  },
-  {
-    id: '3',
-    reportName: 'Deal Pipeline Report',
-    format: 'Excel',
-    status: 'processing',
-    progress: 65,
-    createdAt: '2024-11-28T16:45:00'
-  }
-];
+const defaultReportExportState: {
+  selectedTemplate: ReportTemplate | null;
+  exportFormat: 'pdf' | 'excel' | 'csv' | 'ppt';
+  dateRange: { start: string; end: string };
+  selectedSections: string[];
+  exportJobs: ExportJob[];
+  scheduleEnabled: boolean;
+} = {
+  selectedTemplate: null,
+  exportFormat: 'pdf',
+  dateRange: { start: '2024-01-01', end: '2024-12-31' },
+  selectedSections: [],
+  exportJobs: getInitialExportJobs(),
+  scheduleEnabled: false,
+};
 
 export function ReportExport() {
+  const dispatch = useAppDispatch();
   const routeConfig = getRouteConfig('/reports');
-  const [selectedTemplate, setSelectedTemplate] = useState<ReportTemplate | null>(null);
-  const [exportFormat, setExportFormat] = useState<'pdf' | 'excel' | 'csv' | 'ppt'>('pdf');
-  const [dateRange, setDateRange] = useState({ start: '2024-01-01', end: '2024-12-31' });
-  const [selectedSections, setSelectedSections] = useState<string[]>([]);
-  const [exportJobs, setExportJobs] = useState<ExportJob[]>(mockExportJobs);
-  const [scheduleEnabled, setScheduleEnabled] = useState(false);
+  const { value: ui, patch: patchUI } = useUIKey('report-export', defaultReportExportState);
+  const { selectedTemplate, exportFormat, dateRange, selectedSections, exportJobs, scheduleEnabled } = ui;
+  const reportTemplates = getReportTemplates();
 
   const handleExport = () => {
     if (!selectedTemplate) return;
-
-    const newJob: ExportJob = {
-      id: Date.now().toString(),
-      reportName: selectedTemplate.name,
-      format: exportFormat.toUpperCase(),
-      status: 'processing',
-      progress: 0,
-      createdAt: new Date().toISOString()
-    };
-
-    setExportJobs([newJob, ...exportJobs]);
-
-    // Simulate progress
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += 20;
-      if (progress >= 100) {
-        clearInterval(interval);
-        setExportJobs(prev => prev.map(job =>
-          job.id === newJob.id
-            ? { ...job, status: 'completed', progress: 100, downloadUrl: '#' }
-            : job
-        ));
-      } else {
-        setExportJobs(prev => prev.map(job =>
-          job.id === newJob.id ? { ...job, progress } : job
-        ));
-      }
-    }, 500);
+    dispatch(reportExportRequested());
   };
 
   const toggleSection = (section: string) => {
-    setSelectedSections(prev =>
-      prev.includes(section)
-        ? prev.filter(s => s !== section)
-        : [...prev, section]
-    );
+    patchUI({
+      selectedSections: selectedSections.includes(section)
+        ? selectedSections.filter((s) => s !== section)
+        : [...selectedSections, section],
+    });
   };
 
   const getFormatIcon = (format: string) => {
@@ -224,9 +110,11 @@ export function ReportExport() {
                     : 'hover:border-[var(--app-primary)]'
                 }`}
                 onClick={() => {
-                  setSelectedTemplate(template);
-                  setExportFormat(template.format);
-                  setSelectedSections(template.sections);
+                  patchUI({
+                    selectedTemplate: template,
+                    exportFormat: template.format,
+                    selectedSections: template.sections,
+                  });
                 }}
               >
                 <div className="flex items-start justify-between mb-3">
@@ -291,7 +179,7 @@ export function ReportExport() {
                     </div>
                     {job.status === 'processing' && (
                       <div className="mt-2">
-                        <Progress value={job.progress} maxValue={100} className="h-2" />
+                        <Progress value={job.progress} maxValue={100} className="h-2" aria-label={`Export job progress ${job.progress}%`} />
                         <p className="text-xs text-[var(--app-text-subtle)] mt-1">
                           {job.progress}% complete
                         </p>
@@ -318,7 +206,7 @@ export function ReportExport() {
                     {['pdf', 'excel', 'csv', 'ppt'].map((format) => (
                       <button
                         key={format}
-                        onClick={() => setExportFormat(format as any)}
+                        onClick={() => patchUI({ exportFormat: format as any })}
                         className={`p-3 rounded-lg border-2 transition-all ${
                           exportFormat === format
                             ? 'border-[var(--app-primary)] bg-[var(--app-primary-bg)]'
@@ -346,7 +234,7 @@ export function ReportExport() {
                       <input
                         type="date"
                         value={dateRange.start}
-                        onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+                        onChange={(e) => patchUI({ dateRange: { ...dateRange, start: e.target.value } })}
                         className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
                       />
                     </div>
@@ -355,7 +243,7 @@ export function ReportExport() {
                       <input
                         type="date"
                         value={dateRange.end}
-                        onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+                        onChange={(e) => patchUI({ dateRange: { ...dateRange, end: e.target.value } })}
                         className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
                       />
                     </div>
@@ -398,7 +286,7 @@ export function ReportExport() {
                       Schedule Report
                     </label>
                     <button
-                      onClick={() => setScheduleEnabled(!scheduleEnabled)}
+                      onClick={() => patchUI({ scheduleEnabled: !scheduleEnabled })}
                       className={`w-12 h-6 rounded-full transition-colors ${
                         scheduleEnabled ? 'bg-[var(--app-primary)]' : 'bg-[var(--app-border)]'
                       }`}

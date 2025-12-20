@@ -1,52 +1,32 @@
 'use client';
 
-import { Users, MessageSquare, FileText, TrendingUp, Mail, Calendar, Phone } from 'lucide-react';
+
+import { Mail, Calendar, Phone } from 'lucide-react';
 import { Card, Button, Badge, PageContainer } from '@/ui';
 import { MetricCard } from '@/components/metric-card';
+import { useAppDispatch } from '@/store/hooks';
+import { irDashboardRequested, irDashboardSelectors } from '@/store/slices/dashboardsSlice';
+import { ErrorState, LoadingState } from '@/components/ui/async-states';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function IRDashboard() {
-  const metrics = [
-    {
-      label: 'Active LPs',
-      value: '42',
-      change: '+3 new',
-      trend: 'up' as const,
-      icon: Users,
-    },
-    {
-      label: 'Pending Requests',
-      value: '7',
-      change: 'Action Req',
-      trend: 'down' as const,
-      icon: MessageSquare,
-    },
-    {
-      label: 'Quarterly Reports',
-      value: '4',
-      change: 'Draft',
-      trend: 'up' as const,
-      icon: FileText,
-    },
-    {
-      label: 'Fundraising Progress',
-      value: '68%',
-      change: '+12%',
-      trend: 'up' as const,
-      icon: TrendingUp,
-    },
-  ];
+  const { data, isLoading, error, refetch } = useAsyncData(irDashboardRequested, irDashboardSelectors.selectState);
 
-  const recentInteractions = [
-    { lp: 'Sequoia Capital', type: 'Call', date: 'Today', notes: 'Discussed Fund IV commitment' },
-    { lp: 'Tiger Global', type: 'Email', date: 'Yesterday', notes: 'Sent Q3 performance update' },
-    { lp: 'Founders Fund', type: 'Meeting', date: '2 days ago', notes: 'Annual LP summit planning' },
-  ];
+  // Extract data with defaults
+  const metrics = data?.metrics || [];
+  const recentInteractions = data?.recentInteractions || [];
+  const upcomingTasks = data?.upcomingTasks || [];
 
-  const upcomingTasks = [
-    { task: 'Quarterly LP Newsletter', due: 'Dec 15', priority: 'High' },
-    { task: 'Fund IV Pitch Deck', due: 'Dec 20', priority: 'High' },
-    { task: 'Annual Meeting Invites', due: 'Dec 22', priority: 'Medium' },
-  ];
+  if (isLoading) return <LoadingState message="Loading IR dashboard…" />;
+  if (error) {
+    return (
+      <ErrorState
+        error={error}
+        title="Failed to load IR dashboard"
+        onRetry={refetch}
+      />
+    );
+  }
 
   return (
     <PageContainer className="space-y-6">
@@ -66,7 +46,7 @@ export function IRDashboard() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {metrics.map((metric, index) => (
+        {metrics.map((metric: any, index: number) => (
           <MetricCard key={index} {...metric} />
         ))}
       </div>

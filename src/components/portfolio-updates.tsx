@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react';
 import { Card, Badge, Button, Input, PageContainer } from '@/ui';
 import {
   TrendingUp,
@@ -12,7 +11,14 @@ import {
   Filter,
   Calendar,
 } from 'lucide-react';
-import { portfolioUpdates, portfolioCompanies } from '@/data/mock-portfolio-data';
+import { useUIKey } from '@/store/ui';
+import {
+  portfolioUpdatesRequested,
+  portfolioSelectors,
+} from '@/store/slices/portfolioSlice';
+import { LoadingState, ErrorState, EmptyState } from '@/components/ui/async-states';
+import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
 const updateIcons = {
   financial: <DollarSign className="w-5 h-5" />,
@@ -39,8 +45,32 @@ const updateBadgeColors = {
 };
 
 export function PortfolioUpdates() {
-  const [selectedType, setSelectedType] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const { data, isLoading, error, refetch } = useAsyncData(portfolioUpdatesRequested, portfolioSelectors.selectState, { params: {} });
+
+  // Use centralized UI state defaults
+  const { value: ui, patch: patchUI } = useUIKey(
+    UI_STATE_KEYS.PORTFOLIO_UPDATES,
+    UI_STATE_DEFAULTS.portfolioUpdates
+  );
+  const { selectedType, searchQuery } = ui;
+
+  // Loading state
+  if (isLoading) {
+    return <LoadingState message="Loading portfolio updates..." />;
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <ErrorState
+        error={error}
+        title="Failed to Load Portfolio Updates"
+        onRetry={refetch}
+      />
+    );
+  }
+
+  const portfolioUpdates = data?.updates || [];
 
   const filteredUpdates = portfolioUpdates.filter(update => {
     const typeMatch = selectedType === 'all' || update.type === selectedType;
@@ -83,7 +113,7 @@ export function PortfolioUpdates() {
             type="text"
             placeholder="Search updates..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => patchUI({ searchQuery: e.target.value })}
             startContent={<Search className="w-4 h-4 text-[var(--app-text-subtle)]" />}
             size="md"
           />
@@ -92,7 +122,7 @@ export function PortfolioUpdates() {
           <Button
             variant={selectedType === 'all' ? 'solid' : 'flat'}
             size="sm"
-            onPress={() => setSelectedType('all')}
+            onPress={() => patchUI({ selectedType: 'all' })}
             className={selectedType === 'all' ? 'bg-[var(--app-primary)] text-white' : ''}
           >
             All
@@ -100,7 +130,7 @@ export function PortfolioUpdates() {
           <Button
             variant={selectedType === 'financial' ? 'solid' : 'flat'}
             size="sm"
-            onPress={() => setSelectedType('financial')}
+            onPress={() => patchUI({ selectedType: 'financial' })}
             className={selectedType === 'financial' ? 'bg-[var(--app-info)] text-white' : ''}
           >
             Financial
@@ -108,7 +138,7 @@ export function PortfolioUpdates() {
           <Button
             variant={selectedType === 'product' ? 'solid' : 'flat'}
             size="sm"
-            onPress={() => setSelectedType('product')}
+            onPress={() => patchUI({ selectedType: 'product' })}
             className={selectedType === 'product' ? 'bg-[var(--app-secondary)] text-white' : ''}
           >
             Product
@@ -116,7 +146,7 @@ export function PortfolioUpdates() {
           <Button
             variant={selectedType === 'team' ? 'solid' : 'flat'}
             size="sm"
-            onPress={() => setSelectedType('team')}
+            onPress={() => patchUI({ selectedType: 'team' })}
             className={selectedType === 'team' ? 'bg-[var(--app-accent)] text-white' : ''}
           >
             Team
@@ -124,7 +154,7 @@ export function PortfolioUpdates() {
           <Button
             variant={selectedType === 'funding' ? 'solid' : 'flat'}
             size="sm"
-            onPress={() => setSelectedType('funding')}
+            onPress={() => patchUI({ selectedType: 'funding' })}
             className={selectedType === 'funding' ? 'bg-[var(--app-success)] text-white' : ''}
           >
             Funding
@@ -132,7 +162,7 @@ export function PortfolioUpdates() {
           <Button
             variant={selectedType === 'milestone' ? 'solid' : 'flat'}
             size="sm"
-            onPress={() => setSelectedType('milestone')}
+            onPress={() => patchUI({ selectedType: 'milestone' })}
             className={selectedType === 'milestone' ? 'bg-[var(--app-warning)] text-white' : ''}
           >
             Milestone

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Button, Modal, Input } from '@/ui';
 import { Select, SelectItem } from "@nextui-org/react";
 import { useTheme } from 'next-themes';
@@ -8,25 +8,33 @@ import { Sun, Moon } from 'lucide-react';
 import { useAuth, PERSONA_CONFIG, UserRole } from '@/contexts/auth-context';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useUIKey } from '@/store/ui';
 
 export function PublicHeader() {
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
   const { login } = useAuth();
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState<UserRole>('gp');
+  const { value: headerUI, patch: patchHeaderUI } = useUIKey('public-header', {
+    mounted: false,
+    showLoginModal: false,
+    email: '',
+    password: '',
+    role: 'gp' as UserRole,
+  });
+  const mounted = headerUI.mounted;
+  const showLoginModal = headerUI.showLoginModal;
+  const email = headerUI.email;
+  const password = headerUI.password;
+  const role = headerUI.role;
   const router = useRouter();
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    patchHeaderUI({ mounted: true });
+  }, [patchHeaderUI]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     login(email, password, role);
-    setShowLoginModal(false);
+    patchHeaderUI({ showLoginModal: false, password: '' });
     router.push('/dashboard');
   };
 
@@ -56,7 +64,7 @@ export function PublicHeader() {
             >
               {mounted && (theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />)}
             </Button>
-            <Button color="primary" onPress={() => setShowLoginModal(true)}>
+            <Button color="primary" onPress={() => patchHeaderUI({ showLoginModal: true })}>
               Login
             </Button>
           </div>
@@ -66,7 +74,7 @@ export function PublicHeader() {
       {/* Login Modal */}
       <Modal
         isOpen={showLoginModal}
-        onOpenChange={setShowLoginModal}
+        onOpenChange={(open) => patchHeaderUI({ showLoginModal: open })}
         size="md"
         title={
           <div className="flex flex-col gap-1">
@@ -80,7 +88,7 @@ export function PublicHeader() {
             label="Email"
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => patchHeaderUI({ email: e.target.value })}
             placeholder="you@company.com"
             isRequired
           />
@@ -88,7 +96,7 @@ export function PublicHeader() {
             label="Select Role (Demo)"
             placeholder="Select a persona"
             selectedKeys={[role]}
-            onChange={(e) => setRole(e.target.value as UserRole)}
+            onChange={(e) => patchHeaderUI({ role: e.target.value as UserRole })}
             disallowEmptySelection
             variant="bordered"
             classNames={{
@@ -108,7 +116,7 @@ export function PublicHeader() {
             label="Password"
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => patchHeaderUI({ password: e.target.value })}
             placeholder="••••••••"
             isRequired
           />

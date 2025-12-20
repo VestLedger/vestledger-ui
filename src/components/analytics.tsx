@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react';
 import { Breadcrumb, PageHeader, PageContainer } from '@/ui';
 import { TrendingUp, BarChart3, PieChart, Activity } from 'lucide-react';
 import { FundPerformanceOverview } from './analytics/fund-performance-overview';
@@ -11,9 +10,11 @@ import { DeploymentPacing } from './analytics/deployment-pacing';
 import { ConcentrationRisk } from './analytics/concentration-risk';
 import { FundSelector } from './fund-selector';
 import { getRouteConfig } from '@/config/routes';
+import { useUIKey } from '@/store/ui';
 
 export function Analytics() {
-  const [selected, setSelected] = useState<string>('performance');
+  const { value: ui, patch: patchUI } = useUIKey('analytics', { selected: 'performance' });
+  const { selected } = ui;
   const routeConfig = getRouteConfig('/analytics');
 
   return (
@@ -41,7 +42,7 @@ export function Analytics() {
           { id: 'risk', label: 'Risk Analysis' }
         ]}
         activeTab={selected}
-        onTabChange={(tabId) => setSelected(tabId)}
+        onTabChange={(tabId) => patchUI({ selected: tabId })}
       >
         <div className="w-full sm:w-64">
           <FundSelector />

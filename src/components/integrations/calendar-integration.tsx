@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useUIKey } from '@/store/ui';
 import { Card, Button, Badge, Input } from '@/ui';
 import {
   Calendar,
@@ -163,10 +163,18 @@ export function CalendarIntegration({
   onCreateEvent,
   onExportEvents,
 }: CalendarIntegrationProps) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterStatus, setFilterStatus] = useState<CaptureStatus | 'all'>('all');
-  const [filterType, setFilterType] = useState<EventType | 'all'>('all');
-  const [dateRange, setDateRange] = useState<'upcoming' | 'past-week' | 'past-month' | 'all'>('upcoming');
+  const { value: ui, patch: patchUI } = useUIKey<{
+    searchQuery: string;
+    filterStatus: CaptureStatus | 'all';
+    filterType: EventType | 'all';
+    dateRange: 'upcoming' | 'past-week' | 'past-month' | 'all';
+  }>('calendar-integration', {
+    searchQuery: '',
+    filterStatus: 'all',
+    filterType: 'all',
+    dateRange: 'upcoming',
+  });
+  const { searchQuery, filterStatus, filterType, dateRange } = ui;
 
   const getProviderBadge = (provider: CalendarProvider) => {
     const colors = {
@@ -500,7 +508,7 @@ export function CalendarIntegration({
           <Input
             placeholder="Search events..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => patchUI({ searchQuery: e.target.value })}
             startContent={<Search className="w-4 h-4" />}
             size="sm"
             className="flex-1"
@@ -508,7 +516,7 @@ export function CalendarIntegration({
           <select
             className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
             value={dateRange}
-            onChange={(e) => setDateRange(e.target.value as typeof dateRange)}
+            onChange={(e) => patchUI({ dateRange: e.target.value as typeof dateRange })}
           >
             <option value="upcoming">Upcoming</option>
             <option value="past-week">Past Week</option>
@@ -518,7 +526,7 @@ export function CalendarIntegration({
           <select
             className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value as CaptureStatus | 'all')}
+            onChange={(e) => patchUI({ filterStatus: e.target.value as CaptureStatus | 'all' })}
           >
             <option value="all">All Status</option>
             <option value="pending">Pending</option>
@@ -529,7 +537,7 @@ export function CalendarIntegration({
           <select
             className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
             value={filterType}
-            onChange={(e) => setFilterType(e.target.value as EventType | 'all')}
+            onChange={(e) => patchUI({ filterType: e.target.value as EventType | 'all' })}
           >
             <option value="all">All Types</option>
             <option value="meeting">Meeting</option>

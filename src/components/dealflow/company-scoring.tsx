@@ -1,8 +1,12 @@
 'use client'
 
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { Card, Button, Badge, Progress } from '@/ui';
 import { Star, User, TrendingUp, Target, Users, Lightbulb, CheckCircle2, Edit3 } from 'lucide-react';
+import { useUIKey } from '@/store/ui';
+import { getCompanyScoreData } from '@/services/dealflow/companyScoringService';
+// import { useAppDispatch, useAppSelector } from '@/store/hooks';
+// import { companyScoringRequested } from '@/store/slices/dealflowSlice';
 
 interface ScoringCriteria {
   id: string;
@@ -10,25 +14,6 @@ interface ScoringCriteria {
   description: string;
   weight: number; // percentage
   icon: React.ReactNode;
-}
-
-interface IndividualScore {
-  partnerId: string;
-  partnerName: string;
-  partnerInitials: string;
-  scores: { [criteriaId: string]: number }; // 1-10 scale
-  overallScore: number;
-  comments?: string;
-  submittedAt: string;
-}
-
-interface CompanyScoreData {
-  companyId: number;
-  companyName: string;
-  individualScores: IndividualScore[];
-  weightedAverageScore: number;
-  consensus: 'strong-yes' | 'yes' | 'maybe' | 'no' | 'strong-no';
-  scoringComplete: boolean;
 }
 
 const defaultCriteria: ScoringCriteria[] = [
@@ -69,71 +54,30 @@ const defaultCriteria: ScoringCriteria[] = [
   }
 ];
 
-const mockScoreData: CompanyScoreData = {
-  companyId: 1,
-  companyName: 'Quantum AI',
-  individualScores: [
-    {
-      partnerId: 'p1',
-      partnerName: 'Sarah Johnson',
-      partnerInitials: 'SJ',
-      scores: {
-        team: 9,
-        market: 8,
-        product: 9,
-        traction: 8,
-        financials: 8
-      },
-      overallScore: 8.45,
-      comments: 'Exceptional founding team with deep quantum expertise. Strong product-market fit demonstrated by growth.',
-      submittedAt: '2024-11-28T10:30:00'
-    },
-    {
-      partnerId: 'p2',
-      partnerName: 'Michael Chen',
-      partnerInitials: 'MC',
-      scores: {
-        team: 8,
-        market: 7,
-        product: 8,
-        traction: 7,
-        financials: 7
-      },
-      overallScore: 7.50,
-      comments: 'Good team but concerned about competitive landscape. Market timing is uncertain.',
-      submittedAt: '2024-11-28T14:15:00'
-    },
-    {
-      partnerId: 'p3',
-      partnerName: 'Emily Zhang',
-      partnerInitials: 'EZ',
-      scores: {
-        team: 9,
-        market: 8,
-        product: 8,
-        traction: 9,
-        financials: 8
-      },
-      overallScore: 8.40,
-      comments: 'Impressive traction with Fortune 500 pilots. Unit economics look solid.',
-      submittedAt: '2024-11-28T16:45:00'
-    }
-  ],
-  weightedAverageScore: 8.12,
-  consensus: 'yes',
-  scoringComplete: true
-};
-
 export function CompanyScoring({ companyId, companyName }: { companyId: number; companyName: string }) {
-  const [scoreData, setScoreData] = useState<CompanyScoreData>(mockScoreData);
-  const [isEditingScores, setIsEditingScores] = useState(false);
-  const [currentUserScore, setCurrentUserScore] = useState<{ [key: string]: number }>({
-    team: 0,
-    market: 0,
-    product: 0,
-    traction: 0,
-    financials: 0
+  // TODO: Restore company scoring Redux integration via separate scoring slice
+  // For now calling service directly since dealflow slice was migrated to handle deals only
+  const scoreData = getCompanyScoreData();
+
+  const { value: ui, patch: patchUI } = useUIKey<{
+    isEditingScores: boolean;
+    currentUserScore: Record<string, number>;
+  }>(`company-scoring:${companyId}`, {
+    isEditingScores: false,
+    currentUserScore: {
+      team: 0,
+      market: 0,
+      product: 0,
+      traction: 0,
+      financials: 0,
+    },
   });
+  const { isEditingScores, currentUserScore } = ui;
+
+  // Return early if no data
+  if (!scoreData) {
+    return <div className="text-sm text-[var(--app-text-muted)]">Loading scoring data...</div>;
+  }
 
   const calculateWeightedScore = (scores: { [key: string]: number }) => {
     let totalScore = 0;
@@ -198,7 +142,7 @@ export function CompanyScoring({ companyId, companyName }: { companyId: number; 
           <Button
             variant="flat"
             startContent={<Edit3 className="w-4 h-4" />}
-            onPress={() => setIsEditingScores(!isEditingScores)}
+            onPress={() => patchUI({ isEditingScores: !isEditingScores })}
           >
             {isEditingScores ? 'Cancel' : 'Add My Score'}
           </Button>
@@ -220,6 +164,7 @@ export function CompanyScoring({ companyId, companyName }: { companyId: number; 
               value={scoreData.weightedAverageScore * 10}
               maxValue={100}
               className="h-3"
+              aria-label={`Weighted average score ${scoreData.weightedAverageScore.toFixed(2)} out of 10`}
             />
           </div>
         </div>
@@ -230,7 +175,7 @@ export function CompanyScoring({ companyId, companyName }: { companyId: number; 
         <h4 className="font-semibold mb-4">Score Breakdown by Criteria</h4>
         <div className="space-y-4">
           {defaultCriteria.map(criteria => {
-            const avgScore = scoreData.individualScores.reduce((sum, score) =>
+            const avgScore = scoreData.individualScores.reduce((sum: number, score: any) =>
               sum + (score.scores[criteria.id] || 0), 0) / scoreData.individualScores.length;
 
             return (
@@ -278,7 +223,7 @@ export function CompanyScoring({ companyId, companyName }: { companyId: number; 
       <div>
         <h4 className="font-semibold mb-4">Individual Partner Scores</h4>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {scoreData.individualScores.map(partnerScore => (
+          {scoreData.individualScores.map((partnerScore: any) => (
             <Card key={partnerScore.partnerId} padding="md">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
@@ -346,7 +291,11 @@ export function CompanyScoring({ companyId, companyName }: { companyId: number; 
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(value => (
                     <button
                       key={value}
-                      onClick={() => setCurrentUserScore(prev => ({ ...prev, [criteria.id]: value }))}
+                      onClick={() =>
+                        patchUI({
+                          currentUserScore: { ...currentUserScore, [criteria.id]: value },
+                        })
+                      }
                       className={`flex-1 h-10 rounded-lg border-2 transition-all ${
                         currentUserScore[criteria.id] === value
                           ? 'border-[var(--app-primary)] bg-[var(--app-primary)] text-white font-semibold'

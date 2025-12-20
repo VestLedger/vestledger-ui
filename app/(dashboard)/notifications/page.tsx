@@ -4,8 +4,9 @@ import { useEffect } from 'react';
 import { Bell, AlertCircle, AlertTriangle, CheckCircle, Info } from 'lucide-react';
 import { PageContainer, PageHeader, Card, Badge, Breadcrumb } from '@/ui';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { fetchAlerts, markAlertRead } from '@/store/slices/alertsSlice';
+import { alertsRequested, alertsSelectors, markAlertRead } from '@/store/slices/alertsSlice';
 import { getRouteConfig } from '@/config/routes';
+import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
 
 const getIcon = (type: string) => {
   switch (type) {
@@ -24,10 +25,13 @@ const getIcon = (type: string) => {
 
 export default function NotificationsPage() {
   const dispatch = useAppDispatch();
-  const { items: reduxNotifications } = useAppSelector((state) => state.alerts);
+  const alertsData = useAppSelector(alertsSelectors.selectData);
+  const alertsStatus = useAppSelector(alertsSelectors.selectStatus);
+  const alertsError = useAppSelector(alertsSelectors.selectError);
+  const reduxNotifications = alertsData?.items || [];
 
   useEffect(() => {
-    dispatch(fetchAlerts());
+    dispatch(alertsRequested({}));
   }, [dispatch]);
 
   const routeConfig = getRouteConfig('/notifications');
@@ -68,8 +72,22 @@ export default function NotificationsPage() {
       />
 
       <div className="space-y-3">
-        {notifications.length === 0 && (
-          <Card padding="md" className="text-[var(--app-text-muted)]">No notifications yet.</Card>
+        {alertsStatus === 'loading' && (
+          <LoadingState message="Loading notifications…" fullHeight={false} />
+        )}
+        {alertsStatus === 'failed' && alertsError && (
+          <ErrorState
+            error={alertsError}
+            title="Failed to load notifications"
+            onRetry={() => dispatch(alertsRequested({}))}
+          />
+        )}
+        {alertsStatus === 'succeeded' && notifications.length === 0 && (
+          <EmptyState
+            icon={Bell}
+            title="No notifications yet"
+            message="You're all caught up."
+          />
         )}
         {notifications.map((notification) => (
           <Card

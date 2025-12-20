@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Command } from 'cmdk';
+import { DialogDescription, DialogTitle } from '@radix-ui/react-dialog';
 import {
   Search,
   FileText,
@@ -16,6 +17,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import './command-palette.css';
+import { useUIKey } from '@/store/ui';
 
 interface CommandItem {
   id: string;
@@ -28,8 +30,10 @@ interface CommandItem {
 }
 
 export function CommandPalette() {
-  const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState('');
+  const { value: commandUI, patch: patchCommandUI } = useUIKey('command-palette', {
+    open: false,
+    search: '',
+  });
   const router = useRouter();
 
   // Toggle command palette with Cmd+K / Ctrl+K
@@ -37,27 +41,27 @@ export function CommandPalette() {
     const down = (e: KeyboardEvent) => {
       if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
-        setOpen((open) => !open);
+        patchCommandUI({ open: !commandUI.open });
       }
     };
 
     document.addEventListener('keydown', down);
     return () => document.removeEventListener('keydown', down);
-  }, []);
+  }, [commandUI.open, patchCommandUI]);
 
   // Close on escape
   useEffect(() => {
-    if (!open) {
-      setSearch('');
+    if (!commandUI.open && commandUI.search) {
+      patchCommandUI({ search: '' });
     }
-  }, [open]);
+  }, [commandUI.open, commandUI.search, patchCommandUI]);
 
   const navigate = useCallback(
     (path: string) => {
-      setOpen(false);
+      patchCommandUI({ open: false, search: '' });
       router.push(path);
     },
-    [router]
+    [patchCommandUI, router]
   );
 
   const pages: CommandItem[] = [
@@ -142,7 +146,7 @@ export function CommandPalette() {
       category: 'Actions',
       icon: GitBranch,
       action: () => {
-        setOpen(false);
+        patchCommandUI({ open: false, search: '' });
         alert('Add deal dialog - to be implemented');
       },
       keywords: ['create', 'new', 'opportunity'],
@@ -153,7 +157,7 @@ export function CommandPalette() {
       category: 'Actions',
       icon: Users,
       action: () => {
-        setOpen(false);
+        patchCommandUI({ open: false, search: '' });
         alert('Add contact dialog - to be implemented');
       },
       keywords: ['create', 'new', 'person'],
@@ -173,16 +177,20 @@ export function CommandPalette() {
   return (
     <>
       <Command.Dialog
-        open={open}
-        onOpenChange={setOpen}
+        open={commandUI.open}
+        onOpenChange={(nextOpen) => patchCommandUI({ open: nextOpen, search: nextOpen ? commandUI.search : '' })}
         label="Global Command Menu"
         className="command-palette"
       >
+        <DialogTitle className="sr-only">Global Command Menu</DialogTitle>
+        <DialogDescription className="sr-only">
+          Search for pages and actions, then press Enter to run the selected command.
+        </DialogDescription>
         <div className="command-palette-header">
           <Search className="command-palette-icon" />
           <Command.Input
-            value={search}
-            onValueChange={setSearch}
+            value={commandUI.search}
+            onValueChange={(nextValue) => patchCommandUI({ search: nextValue })}
             placeholder="Type a command or search..."
             className="command-palette-input"
           />

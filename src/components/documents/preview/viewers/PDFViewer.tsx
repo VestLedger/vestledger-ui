@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
 import { Document, Page } from 'react-pdf';
 import { Button, Spinner } from '@/ui';
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 import { PDFViewerProps } from '../types';
+import { useUIKey } from '@/store/ui';
 
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
@@ -19,48 +19,69 @@ export function PDFViewer({
   onLoadSuccess,
   onLoadError,
 }: PDFViewerProps) {
-  const [numPages, setNumPages] = useState<number>(0);
-  const [pageNumber, setPageNumber] = useState<number>(externalCurrentPage || 1);
-  const [zoom, setZoom] = useState<number>(externalZoomLevel || 100);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { value: ui, patch: patchUI } = useUIKey<{
+    numPages: number;
+    pageNumber: number;
+    zoom: number;
+    isLoading: boolean;
+  }>(`pdf-viewer:${url}`, {
+    numPages: 0,
+    pageNumber: externalCurrentPage || 1,
+    zoom: externalZoomLevel || 100,
+    isLoading: true,
+  });
+
+  const numPages = ui.numPages;
+  const isLoading = ui.isLoading;
+  const pageNumber = externalCurrentPage ?? ui.pageNumber;
+  const zoom = externalZoomLevel ?? ui.zoom;
 
   const handleDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
-    setNumPages(numPages);
-    setIsLoading(false);
+    patchUI({ numPages, isLoading: false });
     onLoadSuccess?.();
   };
 
   const handleDocumentLoadError = (error: Error) => {
-    setIsLoading(false);
+    patchUI({ isLoading: false });
     onLoadError?.(error);
   };
 
   const goToPreviousPage = () => {
     const newPage = Math.max(1, pageNumber - 1);
-    setPageNumber(newPage);
+    if (externalCurrentPage === undefined) {
+      patchUI({ pageNumber: newPage });
+    }
     onPageChange?.(newPage);
   };
 
   const goToNextPage = () => {
     const newPage = Math.min(numPages, pageNumber + 1);
-    setPageNumber(newPage);
+    if (externalCurrentPage === undefined) {
+      patchUI({ pageNumber: newPage });
+    }
     onPageChange?.(newPage);
   };
 
   const handleZoomIn = () => {
     const newZoom = Math.min(200, zoom + 25);
-    setZoom(newZoom);
+    if (externalZoomLevel === undefined) {
+      patchUI({ zoom: newZoom });
+    }
     onZoomChange?.(newZoom);
   };
 
   const handleZoomOut = () => {
     const newZoom = Math.max(50, zoom - 25);
-    setZoom(newZoom);
+    if (externalZoomLevel === undefined) {
+      patchUI({ zoom: newZoom });
+    }
     onZoomChange?.(newZoom);
   };
 
   const handleFitToWidth = () => {
-    setZoom(100);
+    if (externalZoomLevel === undefined) {
+      patchUI({ zoom: 100 });
+    }
     onZoomChange?.(100);
   };
 

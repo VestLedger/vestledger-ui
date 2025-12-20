@@ -8,6 +8,7 @@ export interface ProgressBarProps {
   showLabel?: boolean;
   label?: string;
   className?: string;
+  'aria-label'?: string;
 }
 
 export function ProgressBar({
@@ -18,6 +19,7 @@ export function ProgressBar({
   showLabel = false,
   label,
   className = '',
+  'aria-label': ariaLabel,
 }: ProgressBarProps) {
   const sizeClasses = {
     sm: 'h-1',
@@ -36,7 +38,14 @@ export function ProgressBar({
 
   return (
     <div className={className}>
-      <div className={`w-full bg-[var(--app-surface-hover)] rounded-full overflow-hidden ${sizeClasses[size]}`}>
+      <div
+        className={`w-full bg-[var(--app-surface-hover)] rounded-full overflow-hidden ${sizeClasses[size]}`}
+        role="progressbar"
+        aria-valuenow={clampedValue}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={ariaLabel || `Progress ${Math.round(clampedValue)}%`}
+      >
         {animated ? (
           <motion.div
             initial={{ width: 0 }}

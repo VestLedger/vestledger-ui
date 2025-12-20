@@ -1,54 +1,32 @@
 'use client';
 
-import { Shield, FileCheck, AlertTriangle, CheckCircle2, Clock, FileText, Search, Download } from 'lucide-react';
+
+import { Shield, CheckCircle2, Search, Download } from 'lucide-react';
 import { Card, Button, Badge, PageContainer } from '@/ui';
 import { MetricCard } from '@/components/metric-card';
+import { useAppDispatch } from '@/store/hooks';
+import { auditorDashboardRequested, auditorDashboardSelectors } from '@/store/slices/dashboardsSlice';
+import { ErrorState, LoadingState } from '@/components/ui/async-states';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function AuditorDashboard() {
-  const metrics = [
-    {
-      label: 'Audit Items',
-      value: '156',
-      change: 'Reviewed',
-      trend: 'up' as const,
-      icon: FileCheck,
-    },
-    {
-      label: 'Open Issues',
-      value: '3',
-      change: 'Pending',
-      trend: 'down' as const,
-      icon: AlertTriangle,
-    },
-    {
-      label: 'Compliance Score',
-      value: '98%',
-      change: 'Excellent',
-      trend: 'up' as const,
-      icon: Shield,
-    },
-    {
-      label: 'Last Audit',
-      value: '14d',
-      change: 'Ago',
-      trend: 'up' as const,
-      icon: Clock,
-    },
-  ];
+  const { data, isLoading, error, refetch } = useAsyncData(auditorDashboardRequested, auditorDashboardSelectors.selectState);
 
-  const auditTrail = [
-    { action: 'Capital Call Executed', fund: 'Fund III', date: 'Today 10:42 AM', hash: '0x7a3b...9c2f' },
-    { action: 'Distribution Processed', fund: 'Fund II', date: 'Yesterday', hash: '0x4d2e...8b1a' },
-    { action: 'NAV Updated', fund: 'Fund III', date: '2 days ago', hash: '0x9f1c...3e4d' },
-    { action: 'LP Transfer Approved', fund: 'Fund I', date: '3 days ago', hash: '0x2b5a...7c8e' },
-  ];
+  // Extract data with defaults
+  const metrics = data?.metrics || [];
+  const auditTrail = data?.auditTrail || [];
+  const complianceItems = data?.complianceItems || [];
 
-  const complianceItems = [
-    { item: 'Accreditation Verification', status: 'Passed', lastCheck: 'Oct 01' },
-    { item: 'AML/KYC Compliance', status: 'Passed', lastCheck: 'Sep 28' },
-    { item: 'Transfer Restrictions', status: 'Passed', lastCheck: 'Sep 25' },
-    { item: 'Regulatory Filing', status: 'Pending', lastCheck: 'Due Oct 30' },
-  ];
+  if (isLoading) return <LoadingState message="Loading auditor dashboard…" />;
+  if (error) {
+    return (
+      <ErrorState
+        error={error}
+        title="Failed to load auditor dashboard"
+        onRetry={refetch}
+      />
+    );
+  }
 
   return (
     <PageContainer className="space-y-6">
@@ -68,7 +46,7 @@ export function AuditorDashboard() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {metrics.map((metric, index) => (
+        {metrics.map((metric: any, index: number) => (
           <MetricCard key={index} {...metric} />
         ))}
       </div>

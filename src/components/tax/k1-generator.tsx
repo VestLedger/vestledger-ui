@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
 import { Card, Button, Badge, Input } from '@/ui';
 import { FileText, Download, Settings, Calendar, CheckCircle, AlertCircle, RefreshCw, Send, Eye } from 'lucide-react';
+import { useUIKey } from '@/store/ui';
+import { formatCurrency as formatCurrencyBase } from '@/utils/formatting';
 
 export type K1IncomeType =
   | 'ordinary-business-income'
@@ -217,17 +218,20 @@ export function K1Generator({
   onAmendK1,
   onExportAll,
 }: K1GeneratorProps) {
-  const [selectedTaxYear, setSelectedTaxYear] = useState(taxYear);
-  const [filterStatus, setFilterStatus] = useState<K1Document['status'] | 'all'>('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const { value: ui, patch: patchUI } = useUIKey<{
+    selectedTaxYear: number;
+    filterStatus: K1Document['status'] | 'all';
+    searchQuery: string;
+  }>(`k1-generator:${fundId ?? 'all'}`, {
+    selectedTaxYear: taxYear,
+    filterStatus: 'all',
+    searchQuery: '',
+  });
+  const { selectedTaxYear, filterStatus, searchQuery } = ui;
 
   const formatCurrency = (amount: number) => {
     const isNegative = amount < 0;
-    const formatted = new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2,
-    }).format(Math.abs(amount));
+    const formatted = formatCurrencyBase(Math.abs(amount), { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     return isNegative ? `(${formatted})` : formatted;
   };
 
@@ -324,7 +328,7 @@ export function K1Generator({
             <select
               className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
               value={selectedTaxYear}
-              onChange={(e) => setSelectedTaxYear(Number(e.target.value))}
+              onChange={(e) => patchUI({ selectedTaxYear: Number(e.target.value) })}
             >
               {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(year => (
                 <option key={year} value={year}>{year}</option>
@@ -418,7 +422,7 @@ export function K1Generator({
           <Input
             placeholder="Search by partner name or SSN..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => patchUI({ searchQuery: e.target.value })}
             startContent={<FileText className="w-4 h-4" />}
             size="sm"
             className="flex-1"
@@ -426,7 +430,7 @@ export function K1Generator({
           <select
             className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value as K1Document['status'] | 'all')}
+            onChange={(e) => patchUI({ filterStatus: e.target.value as K1Document['status'] | 'all' })}
           >
             <option value="all">All Status</option>
             <option value="draft">Draft</option>

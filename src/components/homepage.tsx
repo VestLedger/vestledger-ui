@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react';
+import { useUIKey } from '@/store/ui';
 import { ArrowRight, Link as LinkIcon, RefreshCw, Sparkles, Shield, CheckCircle2, Layers } from 'lucide-react';
 import { useAuth, PERSONA_CONFIG, UserRole } from '@/contexts/auth-context';
 import { Button, Input, Card, Modal } from '@/ui';
@@ -10,17 +10,22 @@ import Link from 'next/link';
 
 export function Homepage() {
   const { login } = useAuth();
-  const [showLoginModal, setShowLoginModal] = useState(false);
   const router = useRouter();
-
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState<UserRole>('gp');
+  const { value: homepageUI, patch: patchHomepageUI } = useUIKey('homepage', {
+    showLoginModal: false,
+    email: '',
+    password: '',
+    role: 'gp' as UserRole,
+  });
+  const showLoginModal = homepageUI.showLoginModal;
+  const email = homepageUI.email;
+  const password = homepageUI.password;
+  const role = homepageUI.role;
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     login(email, password, role);
-    setShowLoginModal(false);
+    patchHomepageUI({ showLoginModal: false, password: '' });
     router.push('/dashboard');
   };
 
@@ -80,7 +85,7 @@ export function Homepage() {
             VestLedger is an institutional operating system for venture capital, private equity, and crypto funds. Tokenized ownership, automated operations, and AI-powered intelligence—unified on one platform.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4">
-            <Button size="lg" color="primary" onPress={() => setShowLoginModal(true)} className="w-full sm:w-auto" endContent={<ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />}>
+            <Button size="lg" color="primary" onPress={() => patchHomepageUI({ showLoginModal: true })} className="w-full sm:w-auto" endContent={<ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />}>
               Get Started
             </Button>
             <Button variant="bordered" color="secondary" size="lg" className="w-full sm:w-auto">
@@ -180,7 +185,7 @@ export function Homepage() {
             <p className="text-base sm:text-lg text-[var(--app-text-muted)] mb-6 sm:mb-8 max-w-2xl mx-auto px-4">
               Join leading venture capital firms who are already using vestledger to manage their portfolios.
             </p>
-            <Button size="lg" color="primary" onPress={() => setShowLoginModal(true)} endContent={<ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />}>
+            <Button size="lg" color="primary" onPress={() => patchHomepageUI({ showLoginModal: true })} endContent={<ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />}>
               Start Your Free Trial
             </Button>
           </div>
@@ -190,7 +195,7 @@ export function Homepage() {
       {/* Login Modal */}
       <Modal
         isOpen={showLoginModal}
-        onOpenChange={setShowLoginModal}
+        onOpenChange={(open) => patchHomepageUI({ showLoginModal: open })}
         size="md"
         title={
           <div className="flex flex-col gap-1">
@@ -204,7 +209,7 @@ export function Homepage() {
             label="Email"
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => patchHomepageUI({ email: e.target.value })}
             placeholder="you@company.com"
             isRequired
           />
@@ -212,7 +217,7 @@ export function Homepage() {
             label="Select Role (Demo)"
             placeholder="Select a persona"
             selectedKeys={[role]}
-            onChange={(e) => setRole(e.target.value as UserRole)}
+            onChange={(e) => patchHomepageUI({ role: e.target.value as UserRole })}
             disallowEmptySelection
             variant="bordered"
             classNames={{
@@ -232,7 +237,7 @@ export function Homepage() {
             label="Password"
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => patchHomepageUI({ password: e.target.value })}
             placeholder="••••••••"
             isRequired
           />

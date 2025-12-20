@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button, Badge } from '@/ui';
@@ -14,27 +14,13 @@ import {
   Info,
   CheckCircle,
   AlertTriangle,
-  DollarSign,
   Users,
   FileText,
   Calendar,
   TrendingUp,
 } from 'lucide-react';
-
-export type NotificationType = 'info' | 'success' | 'warning' | 'error' | 'default';
-export type NotificationCategory = 'deal' | 'lp' | 'document' | 'calendar' | 'alert' | 'system';
-
-export interface Notification {
-  id: string;
-  type: NotificationType;
-  category: NotificationCategory;
-  title: string;
-  message: string;
-  timestamp: Date;
-  read: boolean;
-  actionLabel?: string;
-  actionUrl?: string;
-}
+import type { Notification, NotificationCategory, NotificationType } from '@/types/notification';
+import { useUIKey } from '@/store/ui';
 
 export interface NotificationCenterProps {
   notifications?: Notification[];
@@ -45,49 +31,6 @@ export interface NotificationCenterProps {
   onClearAll?: () => void;
   maxHeight?: string;
 }
-
-const mockNotifications: Notification[] = [
-  {
-    id: '1',
-    type: 'warning',
-    category: 'deal',
-    title: 'Deal Review Pending',
-    message: 'CloudScale Series B requires IC review by Dec 15',
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-    read: false,
-    actionLabel: 'Review Deal',
-    actionUrl: '/pipeline',
-  },
-  {
-    id: '2',
-    type: 'success',
-    category: 'lp',
-    title: 'Capital Call Funded',
-    message: 'Acme Ventures committed $5M to Fund III',
-    timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
-    read: false,
-  },
-  {
-    id: '3',
-    type: 'info',
-    category: 'document',
-    title: 'New Document Available',
-    message: 'Q4 2024 LP Report is ready for review',
-    timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
-    read: true,
-    actionLabel: 'View Report',
-  },
-  {
-    id: '4',
-    type: 'error',
-    category: 'alert',
-    title: 'Compliance Deadline',
-    message: 'Form ADV filing due in 7 days',
-    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-    read: false,
-    actionLabel: 'File Now',
-  },
-];
 
 const getNotificationIcon = (type: NotificationType) => {
   switch (type) {
@@ -136,7 +79,7 @@ const getRelativeTime = (timestamp: Date) => {
 };
 
 export function NotificationCenter({
-  notifications = mockNotifications,
+  notifications = [],
   onNotificationClick,
   onMarkAsRead,
   onMarkAllAsRead,
@@ -145,7 +88,8 @@ export function NotificationCenter({
   maxHeight = '32rem',
 }: NotificationCenterProps) {
   const router = useRouter();
-  const [isOpen, setIsOpen] = useState(false);
+  const { value: ui, patch: patchUI } = useUIKey('notification-center', { isOpen: false });
+  const { isOpen } = ui;
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -154,7 +98,7 @@ export function NotificationCenter({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
+        patchUI({ isOpen: false });
       }
     };
 
@@ -165,7 +109,7 @@ export function NotificationCenter({
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isOpen]);
+  }, [isOpen, patchUI]);
 
   const handleNotificationClick = (notification: Notification) => {
     if (!notification.read && onMarkAsRead) {
@@ -183,7 +127,7 @@ export function NotificationCenter({
     <div className="relative" ref={dropdownRef}>
       {/* Notification Bell Button */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => patchUI({ isOpen: !isOpen })}
         className="relative p-2 rounded-lg hover:bg-[var(--app-surface-hover)] transition-colors"
         aria-label="Notifications"
       >
@@ -341,7 +285,7 @@ export function NotificationCenter({
               <div className="p-3 border-t border-[var(--app-border)] bg-[var(--app-surface-hover)]">
                 <button
                   onClick={() => {
-                    setIsOpen(false);
+                    patchUI({ isOpen: false });
                     router.push('/notifications');
                   }}
                   className="w-full text-center text-sm font-medium text-[var(--app-primary)] hover:underline"

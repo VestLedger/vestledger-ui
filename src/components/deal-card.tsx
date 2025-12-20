@@ -81,6 +81,7 @@ export function DealCard({ deal, outcome }: DealCardProps) {
             value={deal.probability}
             size="sm"
             color="primary"
+            aria-label={`Deal probability ${deal.probability}%`}
           />
         </div>
     </Card>

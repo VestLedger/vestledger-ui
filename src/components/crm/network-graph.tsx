@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Card, Badge, Button } from '@/ui';
 import { Network, Users, Building2, TrendingUp, Zap, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useUIKey } from '@/store/ui';
 
 export interface NetworkNode {
   id: string;
@@ -35,9 +36,14 @@ export function NetworkGraph({
   onNodeClick,
   maxDepth = 2
 }: NetworkGraphProps) {
-  const [selectedNode, setSelectedNode] = useState<NetworkNode | null>(null);
-  const [hoveredNode, setHoveredNode] = useState<NetworkNode | null>(null);
-  const [depth, setDepth] = useState(1);
+  const { value: ui, patch: patchUI } = useUIKey<{
+    selectedNodeId: string | null;
+    depth: number;
+  }>(`network-graph:${centralNode.id}`, {
+    selectedNodeId: null,
+    depth: 1,
+  });
+  const { selectedNodeId, depth } = ui;
 
   // Calculate node positions in a radial layout
   const layout = useMemo(() => {
@@ -155,7 +161,7 @@ export function NetworkGraph({
   );
 
   const handleNodeClick = (node: NetworkNode) => {
-    setSelectedNode(node);
+    patchUI({ selectedNodeId: node.id });
     onNodeClick?.(node);
   };
 
@@ -218,7 +224,7 @@ export function NetworkGraph({
               variant="flat"
               isIconOnly
               isDisabled={depth <= 1}
-              onPress={() => setDepth(d => Math.max(1, d - 1))}
+              onPress={() => patchUI({ depth: Math.max(1, depth - 1) })}
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
@@ -230,7 +236,7 @@ export function NetworkGraph({
               variant="flat"
               isIconOnly
               isDisabled={depth >= maxDepth}
-              onPress={() => setDepth(d => Math.min(maxDepth, d + 1))}
+              onPress={() => patchUI({ depth: Math.min(maxDepth, depth + 1) })}
             >
               <ChevronRight className="w-4 h-4" />
             </Button>
@@ -271,35 +277,30 @@ export function NetworkGraph({
                 if (!pos) return null;
 
                 const isCentral = node.id === centralNode.id;
-                const isHovered = hoveredNode?.id === node.id;
-                const isSelected = selectedNode?.id === node.id;
+                const isSelected = selectedNodeId === node.id;
                 const Icon = getNodeIcon(node.type);
 
                 return (
                   <g
                     key={node.id}
                     transform={`translate(${pos.x}, ${pos.y})`}
-                    className="cursor-pointer transition-transform hover:scale-110"
+                    className="group cursor-pointer transition-transform hover:scale-110"
                     onClick={() => handleNodeClick(node)}
-                    onMouseEnter={() => setHoveredNode(node)}
-                    onMouseLeave={() => setHoveredNode(null)}
                   >
                     {/* Outer ring for selected/hovered */}
-                    {(isSelected || isHovered) && (
-                      <circle
-                        r={isCentral ? 32 : 22}
-                        fill="none"
-                        stroke={getNodeColor(node)}
-                        strokeWidth="3"
-                        opacity="0.5"
-                      />
-                    )}
+                    <circle
+                      r={isCentral ? 32 : 22}
+                      fill="none"
+                      stroke={getNodeColor(node)}
+                      strokeWidth="3"
+                      className={isSelected ? 'opacity-50' : 'opacity-0 group-hover:opacity-50'}
+                    />
 
                     {/* Node circle */}
                     <circle
                       r={isCentral ? 25 : 16}
                       fill={getNodeColor(node)}
-                      opacity={isHovered ? 1 : 0.9}
+                      className={isSelected ? 'opacity-100' : 'opacity-90 group-hover:opacity-100'}
                     />
 
                     {/* Icon */}

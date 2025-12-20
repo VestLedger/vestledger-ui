@@ -1,255 +1,65 @@
 'use client'
 
-import { useState } from 'react';
 import { Card, Button, Badge, Progress, PageContainer, Breadcrumb, PageHeader, Tabs, Tab } from '@/ui';
 import { Receipt, Download, Send, Calendar, DollarSign, Building2, Users, CheckCircle, Clock, AlertTriangle, Mail, Upload, FileText , Scale} from 'lucide-react';
 import { getRouteConfig } from '@/config/routes';
 import { K1Generator } from '../tax/k1-generator';
-
-interface TaxDocument {
-  id: string;
-  documentType: string;
-  taxYear: number;
-  recipientType: 'LP' | 'GP' | 'Portfolio Company';
-  recipientName: string;
-  status: 'draft' | 'ready' | 'sent' | 'filed';
-  generatedDate: string | null;
-  sentDate: string | null;
-  amount?: number;
-}
-
-interface TaxSummary {
-  id: string;
-  fundName: string;
-  taxYear: number;
-  k1sIssued: number;
-  k1sTotal: number;
-  form1099Issued: number;
-  form1099Total: number;
-  estimatedTaxesPaid: number;
-  totalDistributions: number;
-  filingDeadline: string;
-}
-
-interface PortfolioCompanyTax {
-  id: string;
-  companyName: string;
-  ownership: number;
-  taxClassification: string;
-  k1Required: boolean;
-  k1Received: boolean;
-  k1ReceivedDate: string | null;
-  contactEmail: string;
-}
-
-const mockTaxDocuments: TaxDocument[] = [
-  {
-    id: '1',
-    documentType: 'Schedule K-1 (Form 1065)',
-    taxYear: 2024,
-    recipientType: 'LP',
-    recipientName: 'University Endowment Fund',
-    status: 'sent',
-    generatedDate: '2024-12-01',
-    sentDate: '2024-12-05',
-    amount: 2500000
-  },
-  {
-    id: '2',
-    documentType: 'Schedule K-1 (Form 1065)',
-    taxYear: 2024,
-    recipientType: 'LP',
-    recipientName: 'Tech Pension Fund',
-    status: 'ready',
-    generatedDate: '2024-12-01',
-    sentDate: null,
-    amount: 1800000
-  },
-  {
-    id: '3',
-    documentType: 'Form 1099-DIV',
-    taxYear: 2024,
-    recipientType: 'LP',
-    recipientName: 'Family Office Partners',
-    status: 'sent',
-    generatedDate: '2024-11-28',
-    sentDate: '2024-12-01',
-    amount: 150000
-  },
-  {
-    id: '4',
-    documentType: 'Schedule K-1 (Form 1065)',
-    taxYear: 2024,
-    recipientType: 'LP',
-    recipientName: 'Sovereign Wealth Fund',
-    status: 'draft',
-    generatedDate: null,
-    sentDate: null,
-    amount: 5000000
-  },
-  {
-    id: '5',
-    documentType: 'Form 1099-MISC',
-    taxYear: 2024,
-    recipientType: 'Portfolio Company',
-    recipientName: 'CloudScale Inc.',
-    status: 'sent',
-    generatedDate: '2024-11-20',
-    sentDate: '2024-11-25',
-    amount: 75000
-  }
-];
-
-const mockTaxSummaries: TaxSummary[] = [
-  {
-    id: '1',
-    fundName: 'Acme Ventures Fund II',
-    taxYear: 2024,
-    k1sIssued: 8,
-    k1sTotal: 12,
-    form1099Issued: 5,
-    form1099Total: 8,
-    estimatedTaxesPaid: 450000,
-    totalDistributions: 13700000,
-    filingDeadline: '2025-03-15'
-  },
-  {
-    id: '2',
-    fundName: 'Acme Ventures Fund III',
-    taxYear: 2024,
-    k1sIssued: 12,
-    k1sTotal: 15,
-    form1099Issued: 3,
-    form1099Total: 6,
-    estimatedTaxesPaid: 320000,
-    totalDistributions: 8500000,
-    filingDeadline: '2025-03-15'
-  },
-  {
-    id: '3',
-    fundName: 'Acme Ventures Fund I',
-    taxYear: 2024,
-    k1sIssued: 10,
-    k1sTotal: 10,
-    form1099Issued: 4,
-    form1099Total: 4,
-    estimatedTaxesPaid: 280000,
-    totalDistributions: 6200000,
-    filingDeadline: '2025-03-15'
-  }
-];
-
-const mockPortfolioTax: PortfolioCompanyTax[] = [
-  {
-    id: '1',
-    companyName: 'CloudScale Inc.',
-    ownership: 18.5,
-    taxClassification: 'C-Corp',
-    k1Required: false,
-    k1Received: false,
-    k1ReceivedDate: null,
-    contactEmail: 'finance@cloudscale.com'
-  },
-  {
-    id: '2',
-    companyName: 'DataFlow Systems',
-    ownership: 22.3,
-    taxClassification: 'C-Corp',
-    k1Required: false,
-    k1Received: false,
-    k1ReceivedDate: null,
-    contactEmail: 'accounting@dataflow.com'
-  },
-  {
-    id: '3',
-    companyName: 'FinTech Solutions',
-    ownership: 15.8,
-    taxClassification: 'S-Corp',
-    k1Required: true,
-    k1Received: true,
-    k1ReceivedDate: '2024-11-15',
-    contactEmail: 'tax@fintech.com'
-  },
-  {
-    id: '4',
-    companyName: 'AI Analytics Co.',
-    ownership: 25.0,
-    taxClassification: 'LLC (Partnership)',
-    k1Required: true,
-    k1Received: false,
-    k1ReceivedDate: null,
-    contactEmail: 'cfo@aianalytics.com'
-  }
-];
+import { useUIKey } from '@/store/ui';
+import { taxCenterRequested, taxCenterSelectors } from '@/store/slices/backOfficeSlice';
+import { ErrorState, LoadingState } from '@/components/ui/async-states';
+import { formatCurrency } from '@/utils/formatting';
+import { StatusBadge, StatsCard } from '@/components/ui';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function TaxCenter() {
-  const [selectedTab, setSelectedTab] = useState<string>('overview');
+  const { data, isLoading, error, refetch } = useAsyncData(taxCenterRequested, taxCenterSelectors.selectState);
+  const { value: ui, patch: patchUI } = useUIKey('back-office-tax-center', { selectedTab: 'overview' });
+  const { selectedTab } = ui;
 
   // Get route config for breadcrumbs and AI suggestions
   const routeConfig = getRouteConfig('/tax-center');
 
+  const taxDocuments = data?.taxDocuments || [];
+  const taxSummaries = data?.taxSummaries || [];
+  const portfolioTax = data?.portfolioTax || [];
+  const filingDeadline = data?.filingDeadline || new Date();
+
+  if (isLoading) return <LoadingState message="Loading tax center…" />;
+  if (error) {
+    return (
+      <ErrorState
+        error={error}
+        title="Failed to load tax center"
+        onRetry={refetch}
+      />
+    );
+  }
+
   // Calculate AI insights
-  const k1sIssued = mockTaxSummaries.reduce((sum, s) => sum + s.k1sIssued, 0);
-  const k1sTotal = mockTaxSummaries.reduce((sum, s) => sum + s.k1sTotal, 0);
-  const form1099Issued = mockTaxSummaries.reduce((sum, s) => sum + s.form1099Issued, 0);
-  const readyDocuments = mockTaxDocuments.filter(d => d.status === 'ready').length;
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'sent':
-      case 'filed':
-        return 'bg-[var(--app-success-bg)] text-[var(--app-success)]';
-      case 'ready':
-        return 'bg-[var(--app-info-bg)] text-[var(--app-info)]';
-      case 'draft':
-        return 'bg-[var(--app-warning-bg)] text-[var(--app-warning)]';
-      default:
-        return 'bg-[var(--app-surface)]';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'sent':
-      case 'filed':
-        return <CheckCircle className="w-4 h-4" />;
-      case 'ready':
-        return <Clock className="w-4 h-4" />;
-      case 'draft':
-        return <AlertTriangle className="w-4 h-4" />;
-      default:
-        return null;
-    }
-  };
+  const k1sIssued = taxSummaries.reduce((sum, s) => sum + s.k1sIssued, 0);
+  const k1sTotal = taxSummaries.reduce((sum, s) => sum + s.k1sTotal, 0);
+  const form1099Issued = taxSummaries.reduce((sum, s) => sum + s.form1099Issued, 0);
+  const readyDocuments = taxDocuments.filter(d => d.status === 'ready').length;
 
   return (
     <PageContainer>
-      <div className="space-y-6">
       {/* Breadcrumb Navigation */}
       {routeConfig && (
-        <div>
+        <div className="mb-4">
           <Breadcrumb
             items={routeConfig.breadcrumbs}
             aiSuggestion={routeConfig.aiSuggestion}
           />
         </div>
-        )}
+      )}
+
       {/* Page Header with AI Summary */}
       <PageHeader
         title="Tax Center"
         description="Manage tax documents, K-1s, and reporting for LPs and portfolio companies"
         icon={Receipt}
         aiSummary={{
-          text: `${k1sIssued} K-1s issued out of ${k1sTotal}. ${form1099Issued} 1099s issued. ${readyDocuments} documents ready to send. Filing deadline: March 15, 2025. AI recommends prioritizing the ${readyDocuments} ready documents for immediate distribution.`,
+          text: `${k1sIssued} K-1s issued out of ${k1sTotal}. ${form1099Issued} 1099s issued. ${readyDocuments} documents ready to send. Filing deadline: ${filingDeadline.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}. AI recommends prioritizing the ${readyDocuments} ready documents for immediate distribution.`,
           confidence: 0.92
         }}
         primaryAction={{
@@ -267,7 +77,7 @@ export function TaxCenter() {
           {
             id: 'overview',
             label: 'Tax Documents',
-            count: mockTaxDocuments.length
+            count: taxDocuments.length
           },
           {
             id: 'k1-generator',
@@ -276,13 +86,13 @@ export function TaxCenter() {
           {
             id: 'fund-summary',
             label: 'Fund Summary',
-            count: mockTaxSummaries.length
+            count: taxSummaries.length
           },
           {
             id: 'portfolio',
             label: 'Portfolio Companies',
-            count: mockPortfolioTax.filter(c => c.k1Required && !c.k1Received).length,
-            priority: mockPortfolioTax.filter(c => c.k1Required && !c.k1Received).length > 0 ? 'high' : undefined
+            count: portfolioTax.filter(c => c.k1Required && !c.k1Received).length,
+            priority: portfolioTax.filter(c => c.k1Required && !c.k1Received).length > 0 ? 'high' : undefined
           },
           {
             id: 'communications',
@@ -290,79 +100,47 @@ export function TaxCenter() {
           }
         ]}
         activeTab={selectedTab}
-        onTabChange={(tabId) => setSelectedTab(tabId)}
+        onTabChange={(tabId) => patchUI({ selectedTab: tabId })}
       />
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-success-bg)]">
-              <FileText className="w-6 h-6 text-[var(--app-success)]" />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--app-text-muted)]">K-1s Issued</p>
-              <p className="text-2xl font-bold">
-                {mockTaxSummaries.reduce((sum, s) => sum + s.k1sIssued, 0)}
-              </p>
-              <p className="text-xs text-[var(--app-text-subtle)] mt-1">
-                of {mockTaxSummaries.reduce((sum, s) => sum + s.k1sTotal, 0)} total
-              </p>
-            </div>
-          </div>
-        </Card>
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+        <StatsCard
+          title="K-1s Issued"
+          value={taxSummaries.reduce((sum, s) => sum + s.k1sIssued, 0)}
+          icon={FileText}
+          variant="success"
+          subtitle={`of ${taxSummaries.reduce((sum, s) => sum + s.k1sTotal, 0)} total`}
+        />
 
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-info-bg)]">
-              <FileText className="w-6 h-6 text-[var(--app-info)]" />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--app-text-muted)]">1099s Issued</p>
-              <p className="text-2xl font-bold">
-                {mockTaxSummaries.reduce((sum, s) => sum + s.form1099Issued, 0)}
-              </p>
-              <p className="text-xs text-[var(--app-text-subtle)] mt-1">
-                of {mockTaxSummaries.reduce((sum, s) => sum + s.form1099Total, 0)} total
-              </p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="1099s Issued"
+          value={taxSummaries.reduce((sum, s) => sum + s.form1099Issued, 0)}
+          icon={FileText}
+          variant="primary"
+          subtitle={`of ${taxSummaries.reduce((sum, s) => sum + s.form1099Total, 0)} total`}
+        />
 
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-warning-bg)]">
-              <DollarSign className="w-6 h-6 text-[var(--app-warning)]" />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--app-text-muted)]">Est. Taxes Paid</p>
-              <p className="text-2xl font-bold">
-                {formatCurrency(mockTaxSummaries.reduce((sum, s) => sum + s.estimatedTaxesPaid, 0))}
-              </p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="Est. Taxes Paid"
+          value={formatCurrency(taxSummaries.reduce((sum, s) => sum + s.estimatedTaxesPaid, 0))}
+          icon={DollarSign}
+          variant="warning"
+        />
 
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-primary-bg)]">
-              <Calendar className="w-6 h-6 text-[var(--app-primary)]" />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--app-text-muted)]">Filing Deadline</p>
-              <p className="text-lg font-bold">Mar 15, 2025</p>
-              <p className="text-xs text-[var(--app-text-subtle)] mt-1">
-                {Math.ceil((new Date('2025-03-15').getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days remaining
-              </p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="Filing Deadline"
+          value={filingDeadline.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+          icon={Calendar}
+          variant="neutral"
+          subtitle={`${Math.ceil((filingDeadline.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days remaining`}
+        />
       </div>
 
       {/* Overview Tab - Tax Documents */}
       {selectedTab === 'overview' && (
           <div className="mt-4 space-y-3">
-            {mockTaxDocuments.map((doc) => (
+            {taxDocuments.map((doc) => (
               <Card key={doc.id} padding="lg">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-4">
@@ -372,12 +150,7 @@ export function TaxCenter() {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-semibold">{doc.documentType}</h3>
-                        <Badge size="sm" className={getStatusColor(doc.status)}>
-                          <div className="flex items-center gap-1">
-                            {getStatusIcon(doc.status)}
-                            <span className="capitalize">{doc.status}</span>
-                          </div>
-                        </Badge>
+                        <StatusBadge status={doc.status} domain="tax" showIcon size="sm" />
                         <Badge size="sm" className="bg-[var(--app-surface-hover)]">
                           Tax Year {doc.taxYear}
                         </Badge>
@@ -474,7 +247,7 @@ export function TaxCenter() {
       {/* Fund Summary Tab */}
       {selectedTab === 'fund-summary' && (
           <div className="mt-4 space-y-3">
-            {mockTaxSummaries.map((summary) => {
+            {taxSummaries.map((summary) => {
               const k1Progress = (summary.k1sIssued / summary.k1sTotal) * 100;
               const form1099Progress = (summary.form1099Issued / summary.form1099Total) * 100;
 
@@ -521,7 +294,7 @@ export function TaxCenter() {
                             {summary.k1sIssued} of {summary.k1sTotal} ({k1Progress.toFixed(0)}%)
                           </span>
                         </div>
-                        <Progress value={k1Progress} maxValue={100} className="h-2" />
+                        <Progress value={k1Progress} maxValue={100} className="h-2" aria-label={`Schedule K-1s progress ${k1Progress.toFixed(0)}%`} />
                       </div>
 
                       <div>
@@ -531,7 +304,7 @@ export function TaxCenter() {
                             {summary.form1099Issued} of {summary.form1099Total} ({form1099Progress.toFixed(0)}%)
                           </span>
                         </div>
-                        <Progress value={form1099Progress} maxValue={100} className="h-2" />
+                        <Progress value={form1099Progress} maxValue={100} className="h-2" aria-label={`Form 1099s progress ${form1099Progress.toFixed(0)}%`} />
                       </div>
                     </div>
                   </div>
@@ -547,19 +320,19 @@ export function TaxCenter() {
             <Card padding="lg">
               <h3 className="font-semibold mb-4">K-1 Collection Status</h3>
               <div className="space-y-3">
-                {mockPortfolioTax.map((company) => (
+                {portfolioTax.map((company) => (
                   <div key={company.id} className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <h4 className="font-semibold">{company.companyName}</h4>
                           {company.k1Required && (
-                            <Badge size="sm" className={company.k1Received ? 'bg-[var(--app-success-bg)] text-[var(--app-success)]' : 'bg-[var(--app-warning-bg)] text-[var(--app-warning)]'}>
-                              <div className="flex items-center gap-1">
-                                {company.k1Received ? <CheckCircle className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
-                                <span>{company.k1Received ? 'K-1 Received' : 'K-1 Pending'}</span>
-                              </div>
-                            </Badge>
+                            <StatusBadge
+                              status={company.k1Received ? 'received' : 'pending'}
+                              domain="tax"
+                              showIcon
+                              size="sm"
+                            />
                           )}
                           {!company.k1Required && (
                             <Badge size="sm" className="bg-[var(--app-surface)]">
@@ -701,7 +474,6 @@ export function TaxCenter() {
           </div>
         </div>
       </Card>
-      </div>
     </PageContainer>
   );
 }

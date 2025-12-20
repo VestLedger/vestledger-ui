@@ -1,109 +1,34 @@
 'use client';
 
-import { useState } from 'react';
 import { BarChart3, TrendingUp, FileText, DollarSign, Download, Calendar, CheckCircle2, AlertCircle, Clock, CreditCard, Pen, Shield, ChevronRight, Wallet } from 'lucide-react';
 import { Card, Button, Badge, Progress, PageContainer } from '@/ui';
 import { MetricCard } from '@/components/metric-card';
-
-interface PendingCapitalCall {
-  id: string;
-  fundName: string;
-  callNumber: number;
-  amount: number;
-  dueDate: Date;
-  status: 'pending' | 'overdue' | 'partial';
-  paidAmount: number;
-}
-
-interface PendingSignature {
-  id: string;
-  documentName: string;
-  documentType: string;
-  requestedDate: Date;
-  urgency: 'high' | 'medium' | 'low';
-}
-
-const pendingCalls: PendingCapitalCall[] = [
-  {
-    id: '1',
-    fundName: 'Quantum Ventures Fund III',
-    callNumber: 3,
-    amount: 750000,
-    dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-    status: 'pending',
-    paidAmount: 0,
-  },
-];
-
-const pendingSignatures: PendingSignature[] = [
-  {
-    id: '1',
-    documentName: 'Side Letter Amendment',
-    documentType: 'Legal Amendment',
-    requestedDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-    urgency: 'high',
-  },
-  {
-    id: '2',
-    documentName: 'Q4 Consent Form',
-    documentType: 'Consent',
-    requestedDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-    urgency: 'medium',
-  },
-];
+import { lpDashboardRequested, lpDashboardSelectors } from '@/store/slices/dashboardsSlice';
+import { ErrorState, LoadingState } from '@/components/ui/async-states';
+import { formatCurrencyCompact } from '@/utils/formatting';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function LPDashboard() {
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const { data, isLoading, error, refetch } = useAsyncData(lpDashboardRequested, lpDashboardSelectors.selectState);
 
-  const metrics = [
-    {
-      label: 'Capital Account',
-      value: '$4.2M',
-      change: '+12.4%',
-      trend: 'up' as const,
-      icon: DollarSign,
-    },
-    {
-      label: 'Total Distributions',
-      value: '$1.8M',
-      change: 'YTD',
-      trend: 'up' as const,
-      icon: TrendingUp,
-    },
-    {
-      label: 'NAV',
-      value: '$5.6M',
-      change: 'Q3 2024',
-      trend: 'up' as const,
-      icon: BarChart3,
-    },
-    {
-      label: 'IRR',
-      value: '24.3%',
-      change: 'Net',
-      trend: 'up' as const,
-      icon: TrendingUp,
-    },
-  ];
+  // Extract data with defaults
+  const metrics = data?.metrics || [];
+  const documents = data?.documents || [];
+  const capitalActivity = data?.capitalActivity || [];
+  const pendingCalls = data?.pendingCalls || [];
+  const pendingSignatures = data?.pendingSignatures || [];
+  const commitment = data?.commitment || { totalCommitment: 0, calledAmount: 0 };
 
-  const documents = [
-    { name: 'Q3 2024 LP Report', type: 'Report', date: 'Oct 15, 2024' },
-    { name: 'Capital Call Notice #12', type: 'Notice', date: 'Sep 30, 2024' },
-    { name: 'Distribution Notice #8', type: 'Notice', date: 'Aug 15, 2024' },
-    { name: 'Fund III LPA Amendment', type: 'Legal', date: 'Jul 01, 2024' },
-  ];
-
-  const capitalActivity = [
-    { type: 'Capital Call', amount: '$500K', date: 'Oct 01, 2024', status: 'Paid' },
-    { type: 'Distribution', amount: '$125K', date: 'Sep 15, 2024', status: 'Received' },
-    { type: 'Capital Call', amount: '$500K', date: 'Jul 01, 2024', status: 'Paid' },
-  ];
-
-  const formatCurrency = (amount: number) => {
-    if (amount >= 1_000_000) return `$${(amount / 1_000_000).toFixed(1)}M`;
-    if (amount >= 1_000) return `$${(amount / 1_000).toFixed(0)}K`;
-    return `$${amount.toFixed(0)}`;
-  };
+  if (isLoading) return <LoadingState message="Loading LP dashboard…" />;
+  if (error) {
+    return (
+      <ErrorState
+        error={error}
+        title="Failed to load LP dashboard"
+        onRetry={refetch}
+      />
+    );
+  }
 
   const getDaysUntilDue = (date: Date) => {
     const diff = Math.ceil((date.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
@@ -113,8 +38,8 @@ export function LPDashboard() {
   };
 
   // Commitment tracking
-  const totalCommitment = 10_000_000;
-  const calledAmount = 6_500_000;
+  const totalCommitment = commitment.totalCommitment;
+  const calledAmount = commitment.calledAmount;
   const unfundedCommitment = totalCommitment - calledAmount;
 
   return (
@@ -151,7 +76,7 @@ export function LPDashboard() {
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {metrics.map((metric, index) => (
+        {metrics.map((metric: any, index: number) => (
           <MetricCard key={index} {...metric} />
         ))}
       </div>
@@ -170,15 +95,15 @@ export function LPDashboard() {
         <div className="grid sm:grid-cols-3 gap-4 mb-4">
           <div>
             <div className="text-xs text-[var(--app-text-muted)] mb-1">Total Commitment</div>
-            <div className="text-xl font-bold">{formatCurrency(totalCommitment)}</div>
+            <div className="text-xl font-bold">{formatCurrencyCompact(totalCommitment)}</div>
           </div>
           <div>
             <div className="text-xs text-[var(--app-text-muted)] mb-1">Called to Date</div>
-            <div className="text-xl font-bold text-[var(--app-success)]">{formatCurrency(calledAmount)}</div>
+            <div className="text-xl font-bold text-[var(--app-success)]">{formatCurrencyCompact(calledAmount)}</div>
           </div>
           <div>
             <div className="text-xs text-[var(--app-text-muted)] mb-1">Unfunded Commitment</div>
-            <div className="text-xl font-bold text-[var(--app-warning)]">{formatCurrency(unfundedCommitment)}</div>
+            <div className="text-xl font-bold text-[var(--app-warning)]">{formatCurrencyCompact(unfundedCommitment)}</div>
           </div>
         </div>
         <div>
@@ -186,7 +111,7 @@ export function LPDashboard() {
             <span>Capital Called</span>
             <span className="font-medium">{((calledAmount / totalCommitment) * 100).toFixed(0)}%</span>
           </div>
-          <Progress value={(calledAmount / totalCommitment) * 100} maxValue={100} className="h-3" />
+          <Progress value={(calledAmount / totalCommitment) * 100} maxValue={100} className="h-3" aria-label={`Capital called ${((calledAmount / totalCommitment) * 100).toFixed(0)}%`} />
         </div>
       </Card>
 
@@ -221,7 +146,7 @@ export function LPDashboard() {
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-2xl font-bold">{formatCurrency(call.amount)}</div>
+                      <div className="text-2xl font-bold">{formatCurrencyCompact(call.amount)}</div>
                       <div className="text-xs text-[var(--app-text-muted)]">Due: {call.dueDate.toLocaleDateString()}</div>
                     </div>
                     <Button color="primary" startContent={<CreditCard className="w-4 h-4" />}>

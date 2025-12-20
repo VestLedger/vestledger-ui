@@ -1,15 +1,20 @@
 'use client';
 
-import { useState } from 'react';
 import { DecisionWriter } from './decision-writer';
 import { DDChatAssistant } from './dd-chat-assistant';
 import { PitchDeckReader } from './pitch-deck-reader';
 import { PageContainer, PageHeader, Breadcrumb } from '@/ui';
 import { getBreadcrumbs, getAISuggestion } from '@/config/routes';
 import { Sparkles } from 'lucide-react';
+import { useUIKey } from '@/store/ui';
+
+const defaultAIToolsState = {
+  selected: 'decision-writer',
+};
 
 export function AITools() {
-  const [selected, setSelected] = useState<string>('decision-writer');
+  const { value: ui, patch: patchUI } = useUIKey<{ selected: string }>('ai-tools', defaultAIToolsState);
+  const { selected } = ui;
 
   // Get breadcrumbs and AI suggestions
   const breadcrumbs = getBreadcrumbs('/ai-tools');
@@ -46,7 +51,7 @@ export function AITools() {
           }
         ]}
         activeTab={selected}
-        onTabChange={(tabId) => setSelected(tabId)}
+        onTabChange={(tabId) => patchUI({ selected: tabId })}
       />
 
       {/* Tab Content */}

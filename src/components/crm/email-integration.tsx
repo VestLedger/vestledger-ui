@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import { Card, Button, Badge, Input } from '@/ui';
 import { Mail, RefreshCw, Check, X, AlertCircle, Calendar, Paperclip, ExternalLink, Search, Filter, ChevronDown, ChevronUp, Users, Briefcase } from 'lucide-react';
+import { useUIKey } from '@/store/ui';
 
 export interface EmailAccount {
   id: string;
@@ -60,7 +60,8 @@ export function EmailIntegration({
   onSync,
   onToggleAutoCapture,
 }: EmailIntegrationProps) {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const { value: ui, patch: patchUI } = useUIKey('crm-email-integration', { isExpanded: true });
+  const { isExpanded } = ui;
 
   const getProviderLogo = (provider: string) => {
     switch (provider) {
@@ -112,7 +113,7 @@ export function EmailIntegration({
         {/* Header */}
         <div className="flex items-center justify-between">
           <button
-            onClick={() => setIsExpanded(!isExpanded)}
+            onClick={() => patchUI({ isExpanded: !isExpanded })}
             className="flex items-center gap-2 hover:text-[var(--app-primary)] transition-colors"
           >
             <Mail className="w-5 h-5 text-[var(--app-primary)]" />
@@ -267,8 +268,11 @@ export function EmailThreadViewer({
   selectedThreadId,
   contactName,
 }: EmailThreadViewerProps) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterLabel, setFilterLabel] = useState<string>('all');
+  const { value: ui, patch: patchUI } = useUIKey(`crm-email-thread-viewer:${contactName ?? 'all'}`, {
+    searchQuery: '',
+    filterLabel: 'all',
+  });
+  const { searchQuery, filterLabel } = ui;
 
   const filteredThreads = threads.filter(thread => {
     const matchesSearch =
@@ -301,7 +305,7 @@ export function EmailThreadViewer({
           <Input
             placeholder="Search emails..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => patchUI({ searchQuery: e.target.value })}
             startContent={<Search className="w-4 h-4" />}
             size="sm"
             className="flex-1"
@@ -309,7 +313,7 @@ export function EmailThreadViewer({
           <select
             className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
             value={filterLabel}
-            onChange={(e) => setFilterLabel(e.target.value)}
+            onChange={(e) => patchUI({ filterLabel: e.target.value })}
           >
             <option value="all">All Labels</option>
             {allLabels.map((label) => (

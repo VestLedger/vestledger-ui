@@ -1,10 +1,11 @@
 'use client'
 
 import { Card } from '@/ui';
-import { jCurveData } from '@/data/mock-fund-analytics-data';
+import { getJCurveData } from '@/services/analytics/fundAnalyticsService';
 import { TrendingUp, Info } from 'lucide-react';
 
 export function JCurveChart() {
+  const jCurveData = getJCurveData();
   // Calculate dimensions for the chart
   const maxIRR = Math.max(...jCurveData.map(d => d.cumulativeIRR));
   const minIRR = Math.min(...jCurveData.map(d => d.cumulativeIRR));

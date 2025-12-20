@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Card, Button, Input, Badge } from '@/ui';
 import { ChevronDown, ChevronUp, ChevronsUpDown, Search, Download, Settings2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useUIKey } from '@/store/ui';
 
 export interface ColumnDef<T> {
   key: string;
@@ -15,6 +16,7 @@ export interface ColumnDef<T> {
 }
 
 export interface AdvancedTableProps<T> {
+  stateKey: string;
   data: T[];
   columns: ColumnDef<T>[];
   onRowClick?: (item: T) => void;
@@ -30,7 +32,17 @@ export interface AdvancedTableProps<T> {
 
 type SortDirection = 'asc' | 'desc' | null;
 
+interface AdvancedTableUIState {
+  searchQuery: string;
+  sortKey: string | null;
+  sortDirection: SortDirection;
+  currentPage: number;
+  pageSize: number;
+  visibleColumns: string[];
+}
+
 export function AdvancedTable<T extends Record<string, any>>({
+  stateKey,
   data,
   columns: initialColumns,
   onRowClick,
@@ -43,14 +55,24 @@ export function AdvancedTable<T extends Record<string, any>>({
   showColumnToggle = true,
   className = '',
 }: AdvancedTableProps<T>) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortKey, setSortKey] = useState<string | null>(null);
-  const [sortDirection, setSortDirection] = useState<SortDirection>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(initialPageSize);
-  const [visibleColumns, setVisibleColumns] = useState<string[]>(
-    initialColumns.filter(col => !col.hidden).map(col => col.key)
+  const initialVisibleColumns = useMemo(
+    () => initialColumns.filter((col) => !col.hidden).map((col) => col.key),
+    [initialColumns]
   );
+
+  const { value: tableUI, patch: patchTableUI } = useUIKey<AdvancedTableUIState>(
+    `advanced-table:${stateKey}`,
+    {
+      searchQuery: '',
+      sortKey: null,
+      sortDirection: null,
+      currentPage: 1,
+      pageSize: initialPageSize,
+      visibleColumns: initialVisibleColumns,
+    }
+  );
+
+  const { searchQuery, sortKey, sortDirection, currentPage, pageSize, visibleColumns } = tableUI;
 
   // Filter columns based on visibility
   const columns = useMemo(
@@ -95,12 +117,13 @@ export function AdvancedTable<T extends Record<string, any>>({
   }, [filteredData, sortKey, sortDirection]);
 
   // Pagination
-  const paginatedData = useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize;
-    return sortedData.slice(startIndex, startIndex + pageSize);
-  }, [sortedData, currentPage, pageSize]);
-
   const totalPages = Math.ceil(sortedData.length / pageSize);
+  const safeCurrentPage = totalPages === 0 ? 1 : Math.min(currentPage, totalPages);
+
+  const paginatedData = useMemo(() => {
+    const startIndex = (safeCurrentPage - 1) * pageSize;
+    return sortedData.slice(startIndex, startIndex + pageSize);
+  }, [sortedData, safeCurrentPage, pageSize]);
 
   const handleSort = (key: string) => {
     const column = columns.find(col => col.key === key);
@@ -108,16 +131,15 @@ export function AdvancedTable<T extends Record<string, any>>({
 
     if (sortKey === key) {
       if (sortDirection === 'asc') {
-        setSortDirection('desc');
+        patchTableUI({ sortDirection: 'desc', currentPage: 1 });
       } else if (sortDirection === 'desc') {
-        setSortKey(null);
-        setSortDirection(null);
+        patchTableUI({ sortKey: null, sortDirection: null, currentPage: 1 });
+      } else {
+        patchTableUI({ sortDirection: 'asc', currentPage: 1 });
       }
     } else {
-      setSortKey(key);
-      setSortDirection('asc');
+      patchTableUI({ sortKey: key, sortDirection: 'asc', currentPage: 1 });
     }
-    setCurrentPage(1);
   };
 
   const getSortIcon = (key: string) => {
@@ -150,9 +172,11 @@ export function AdvancedTable<T extends Record<string, any>>({
   };
 
   const toggleColumn = (key: string) => {
-    setVisibleColumns(prev =>
-      prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
-    );
+    patchTableUI({
+      visibleColumns: visibleColumns.includes(key)
+        ? visibleColumns.filter((k) => k !== key)
+        : [...visibleColumns, key],
+    });
   };
 
   return (
@@ -162,15 +186,14 @@ export function AdvancedTable<T extends Record<string, any>>({
         <div className="flex items-center gap-2 w-full sm:w-auto">
           {searchable && (
             <div className="flex-1 sm:flex-initial sm:w-80">
-              <Input
-                placeholder={searchPlaceholder}
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setCurrentPage(1);
-                }}
-                startContent={<Search className="w-4 h-4 text-[var(--app-text-subtle)]" />}
-              />
+                <Input
+                  placeholder={searchPlaceholder}
+                  value={searchQuery}
+                  onChange={(e) => {
+                    patchTableUI({ searchQuery: e.target.value, currentPage: 1 });
+                  }}
+                  startContent={<Search className="w-4 h-4 text-[var(--app-text-subtle)]" />}
+                />
             </div>
           )}
         </div>
@@ -296,8 +319,7 @@ export function AdvancedTable<T extends Record<string, any>>({
             <select
               value={pageSize}
               onChange={(e) => {
-                setPageSize(Number(e.target.value));
-                setCurrentPage(1);
+                patchTableUI({ pageSize: Number(e.target.value), currentPage: 1 });
               }}
               className="px-2 py-1 text-sm rounded border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
             >
@@ -311,15 +333,15 @@ export function AdvancedTable<T extends Record<string, any>>({
 
           <div className="flex items-center gap-2">
             <span className="text-sm text-[var(--app-text-muted)]">
-              Page {currentPage} of {totalPages}
+              Page {safeCurrentPage} of {totalPages}
             </span>
             <div className="flex items-center gap-1">
               <Button
                 size="sm"
                 variant="flat"
                 isIconOnly
-                isDisabled={currentPage === 1}
-                onPress={() => setCurrentPage(p => Math.max(1, p - 1))}
+                isDisabled={safeCurrentPage === 1}
+                onPress={() => patchTableUI({ currentPage: Math.max(1, safeCurrentPage - 1) })}
               >
                 <ChevronLeft className="w-4 h-4" />
               </Button>
@@ -327,8 +349,8 @@ export function AdvancedTable<T extends Record<string, any>>({
                 size="sm"
                 variant="flat"
                 isIconOnly
-                isDisabled={currentPage === totalPages}
-                onPress={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                isDisabled={safeCurrentPage === totalPages}
+                onPress={() => patchTableUI({ currentPage: Math.min(totalPages, safeCurrentPage + 1) })}
               >
                 <ChevronRight className="w-4 h-4" />
               </Button>

@@ -1,209 +1,44 @@
 'use client'
 
-import { useState } from 'react';
 import { Card, Button, Badge, Breadcrumb, PageHeader, PageContainer } from '@/ui';
 import { Shield, FileText, AlertTriangle, CheckCircle, Clock, Download, Calendar, Users, Building2, Scale, Bell } from 'lucide-react';
 import { getRouteConfig } from '@/config/routes';
 import { AMLKYCWorkflow } from '../compliance/aml-kyc-workflow';
-
-interface ComplianceItem {
-  id: string;
-  title: string;
-  type: 'filing' | 'report' | 'certification' | 'audit';
-  dueDate: string;
-  status: 'completed' | 'in-progress' | 'upcoming' | 'overdue';
-  assignedTo: string;
-  priority: 'high' | 'medium' | 'low';
-  description: string;
-  relatedFund?: string;
-}
-
-interface RegulatoryFiling {
-  id: string;
-  filingType: string;
-  regulator: string;
-  frequency: string;
-  lastFiled: string;
-  nextDue: string;
-  status: 'current' | 'due-soon' | 'overdue';
-  fundName: string;
-}
-
-interface AuditSchedule {
-  id: string;
-  auditType: string;
-  auditor: string;
-  year: number;
-  startDate: string;
-  completionDate: string | null;
-  status: 'scheduled' | 'in-progress' | 'completed';
-  fundName: string;
-}
-
-const mockComplianceItems: ComplianceItem[] = [
-  {
-    id: '1',
-    title: 'Form ADV Annual Update',
-    type: 'filing',
-    dueDate: '2025-03-30',
-    status: 'upcoming',
-    assignedTo: 'Compliance Team',
-    priority: 'high',
-    description: 'Annual amendment to Form ADV with SEC',
-    relatedFund: 'All Funds'
-  },
-  {
-    id: '2',
-    title: 'Q4 2024 LP Report',
-    type: 'report',
-    dueDate: '2025-01-15',
-    status: 'in-progress',
-    assignedTo: 'Sarah Johnson',
-    priority: 'high',
-    description: 'Quarterly performance report for Limited Partners',
-    relatedFund: 'Acme Ventures Fund II'
-  },
-  {
-    id: '3',
-    title: 'Annual Compliance Certification',
-    type: 'certification',
-    dueDate: '2024-12-31',
-    status: 'overdue',
-    assignedTo: 'Michael Chen',
-    priority: 'high',
-    description: 'Code of Ethics and Compliance Manual certification',
-    relatedFund: 'All Funds'
-  },
-  {
-    id: '4',
-    title: 'Form PF Filing - Large Hedge Fund',
-    type: 'filing',
-    dueDate: '2025-02-28',
-    status: 'upcoming',
-    assignedTo: 'Compliance Team',
-    priority: 'medium',
-    description: 'Private Fund reporting to SEC',
-    relatedFund: 'Acme Ventures Fund III'
-  },
-  {
-    id: '5',
-    title: 'AML/KYC Review',
-    type: 'audit',
-    dueDate: '2024-12-20',
-    status: 'completed',
-    assignedTo: 'Emily Rodriguez',
-    priority: 'medium',
-    description: 'Annual Anti-Money Laundering review',
-    relatedFund: 'All Funds'
-  }
-];
-
-const mockRegulatoryFilings: RegulatoryFiling[] = [
-  {
-    id: '1',
-    filingType: 'Form ADV',
-    regulator: 'SEC',
-    frequency: 'Annual',
-    lastFiled: '2024-03-25',
-    nextDue: '2025-03-30',
-    status: 'current',
-    fundName: 'All Funds'
-  },
-  {
-    id: '2',
-    filingType: 'Form PF',
-    regulator: 'SEC',
-    frequency: 'Quarterly',
-    lastFiled: '2024-11-15',
-    nextDue: '2025-02-28',
-    status: 'current',
-    fundName: 'Acme Ventures Fund III'
-  },
-  {
-    id: '3',
-    filingType: 'Form D',
-    regulator: 'SEC',
-    frequency: 'As Needed',
-    lastFiled: '2024-06-10',
-    nextDue: 'N/A',
-    status: 'current',
-    fundName: 'Acme Ventures Fund II'
-  },
-  {
-    id: '4',
-    filingType: 'State Registration',
-    regulator: 'State Securities',
-    frequency: 'Annual',
-    lastFiled: '2024-01-15',
-    nextDue: '2025-01-15',
-    status: 'due-soon',
-    fundName: 'All Funds'
-  }
-];
-
-const mockAuditSchedule: AuditSchedule[] = [
-  {
-    id: '1',
-    auditType: 'Financial Audit',
-    auditor: 'KPMG',
-    year: 2024,
-    startDate: '2025-01-15',
-    completionDate: null,
-    status: 'scheduled',
-    fundName: 'Acme Ventures Fund II'
-  },
-  {
-    id: '2',
-    auditType: 'Compliance Audit',
-    auditor: 'Deloitte',
-    year: 2024,
-    startDate: '2024-11-01',
-    completionDate: '2024-11-30',
-    status: 'completed',
-    fundName: 'All Funds'
-  },
-  {
-    id: '3',
-    auditType: 'IT Security Audit',
-    auditor: 'PwC',
-    year: 2024,
-    startDate: '2024-12-01',
-    completionDate: null,
-    status: 'in-progress',
-    fundName: 'All Funds'
-  }
-];
+import { useUIKey } from '@/store/ui';
+import { complianceRequested, complianceSelectors } from '@/store/slices/backOfficeSlice';
+import { ErrorState, LoadingState } from '@/components/ui/async-states';
+import { StatusBadge, StatsCard } from '@/components/ui';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function Compliance() {
-  const [selectedTab, setSelectedTab] = useState<string>('overview');
+  const { data, isLoading, error, refetch } = useAsyncData(complianceRequested, complianceSelectors.selectState);
+  const { value: ui, patch: patchUI } = useUIKey('back-office-compliance', { selectedTab: 'overview' });
+  const { selectedTab } = ui;
+
+  if (isLoading) return <LoadingState message="Loading compliance…" />;
+  if (error) {
+    return (
+      <ErrorState
+        error={error}
+        title="Failed to load compliance"
+        onRetry={refetch}
+      />
+    );
+  }
 
   // Get route config for breadcrumbs and AI suggestions
   const routeConfig = getRouteConfig('/compliance');
 
+  const complianceItems = data?.complianceItems || [];
+  const regulatoryFilings = data?.regulatoryFilings || [];
+  const auditSchedule = data?.auditSchedule || [];
+
   // Calculate AI insights
-  const overdueItems = mockComplianceItems.filter(item => item.status === 'overdue').length;
-  const inProgressItems = mockComplianceItems.filter(item => item.status === 'in-progress').length;
-  const upcomingHighPriority = mockComplianceItems.filter(
+  const overdueItems = complianceItems.filter(item => item.status === 'overdue').length;
+  const inProgressItems = complianceItems.filter(item => item.status === 'in-progress').length;
+  const upcomingHighPriority = complianceItems.filter(
     item => item.status === 'upcoming' && item.priority === 'high'
   ).length;
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-      case 'current':
-        return 'bg-[var(--app-success-bg)] text-[var(--app-success)]';
-      case 'in-progress':
-        return 'bg-[var(--app-warning-bg)] text-[var(--app-warning)]';
-      case 'upcoming':
-      case 'due-soon':
-      case 'scheduled':
-        return 'bg-[var(--app-info-bg)] text-[var(--app-info)]';
-      case 'overdue':
-        return 'bg-[var(--app-danger-bg)] text-[var(--app-danger)]';
-      default:
-        return 'bg-[var(--app-surface)]';
-    }
-  };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -218,35 +53,20 @@ export function Compliance() {
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'completed':
-      case 'current':
-        return <CheckCircle className="w-4 h-4" />;
-      case 'in-progress':
-        return <Clock className="w-4 h-4" />;
-      case 'overdue':
-        return <AlertTriangle className="w-4 h-4" />;
-      default:
-        return <Bell className="w-4 h-4" />;
-    }
-  };
-
   return (
     <PageContainer>
-      <div className="space-y-6">
-        {/* Breadcrumb Navigation */}
-        {routeConfig && (
-          <div>
-            <Breadcrumb
-              items={routeConfig.breadcrumbs}
-              aiSuggestion={routeConfig.aiSuggestion}
-            />
-          </div>
-        )}
+      {/* Breadcrumb Navigation */}
+      {routeConfig && (
+        <div className="mb-4">
+          <Breadcrumb
+            items={routeConfig.breadcrumbs}
+            aiSuggestion={routeConfig.aiSuggestion}
+          />
+        </div>
+      )}
 
-        {/* Page Header with AI Summary and Tab Navigation */}
-        <PageHeader
+      {/* Page Header with AI Summary and Tab Navigation */}
+      <PageHeader
           title="Compliance & Regulatory"
           description="Track regulatory filings, audits, and compliance requirements"
           icon={Shield}
@@ -279,7 +99,7 @@ export function Compliance() {
             {
               id: 'audits',
               label: 'Audit Schedule',
-              count: mockAuditSchedule.filter(a => a.status === 'in-progress').length
+              count: auditSchedule.filter(a => a.status === 'in-progress').length
             },
             {
               id: 'aml-kyc',
@@ -291,77 +111,49 @@ export function Compliance() {
             }
           ]}
           activeTab={selectedTab}
-          onTabChange={(tabId) => setSelectedTab(tabId)}
+          onTabChange={(tabId) => patchUI({ selectedTab: tabId })}
         />
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card padding="lg">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-lg bg-[var(--app-danger-bg)]">
-                <AlertTriangle className="w-6 h-6 text-[var(--app-danger)]" />
-              </div>
-              <div>
-                <p className="text-sm text-[var(--app-text-muted)]">Overdue Items</p>
-                <p className="text-2xl font-bold text-[var(--app-danger)]">
-                  {mockComplianceItems.filter(i => i.status === 'overdue').length}
-                </p>
-              </div>
-            </div>
-          </Card>
+      {/* Summary Cards */}
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+          <StatsCard
+            title="Overdue Items"
+            value={complianceItems.filter(i => i.status === 'overdue').length}
+            icon={AlertTriangle}
+            variant="danger"
+          />
 
-          <Card padding="lg">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-lg bg-[var(--app-warning-bg)]">
-                <Clock className="w-6 h-6 text-[var(--app-warning)]" />
-              </div>
-              <div>
-                <p className="text-sm text-[var(--app-text-muted)]">In Progress</p>
-                <p className="text-2xl font-bold">
-                  {mockComplianceItems.filter(i => i.status === 'in-progress').length}
-                </p>
-              </div>
-            </div>
-          </Card>
+          <StatsCard
+            title="In Progress"
+            value={complianceItems.filter(i => i.status === 'in-progress').length}
+            icon={Clock}
+            variant="warning"
+          />
 
-          <Card padding="lg">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-lg bg-[var(--app-info-bg)]">
-                <Calendar className="w-6 h-6 text-[var(--app-info)]" />
-              </div>
-              <div>
-                <p className="text-sm text-[var(--app-text-muted)]">Due This Month</p>
-                <p className="text-2xl font-bold">
-                  {mockComplianceItems.filter(i => {
-                    const dueDate = new Date(i.dueDate);
-                    const today = new Date();
-                    return dueDate.getMonth() === today.getMonth() &&
-                           dueDate.getFullYear() === today.getFullYear();
-                  }).length}
-                </p>
-              </div>
-            </div>
-          </Card>
+          <StatsCard
+            title="Due This Month"
+            value={complianceItems.filter(i => {
+              const dueDate = new Date(i.dueDate);
+              const today = new Date();
+              return dueDate.getMonth() === today.getMonth() &&
+                     dueDate.getFullYear() === today.getFullYear();
+            }).length}
+            icon={Calendar}
+            variant="primary"
+          />
 
-          <Card padding="lg">
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-lg bg-[var(--app-success-bg)]">
-                <CheckCircle className="w-6 h-6 text-[var(--app-success)]" />
-              </div>
-              <div>
-                <p className="text-sm text-[var(--app-text-muted)]">Completed</p>
-                <p className="text-2xl font-bold">
-                  {mockComplianceItems.filter(i => i.status === 'completed').length}
-                </p>
-              </div>
-            </div>
-          </Card>
+          <StatsCard
+            title="Completed"
+            value={complianceItems.filter(i => i.status === 'completed').length}
+            icon={CheckCircle}
+            variant="success"
+          />
         </div>
 
         {/* Overview Tab */}
         {selectedTab === 'overview' && (
           <div className="space-y-3">
-            {mockComplianceItems
+            {[...complianceItems]
               .sort((a, b) => {
                 // Sort by priority and status
                 const priorityOrder = { high: 0, medium: 1, low: 2 };
@@ -409,12 +201,7 @@ export function Compliance() {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <h3 className="font-semibold text-lg">{item.title}</h3>
-                          <Badge size="sm" className={getStatusColor(item.status)}>
-                            <div className="flex items-center gap-1">
-                              {getStatusIcon(item.status)}
-                              <span className="capitalize">{item.status.replace('-', ' ')}</span>
-                            </div>
-                          </Badge>
+                          <StatusBadge status={item.status} domain="compliance" showIcon size="sm" />
                           <Badge size="sm" className={`${getPriorityColor(item.priority)} bg-opacity-10`}>
                             {item.priority.toUpperCase()}
                           </Badge>
@@ -460,18 +247,13 @@ export function Compliance() {
             <Card padding="lg">
               <h3 className="font-semibold mb-4">Required Filings</h3>
               <div className="space-y-3">
-                {mockRegulatoryFilings.map((filing) => (
+                {regulatoryFilings.map((filing) => (
                   <div key={filing.id} className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <h4 className="font-semibold">{filing.filingType}</h4>
-                          <Badge size="sm" className={getStatusColor(filing.status)}>
-                            <div className="flex items-center gap-1">
-                              {getStatusIcon(filing.status)}
-                              <span className="capitalize">{filing.status.replace('-', ' ')}</span>
-                            </div>
-                          </Badge>
+                          <StatusBadge status={filing.status} domain="compliance" showIcon size="sm" />
                         </div>
 
                         <div className="grid grid-cols-5 gap-4 text-sm">
@@ -515,18 +297,13 @@ export function Compliance() {
             <Card padding="lg">
               <h3 className="font-semibold mb-4">Audit Schedule</h3>
               <div className="space-y-3">
-                {mockAuditSchedule.map((audit) => (
+                {auditSchedule.map((audit) => (
                   <div key={audit.id} className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
                     <div className="flex items-start justify-between mb-3">
                       <div>
                         <div className="flex items-center gap-2 mb-1">
                           <h4 className="font-semibold">{audit.auditType} - {audit.year}</h4>
-                          <Badge size="sm" className={getStatusColor(audit.status)}>
-                            <div className="flex items-center gap-1">
-                              {getStatusIcon(audit.status)}
-                              <span className="capitalize">{audit.status.replace('-', ' ')}</span>
-                            </div>
-                          </Badge>
+                          <StatusBadge status={audit.status} domain="compliance" showIcon size="sm" />
                         </div>
                         <p className="text-sm text-[var(--app-text-muted)]">
                           Auditor: {audit.auditor} • Fund: {audit.fundName}
@@ -620,7 +397,6 @@ export function Compliance() {
             </Card>
           </div>
         )}
-      </div>
     </PageContainer>
   );
 }

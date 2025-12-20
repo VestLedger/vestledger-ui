@@ -7,6 +7,7 @@ import {
   Vote,
   PieChart,
   TrendingUp,
+  TrendingDown,
   Users,
   UserCheck,
   DollarSign,
@@ -40,6 +41,12 @@ export const routes: Record<string, RouteConfig> = {
       { label: 'Home', href: '/dashboard' },
       { label: 'Dashboard' },
     ],
+    aiSuggestion: {
+      label: 'Pipeline',
+      href: '/pipeline',
+      reasoning: 'Start your day by reviewing active deals in the pipeline. Most users navigate here first.',
+      confidence: 0.88,
+    },
     description: 'AI-powered fund operations overview',
   },
 
@@ -106,6 +113,12 @@ export const routes: Record<string, RouteConfig> = {
       { label: 'Deal Management', href: '/dashboard' },
       { label: 'Dealflow Review' },
     ],
+    aiSuggestion: {
+      label: 'Deal Intelligence',
+      href: '/deal-intelligence',
+      reasoning: 'After team voting, check deal intelligence for additional insights before final decisions.',
+      confidence: 0.81,
+    },
     description: 'Team consensus and voting on deals',
   },
   analytics: {
@@ -153,6 +166,12 @@ export const routes: Record<string, RouteConfig> = {
       { label: 'Back Office', href: '/dashboard' },
       { label: 'LP Management' },
     ],
+    aiSuggestion: {
+      label: 'Reports',
+      href: '/reports',
+      reasoning: 'Generate investor reports after reviewing LP data. Common workflow for quarterly updates.',
+      confidence: 0.83,
+    },
     description: 'Limited partner relationships and reporting',
   },
 
@@ -165,6 +184,12 @@ export const routes: Record<string, RouteConfig> = {
       { label: 'Back Office', href: '/dashboard' },
       { label: 'Compliance' },
     ],
+    aiSuggestion: {
+      label: 'Audit Trail',
+      href: '/audit-trail',
+      reasoning: 'Review audit trail for compliance verification. Recommended after checking compliance status.',
+      confidence: 0.78,
+    },
     description: 'Regulatory compliance and deadlines',
   },
 
@@ -177,6 +202,12 @@ export const routes: Record<string, RouteConfig> = {
       { label: 'Back Office', href: '/dashboard' },
       { label: '409A Valuations' },
     ],
+    aiSuggestion: {
+      label: 'Tax Center',
+      href: '/tax-center',
+      reasoning: '409A valuations often impact tax calculations. Review tax implications after valuation updates.',
+      confidence: 0.84,
+    },
     description: 'Fair market value assessments',
   },
 
@@ -189,6 +220,12 @@ export const routes: Record<string, RouteConfig> = {
       { label: 'Back Office', href: '/dashboard' },
       { label: 'Tax Center' },
     ],
+    aiSuggestion: {
+      label: 'Reports',
+      href: '/reports',
+      reasoning: 'Export tax reports after K-1 generation for distribution to partners.',
+      confidence: 0.86,
+    },
     description: 'Tax planning and K-1 generation',
   },
 
@@ -201,6 +238,12 @@ export const routes: Record<string, RouteConfig> = {
       { label: 'Utilities', href: '/dashboard' },
       { label: 'Contacts' },
     ],
+    aiSuggestion: {
+      label: 'Deal Intelligence',
+      href: '/deal-intelligence',
+      reasoning: 'Find new opportunities from your network. AI can match contacts to potential deals.',
+      confidence: 0.76,
+    },
     description: 'Founders, LPs, and network contacts',
   },
 
@@ -213,6 +256,12 @@ export const routes: Record<string, RouteConfig> = {
       { label: 'Utilities', href: '/dashboard' },
       { label: 'Reports' },
     ],
+    aiSuggestion: {
+      label: 'Dashboard',
+      href: '/dashboard',
+      reasoning: 'Return to dashboard overview after generating reports to see updated metrics.',
+      confidence: 0.80,
+    },
     description: 'Generate and export reports',
   },
 
@@ -225,7 +274,31 @@ export const routes: Record<string, RouteConfig> = {
       { label: 'Utilities', href: '/dashboard' },
       { label: 'AI Tools' },
     ],
+    aiSuggestion: {
+      label: 'Deal Intelligence',
+      href: '/deal-intelligence',
+      reasoning: 'Apply AI tools to analyze deals. Enhanced insights available in deal intelligence.',
+      confidence: 0.82,
+    },
     description: 'AI-powered workflows and automation',
+  },
+
+  waterfall: {
+    path: '/waterfall',
+    label: 'Waterfall Modeling',
+    icon: TrendingDown,
+    breadcrumbs: [
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Portfolio Management', href: '/dashboard' },
+      { label: 'Waterfall Modeling' },
+    ],
+    aiSuggestion: {
+      label: 'Fund Admin',
+      href: '/fund-admin',
+      reasoning: 'Review capital call structures after modeling exit scenarios and distributions.',
+      confidence: 0.84,
+    },
+    description: 'Model exit scenarios and distribution waterfalls',
   },
 
   auditTrail: {
@@ -237,6 +310,12 @@ export const routes: Record<string, RouteConfig> = {
       { label: 'Back Office', href: '/dashboard' },
       { label: 'Audit Trail' },
     ],
+    aiSuggestion: {
+      label: 'Compliance',
+      href: '/compliance',
+      reasoning: 'Cross-reference audit records with compliance requirements to ensure regulatory adherence.',
+      confidence: 0.79,
+    },
     description: 'Immutable, cryptographically verified transaction history',
   },
 
@@ -249,6 +328,12 @@ export const routes: Record<string, RouteConfig> = {
       { label: 'Utilities', href: '/dashboard' },
       { label: 'Documents' },
     ],
+    aiSuggestion: {
+      label: 'Compliance',
+      href: '/compliance',
+      reasoning: 'Verify document compliance and track regulatory filing deadlines.',
+      confidence: 0.77,
+    },
     description: 'Document management and storage',
   },
 
@@ -261,6 +346,12 @@ export const routes: Record<string, RouteConfig> = {
       { label: 'Utilities', href: '/dashboard' },
       { label: 'Integrations' },
     ],
+    aiSuggestion: {
+      label: 'Settings',
+      href: '/settings',
+      reasoning: 'Configure integration settings and manage API credentials.',
+      confidence: 0.81,
+    },
     description: 'Connect external tools and services',
   },
 
@@ -272,6 +363,12 @@ export const routes: Record<string, RouteConfig> = {
       { label: 'Home', href: '/dashboard' },
       { label: 'Settings' },
     ],
+    aiSuggestion: {
+      label: 'Dashboard',
+      href: '/dashboard',
+      reasoning: 'Return to dashboard to see how your settings changes affect the overview.',
+      confidence: 0.75,
+    },
     description: 'Manage your account settings and preferences',
   },
 };

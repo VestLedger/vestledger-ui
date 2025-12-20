@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import { Card, Button, Badge, Input } from '@/ui';
 import { Mail, Phone, Video, MessageSquare, Calendar, Paperclip, Clock, Plus, Filter, ChevronDown, ExternalLink, Edit3, Trash2 } from 'lucide-react';
+import { useUIKey } from '@/store/ui';
 
 export interface TimelineInteraction {
   id: string;
@@ -37,9 +37,16 @@ export function InteractionTimeline({
   onDeleteInteraction,
   onLinkToDeal,
 }: InteractionTimelineProps) {
-  const [filterType, setFilterType] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [groupBy, setGroupBy] = useState<'date' | 'type'>('date');
+  const { value: ui, patch: patchUI } = useUIKey<{
+    filterType: string;
+    searchQuery: string;
+    groupBy: 'date' | 'type';
+  }>(`interaction-timeline:${contactName ?? 'all'}`, {
+    filterType: 'all',
+    searchQuery: '',
+    groupBy: 'date',
+  });
+  const { filterType, searchQuery, groupBy } = ui;
 
   const getInteractionIcon = (type: TimelineInteraction['type']) => {
     switch (type) {
@@ -186,7 +193,7 @@ export function InteractionTimeline({
           <Input
             placeholder="Search interactions..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => patchUI({ searchQuery: e.target.value })}
             startContent={<Filter className="w-4 h-4" />}
             size="sm"
             className="flex-1"
@@ -194,7 +201,7 @@ export function InteractionTimeline({
           <select
             className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
             value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
+            onChange={(e) => patchUI({ filterType: e.target.value })}
           >
             <option value="all">All Types ({interactionCounts.all})</option>
             <option value="email">Emails ({interactionCounts.email})</option>
@@ -205,7 +212,7 @@ export function InteractionTimeline({
           <select
             className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
             value={groupBy}
-            onChange={(e) => setGroupBy(e.target.value as 'date' | 'type')}
+            onChange={(e) => patchUI({ groupBy: e.target.value as 'date' | 'type' })}
           >
             <option value="date">Group by Date</option>
             <option value="type">Group by Type</option>

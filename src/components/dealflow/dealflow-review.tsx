@@ -1,31 +1,16 @@
 'use client'
 
-import { useState } from 'react';
 import { Card, Button, Badge, Progress, PageContainer, Breadcrumb, PageHeader } from '@/ui';
 import { ThumbsUp, ThumbsDown, MinusCircle, MessageSquare, Users, Building2, TrendingUp, DollarSign, Target, Lightbulb, Share2, Download, Play, Pause, SkipForward, SkipBack, Maximize2, Plus, Edit3, FileSearch , Vote} from 'lucide-react';
 import { getRouteConfig } from '@/config/routes';
 import { CompanyScoring } from './company-scoring';
-
-interface Deal {
-  id: string;
-  companyName: string;
-  sector: string;
-  stage: string;
-  askAmount: number;
-  valuation: number;
-  arr: number;
-  growth: number;
-  founderName: string;
-  location: string;
-  oneLiner: string;
-}
-
-interface SlideContent {
-  id: string;
-  type: 'overview' | 'team' | 'market' | 'product' | 'financials' | 'competition' | 'ask';
-  title: string;
-  content: any;
-}
+import { getDealflowReviewSlides, type DealflowReviewSlide } from '@/services/dealflow/dealflowReviewService';
+import { useUIKey } from '@/store/ui';
+import { dealflowDealsRequested, dealflowSelectors } from '@/store/slices/dealflowSlice';
+import { LoadingState, ErrorState, EmptyState } from '@/components/ui/async-states';
+import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys';
+import { formatCurrencyCompact } from '@/utils/formatting';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
 interface Vote {
   partnerId: string;
@@ -44,129 +29,71 @@ interface ReviewSession {
   decision?: 'proceed' | 'pass' | 'defer';
 }
 
-const mockDeals: Deal[] = [
-  {
-    id: '1',
-    companyName: 'Quantum AI',
-    sector: 'AI/ML',
-    stage: 'Series A',
-    askAmount: 15000000,
-    valuation: 75000000,
-    arr: 2500000,
-    growth: 300,
-    founderName: 'Sarah Chen',
-    location: 'San Francisco, CA',
-    oneLiner: 'Enterprise quantum computing platform accessible via API'
-  },
-  {
-    id: '2',
-    companyName: 'NeuroLink',
-    sector: 'HealthTech',
-    stage: 'Seed',
-    askAmount: 3000000,
-    valuation: 12000000,
-    arr: 500000,
-    growth: 450,
-    founderName: 'Michael Rodriguez',
-    location: 'Boston, MA',
-    oneLiner: 'AI-powered neural diagnostics for early disease detection'
-  }
-];
-
-const generateSlides = (deal: Deal): SlideContent[] => [
-  {
-    id: '1',
-    type: 'overview',
-    title: 'Company Overview',
-    content: {
-      companyName: deal.companyName,
-      oneLiner: deal.oneLiner,
-      founder: deal.founderName,
-      location: deal.location,
-      sector: deal.sector,
-      stage: deal.stage
-    }
-  },
-  {
-    id: '2',
-    type: 'market',
-    title: 'Market Opportunity',
-    content: {
-      tam: '$50B',
-      sam: '$15B',
-      som: '$2B',
-      growth: '25% CAGR',
-      competitors: ['Competitor A', 'Competitor B', 'Competitor C']
-    }
-  },
-  {
-    id: '3',
-    type: 'product',
-    title: 'Product & Technology',
-    content: {
-      description: 'Hybrid quantum-classical computing platform',
-      differentiators: ['API-first approach', 'Enterprise security', 'Easy integration'],
-      techStack: ['Quantum algorithms', 'Cloud infrastructure', 'RESTful APIs']
-    }
-  },
-  {
-    id: '4',
-    type: 'financials',
-    title: 'Financial Metrics',
-    content: {
-      arr: deal.arr,
-      growth: deal.growth,
-      burn: 400000,
-      runway: 18,
-      ltv: 250000,
-      cac: 50000,
-      grossMargin: 75
-    }
-  },
-  {
-    id: '5',
-    type: 'team',
-    title: 'Team',
-    content: {
-      founder: deal.founderName,
-      team: [
-        { name: 'Sarah Chen', role: 'CEO', background: 'Stanford PhD, ex-Google' },
-        { name: 'David Kim', role: 'CTO', background: 'MIT PhD, ex-IBM Quantum' },
-        { name: 'Lisa Wang', role: 'VP Sales', background: 'ex-Salesforce, 15yr enterprise' }
-      ],
-      advisors: ['Prof. John Smith (Stanford)', 'Dr. Emily Brown (MIT)']
-    }
-  },
-  {
-    id: '6',
-    type: 'ask',
-    title: 'Investment Ask',
-    content: {
-      amount: deal.askAmount,
-      valuation: deal.valuation,
-      useOfFunds: [
-        { category: 'Product Development', percentage: 40 },
-        { category: 'Sales & Marketing', percentage: 35 },
-        { category: 'Operations', percentage: 15 },
-        { category: 'Hiring', percentage: 10 }
-      ]
-    }
-  }
-];
-
 export function DealflowReview() {
-  const [selectedDeal, setSelectedDeal] = useState<Deal>(mockDeals[0]);
-  const [slides, setSlides] = useState<SlideContent[]>(generateSlides(mockDeals[0]));
-  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
-  const [isPresenting, setIsPresenting] = useState(false);
-  const [votes, setVotes] = useState<Vote[]>([]);
-  const [myVote, setMyVote] = useState<'yes' | 'no' | 'maybe' | null>(null);
-  const [voteComment, setVoteComment] = useState('');
+  const { data, isLoading, error, refetch } = useAsyncData(dealflowDealsRequested, dealflowSelectors.selectState, { params: {} });
+
+  // Use centralized UI state defaults
+  const { value: ui, patch: patchUI } = useUIKey(
+    UI_STATE_KEYS.DEALFLOW_REVIEW,
+    UI_STATE_DEFAULTS.dealflowReview
+  );
+
+  // Extend with additional UI state not in defaults
+  const { value: isPresenting, patch: patchIsPresenting } = useUIKey<boolean>('dealflow-review-presenting', false);
+  const { value: votes, patch: patchVotes } = useUIKey<Vote[]>('dealflow-review-votes', []);
+  const { value: myVote, patch: patchMyVote } = useUIKey<'yes' | 'no' | 'maybe' | null>('dealflow-review-my-vote', null);
+  const { value: voteComment, patch: patchVoteComment } = useUIKey<string>('dealflow-review-vote-comment', '');
+
+  const { currentSlideIndex, selectedDealId } = ui;
 
   // Get route config for breadcrumbs and AI suggestions
   const routeConfig = getRouteConfig('/dealflow-review');
 
-  const currentSlide = slides[currentSlideIndex];
+  // Loading state
+  if (isLoading) {
+    return <LoadingState message="Loading dealflow deals..." />;
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <ErrorState
+        error={error}
+        title="Failed to Load Dealflow Deals"
+        onRetry={refetch}
+      />
+    );
+  }
+
+  const deals = data?.deals || [];
+  const selectedDeal = deals[0];
+  const slides = selectedDeal ? getDealflowReviewSlides(selectedDeal) : [];
+
+  if (!selectedDeal) {
+    return (
+      <PageContainer>
+        {routeConfig && (
+          <div className="mb-4">
+            <Breadcrumb items={routeConfig.breadcrumbs} aiSuggestion={routeConfig.aiSuggestion} />
+          </div>
+        )}
+
+        <PageHeader
+          title="Dealflow Review"
+          description="No deals available to review yet"
+          icon={FileSearch}
+        />
+
+        <Card padding="lg" className="mt-6">
+          <div className="text-sm text-[var(--app-text-muted)]">Add deals via the backend integration when ready.</div>
+        </Card>
+      </PageContainer>
+    );
+  }
+
+  const safeSlideIndex =
+    slides.length === 0 ? 0 : Math.min(Math.max(currentSlideIndex, 0), slides.length - 1);
+  const currentSlide: DealflowReviewSlide | undefined = slides[safeSlideIndex];
 
   // Calculate AI insights for summary
   const yesVotes = votes.filter(v => v.vote === 'yes').length;
@@ -176,7 +103,6 @@ export function DealflowReview() {
   const consensusPercentage = totalVotes > 0 ? Math.round((yesVotes / totalVotes) * 100) : 0;
 
   const handleVote = (vote: 'yes' | 'no' | 'maybe') => {
-    setMyVote(vote);
     const newVote: Vote = {
       partnerId: 'current-user',
       partnerName: 'Current User',
@@ -184,29 +110,24 @@ export function DealflowReview() {
       comments: voteComment,
       timestamp: new Date().toISOString()
     };
-    setVotes([...votes, newVote]);
-  };
-
-  const formatCurrency = (amount: number) => {
-    if (amount >= 1000000) {
-      return `$${(amount / 1000000).toFixed(1)}M`;
-    }
-    return `$${(amount / 1000).toFixed(0)}K`;
+    patchMyVote(vote);
+    patchVotes([...votes, newVote]);
   };
 
   const nextSlide = () => {
-    if (currentSlideIndex < slides.length - 1) {
-      setCurrentSlideIndex(currentSlideIndex + 1);
+    if (safeSlideIndex < slides.length - 1) {
+      patchUI({ currentSlideIndex: safeSlideIndex + 1 });
     }
   };
 
   const prevSlide = () => {
-    if (currentSlideIndex > 0) {
-      setCurrentSlideIndex(currentSlideIndex - 1);
+    if (safeSlideIndex > 0) {
+      patchUI({ currentSlideIndex: safeSlideIndex - 1 });
     }
   };
 
   const renderSlideContent = () => {
+    if (!currentSlide) return null;
     switch (currentSlide.type) {
       case 'overview':
         return (
@@ -303,7 +224,7 @@ export function DealflowReview() {
             <div className="grid grid-cols-2 gap-4">
               <div className="p-6 rounded-lg bg-[var(--app-success-bg)] text-center">
                 <p className="text-sm text-[var(--app-text-muted)] mb-2">ARR</p>
-                <p className="text-3xl font-bold text-[var(--app-success)]">{formatCurrency(currentSlide.content.arr)}</p>
+                <p className="text-3xl font-bold text-[var(--app-success)]">{formatCurrencyCompact(currentSlide.content.arr)}</p>
               </div>
               <div className="p-6 rounded-lg bg-[var(--app-primary-bg)] text-center">
                 <p className="text-sm text-[var(--app-text-muted)] mb-2">YoY Growth</p>
@@ -311,7 +232,7 @@ export function DealflowReview() {
               </div>
               <div className="p-6 rounded-lg bg-[var(--app-warning-bg)] text-center">
                 <p className="text-sm text-[var(--app-text-muted)] mb-2">Monthly Burn</p>
-                <p className="text-3xl font-bold text-[var(--app-warning)]">{formatCurrency(currentSlide.content.burn)}</p>
+                <p className="text-3xl font-bold text-[var(--app-warning)]">{formatCurrencyCompact(currentSlide.content.burn)}</p>
               </div>
               <div className="p-6 rounded-lg bg-[var(--app-info-bg)] text-center">
                 <p className="text-sm text-[var(--app-text-muted)] mb-2">Runway</p>
@@ -321,11 +242,11 @@ export function DealflowReview() {
             <div className="grid grid-cols-3 gap-4">
               <div className="p-4 rounded-lg bg-[var(--app-surface-hover)] text-center">
                 <p className="text-sm text-[var(--app-text-muted)] mb-1">LTV</p>
-                <p className="text-xl font-bold">{formatCurrency(currentSlide.content.ltv)}</p>
+                <p className="text-xl font-bold">{formatCurrencyCompact(currentSlide.content.ltv)}</p>
               </div>
               <div className="p-4 rounded-lg bg-[var(--app-surface-hover)] text-center">
                 <p className="text-sm text-[var(--app-text-muted)] mb-1">CAC</p>
-                <p className="text-xl font-bold">{formatCurrency(currentSlide.content.cac)}</p>
+                <p className="text-xl font-bold">{formatCurrencyCompact(currentSlide.content.cac)}</p>
               </div>
               <div className="p-4 rounded-lg bg-[var(--app-surface-hover)] text-center">
                 <p className="text-sm text-[var(--app-text-muted)] mb-1">LTV:CAC</p>
@@ -376,10 +297,10 @@ export function DealflowReview() {
             <div className="text-center p-8 rounded-lg bg-gradient-to-br from-[var(--app-primary-bg)] to-[var(--app-secondary)] bg-opacity-10">
               <p className="text-sm text-[var(--app-text-muted)] mb-2">Raising</p>
               <p className="text-5xl font-bold mb-4 bg-gradient-to-r from-[var(--app-primary)] to-[var(--app-secondary)] bg-clip-text text-transparent">
-                {formatCurrency(currentSlide.content.amount)}
+                {formatCurrencyCompact(currentSlide.content.amount)}
               </p>
               <p className="text-sm text-[var(--app-text-muted)]">
-                at {formatCurrency(currentSlide.content.valuation)} pre-money valuation
+                at {formatCurrencyCompact(currentSlide.content.valuation)} pre-money valuation
               </p>
             </div>
             <div>
@@ -391,7 +312,7 @@ export function DealflowReview() {
                       <span className="text-sm font-medium">{item.category}</span>
                       <span className="text-sm text-[var(--app-text-muted)]">{item.percentage}%</span>
                     </div>
-                    <Progress value={item.percentage} maxValue={100} className="h-2" />
+                    <Progress value={item.percentage} maxValue={100} className="h-2" aria-label={`${item.category} ${item.percentage}%`} />
                   </div>
                 ))}
               </div>
@@ -425,12 +346,12 @@ export function DealflowReview() {
           aiSummary={{
             text: totalVotes > 0
               ? `${consensusPercentage}% consensus for proceeding (${yesVotes}/${totalVotes} votes in favor). ${maybeVotes} votes requiring more due diligence. Reviewing: ${selectedDeal.companyName}.`
-              : `Ready to review ${selectedDeal.companyName}. No votes cast yet. Waiting for team feedback on ${currentSlide.title}.`,
+              : `Ready to review ${selectedDeal.companyName}. No votes cast yet. Waiting for team feedback on ${currentSlide?.title ?? 'the deck'}.`,
             confidence: totalVotes > 0 ? 0.88 : 0.72
           }}
           primaryAction={{
             label: isPresenting ? 'Stop Presenting' : 'Start Presentation',
-            onClick: () => setIsPresenting(!isPresenting),
+            onClick: () => patchIsPresenting(!isPresenting),
             aiSuggested: false
           }}
           secondaryActions={[
@@ -457,7 +378,7 @@ export function DealflowReview() {
               {slides.map((slide, idx) => (
                 <button
                   key={slide.id}
-                  onClick={() => setCurrentSlideIndex(idx)}
+                  onClick={() => patchUI({ currentSlideIndex: idx })}
                   className={`w-full text-left p-3 rounded-lg transition-colors ${
                     idx === currentSlideIndex
                       ? 'bg-[var(--app-primary)] text-white'
@@ -577,7 +498,7 @@ export function DealflowReview() {
                 {slides.map((_, idx) => (
                   <button
                     key={idx}
-                    onClick={() => setCurrentSlideIndex(idx)}
+                    onClick={() => patchUI({ currentSlideIndex: idx })}
                     className={`w-2 h-2 rounded-full transition-colors ${
                       idx === currentSlideIndex ? 'bg-[var(--app-primary)]' : 'bg-[var(--app-border)]'
                     }`}
@@ -606,7 +527,7 @@ export function DealflowReview() {
               className="w-full px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] min-h-[80px]"
               placeholder="Add your thoughts, questions, or concerns..."
               value={voteComment}
-              onChange={(e) => setVoteComment(e.target.value)}
+              onChange={(e) => patchVoteComment(e.target.value)}
             />
           </Card>
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import { motion } from 'framer-motion';
 import { Switch } from '@/ui';
@@ -11,6 +11,7 @@ import { SidebarToggleButton } from './sidebar-toggle-button';
 import { useNavigation } from '@/contexts/navigation-context';
 import { useAIBadges } from '@/hooks/use-ai-badges';
 import { useAuth, UserRole } from '@/contexts/auth-context';
+import { useUIKey } from '@/store/ui';
 
 // Define navigation structure
 const navigationStructure = {
@@ -91,7 +92,10 @@ export function SidebarGrouped() {
   const { theme, setTheme } = useTheme();
   const { user } = useAuth();
   const isCollapsed = sidebarState.leftCollapsed;
-  const [isHovered, setIsHovered] = useState(false);
+  const { value: sidebarUI, patch: patchSidebarUI } = useUIKey('sidebar-grouped', {
+    isHovered: false,
+  });
+  const isHovered = sidebarUI.isHovered;
 
   // Helper to check if a group is accessible
   const isAccessible = (allowedRoles?: UserRole[]) => {
@@ -139,8 +143,8 @@ export function SidebarGrouped() {
       {/* Header / Branding */}
       <div
         className="px-4 h-[69px] border-b border-[var(--app-sidebar-border)] flex-shrink-0 flex items-center"
-        onMouseEnter={() => isCollapsed && setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        onMouseEnter={() => isCollapsed && patchSidebarUI({ isHovered: true })}
+        onMouseLeave={() => patchSidebarUI({ isHovered: false })}
       >
         {effectivelyCollapsed ? (
           <div className="flex items-center justify-center w-full">
@@ -164,8 +168,8 @@ export function SidebarGrouped() {
       {/* Navigation Groups */}
       <nav
         className="flex-1 p-4 space-y-4 overflow-y-auto"
-        onMouseEnter={() => isCollapsed && setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        onMouseEnter={() => isCollapsed && patchSidebarUI({ isHovered: true })}
+        onMouseLeave={() => patchSidebarUI({ isHovered: false })}
       >
         {/* Core Operations - Always Expanded */}
         <NavigationGroup
@@ -296,8 +300,8 @@ export function SidebarGrouped() {
       {/* Footer */}
       <div
         className="p-4 border-t border-[var(--app-sidebar-border)] space-y-3 flex-shrink-0"
-        onMouseEnter={() => isCollapsed && setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        onMouseEnter={() => isCollapsed && patchSidebarUI({ isHovered: true })}
+        onMouseLeave={() => patchSidebarUI({ isHovered: false })}
       >
         <NavigationItem
           id="settings"

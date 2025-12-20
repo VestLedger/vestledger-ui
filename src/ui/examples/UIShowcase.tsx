@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import {
   Button,
   Card,
@@ -19,6 +18,7 @@ import {
   Text,
 } from '@/ui';
 import { Trash2, Edit, Plus } from 'lucide-react';
+import { useUIKey } from '@/store/ui';
 
 /**
  * UI Showcase Component
@@ -26,7 +26,8 @@ import { Trash2, Edit, Plus } from 'lucide-react';
  * Use this as a reference for implementing UI patterns
  */
 export function UIShowcase() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { value: ui, patch: patchUI } = useUIKey('ui-showcase', { isModalOpen: false });
+  const { isModalOpen } = ui;
 
   return (
     <Container maxWidth="xl">
@@ -173,20 +174,20 @@ export function UIShowcase() {
           <Heading level={3} className="mb-4">
             Modal
           </Heading>
-          <Button color="primary" onPress={() => setIsModalOpen(true)}>
+          <Button color="primary" onPress={() => patchUI({ isModalOpen: true })}>
             Open Modal
           </Button>
 
           <Modal
             title="Confirm Action"
             isOpen={isModalOpen}
-            onOpenChange={setIsModalOpen}
+            onOpenChange={(open) => patchUI({ isModalOpen: open })}
             footer={
               <Stack direction="horizontal" spacing="sm">
-                <Button variant="light" onPress={() => setIsModalOpen(false)}>
+                <Button variant="light" onPress={() => patchUI({ isModalOpen: false })}>
                   Cancel
                 </Button>
-                <Button color="danger" onPress={() => setIsModalOpen(false)}>
+                <Button color="danger" onPress={() => patchUI({ isModalOpen: false })}>
                   Confirm Delete
                 </Button>
               </Stack>

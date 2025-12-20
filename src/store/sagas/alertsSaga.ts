@@ -1,31 +1,30 @@
 import { all, call, delay, put, takeLatest } from 'redux-saga/effects';
+import type { SagaIterator } from 'redux-saga';
 import {
-  fetchAlerts,
-  fetchAlertsFailure,
-  fetchAlertsSuccess,
-  Alert,
+  alertsRequested,
+  alertsFailed,
+  alertsLoaded,
 } from '../slices/alertsSlice';
+import { fetchAlerts as fetchAlertsService } from '@/services/alertsService';
+import { normalizeError } from '@/store/utils/normalizeError';
 
-function* fetchAlertsWorker() {
+function* fetchAlertsWorker(action: ReturnType<typeof alertsRequested>): SagaIterator {
   try {
-    // Simulate network latency and return mock alerts.
+    const params = action.payload;
+    // Simulate network latency and return mock alerts
     yield delay(300);
-    const alerts: Alert[] = [
-      { id: '1', type: 'deal', title: 'New deal added to pipeline', message: 'Quantum AI - Series A', time: '5m ago', unread: true },
-      { id: '2', type: 'report', title: 'Q3 Report uploaded', message: 'DataSync Pro submitted quarterly report', time: '2h ago', unread: true },
-      { id: '3', type: 'alert', title: 'Due diligence deadline', message: 'NeuroLink DD checklist due in 2 days', time: '1d ago', unread: false },
-      { id: '4', type: 'system', title: 'System update', message: 'New analytics features available', time: '3d ago', unread: false },
-    ];
-    yield put(fetchAlertsSuccess(alerts));
-  } catch (error: any) {
-    yield put(fetchAlertsFailure(error?.message ?? 'Failed to load alerts'));
+    const alerts = yield call(fetchAlertsService, params);
+    yield put(alertsLoaded({ items: alerts }));
+  } catch (error: unknown) {
+    console.error('Failed to load alerts', error);
+    yield put(alertsFailed(normalizeError(error)));
   }
 }
 
-function* watchFetchAlerts() {
-  yield takeLatest(fetchAlerts.type, fetchAlertsWorker);
+function* watchFetchAlerts(): SagaIterator {
+  yield takeLatest(alertsRequested.type, fetchAlertsWorker);
 }
 
-export function* alertsSaga() {
+export function* alertsSaga(): SagaIterator {
   yield all([call(watchFetchAlerts)]);
 }

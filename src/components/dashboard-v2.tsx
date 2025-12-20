@@ -21,7 +21,8 @@ import { Card, Badge, PageContainer, Breadcrumb, PageHeader, Tabs, Tab } from '@
 import { FundSelector } from '@/components/fund-selector';
 import { getRouteConfig } from '@/config/routes';
 import { Fund } from '@/types/fund';
-import { setGlobalQuickActions, clearGlobalQuickActions } from '@/components/ai-copilot-sidebar';
+import { useAppDispatch } from '@/store/hooks';
+import { setQuickActionsOverride } from '@/store/slices/copilotSlice';
 
 const formatCurrency = (amount: number, showDecimals = false) => {
   if (amount >= 1_000_000_000) {
@@ -33,6 +34,25 @@ const formatCurrency = (amount: number, showDecimals = false) => {
 export function DashboardV2() {
   const { user } = useAuth();
   const { selectedFund, viewMode, funds, getFundSummary, setSelectedFund, setViewMode } = useFund();
+  const dispatch = useAppDispatch();
+  const {
+    capitalCalls,
+    portfolioCompanies,
+    quickActions,
+    tasks,
+    metrics,
+  } = useDashboardData();
+
+  // Surface dashboard quick actions inside the AI Copilot sidebar
+  useEffect(() => {
+    dispatch(setQuickActionsOverride(quickActions));
+    return () => {
+      dispatch(setQuickActionsOverride(null));
+    };
+  }, [dispatch, quickActions]);
+
+  const insight = useAIInsights(metrics);
+  const summary = getFundSummary();
 
   // Role-based view switching (non-GP roles get their own dashboards)
   switch (user?.role) {
@@ -54,25 +74,6 @@ export function DashboardV2() {
       // GP and default fall through to fund-aware dashboard below
       break;
   }
-
-  const {
-    capitalCalls,
-    portfolioCompanies,
-    quickActions,
-    tasks,
-    metrics,
-  } = useDashboardData();
-
-  // Surface dashboard quick actions inside the AI Copilot sidebar
-  useEffect(() => {
-    setGlobalQuickActions(quickActions);
-    return () => {
-      clearGlobalQuickActions();
-    };
-  }, [quickActions]);
-
-  const insight = useAIInsights(metrics);
-  const summary = getFundSummary();
 
   const handleFundSelect = (fund: Fund | null) => {
     setSelectedFund(fund);

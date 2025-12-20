@@ -1,8 +1,10 @@
 'use client';
 
+import { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button, Badge } from '@/ui';
 import { X, Check, Trash2, Tag, Archive, Mail, Download, MoreHorizontal } from 'lucide-react';
+import { useUIKey } from '@/store/ui';
 
 export interface BulkAction {
   id: string;
@@ -159,36 +161,38 @@ export function BulkActionsToolbar({
 }
 
 // Hook for managing bulk selection
-export function useBulkSelection<T extends { id: string | number }>(items: T[]) {
-  const [selectedIds, setSelectedIds] = React.useState<Set<string | number>>(new Set());
+export function useBulkSelection<T extends { id: string | number }>(items: T[], stateKey: string) {
+  const { value: ui, patch: patchUI } = useUIKey<{
+    selectedIds: Array<string | number>;
+  }>(`bulk-selection:${stateKey}`, {
+    selectedIds: [],
+  });
+
+  const selectedIdSet = useMemo(() => new Set(ui.selectedIds), [ui.selectedIds]);
 
   const toggleSelection = (id: string | number) => {
-    setSelectedIds((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
-      return newSet;
+    patchUI({
+      selectedIds: selectedIdSet.has(id)
+        ? ui.selectedIds.filter((selectedId) => selectedId !== id)
+        : [...ui.selectedIds, id],
     });
   };
 
   const selectAll = () => {
-    setSelectedIds(new Set(items.map((item) => item.id)));
+    patchUI({ selectedIds: items.map((item) => item.id) });
   };
 
   const clearSelection = () => {
-    setSelectedIds(new Set());
+    patchUI({ selectedIds: [] });
   };
 
-  const isSelected = (id: string | number) => selectedIds.has(id);
+  const isSelected = (id: string | number) => selectedIdSet.has(id);
 
-  const selectedItems = items.filter((item) => selectedIds.has(item.id));
+  const selectedItems = items.filter((item) => selectedIdSet.has(item.id));
 
   return {
-    selectedIds,
-    selectedCount: selectedIds.size,
+    selectedIds: selectedIdSet,
+    selectedCount: selectedIdSet.size,
     toggleSelection,
     selectAll,
     clearSelection,
@@ -196,6 +200,3 @@ export function useBulkSelection<T extends { id: string | number }>(items: T[]) 
     selectedItems,
   };
 }
-
-// Add React import for the hook
-import React from 'react';

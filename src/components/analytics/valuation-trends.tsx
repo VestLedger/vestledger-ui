@@ -1,10 +1,11 @@
 'use client'
 
 import { Card } from '@/ui';
-import { valuationTrends } from '@/data/mock-fund-analytics-data';
+import { getValuationTrends } from '@/services/analytics/fundAnalyticsService';
 import { TrendingUp, DollarSign } from 'lucide-react';
 
 export function ValuationTrends() {
+  const valuationTrends = getValuationTrends();
   // Calculate dimensions for the chart
   const maxValue = Math.max(...valuationTrends.map(d => d.portfolioValue));
   const maxTVPI = Math.max(...valuationTrends.map(d => d.tvpi));

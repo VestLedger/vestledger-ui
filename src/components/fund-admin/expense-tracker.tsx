@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useUIKey } from '@/store/ui';
 import { Card, Button, Badge, Input } from '@/ui';
 import { DollarSign, Plus, Calendar, TrendingUp, TrendingDown, PieChart, Filter, Download } from 'lucide-react';
+import { formatCurrency } from '@/utils/formatting';
 
 export type ExpenseType =
   | 'management-fee'
@@ -53,18 +54,18 @@ export function ExpenseTracker({
   onMarkPaid,
   onExport,
 }: ExpenseTrackerProps) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterType, setFilterType] = useState<ExpenseType | 'all'>('all');
-  const [filterStatus, setFilterStatus] = useState<string>('all');
-  const [dateRange, setDateRange] = useState<'month' | 'quarter' | 'year'>('month');
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2,
-    }).format(amount);
-  };
+  const { value: ui, patch: patchUI } = useUIKey<{
+    searchQuery: string;
+    filterType: ExpenseType | 'all';
+    filterStatus: string;
+    dateRange: 'month' | 'quarter' | 'year';
+  }>(`expense-tracker:${fundId ?? 'all'}`, {
+    searchQuery: '',
+    filterType: 'all',
+    filterStatus: 'all',
+    dateRange: 'month',
+  });
+  const { searchQuery, filterType, filterStatus, dateRange } = ui;
 
   const getExpenseTypeConfig = (type: ExpenseType) => {
     switch (type) {
@@ -184,7 +185,7 @@ export function ExpenseTracker({
             <div>
               <h3 className="text-lg font-semibold">Fund Expense Tracking</h3>
               <p className="text-xs text-[var(--app-text-muted)]">
-                {filteredExpenses.length} expenses • {formatCurrency(totals.total)} total
+                {filteredExpenses.length} expenses • {formatCurrency(totals.total, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} total
               </p>
             </div>
           </div>
@@ -216,7 +217,7 @@ export function ExpenseTracker({
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <div className="p-3 rounded-lg bg-[var(--app-surface-hover)]">
             <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Total Expenses</p>
-            <p className="text-lg font-bold">{formatCurrency(totals.total)}</p>
+            <p className="text-lg font-bold">{formatCurrency(totals.total, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
             <p className="text-xs text-[var(--app-text-subtle)] mt-1">
               {filteredExpenses.length} transactions
             </p>
@@ -224,7 +225,7 @@ export function ExpenseTracker({
           <div className="p-3 rounded-lg bg-[var(--app-warning-bg)]">
             <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Pending</p>
             <p className="text-lg font-bold text-[var(--app-warning)]">
-              {formatCurrency(totals.byStatus['pending'] || 0)}
+              {formatCurrency(totals.byStatus['pending'] || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
             <p className="text-xs text-[var(--app-text-subtle)] mt-1">
               {filteredExpenses.filter(e => e.status === 'pending').length} items
@@ -233,7 +234,7 @@ export function ExpenseTracker({
           <div className="p-3 rounded-lg bg-[var(--app-info-bg)]">
             <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Approved</p>
             <p className="text-lg font-bold text-[var(--app-info)]">
-              {formatCurrency(totals.byStatus['approved'] || 0)}
+              {formatCurrency(totals.byStatus['approved'] || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
             <p className="text-xs text-[var(--app-text-subtle)] mt-1">
               {filteredExpenses.filter(e => e.status === 'approved').length} items
@@ -242,7 +243,7 @@ export function ExpenseTracker({
           <div className="p-3 rounded-lg bg-[var(--app-success-bg)]">
             <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Paid</p>
             <p className="text-lg font-bold text-[var(--app-success)]">
-              {formatCurrency(totals.byStatus['paid'] || 0)}
+              {formatCurrency(totals.byStatus['paid'] || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
             <p className="text-xs text-[var(--app-text-subtle)] mt-1">
               {filteredExpenses.filter(e => e.status === 'paid').length} items
@@ -265,7 +266,7 @@ export function ExpenseTracker({
               return (
                 <div key={type} className={`p-2 rounded-lg ${config.bgColor}`}>
                   <p className="text-xs text-[var(--app-text-muted)]">{config.label}</p>
-                  <p className={`text-sm font-bold ${config.color}`}>{formatCurrency(amount)}</p>
+                  <p className={`text-sm font-bold ${config.color}`}>{formatCurrency(amount, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                   {percentage > 0 && (
                     <p className="text-xs text-[var(--app-text-subtle)]">{percentage.toFixed(1)}%</p>
                   )}
@@ -280,7 +281,7 @@ export function ExpenseTracker({
           <Input
             placeholder="Search expenses..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => patchUI({ searchQuery: e.target.value })}
             startContent={<Filter className="w-4 h-4" />}
             size="sm"
             className="flex-1"
@@ -288,7 +289,7 @@ export function ExpenseTracker({
           <select
             className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
             value={filterType}
-            onChange={(e) => setFilterType(e.target.value as ExpenseType | 'all')}
+            onChange={(e) => patchUI({ filterType: e.target.value as ExpenseType | 'all' })}
           >
             <option value="all">All Types</option>
             {expenseTypes.map(type => (
@@ -300,7 +301,7 @@ export function ExpenseTracker({
           <select
             className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
+            onChange={(e) => patchUI({ filterStatus: e.target.value })}
           >
             <option value="all">All Status</option>
             <option value="pending">Pending</option>
@@ -311,7 +312,7 @@ export function ExpenseTracker({
           <select
             className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
             value={dateRange}
-            onChange={(e) => setDateRange(e.target.value as typeof dateRange)}
+            onChange={(e) => patchUI({ dateRange: e.target.value as typeof dateRange })}
           >
             <option value="month">This Month</option>
             <option value="quarter">This Quarter</option>
@@ -380,7 +381,7 @@ export function ExpenseTracker({
                     </div>
 
                     <div className="col-span-1 text-right font-medium">
-                      {formatCurrency(expense.amount)}
+                      {formatCurrency(expense.amount, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
 
                     <div className="col-span-1">{getStatusBadge(expense.status)}</div>

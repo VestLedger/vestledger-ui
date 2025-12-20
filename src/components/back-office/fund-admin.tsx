@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useUIKey } from '@/store/ui'
 import { Card, Button, Badge, Progress, Input, Select, Breadcrumb, PageHeader, PageContainer } from '@/ui'
 import { DollarSign, Send, Download, Clock, CheckCircle, AlertTriangle, Users, FileText, Mail, ArrowUpRight, ArrowDownRight } from 'lucide-react'
 import { FundSelector } from '../fund-selector'
@@ -9,221 +9,42 @@ import { CarriedInterestTracker } from '../fund-admin/carried-interest-tracker'
 import { ExpenseTracker } from '../fund-admin/expense-tracker'
 import { NAVCalculator } from '../fund-admin/nav-calculator'
 import { TransferSecondary } from '../fund-admin/transfer-secondary'
-
-interface CapitalCall {
-  id: string;
-  callNumber: number;
-  fundName: string;
-  callDate: string;
-  dueDate: string;
-  totalAmount: number;
-  amountReceived: number;
-  lpCount: number;
-  lpsResponded: number;
-  status: 'draft' | 'sent' | 'in-progress' | 'completed';
-  purpose: string;
-}
-
-interface Distribution {
-  id: string;
-  distributionNumber: number;
-  fundName: string;
-  distributionDate: string;
-  totalAmount: number;
-  lpCount: number;
-  status: 'draft' | 'processing' | 'completed';
-  source: string;
-  type: 'return-of-capital' | 'capital-gain' | 'dividend';
-}
-
-interface LPResponse {
-  id: string;
-  lpName: string;
-  commitment: number;
-  callAmount: number;
-  amountPaid: number;
-  dueDate: string;
-  status: 'pending' | 'paid' | 'partial' | 'overdue';
-  paymentMethod: string;
-}
-
-const mockCapitalCalls: CapitalCall[] = [
-  {
-    id: '1',
-    callNumber: 8,
-    fundName: 'Acme Ventures Fund II',
-    callDate: '2024-12-01',
-    dueDate: '2024-12-15',
-    totalAmount: 15000000,
-    amountReceived: 12000000,
-    lpCount: 12,
-    lpsResponded: 9,
-    status: 'in-progress',
-    purpose: 'Series B investments - CloudScale, DataFlow'
-  },
-  {
-    id: '2',
-    callNumber: 7,
-    fundName: 'Acme Ventures Fund II',
-    callDate: '2024-09-15',
-    dueDate: '2024-09-30',
-    totalAmount: 12500000,
-    amountReceived: 12500000,
-    lpCount: 12,
-    lpsResponded: 12,
-    status: 'completed',
-    purpose: 'Follow-on investments and operating reserves'
-  },
-  {
-    id: '3',
-    callNumber: 9,
-    fundName: 'Acme Ventures Fund III',
-    callDate: '2024-12-10',
-    dueDate: '2024-12-25',
-    totalAmount: 20000000,
-    amountReceived: 0,
-    lpCount: 15,
-    lpsResponded: 0,
-    status: 'draft',
-    purpose: 'Initial deployment - Seed and Series A investments'
-  }
-];
-
-const mockDistributions: Distribution[] = [
-  {
-    id: '1',
-    distributionNumber: 5,
-    fundName: 'Acme Ventures Fund II',
-    distributionDate: '2024-11-30',
-    totalAmount: 8500000,
-    lpCount: 12,
-    status: 'completed',
-    source: 'CloudScale exit proceeds',
-    type: 'capital-gain'
-  },
-  {
-    id: '2',
-    distributionNumber: 4,
-    fundName: 'Acme Ventures Fund II',
-    distributionDate: '2024-08-31',
-    totalAmount: 5200000,
-    lpCount: 12,
-    status: 'completed',
-    source: 'Portfolio company dividends',
-    type: 'dividend'
-  },
-  {
-    id: '3',
-    distributionNumber: 6,
-    fundName: 'Acme Ventures Fund I',
-    distributionDate: '2024-12-20',
-    totalAmount: 12000000,
-    lpCount: 10,
-    status: 'processing',
-    source: 'FinTech Solutions IPO proceeds',
-    type: 'capital-gain'
-  }
-];
-
-const mockLPResponses: LPResponse[] = [
-  {
-    id: '1',
-    lpName: 'University Endowment Fund',
-    commitment: 50000000,
-    callAmount: 5000000,
-    amountPaid: 5000000,
-    dueDate: '2024-12-15',
-    status: 'paid',
-    paymentMethod: 'Wire Transfer'
-  },
-  {
-    id: '2',
-    lpName: 'Tech Pension Fund',
-    commitment: 30000000,
-    callAmount: 3000000,
-    amountPaid: 3000000,
-    dueDate: '2024-12-15',
-    status: 'paid',
-    paymentMethod: 'ACH'
-  },
-  {
-    id: '3',
-    lpName: 'Family Office Partners',
-    commitment: 25000000,
-    callAmount: 2500000,
-    amountPaid: 1500000,
-    dueDate: '2024-12-15',
-    status: 'partial',
-    paymentMethod: 'Wire Transfer'
-  },
-  {
-    id: '4',
-    lpName: 'Sovereign Wealth Fund',
-    commitment: 75000000,
-    callAmount: 7500000,
-    amountPaid: 0,
-    dueDate: '2024-12-15',
-    status: 'pending',
-    paymentMethod: 'Wire Transfer'
-  }
-];
+import { fundAdminRequested, fundAdminSelectors } from '@/store/slices/backOfficeSlice'
+import { ErrorState, LoadingState } from '@/components/ui/async-states'
+import { formatCurrency } from '@/utils/formatting'
+import { StatusBadge, StatsCard } from '@/components/ui'
+import { useAsyncData } from '@/hooks/useAsyncData'
 
 export function FundAdmin() {
-  const [selectedTab, setSelectedTab] = useState<string>('capital-calls');
+  const { data, isLoading, error, refetch } = useAsyncData(fundAdminRequested, fundAdminSelectors.selectState);
+
+  const { value: ui, patch: patchUI } = useUIKey('back-office-fund-admin', { selectedTab: 'capital-calls' });
+  const { selectedTab } = ui;
 
   // Get route config for breadcrumbs and AI suggestions
   const routeConfig = getRouteConfig('/fund-admin');
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
+  const capitalCalls = data?.capitalCalls || [];
+  const distributions = data?.distributions || [];
+  const lpResponses = data?.lpResponses || [];
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-      case 'paid':
-        return 'bg-[var(--app-success-bg)] text-[var(--app-success)]';
-      case 'in-progress':
-      case 'processing':
-      case 'partial':
-        return 'bg-[var(--app-warning-bg)] text-[var(--app-warning)]';
-      case 'draft':
-      case 'pending':
-        return 'bg-[var(--app-info-bg)] text-[var(--app-info)]';
-      case 'overdue':
-        return 'bg-[var(--app-danger-bg)] text-[var(--app-danger)]';
-      default:
-        return 'bg-[var(--app-surface)]';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'completed':
-      case 'paid':
-        return <CheckCircle className="w-4 h-4" />;
-      case 'in-progress':
-      case 'processing':
-      case 'partial':
-        return <Clock className="w-4 h-4" />;
-      case 'overdue':
-        return <AlertTriangle className="w-4 h-4" />;
-      default:
-        return null;
-    }
-  };
+  if (isLoading) return <LoadingState message="Loading fund administration…" />;
+  if (error) {
+    return (
+      <ErrorState
+        error={error}
+        title="Failed to load fund administration"
+        onRetry={refetch}
+      />
+    );
+  }
 
   // Calculate AI insights
-  const activeCallsCount = mockCapitalCalls.filter(c => c.status === 'in-progress').length;
-  const totalOutstanding = mockCapitalCalls
+  const activeCallsCount = capitalCalls.filter(c => c.status === 'in-progress').length;
+  const totalOutstanding = capitalCalls
     .filter(c => c.status === 'in-progress')
     .reduce((sum, c) => sum + (c.totalAmount - c.amountReceived), 0);
-  const pendingLPs = mockLPResponses.filter(r => r.status === 'pending' || r.status === 'partial').length;
+  const pendingLPs = lpResponses.filter(r => r.status === 'pending' || r.status === 'partial').length;
 
   return (
     <PageContainer>
@@ -293,7 +114,7 @@ export function FundAdmin() {
           }
         ]}
         activeTab={selectedTab}
-        onTabChange={(tabId) => setSelectedTab(tabId)}
+        onTabChange={(tabId) => patchUI({ selectedTab: tabId })}
       >
         {/* Fund Selector as child content */}
         <div className="w-full sm:w-64">
@@ -303,86 +124,54 @@ export function FundAdmin() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-warning-bg)]">
-              <ArrowUpRight className="w-6 h-6 text-[var(--app-warning)]" />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--app-text-muted)]">Active Calls</p>
-              <p className="text-2xl font-bold">
-                {mockCapitalCalls.filter(c => c.status === 'in-progress').length}
-              </p>
-              <p className="text-xs text-[var(--app-text-subtle)] mt-1">
-                {formatCurrency(
-                  mockCapitalCalls
-                    .filter(c => c.status === 'in-progress')
-                    .reduce((sum, c) => sum + c.totalAmount, 0)
-                )}
-              </p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="Active Calls"
+          value={capitalCalls.filter(c => c.status === 'in-progress').length}
+          icon={ArrowUpRight}
+          variant="warning"
+          subtitle={formatCurrency(
+            capitalCalls
+              .filter(c => c.status === 'in-progress')
+              .reduce((sum, c) => sum + c.totalAmount, 0)
+          )}
+        />
 
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-success-bg)]">
-              <ArrowDownRight className="w-6 h-6 text-[var(--app-success)]" />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--app-text-muted)]">YTD Distributions</p>
-              <p className="text-2xl font-bold">
-                {mockDistributions.filter(d => d.status === 'completed').length}
-              </p>
-              <p className="text-xs text-[var(--app-text-subtle)] mt-1">
-                {formatCurrency(
-                  mockDistributions
-                    .filter(d => d.status === 'completed')
-                    .reduce((sum, d) => sum + d.totalAmount, 0)
-                )}
-              </p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="YTD Distributions"
+          value={distributions.filter(d => d.status === 'completed').length}
+          icon={ArrowDownRight}
+          variant="success"
+          subtitle={formatCurrency(
+            distributions
+              .filter(d => d.status === 'completed')
+              .reduce((sum, d) => sum + d.totalAmount, 0)
+          )}
+        />
 
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-info-bg)]">
-              <DollarSign className="w-6 h-6 text-[var(--app-info)]" />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--app-text-muted)]">Outstanding</p>
-              <p className="text-2xl font-bold">
-                {formatCurrency(
-                  mockCapitalCalls
-                    .filter(c => c.status === 'in-progress')
-                    .reduce((sum, c) => sum + (c.totalAmount - c.amountReceived), 0)
-                )}
-              </p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="Outstanding"
+          value={formatCurrency(
+            capitalCalls
+              .filter(c => c.status === 'in-progress')
+              .reduce((sum, c) => sum + (c.totalAmount - c.amountReceived), 0)
+          )}
+          icon={DollarSign}
+          variant="primary"
+        />
 
-        <Card padding="lg">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-primary-bg)]">
-              <Users className="w-6 h-6 text-[var(--app-primary)]" />
-            </div>
-            <div>
-              <p className="text-sm text-[var(--app-text-muted)]">Total LPs</p>
-              <p className="text-2xl font-bold">
-                {Math.max(...mockCapitalCalls.map(c => c.lpCount))}
-              </p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="Total LPs"
+          value={Math.max(...capitalCalls.map(c => c.lpCount))}
+          icon={Users}
+          variant="primary"
+        />
       </div>
 
       {/* Tab Content */}
       <div>
         {selectedTab === 'capital-calls' && (
           <div className="space-y-3">
-            {mockCapitalCalls.map((call) => {
+            {capitalCalls.map((call) => {
               const responseRate = (call.lpsResponded / call.lpCount) * 100;
               const collectionRate = (call.amountReceived / call.totalAmount) * 100;
 
@@ -397,12 +186,7 @@ export function FundAdmin() {
                         <div>
                           <div className="flex items-center gap-2 mb-1">
                             <h3 className="font-semibold text-lg">Capital Call #{call.callNumber}</h3>
-                            <Badge size="sm" className={getStatusColor(call.status)}>
-                              <div className="flex items-center gap-1">
-                                {getStatusIcon(call.status)}
-                                <span className="capitalize">{call.status.replace('-', ' ')}</span>
-                              </div>
-                            </Badge>
+                            <StatusBadge status={call.status} domain="fund-admin" showIcon size="sm" />
                           </div>
                           <p className="text-sm text-[var(--app-text-muted)] mb-1">{call.fundName}</p>
                           <p className="text-sm text-[var(--app-text-subtle)]">{call.purpose}</p>
@@ -467,7 +251,7 @@ export function FundAdmin() {
                             <span className="text-[var(--app-text-muted)]">Collection Progress</span>
                             <span className="font-semibold">{collectionRate.toFixed(0)}%</span>
                           </div>
-                          <Progress value={collectionRate} maxValue={100} className="h-2" />
+                          <Progress value={collectionRate} maxValue={100} className="h-2" aria-label={`Collection progress ${collectionRate.toFixed(0)}%`} />
                         </div>
 
                         <div className="flex items-center justify-between text-sm">
@@ -490,7 +274,7 @@ export function FundAdmin() {
 
         {selectedTab === 'distributions' && (
           <div className="space-y-3">
-            {mockDistributions.map((dist) => (
+            {distributions.map((dist) => (
               <Card key={dist.id} padding="lg">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-4">
@@ -500,14 +284,9 @@ export function FundAdmin() {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-semibold text-lg">Distribution #{dist.distributionNumber}</h3>
-                        <Badge size="sm" className={getStatusColor(dist.status)}>
-                          <div className="flex items-center gap-1">
-                            {getStatusIcon(dist.status)}
-                            <span className="capitalize">{dist.status}</span>
-                          </div>
-                        </Badge>
+                        <StatusBadge status={dist.status} domain="fund-admin" showIcon size="sm" />
                         <Badge size="sm" className="bg-[var(--app-surface-hover)]">
-                          {dist.type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                          {dist.type.split('-').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                         </Badge>
                       </div>
                       <p className="text-sm text-[var(--app-text-muted)] mb-1">{dist.fundName}</p>
@@ -577,7 +356,7 @@ export function FundAdmin() {
               </div>
 
               <div className="space-y-3">
-                {mockLPResponses.map((response) => {
+                {lpResponses.map((response) => {
                   const paymentProgress = (response.amountPaid / response.callAmount) * 100;
 
                   return (
@@ -586,12 +365,7 @@ export function FundAdmin() {
                         <div>
                           <div className="flex items-center gap-2 mb-1">
                             <p className="font-semibold">{response.lpName}</p>
-                            <Badge size="sm" className={getStatusColor(response.status)}>
-                              <div className="flex items-center gap-1">
-                                {getStatusIcon(response.status)}
-                                <span className="capitalize">{response.status}</span>
-                              </div>
-                            </Badge>
+                            <StatusBadge status={response.status} domain="fund-admin" showIcon size="sm" />
                           </div>
                           <p className="text-sm text-[var(--app-text-muted)]">
                             Commitment: {formatCurrency(response.commitment)}
@@ -609,7 +383,7 @@ export function FundAdmin() {
 
                       {response.status !== 'paid' && (
                         <div className="mb-3">
-                          <Progress value={paymentProgress} maxValue={100} className="h-2" />
+                          <Progress value={paymentProgress} maxValue={100} className="h-2" aria-label={`${response.lpName} payment progress ${paymentProgress.toFixed(0)}%`} />
                         </div>
                       )}
 

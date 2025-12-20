@@ -1,4 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import type { AsyncState, NormalizedError } from '@/store/types/AsyncState';
+import { createInitialAsyncState } from '@/store/types/AsyncState';
+import { createAsyncSelectors } from '@/store/utils/createAsyncSelectors';
+import type { StandardQueryParams } from '@/types/serviceParams';
 
 export type AlertType = 'deal' | 'report' | 'alert' | 'system';
 
@@ -11,47 +15,54 @@ export interface Alert {
   unread: boolean;
 }
 
-interface AlertsState {
+export interface AlertsData {
   items: Alert[];
-  loading: boolean;
-  error?: string;
 }
 
-const initialState: AlertsState = {
-  items: [],
-  loading: false,
-};
+export interface GetAlertsParams extends Partial<StandardQueryParams> {
+  unreadOnly?: boolean;
+}
+
+type AlertsState = AsyncState<AlertsData>;
+
+const initialState: AlertsState = createInitialAsyncState<AlertsData>();
 
 const alertsSlice = createSlice({
   name: 'alerts',
   initialState,
   reducers: {
-    fetchAlerts: (state) => {
-      state.loading = true;
+    alertsRequested: (state, action: PayloadAction<GetAlertsParams>) => {
+      state.status = 'loading';
       state.error = undefined;
     },
-    fetchAlertsSuccess: (state, action: PayloadAction<Alert[]>) => {
-      state.items = action.payload;
-      state.loading = false;
+    alertsLoaded: (state, action: PayloadAction<AlertsData>) => {
+      state.data = action.payload;
+      state.status = 'succeeded';
+      state.error = undefined;
     },
-    fetchAlertsFailure: (state, action: PayloadAction<string>) => {
-      state.loading = false;
+    alertsFailed: (state, action: PayloadAction<NormalizedError>) => {
+      state.status = 'failed';
       state.error = action.payload;
     },
     markAlertRead: (state, action: PayloadAction<string>) => {
-      const id = action.payload;
-      state.items = state.items.map((alert) =>
-        alert.id === id ? { ...alert, unread: false } : alert
-      );
+      if (state.data) {
+        const id = action.payload;
+        state.data.items = state.data.items.map((alert) =>
+          alert.id === id ? { ...alert, unread: false } : alert
+        );
+      }
     },
   },
 });
 
 export const {
-  fetchAlerts,
-  fetchAlertsSuccess,
-  fetchAlertsFailure,
+  alertsRequested,
+  alertsLoaded,
+  alertsFailed,
   markAlertRead,
 } = alertsSlice.actions;
+
+// Centralized selectors
+export const alertsSelectors = createAsyncSelectors<AlertsData>('alerts');
 
 export const alertsReducer = alertsSlice.reducer;

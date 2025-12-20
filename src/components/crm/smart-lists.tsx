@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import { Card, Button, Input, Badge } from '@/ui';
 import { Filter, Plus, Save, Trash2, Star, Users, TrendingDown, Calendar, Briefcase, X, ChevronDown } from 'lucide-react';
+import { useUIKey } from '@/store/ui';
 
 export interface FilterCondition {
   id: string;
@@ -68,30 +68,37 @@ const operatorOptions: Record<string, { value: string; label: string }[]> = {
 };
 
 export function SmartLists({ lists, onListSelect, onListSave, onListDelete, selectedListId }: SmartListsProps) {
-  const [isCreating, setIsCreating] = useState(false);
-  const [editingList, setEditingList] = useState<SmartList | null>(null);
-  const [showSaved, setShowSaved] = useState(true);
+  const { value: ui, patch: patchUI } = useUIKey<{
+    isCreating: boolean;
+    editingList: SmartList | null;
+    showSaved: boolean;
+  }>('crm-smart-lists', {
+    isCreating: false,
+    editingList: null,
+    showSaved: true,
+  });
+  const { isCreating, editingList, showSaved } = ui;
 
   const handleCreateNew = () => {
-    setEditingList({
-      id: `temp-${Date.now()}`,
-      name: '',
-      conditions: [],
+    patchUI({
+      editingList: {
+        id: `temp-${Date.now()}`,
+        name: '',
+        conditions: [],
+      },
+      isCreating: true,
     });
-    setIsCreating(true);
   };
 
   const handleSave = () => {
     if (editingList && editingList.name.trim()) {
       onListSave(editingList);
-      setIsCreating(false);
-      setEditingList(null);
+      patchUI({ isCreating: false, editingList: null });
     }
   };
 
   const handleCancel = () => {
-    setIsCreating(false);
-    setEditingList(null);
+    patchUI({ isCreating: false, editingList: null });
   };
 
   const addCondition = () => {
@@ -104,29 +111,35 @@ export function SmartLists({ lists, onListSelect, onListSave, onListDelete, sele
       value: '',
     };
 
-    setEditingList({
-      ...editingList,
-      conditions: [...editingList.conditions, newCondition],
+    patchUI({
+      editingList: {
+        ...editingList,
+        conditions: [...editingList.conditions, newCondition],
+      },
     });
   };
 
   const removeCondition = (conditionId: string) => {
     if (!editingList) return;
 
-    setEditingList({
-      ...editingList,
-      conditions: editingList.conditions.filter(c => c.id !== conditionId),
+    patchUI({
+      editingList: {
+        ...editingList,
+        conditions: editingList.conditions.filter((condition) => condition.id !== conditionId),
+      },
     });
   };
 
   const updateCondition = (conditionId: string, updates: Partial<FilterCondition>) => {
     if (!editingList) return;
 
-    setEditingList({
-      ...editingList,
-      conditions: editingList.conditions.map(c =>
-        c.id === conditionId ? { ...c, ...updates } : c
-      ),
+    patchUI({
+      editingList: {
+        ...editingList,
+        conditions: editingList.conditions.map((condition) =>
+          condition.id === conditionId ? { ...condition, ...updates } : condition
+        ),
+      },
     });
   };
 
@@ -161,7 +174,7 @@ export function SmartLists({ lists, onListSelect, onListSave, onListDelete, sele
       <Card padding="sm">
         <button
           className="w-full flex items-center justify-between p-2 hover:bg-[var(--app-surface-hover)] rounded-lg transition-colors"
-          onClick={() => setShowSaved(!showSaved)}
+          onClick={() => patchUI({ showSaved: !showSaved })}
         >
           <span className="text-sm font-medium">Saved Lists ({lists.length})</span>
           <ChevronDown className={`w-4 h-4 transition-transform ${showSaved ? 'rotate-180' : ''}`} />
@@ -238,7 +251,7 @@ export function SmartLists({ lists, onListSelect, onListSave, onListDelete, sele
               <Input
                 placeholder="e.g., Hot Leads, Inactive Contacts, Top Founders"
                 value={editingList.name}
-                onChange={(e) => setEditingList({ ...editingList, name: e.target.value })}
+                onChange={(e) => patchUI({ editingList: { ...editingList, name: e.target.value } })}
                 size="sm"
               />
             </div>
@@ -248,7 +261,7 @@ export function SmartLists({ lists, onListSelect, onListSave, onListDelete, sele
               <Input
                 placeholder="Brief description of this list"
                 value={editingList.description || ''}
-                onChange={(e) => setEditingList({ ...editingList, description: e.target.value })}
+                onChange={(e) => patchUI({ editingList: { ...editingList, description: e.target.value } })}
                 size="sm"
               />
             </div>

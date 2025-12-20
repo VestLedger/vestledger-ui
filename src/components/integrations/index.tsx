@@ -1,131 +1,56 @@
 'use client';
 
-import { useState } from 'react';
 import { PageContainer, PageHeader, Breadcrumb, Card, Button, Badge } from '@/ui';
-import { Plug, Calendar, Mail, Slack, Github, CheckCircle2, AlertCircle, Settings } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { Plug, Calendar, Mail, Slack, Github, CheckCircle2, Settings } from 'lucide-react';
 import { getRouteConfig } from '@/config/routes';
-import { CalendarIntegration, type CalendarAccount, type CalendarEvent } from './calendar-integration';
+import { CalendarIntegration } from './calendar-integration';
+import { useUIKey } from '@/store/ui';
+import { integrationsRequested, integrationsSelectors } from '@/store/slices/miscSlice';
+import type { IntegrationSummary } from '@/types/integrations';
+import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
-const mockCalendarAccounts: CalendarAccount[] = [
-  {
-    id: '1',
-    provider: 'google',
-    email: 'john@vestledger.com',
-    status: 'connected',
-    lastSync: new Date(),
-    autoCapture: true,
-    captureRules: [],
-    syncedCalendars: ['Primary'],
-  },
-];
-
-const mockCalendarEvents: CalendarEvent[] = [
-  {
-    id: '1',
-    calendarAccountId: '1',
-    provider: 'google',
-    title: 'Investment Committee Meeting',
-    description: 'Review Q4 portfolio performance and pipeline.',
-    startTime: new Date('2024-12-15T10:00:00'),
-    endTime: new Date('2024-12-15T11:00:00'),
-    duration: 60,
-    location: 'Conference Room A',
-    isVirtual: true,
-    meetingUrl: 'https://meet.google.com/example',
-    organizer: 'john@vestledger.com',
-    attendees: [
-      {
-        email: 'john@vestledger.com',
-        name: 'John Doe',
-        responseStatus: 'accepted',
-        isOrganizer: true,
-        isOptional: false,
-      },
-      {
-        email: 'jane@vestledger.com',
-        name: 'Jane Smith',
-        responseStatus: 'accepted',
-        isOrganizer: false,
-        isOptional: false,
-      },
-    ],
-    captureStatus: 'captured',
-    capturedDate: new Date('2024-12-15T11:05:00'),
-    captureRuleId: 'rule-1',
-    captureRuleName: 'Default capture',
-    linkedContactIds: ['contact-1', 'contact-2'],
-    linkedContactNames: ['John Doe', 'Jane Smith'],
-    linkedDealIds: ['deal-1'],
-    linkedDealNames: ['Fund I'],
-    linkedFundIds: ['fund-1'],
-    linkedFundNames: ['Fund I'],
-    eventType: 'meeting',
-    category: 'Investment',
-    tags: ['investment', 'committee'],
-    isRecurring: false,
-    recurrencePattern: '',
-    isCancelled: false,
-    interactionId: 'interaction-1',
-    outcome: 'positive',
-    notes: 'Follow-up on due diligence items.',
-  },
-];
-
-interface Integration {
-  id: string;
-  name: string;
-  description: string;
-  icon: any;
-  status: 'connected' | 'available' | 'coming-soon';
-  category: 'productivity' | 'communication' | 'development' | 'finance';
-}
-
-const availableIntegrations: Integration[] = [
-  {
-    id: 'calendar',
-    name: 'Calendar',
-    description: 'Sync meetings and deadlines with Google Calendar, Outlook, and more',
-    icon: Calendar,
-    status: 'connected',
-    category: 'productivity',
-  },
-  {
-    id: 'email',
-    name: 'Email',
-    description: 'Connect your email for deal flow tracking and LP communications',
-    icon: Mail,
-    status: 'available',
-    category: 'communication',
-  },
-  {
-    id: 'slack',
-    name: 'Slack',
-    description: 'Get notifications and updates directly in your Slack workspace',
-    icon: Slack,
-    status: 'available',
-    category: 'communication',
-  },
-  {
-    id: 'github',
-    name: 'GitHub',
-    description: 'Track technical due diligence and code metrics for portfolio companies',
-    icon: Github,
-    status: 'coming-soon',
-    category: 'development',
-  },
-];
+const integrationIconMap = {
+  calendar: Calendar,
+  email: Mail,
+  slack: Slack,
+  github: Github,
+} as const satisfies Record<IntegrationSummary['icon'], LucideIcon>;
 
 export function Integrations() {
+  const { data, isLoading, error, refetch } = useAsyncData(integrationsRequested, integrationsSelectors.selectState);
   const routeConfig = getRouteConfig('/integrations');
-  const [calendarAccounts] = useState<CalendarAccount[]>(mockCalendarAccounts);
-  const [calendarEvents] = useState<CalendarEvent[]>(mockCalendarEvents);
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
+  // UI state MUST be called before any early returns (Rules of Hooks)
+  const { value: ui, patch: patchUI } = useUIKey('integrations', { selectedCategory: 'all' });
+  const { selectedCategory } = ui;
+
+  if (isLoading) return <LoadingState message="Loading integrations…" />;
+  if (error) {
+    return (
+      <ErrorState
+        error={error}
+        title="Failed to load integrations"
+        onRetry={refetch}
+      />
+    );
+  }
+
+  const integrations = data?.integrations || [];
+  if (integrations.length === 0) {
+    return <EmptyState icon={Plug} title="No integrations configured" message="Connect a tool to get started." />;
+  }
+
+  const calendarAccounts = data?.accounts || [];
+  const calendarEvents = data?.events || [];
+
+  const categories = ['all', ...Array.from(new Set(integrations.map((i) => i.category)))];
   const filteredIntegrations = selectedCategory === 'all'
-    ? availableIntegrations
-    : availableIntegrations.filter(i => i.category === selectedCategory);
+    ? integrations
+    : integrations.filter((i) => i.category === selectedCategory);
 
-  const getStatusBadge = (status: Integration['status']) => {
+  const getStatusBadge = (status: IntegrationSummary['status']) => {
     switch (status) {
       case 'connected':
         return <Badge color="success" startContent={<CheckCircle2 className="w-3 h-3" />}>Connected</Badge>;
@@ -138,23 +63,26 @@ export function Integrations() {
 
   return (
     <PageContainer>
-      <Breadcrumb items={routeConfig?.breadcrumbs || []} />
+      <div className="mb-4">
+        <Breadcrumb items={routeConfig?.breadcrumbs || []} aiSuggestion={routeConfig?.aiSuggestion} />
+      </div>
+
       <PageHeader
         title="Integrations"
         description="Connect external tools and services to streamline your workflow"
         icon={Plug}
       />
 
-      <div className="space-y-8">
+      <div className="mt-6 space-y-8">
         {/* Category Filter */}
         <div className="flex gap-2">
-          {['all', 'productivity', 'communication', 'development', 'finance'].map((category) => (
+          {categories.map((category) => (
             <Button
               key={category}
               variant={selectedCategory === category ? 'solid' : 'bordered'}
               color={selectedCategory === category ? 'primary' : 'default'}
               size="sm"
-              onClick={() => setSelectedCategory(category)}
+              onClick={() => patchUI({ selectedCategory: category })}
             >
               {category.charAt(0).toUpperCase() + category.slice(1)}
             </Button>
@@ -164,7 +92,7 @@ export function Integrations() {
         {/* Integration Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredIntegrations.map((integration) => {
-            const Icon = integration.icon;
+            const Icon = integrationIconMap[integration.icon];
             return (
               <Card key={integration.id} padding="lg" className="hover:border-[var(--app-primary)] transition-colors">
                 <div className="flex items-start justify-between mb-4">

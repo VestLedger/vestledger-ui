@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useUIKey } from '@/store/ui';
 import { Card, Button, Badge, Input } from '@/ui';
 import { ArrowRightLeft, Users, DollarSign, FileText, CheckCircle, XCircle, Clock, AlertCircle, Search, Filter } from 'lucide-react';
+import { formatCurrency, formatPercent } from '@/utils/formatting';
 
 export type TransferType = 'direct' | 'secondary-sale' | 'inheritance' | 'gift' | 'court-order';
 export type TransferStatus =
@@ -116,28 +117,18 @@ export function TransferSecondary({
   onUploadDocument,
   onExerciseROFR,
 }: TransferSecondaryProps) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterStatus, setFilterStatus] = useState<TransferStatus | 'all'>('all');
-  const [filterType, setFilterType] = useState<TransferType | 'all'>('all');
-  const [selectedTransfer, setSelectedTransfer] = useState<LPTransfer | null>(null);
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const formatPercent = (percent: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'percent',
-      minimumFractionDigits: 1,
-      maximumFractionDigits: 1,
-      signDisplay: 'always',
-    }).format(percent / 100);
-  };
+  const { value: ui, patch: patchUI } = useUIKey<{
+    searchQuery: string;
+    filterStatus: TransferStatus | 'all';
+    filterType: TransferType | 'all';
+    selectedTransfer: LPTransfer | null;
+  }>(`transfer-secondary:${fundId ?? 'all'}`, {
+    searchQuery: '',
+    filterStatus: 'all',
+    filterType: 'all',
+    selectedTransfer: null,
+  });
+  const { searchQuery, filterStatus, filterType, selectedTransfer } = ui;
 
   const getStatusBadge = (status: TransferStatus) => {
     switch (status) {
@@ -299,7 +290,7 @@ export function TransferSecondary({
           <Input
             placeholder="Search transfers..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => patchUI({ searchQuery: e.target.value })}
             startContent={<Search className="w-4 h-4" />}
             size="sm"
             className="flex-1"
@@ -307,7 +298,7 @@ export function TransferSecondary({
           <select
             className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value as TransferStatus | 'all')}
+            onChange={(e) => patchUI({ filterStatus: e.target.value as TransferStatus | 'all' })}
           >
             <option value="all">All Status</option>
             <option value="draft">Draft</option>
@@ -322,7 +313,7 @@ export function TransferSecondary({
           <select
             className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
             value={filterType}
-            onChange={(e) => setFilterType(e.target.value as TransferType | 'all')}
+            onChange={(e) => patchUI({ filterType: e.target.value as TransferType | 'all' })}
           >
             <option value="all">All Types</option>
             <option value="direct">Direct Transfer</option>
@@ -353,7 +344,7 @@ export function TransferSecondary({
                 <div
                   key={transfer.id}
                   className="p-4 rounded-lg bg-[var(--app-surface-hover)] hover:bg-[var(--app-surface)] border border-[var(--app-border)] transition-colors cursor-pointer"
-                  onClick={() => setSelectedTransfer(transfer)}
+                  onClick={() => patchUI({ selectedTransfer: transfer })}
                 >
                   {/* Header Row */}
                   <div className="flex items-start justify-between mb-3">

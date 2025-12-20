@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useUIKey } from '@/store/ui';
 import { Card, Button, Badge, Input } from '@/ui';
 import {
   Folder,
@@ -157,12 +157,22 @@ export function DocumentManager({
   onMoveDocument,
   onUpdateAccess,
 }: DocumentManagerProps) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterCategory, setFilterCategory] = useState<DocumentCategory | 'all'>('all');
-  const [filterAccessLevel, setFilterAccessLevel] = useState<AccessLevel | 'all'>('all');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [sortBy, setSortBy] = useState<'name' | 'date' | 'size'>('date');
+  const { value: ui, patch: patchUI } = useUIKey<{
+    searchQuery: string;
+    filterCategory: DocumentCategory | 'all';
+    filterAccessLevel: AccessLevel | 'all';
+    viewMode: 'grid' | 'list';
+    selectedTags: string[];
+    sortBy: 'name' | 'date' | 'size';
+  }>(`document-manager:${currentFolderId ?? 'root'}`, {
+    searchQuery: '',
+    filterCategory: 'all',
+    filterAccessLevel: 'all',
+    viewMode: 'list',
+    selectedTags: [],
+    sortBy: 'date',
+  });
+  const { searchQuery, filterCategory, filterAccessLevel, viewMode, selectedTags, sortBy } = ui;
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';
@@ -349,7 +359,7 @@ export function DocumentManager({
             <Input
               placeholder="Search documents..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => patchUI({ searchQuery: e.target.value })}
               startContent={<Search className="w-4 h-4" />}
               size="sm"
               className="flex-1"
@@ -357,7 +367,7 @@ export function DocumentManager({
             <select
               className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
               value={filterCategory}
-              onChange={(e) => setFilterCategory(e.target.value as DocumentCategory | 'all')}
+              onChange={(e) => patchUI({ filterCategory: e.target.value as DocumentCategory | 'all' })}
             >
               <option value="all">All Categories</option>
               <option value="legal">Legal</option>
@@ -372,7 +382,9 @@ export function DocumentManager({
             <select
               className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
               value={filterAccessLevel}
-              onChange={(e) => setFilterAccessLevel(e.target.value as AccessLevel | 'all')}
+              onChange={(e) =>
+                patchUI({ filterAccessLevel: e.target.value as AccessLevel | 'all' })
+              }
             >
               <option value="all">All Access</option>
               <option value="private">Private</option>
@@ -383,7 +395,7 @@ export function DocumentManager({
             <select
               className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as 'name' | 'date' | 'size')}
+              onChange={(e) => patchUI({ sortBy: e.target.value as 'name' | 'date' | 'size' })}
             >
               <option value="date">Sort by Date</option>
               <option value="name">Sort by Name</option>
@@ -394,7 +406,7 @@ export function DocumentManager({
                 size="sm"
                 variant={viewMode === 'list' ? 'solid' : 'flat'}
                 isIconOnly
-                onPress={() => setViewMode('list')}
+                onPress={() => patchUI({ viewMode: 'list' })}
               >
                 <List className="w-4 h-4" />
               </Button>
@@ -402,7 +414,7 @@ export function DocumentManager({
                 size="sm"
                 variant={viewMode === 'grid' ? 'solid' : 'flat'}
                 isIconOnly
-                onPress={() => setViewMode('grid')}
+                onPress={() => patchUI({ viewMode: 'grid' })}
               >
                 <Grid3x3 className="w-4 h-4" />
               </Button>
@@ -418,9 +430,9 @@ export function DocumentManager({
                   key={tag}
                   onClick={() => {
                     if (selectedTags.includes(tag)) {
-                      setSelectedTags(selectedTags.filter(t => t !== tag));
+                      patchUI({ selectedTags: selectedTags.filter((t) => t !== tag) });
                     } else {
-                      setSelectedTags([...selectedTags, tag]);
+                      patchUI({ selectedTags: [...selectedTags, tag] });
                     }
                   }}
                   className={`px-2 py-1 text-xs rounded-lg transition-colors ${

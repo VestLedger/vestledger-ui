@@ -1,10 +1,12 @@
 'use client'
 
 import { Card, Progress } from '@/ui';
-import { deploymentPacing, currentFund } from '@/data/mock-fund-analytics-data';
+import { getCurrentFundMetrics, getDeploymentPacing } from '@/services/analytics/fundAnalyticsService';
 import { Activity, TrendingUp } from 'lucide-react';
 
 export function DeploymentPacing() {
+  const deploymentPacing = getDeploymentPacing();
+  const currentFund = getCurrentFundMetrics();
   // Calculate dimensions for the chart
   const maxDeployed = Math.max(...deploymentPacing.map(d => d.deployed));
   const maxCumulative = Math.max(...deploymentPacing.map(d => d.cumulativeDeployed));
@@ -343,6 +345,7 @@ export function DeploymentPacing() {
             value={currentFund.deploymentRate}
             maxValue={100}
             className="mb-2"
+            aria-label={`Fund deployment progress ${currentFund.deploymentRate.toFixed(1)}%`}
           />
           <div className="grid grid-cols-3 gap-4 text-xs">
             <div>

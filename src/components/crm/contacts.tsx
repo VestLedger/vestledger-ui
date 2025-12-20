@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { Card, Button, Input, Badge, PageContainer, Breadcrumb, PageHeader } from '@/ui';
 import { User, Mail, Phone, Building2, MapPin, Calendar, Tag, Search, Filter, Plus, Edit3, Trash2, Star, MessageSquare, Video, Send, ExternalLink, Briefcase, Users, Network } from 'lucide-react';
 import { getRouteConfig } from '@/config/routes';
@@ -10,227 +10,86 @@ import { SmartLists, type SmartList, type FilterCondition } from '@/components/c
 import { EmailIntegration, type EmailAccount } from '@/components/crm/email-integration';
 import { InteractionTimeline, type TimelineInteraction } from '@/components/crm/interaction-timeline';
 import { NetworkGraph } from './network-graph';
+import { useUIKey } from '@/store/ui';
+import { crmDataRequested, crmSelectors } from '@/store/slices/crmSlice';
+import type { Contact, Interaction } from '@/services/crm/contactsService';
+import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
+import { StatsCard } from '@/components/ui';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
-interface Contact {
-  id: string;
-  name: string;
-  email: string;
-  phone?: string;
-  role: 'founder' | 'co-founder' | 'ceo' | 'cto' | 'investor' | 'advisor' | 'other';
-  company?: string;
-  location?: string;
-  tags: string[];
-  lastContact?: string;
-  nextFollowUp?: string;
-  linkedCompanies: string[];
-  notes?: string;
-  linkedin?: string;
-  twitter?: string;
-  starred: boolean;
-  deals: string[];
-  interactions: number;
-  responseRate?: number; // 0-100
-  interactionFrequency?: number; // interactions per month
+interface ContactsUIState {
+  contacts: Contact[];
+  selectedContact: Contact | null;
+  searchQuery: string;
+  filterRole: string;
+  isDrawerOpen: boolean;
+  smartLists: SmartList[];
+  activeSmartList: SmartList | null;
+  emailAccounts: EmailAccount[];
+  activeTab: 'overview' | 'timeline' | 'email';
+  showNetworkGraph: boolean;
 }
-
-interface Interaction {
-  id: string;
-  contactId: string;
-  type: 'email' | 'call' | 'meeting' | 'note';
-  subject: string;
-  date: string;
-  notes?: string;
-}
-
-const mockContacts: Contact[] = [
-  {
-    id: '1',
-    name: 'Sarah Chen',
-    email: 'sarah@quantumai.com',
-    phone: '+1 (555) 123-4567',
-    role: 'founder',
-    company: 'Quantum AI',
-    location: 'San Francisco, CA',
-    tags: ['AI/ML', 'Enterprise SaaS', 'Series A'],
-    lastContact: '2024-11-25',
-    nextFollowUp: '2024-12-10',
-    linkedCompanies: ['Quantum AI'],
-    notes: 'Strong technical background. Stanford PhD. Previously led AI team at Google.',
-    linkedin: 'https://linkedin.com/in/sarahchen',
-    starred: true,
-    deals: ['Quantum AI - Series A'],
-    interactions: 12,
-    responseRate: 85,
-    interactionFrequency: 3
-  },
-  {
-    id: '2',
-    name: 'Michael Rodriguez',
-    email: 'michael@neurolink.io',
-    phone: '+1 (555) 234-5678',
-    role: 'ceo',
-    company: 'NeuroLink',
-    location: 'Boston, MA',
-    tags: ['HealthTech', 'Medical Devices', 'Seed'],
-    lastContact: '2024-11-20',
-    nextFollowUp: '2024-12-05',
-    linkedCompanies: ['NeuroLink'],
-    notes: 'Ex-Medtronic executive. Deep healthcare connections.',
-    linkedin: 'https://linkedin.com/in/mrodriguez',
-    starred: false,
-    deals: ['NeuroLink - Seed'],
-    interactions: 8,
-    responseRate: 70,
-    interactionFrequency: 2
-  },
-  {
-    id: '3',
-    name: 'Emily Zhang',
-    email: 'emily@cloudscale.com',
-    phone: '+1 (555) 345-6789',
-    role: 'co-founder',
-    company: 'CloudScale',
-    location: 'Austin, TX',
-    tags: ['DevTools', 'Infrastructure', 'Series B'],
-    lastContact: '2024-11-28',
-    nextFollowUp: '2024-12-15',
-    linkedCompanies: ['CloudScale'],
-    notes: 'CTO background. Built engineering teams at Stripe and AWS.',
-    starred: true,
-    deals: ['CloudScale - Series B'],
-    interactions: 15,
-    responseRate: 95,
-    interactionFrequency: 5
-  },
-  {
-    id: '4',
-    name: 'David Kim',
-    email: 'david@venturelab.com',
-    role: 'investor',
-    company: 'VentureLab Partners',
-    location: 'New York, NY',
-    tags: ['Co-investor', 'FinTech Focus'],
-    lastContact: '2024-11-15',
-    linkedCompanies: [],
-    starred: false,
-    deals: [],
-    interactions: 5,
-    responseRate: 60,
-    interactionFrequency: 1
-  }
-];
-
-const mockInteractions: Interaction[] = [
-  {
-    id: '1',
-    contactId: '1',
-    type: 'meeting',
-    subject: 'Due diligence follow-up meeting',
-    date: '2024-11-25',
-    notes: 'Discussed product roadmap and go-to-market strategy. Very positive.'
-  },
-  {
-    id: '2',
-    contactId: '1',
-    type: 'email',
-    subject: 'Introduction to portfolio company',
-    date: '2024-11-20',
-    notes: 'Connected with CloudScale team for potential partnership.'
-  },
-  {
-    id: '3',
-    contactId: '2',
-    type: 'call',
-    subject: 'Reference call',
-    date: '2024-11-20',
-    notes: 'Spoke with former colleague at Medtronic. Strong recommendation.'
-  }
-];
-
-const mockEmailAccounts: EmailAccount[] = [
-  {
-    id: '1',
-    email: 'investor@vestledger.com',
-    provider: 'gmail',
-    status: 'connected',
-    lastSync: new Date('2024-12-10T10:30:00'),
-    syncedEmails: 1247,
-    autoCapture: true,
-  },
-];
-
-const mockTimelineInteractions: TimelineInteraction[] = [
-  {
-    id: '1',
-    type: 'email',
-    direction: 'outbound',
-    subject: 'Introduction to Quantum AI opportunity',
-    description: 'Sent initial pitch deck and investment thesis.',
-    date: new Date('2024-11-28T14:30:00'),
-    isAutoCaptured: true,
-    tags: ['pitch', 'Series A'],
-    outcome: 'positive',
-  },
-  {
-    id: '2',
-    type: 'call',
-    direction: 'inbound',
-    subject: 'Follow-up call on investment terms',
-    description: 'Discussed valuation, allocation, and board seat requirements.',
-    date: new Date('2024-11-25T10:00:00'),
-    duration: 45,
-    participants: ['Sarah Chen', 'Co-founder Alex'],
-    outcome: 'positive',
-    linkedDeal: 'Quantum AI - Series A',
-  },
-  {
-    id: '3',
-    type: 'meeting',
-    direction: 'inbound',
-    subject: 'Due diligence presentation',
-    description: 'Deep dive into technology architecture, team background, and market opportunity.',
-    date: new Date('2024-11-20T15:00:00'),
-    duration: 90,
-    participants: ['Sarah Chen', 'CTO Mike'],
-    attachments: 3,
-    outcome: 'positive',
-    tags: ['due diligence', 'technical'],
-    linkedDeal: 'Quantum AI - Series A',
-  },
-  {
-    id: '4',
-    type: 'email',
-    direction: 'inbound',
-    subject: 'Financial projections and unit economics',
-    description: 'Received updated financial model with 5-year projections.',
-    date: new Date('2024-11-18T09:15:00'),
-    attachments: 2,
-    isAutoCaptured: true,
-    tags: ['financials'],
-  },
-  {
-    id: '5',
-    type: 'note',
-    subject: 'First meeting notes',
-    description: 'Great first impression. Strong technical team with deep AI expertise. Product has clear PMF with Fortune 500 customers.',
-    date: new Date('2024-11-15T16:45:00'),
-    tags: ['first meeting', 'notes'],
-    outcome: 'positive',
-  },
-];
 
 export function Contacts() {
   const routeConfig = getRouteConfig('/contacts');
-  const [contacts, setContacts] = useState<Contact[]>(mockContacts);
-  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterRole, setFilterRole] = useState<string>('all');
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [smartLists, setSmartLists] = useState<SmartList[]>([]);
-  const [activeSmartList, setActiveSmartList] = useState<SmartList | null>(null);
-  const [emailAccounts, setEmailAccounts] = useState<EmailAccount[]>(mockEmailAccounts);
-  const [activeTab, setActiveTab] = useState<'overview' | 'timeline' | 'email'>('overview');
-  const [showNetworkGraph, setShowNetworkGraph] = useState(false);
+  const { data, isLoading, error, refetch } = useAsyncData(crmDataRequested, crmSelectors.selectState, { params: {} });
+
+  const mockContacts = data?.contacts || [];
+  const mockEmailAccounts = data?.emailAccounts || [];
+  const mockInteractions = data?.interactions || [];
+  const mockTimelineInteractions = data?.timelineInteractions || [];
+
+  // UI state MUST be called before any early returns (Rules of Hooks)
+  const { value: ui, patch: patchUI } = useUIKey<Omit<ContactsUIState, 'contacts' | 'emailAccounts'>>('crm-contacts', {
+    selectedContact: null,
+    searchQuery: '',
+    filterRole: 'all',
+    isDrawerOpen: false,
+    smartLists: [],
+    activeSmartList: null,
+    activeTab: 'overview',
+    showNetworkGraph: false,
+  });
+
+  const {
+    selectedContact,
+    searchQuery,
+    filterRole,
+    isDrawerOpen,
+    smartLists,
+    activeSmartList,
+    activeTab,
+    showNetworkGraph,
+  } = ui;
+
+  // Use contacts directly from Redux, not from UI state
+  const contacts = mockContacts;
+  const emailAccounts = mockEmailAccounts;
+
+  if (isLoading) return <LoadingState message="Loading contacts…" />;
+  if (error) {
+    return (
+      <ErrorState
+        error={error}
+        title="Failed to load contacts"
+        onRetry={refetch}
+      />
+    );
+  }
+
+  if (mockContacts.length === 0) {
+    return (
+      <PageContainer className="space-y-6">
+        {routeConfig && (
+          <div className="mb-4">
+            <Breadcrumb items={routeConfig.breadcrumbs} aiSuggestion={routeConfig.aiSuggestion} />
+          </div>
+        )}
+        <PageHeader title="Contacts & CRM" description="Manage relationships and track communications" icon={Users} />
+        <EmptyState icon={Users} title="No contacts yet" message="Create a contact to get started." />
+      </PageContainer>
+    );
+  }
 
   // Helper to get relationship metrics for a contact
   const getRelationshipMetrics = (contact: Contact): RelationshipMetrics => {
@@ -293,30 +152,29 @@ export function Contacts() {
   });
 
   const handleListSave = (list: SmartList) => {
-    setSmartLists(prev => {
-      const exists = prev.find(l => l.id === list.id);
-      if (exists) {
-        return prev.map(l => l.id === list.id ? list : l);
-      }
-      return [...prev, { ...list, id: `list-${Date.now()}` }];
+    const exists = smartLists.find((storedList) => storedList.id === list.id);
+    patchUI({
+      smartLists: exists
+        ? smartLists.map((storedList) => (storedList.id === list.id ? list : storedList))
+        : [...smartLists, { ...list, id: `list-${Date.now()}` }],
     });
   };
 
   const handleListDelete = (listId: string) => {
-    setSmartLists(prev => prev.filter(l => l.id !== listId));
-    if (activeSmartList?.id === listId) {
-      setActiveSmartList(null);
-    }
+    patchUI({
+      smartLists: smartLists.filter((list) => list.id !== listId),
+      activeSmartList: activeSmartList?.id === listId ? null : activeSmartList,
+    });
   };
 
   const handleListSelect = (list: SmartList) => {
-    setActiveSmartList(list);
+    patchUI({ activeSmartList: list });
   };
 
   const toggleStar = (contactId: string) => {
-    setContacts(prev => prev.map(c =>
-      c.id === contactId ? { ...c, starred: !c.starred } : c
-    ));
+    // TODO: Dispatch action to update contact star status
+    // For now, this is read-only from Redux state
+    console.log('Toggle star for contact:', contactId);
   };
 
   const getRoleBadgeColor = (role: string) => {
@@ -352,60 +210,40 @@ export function Contacts() {
           secondaryActions={[
             {
               label: 'Network View',
-              onClick: () => setShowNetworkGraph(true)
+              onClick: () => patchUI({ showNetworkGraph: true })
             }
           ]}
         />
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card padding="md">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-[var(--app-primary-bg)]">
-              <Users className="w-5 h-5 text-[var(--app-primary)]" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{contacts.length}</p>
-              <p className="text-xs text-[var(--app-text-muted)]">Total Contacts</p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="Total Contacts"
+          value={contacts.length}
+          icon={Users}
+          variant="primary"
+        />
 
-        <Card padding="md">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-[var(--app-warning-bg)]">
-              <Building2 className="w-5 h-5 text-[var(--app-warning)]" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{contacts.filter(c => c.role === 'founder' || c.role === 'ceo').length}</p>
-              <p className="text-xs text-[var(--app-text-muted)]">Founders</p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="Founders"
+          value={contacts.filter(c => c.role === 'founder' || c.role === 'ceo').length}
+          icon={Building2}
+          variant="warning"
+        />
 
-        <Card padding="md">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-[var(--app-success-bg)]">
-              <Star className="w-5 h-5 text-[var(--app-success)]" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{contacts.filter(c => c.starred).length}</p>
-              <p className="text-xs text-[var(--app-text-muted)]">Starred</p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="Starred"
+          value={contacts.filter(c => c.starred).length}
+          icon={Star}
+          variant="success"
+        />
 
-        <Card padding="md">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-[var(--app-info-bg)]">
-              <Calendar className="w-5 h-5 text-[var(--app-info)]" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{contacts.filter(c => c.nextFollowUp).length}</p>
-              <p className="text-xs text-[var(--app-text-muted)]">Follow-ups Due</p>
-            </div>
-          </div>
-        </Card>
+        <StatsCard
+          title="Follow-ups Due"
+          value={contacts.filter(c => c.nextFollowUp).length}
+          icon={Calendar}
+          variant="primary"
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -435,7 +273,7 @@ export function Contacts() {
                   <Button
                     size="sm"
                     variant="light"
-                    onPress={() => setActiveSmartList(null)}
+                    onPress={() => patchUI({ activeSmartList: null })}
                   >
                     Clear
                   </Button>
@@ -444,7 +282,7 @@ export function Contacts() {
               <Input
                 placeholder="Search contacts..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => patchUI({ searchQuery: e.target.value })}
                 startContent={<Search className="w-4 h-4 text-[var(--app-text-subtle)]" />}
                 className="mb-3"
               />
@@ -452,7 +290,7 @@ export function Contacts() {
                 <select
                   className="flex-1 px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
                   value={filterRole}
-                  onChange={(e) => setFilterRole(e.target.value)}
+                  onChange={(e) => patchUI({ filterRole: e.target.value })}
                 >
                   <option value="all">All Roles</option>
                   <option value="founder">Founders</option>
@@ -468,8 +306,7 @@ export function Contacts() {
                 <div
                   key={contact.id}
                   onClick={() => {
-                    setSelectedContact(contact);
-                    setIsDrawerOpen(true);
+                    patchUI({ selectedContact: contact, isDrawerOpen: true });
                   }}
                   className={`p-4 border-b border-[var(--app-border)] cursor-pointer transition-colors hover:bg-[var(--app-surface-hover)] ${
                     selectedContact?.id === contact.id ? 'bg-[var(--app-primary-bg)]' : ''
@@ -478,7 +315,7 @@ export function Contacts() {
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-accent)] flex items-center justify-center text-white font-semibold">
-                        {contact.name.split(' ').map(n => n[0]).join('')}
+                        {contact.name.split(' ').map((n: string) => n[0]).join('')}
                       </div>
                       <div>
                         <p className="font-medium flex items-center gap-1">
@@ -514,7 +351,7 @@ export function Contacts() {
       {/* Contact Detail SideDrawer */}
       <SideDrawer
         isOpen={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
+        onClose={() => patchUI({ isDrawerOpen: false })}
         title={selectedContact?.name}
         subtitle={selectedContact?.company}
         width="lg"
@@ -524,7 +361,7 @@ export function Contacts() {
               {/* Tabs */}
               <div className="flex gap-2 mb-6 border-b border-[var(--app-border)]">
                 <button
-                  onClick={() => setActiveTab('overview')}
+                  onClick={() => patchUI({ activeTab: 'overview' })}
                   className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
                     activeTab === 'overview'
                       ? 'border-[var(--app-primary)] text-[var(--app-primary)]'
@@ -534,7 +371,7 @@ export function Contacts() {
                   Overview
                 </button>
                 <button
-                  onClick={() => setActiveTab('timeline')}
+                  onClick={() => patchUI({ activeTab: 'timeline' })}
                   className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
                     activeTab === 'timeline'
                       ? 'border-[var(--app-primary)] text-[var(--app-primary)]'
@@ -544,7 +381,7 @@ export function Contacts() {
                   Timeline
                 </button>
                 <button
-                  onClick={() => setActiveTab('email')}
+                  onClick={() => patchUI({ activeTab: 'email' })}
                   className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
                     activeTab === 'email'
                       ? 'border-[var(--app-primary)] text-[var(--app-primary)]'
@@ -760,9 +597,9 @@ export function Contacts() {
                   onDisconnect={(id) => console.log('Disconnect:', id)}
                   onSync={(id) => console.log('Sync:', id)}
                   onToggleAutoCapture={(id, enabled) => {
-                    setEmailAccounts(prev => prev.map(acc =>
-                      acc.id === id ? { ...acc, autoCapture: enabled } : acc
-                    ));
+                    // TODO: Dispatch action to update email account auto-capture
+                    // For now, this is read-only from Redux state
+                    console.log('Toggle auto-capture for account:', id, enabled);
                   }}
                 />
               )}
@@ -779,7 +616,7 @@ export function Contacts() {
               <Button
                 variant="flat"
                 size="sm"
-                onClick={() => setShowNetworkGraph(false)}
+                onClick={() => patchUI({ showNetworkGraph: false })}
               >
                 Close
               </Button>

@@ -1,46 +1,32 @@
 'use client';
 
-import { Search, FileText, TrendingUp, AlertCircle, CheckCircle2, Clock } from 'lucide-react';
+
+import { Search, CheckCircle2, Clock } from 'lucide-react';
 import { Card, Button, Badge, PageContainer } from '@/ui';
 import { MetricCard } from '@/components/metric-card';
+import { useAppDispatch } from '@/store/hooks';
+import { analystDashboardRequested, analystDashboardSelectors } from '@/store/slices/dashboardsSlice';
+import { ErrorState, LoadingState } from '@/components/ui/async-states';
+import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function AnalystDashboard() {
-  const metrics = [
-    {
-      label: 'Deals in Pipeline',
-      value: '45',
-      change: '+5',
-      trend: 'up' as const,
-      icon: Search,
-    },
-    {
-      label: 'Due Diligence Active',
-      value: '8',
-      change: '+2',
-      trend: 'up' as const,
-      icon: FileText,
-    },
-    {
-      label: 'Market Signals',
-      value: '12',
-      change: 'High',
-      trend: 'up' as const, // Neutral not supported by MetricCard yet
-      icon: TrendingUp,
-    },
-    {
-      label: 'Pending Reviews',
-      value: '3',
-      change: 'Urgent',
-      trend: 'down' as const,
-      icon: AlertCircle,
-    },
-  ];
+  const { data, isLoading, error, refetch } = useAsyncData(analystDashboardRequested, analystDashboardSelectors.selectState);
 
-  const recentDeals = [
-    { name: 'Nebula AI', stage: 'Due Diligence', score: 92, sector: 'Generative AI' },
-    { name: 'Quantum Leap', stage: 'Screening', score: 85, sector: 'Quantum Computing' },
-    { name: 'GreenEnergy Co', stage: 'Term Sheet', score: 88, sector: 'Clean Tech' },
-  ];
+  // Extract data with defaults
+  const metrics = data?.metrics || [];
+  const recentDeals = data?.recentDeals || [];
+  const urgentTasks = data?.urgentTasks || [];
+
+  if (isLoading) return <LoadingState message="Loading analyst dashboard…" />;
+  if (error) {
+    return (
+      <ErrorState
+        error={error}
+        title="Failed to load analyst dashboard"
+        onRetry={refetch}
+      />
+    );
+  }
 
   return (
     <PageContainer className="space-y-6">
@@ -57,7 +43,7 @@ export function AnalystDashboard() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {metrics.map((metric, index) => (
+        {metrics.map((metric: any, index: number) => (
           <MetricCard key={index} {...metric} />
         ))}
       </div>
@@ -97,11 +83,7 @@ export function AnalystDashboard() {
         <Card padding="md">
           <h3 className="text-lg font-medium mb-4">Urgent Tasks</h3>
           <div className="space-y-3">
-            {[
-              { task: 'Review Q3 Market Report', due: 'Today', priority: 'High' },
-              { task: 'Update Nebula AI Financials', due: 'Tomorrow', priority: 'Medium' },
-              { task: 'Prep IC Memo for GreenEnergy', due: 'In 2 days', priority: 'High' },
-            ].map((item, i) => (
+            {urgentTasks.map((item, i) => (
               <div key={i} className="flex items-start gap-3 p-2">
                  <CheckCircle2 className="w-5 h-5 text-[var(--app-text-muted)] mt-0.5" />
                  <div>

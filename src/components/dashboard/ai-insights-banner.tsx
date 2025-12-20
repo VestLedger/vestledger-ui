@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, ChevronDown, Info, TrendingUp, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Button } from '@/ui';
+import { useUIKey } from '@/store/ui';
 
 export interface AIInsight {
   summary: string;
@@ -26,7 +26,8 @@ interface AIInsightsBannerProps {
 }
 
 export function AIInsightsBanner({ insight }: AIInsightsBannerProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const { value: ui, patch: patchUI } = useUIKey('ai-insights-banner', { isExpanded: false });
+  const { isExpanded } = ui;
 
   const getConfidenceColor = (confidence: number) => {
     if (confidence >= 0.9) return 'text-green-500';
@@ -103,7 +104,7 @@ export function AIInsightsBanner({ insight }: AIInsightsBannerProps) {
             <Button
               size="sm"
               variant="flat"
-              onClick={() => setIsExpanded(!isExpanded)}
+              onClick={() => patchUI({ isExpanded: !isExpanded })}
               className="px-3"
             >
               <span className="text-xs mr-2">

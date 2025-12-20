@@ -1,186 +1,69 @@
 'use client'
 
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { Card, Button, Badge, Progress } from '@/ui';
 import { Upload, FileText, Sparkles, CheckCircle2, Clock, AlertCircle, Download, Eye } from 'lucide-react';
 import { DocumentPreviewModal, useDocumentPreview, getMockDocumentUrl } from '@/components/documents/preview';
+import type { PitchDeckAnalysis } from '@/services/ai/pitchDeckService';
+import { useUIKey } from '@/store/ui';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { pitchDeckUploadRequested } from '@/store/slices/uiEffectsSlice';
+import { pitchDeckAnalysesRequested, pitchDeckSelectors } from '@/store/slices/aiSlice';
+import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
 
-interface PitchDeckAnalysis {
-  id: string;
-  fileName: string;
-  uploadDate: string;
-  status: 'processing' | 'completed' | 'failed';
-  summary?: {
-    companyName: string;
-    tagline: string;
-    problem: string;
-    solution: string;
-    marketSize: {
-      tam: string;
-      sam: string;
-      som: string;
-    };
-    businessModel: string;
-    traction: string[];
-    team: {
-      founders: string[];
-      keyHires: string[];
-    };
-    financials: {
-      revenue: string;
-      runway: string;
-      askAmount: string;
-    };
-    competition: string[];
-  };
-  extractedData?: {
-    slides: number;
-    keyMetrics: { label: string; value: string }[];
-  };
-  aiInsights?: string[];
-  redFlags?: string[];
-  strengths?: string[];
-}
-
-const mockAnalyses: PitchDeckAnalysis[] = [
-  {
-    id: 'pd-1',
-    fileName: 'Quantum_AI_Deck_Nov2024.pdf',
-    uploadDate: '2024-11-28',
-    status: 'completed',
-    summary: {
-      companyName: 'Quantum AI',
-      tagline: 'AI-powered quantum computing for enterprise',
-      problem: 'Enterprise companies struggle with complex optimization problems that classical computers cannot solve efficiently',
-      solution: 'Quantum-classical hybrid AI platform that makes quantum computing accessible through simple APIs',
-      marketSize: {
-        tam: '$50B',
-        sam: '$8B',
-        som: '$500M'
-      },
-      businessModel: 'SaaS with usage-based pricing. $10k/month base + compute credits',
-      traction: [
-        '1,200 active customers',
-        '$2.4M ARR',
-        '15% MoM growth',
-        '3 Fortune 500 pilots'
-      ],
-      team: {
-        founders: ['Sarah Chen (ex-Google Quantum AI)', 'Dr. Michael Zhang (MIT PhD Quantum Computing)'],
-        keyHires: ['CTO from IBM Quantum', 'VP Sales from Snowflake']
-      },
-      financials: {
-        revenue: '$2.4M ARR',
-        runway: '18 months',
-        askAmount: '$2.5M Series A'
-      },
-      competition: ['IBM Quantum', 'Google Quantum AI', 'IonQ']
-    },
-    extractedData: {
-      slides: 18,
-      keyMetrics: [
-        { label: 'ARR', value: '$2.4M' },
-        { label: 'Growth Rate', value: '15% MoM' },
-        { label: 'Customers', value: '1,200' },
-        { label: 'NPS', value: '67' },
-        { label: 'Gross Margin', value: '78%' },
-        { label: 'CAC', value: '$850' },
-        { label: 'LTV', value: '$4,200' },
-        { label: 'Burn Rate', value: '$150k/mo' }
-      ]
-    },
-    aiInsights: [
-      'Strong technical team with quantum computing expertise from leading institutions',
-      'Clear product-market fit demonstrated by 15% MoM growth',
-      'Compelling unit economics with 4.9x LTV:CAC ratio',
-      'Enterprise traction with Fortune 500 pilots de-risks go-to-market'
-    ],
-    redFlags: [
-      'Competitive landscape includes well-funded tech giants',
-      'Quantum computing market still early/unproven',
-      'Limited moat beyond technical expertise'
-    ],
-    strengths: [
-      'World-class founding team',
-      'Strong revenue growth trajectory',
-      'Excellent gross margins for SaaS',
-      'Clear path to Series A metrics'
-    ]
-  },
-  {
-    id: 'pd-2',
-    fileName: 'NeuroLink_Pitch_2024.pdf',
-    uploadDate: '2024-11-25',
-    status: 'completed',
-    summary: {
-      companyName: 'NeuroLink',
-      tagline: 'AI-powered brain-computer interface for medical applications',
-      problem: 'Paralysis patients lack effective communication and mobility solutions',
-      solution: 'Non-invasive BCI that translates brain signals into digital commands',
-      marketSize: {
-        tam: '$35B',
-        sam: '$5B',
-        som: '$280M'
-      },
-      businessModel: 'Device sales + recurring software subscription',
-      traction: [
-        '450 beta users',
-        '$800k ARR',
-        '12% MoM growth',
-        'FDA breakthrough device designation'
-      ],
-      team: {
-        founders: ['Dr. Alex Martinez (Stanford Neuroscience)', 'Lisa Chen (ex-Neuralink Engineer)'],
-        keyHires: ['VP Clinical from Medtronic']
-      },
-      financials: {
-        revenue: '$800k ARR',
-        runway: '14 months',
-        askAmount: '$1.2M Seed'
-      },
-      competition: ['Neuralink', 'Synchron', 'Paradromics']
-    },
-    extractedData: {
-      slides: 15,
-      keyMetrics: [
-        { label: 'ARR', value: '$800k' },
-        { label: 'Growth Rate', value: '12% MoM' },
-        { label: 'Beta Users', value: '450' },
-        { label: 'NPS', value: '71' }
-      ]
-    },
-    aiInsights: [
-      'FDA breakthrough designation significantly de-risks regulatory path',
-      'Strong clinical validation with 450 beta users',
-      'Founding team combines deep technical + clinical expertise'
-    ],
-    redFlags: [
-      'Long regulatory timeline typical for medical devices',
-      'High customer acquisition cost in medical device market',
-      'Competing against well-funded players (Neuralink)'
-    ],
-    strengths: [
-      'FDA breakthrough designation',
-      'Non-invasive approach (competitive advantage)',
-      'Clinical traction with beta users'
-    ]
-  }
-];
+const defaultPitchDeckReaderState = {
+  selectedAnalysisId: null as string | null,
+  isUploading: false,
+};
 
 export function PitchDeckReader() {
-  const [analyses, setAnalyses] = useState<PitchDeckAnalysis[]>(mockAnalyses);
-  const [selectedAnalysis, setSelectedAnalysis] = useState<PitchDeckAnalysis | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
+  const dispatch = useAppDispatch();
+  const data = useAppSelector(pitchDeckSelectors.selectData);
+  const status = useAppSelector(pitchDeckSelectors.selectStatus);
+  const error = useAppSelector(pitchDeckSelectors.selectError);
+
+  const analyses = data?.analyses || [];
+
+  // Load pitch deck analyses on mount
+  useEffect(() => {
+    dispatch(pitchDeckAnalysesRequested({}));
+  }, [dispatch]);
+  const { value: ui, patch: patchUI } = useUIKey<{ selectedAnalysisId: string | null; isUploading: boolean }>(
+    'pitch-deck-reader',
+    defaultPitchDeckReaderState
+  );
+  const { selectedAnalysisId, isUploading } = ui;
+  const selectedAnalysis = analyses.find((analysis) => analysis.id === selectedAnalysisId) ?? null;
   const preview = useDocumentPreview();
 
   const handleFileUpload = () => {
-    setIsUploading(true);
-    // Simulate upload
-    setTimeout(() => {
-      setIsUploading(false);
-      // In real implementation, this would trigger file upload and AI analysis
-    }, 2000);
+    dispatch(pitchDeckUploadRequested());
   };
+
+  if (status === 'idle' || status === 'loading') return <LoadingState message="Loading pitch deck analyses…" />;
+  if (status === 'failed' && error) {
+    return (
+      <ErrorState
+        error={error}
+        title="Failed to load pitch deck analyses"
+        onRetry={() => dispatch(pitchDeckAnalysesRequested({}))}
+      />
+    );
+  }
+  if (status === 'succeeded' && analyses.length === 0) {
+    return (
+      <EmptyState
+        icon={Upload}
+        title="No pitch decks yet"
+        message="Upload a pitch deck to generate an AI analysis."
+        action={
+          <Button color="primary" onPress={handleFileUpload}>
+            Upload Pitch Deck
+          </Button>
+        }
+      />
+    );
+  }
 
   const getStatusIcon = (status: PitchDeckAnalysis['status']) => {
     switch (status) {
@@ -213,7 +96,7 @@ export function PitchDeckReader() {
             <Button
               variant="flat"
               size="sm"
-              onPress={() => setSelectedAnalysis(null)}
+              onPress={() => patchUI({ selectedAnalysisId: null })}
               className="mb-4"
             >
               ← Back to All Decks
@@ -448,7 +331,7 @@ export function PitchDeckReader() {
             <Clock className="w-5 h-5 text-[var(--app-primary)] animate-spin" />
             <span className="font-medium">Analyzing pitch deck...</span>
           </div>
-          <Progress value={45} maxValue={100} className="mb-2" />
+          <Progress value={45} maxValue={100} className="mb-2" aria-label="Analyzing pitch deck 45%" />
           <p className="text-xs text-[var(--app-text-muted)]">
             Extracting slides, identifying key metrics, and generating insights
           </p>
@@ -462,7 +345,7 @@ export function PitchDeckReader() {
             key={analysis.id}
             padding="md"
             isPressable
-            onPress={() => analysis.status === 'completed' && setSelectedAnalysis(analysis)}
+            onPress={() => analysis.status === 'completed' && patchUI({ selectedAnalysisId: analysis.id })}
             className={`cursor-pointer transition-all ${
               analysis.status === 'completed' ? 'hover:border-[var(--app-primary)]' : ''
             }`}

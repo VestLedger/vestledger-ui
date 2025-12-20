@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import {
   DndContext,
   DragOverlay,
@@ -21,6 +20,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Card, Badge } from '@/ui';
+import { useUIKey } from '@/store/ui';
 
 interface KanbanItem {
   id: UniqueIdentifier;
@@ -34,6 +34,7 @@ interface KanbanColumn {
 }
 
 interface KanbanBoardProps {
+  stateKey?: string;
   columns: KanbanColumn[];
   onItemMove: (itemId: UniqueIdentifier, newStage: string) => void;
   renderItem: (item: KanbanItem) => React.ReactNode;
@@ -74,8 +75,13 @@ function SortableItem({
   );
 }
 
-export function KanbanBoard({ columns, onItemMove, renderItem }: KanbanBoardProps) {
-  const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
+export function KanbanBoard({ stateKey = 'default', columns, onItemMove, renderItem }: KanbanBoardProps) {
+  const { value: ui, patch: patchUI } = useUIKey<{
+    activeId: UniqueIdentifier | null;
+  }>(`kanban-board:${stateKey}`, {
+    activeId: null,
+  });
+  const { activeId } = ui;
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -87,7 +93,7 @@ export function KanbanBoard({ columns, onItemMove, renderItem }: KanbanBoardProp
   );
 
   const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id);
+    patchUI({ activeId: event.active.id });
   };
 
   const handleDragOver = (event: DragOverEvent) => {
@@ -109,7 +115,7 @@ export function KanbanBoard({ columns, onItemMove, renderItem }: KanbanBoardProp
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
-    setActiveId(null);
+    patchUI({ activeId: null });
   };
 
   const activeItem = columns

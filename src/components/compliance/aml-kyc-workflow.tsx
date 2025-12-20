@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useUIKey } from '@/store/ui';
 import { Card, Button, Badge, Input } from '@/ui';
 import {
   Shield,
@@ -214,10 +214,18 @@ export function AMLKYCWorkflow({
   onRequestEDD,
   onExportReport,
 }: AMLKYCWorkflowProps) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterStatus, setFilterStatus] = useState<WorkflowStatus | 'all'>('all');
-  const [filterRisk, setFilterRisk] = useState<RiskLevel | 'all'>('all');
-  const [selectedWorkflow, setSelectedWorkflow] = useState<KYCWorkflow | null>(null);
+  const { value: ui, patch: patchUI } = useUIKey<{
+    searchQuery: string;
+    filterStatus: WorkflowStatus | 'all';
+    filterRisk: RiskLevel | 'all';
+    selectedWorkflow: KYCWorkflow | null;
+  }>('aml-kyc-workflow', {
+    searchQuery: '',
+    filterStatus: 'all',
+    filterRisk: 'all',
+    selectedWorkflow: null,
+  });
+  const { searchQuery, filterStatus, filterRisk, selectedWorkflow } = ui;
 
   const getRiskBadge = (level: RiskLevel) => {
     const colors = {
@@ -370,7 +378,7 @@ export function AMLKYCWorkflow({
           <Input
             placeholder="Search by entity name or ID..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => patchUI({ searchQuery: e.target.value })}
             startContent={<Search className="w-4 h-4" />}
             size="sm"
             className="flex-1"
@@ -378,7 +386,7 @@ export function AMLKYCWorkflow({
           <select
             className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value as WorkflowStatus | 'all')}
+            onChange={(e) => patchUI({ filterStatus: e.target.value as WorkflowStatus | 'all' })}
           >
             <option value="all">All Status</option>
             <option value="not-started">Not Started</option>
@@ -393,7 +401,7 @@ export function AMLKYCWorkflow({
           <select
             className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
             value={filterRisk}
-            onChange={(e) => setFilterRisk(e.target.value as RiskLevel | 'all')}
+            onChange={(e) => patchUI({ filterRisk: e.target.value as RiskLevel | 'all' })}
           >
             <option value="all">All Risk Levels</option>
             <option value="low">Low Risk</option>
@@ -426,7 +434,7 @@ export function AMLKYCWorkflow({
                 <div
                   key={workflow.id}
                   className="p-4 rounded-lg bg-[var(--app-surface-hover)] hover:bg-[var(--app-surface)] border border-[var(--app-border)] transition-colors cursor-pointer"
-                  onClick={() => setSelectedWorkflow(workflow)}
+                  onClick={() => patchUI({ selectedWorkflow: workflow })}
                 >
                   {/* Header */}
                   <div className="flex items-start justify-between mb-3">

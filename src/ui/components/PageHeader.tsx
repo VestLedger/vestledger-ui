@@ -1,8 +1,7 @@
 'use client'
 
-import { ReactNode, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Info, Sparkles } from 'lucide-react';
+import { ReactNode } from 'react';
+import { Sparkles } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Button, Badge, Tabs, Tab } from './';
 
@@ -51,8 +50,6 @@ export function PageHeader({
   onTabChange,
   children,
 }: PageHeaderProps) {
-  const [showAISummary, setShowAISummary] = useState(false);
-
   const getTabPriorityColor = (priority?: 'high' | 'medium' | 'low') => {
     switch (priority) {
       case 'high':
@@ -87,54 +84,35 @@ export function PageHeader({
 
               {/* AI Summary Icon */}
               {aiSummary && (
-                <div className="relative">
-                  <button
-                    onMouseEnter={() => setShowAISummary(true)}
-                    onMouseLeave={() => setShowAISummary(false)}
-                    className="p-1.5 rounded-lg bg-[var(--app-primary)]/10 hover:bg-[var(--app-primary)]/20 transition-colors"
-                    aria-label="AI Summary"
-                  >
+                <div className="relative inline-block group">
+                  <button className="p-1.5 rounded-lg bg-[var(--app-primary)]/10 hover:bg-[var(--app-primary)]/20 transition-colors" aria-label="AI Summary">
                     <Sparkles className="w-4 h-4 text-[var(--app-primary)]" />
                   </button>
 
                   {/* AI Summary Tooltip */}
-                  <AnimatePresence>
-                    {showAISummary && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 5 }}
-                        transition={{ duration: 0.15 }}
-                        className="absolute top-full left-0 mt-2 z-20"
-                      >
-                        <div className="bg-[var(--app-surface)] border border-[var(--app-border)] rounded-lg shadow-xl p-4 min-w-[320px] max-w-[400px]">
-                          <div className="flex items-start gap-2 mb-3">
-                            <Sparkles className="w-4 h-4 text-[var(--app-primary)] mt-0.5 flex-shrink-0" />
-                            <div className="flex-1">
-                              <p className="text-xs font-semibold text-[var(--app-text)] mb-1">
-                                AI Page Summary
-                              </p>
-                              <p className="text-sm text-[var(--app-text-muted)] leading-relaxed">
-                                {aiSummary.text}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-[var(--app-text-subtle)]">Confidence:</span>
-                            <div className="flex-1 h-1.5 bg-[var(--app-surface-hover)] rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-[var(--app-primary)] rounded-full"
-                                style={{ width: `${aiSummary.confidence * 100}%` }}
-                              />
-                            </div>
-                            <span className="text-xs font-bold text-[var(--app-primary)]">
-                              {Math.round(aiSummary.confidence * 100)}%
-                            </span>
-                          </div>
+                  <div className="absolute top-full left-0 mt-2 z-20 opacity-0 translate-y-[5px] pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:translate-y-0 group-focus-within:pointer-events-auto transition-all duration-150">
+                    <div className="bg-[var(--app-surface)] border border-[var(--app-border)] rounded-lg shadow-xl p-4 min-w-[320px] max-w-[400px]">
+                      <div className="flex items-start gap-2 mb-3">
+                        <Sparkles className="w-4 h-4 text-[var(--app-primary)] mt-0.5 flex-shrink-0" />
+                        <div className="flex-1">
+                          <p className="text-xs font-semibold text-[var(--app-text)] mb-1">AI Page Summary</p>
+                          <p className="text-sm text-[var(--app-text-muted)] leading-relaxed">{aiSummary.text}</p>
                         </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-[var(--app-text-subtle)]">Confidence:</span>
+                        <div className="flex-1 h-1.5 bg-[var(--app-surface-hover)] rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-[var(--app-primary)] rounded-full"
+                            style={{ width: `${aiSummary.confidence * 100}%` }}
+                          />
+                        </div>
+                        <span className="text-xs font-bold text-[var(--app-primary)]">
+                          {Math.round(aiSummary.confidence * 100)}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
