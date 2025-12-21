@@ -12,6 +12,11 @@ import { useUIKey } from '@/store/ui';
 
 type NotificationFilter = 'all' | 'unread' | 'alert' | 'deal' | 'report' | 'system';
 
+type NotificationsUIState = {
+  selectedFilter?: NotificationFilter;
+  selectedTab?: NotificationFilter;
+};
+
 const getIcon = (type: string) => {
   switch (type) {
     case 'success':
@@ -33,7 +38,7 @@ export function Notifications() {
   const alertsStatus = useAppSelector(alertsSelectors.selectStatus);
   const alertsError = useAppSelector(alertsSelectors.selectError);
   const reduxNotifications = alertsData?.items || [];
-  const { value: ui, patch: patchUI } = useUIKey('notifications', { selectedFilter: 'all' });
+  const { value: ui, patch: patchUI } = useUIKey<NotificationsUIState>('notifications', { selectedFilter: 'all' });
   const selectedFilter = (ui.selectedFilter ?? ui.selectedTab ?? 'all') as NotificationFilter;
 
   useEffect(() => {
