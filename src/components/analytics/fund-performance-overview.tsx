@@ -2,85 +2,16 @@
 
 import { Card, Progress } from '@/ui';
 import { TrendingUp, DollarSign, PieChart, Target, Calendar, Activity } from 'lucide-react';
+import { MetricsGrid } from '@/components/ui';
+import type { MetricsGridItem } from '@/components/ui';
 import { getBenchmarkData, getCurrentFundMetrics } from '@/services/analytics/fundAnalyticsService';
-
-interface MetricCardProps {
-  title: string;
-  value: string;
-  subtitle?: string;
-  icon: React.ReactNode;
-  benchmark?: {
-    industryMedian: number;
-    topQuartile: number;
-    position: 'top' | 'above-median' | 'below-median' | 'bottom';
-  };
-}
-
-function MetricCard({ title, value, subtitle, icon, benchmark }: MetricCardProps) {
-  const getBenchmarkColor = (position: string) => {
-    switch (position) {
-      case 'top': return 'var(--app-success)';
-      case 'above-median': return 'var(--app-info)';
-      case 'below-median': return 'var(--app-warning)';
-      case 'bottom': return 'var(--app-danger)';
-      default: return 'var(--app-text-muted)';
-    }
-  };
-
-  const getBenchmarkLabel = (position: string) => {
-    switch (position) {
-      case 'top': return 'Top Quartile';
-      case 'above-median': return 'Above Median';
-      case 'below-median': return 'Below Median';
-      case 'bottom': return 'Bottom Quartile';
-      default: return '';
-    }
-  };
-
-  return (
-    <Card padding="md" className="hover:border-[var(--app-primary)] transition-all">
-      <div className="flex items-start justify-between mb-3">
-        <div className="p-2 rounded-lg bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-secondary)]">
-          <div className="text-white">{icon}</div>
-        </div>
-        {benchmark && (
-          <div
-            className="text-xs font-medium px-2 py-1 rounded-md"
-            style={{
-              backgroundColor: `${getBenchmarkColor(benchmark.position)}20`,
-              color: getBenchmarkColor(benchmark.position)
-            }}
-          >
-            {getBenchmarkLabel(benchmark.position)}
-          </div>
-        )}
-      </div>
-      <div>
-        <p className="text-sm text-[var(--app-text-muted)] mb-1">{title}</p>
-        <h3 className="text-2xl font-bold mb-1">{value}</h3>
-        {subtitle && (
-          <p className="text-xs text-[var(--app-text-subtle)]">{subtitle}</p>
-        )}
-        {benchmark && (
-          <div className="mt-2 pt-2 border-t border-[var(--app-border)]">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-[var(--app-text-muted)]">Industry Median</span>
-              <span className="font-medium">{benchmark.industryMedian.toFixed(2)}</span>
-            </div>
-            <div className="flex items-center justify-between text-xs mt-1">
-              <span className="text-[var(--app-text-muted)]">Top Quartile</span>
-              <span className="font-medium">{benchmark.topQuartile.toFixed(2)}</span>
-            </div>
-          </div>
-        )}
-      </div>
-    </Card>
-  );
-}
 
 export function FundPerformanceOverview() {
   const currentFund = getCurrentFundMetrics();
   const benchmarkData = getBenchmarkData();
+  const metricCardClassName = 'hover:border-[var(--app-primary)] transition-all';
+  const metricCardIconContainerClassName = 'p-2 rounded-lg bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-secondary)]';
+  const metricCardIconClassName = 'w-5 h-5 text-white';
 
   const formatCurrency = (value: number) => {
     if (value >= 1000000) {
@@ -102,6 +33,94 @@ export function FundPerformanceOverview() {
   const tvpiBenchmark = benchmarkData.find(b => b.metric === 'TVPI');
   const irrBenchmark = benchmarkData.find(b => b.metric === 'IRR');
   const dpiBenchmark = benchmarkData.find(b => b.metric === 'DPI');
+  const metricCardBaseProps = {
+    className: metricCardClassName,
+    iconContainerClassName: metricCardIconContainerClassName,
+    iconClassName: metricCardIconClassName,
+  };
+  const metricItems: MetricsGridItem[] = [
+    {
+      type: 'metric',
+      props: {
+        label: 'Total Value to Paid-In (TVPI)',
+        value: `${currentFund.tvpi.toFixed(2)}x`,
+        subtitle: 'DPI + RVPI',
+        icon: TrendingUp,
+        benchmark: tvpiBenchmark
+          ? {
+              industryMedian: tvpiBenchmark.industryMedian,
+              topQuartile: tvpiBenchmark.topQuartile,
+              position: getPerformancePosition('TVPI', currentFund.tvpi),
+            }
+          : undefined,
+        ...metricCardBaseProps,
+      },
+    },
+    {
+      type: 'metric',
+      props: {
+        label: 'Distributions to Paid-In (DPI)',
+        value: `${currentFund.dpi.toFixed(2)}x`,
+        subtitle: 'Realized returns',
+        icon: DollarSign,
+        benchmark: dpiBenchmark
+          ? {
+              industryMedian: dpiBenchmark.industryMedian,
+              topQuartile: dpiBenchmark.topQuartile,
+              position: getPerformancePosition('DPI', currentFund.dpi),
+            }
+          : undefined,
+        ...metricCardBaseProps,
+      },
+    },
+    {
+      type: 'metric',
+      props: {
+        label: 'Residual Value to Paid-In (RVPI)',
+        value: `${currentFund.rvpi.toFixed(2)}x`,
+        subtitle: 'Unrealized value',
+        icon: PieChart,
+        ...metricCardBaseProps,
+      },
+    },
+    {
+      type: 'metric',
+      props: {
+        label: 'Internal Rate of Return (IRR)',
+        value: `${currentFund.irr.toFixed(1)}%`,
+        subtitle: 'Time-weighted return',
+        icon: Activity,
+        benchmark: irrBenchmark
+          ? {
+              industryMedian: irrBenchmark.industryMedian,
+              topQuartile: irrBenchmark.topQuartile,
+              position: getPerformancePosition('IRR', currentFund.irr),
+            }
+          : undefined,
+        ...metricCardBaseProps,
+      },
+    },
+    {
+      type: 'metric',
+      props: {
+        label: 'Multiple on Invested Capital (MOIC)',
+        value: `${currentFund.moic.toFixed(2)}x`,
+        subtitle: 'Total return multiple',
+        icon: Target,
+        ...metricCardBaseProps,
+      },
+    },
+    {
+      type: 'metric',
+      props: {
+        label: 'Fund Vintage',
+        value: currentFund.vintage.toString(),
+        subtitle: `${currentFund.remainingLife} years remaining`,
+        icon: Calendar,
+        ...metricCardBaseProps,
+      },
+    },
+  ];
 
   return (
     <div>
@@ -160,64 +179,11 @@ export function FundPerformanceOverview() {
 
       {/* Performance Metrics */}
       <h3 className="text-lg font-semibold mb-4">Fund Performance Metrics</h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-        <MetricCard
-          title="Total Value to Paid-In (TVPI)"
-          value={`${currentFund.tvpi.toFixed(2)}x`}
-          subtitle="DPI + RVPI"
-          icon={<TrendingUp className="w-5 h-5" />}
-          benchmark={tvpiBenchmark ? {
-            industryMedian: tvpiBenchmark.industryMedian,
-            topQuartile: tvpiBenchmark.topQuartile,
-            position: getPerformancePosition('TVPI', currentFund.tvpi)
-          } : undefined}
-        />
-
-        <MetricCard
-          title="Distributions to Paid-In (DPI)"
-          value={`${currentFund.dpi.toFixed(2)}x`}
-          subtitle="Realized returns"
-          icon={<DollarSign className="w-5 h-5" />}
-          benchmark={dpiBenchmark ? {
-            industryMedian: dpiBenchmark.industryMedian,
-            topQuartile: dpiBenchmark.topQuartile,
-            position: getPerformancePosition('DPI', currentFund.dpi)
-          } : undefined}
-        />
-
-        <MetricCard
-          title="Residual Value to Paid-In (RVPI)"
-          value={`${currentFund.rvpi.toFixed(2)}x`}
-          subtitle="Unrealized value"
-          icon={<PieChart className="w-5 h-5" />}
-        />
-
-        <MetricCard
-          title="Internal Rate of Return (IRR)"
-          value={`${currentFund.irr.toFixed(1)}%`}
-          subtitle="Time-weighted return"
-          icon={<Activity className="w-5 h-5" />}
-          benchmark={irrBenchmark ? {
-            industryMedian: irrBenchmark.industryMedian,
-            topQuartile: irrBenchmark.topQuartile,
-            position: getPerformancePosition('IRR', currentFund.irr)
-          } : undefined}
-        />
-
-        <MetricCard
-          title="Multiple on Invested Capital (MOIC)"
-          value={`${currentFund.moic.toFixed(2)}x`}
-          subtitle="Total return multiple"
-          icon={<Target className="w-5 h-5" />}
-        />
-
-        <MetricCard
-          title="Fund Vintage"
-          value={currentFund.vintage.toString()}
-          subtitle={`${currentFund.remainingLife} years remaining`}
-          icon={<Calendar className="w-5 h-5" />}
-        />
-      </div>
+      <MetricsGrid
+        items={metricItems}
+        columns={{ base: 1, sm: 2, lg: 3 }}
+        className="mb-6"
+      />
 
       {/* TVPI Breakdown */}
       <Card padding="lg">

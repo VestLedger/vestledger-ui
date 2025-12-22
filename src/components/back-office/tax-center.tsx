@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, Button, Badge, Progress, PageContainer, Breadcrumb, PageHeader } from '@/ui';
+import { Card, Button, Badge, Progress } from '@/ui';
 import { Receipt, Download, Send, Calendar, DollarSign, Mail, FileText } from 'lucide-react';
 import { getRouteConfig } from '@/config/routes';
 import { K1Generator } from '../tax/k1-generator';
@@ -8,7 +8,8 @@ import { useUIKey } from '@/store/ui';
 import { taxCenterRequested, taxCenterSelectors } from '@/store/slices/backOfficeSlice';
 import { ErrorState, LoadingState } from '@/components/ui/async-states';
 import { formatCurrency } from '@/utils/formatting';
-import { StatusBadge, StatsCard } from '@/components/ui';
+import { StatusBadge, MetricsGrid, PageScaffold } from '@/components/ui';
+import type { MetricsGridItem } from '@/components/ui';
 import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function TaxCenter() {
@@ -39,103 +40,112 @@ export function TaxCenter() {
   const k1sIssued = taxSummaries.reduce((sum, s) => sum + s.k1sIssued, 0);
   const k1sTotal = taxSummaries.reduce((sum, s) => sum + s.k1sTotal, 0);
   const form1099Issued = taxSummaries.reduce((sum, s) => sum + s.form1099Issued, 0);
+  const form1099Total = taxSummaries.reduce((sum, s) => sum + s.form1099Total, 0);
+  const estimatedTaxesPaid = taxSummaries.reduce((sum, s) => sum + s.estimatedTaxesPaid, 0);
   const readyDocuments = taxDocuments.filter(d => d.status === 'ready').length;
 
-  return (
-    <PageContainer>
-      {/* Breadcrumb Navigation */}
-      {routeConfig && (
-        <div className="mb-4">
-          <Breadcrumb
-            items={routeConfig.breadcrumbs}
-            aiSuggestion={routeConfig.aiSuggestion}
-          />
-        </div>
-      )}
+  const summaryCards: MetricsGridItem[] = [
+    {
+      type: 'stats',
+      props: {
+        title: 'K-1s Issued',
+        value: k1sIssued,
+        icon: FileText,
+        variant: 'success',
+        subtitle: `of ${k1sTotal} total`,
+      },
+    },
+    {
+      type: 'stats',
+      props: {
+        title: '1099s Issued',
+        value: form1099Issued,
+        icon: FileText,
+        variant: 'primary',
+        subtitle: `of ${form1099Total} total`,
+      },
+    },
+    {
+      type: 'stats',
+      props: {
+        title: 'Est. Taxes Paid',
+        value: formatCurrency(estimatedTaxesPaid),
+        icon: DollarSign,
+        variant: 'warning',
+      },
+    },
+    {
+      type: 'stats',
+      props: {
+        title: 'Filing Deadline',
+        value: filingDeadline.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        icon: Calendar,
+        variant: 'neutral',
+        subtitle: `${Math.ceil((filingDeadline.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days remaining`,
+      },
+    },
+  ];
 
-      {/* Page Header with AI Summary */}
-      <PageHeader
-        title="Tax Center"
-        description="Manage tax documents, K-1s, and reporting for LPs and portfolio companies"
-        icon={Receipt}
-        aiSummary={{
+  return (
+    <PageScaffold
+      breadcrumbs={routeConfig?.breadcrumbs}
+      aiSuggestion={routeConfig?.aiSuggestion}
+      header={{
+        title: 'Tax Center',
+        description: 'Manage tax documents, K-1s, and reporting for LPs and portfolio companies',
+        icon: Receipt,
+        aiSummary: {
           text: `${k1sIssued} K-1s issued out of ${k1sTotal}. ${form1099Issued} 1099s issued. ${readyDocuments} documents ready to send. Filing deadline: ${filingDeadline.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}. AI recommends prioritizing the ${readyDocuments} ready documents for immediate distribution.`,
-          confidence: 0.92
-        }}
-        primaryAction={{
+          confidence: 0.92,
+        },
+        primaryAction: {
           label: 'Generate K-1s',
           onClick: () => console.log('Generate K-1s'),
-          aiSuggested: readyDocuments > 0
-        }}
-        secondaryActions={[
+          aiSuggested: readyDocuments > 0,
+        },
+        secondaryActions: [
           {
             label: 'Upload Documents',
-            onClick: () => console.log('Upload documents')
-          }
-        ]}
-        tabs={[
+            onClick: () => console.log('Upload documents'),
+          },
+        ],
+        tabs: [
           {
             id: 'overview',
             label: 'Tax Documents',
-            count: taxDocuments.length
+            count: taxDocuments.length,
           },
           {
             id: 'k1-generator',
-            label: 'K-1 Generator'
+            label: 'K-1 Generator',
           },
           {
             id: 'fund-summary',
             label: 'Fund Summary',
-            count: taxSummaries.length
+            count: taxSummaries.length,
           },
           {
             id: 'portfolio',
             label: 'Portfolio Companies',
             count: portfolioTax.filter(c => c.k1Required && !c.k1Received).length,
-            priority: portfolioTax.filter(c => c.k1Required && !c.k1Received).length > 0 ? 'high' : undefined
+            priority: portfolioTax.filter(c => c.k1Required && !c.k1Received).length > 0 ? 'high' : undefined,
           },
           {
             id: 'communications',
-            label: 'LP Communications'
-          }
-        ]}
-        activeTab={selectedTab}
-        onTabChange={(tabId) => patchUI({ selectedTab: tabId })}
-      />
+            label: 'LP Communications',
+          },
+        ],
+        activeTab: selectedTab,
+        onTabChange: (tabId) => patchUI({ selectedTab: tabId }),
+      }}
+    >
 
       {/* Summary Cards */}
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-        <StatsCard
-          title="K-1s Issued"
-          value={taxSummaries.reduce((sum, s) => sum + s.k1sIssued, 0)}
-          icon={FileText}
-          variant="success"
-          subtitle={`of ${taxSummaries.reduce((sum, s) => sum + s.k1sTotal, 0)} total`}
-        />
-
-        <StatsCard
-          title="1099s Issued"
-          value={taxSummaries.reduce((sum, s) => sum + s.form1099Issued, 0)}
-          icon={FileText}
-          variant="primary"
-          subtitle={`of ${taxSummaries.reduce((sum, s) => sum + s.form1099Total, 0)} total`}
-        />
-
-        <StatsCard
-          title="Est. Taxes Paid"
-          value={formatCurrency(taxSummaries.reduce((sum, s) => sum + s.estimatedTaxesPaid, 0))}
-          icon={DollarSign}
-          variant="warning"
-        />
-
-        <StatsCard
-          title="Filing Deadline"
-          value={filingDeadline.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-          icon={Calendar}
-          variant="neutral"
-          subtitle={`${Math.ceil((filingDeadline.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days remaining`}
-        />
-      </div>
+      <MetricsGrid
+        items={summaryCards}
+        columns={{ base: 1, md: 2, lg: 4 }}
+        className="mt-6"
+      />
 
       {/* Overview Tab - Tax Documents */}
       {selectedTab === 'overview' && (
@@ -474,6 +484,6 @@ export function TaxCenter() {
           </div>
         </div>
       </Card>
-    </PageContainer>
+    </PageScaffold>
   );
 }

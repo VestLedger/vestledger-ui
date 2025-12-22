@@ -2,8 +2,9 @@
 
 import { useUIKey } from '@/store/ui';
 import { Card, Button, Badge } from '@/ui';
-import { Calculator, TrendingUp, TrendingDown, Calendar, Download, RefreshCw, CheckCircle, AlertCircle } from 'lucide-react';
+import { Calculator, TrendingUp, TrendingDown, Calendar, Download, RefreshCw, AlertCircle } from 'lucide-react';
 import { formatCurrency, formatPercent } from '@/utils/formatting';
+import { StatusBadge } from '@/components/ui';
 
 export interface NAVCalculation {
   id: string;
@@ -77,36 +78,6 @@ export function NAVCalculator({
     filteredCalculations[0] ??
     null;
 
-  const getStatusBadge = (status: NAVCalculation['status']) => {
-    switch (status) {
-      case 'draft':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-text-muted)]/10 text-[var(--app-text-muted)]">
-            Draft
-          </Badge>
-        );
-      case 'calculated':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-info-bg)] text-[var(--app-info)]">
-            Calculated
-          </Badge>
-        );
-      case 'reviewed':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-warning-bg)] text-[var(--app-warning)]">
-            Reviewed
-          </Badge>
-        );
-      case 'published':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-success-bg)] text-[var(--app-success)]">
-            <CheckCircle className="w-3 h-3 mr-1" />
-            Published
-          </Badge>
-        );
-    }
-  };
-
   const getValuationMethodBadge = (method: NAVComponent['valuationMethod']) => {
     const colors = {
       'cost': 'bg-[var(--app-info-bg)] text-[var(--app-info)]',
@@ -163,7 +134,7 @@ export function NAVCalculator({
                         {calc.asOfDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
                       </span>
                     </div>
-                    {getStatusBadge(calc.status)}
+                    <StatusBadge status={calc.status} domain="fund-admin" size="sm" showIcon />
                   </div>
 
                   <div className="text-lg font-bold mb-1">
@@ -199,7 +170,7 @@ export function NAVCalculator({
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <h3 className="text-xl font-bold">{selectedCalculation.fundName}</h3>
-                    {getStatusBadge(selectedCalculation.status)}
+                    <StatusBadge status={selectedCalculation.status} domain="fund-admin" size="sm" showIcon />
                   </div>
                   <p className="text-sm text-[var(--app-text-muted)]">
                     As of {selectedCalculation.asOfDate.toLocaleDateString('en-US', {

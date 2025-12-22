@@ -1,6 +1,6 @@
 'use client'
 
-import { Breadcrumb, PageHeader, PageContainer } from '@/ui';
+import { PageScaffold } from '@/components/ui';
 import { Briefcase } from 'lucide-react';
 import { PortfolioDashboard } from './portfolio-dashboard';
 import { PortfolioDocuments } from './portfolio-documents';
@@ -24,47 +24,39 @@ export function Portfolio() {
   const pendingUpdates = 5;
 
   return (
-    <PageContainer>
-      {/* Breadcrumb Navigation */}
-      {routeConfig && (
-        <div className="mb-4">
-          <Breadcrumb
-            items={routeConfig.breadcrumbs}
-            aiSuggestion={routeConfig.aiSuggestion}
-          />
-        </div>
-      )}
-
-      {/* Page Header with AI Summary */}
-      <PageHeader
-        title="Portfolio"
-        description="Track performance across your investments"
-        icon={Briefcase}
-        aiSummary={{
+    <PageScaffold
+      breadcrumbs={routeConfig?.breadcrumbs}
+      aiSuggestion={routeConfig?.aiSuggestion}
+      header={{
+        title: 'Portfolio',
+        description: 'Track performance across your investments',
+        icon: Briefcase,
+        aiSummary: {
           text: `${healthyCompanies}/${totalCompanies} companies performing well. ${atRiskCompanies} companies flagged for attention. ${pendingUpdates} unread portfolio updates require review.`,
-          confidence: 0.89
-        }}
-        tabs={[
+          confidence: 0.89,
+        },
+        tabs: [
           {
             id: 'overview',
             label: 'Overview',
-            priority: atRiskCompanies > 0 ? 'high' : undefined
+            priority: atRiskCompanies > 0 ? 'high' : undefined,
           },
           {
             id: 'updates',
             label: 'Updates',
             count: pendingUpdates,
-            priority: pendingUpdates > 3 ? 'medium' : undefined
+            priority: pendingUpdates > 3 ? 'medium' : undefined,
           },
           {
             id: 'documents',
-            label: 'Documents'
-          }
-        ]}
-        activeTab={selected}
-        onTabChange={(tabId) => patchUI({ selected: tabId })}
-        actionContent={<FundSelector />}
-      />
+            label: 'Documents',
+          },
+        ],
+        activeTab: selected,
+        onTabChange: (tabId) => patchUI({ selected: tabId }),
+        actionContent: <FundSelector />,
+      }}
+    >
 
       {/* Tab Content */}
       <div className="mt-6">
@@ -72,6 +64,6 @@ export function Portfolio() {
         {selected === 'updates' && <PortfolioUpdates />}
         {selected === 'documents' && <PortfolioDocuments />}
       </div>
-    </PageContainer>
+    </PageScaffold>
   );
 }

@@ -1,13 +1,12 @@
 'use client'
 
-import { Card, Button, Badge, Breadcrumb, PageHeader, PageContainer } from '@/ui';
+import { Card, Button, Badge } from '@/ui';
 import { Shield, FileText, AlertTriangle, CheckCircle, Clock, Download, Calendar, Users, Building2, Scale } from 'lucide-react';
-import { getRouteConfig } from '@/config/routes';
 import { AMLKYCWorkflow } from '../compliance/aml-kyc-workflow';
 import { useUIKey } from '@/store/ui';
 import { complianceRequested, complianceSelectors } from '@/store/slices/backOfficeSlice';
 import { ErrorState, LoadingState } from '@/components/ui/async-states';
-import { StatusBadge, StatsCard } from '@/components/ui';
+import { PageScaffold, StatusBadge, MetricsGrid } from '@/components/ui';
 import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function Compliance() {
@@ -25,9 +24,6 @@ export function Compliance() {
       />
     );
   }
-
-  // Get route config for breadcrumbs and AI suggestions
-  const routeConfig = getRouteConfig('/compliance');
 
   const complianceItems = data?.complianceItems || [];
   const regulatoryFilings = data?.regulatoryFilings || [];
@@ -53,102 +49,107 @@ export function Compliance() {
     }
   };
 
+  const summaryCards = [
+    {
+      type: 'stats' as const,
+      props: {
+        title: 'Overdue Items',
+        value: complianceItems.filter(i => i.status === 'overdue').length,
+        icon: AlertTriangle,
+        variant: 'danger' as const,
+      },
+    },
+    {
+      type: 'stats' as const,
+      props: {
+        title: 'In Progress',
+        value: complianceItems.filter(i => i.status === 'in-progress').length,
+        icon: Clock,
+        variant: 'warning' as const,
+      },
+    },
+    {
+      type: 'stats' as const,
+      props: {
+        title: 'Due This Month',
+        value: complianceItems.filter(i => {
+          const dueDate = new Date(i.dueDate);
+          const today = new Date();
+          return dueDate.getMonth() === today.getMonth() &&
+                 dueDate.getFullYear() === today.getFullYear();
+        }).length,
+        icon: Calendar,
+        variant: 'primary' as const,
+      },
+    },
+    {
+      type: 'stats' as const,
+      props: {
+        title: 'Completed',
+        value: complianceItems.filter(i => i.status === 'completed').length,
+        icon: CheckCircle,
+        variant: 'success' as const,
+      },
+    },
+  ];
+
   return (
-    <PageContainer>
-      {/* Breadcrumb Navigation */}
-      {routeConfig && (
-        <div className="mb-4">
-          <Breadcrumb
-            items={routeConfig.breadcrumbs}
-            aiSuggestion={routeConfig.aiSuggestion}
-          />
-        </div>
-      )}
-
-      {/* Page Header with AI Summary and Tab Navigation */}
-      <PageHeader
-          title="Compliance & Regulatory"
-          description="Track regulatory filings, audits, and compliance requirements"
-          icon={Shield}
-          aiSummary={{
-            text: `${overdueItems} overdue items require immediate attention. ${inProgressItems} items in progress. ${upcomingHighPriority} high-priority deadlines approaching. AI recommends prioritizing Form ADV and annual certification.`,
-            confidence: 0.94
-          }}
-          primaryAction={{
-            label: 'Upload Document',
-            onClick: () => console.log('Upload document'),
-            aiSuggested: false
-          }}
-          secondaryActions={[
-            {
-              label: 'Export Report',
-              onClick: () => console.log('Export report')
-            }
-          ]}
-          tabs={[
-            {
-              id: 'overview',
-              label: 'Overview',
-              count: overdueItems,
-              priority: overdueItems > 0 ? 'high' : undefined
-            },
-            {
-              id: 'filings',
-              label: 'Regulatory Filings'
-            },
-            {
-              id: 'audits',
-              label: 'Audit Schedule',
-              count: auditSchedule.filter(a => a.status === 'in-progress').length
-            },
-            {
-              id: 'aml-kyc',
-              label: 'AML/KYC'
-            },
-            {
-              id: 'resources',
-              label: 'Resources'
-            }
-          ]}
-          activeTab={selectedTab}
-          onTabChange={(tabId) => patchUI({ selectedTab: tabId })}
-        />
-
+    <PageScaffold
+      routePath="/compliance"
+      header={{
+        title: 'Compliance & Regulatory',
+        description: 'Track regulatory filings, audits, and compliance requirements',
+        icon: Shield,
+        aiSummary: {
+          text: `${overdueItems} overdue items require immediate attention. ${inProgressItems} items in progress. ${upcomingHighPriority} high-priority deadlines approaching. AI recommends prioritizing Form ADV and annual certification.`,
+          confidence: 0.94,
+        },
+        primaryAction: {
+          label: 'Upload Document',
+          onClick: () => console.log('Upload document'),
+          aiSuggested: false,
+        },
+        secondaryActions: [
+          {
+            label: 'Export Report',
+            onClick: () => console.log('Export report'),
+          },
+        ],
+        tabs: [
+          {
+            id: 'overview',
+            label: 'Overview',
+            count: overdueItems,
+            priority: overdueItems > 0 ? 'high' : undefined,
+          },
+          {
+            id: 'filings',
+            label: 'Regulatory Filings',
+          },
+          {
+            id: 'audits',
+            label: 'Audit Schedule',
+            count: auditSchedule.filter(a => a.status === 'in-progress').length,
+          },
+          {
+            id: 'aml-kyc',
+            label: 'AML/KYC',
+          },
+          {
+            id: 'resources',
+            label: 'Resources',
+          },
+        ],
+        activeTab: selectedTab,
+        onTabChange: (tabId) => patchUI({ selectedTab: tabId }),
+      }}
+    >
       {/* Summary Cards */}
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <StatsCard
-            title="Overdue Items"
-            value={complianceItems.filter(i => i.status === 'overdue').length}
-            icon={AlertTriangle}
-            variant="danger"
-          />
-
-          <StatsCard
-            title="In Progress"
-            value={complianceItems.filter(i => i.status === 'in-progress').length}
-            icon={Clock}
-            variant="warning"
-          />
-
-          <StatsCard
-            title="Due This Month"
-            value={complianceItems.filter(i => {
-              const dueDate = new Date(i.dueDate);
-              const today = new Date();
-              return dueDate.getMonth() === today.getMonth() &&
-                     dueDate.getFullYear() === today.getFullYear();
-            }).length}
-            icon={Calendar}
-            variant="primary"
-          />
-
-          <StatsCard
-            title="Completed"
-            value={complianceItems.filter(i => i.status === 'completed').length}
-            icon={CheckCircle}
-            variant="success"
-          />
-        </div>
+      <MetricsGrid
+        items={summaryCards}
+        columns={{ base: 1, md: 2, lg: 4 }}
+        className="mt-6"
+      />
 
         {/* Overview Tab */}
         {selectedTab === 'overview' && (
@@ -397,6 +398,6 @@ export function Compliance() {
             </Card>
           </div>
         )}
-    </PageContainer>
+    </PageScaffold>
   );
 }

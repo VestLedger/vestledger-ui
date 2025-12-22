@@ -2,7 +2,8 @@
 
 import { FileText, DollarSign, Download, Calendar, CheckCircle2, AlertCircle, Clock, CreditCard, Pen, Shield, ChevronRight, Wallet } from 'lucide-react';
 import { Card, Button, Badge, Progress, PageContainer } from '@/ui';
-import { MetricCard } from '@/components/metric-card';
+import { MetricsGrid } from '@/components/ui';
+import type { MetricsGridItem } from '@/components/ui';
 import { lpDashboardRequested, lpDashboardSelectors } from '@/store/slices/dashboardsSlice';
 import { ErrorState, LoadingState } from '@/components/ui/async-states';
 import { formatCurrencyCompact } from '@/utils/formatting';
@@ -42,6 +43,11 @@ export function LPDashboard() {
   const calledAmount = commitment.calledAmount;
   const unfundedCommitment = totalCommitment - calledAmount;
 
+  const metricItems: MetricsGridItem[] = metrics.map((metric) => ({
+    type: 'metric',
+    props: metric,
+  }));
+
   return (
     <PageContainer className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -75,11 +81,10 @@ export function LPDashboard() {
         </Card>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {metrics.map((metric, index) => (
-          <MetricCard key={index} {...metric} />
-        ))}
-      </div>
+      <MetricsGrid
+        items={metricItems}
+        columns={{ base: 1, sm: 2, lg: 4 }}
+      />
 
       {/* Commitment Tracking */}
       <Card padding="md">

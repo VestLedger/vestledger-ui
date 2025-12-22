@@ -1,15 +1,15 @@
 'use client'
 
-import { Card, Badge, Button, Input } from '@/ui';
+import { Card, Badge, Button } from '@/ui';
 import {
   TrendingUp,
   Package,
   Users,
   DollarSign,
   Trophy,
-  Search,
   Calendar,
 } from 'lucide-react';
+import { ListItemCard, SearchToolbar } from '@/components/ui';
 import { useUIKey } from '@/store/ui';
 import {
   portfolioUpdatesRequested,
@@ -103,117 +103,101 @@ export function PortfolioUpdates() {
       />
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        <div className="flex-1">
-          <Input
-            type="text"
-            placeholder="Search updates..."
-            value={searchQuery}
-            onChange={(e) => patchUI({ searchQuery: e.target.value })}
-            startContent={<Search className="w-4 h-4 text-[var(--app-text-subtle)]" />}
-            size="md"
-          />
-        </div>
-        <div className="flex gap-2 flex-wrap">
-          <Button
-            variant={selectedType === 'all' ? 'solid' : 'flat'}
-            size="sm"
-            onPress={() => patchUI({ selectedType: 'all' })}
-            className={selectedType === 'all' ? 'bg-[var(--app-primary)] text-white' : ''}
-          >
-            All
-          </Button>
-          <Button
-            variant={selectedType === 'financial' ? 'solid' : 'flat'}
-            size="sm"
-            onPress={() => patchUI({ selectedType: 'financial' })}
-            className={selectedType === 'financial' ? 'bg-[var(--app-info)] text-white' : ''}
-          >
-            Financial
-          </Button>
-          <Button
-            variant={selectedType === 'product' ? 'solid' : 'flat'}
-            size="sm"
-            onPress={() => patchUI({ selectedType: 'product' })}
-            className={selectedType === 'product' ? 'bg-[var(--app-secondary)] text-white' : ''}
-          >
-            Product
-          </Button>
-          <Button
-            variant={selectedType === 'team' ? 'solid' : 'flat'}
-            size="sm"
-            onPress={() => patchUI({ selectedType: 'team' })}
-            className={selectedType === 'team' ? 'bg-[var(--app-accent)] text-white' : ''}
-          >
-            Team
-          </Button>
-          <Button
-            variant={selectedType === 'funding' ? 'solid' : 'flat'}
-            size="sm"
-            onPress={() => patchUI({ selectedType: 'funding' })}
-            className={selectedType === 'funding' ? 'bg-[var(--app-success)] text-white' : ''}
-          >
-            Funding
-          </Button>
-          <Button
-            variant={selectedType === 'milestone' ? 'solid' : 'flat'}
-            size="sm"
-            onPress={() => patchUI({ selectedType: 'milestone' })}
-            className={selectedType === 'milestone' ? 'bg-[var(--app-warning)] text-white' : ''}
-          >
-            Milestone
-          </Button>
-        </div>
+      <div className="mb-4">
+        <SearchToolbar
+          searchValue={searchQuery}
+          onSearchChange={(value) => patchUI({ searchQuery: value })}
+          searchPlaceholder="Search updates..."
+        />
+      </div>
+      <div className="flex gap-2 flex-wrap mb-6">
+        <Button
+          variant={selectedType === 'all' ? 'solid' : 'flat'}
+          size="sm"
+          onPress={() => patchUI({ selectedType: 'all' })}
+          className={selectedType === 'all' ? 'bg-[var(--app-primary)] text-white' : ''}
+        >
+          All
+        </Button>
+        <Button
+          variant={selectedType === 'financial' ? 'solid' : 'flat'}
+          size="sm"
+          onPress={() => patchUI({ selectedType: 'financial' })}
+          className={selectedType === 'financial' ? 'bg-[var(--app-info)] text-white' : ''}
+        >
+          Financial
+        </Button>
+        <Button
+          variant={selectedType === 'product' ? 'solid' : 'flat'}
+          size="sm"
+          onPress={() => patchUI({ selectedType: 'product' })}
+          className={selectedType === 'product' ? 'bg-[var(--app-secondary)] text-white' : ''}
+        >
+          Product
+        </Button>
+        <Button
+          variant={selectedType === 'team' ? 'solid' : 'flat'}
+          size="sm"
+          onPress={() => patchUI({ selectedType: 'team' })}
+          className={selectedType === 'team' ? 'bg-[var(--app-accent)] text-white' : ''}
+        >
+          Team
+        </Button>
+        <Button
+          variant={selectedType === 'funding' ? 'solid' : 'flat'}
+          size="sm"
+          onPress={() => patchUI({ selectedType: 'funding' })}
+          className={selectedType === 'funding' ? 'bg-[var(--app-success)] text-white' : ''}
+        >
+          Funding
+        </Button>
+        <Button
+          variant={selectedType === 'milestone' ? 'solid' : 'flat'}
+          size="sm"
+          onPress={() => patchUI({ selectedType: 'milestone' })}
+          className={selectedType === 'milestone' ? 'bg-[var(--app-warning)] text-white' : ''}
+        >
+          Milestone
+        </Button>
       </div>
 
       {/* Updates Feed */}
       <div className="space-y-4">
         {filteredUpdates.map((update) => (
-          <Card
+          <ListItemCard
             key={update.id}
-            padding="lg"
             className="hover:border-[var(--app-primary)] transition-all"
-          >
-            <div className="flex gap-4">
-              {/* Icon */}
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${updateColors[update.type as keyof typeof updateColors]} flex items-center justify-center flex-shrink-0`}>
+            icon={(
+              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${updateColors[update.type as keyof typeof updateColors]} flex items-center justify-center`}>
                 <div className="text-white">
                   {updateIcons[update.type as keyof typeof updateIcons]}
                 </div>
               </div>
-
-              {/* Content */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-4 mb-2">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap mb-1">
-                      <h3 className="font-semibold text-lg">{update.title}</h3>
-                      <Badge
-                        size="sm"
-                        variant="flat"
-                        className={updateBadgeColors[update.type as keyof typeof updateBadgeColors]}
-                      >
-                        {update.type}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-[var(--app-text-muted)]">
-                      <span className="font-medium text-[var(--app-primary)]">{update.companyName}</span>
-                      <span>•</span>
-                      <span>{update.author}</span>
-                      <span>•</span>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        <span>{formatDate(update.date)}</span>
-                      </div>
-                    </div>
-                  </div>
+            )}
+            title={update.title}
+            badges={(
+              <Badge
+                size="sm"
+                variant="flat"
+                className={updateBadgeColors[update.type as keyof typeof updateBadgeColors]}
+              >
+                {update.type}
+              </Badge>
+            )}
+            description={update.description}
+            meta={(
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-[var(--app-primary)]">{update.companyName}</span>
+                <span>•</span>
+                <span>{update.author}</span>
+                <span>•</span>
+                <div className="flex items-center gap-1">
+                  <Calendar className="w-3 h-3" />
+                  <span>{formatDate(update.date)}</span>
                 </div>
-                <p className="text-[var(--app-text)] leading-relaxed">
-                  {update.description}
-                </p>
               </div>
-            </div>
-          </Card>
+            )}
+          />
         ))}
 
         {filteredUpdates.length === 0 && (

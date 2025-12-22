@@ -1,7 +1,7 @@
 'use client'
 
-import { Card, Button, Input, Badge, PageContainer, Breadcrumb, PageHeader } from '@/ui';
-import { Mail, Phone, Building2, MapPin, Calendar, Tag, Search, Edit3, Trash2, Star, MessageSquare, Video, Send, ExternalLink, Briefcase, Users } from 'lucide-react';
+import { Card, Button, Badge } from '@/ui';
+import { Mail, Phone, Building2, MapPin, Calendar, Tag, Edit3, Trash2, Star, MessageSquare, Video, Send, ExternalLink, Briefcase, Users } from 'lucide-react';
 import { getRouteConfig } from '@/config/routes';
 import { SideDrawer } from '@/components/side-drawer';
 import { RelationshipScore, calculateRelationshipScore, type RelationshipMetrics } from '@/components/crm/relationship-score';
@@ -13,7 +13,8 @@ import { useUIKey } from '@/store/ui';
 import { crmDataRequested, crmSelectors } from '@/store/slices/crmSlice';
 import type { Contact } from '@/services/crm/contactsService';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
-import { StatsCard } from '@/components/ui';
+import { MetricsGrid, PageScaffold, SearchToolbar } from '@/components/ui';
+import type { MetricsGridItem } from '@/components/ui';
 import { useAsyncData } from '@/hooks/useAsyncData';
 
 interface ContactsUIState {
@@ -78,15 +79,18 @@ export function Contacts() {
 
   if (mockContacts.length === 0) {
     return (
-      <PageContainer className="space-y-6">
-        {routeConfig && (
-          <div className="mb-4">
-            <Breadcrumb items={routeConfig.breadcrumbs} aiSuggestion={routeConfig.aiSuggestion} />
-          </div>
-        )}
-        <PageHeader title="Contacts & CRM" description="Manage relationships and track communications" icon={Users} />
+      <PageScaffold
+        breadcrumbs={routeConfig?.breadcrumbs}
+        aiSuggestion={routeConfig?.aiSuggestion}
+        containerProps={{ className: 'space-y-6' }}
+        header={{
+          title: 'Contacts & CRM',
+          description: 'Manage relationships and track communications',
+          icon: Users,
+        }}
+      >
         <EmptyState icon={Users} title="No contacts yet" message="Create a contact to get started." />
-      </PageContainer>
+      </PageScaffold>
     );
   }
 
@@ -185,65 +189,73 @@ export function Contacts() {
     }
   };
 
-  return (
-    <PageContainer>
-      <div className="space-y-6">
-        {routeConfig && (
-          <div className="mb-4">
-            <Breadcrumb items={routeConfig.breadcrumbs} aiSuggestion={routeConfig.aiSuggestion} />
-          </div>
-        )}
+  const summaryCards: MetricsGridItem[] = [
+    {
+      type: 'stats',
+      props: {
+        title: 'Total Contacts',
+        value: contacts.length,
+        icon: Users,
+        variant: 'primary',
+      },
+    },
+    {
+      type: 'stats',
+      props: {
+        title: 'Founders',
+        value: contacts.filter(c => c.role === 'founder' || c.role === 'ceo').length,
+        icon: Building2,
+        variant: 'warning',
+      },
+    },
+    {
+      type: 'stats',
+      props: {
+        title: 'Starred',
+        value: contacts.filter(c => c.starred).length,
+        icon: Star,
+        variant: 'success',
+      },
+    },
+    {
+      type: 'stats',
+      props: {
+        title: 'Follow-ups Due',
+        value: contacts.filter(c => c.nextFollowUp).length,
+        icon: Calendar,
+        variant: 'primary',
+      },
+    },
+  ];
 
-        <PageHeader
-          title="Contacts & CRM"
-          description="Manage relationships with founders, investors, and advisors"
-          icon={Users}
-          aiSummary={{
-            text: `${contacts.length} total contacts. ${contacts.filter(c => c.starred).length} starred. ${contacts.filter(c => c.nextFollowUp).length} pending follow-ups.`,
-            confidence: 0.91
-          }}
-          primaryAction={{
-            label: 'Add Contact',
-            onClick: () => console.log('Add contact clicked')
-          }}
-          secondaryActions={[
-            {
-              label: 'Network View',
-              onClick: () => patchUI({ showNetworkGraph: true })
-            }
-          ]}
-        />
+  return (
+    <PageScaffold
+      breadcrumbs={routeConfig?.breadcrumbs}
+      aiSuggestion={routeConfig?.aiSuggestion}
+      containerProps={{ className: 'space-y-6' }}
+      header={{
+        title: 'Contacts & CRM',
+        description: 'Manage relationships with founders, investors, and advisors',
+        icon: Users,
+        aiSummary: {
+          text: `${contacts.length} total contacts. ${contacts.filter(c => c.starred).length} starred. ${contacts.filter(c => c.nextFollowUp).length} pending follow-ups.`,
+          confidence: 0.91,
+        },
+        primaryAction: {
+          label: 'Add Contact',
+          onClick: () => console.log('Add contact clicked'),
+        },
+        secondaryActions: [
+          {
+            label: 'Network View',
+            onClick: () => patchUI({ showNetworkGraph: true }),
+          },
+        ],
+      }}
+    >
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <StatsCard
-          title="Total Contacts"
-          value={contacts.length}
-          icon={Users}
-          variant="primary"
-        />
-
-        <StatsCard
-          title="Founders"
-          value={contacts.filter(c => c.role === 'founder' || c.role === 'ceo').length}
-          icon={Building2}
-          variant="warning"
-        />
-
-        <StatsCard
-          title="Starred"
-          value={contacts.filter(c => c.starred).length}
-          icon={Star}
-          variant="success"
-        />
-
-        <StatsCard
-          title="Follow-ups Due"
-          value={contacts.filter(c => c.nextFollowUp).length}
-          icon={Calendar}
-          variant="primary"
-        />
-      </div>
+      <MetricsGrid items={summaryCards} columns={{ base: 1, md: 2, lg: 4 }} />
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Smart Lists Sidebar */}
@@ -278,26 +290,23 @@ export function Contacts() {
                   </Button>
                 </div>
               )}
-              <Input
-                placeholder="Search contacts..."
-                value={searchQuery}
-                onChange={(e) => patchUI({ searchQuery: e.target.value })}
-                startContent={<Search className="w-4 h-4 text-[var(--app-text-subtle)]" />}
-                className="mb-3"
+              <SearchToolbar
+                searchValue={searchQuery}
+                onSearchChange={(value) => patchUI({ searchQuery: value })}
+                searchPlaceholder="Search contacts..."
+                dropdown={{
+                  label: 'Role',
+                  selectedValue: filterRole,
+                  onChange: (value) => patchUI({ filterRole: value }),
+                  options: [
+                    { value: 'all', label: 'All Roles' },
+                    { value: 'founder', label: 'Founders' },
+                    { value: 'ceo', label: 'CEOs' },
+                    { value: 'investor', label: 'Investors' },
+                    { value: 'advisor', label: 'Advisors' },
+                  ],
+                }}
               />
-              <div className="flex gap-2">
-                <select
-                  className="flex-1 px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-                  value={filterRole}
-                  onChange={(e) => patchUI({ filterRole: e.target.value })}
-                >
-                  <option value="all">All Roles</option>
-                  <option value="founder">Founders</option>
-                  <option value="ceo">CEOs</option>
-                  <option value="investor">Investors</option>
-                  <option value="advisor">Advisors</option>
-                </select>
-              </div>
             </div>
 
             <div className="max-h-[600px] overflow-y-auto">
@@ -631,7 +640,6 @@ export function Contacts() {
           </div>
         </div>
       )}
-      </div>
-    </PageContainer>
+    </PageScaffold>
   );
 }

@@ -1,9 +1,10 @@
 'use client';
 
 import { useUIKey } from '@/store/ui';
-import { Card, Button, Badge, Input } from '@/ui';
-import { DollarSign, Plus, PieChart, Filter, Download } from 'lucide-react';
+import { Card, Button, Badge } from '@/ui';
+import { DollarSign, Plus, PieChart, Download } from 'lucide-react';
 import { formatCurrency } from '@/utils/formatting';
+import { SearchToolbar, StatusBadge } from '@/components/ui';
 
 export type ExpenseType =
   | 'management-fee'
@@ -85,35 +86,6 @@ export function ExpenseTracker({
         return { label: 'Marketing', color: 'text-[var(--app-secondary)]', bgColor: 'bg-[var(--app-secondary)]/10' };
       case 'other':
         return { label: 'Other', color: 'text-[var(--app-text-subtle)]', bgColor: 'bg-[var(--app-surface-hover)]' };
-    }
-  };
-
-  const getStatusBadge = (status: FundExpense['status']) => {
-    switch (status) {
-      case 'pending':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-warning-bg)] text-[var(--app-warning)]">
-            Pending
-          </Badge>
-        );
-      case 'approved':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-info-bg)] text-[var(--app-info)]">
-            Approved
-          </Badge>
-        );
-      case 'paid':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-success-bg)] text-[var(--app-success)]">
-            Paid
-          </Badge>
-        );
-      case 'rejected':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-danger-bg)] text-[var(--app-danger)]">
-            Rejected
-          </Badge>
-        );
     }
   };
 
@@ -277,48 +249,47 @@ export function ExpenseTracker({
         </Card>
 
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-2">
-          <Input
-            placeholder="Search expenses..."
-            value={searchQuery}
-            onChange={(e) => patchUI({ searchQuery: e.target.value })}
-            startContent={<Filter className="w-4 h-4" />}
-            size="sm"
-            className="flex-1"
-          />
-          <select
-            className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-            value={filterType}
-            onChange={(e) => patchUI({ filterType: e.target.value as ExpenseType | 'all' })}
-          >
-            <option value="all">All Types</option>
-            {expenseTypes.map(type => (
-              <option key={type} value={type}>
-                {getExpenseTypeConfig(type).label}
-              </option>
-            ))}
-          </select>
-          <select
-            className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-            value={filterStatus}
-            onChange={(e) => patchUI({ filterStatus: e.target.value })}
-          >
-            <option value="all">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
-            <option value="paid">Paid</option>
-            <option value="rejected">Rejected</option>
-          </select>
-          <select
-            className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-            value={dateRange}
-            onChange={(e) => patchUI({ dateRange: e.target.value as typeof dateRange })}
-          >
-            <option value="month">This Month</option>
-            <option value="quarter">This Quarter</option>
-            <option value="year">This Year</option>
-          </select>
-        </div>
+        <SearchToolbar
+          searchValue={searchQuery}
+          onSearchChange={(value) => patchUI({ searchQuery: value })}
+          searchPlaceholder="Search expenses..."
+          rightActions={(
+            <div className="flex flex-wrap items-center gap-2">
+              <select
+                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+                value={filterType}
+                onChange={(e) => patchUI({ filterType: e.target.value as ExpenseType | 'all' })}
+              >
+                <option value="all">All Types</option>
+                {expenseTypes.map(type => (
+                  <option key={type} value={type}>
+                    {getExpenseTypeConfig(type).label}
+                  </option>
+                ))}
+              </select>
+              <select
+                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+                value={filterStatus}
+                onChange={(e) => patchUI({ filterStatus: e.target.value })}
+              >
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="paid">Paid</option>
+                <option value="rejected">Rejected</option>
+              </select>
+              <select
+                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+                value={dateRange}
+                onChange={(e) => patchUI({ dateRange: e.target.value as typeof dateRange })}
+              >
+                <option value="month">This Month</option>
+                <option value="quarter">This Quarter</option>
+                <option value="year">This Year</option>
+              </select>
+            </div>
+          )}
+        />
 
         {/* Expense List */}
         <div className="border border-[var(--app-border)] rounded-lg overflow-hidden">
@@ -384,7 +355,9 @@ export function ExpenseTracker({
                       {formatCurrency(expense.amount, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </div>
 
-                    <div className="col-span-1">{getStatusBadge(expense.status)}</div>
+                    <div className="col-span-1">
+                      <StatusBadge status={expense.status} domain="fund-admin" size="sm" />
+                    </div>
 
                     <div className="col-span-3 flex items-center justify-end gap-1">
                       {expense.status === 'pending' && onApproveExpense && (

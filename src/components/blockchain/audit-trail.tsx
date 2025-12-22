@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Button, Badge, Input, PageContainer, Breadcrumb, PageHeader } from '@/ui';
+import { Card, Button, Badge } from '@/ui';
 import {
   Shield,
   Database,
@@ -12,21 +12,18 @@ import {
   Layers,
   Eye,
   ExternalLink,
-  Copy,
-  Search
+  Copy
 } from 'lucide-react';
-import { getRouteConfig } from '@/config/routes';
 import type { AuditEvent } from '@/services/blockchain/auditTrailService';
 import { useUIKey } from '@/store/ui';
 import { auditTrailRequested, auditTrailSelectors } from '@/store/slices/miscSlice';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
 import { formatCurrencyCompact, formatTimestamp, truncateHash } from '@/utils/formatting';
 import { useAsyncData } from '@/hooks/useAsyncData';
+import { PageScaffold, SearchToolbar } from '@/components/ui';
 
 export function BlockchainAuditTrail() {
   const { data, isLoading, error, refetch } = useAsyncData(auditTrailRequested, auditTrailSelectors.selectState);
-  const routeConfig = getRouteConfig('/audit-trail');
-
   // UI state MUST be called before any early returns (Rules of Hooks)
   const { value: ui, patch: patchUI } = useUIKey<{
     searchQuery: string;
@@ -103,46 +100,33 @@ export function BlockchainAuditTrail() {
   });
 
   return (
-    <PageContainer>
-      {/* Breadcrumb Navigation */}
-      {routeConfig && (
-        <div className="mb-4">
-          <Breadcrumb
-            items={routeConfig.breadcrumbs}
-            aiSuggestion={routeConfig.aiSuggestion}
-          />
-        </div>
-      )}
-
-      {/* Page Header */}
-      {routeConfig && (
-        <PageHeader
-          title="On-Chain Audit Trail"
-          description={routeConfig.description}
-          icon={Database}
-          aiSummary={{
-            text: `${auditEvents.length} blockchain events recorded. ${auditEvents.filter(e => e.verificationStatus === 'verified').length} verified transactions across ${new Set(auditEvents.map(e => e.eventType)).size} event types. Latest block: ${Math.max(...auditEvents.map(e => e.blockNumber)).toLocaleString()}`,
-            confidence: 0.95
-          }}
-        />
-      )}
-
+    <PageScaffold
+      routePath="/audit-trail"
+      header={{
+        title: 'On-Chain Audit Trail',
+        icon: Database,
+        aiSummary: {
+          text: `${auditEvents.length} blockchain events recorded. ${auditEvents.filter(e => e.verificationStatus === 'verified').length} verified transactions across ${new Set(auditEvents.map(e => e.eventType)).size} event types. Latest block: ${Math.max(...auditEvents.map(e => e.blockNumber)).toLocaleString()}`,
+          confidence: 0.95,
+        },
+      }}
+    >
       {/* Stats */}
       <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
-	        <Card padding="md">
-	          <div className="text-center">
-	            <div className="text-2xl font-bold text-[var(--app-primary)]">{auditEvents.length}</div>
-	            <div className="text-xs text-[var(--app-text-muted)]">Total Events</div>
-	          </div>
-	        </Card>
-	        <Card padding="md">
-	          <div className="text-center">
-	            <div className="text-2xl font-bold text-[var(--app-success)]">
-	              {auditEvents.filter(e => e.verificationStatus === 'verified').length}
-	            </div>
-	            <div className="text-xs text-[var(--app-text-muted)]">Verified</div>
-	          </div>
-	        </Card>
+        <Card padding="md">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-[var(--app-primary)]">{auditEvents.length}</div>
+            <div className="text-xs text-[var(--app-text-muted)]">Total Events</div>
+          </div>
+        </Card>
+        <Card padding="md">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-[var(--app-success)]">
+              {auditEvents.filter(e => e.verificationStatus === 'verified').length}
+            </div>
+            <div className="text-xs text-[var(--app-text-muted)]">Verified</div>
+          </div>
+        </Card>
         <Card padding="md">
           <div className="text-center">
             <div className="text-2xl font-bold">18.2M</div>
@@ -158,27 +142,21 @@ export function BlockchainAuditTrail() {
       </div>
 
       {/* Search and Filter */}
-      <div className="flex flex-col sm:flex-row gap-3 mt-4 mb-4">
-        <div className="flex-1">
-          <Input
-            placeholder="Search by description or transaction hash..."
-            value={searchQuery}
-            onChange={(e) => patchUI({ searchQuery: e.target.value })}
-            startContent={<Search className="w-4 h-4 text-[var(--app-text-muted)]" />}
-          />
-        </div>
-        <div className="flex gap-2 flex-wrap">
-          {['all', 'capital_call', 'distribution', 'ownership_transfer', 'compliance_attestation'].map((f) => (
-            <Button
-              key={f}
-              variant={filter === f ? 'solid' : 'flat'}
-              color={filter === f ? 'primary' : 'default'}
-              onPress={() => patchUI({ filter: f })}
-            >
-              {f === 'all' ? 'All' : getEventLabel(f)}
-            </Button>
-          ))}
-        </div>
+      <div className="mt-4 mb-4">
+        <SearchToolbar
+          searchValue={searchQuery}
+          onSearchChange={(value) => patchUI({ searchQuery: value })}
+          searchPlaceholder="Search by description or transaction hash..."
+          filters={[
+            { id: 'all', label: 'All' },
+            { id: 'capital_call', label: getEventLabel('capital_call') },
+            { id: 'distribution', label: getEventLabel('distribution') },
+            { id: 'ownership_transfer', label: getEventLabel('ownership_transfer') },
+            { id: 'compliance_attestation', label: getEventLabel('compliance_attestation') },
+          ]}
+          activeFilterId={filter}
+          onFilterChange={(id) => patchUI({ filter: id })}
+        />
       </div>
 
       {/* Audit Trail Timeline */}
@@ -323,6 +301,6 @@ export function BlockchainAuditTrail() {
           </div>
         </Card>
       )}
-    </PageContainer>
+    </PageScaffold>
   );
 }

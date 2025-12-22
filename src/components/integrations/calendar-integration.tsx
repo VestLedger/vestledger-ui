@@ -1,7 +1,7 @@
 'use client';
 
 import { useUIKey } from '@/store/ui';
-import { Card, Button, Badge, Input } from '@/ui';
+import { Card, Button, Badge } from '@/ui';
 import {
   Calendar,
   Clock,
@@ -9,15 +9,13 @@ import {
   MapPin,
   Link as LinkIcon,
   Video,
-  CheckCircle,
-  XCircle,
   AlertCircle,
   RefreshCw,
   Settings,
   Download,
-  Search,
   Plus,
 } from 'lucide-react';
+import { SearchToolbar, StatusBadge } from '@/components/ui';
 
 export type CalendarProvider = 'google' | 'outlook' | 'apple' | 'other';
 export type EventType = 'meeting' | 'call' | 'conference' | 'site-visit' | 'other';
@@ -190,70 +188,6 @@ export function CalendarIntegration({
     );
   };
 
-  const getStatusBadge = (status: CalendarAccount['status']) => {
-    switch (status) {
-      case 'connected':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-success-bg)] text-[var(--app-success)]">
-            <CheckCircle className="w-3 h-3 mr-1" />
-            Connected
-          </Badge>
-        );
-      case 'syncing':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-warning-bg)] text-[var(--app-warning)]">
-            <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
-            Syncing
-          </Badge>
-        );
-      case 'error':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-danger-bg)] text-[var(--app-danger)]">
-            <XCircle className="w-3 h-3 mr-1" />
-            Error
-          </Badge>
-        );
-      case 'disconnected':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-text-muted)]/10 text-[var(--app-text-muted)]">
-            Disconnected
-          </Badge>
-        );
-    }
-  };
-
-  const getCaptureStatusBadge = (status: CaptureStatus) => {
-    switch (status) {
-      case 'captured':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-success-bg)] text-[var(--app-success)]">
-            <CheckCircle className="w-3 h-3 mr-1" />
-            Captured
-          </Badge>
-        );
-      case 'pending':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-warning-bg)] text-[var(--app-warning)]">
-            <Clock className="w-3 h-3 mr-1" />
-            Pending
-          </Badge>
-        );
-      case 'ignored':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-text-muted)]/10 text-[var(--app-text-muted)]">
-            Ignored
-          </Badge>
-        );
-      case 'failed':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-danger-bg)] text-[var(--app-danger)]">
-            <XCircle className="w-3 h-3 mr-1" />
-            Failed
-          </Badge>
-        );
-    }
-  };
-
   const formatDuration = (minutes: number) => {
     if (minutes < 60) return `${minutes}m`;
     const hours = Math.floor(minutes / 60);
@@ -418,7 +352,7 @@ export function CalendarIntegration({
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-medium">{account.email}</span>
                         {getProviderBadge(account.provider)}
-                        {getStatusBadge(account.status)}
+                        <StatusBadge status={account.status} domain="integrations" size="sm" showIcon />
                         {account.autoCapture && (
                           <Badge size="sm" variant="flat" className="bg-[var(--app-success-bg)] text-[var(--app-success)]">
                             Auto-Capture ON
@@ -503,69 +437,68 @@ export function CalendarIntegration({
 
       {/* Filters */}
       <Card padding="md">
-        <div className="flex flex-col sm:flex-row gap-2">
-          <Input
-            placeholder="Search events..."
-            value={searchQuery}
-            onChange={(e) => patchUI({ searchQuery: e.target.value })}
-            startContent={<Search className="w-4 h-4" />}
-            size="sm"
-            className="flex-1"
-          />
-          <select
-            className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-            value={dateRange}
-            onChange={(e) => patchUI({ dateRange: e.target.value as typeof dateRange })}
-          >
-            <option value="upcoming">Upcoming</option>
-            <option value="past-week">Past Week</option>
-            <option value="past-month">Past Month</option>
-            <option value="all">All Time</option>
-          </select>
-          <select
-            className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-            value={filterStatus}
-            onChange={(e) => patchUI({ filterStatus: e.target.value as CaptureStatus | 'all' })}
-          >
-            <option value="all">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="captured">Captured</option>
-            <option value="ignored">Ignored</option>
-            <option value="failed">Failed</option>
-          </select>
-          <select
-            className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-            value={filterType}
-            onChange={(e) => patchUI({ filterType: e.target.value as EventType | 'all' })}
-          >
-            <option value="all">All Types</option>
-            <option value="meeting">Meeting</option>
-            <option value="call">Call</option>
-            <option value="conference">Conference</option>
-            <option value="site-visit">Site Visit</option>
-            <option value="other">Other</option>
-          </select>
-          {onExportEvents && (
-            <>
-              <Button
-                size="sm"
-                variant="flat"
-                startContent={<Download className="w-3 h-3" />}
-                onPress={() => onExportEvents('csv')}
+        <SearchToolbar
+          searchValue={searchQuery}
+          onSearchChange={(value) => patchUI({ searchQuery: value })}
+          searchPlaceholder="Search events..."
+          rightActions={(
+            <div className="flex flex-wrap items-center gap-2">
+              <select
+                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+                value={dateRange}
+                onChange={(e) => patchUI({ dateRange: e.target.value as typeof dateRange })}
               >
-                CSV
-              </Button>
-              <Button
-                size="sm"
-                variant="flat"
-                startContent={<Download className="w-3 h-3" />}
-                onPress={() => onExportEvents('ical')}
+                <option value="upcoming">Upcoming</option>
+                <option value="past-week">Past Week</option>
+                <option value="past-month">Past Month</option>
+                <option value="all">All Time</option>
+              </select>
+              <select
+                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+                value={filterStatus}
+                onChange={(e) => patchUI({ filterStatus: e.target.value as CaptureStatus | 'all' })}
               >
-                iCal
-              </Button>
-            </>
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="captured">Captured</option>
+                <option value="ignored">Ignored</option>
+                <option value="failed">Failed</option>
+              </select>
+              <select
+                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+                value={filterType}
+                onChange={(e) => patchUI({ filterType: e.target.value as EventType | 'all' })}
+              >
+                <option value="all">All Types</option>
+                <option value="meeting">Meeting</option>
+                <option value="call">Call</option>
+                <option value="conference">Conference</option>
+                <option value="site-visit">Site Visit</option>
+                <option value="other">Other</option>
+              </select>
+              {onExportEvents && (
+                <>
+                  <Button
+                    size="sm"
+                    variant="flat"
+                    startContent={<Download className="w-3 h-3" />}
+                    onPress={() => onExportEvents('csv')}
+                  >
+                    CSV
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="flat"
+                    startContent={<Download className="w-3 h-3" />}
+                    onPress={() => onExportEvents('ical')}
+                  >
+                    iCal
+                  </Button>
+                </>
+              )}
+            </div>
           )}
-        </div>
+        />
       </Card>
 
       {/* Events List */}
@@ -586,7 +519,7 @@ export function CalendarIntegration({
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-medium">{event.title}</span>
-                        {getCaptureStatusBadge(event.captureStatus)}
+                        <StatusBadge status={event.captureStatus} domain="integrations" size="sm" showIcon />
                         {event.isVirtual && (
                           <Badge size="sm" variant="flat" className="bg-[var(--app-info-bg)] text-[var(--app-info)]">
                             <Video className="w-3 h-3 mr-1" />

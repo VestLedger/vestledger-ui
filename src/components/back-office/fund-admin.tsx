@@ -1,7 +1,7 @@
 'use client'
 
 import { useUIKey } from '@/store/ui'
-import { Card, Button, Badge, Progress, Select, Breadcrumb, PageHeader, PageContainer } from '@/ui'
+import { Card, Button, Badge, Progress, Select } from '@/ui'
 import { DollarSign, Send, Download, Users, FileText, Mail, ArrowUpRight, ArrowDownRight } from 'lucide-react'
 import { FundSelector } from '../fund-selector'
 import { getRouteConfig } from '@/config/routes'
@@ -12,7 +12,8 @@ import { TransferSecondary } from '../fund-admin/transfer-secondary'
 import { fundAdminRequested, fundAdminSelectors } from '@/store/slices/backOfficeSlice'
 import { ErrorState, LoadingState } from '@/components/ui/async-states'
 import { formatCurrency } from '@/utils/formatting'
-import { StatusBadge, StatsCard } from '@/components/ui'
+import { StatusBadge, MetricsGrid, PageScaffold } from '@/components/ui'
+import type { MetricsGridItem } from '@/components/ui'
 import { useAsyncData } from '@/hooks/useAsyncData'
 
 export function FundAdmin() {
@@ -46,126 +47,132 @@ export function FundAdmin() {
     .reduce((sum, c) => sum + (c.totalAmount - c.amountReceived), 0);
   const pendingLPs = lpResponses.filter(r => r.status === 'pending' || r.status === 'partial').length;
 
-  return (
-    <PageContainer>
-      <div className="space-y-6">
-      {/* Breadcrumb Navigation */}
-      {routeConfig && (
-        <div>
-          <Breadcrumb
-            items={routeConfig.breadcrumbs}
-            aiSuggestion={routeConfig.aiSuggestion}
-          />
-        </div>
-      )}
+  const summaryCards: MetricsGridItem[] = [
+    {
+      type: 'stats',
+      props: {
+        title: 'Active Calls',
+        value: capitalCalls.filter(c => c.status === 'in-progress').length,
+        icon: ArrowUpRight,
+        variant: 'warning',
+        subtitle: formatCurrency(
+          capitalCalls
+            .filter(c => c.status === 'in-progress')
+            .reduce((sum, c) => sum + c.totalAmount, 0)
+        ),
+      },
+    },
+    {
+      type: 'stats',
+      props: {
+        title: 'YTD Distributions',
+        value: distributions.filter(d => d.status === 'completed').length,
+        icon: ArrowDownRight,
+        variant: 'success',
+        subtitle: formatCurrency(
+          distributions
+            .filter(d => d.status === 'completed')
+            .reduce((sum, d) => sum + d.totalAmount, 0)
+        ),
+      },
+    },
+    {
+      type: 'stats',
+      props: {
+        title: 'Outstanding',
+        value: formatCurrency(
+          capitalCalls
+            .filter(c => c.status === 'in-progress')
+            .reduce((sum, c) => sum + (c.totalAmount - c.amountReceived), 0)
+        ),
+        icon: DollarSign,
+        variant: 'primary',
+      },
+    },
+    {
+      type: 'stats',
+      props: {
+        title: 'Total LPs',
+        value: Math.max(...capitalCalls.map(c => c.lpCount)),
+        icon: Users,
+        variant: 'primary',
+      },
+    },
+  ];
 
-      {/* Page Header with AI Summary */}
-      <PageHeader
-        title="Fund Administration"
-        description="Manage capital calls, distributions, and LP communications"
-        icon={DollarSign}
-        aiSummary={{
+  return (
+    <PageScaffold
+      breadcrumbs={routeConfig?.breadcrumbs}
+      aiSuggestion={routeConfig?.aiSuggestion}
+      containerProps={{ className: 'space-y-6' }}
+      header={{
+        title: 'Fund Administration',
+        description: 'Manage capital calls, distributions, and LP communications',
+        icon: DollarSign,
+        aiSummary: {
           text: `${activeCallsCount} active capital calls with ${formatCurrency(totalOutstanding)} outstanding. ${pendingLPs} LPs require follow-up. AI recommends sending reminders to improve collection rate.`,
-          confidence: 0.91
-        }}
-        primaryAction={{
+          confidence: 0.91,
+        },
+        primaryAction: {
           label: 'New Capital Call',
           onClick: () => console.log('New capital call'),
-          aiSuggested: false
-        }}
-        secondaryActions={[
+          aiSuggested: false,
+        },
+        secondaryActions: [
           {
             label: 'Export Activity',
-            onClick: () => console.log('Export activity')
-          }
-        ]}
-        tabs={[
+            onClick: () => console.log('Export activity'),
+          },
+        ],
+        tabs: [
           {
             id: 'capital-calls',
             label: 'Capital Calls',
             count: activeCallsCount,
-            priority: totalOutstanding > 0 ? 'high' : undefined
+            priority: totalOutstanding > 0 ? 'high' : undefined,
           },
           {
             id: 'distributions',
-            label: 'Distributions'
+            label: 'Distributions',
           },
           {
             id: 'lp-responses',
             label: 'LP Responses',
             count: pendingLPs,
-            priority: pendingLPs > 2 ? 'medium' : undefined
+            priority: pendingLPs > 2 ? 'medium' : undefined,
           },
           {
             id: 'nav-calculator',
-            label: 'NAV Calculator'
+            label: 'NAV Calculator',
           },
           {
             id: 'carried-interest',
-            label: 'Carried Interest'
+            label: 'Carried Interest',
           },
           {
             id: 'expenses',
-            label: 'Expenses'
+            label: 'Expenses',
           },
           {
             id: 'secondary-transfers',
-            label: 'Secondary Transfers'
-          }
-        ]}
-        activeTab={selectedTab}
-        onTabChange={(tabId) => patchUI({ selectedTab: tabId })}
-      >
-        {/* Fund Selector as child content */}
-        <div className="w-full sm:w-64">
-          <FundSelector />
-        </div>
-      </PageHeader>
+            label: 'Secondary Transfers',
+          },
+        ],
+        activeTab: selectedTab,
+        onTabChange: (tabId) => patchUI({ selectedTab: tabId }),
+        children: (
+          <div className="w-full sm:w-64">
+            <FundSelector />
+          </div>
+        ),
+      }}
+    >
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <StatsCard
-          title="Active Calls"
-          value={capitalCalls.filter(c => c.status === 'in-progress').length}
-          icon={ArrowUpRight}
-          variant="warning"
-          subtitle={formatCurrency(
-            capitalCalls
-              .filter(c => c.status === 'in-progress')
-              .reduce((sum, c) => sum + c.totalAmount, 0)
-          )}
-        />
-
-        <StatsCard
-          title="YTD Distributions"
-          value={distributions.filter(d => d.status === 'completed').length}
-          icon={ArrowDownRight}
-          variant="success"
-          subtitle={formatCurrency(
-            distributions
-              .filter(d => d.status === 'completed')
-              .reduce((sum, d) => sum + d.totalAmount, 0)
-          )}
-        />
-
-        <StatsCard
-          title="Outstanding"
-          value={formatCurrency(
-            capitalCalls
-              .filter(c => c.status === 'in-progress')
-              .reduce((sum, c) => sum + (c.totalAmount - c.amountReceived), 0)
-          )}
-          icon={DollarSign}
-          variant="primary"
-        />
-
-        <StatsCard
-          title="Total LPs"
-          value={Math.max(...capitalCalls.map(c => c.lpCount))}
-          icon={Users}
-          variant="primary"
-        />
-      </div>
+      <MetricsGrid
+        items={summaryCards}
+        columns={{ base: 1, md: 2, lg: 4 }}
+      />
 
       {/* Tab Content */}
       <div>
@@ -458,7 +465,6 @@ export function FundAdmin() {
           </div>
         )}
       </div>
-      </div>
-    </PageContainer>
+    </PageScaffold>
   );
 }

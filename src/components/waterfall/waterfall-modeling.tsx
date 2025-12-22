@@ -1,10 +1,10 @@
 'use client';
 
-import { Card, Button, Badge, Input, Progress, PageContainer, Breadcrumb, PageHeader } from '@/ui';
+import { Card, Button, Badge, Input, Progress } from '@/ui';
 import { TrendingDown, DollarSign, TrendingUp, PieChart, Trash2, Play, Layers, ArrowRight, Globe, Flag, Calculator } from 'lucide-react';
-import { getRouteConfig } from '@/config/routes';
 import { useUIKey } from '@/store/ui';
 import { formatCurrencyCompact } from '@/utils/formatting';
+import { PageScaffold } from '@/components/ui';
 
 type WaterfallModel = 'european' | 'american';
 
@@ -87,8 +87,6 @@ export function WaterfallModeling() {
     carryPercentage: 20,
   });
   const { investorClasses, exitValue, scenarios, waterfallModel, hurdleRate, carryPercentage } = ui;
-
-  const routeConfig = getRouteConfig('/waterfall');
 
   const totalInvested = investorClasses.reduce((sum, ic) => sum + ic.investedAmount, 0);
 
@@ -223,38 +221,28 @@ export function WaterfallModeling() {
   };
 
   return (
-    <PageContainer>
-      {/* Breadcrumb Navigation */}
-      {routeConfig && (
-        <div className="mb-4">
-          <Breadcrumb
-            items={routeConfig.breadcrumbs}
-            aiSuggestion={routeConfig.aiSuggestion}
-          />
-        </div>
-      )}
-
-      {/* Page Header */}
-      <PageHeader
-        title="Waterfall Modeling"
-        description="Model exit scenarios and distribution waterfalls"
-        icon={TrendingDown}
-        aiSummary={{
+    <PageScaffold
+      routePath="/waterfall"
+      header={{
+        title: 'Waterfall Modeling',
+        description: 'Model exit scenarios and distribution waterfalls',
+        icon: TrendingDown,
+        aiSummary: {
           text: `${investorClasses.length} investor classes totaling ${formatCurrencyCompact(totalInvested)} invested. ${scenarios.length} scenario${scenarios.length !== 1 ? 's' : ''} modeled. Current model: ${waterfallModel === 'european' ? 'European (whole-fund)' : 'American (deal-by-deal)'} waterfall.`,
-          confidence: 0.91
-        }}
-        secondaryActions={[
+          confidence: 0.91,
+        },
+        secondaryActions: [
           {
             label: 'Export',
             onClick: () => console.log('Export waterfall models'),
           },
-        ]}
-        primaryAction={{
+        ],
+        primaryAction: {
           label: 'Add Class',
           onClick: () => patchUI({ showAddClass: true }),
-        }}
-      />
-
+        },
+      }}
+    >
       <div className="mt-6 grid lg:grid-cols-3 gap-6">
         {/* Left: Investor Classes */}
         <div className="lg:col-span-2 space-y-4">
@@ -561,6 +549,6 @@ export function WaterfallModeling() {
           </Card>
         </div>
       </div>
-    </PageContainer>
+    </PageScaffold>
   );
 }

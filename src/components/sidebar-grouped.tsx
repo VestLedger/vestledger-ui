@@ -151,7 +151,7 @@ export function SidebarGrouped() {
           </div>
         ) : (
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-secondary)] flex items-center justify-center">
+              <div className="w-8 h-8">
               <span className="text-white font-bold text-sm">VL</span>
             </div>
             <div>

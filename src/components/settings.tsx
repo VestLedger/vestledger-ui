@@ -1,7 +1,7 @@
 'use client';
 
 import { useUIKey } from '@/store/ui';
-import { Card, Button, Input, PageContainer, PageHeader, Breadcrumb, Badge } from '@/ui';
+import { Card, Button, Input, Badge } from '@/ui';
 import type { PageHeaderBadge } from '@/ui';
 import {
   User,
@@ -22,7 +22,7 @@ import {
   Plus
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { getRouteConfig } from '@/config/routes';
+import { PageScaffold, StatusBadge } from '@/components/ui';
 
 interface SettingsSection {
   id: string;
@@ -77,7 +77,6 @@ const settingsSections: SettingsSection[] = [
 ];
 
 export function Settings() {
-  const routeConfig = getRouteConfig('/settings');
   const { value: settingsUI, patch: patchSettingsUI } = useUIKey('settings', {
     activeSection: 'profile',
     showPassword: false,
@@ -442,7 +441,7 @@ export function Settings() {
                       <div className="text-sm text-[var(--app-text-muted)]">Professional Plan</div>
                     </div>
                     <div className="flex items-center gap-4">
-                      <Badge color="success">{invoice.status}</Badge>
+                      <StatusBadge status={invoice.status} domain="general" size="sm" />
                       <span className="font-semibold">{invoice.amount}</span>
                       <Button variant="ghost" size="sm">Download</Button>
                     </div>
@@ -479,7 +478,7 @@ export function Settings() {
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
-                      <Badge color={member.status === 'Active' ? 'success' : 'warning'}>{member.status}</Badge>
+                      <StatusBadge status={member.status} domain="general" size="sm" />
                       <select className="px-3 py-1 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-sm">
                         <option selected={member.role === 'Owner'}>Owner</option>
                         <option selected={member.role === 'Admin'}>Admin</option>
@@ -500,24 +499,19 @@ export function Settings() {
   };
 
   return (
-    <PageContainer>
-      {routeConfig && (
-        <div className="mb-4">
-          <Breadcrumb items={routeConfig.breadcrumbs} aiSuggestion={routeConfig.aiSuggestion} />
-        </div>
-      )}
-
-      <PageHeader
-        title="Settings"
-        description="Manage your account settings and preferences"
-        icon={SettingsIcon}
-        aiSummary={{
+    <PageScaffold
+      routePath="/settings"
+      header={{
+        title: 'Settings',
+        description: 'Manage your account settings and preferences',
+        icon: SettingsIcon,
+        aiSummary: {
           text: aiSummaryText,
           confidence: 0.83,
-        }}
-        badges={headerBadges}
-      />
-
+        },
+        badges: headerBadges,
+      }}
+    >
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Settings Navigation */}
         <div className="lg:col-span-1">
@@ -560,6 +554,6 @@ export function Settings() {
           </Card>
         </div>
       </div>
-    </PageContainer>
+    </PageScaffold>
   );
 }

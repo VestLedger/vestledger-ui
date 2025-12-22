@@ -1,12 +1,12 @@
 'use client'
 
-import { Card, Button, Badge, Progress, PageContainer, Breadcrumb, PageHeader } from '@/ui';
+import { Card, Button, Badge, Progress } from '@/ui';
 import { Download, FileText, File, Table, Image as ImageIcon, Calendar, Filter, Check, Mail, Clock, Repeat , FileDown} from 'lucide-react';
-import { getRouteConfig } from '@/config/routes';
 import { getInitialExportJobs, getReportTemplates, type ExportJob, type ReportTemplate } from '@/services/reports/reportExportService';
 import { useUIKey } from '@/store/ui';
 import { useAppDispatch } from '@/store/hooks';
 import { reportExportRequested } from '@/store/slices/uiEffectsSlice';
+import { PageScaffold, StatusBadge } from '@/components/ui';
 
 const defaultReportExportState: {
   selectedTemplate: ReportTemplate | null;
@@ -26,7 +26,6 @@ const defaultReportExportState: {
 
 export function ReportExport() {
   const dispatch = useAppDispatch();
-  const routeConfig = getRouteConfig('/reports');
   const { value: ui, patch: patchUI } = useUIKey('report-export', defaultReportExportState);
   const { selectedTemplate, exportFormat, dateRange, selectedSections, exportJobs, scheduleEnabled } = ui;
   const reportTemplates = getReportTemplates();
@@ -55,47 +54,26 @@ export function ReportExport() {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed': return 'bg-[var(--app-success-bg)] text-[var(--app-success)]';
-      case 'processing': return 'bg-[var(--app-warning-bg)] text-[var(--app-warning)]';
-      case 'queued': return 'bg-[var(--app-info-bg)] text-[var(--app-info)]';
-      case 'failed': return 'bg-[var(--app-danger-bg)] text-[var(--app-danger)]';
-      default: return 'bg-[var(--app-surface-hover)] text-[var(--app-text-muted)]';
-    }
-  };
-
   return (
-    <PageContainer>
-      <div className="space-y-6">
-        {/* Breadcrumb Navigation */}
-        {routeConfig && (
-          <Breadcrumb
-            items={routeConfig.breadcrumbs}
-            aiSuggestion={routeConfig.aiSuggestion}
-          />
-        )}
-
-        {/* Page Header */}
-        {routeConfig && (
-          <PageHeader
-            title={routeConfig.label}
-            description={routeConfig.description}
-            icon={FileDown}
-            aiSummary={{
-              text: `${reportTemplates.length} report templates available. ${exportJobs.filter(j => j.status === 'completed').length} reports completed, ${exportJobs.filter(j => j.status === 'processing').length} currently processing.`,
-              confidence: 0.90
-            }}
-            secondaryActions={[
-              {
-                label: 'Report Settings',
-                onClick: () => {},
-              },
-            ]}
-          />
-        )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <PageScaffold
+      routePath="/reports"
+      header={{
+        title: 'Reports',
+        description: 'Manage and export fund reports',
+        icon: FileDown,
+        aiSummary: {
+          text: `${reportTemplates.length} report templates available. ${exportJobs.filter(j => j.status === 'completed').length} reports completed, ${exportJobs.filter(j => j.status === 'processing').length} currently processing.`,
+          confidence: 0.90,
+        },
+        secondaryActions: [
+          {
+            label: 'Report Settings',
+            onClick: () => {},
+          },
+        ],
+      }}
+    >
+      <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Report Templates */}
         <div className="lg:col-span-2 space-y-4">
           <h3 className="font-semibold">Report Templates</h3>
@@ -168,9 +146,7 @@ export function ReportExport() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Badge size="sm" className={getStatusColor(job.status)}>
-                          {job.status}
-                        </Badge>
+                        <StatusBadge status={job.status} domain="reports" size="sm" showIcon />
                         {job.status === 'completed' && job.downloadUrl && (
                           <Button size="sm" variant="flat" startContent={<Download className="w-3 h-3" />}>
                             Download
@@ -348,7 +324,6 @@ export function ReportExport() {
           </Card>
         </div>
       </div>
-      </div>
-    </PageContainer>
+    </PageScaffold>
   );
 }

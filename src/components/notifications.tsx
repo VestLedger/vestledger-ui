@@ -2,11 +2,11 @@
 
 import { useEffect } from 'react';
 import { Bell, AlertCircle, AlertTriangle, CheckCircle, Info } from 'lucide-react';
-import { PageContainer, PageHeader, Card, Badge, Breadcrumb, Select } from '@/ui';
+import { Badge, Select } from '@/ui';
 import type { PageHeaderBadge } from '@/ui';
+import { ListItemCard, PageScaffold } from '@/components/ui';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { alertsRequested, alertsSelectors, markAlertRead } from '@/store/slices/alertsSlice';
-import { getRouteConfig } from '@/config/routes';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
 import { useUIKey } from '@/store/ui';
 
@@ -44,8 +44,6 @@ export function Notifications() {
   useEffect(() => {
     dispatch(alertsRequested({}));
   }, [dispatch]);
-
-  const routeConfig = getRouteConfig('/notifications');
 
   const notifications = reduxNotifications.map((alert) => {
     const type =
@@ -130,23 +128,17 @@ export function Notifications() {
     : `${unreadCount} unread notifications. ${alertCount} alerts need review. ${dealCount} deal updates, ${reportCount} reports, and ${systemCount} system messages in the feed.`;
 
   return (
-    <PageContainer>
-      {routeConfig && (
-        <Breadcrumb
-          items={routeConfig.breadcrumbs}
-          aiSuggestion={routeConfig.aiSuggestion}
-        />
-      )}
-
-      <PageHeader
-        title="Notifications"
-        description="All alerts, reminders, and system updates in one place"
-        icon={Bell}
-        aiSummary={{
+    <PageScaffold
+      routePath="/notifications"
+      header={{
+        title: 'Notifications',
+        description: 'All alerts, reminders, and system updates in one place',
+        icon: Bell,
+        aiSummary: {
           text: aiSummaryText,
           confidence: 0.86,
-        }}
-        actionContent={(
+        },
+        actionContent: (
           <div className="flex items-center gap-2">
             <span className="text-sm text-[var(--app-text-muted)]">Filter</span>
             <Select
@@ -166,10 +158,10 @@ export function Notifications() {
               ]}
             />
           </div>
-        )}
-        badges={badges}
-      />
-
+        ),
+        badges,
+      }}
+    >
       <div className="space-y-3">
         {alertsStatus === 'loading' && (
           <LoadingState message="Loading notifications…" fullHeight={false} />
@@ -189,39 +181,32 @@ export function Notifications() {
           />
         )}
         {filteredNotifications.map((notification) => (
-          <Card
+          <ListItemCard
             key={notification.id}
-            padding="md"
-            className="flex items-start justify-between gap-3 border-[var(--app-border)]"
-          >
-            <div className="flex items-start gap-3">
-              <div className="mt-1">{getIcon(notification.type)}</div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-semibold">{notification.title}</h3>
-                  {!notification.read && (
-                    <Badge size="sm" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">
-                      New
-                    </Badge>
-                  )}
-                </div>
-                <p className="text-sm text-[var(--app-text-muted)] mt-1">{notification.message}</p>
-                <p className="text-xs text-[var(--app-text-subtle)] mt-1">
-                  {notification.timestamp.toLocaleString()}
-                </p>
-              </div>
-            </div>
-            {!notification.read && (
-              <button
-                onClick={() => dispatch(markAlertRead(notification.id))}
-                className="text-xs text-[var(--app-primary)] hover:underline"
-              >
-                Mark as read
-              </button>
-            )}
-          </Card>
+            icon={getIcon(notification.type)}
+            title={notification.title}
+            description={notification.message}
+            meta={notification.timestamp.toLocaleString()}
+            badges={
+              !notification.read ? (
+                <Badge size="sm" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">
+                  New
+                </Badge>
+              ) : null
+            }
+            actions={
+              !notification.read ? (
+                <button
+                  onClick={() => dispatch(markAlertRead(notification.id))}
+                  className="text-xs text-[var(--app-primary)] hover:underline"
+                >
+                  Mark as read
+                </button>
+              ) : null
+            }
+          />
         ))}
       </div>
-    </PageContainer>
+    </PageScaffold>
   );
 }

@@ -3,7 +3,8 @@
 
 import { TrendingUp, FileText, Search, Download } from 'lucide-react';
 import { Card, Button, Badge, PageContainer } from '@/ui';
-import { MetricCard } from '@/components/metric-card';
+import { MetricsGrid } from '@/components/ui';
+import type { MetricsGridItem } from '@/components/ui';
 import { researcherDashboardRequested, researcherDashboardSelectors } from '@/store/slices/dashboardsSlice';
 import { ErrorState, LoadingState } from '@/components/ui/async-states';
 import { useAsyncData } from '@/hooks/useAsyncData';
@@ -27,6 +28,11 @@ export function ResearcherDashboard() {
     );
   }
 
+  const metricItems: MetricsGridItem[] = metrics.map((metric) => ({
+    type: 'metric',
+    props: metric,
+  }));
+
   return (
     <PageContainer className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -44,11 +50,10 @@ export function ResearcherDashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {metrics.map((metric, index) => (
-          <MetricCard key={index} {...metric} />
-        ))}
-      </div>
+      <MetricsGrid
+        items={metricItems}
+        columns={{ base: 1, sm: 2, lg: 4 }}
+      />
 
       <div className="grid lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-2" padding="md">

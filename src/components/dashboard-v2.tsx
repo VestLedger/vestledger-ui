@@ -16,8 +16,9 @@ import { IRDashboard } from '@/components/dashboards/ir-dashboard';
 import { ResearcherDashboard } from '@/components/dashboards/researcher-dashboard';
 import { LPDashboard } from '@/components/dashboards/lp-dashboard';
 import { AuditorDashboard } from '@/components/dashboards/auditor-dashboard';
-import { MetricCard } from '@/components/metric-card';
-import { Card, Badge, PageContainer, Breadcrumb, PageHeader } from '@/ui';
+import { MetricsGrid, PageScaffold } from '@/components/ui';
+import type { MetricsGridItem } from '@/components/ui';
+import { Card, Badge } from '@/ui';
 import { FundSelector } from '@/components/fund-selector';
 import { getRouteConfig } from '@/config/routes';
 import { Fund } from '@/types/fund';
@@ -61,17 +62,17 @@ export function DashboardV2() {
   // Role-based view switching (non-GP roles get their own dashboards)
   switch (user?.role) {
     case 'analyst':
-      return <PageContainer padding="none"><AnalystDashboard /></PageContainer>;
+      return <AnalystDashboard />;
     case 'ops':
-      return <PageContainer padding="none"><OpsDashboard /></PageContainer>;
+      return <OpsDashboard />;
     case 'ir':
-      return <PageContainer padding="none"><IRDashboard /></PageContainer>;
+      return <IRDashboard />;
     case 'researcher':
-      return <PageContainer padding="none"><ResearcherDashboard /></PageContainer>;
+      return <ResearcherDashboard />;
     case 'lp':
-      return <PageContainer padding="none"><LPDashboard /></PageContainer>;
+      return <LPDashboard />;
     case 'auditor':
-      return <PageContainer padding="none"><AuditorDashboard /></PageContainer>;
+      return <AuditorDashboard />;
     case 'service_provider':
     case 'strategic_partner':
     default:
@@ -99,21 +100,18 @@ export function DashboardV2() {
     ];
 
     return (
-      <PageContainer>
-        {/* Breadcrumb and Page Header */}
-        <Breadcrumb
-          items={routeConfig?.breadcrumbs || [{ label: 'Dashboard' }]}
-          aiSuggestion={routeConfig?.aiSuggestion}
-        />
-        <PageHeader
-          title="Consolidated View"
-          description={`Overview across all ${summary.totalFunds} funds`}
-          icon={LayoutDashboard}
-          aiSummary={{
+      <PageScaffold
+        breadcrumbs={routeConfig?.breadcrumbs || [{ label: 'Dashboard' }]}
+        aiSuggestion={routeConfig?.aiSuggestion}
+        header={{
+          title: 'Consolidated View',
+          description: `Overview across all ${summary.totalFunds} funds`,
+          icon: LayoutDashboard,
+          aiSummary: {
             text: `Managing ${summary.totalFunds} funds with ${formatCurrency(summary.totalCommitment)} total AUM. Portfolio of ${summary.totalPortfolioCompanies} companies valued at ${formatCurrency(summary.totalPortfolioValue)}. Average fund IRR: ${(funds.reduce((sum, f) => sum + f.irr, 0) / funds.length).toFixed(1)}%`,
-            confidence: 0.94
-          }}
-          badges={[
+            confidence: 0.94,
+          },
+          badges: [
             {
               label: `${summary.totalFunds} funds`,
               size: 'md',
@@ -144,11 +142,12 @@ export function DashboardV2() {
               variant: 'bordered',
               className: 'text-[var(--app-text-muted)] border-[var(--app-border)]',
             },
-          ]}
-          tabs={consolidatedTabs}
-          activeTab={activeTab}
-          onTabChange={(tabId) => patchConsolidatedUI({ activeTab: tabId })}
-        />
+          ],
+          tabs: consolidatedTabs,
+          activeTab,
+          onTabChange: (tabId) => patchConsolidatedUI({ activeTab: tabId }),
+        }}
+      >
 
         {activeTab === 'overview' && (
           <div className="mt-4 space-y-6">
@@ -221,7 +220,7 @@ export function DashboardV2() {
         )}
 
         <div className="h-8" />
-      </PageContainer>
+      </PageScaffold>
     );
   }
 
@@ -261,37 +260,40 @@ export function DashboardV2() {
     },
   ];
 
+  const fundMetricItems: MetricsGridItem[] = fundMetrics.map((metric) => ({
+    type: 'metric',
+    props: metric,
+  }));
+
   return (
-    <PageContainer>
-      {/* Breadcrumb and Page Header */}
-      <Breadcrumb
-        items={routeConfig?.breadcrumbs || [{ label: 'Dashboard' }]}
-        aiSuggestion={routeConfig?.aiSuggestion}
-      />
-      <PageHeader
-        title={selectedFund.name}
-        description={selectedFund.description || 'Fund performance and metrics'}
-        icon={LayoutDashboard}
-        aiSummary={{
+    <PageScaffold
+      breadcrumbs={routeConfig?.breadcrumbs || [{ label: 'Dashboard' }]}
+      aiSuggestion={routeConfig?.aiSuggestion}
+      header={{
+        title: selectedFund.name,
+        description: selectedFund.description || 'Fund performance and metrics',
+        icon: LayoutDashboard,
+        aiSummary: {
           text: `${formatCurrency(selectedFund.totalCommitment)} fund with ${selectedFund.portfolioCount} portfolio companies. ${((selectedFund.deployedCapital / selectedFund.totalCommitment) * 100).toFixed(0)}% deployed. IRR: ${selectedFund.irr.toFixed(1)}%, TVPI: ${selectedFund.tvpi.toFixed(2)}x, DPI: ${selectedFund.dpi.toFixed(2)}x`,
-          confidence: 0.96
-        }}
-        actionContent={<FundSelector />}
-      >
-        {/* Fund Status and Vintage Badges */}
-        <div className="flex flex-wrap items-center gap-2 mt-4">
-          <Badge
-            size="md"
-            variant="bordered"
-            className={selectedFund.status === 'active' ? 'text-[var(--app-success)] border-[var(--app-success)]' : 'text-[var(--app-text-muted)] border-[var(--app-border)]'}
-          >
-            {selectedFund.status}
-          </Badge>
-          <Badge size="md" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">
-            Vintage {selectedFund.vintage}
-          </Badge>
-        </div>
-      </PageHeader>
+          confidence: 0.96,
+        },
+        actionContent: <FundSelector />,
+        children: (
+          <div className="flex flex-wrap items-center gap-2 mt-4">
+            <Badge
+              size="md"
+              variant="bordered"
+              className={selectedFund.status === 'active' ? 'text-[var(--app-success)] border-[var(--app-success)]' : 'text-[var(--app-text-muted)] border-[var(--app-border)]'}
+            >
+              {selectedFund.status}
+            </Badge>
+            <Badge size="md" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">
+              Vintage {selectedFund.vintage}
+            </Badge>
+          </div>
+        ),
+      }}
+    >
 
       {/* Fund Performance Summary Card */}
       <Card padding="md" className="bg-gradient-to-br from-[var(--app-primary-bg)] to-[var(--app-surface)] mb-6">
@@ -316,13 +318,13 @@ export function DashboardV2() {
       </Card>
 
       {/* Fund Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {fundMetrics.map((metric, index) => (
-          <MetricCard key={index} {...metric} />
-        ))}
-      </div>
+      <MetricsGrid
+        items={fundMetricItems}
+        columns={{ base: 1, sm: 2, lg: 4 }}
+        className="mb-6"
+      />
 
       <div className="h-8" />
-    </PageContainer>
+    </PageScaffold>
   );
 }

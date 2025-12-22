@@ -1,7 +1,6 @@
 'use client';
 
-import { PageContainer, PageHeader, Breadcrumb } from '@/ui';
-import { getRouteConfig } from '@/config/routes';
+import { PageScaffold } from '@/components/ui';
 import { DocumentManager, type AccessLevel } from './document-manager';
 import { DocumentPreviewModal, useDocumentPreview, getMockDocumentUrl, type PreviewDocument } from './preview';
 import { useAppDispatch } from '@/store/hooks';
@@ -17,7 +16,6 @@ import { useUIKey } from '@/store/ui';
 import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function Documents() {
-  const routeConfig = getRouteConfig('/documents');
   const dispatch = useAppDispatch();
   const { data } = useAsyncData(documentsRequested, documentsSelectors.selectState, { params: {} });
   const documents = data?.documents || [];
@@ -100,13 +98,13 @@ export function Documents() {
   };
 
   return (
-    <PageContainer>
-      <Breadcrumb items={routeConfig?.breadcrumbs || []} />
-      <PageHeader
-        title="Documents"
-        description="Manage and organize all your fund documents in one secure location"
-      />
-
+    <PageScaffold
+      routePath="/documents"
+      header={{
+        title: 'Documents',
+        description: 'Manage and organize all your fund documents in one secure location',
+      }}
+    >
       <DocumentManager
         documents={documents}
         folders={folders}
@@ -135,6 +133,6 @@ export function Documents() {
           onShare={handleShareDocument}
         />
       )}
-    </PageContainer>
+    </PageScaffold>
   );
 }

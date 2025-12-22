@@ -1,20 +1,18 @@
 'use client';
 
 import { useUIKey } from '@/store/ui';
-import { Card, Button, Badge, Input } from '@/ui';
+import { Card, Button, Badge } from '@/ui';
 import {
   Shield,
   CheckCircle,
-  XCircle,
   AlertCircle,
-  Clock,
   User,
   Building,
-  Search,
   Flag,
   Eye,
   Download,
 } from 'lucide-react';
+import { SearchToolbar, StatusBadge } from '@/components/ui';
 
 export type EntityType = 'individual' | 'corporation' | 'partnership' | 'trust' | 'llc' | 'other';
 export type RiskLevel = 'low' | 'medium' | 'high' | 'severe';
@@ -239,53 +237,6 @@ export function AMLKYCWorkflow({
     );
   };
 
-  const getStatusBadge = (status: WorkflowStatus) => {
-    switch (status) {
-      case 'not-started':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-text-muted)]/10 text-[var(--app-text-muted)]">
-            Not Started
-          </Badge>
-        );
-      case 'information-gathering':
-      case 'document-collection':
-      case 'verification-in-progress':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-warning-bg)] text-[var(--app-warning)]">
-            <Clock className="w-3 h-3 mr-1" />
-            In Progress
-          </Badge>
-        );
-      case 'review-required':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-info-bg)] text-[var(--app-info)]">
-            <AlertCircle className="w-3 h-3 mr-1" />
-            Review Required
-          </Badge>
-        );
-      case 'approved':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-success-bg)] text-[var(--app-success)]">
-            <CheckCircle className="w-3 h-3 mr-1" />
-            Approved
-          </Badge>
-        );
-      case 'rejected':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-danger-bg)] text-[var(--app-danger)]">
-            <XCircle className="w-3 h-3 mr-1" />
-            Rejected
-          </Badge>
-        );
-      case 'expired':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-text-muted)]/20 text-[var(--app-text-muted)]">
-            Expired
-          </Badge>
-        );
-    }
-  };
-
   const filteredWorkflows = workflows.filter(workflow => {
     const matchesSearch =
       workflow.entityName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -356,42 +307,41 @@ export function AMLKYCWorkflow({
 
       {/* Filters */}
       <Card padding="md">
-        <div className="flex flex-col sm:flex-row gap-2">
-          <Input
-            placeholder="Search by entity name or ID..."
-            value={searchQuery}
-            onChange={(e) => patchUI({ searchQuery: e.target.value })}
-            startContent={<Search className="w-4 h-4" />}
-            size="sm"
-            className="flex-1"
-          />
-          <select
-            className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-            value={filterStatus}
-            onChange={(e) => patchUI({ filterStatus: e.target.value as WorkflowStatus | 'all' })}
-          >
-            <option value="all">All Status</option>
-            <option value="not-started">Not Started</option>
-            <option value="information-gathering">Information Gathering</option>
-            <option value="document-collection">Document Collection</option>
-            <option value="verification-in-progress">Verification In Progress</option>
-            <option value="review-required">Review Required</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
-            <option value="expired">Expired</option>
-          </select>
-          <select
-            className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-            value={filterRisk}
-            onChange={(e) => patchUI({ filterRisk: e.target.value as RiskLevel | 'all' })}
-          >
-            <option value="all">All Risk Levels</option>
-            <option value="low">Low Risk</option>
-            <option value="medium">Medium Risk</option>
-            <option value="high">High Risk</option>
-            <option value="severe">Severe Risk</option>
-          </select>
-        </div>
+        <SearchToolbar
+          searchValue={searchQuery}
+          onSearchChange={(value) => patchUI({ searchQuery: value })}
+          searchPlaceholder="Search by entity name or ID..."
+          rightActions={(
+            <div className="flex flex-wrap items-center gap-2">
+              <select
+                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+                value={filterStatus}
+                onChange={(e) => patchUI({ filterStatus: e.target.value as WorkflowStatus | 'all' })}
+              >
+                <option value="all">All Status</option>
+                <option value="not-started">Not Started</option>
+                <option value="information-gathering">Information Gathering</option>
+                <option value="document-collection">Document Collection</option>
+                <option value="verification-in-progress">Verification In Progress</option>
+                <option value="review-required">Review Required</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+                <option value="expired">Expired</option>
+              </select>
+              <select
+                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+                value={filterRisk}
+                onChange={(e) => patchUI({ filterRisk: e.target.value as RiskLevel | 'all' })}
+              >
+                <option value="all">All Risk Levels</option>
+                <option value="low">Low Risk</option>
+                <option value="medium">Medium Risk</option>
+                <option value="high">High Risk</option>
+                <option value="severe">Severe Risk</option>
+              </select>
+            </div>
+          )}
+        />
       </Card>
 
       {/* Workflows List */}
@@ -428,7 +378,7 @@ export function AMLKYCWorkflow({
                           <Building className="w-4 h-4 text-[var(--app-text-muted)]" />
                         )}
                         <span className="font-medium">{workflow.entityName}</span>
-                        {getStatusBadge(workflow.status)}
+                        <StatusBadge status={workflow.status} domain="aml-kyc" size="sm" showIcon />
                         {getRiskBadge(workflow.riskLevel)}
                         {workflow.isPEP && (
                           <Badge size="sm" variant="flat" className="bg-[var(--app-warning-bg)] text-[var(--app-warning)]">

@@ -1,9 +1,10 @@
 'use client';
 
-import { Card, Button, Badge, Input } from '@/ui';
-import { FileText, Download, Settings, CheckCircle, AlertCircle, RefreshCw, Send, Eye } from 'lucide-react';
+import { Card, Button, Badge } from '@/ui';
+import { FileText, Download, Settings, RefreshCw, Send, Eye, CheckCircle, AlertCircle } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
 import { formatCurrency as formatCurrencyBase } from '@/utils/formatting';
+import { SearchToolbar, StatusBadge } from '@/components/ui';
 
 export type K1IncomeType =
   | 'ordinary-business-income'
@@ -235,43 +236,6 @@ export function K1Generator({
     return isNegative ? `(${formatted})` : formatted;
   };
 
-  const getStatusBadge = (status: K1Document['status']) => {
-    switch (status) {
-      case 'draft':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-text-muted)]/10 text-[var(--app-text-muted)]">
-            Draft
-          </Badge>
-        );
-      case 'review':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-warning-bg)] text-[var(--app-warning)]">
-            In Review
-          </Badge>
-        );
-      case 'approved':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-info-bg)] text-[var(--app-info)]">
-            Approved
-          </Badge>
-        );
-      case 'sent':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-success-bg)] text-[var(--app-success)]">
-            <CheckCircle className="w-3 h-3 mr-1" />
-            Sent
-          </Badge>
-        );
-      case 'amended':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-danger-bg)] text-[var(--app-danger)]">
-            <AlertCircle className="w-3 h-3 mr-1" />
-            Amended
-          </Badge>
-        );
-    }
-  };
-
   const activeConfig = configurations.find(
     c => (!fundId || c.fundId === fundId) && c.taxYear === selectedTaxYear && c.status === 'active'
   );
@@ -418,48 +382,47 @@ export function K1Generator({
 
       {/* Filters & Actions */}
       <Card padding="md">
-        <div className="flex flex-col sm:flex-row gap-2 items-center">
-          <Input
-            placeholder="Search by partner name or SSN..."
-            value={searchQuery}
-            onChange={(e) => patchUI({ searchQuery: e.target.value })}
-            startContent={<FileText className="w-4 h-4" />}
-            size="sm"
-            className="flex-1"
-          />
-          <select
-            className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-            value={filterStatus}
-            onChange={(e) => patchUI({ filterStatus: e.target.value as K1Document['status'] | 'all' })}
-          >
-            <option value="all">All Status</option>
-            <option value="draft">Draft</option>
-            <option value="review">In Review</option>
-            <option value="approved">Approved</option>
-            <option value="sent">Sent</option>
-            <option value="amended">Amended</option>
-          </select>
-          {onExportAll && activeConfig && (
-            <>
-              <Button
-                size="sm"
-                variant="flat"
-                startContent={<Download className="w-3 h-3" />}
-                onPress={() => onExportAll(activeConfig.fundId, selectedTaxYear, 'pdf')}
+        <SearchToolbar
+          searchValue={searchQuery}
+          onSearchChange={(value) => patchUI({ searchQuery: value })}
+          searchPlaceholder="Search by partner name or SSN..."
+          rightActions={(
+            <div className="flex flex-wrap items-center gap-2">
+              <select
+                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+                value={filterStatus}
+                onChange={(e) => patchUI({ filterStatus: e.target.value as K1Document['status'] | 'all' })}
               >
-                Export PDFs
-              </Button>
-              <Button
-                size="sm"
-                variant="flat"
-                startContent={<Download className="w-3 h-3" />}
-                onPress={() => onExportAll(activeConfig.fundId, selectedTaxYear, 'csv')}
-              >
-                Export CSV
-              </Button>
-            </>
+                <option value="all">All Status</option>
+                <option value="draft">Draft</option>
+                <option value="review">In Review</option>
+                <option value="approved">Approved</option>
+                <option value="sent">Sent</option>
+                <option value="amended">Amended</option>
+              </select>
+              {onExportAll && activeConfig && (
+                <>
+                  <Button
+                    size="sm"
+                    variant="flat"
+                    startContent={<Download className="w-3 h-3" />}
+                    onPress={() => onExportAll(activeConfig.fundId, selectedTaxYear, 'pdf')}
+                  >
+                    Export PDFs
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="flat"
+                    startContent={<Download className="w-3 h-3" />}
+                    onPress={() => onExportAll(activeConfig.fundId, selectedTaxYear, 'csv')}
+                  >
+                    Export CSV
+                  </Button>
+                </>
+              )}
+            </div>
           )}
-        </div>
+        />
       </Card>
 
       {/* K-1 Documents List */}
@@ -485,7 +448,7 @@ export function K1Generator({
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-medium">{doc.partnerName}</span>
-                        {getStatusBadge(doc.status)}
+                        <StatusBadge status={doc.status} domain="tax" size="sm" showIcon />
                         {doc.isGeneralPartner && (
                           <Badge size="sm" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">
                             GP

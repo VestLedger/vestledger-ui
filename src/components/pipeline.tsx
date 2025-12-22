@@ -3,9 +3,8 @@
 import { useEffect } from 'react';
 import { Filter, Grid, List, GitBranch } from 'lucide-react';
 import { DealCard } from '@/components/deal-card';
-import { Button, Card, Badge, Progress, Breadcrumb, PageHeader, PageContainer } from '@/ui';
+import { Button, Card, Badge, Progress } from '@/ui';
 import { ButtonGroup, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@nextui-org/react';
-import { getRouteConfig } from '@/config/routes';
 import { KanbanBoard } from '@/components/kanban-board';
 import { useAppDispatch } from '@/store/hooks';
 import { setSuggestionsOverride } from '@/store/slices/copilotSlice';
@@ -14,6 +13,7 @@ import { useUIKey } from '@/store/ui';
 import { ErrorState, LoadingState } from '@/components/ui/async-states';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { dealOutcomeClasses } from '@/utils/styling';
+import { PageScaffold } from '@/components/ui';
 
 export function Pipeline() {
   const dispatch = useAppDispatch();
@@ -37,9 +37,6 @@ export function Pipeline() {
     dispatch(dealStageUpdated({ dealId: itemId, newStage }));
   };
 
-  // Get route config for breadcrumbs and AI suggestions
-  const routeConfig = getRouteConfig('/pipeline');
-
   // Calculate AI insights
   const highProbabilityDeals = filteredDeals.filter(d => d.probability >= 70 && d.outcome === 'active');
   const stalledDeals = filteredDeals.filter(d => {
@@ -59,42 +56,34 @@ export function Pipeline() {
   }, [dispatch, data?.copilotSuggestions]);
 
   return (
-    <PageContainer>
-      {/* Breadcrumb Navigation */}
-      {routeConfig && (
-        <div className="mb-4">
-          <Breadcrumb
-            items={routeConfig.breadcrumbs}
-            aiSuggestion={routeConfig.aiSuggestion}
-          />
-        </div>
-      )}
-
-      {/* Page Header with AI Summary */}
-      <PageHeader
-        title="Deal Pipeline"
-        description="Track and manage your investment opportunities"
-        icon={GitBranch}
-        aiSummary={{
+    <PageScaffold
+      routePath="/pipeline"
+      header={{
+        title: 'Deal Pipeline',
+        description: 'Track and manage your investment opportunities',
+        icon: GitBranch,
+        aiSummary: {
           text: `${highProbabilityDeals.length} high-probability deals (≥70%) detected. ${stalledDeals.length} deals need follow-up (inactive >1 week). Total pipeline value: $${(filteredDeals.reduce((sum, d) => sum + parseFloat(d.amount.replace(/[$M]/g, '')), 0)).toFixed(1)}M.`,
-          confidence: 0.92
-        }}
-        primaryAction={{
+          confidence: 0.92,
+        },
+        primaryAction: {
           label: 'Add Deal',
           onClick: () => console.log('Add deal clicked'),
           aiSuggested: true,
-          confidence: 0.78
-        }}
-      >
-        <div className="flex flex-wrap items-center gap-3 mt-4">
-          <Badge size="md" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">
-            {activeDealsCount}  Active Deals
-          </Badge>
-          <Badge size="md" variant="bordered" className="text-[var(--app-text-muted)] border-[var(--app-border)]">
-            {closedDealsCount} Closed Deals
-          </Badge>
-        </div>
-      </PageHeader>
+          confidence: 0.78,
+        },
+        children: (
+          <div className="flex flex-wrap items-center gap-3 mt-4">
+            <Badge size="md" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">
+              {activeDealsCount} Active Deals
+            </Badge>
+            <Badge size="md" variant="bordered" className="text-[var(--app-text-muted)] border-[var(--app-border)]">
+              {closedDealsCount} Closed Deals
+            </Badge>
+          </div>
+        ),
+      }}
+    >
 
       {isLoading && <LoadingState message="Loading pipeline…" fullHeight={false} />}
       {error && (
@@ -199,6 +188,6 @@ export function Pipeline() {
           </Table>
         </Card>
       )}
-    </PageContainer>
+    </PageScaffold>
   );
 }

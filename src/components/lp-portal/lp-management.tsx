@@ -1,9 +1,8 @@
 'use client'
 
 import { useUIKey } from '@/store/ui';
-import { Card, Button, Badge, Progress, PageContainer, Breadcrumb, PageHeader } from '@/ui';
+import { Card, Button, Badge, Progress } from '@/ui';
 import { TrendingUp, DollarSign, Download, Eye, Send, FileText, BarChart3, Users, ArrowUpRight, ArrowDownRight, UserCheck, Mail } from 'lucide-react';
-import { getRouteConfig } from '@/config/routes';
 import { LPInvestorPortal } from './lp-investor-portal';
 import { AdvancedTable, ColumnDef } from '@/components/data-table/advanced-table';
 import { BulkActionsToolbar, useBulkSelection, BulkAction } from '@/components/bulk-actions-toolbar';
@@ -15,6 +14,7 @@ import {
   getLPs,
 } from '@/services/lpPortal/lpManagementService';
 import { formatCurrency, formatPercent } from '@/utils/formatting';
+import { PageScaffold, SearchToolbar, StatusBadge } from '@/components/ui';
 
 export function LPManagement() {
   const { value: ui, patch: patchUI } = useUIKey<{
@@ -39,22 +39,6 @@ export function LPManagement() {
     clearSelection,
     isSelected,
   } = useBulkSelection(lps, 'lp-management:lps');
-
-  // Get route config for breadcrumbs and AI suggestions
-  const routeConfig = getRouteConfig('/lp-management');
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'published': case 'paid':
-        return 'bg-[var(--app-success-bg)] text-[var(--app-success)]';
-      case 'pending': case 'draft':
-        return 'bg-[var(--app-warning-bg)] text-[var(--app-warning)]';
-      case 'overdue':
-        return 'bg-[var(--app-danger-bg)] text-[var(--app-danger)]';
-      default:
-        return 'bg-[var(--app-surface-hover)] text-[var(--app-text-muted)]';
-    }
-  };
 
   // Calculate LP metrics for AI summary
   const totalLPs = lps.length;
@@ -174,40 +158,48 @@ export function LPManagement() {
     },
   ];
 
-  return (
-    <PageContainer>
-      {/* Breadcrumb Navigation */}
-      {routeConfig && (
-        <div className="mb-4">
-          <Breadcrumb
-            items={routeConfig.breadcrumbs}
-            aiSuggestion={routeConfig.aiSuggestion}
-          />
-        </div>
-      )}
+  const lpTableStateKey = 'lp-management:overview';
+  const lpTableVisibleColumns = lpColumns.filter((col) => !col.hidden).map((col) => col.key);
+  const { value: lpTableUI, patch: patchLPTableUI } = useUIKey<{
+    searchQuery: string;
+    sortKey: string | null;
+    sortDirection: 'asc' | 'desc' | null;
+    currentPage: number;
+    pageSize: number;
+    visibleColumns: string[];
+  }>(`advanced-table:${lpTableStateKey}`, {
+    searchQuery: '',
+    sortKey: null,
+    sortDirection: null,
+    currentPage: 1,
+    pageSize: 10,
+    visibleColumns: lpTableVisibleColumns,
+  });
 
-      {/* Page Header with AI Summary and Tabs */}
-      <PageHeader
-        title="LP Management"
-        description="Manage Limited Partners, generate reports, and track capital activities"
-        icon={UserCheck}
-        aiSummary={{
+  return (
+    <PageScaffold
+      routePath="/lp-management"
+      header={{
+        title: 'LP Management',
+        description: 'Manage Limited Partners, generate reports, and track capital activities',
+        icon: UserCheck,
+        aiSummary: {
           text: `${totalLPs} Limited Partners with ${formatCurrency(totalCommitments)} in commitments. Average IRR: ${averageIRR}%. ${pendingCapitalCalls} pending capital call(s), ${publishedReports} published report(s).`,
-          confidence: 0.88
-        }}
-        primaryAction={{
+          confidence: 0.88,
+        },
+        primaryAction: {
           label: 'Generate Report',
           onClick: () => console.log('Generate report clicked'),
           aiSuggested: true,
-          confidence: 0.82
-        }}
-        secondaryActions={[
+          confidence: 0.82,
+        },
+        secondaryActions: [
           {
             label: 'Send Update',
-            onClick: () => console.log('Send update clicked')
-          }
-        ]}
-        tabs={[
+            onClick: () => console.log('Send update clicked'),
+          },
+        ],
+        tabs: [
           {
             id: 'overview',
             label: 'LP Overview',
@@ -222,16 +214,17 @@ export function LPManagement() {
             id: 'capital',
             label: 'Capital Activity',
             count: pendingCapitalCalls,
-            priority: pendingCapitalCalls > 0 ? 'high' : undefined
+            priority: pendingCapitalCalls > 0 ? 'high' : undefined,
           },
           {
             id: 'performance',
             label: 'Performance',
-          }
-        ]}
-        activeTab={selectedTab}
-        onTabChange={(tabId) => patchUI({ selectedTab: tabId })}
-      />
+          },
+        ],
+        activeTab: selectedTab,
+        onTabChange: (tabId) => patchUI({ selectedTab: tabId }),
+      }}
+    >
 
       {/* Fund Overview Stats */}
       <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -306,6 +299,12 @@ export function LPManagement() {
         {/* LP Overview Tab - with AdvancedTable and Bulk Actions */}
         {selectedTab === 'overview' && (
           <div className="space-y-4">
+            <SearchToolbar
+              searchValue={lpTableUI.searchQuery}
+              onSearchChange={(value) => patchLPTableUI({ searchQuery: value, currentPage: 1 })}
+              searchPlaceholder="Search LPs by name, contact, or email..."
+            />
+
             <BulkActionsToolbar
               selectedCount={selectedCount}
               totalCount={lps.length}
@@ -315,11 +314,10 @@ export function LPManagement() {
             />
 
             <AdvancedTable
-              stateKey="lp-management:overview"
+              stateKey={lpTableStateKey}
               data={lps}
               columns={lpColumns}
-              searchable={true}
-              searchPlaceholder="Search LPs by name, contact, or email..."
+              searchable={false}
               searchKeys={['name', 'contactPerson', 'email', 'type']}
               exportable={true}
               exportFilename="lp-management-data.csv"
@@ -339,9 +337,7 @@ export function LPManagement() {
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <FileText className="w-5 h-5 text-[var(--app-primary)]" />
-                      <Badge size="sm" className={getStatusColor(report.status)}>
-                        {report.status}
-                      </Badge>
+                      <StatusBadge status={report.status} domain="fund-admin" size="sm" />
                     </div>
                     {report.status === 'published' && (
                       <span className="text-xs text-[var(--app-text-subtle)] flex items-center gap-1">
@@ -400,9 +396,7 @@ export function LPManagement() {
                           Due: {new Date(call.dueDate).toLocaleDateString()}
                         </p>
                       </div>
-                      <Badge size="sm" className={getStatusColor(call.status)}>
-                        {call.status}
-                      </Badge>
+                      <StatusBadge status={call.status} domain="fund-admin" size="sm" />
                     </div>
                     <p className="text-2xl font-bold mb-2">{formatCurrency(call.amount)}</p>
                     <p className="text-sm text-[var(--app-text-muted)]">{call.purpose}</p>
@@ -427,9 +421,7 @@ export function LPManagement() {
                           {new Date(dist.paymentDate).toLocaleDateString()}
                         </p>
                       </div>
-                      <Badge size="sm" className={getStatusColor(dist.status)}>
-                        {dist.status}
-                      </Badge>
+                      <StatusBadge status={dist.status} domain="fund-admin" size="sm" />
                     </div>
                     <p className="text-2xl font-bold mb-2 text-[var(--app-success)]">
                       {formatCurrency(dist.amount)}
@@ -504,6 +496,6 @@ export function LPManagement() {
           </div>
         )}
       </div>
-    </PageContainer>
+    </PageScaffold>
   );
 }

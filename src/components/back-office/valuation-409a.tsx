@@ -1,13 +1,14 @@
 'use client'
 
-import { Card, Button, Badge, PageContainer, Breadcrumb, PageHeader } from '@/ui';
+import { Card, Button, Badge } from '@/ui';
 import { getRouteConfig } from '@/config/routes';
 import { Download, Calendar, DollarSign, AlertCircle, CheckCircle, Clock, Building2, ChevronRight, Calculator } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
 import { valuation409aRequested, valuation409aSelectors } from '@/store/slices/backOfficeSlice';
 import { ErrorState, LoadingState } from '@/components/ui/async-states';
 import { formatCurrency } from '@/utils/formatting';
-import { StatsCard } from '@/components/ui';
+import { MetricsGrid, PageScaffold, StatusBadge } from '@/components/ui';
+import type { MetricsGridItem } from '@/components/ui';
 import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function Valuation409A() {
@@ -31,32 +32,6 @@ export function Valuation409A() {
   const strikePrices = data?.strikePrices || [];
   const history = data?.history || [];
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'current':
-        return 'bg-[var(--app-success-bg)] text-[var(--app-success)]';
-      case 'expiring-soon':
-        return 'bg-[var(--app-warning-bg)] text-[var(--app-warning)]';
-      case 'expired':
-        return 'bg-[var(--app-danger-bg)] text-[var(--app-danger)]';
-      default:
-        return 'bg-[var(--app-surface)]';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'current':
-        return <CheckCircle className="w-4 h-4" />;
-      case 'expiring-soon':
-        return <Clock className="w-4 h-4" />;
-      case 'expired':
-        return <AlertCircle className="w-4 h-4" />;
-      default:
-        return null;
-    }
-  };
-
   const getDaysUntilExpiration = (expirationDate: string) => {
     const today = new Date();
     const expiry = new Date(expirationDate);
@@ -65,88 +40,96 @@ export function Valuation409A() {
     return diffDays;
   };
 
+  const summaryCards: MetricsGridItem[] = [
+    {
+      type: 'stats',
+      props: {
+        title: 'Active Valuations',
+        value: valuations.filter(v => v.status === 'current').length,
+        icon: CheckCircle,
+        variant: 'success',
+      },
+    },
+    {
+      type: 'stats',
+      props: {
+        title: 'Expiring Soon',
+        value: valuations.filter(v => v.status === 'expiring-soon').length,
+        icon: Clock,
+        variant: 'warning',
+      },
+    },
+    {
+      type: 'stats',
+      props: {
+        title: 'Portfolio Companies',
+        value: valuations.length,
+        icon: Building2,
+        variant: 'primary',
+      },
+    },
+    {
+      type: 'stats',
+      props: {
+        title: 'Avg. FMV',
+        value: formatCurrency(
+          valuations.reduce((acc, v) => acc + v.fairMarketValue, 0) / valuations.length
+        ),
+        icon: DollarSign,
+        variant: 'primary',
+      },
+    },
+  ];
+
   return (
-    <PageContainer>
-      <div className="space-y-6">
-        {/* Breadcrumb Navigation */}
-        {routeConfig && (
-          <Breadcrumb
-            items={routeConfig.breadcrumbs}
-            aiSuggestion={routeConfig.aiSuggestion}
-          />
-        )}
+    <PageScaffold
+      breadcrumbs={routeConfig?.breadcrumbs}
+      aiSuggestion={routeConfig?.aiSuggestion}
+      containerProps={{ className: 'space-y-6' }}
+      header={{
+        title: '409A Valuations',
+        description: 'Manage IRS-compliant fair market value determinations for stock options',
+        icon: Calculator,
+        aiSummary: {
+          text: `${valuations.length} portfolio companies tracked. ${valuations.filter(v => v.status === 'current').length} current valuations, ${valuations.filter(v => v.status === 'expiring-soon').length} expiring soon. ${strikePrices.filter(sp => sp.status === 'active').length} active option grants.`,
+          confidence: 0.92,
+        },
+        primaryAction: {
+          label: 'Request New Valuation',
+          onClick: () => {
+            // Handle new valuation request
+          },
+        },
+        tabs: [
+          {
+            id: 'valuations',
+            label: 'Valuations',
+            count: valuations.length,
+          },
+          {
+            id: 'strike-prices',
+            label: 'Strike Prices',
+            count: strikePrices.length,
+          },
+          {
+            id: 'history',
+            label: 'Valuation History',
+            count: history.length,
+          },
+        ],
+        activeTab: selectedTab,
+        onTabChange: (tabId) => patchUI({ selectedTab: tabId }),
+      }}
+    >
 
-        {/* Page Header with Tabs */}
-        <PageHeader
-          title="409A Valuations"
-          description="Manage IRS-compliant fair market value determinations for stock options"
-          icon={Calculator}
-          aiSummary={{
-            text: `${valuations.length} portfolio companies tracked. ${valuations.filter(v => v.status === 'current').length} current valuations, ${valuations.filter(v => v.status === 'expiring-soon').length} expiring soon. ${strikePrices.filter(sp => sp.status === 'active').length} active option grants.`,
-            confidence: 0.92
-          }}
-          primaryAction={{
-            label: 'Request New Valuation',
-            onClick: () => {
-              // Handle new valuation request
-            },
-          }}
-          tabs={[
-            {
-              id: 'valuations',
-              label: 'Valuations',
-              count: valuations.length,
-            },
-            {
-              id: 'strike-prices',
-              label: 'Strike Prices',
-              count: strikePrices.length,
-            },
-            {
-              id: 'history',
-              label: 'Valuation History',
-              count: history.length,
-            },
-          ]}
-          activeTab={selectedTab}
-          onTabChange={(tabId) => patchUI({ selectedTab: tabId })}
-        />
-
-        {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <StatsCard
-          title="Active Valuations"
-          value={valuations.filter(v => v.status === 'current').length}
-          icon={CheckCircle}
-          variant="success"
-        />
-
-        <StatsCard
-          title="Expiring Soon"
-          value={valuations.filter(v => v.status === 'expiring-soon').length}
-          icon={Clock}
-          variant="warning"
-        />
-
-        <StatsCard
-          title="Portfolio Companies"
-          value={valuations.length}
-          icon={Building2}
-          variant="primary"
-        />
-
-        <StatsCard
-          title="Avg. FMV"
-          value={formatCurrency(
-            valuations.reduce((acc, v) => acc + v.fairMarketValue, 0) / valuations.length
-          )}
-          icon={DollarSign}
-          variant="primary"
-        />
-      </div>
+      {/* Summary Cards */}
+      <MetricsGrid
+        items={summaryCards}
+        columns={{ base: 1, md: 2, lg: 4 }}
+      />
 
       {/* Tab Content */}
-        {selectedTab === 'valuations' && (
+      {selectedTab === 'valuations' && (
           <div className="space-y-3">
             {valuations.map((valuation) => {
               const daysUntilExpiry = getDaysUntilExpiration(valuation.expirationDate);
@@ -160,12 +143,7 @@ export function Valuation409A() {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <h3 className="font-semibold text-lg">{valuation.company}</h3>
-                          <Badge size="sm" className={getStatusColor(valuation.status)}>
-                            <div className="flex items-center gap-1">
-                              {getStatusIcon(valuation.status)}
-                              <span className="capitalize">{valuation.status.replace('-', ' ')}</span>
-                            </div>
-                          </Badge>
+                          <StatusBadge status={valuation.status} domain="general" size="sm" showIcon />
                         </div>
 
                         <div className="grid grid-cols-4 gap-4 mb-3">
@@ -323,7 +301,6 @@ export function Valuation409A() {
           </div>
         </div>
       </Card>
-      </div>
-    </PageContainer>
+    </PageScaffold>
   );
 }

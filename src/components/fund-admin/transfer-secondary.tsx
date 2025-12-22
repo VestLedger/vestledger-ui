@@ -1,9 +1,10 @@
 'use client';
 
 import { useUIKey } from '@/store/ui';
-import { Card, Button, Badge, Input } from '@/ui';
-import { ArrowRightLeft, Users, FileText, CheckCircle, XCircle, Clock, AlertCircle, Search } from 'lucide-react';
+import { Card, Button, Badge } from '@/ui';
+import { ArrowRightLeft, Users, FileText, AlertCircle } from 'lucide-react';
 import { formatCurrency, formatPercent } from '@/utils/formatting';
+import { SearchToolbar, StatusBadge } from '@/components/ui';
 
 export type TransferType = 'direct' | 'secondary-sale' | 'inheritance' | 'gift' | 'court-order';
 export type TransferStatus =
@@ -130,52 +131,6 @@ export function TransferSecondary({
   });
   const { searchQuery, filterStatus, filterType } = ui;
 
-  const getStatusBadge = (status: TransferStatus) => {
-    switch (status) {
-      case 'draft':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-text-muted)]/10 text-[var(--app-text-muted)]">
-            Draft
-          </Badge>
-        );
-      case 'pending-gp-approval':
-      case 'pending-legal-review':
-      case 'pending-buyer-funding':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-warning-bg)] text-[var(--app-warning)]">
-            <Clock className="w-3 h-3 mr-1" />
-            {status.replace('pending-', '').replace(/-/g, ' ')}
-          </Badge>
-        );
-      case 'approved':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-info-bg)] text-[var(--app-info)]">
-            Approved
-          </Badge>
-        );
-      case 'rejected':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-danger-bg)] text-[var(--app-danger)]">
-            <XCircle className="w-3 h-3 mr-1" />
-            Rejected
-          </Badge>
-        );
-      case 'completed':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-success-bg)] text-[var(--app-success)]">
-            <CheckCircle className="w-3 h-3 mr-1" />
-            Completed
-          </Badge>
-        );
-      case 'cancelled':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-text-muted)]/20 text-[var(--app-text-muted)]">
-            Cancelled
-          </Badge>
-        );
-    }
-  };
-
   const getTypeBadge = (type: TransferType) => {
     const colors = {
       'direct': 'bg-[var(--app-primary-bg)] text-[var(--app-primary)]',
@@ -286,43 +241,42 @@ export function TransferSecondary({
 
       {/* Filters */}
       <Card padding="md">
-        <div className="flex flex-col sm:flex-row gap-2">
-          <Input
-            placeholder="Search transfers..."
-            value={searchQuery}
-            onChange={(e) => patchUI({ searchQuery: e.target.value })}
-            startContent={<Search className="w-4 h-4" />}
-            size="sm"
-            className="flex-1"
-          />
-          <select
-            className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-            value={filterStatus}
-            onChange={(e) => patchUI({ filterStatus: e.target.value as TransferStatus | 'all' })}
-          >
-            <option value="all">All Status</option>
-            <option value="draft">Draft</option>
-            <option value="pending-gp-approval">Pending GP Approval</option>
-            <option value="pending-legal-review">Pending Legal Review</option>
-            <option value="pending-buyer-funding">Pending Funding</option>
-            <option value="approved">Approved</option>
-            <option value="completed">Completed</option>
-            <option value="rejected">Rejected</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
-          <select
-            className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-            value={filterType}
-            onChange={(e) => patchUI({ filterType: e.target.value as TransferType | 'all' })}
-          >
-            <option value="all">All Types</option>
-            <option value="direct">Direct Transfer</option>
-            <option value="secondary-sale">Secondary Sale</option>
-            <option value="inheritance">Inheritance</option>
-            <option value="gift">Gift</option>
-            <option value="court-order">Court Order</option>
-          </select>
-        </div>
+        <SearchToolbar
+          searchValue={searchQuery}
+          onSearchChange={(value) => patchUI({ searchQuery: value })}
+          searchPlaceholder="Search transfers..."
+          rightActions={(
+            <div className="flex flex-wrap items-center gap-2">
+              <select
+                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+                value={filterStatus}
+                onChange={(e) => patchUI({ filterStatus: e.target.value as TransferStatus | 'all' })}
+              >
+                <option value="all">All Status</option>
+                <option value="draft">Draft</option>
+                <option value="pending-gp-approval">Pending GP Approval</option>
+                <option value="pending-legal-review">Pending Legal Review</option>
+                <option value="pending-buyer-funding">Pending Funding</option>
+                <option value="approved">Approved</option>
+                <option value="completed">Completed</option>
+                <option value="rejected">Rejected</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+              <select
+                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+                value={filterType}
+                onChange={(e) => patchUI({ filterType: e.target.value as TransferType | 'all' })}
+              >
+                <option value="all">All Types</option>
+                <option value="direct">Direct Transfer</option>
+                <option value="secondary-sale">Secondary Sale</option>
+                <option value="inheritance">Inheritance</option>
+                <option value="gift">Gift</option>
+                <option value="court-order">Court Order</option>
+              </select>
+            </div>
+          )}
+        />
       </Card>
 
       {/* Transfers List */}
@@ -351,7 +305,7 @@ export function TransferSecondary({
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-mono text-sm font-medium">{transfer.transferNumber}</span>
-                        {getStatusBadge(transfer.status)}
+                        <StatusBadge status={transfer.status} domain="fund-admin" size="sm" showIcon />
                         {getTypeBadge(transfer.type)}
                         {transfer.subjectToROFR && rofrPending.length > 0 && (
                           <Badge size="sm" variant="flat" className="bg-[var(--app-warning-bg)] text-[var(--app-warning)]">

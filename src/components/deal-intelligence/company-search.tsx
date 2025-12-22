@@ -1,8 +1,7 @@
 'use client';
 
-import { Card, Button, Badge, Input } from '@/ui';
+import { Card, Button, Badge } from '@/ui';
 import {
-  Search,
   Sparkles,
   Building2,
   MapPin,
@@ -17,9 +16,10 @@ import { companySearchRequested, companySearchSelectors } from '@/store/slices/m
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
 import { formatCurrencyCompact } from '@/utils/formatting';
 import { useAsyncData } from '@/hooks/useAsyncData';
+import { SearchToolbar } from '@/components/ui';
 
 export function CompanySearch() {
-  const { data, isLoading, error, refetch } = useAsyncData(companySearchRequested, companySearchSelectors.selectState);
+  const { data, isLoading, error, refetch, status } = useAsyncData(companySearchRequested, companySearchSelectors.selectState);
 
   // UI state MUST be called before any early returns (Rules of Hooks)
   const { value: ui, patch: patchUI } = useUIKey('company-search', {
@@ -87,46 +87,42 @@ export function CompanySearch() {
 
       {/* Search and Filters */}
       <Card padding="md">
-        <div className="flex flex-col lg:flex-row gap-4">
-          <div className="flex-1">
-            <Input
-              placeholder="Search companies, industries, or keywords..."
-              value={searchQuery}
-              onChange={(e) => patchUI({ searchQuery: e.target.value })}
-              startContent={<Search className="w-4 h-4 text-[var(--app-text-muted)]" />}
-              className="w-full"
-            />
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <select
-              value={selectedIndustry}
-              onChange={(e) => patchUI({ selectedIndustry: e.target.value })}
-              className="px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-sm"
-            >
-              {industries.map((ind) => (
-                <option key={ind} value={ind}>{ind}</option>
-              ))}
-            </select>
-            <select
-              value={selectedStage}
-              onChange={(e) => patchUI({ selectedStage: e.target.value })}
-              className="px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-sm"
-            >
-              {stages.map((stage) => (
-                <option key={stage} value={stage}>{stage}</option>
-              ))}
-            </select>
-            <Button
-              variant={showAIOnly ? 'solid' : 'bordered'}
-              color={showAIOnly ? 'primary' : 'default'}
-              size="sm"
-              startContent={<Sparkles className="w-4 h-4" />}
-              onPress={() => patchUI({ showAIOnly: !showAIOnly })}
-            >
-              AI Recommended
-            </Button>
-          </div>
-        </div>
+        <SearchToolbar
+          searchValue={searchQuery}
+          onSearchChange={(value) => patchUI({ searchQuery: value })}
+          searchPlaceholder="Search companies, industries, or keywords..."
+          rightActions={(
+            <div className="flex flex-wrap gap-2">
+              <select
+                value={selectedIndustry}
+                onChange={(e) => patchUI({ selectedIndustry: e.target.value })}
+                className="px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-sm"
+              >
+                {industries.map((ind) => (
+                  <option key={ind} value={ind}>{ind}</option>
+                ))}
+              </select>
+              <select
+                value={selectedStage}
+                onChange={(e) => patchUI({ selectedStage: e.target.value })}
+                className="px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-sm"
+              >
+                {stages.map((stage) => (
+                  <option key={stage} value={stage}>{stage}</option>
+                ))}
+              </select>
+              <Button
+                variant={showAIOnly ? 'solid' : 'bordered'}
+                color={showAIOnly ? 'primary' : 'default'}
+                size="sm"
+                startContent={<Sparkles className="w-4 h-4" />}
+                onPress={() => patchUI({ showAIOnly: !showAIOnly })}
+              >
+                AI Recommended
+              </Button>
+            </div>
+          )}
+        />
       </Card>
 
       {/* Company Cards */}

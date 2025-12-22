@@ -1,8 +1,9 @@
 'use client';
 
-import { Card, Button, Badge, Input } from '@/ui';
-import { Mail, RefreshCw, Check, X, AlertCircle, Calendar, Paperclip, ExternalLink, Search, ChevronDown, ChevronUp, Users, Briefcase } from 'lucide-react';
+import { Card, Button, Badge } from '@/ui';
+import { Mail, RefreshCw, X, AlertCircle, Calendar, Paperclip, ExternalLink, ChevronDown, ChevronUp, Users, Briefcase } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
+import { SearchToolbar, StatusBadge } from '@/components/ui';
 
 export interface EmailAccount {
   id: string;
@@ -74,39 +75,6 @@ export function EmailIntegration({
     }
   };
 
-  const getStatusBadge = (status: EmailAccount['status']) => {
-    switch (status) {
-      case 'connected':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-success-bg)] text-[var(--app-success)]">
-            <Check className="w-3 h-3 mr-1" />
-            Connected
-          </Badge>
-        );
-      case 'syncing':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-info-bg)] text-[var(--app-info)]">
-            <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
-            Syncing...
-          </Badge>
-        );
-      case 'error':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-danger-bg)] text-[var(--app-danger)]">
-            <AlertCircle className="w-3 h-3 mr-1" />
-            Error
-          </Badge>
-        );
-      case 'disconnected':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-text-muted)]/10 text-[var(--app-text-muted)]">
-            <X className="w-3 h-3 mr-1" />
-            Disconnected
-          </Badge>
-        );
-    }
-  };
-
   return (
     <Card padding="md">
       <div className="space-y-4">
@@ -155,7 +123,7 @@ export function EmailIntegration({
                           </p>
                         </div>
                       </div>
-                      {getStatusBadge(account.status)}
+                      <StatusBadge status={account.status} domain="crm" size="sm" showIcon />
                     </div>
 
                     {/* Sync Info */}
@@ -301,28 +269,25 @@ export function EmailThreadViewer({
         </div>
 
         {/* Search & Filter */}
-        <div className="flex gap-2">
-          <Input
-            placeholder="Search emails..."
-            value={searchQuery}
-            onChange={(e) => patchUI({ searchQuery: e.target.value })}
-            startContent={<Search className="w-4 h-4" />}
-            size="sm"
-            className="flex-1"
-          />
-          <select
-            className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-            value={filterLabel}
-            onChange={(e) => patchUI({ filterLabel: e.target.value })}
-          >
-            <option value="all">All Labels</option>
-            {allLabels.map((label) => (
-              <option key={label} value={label}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </div>
+        <SearchToolbar
+          searchValue={searchQuery}
+          onSearchChange={(value) => patchUI({ searchQuery: value })}
+          searchPlaceholder="Search emails..."
+          rightActions={(
+            <select
+              className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+              value={filterLabel}
+              onChange={(e) => patchUI({ filterLabel: e.target.value })}
+            >
+              <option value="all">All Labels</option>
+              {allLabels.map((label) => (
+                <option key={label} value={label}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          )}
+        />
 
         {/* Thread List */}
         <div className="space-y-2 max-h-[500px] overflow-y-auto">

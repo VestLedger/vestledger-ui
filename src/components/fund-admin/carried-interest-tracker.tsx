@@ -4,6 +4,7 @@ import { Card, Button, Badge } from '@/ui';
 import { TrendingUp, Calendar, ChevronRight, ChevronDown, Download, RefreshCw } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
 import { formatCurrency, formatPercent } from '@/utils/formatting';
+import { StatusBadge } from '@/components/ui';
 
 export interface CarriedInterestTerm {
   id: string;
@@ -102,35 +103,6 @@ export function CarriedInterestTracker({
     filteredAccruals.find((accrual) => accrual.id === selectedAccrualId) ??
     filteredAccruals[0] ??
     null;
-
-  const getStatusBadge = (status: CarryAccrual['status']) => {
-    switch (status) {
-      case 'draft':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-text-muted)]/10 text-[var(--app-text-muted)]">
-            Draft
-          </Badge>
-        );
-      case 'calculated':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-info-bg)] text-[var(--app-info)]">
-            Calculated
-          </Badge>
-        );
-      case 'approved':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-warning-bg)] text-[var(--app-warning)]">
-            Approved
-          </Badge>
-        );
-      case 'distributed':
-        return (
-          <Badge size="sm" variant="flat" className="bg-[var(--app-success-bg)] text-[var(--app-success)]">
-            Distributed
-          </Badge>
-        );
-    }
-  };
 
   const activeTerm = terms.find(t => (!fundId || t.fundId === fundId) && t.status === 'active');
 
@@ -237,7 +209,7 @@ export function CarriedInterestTracker({
                           {accrual.asOfDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
                         </span>
                       </div>
-                      {getStatusBadge(accrual.status)}
+                      <StatusBadge status={accrual.status} domain="fund-admin" size="sm" />
                     </div>
 
                     <div className="text-lg font-bold mb-1 text-[var(--app-success)]">
@@ -269,7 +241,7 @@ export function CarriedInterestTracker({
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <h3 className="text-xl font-bold">Carry Accrual</h3>
-                      {getStatusBadge(selectedAccrual.status)}
+                      <StatusBadge status={selectedAccrual.status} domain="fund-admin" size="sm" />
                     </div>
                     <p className="text-sm text-[var(--app-text-muted)]">
                       As of {selectedAccrual.asOfDate.toLocaleDateString('en-US', {

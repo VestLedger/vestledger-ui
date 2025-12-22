@@ -6,53 +6,19 @@ import {
   Briefcase,
   Target,
   Activity,
-  ArrowUpRight,
-  ArrowDownRight,
   Filter,
   Download,
 } from 'lucide-react';
 import { AdvancedTable } from '@/components/data-table/advanced-table';
 import { PortfolioTabHeader } from '@/components/portfolio-tab-header';
+import { MetricsGrid } from '@/components/ui';
+import type { MetricsGridItem } from '@/components/ui';
 import {
   getPortfolioAssetAllocation,
   getPortfolioCompanies,
   getPortfolioPerformanceData,
   getPortfolioSummary,
 } from '@/services/portfolio/portfolioDataService';
-
-interface MetricCardProps {
-  title: string;
-  value: string;
-  change?: number;
-  trend?: 'up' | 'down';
-  icon: React.ReactNode;
-  subtitle?: string;
-}
-
-function MetricCard({ title, value, change, trend, icon, subtitle }: MetricCardProps) {
-  return (
-    <Card padding="md" className="hover:border-[var(--app-primary)] transition-all">
-      <div className="flex items-start justify-between mb-3">
-        <div className="p-2 rounded-lg bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-secondary)]">
-          <div className="text-white">{icon}</div>
-        </div>
-        {change !== undefined && (
-          <div className={`flex items-center gap-1 text-sm ${trend === 'up' ? 'text-[var(--app-success)]' : 'text-[var(--app-danger)]'}`}>
-            {trend === 'up' ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-            <span className="font-medium">{Math.abs(change)}%</span>
-          </div>
-        )}
-      </div>
-      <div>
-        <p className="text-sm text-[var(--app-text-muted)] mb-1">{title}</p>
-        <h3 className="text-2xl font-bold mb-1">{value}</h3>
-        {subtitle && (
-          <p className="text-xs text-[var(--app-text-subtle)]">{subtitle}</p>
-        )}
-      </div>
-    </Card>
-  );
-}
 
 const getHealthColor = (score: number) => {
   if (score >= 85) return 'var(--app-success)';
@@ -93,6 +59,59 @@ export function PortfolioDashboard() {
     return `$${(value / 1000).toFixed(0)}k`;
   };
 
+  const metricCardClassName = 'hover:border-[var(--app-primary)] transition-all';
+  const metricCardIconContainerClassName = 'p-2 rounded-lg bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-secondary)]';
+  const metricCardIconClassName = 'w-5 h-5 text-white';
+  const metricCardBaseProps = {
+    className: metricCardClassName,
+    iconContainerClassName: metricCardIconContainerClassName,
+    iconClassName: metricCardIconClassName,
+  };
+  const metricItems: MetricsGridItem[] = [
+    {
+      type: 'metric',
+      props: {
+        label: 'Total Portfolio Value',
+        value: formatCurrency(portfolioSummary.totalCurrentValue),
+        change: portfolioValueChange !== undefined ? `${Math.abs(portfolioValueChange).toFixed(1)}%` : undefined,
+        trend: portfolioValueChange !== undefined && portfolioValueChange >= 0 ? 'up' : 'down',
+        icon: DollarSign,
+        subtitle: `${formatCurrency(portfolioSummary.totalInvested)} deployed`,
+        ...metricCardBaseProps,
+      },
+    },
+    {
+      type: 'metric',
+      props: {
+        label: 'Active Companies',
+        value: portfolioSummary.activeCompanies.toString(),
+        icon: Briefcase,
+        subtitle: `${portfolioCompanies.length} total investments`,
+        ...metricCardBaseProps,
+      },
+    },
+    {
+      type: 'metric',
+      props: {
+        label: 'Average MOIC',
+        value: `${portfolioSummary.averageMOIC.toFixed(1)}x`,
+        icon: Target,
+        subtitle: `${portfolioSummary.averageIRR.toFixed(1)}% avg IRR`,
+        ...metricCardBaseProps,
+      },
+    },
+    {
+      type: 'metric',
+      props: {
+        label: 'Portfolio Health',
+        value: `${portfolioSummary.averageHealthScore.toFixed(0)}%`,
+        icon: Activity,
+        subtitle: 'Average health score',
+        ...metricCardBaseProps,
+      },
+    },
+  ];
+
   const totalUnrealizedValue = portfolioSummary.totalCurrentValue - portfolioSummary.totalInvested;
   const unrealizedReturn = ((totalUnrealizedValue / portfolioSummary.totalInvested) * 100);
 
@@ -123,34 +142,11 @@ export function PortfolioDashboard() {
       />
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <MetricCard
-          title="Total Portfolio Value"
-          value={formatCurrency(portfolioSummary.totalCurrentValue)}
-          change={portfolioValueChange !== undefined ? Number(portfolioValueChange.toFixed(1)) : undefined}
-          trend={portfolioValueChange !== undefined && portfolioValueChange >= 0 ? 'up' : 'down'}
-          icon={<DollarSign className="w-5 h-5" />}
-          subtitle={`${formatCurrency(portfolioSummary.totalInvested)} deployed`}
-        />
-        <MetricCard
-          title="Active Companies"
-          value={portfolioSummary.activeCompanies.toString()}
-          icon={<Briefcase className="w-5 h-5" />}
-          subtitle={`${portfolioCompanies.length} total investments`}
-        />
-        <MetricCard
-          title="Average MOIC"
-          value={`${portfolioSummary.averageMOIC.toFixed(1)}x`}
-          icon={<Target className="w-5 h-5" />}
-          subtitle={`${portfolioSummary.averageIRR.toFixed(1)}% avg IRR`}
-        />
-        <MetricCard
-          title="Portfolio Health"
-          value={`${portfolioSummary.averageHealthScore.toFixed(0)}%`}
-          icon={<Activity className="w-5 h-5" />}
-          subtitle="Average health score"
-        />
-      </div>
+      <MetricsGrid
+        items={metricItems}
+        columns={{ base: 1, sm: 2, lg: 4 }}
+        className="mb-8"
+      />
 
       {/* Performance & Allocation */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">

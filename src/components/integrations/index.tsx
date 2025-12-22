@@ -1,15 +1,15 @@
 'use client';
 
-import { PageContainer, PageHeader, Breadcrumb, Card, Button, Badge } from '@/ui';
+import { Card, Button } from '@/ui';
 import type { LucideIcon } from 'lucide-react';
-import { Plug, Calendar, Mail, Slack, Github, CheckCircle2, Settings } from 'lucide-react';
-import { getRouteConfig } from '@/config/routes';
+import { Plug, Calendar, Mail, Slack, Github, Settings } from 'lucide-react';
 import { CalendarIntegration } from './calendar-integration';
 import { useUIKey } from '@/store/ui';
 import { integrationsRequested, integrationsSelectors } from '@/store/slices/miscSlice';
 import type { IntegrationSummary } from '@/types/integrations';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
 import { useAsyncData } from '@/hooks/useAsyncData';
+import { PageScaffold, StatusBadge } from '@/components/ui';
 
 const integrationIconMap = {
   calendar: Calendar,
@@ -20,7 +20,6 @@ const integrationIconMap = {
 
 export function Integrations() {
   const { data, isLoading, error, refetch } = useAsyncData(integrationsRequested, integrationsSelectors.selectState);
-  const routeConfig = getRouteConfig('/integrations');
 
   // UI state MUST be called before any early returns (Rules of Hooks)
   const { value: ui, patch: patchUI } = useUIKey('integrations', { selectedCategory: 'all' });
@@ -50,29 +49,15 @@ export function Integrations() {
     ? integrations
     : integrations.filter((i) => i.category === selectedCategory);
 
-  const getStatusBadge = (status: IntegrationSummary['status']) => {
-    switch (status) {
-      case 'connected':
-        return <Badge color="success" startContent={<CheckCircle2 className="w-3 h-3" />}>Connected</Badge>;
-      case 'available':
-        return <Badge color="default">Available</Badge>;
-      case 'coming-soon':
-        return <Badge color="warning">Coming Soon</Badge>;
-    }
-  };
-
   return (
-    <PageContainer>
-      <div className="mb-4">
-        <Breadcrumb items={routeConfig?.breadcrumbs || []} aiSuggestion={routeConfig?.aiSuggestion} />
-      </div>
-
-      <PageHeader
-        title="Integrations"
-        description="Connect external tools and services to streamline your workflow"
-        icon={Plug}
-      />
-
+    <PageScaffold
+      routePath="/integrations"
+      header={{
+        title: 'Integrations',
+        description: 'Connect external tools and services to streamline your workflow',
+        icon: Plug,
+      }}
+    >
       <div className="mt-6 space-y-8">
         {/* Category Filter */}
         <div className="flex gap-2">
@@ -99,7 +84,7 @@ export function Integrations() {
                   <div className="w-12 h-12 rounded-xl bg-[var(--app-primary-bg)] text-[var(--app-primary)] flex items-center justify-center">
                     <Icon className="w-6 h-6" />
                   </div>
-                  {getStatusBadge(integration.status)}
+                  <StatusBadge status={integration.status} domain="integrations" size="sm" showIcon />
                 </div>
                 <h3 className="text-lg font-bold mb-2">{integration.name}</h3>
                 <p className="text-[var(--app-text-muted)] text-sm mb-4">
@@ -149,6 +134,6 @@ export function Integrations() {
           />
         </div>
       </div>
-    </PageContainer>
+    </PageScaffold>
   );
 }

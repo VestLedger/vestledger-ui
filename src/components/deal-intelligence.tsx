@@ -1,18 +1,16 @@
 'use client'
 
 import { useUIKey } from '@/store/ui';
-import { CheckCircle2, Circle, Clock, Eye, FileText, Users, DollarSign, BarChart, Upload, Download, Search, Filter, TrendingUp, AlertCircle, ArrowLeft, Brain } from 'lucide-react';
-import { Card, Badge, Progress, Button, Input, Breadcrumb, PageHeader, Tabs, Tab, PageContainer } from '@/ui';
-import { getRouteConfig } from '@/config/routes';
+import { CheckCircle2, Clock, Eye, FileText, Users, DollarSign, BarChart, Upload, Download, Search, Filter, TrendingUp, AlertCircle, ArrowLeft, Brain } from 'lucide-react';
+import { Card, Badge, Progress, Button, Tabs, Tab, PageContainer } from '@/ui';
 import { CompanySearch } from './deal-intelligence/company-search';
 import { dealIntelligenceRequested, dealIntelligenceSelectors } from '@/store/slices/dealIntelligenceSlice';
 import { LoadingState, ErrorState, EmptyState } from '@/components/ui/async-states';
 import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys';
 import { useAsyncData } from '@/hooks/useAsyncData';
+import { PageScaffold, SearchToolbar, StatusBadge } from '@/components/ui';
 import {
   type ActiveDeal,
-  type DocumentStatus,
-  type ICStatus,
   type Document,
 } from '@/services/dealIntelligence/dealIntelligenceService';
 
@@ -58,56 +56,6 @@ export function DealIntelligence() {
   };
   const documents: Document[] = data?.documents || [];
 
-  const getStatusIcon = (status: DocumentStatus) => {
-    switch (status) {
-      case 'completed':
-        return <CheckCircle2 className="w-4 h-4 text-[var(--app-success)]" />;
-      case 'in-progress':
-        return <Clock className="w-4 h-4 text-[var(--app-warning)]" />;
-      case 'overdue':
-        return <AlertCircle className="w-4 h-4 text-[var(--app-danger)]" />;
-      default:
-        return <Circle className="w-4 h-4 text-[var(--app-text-subtle)]" />;
-    }
-  };
-
-  const getStatusBadgeClass = (status: DocumentStatus) => {
-    switch (status) {
-      case 'completed':
-        return 'bg-[var(--app-success-bg)] text-[var(--app-success)]';
-      case 'in-progress':
-        return 'bg-[var(--app-warning-bg)] text-[var(--app-warning)]';
-      case 'overdue':
-        return 'bg-[var(--app-danger-bg)] text-[var(--app-danger)]';
-      default:
-        return 'bg-[var(--app-surface-hover)] text-[var(--app-text-muted)]';
-    }
-  };
-
-  const getICStatusBadge = (status: ICStatus) => {
-    switch (status) {
-      case 'ready-for-ic':
-        return <Badge size="sm" variant="flat" className="bg-[var(--app-success-bg)] text-[var(--app-success)]">Ready for IC</Badge>;
-      case 'dd-in-progress':
-        return <Badge size="sm" variant="flat" className="bg-[var(--app-info-bg)] text-[var(--app-info)]">DD In Progress</Badge>;
-      case 'docs-overdue':
-        return <Badge size="sm" variant="flat" className="bg-[var(--app-danger-bg)] text-[var(--app-danger)]">Docs Overdue</Badge>;
-      case 'blocked':
-        return <Badge size="sm" variant="flat" className="bg-[var(--app-warning-bg)] text-[var(--app-warning)]">Blocked</Badge>;
-    }
-  };
-
-  const getCategoryStatusIcon = (status: 'completed' | 'in-progress' | 'overdue') => {
-    switch (status) {
-      case 'completed':
-        return '✓';
-      case 'in-progress':
-        return '⏳';
-      case 'overdue':
-        return '⚠';
-    }
-  };
-
   const handleDealClick = (deal: ActiveDeal) => {
     patchUI({ selectedDeal: deal, viewMode: 'per-deal' });
   };
@@ -130,42 +78,30 @@ export function DealIntelligence() {
   const overdueDocuments = documents.filter((d) => d.status === 'overdue').length;
   const pendingReviews = documents.filter((d) => d.status === 'pending').length;
 
-  // Get route config for breadcrumbs and AI suggestions
-  const routeConfig = getRouteConfig('/deal-intelligence');
-
   // Fund-Level View
   if (viewMode === 'fund-level') {
     return (
-      <PageContainer>
-        {/* Breadcrumb Navigation */}
-        {routeConfig && (
-          <div className="mb-4">
-            <Breadcrumb
-              items={routeConfig.breadcrumbs}
-              aiSuggestion={routeConfig.aiSuggestion}
-            />
-          </div>
-        )}
-
-        {/* Page Header with AI Summary */}
-        <PageHeader
-          title="Deal Intelligence"
-          description="Track due diligence progress and documentation across your deal pipeline"
-          icon={Brain}
-          aiSummary={{
+      <PageScaffold
+        routePath="/deal-intelligence"
+        header={{
+          title: 'Deal Intelligence',
+          description: 'Track due diligence progress and documentation across your deal pipeline',
+          icon: Brain,
+          aiSummary: {
             text: `${dealsReadyForIC} deals ready for IC. ${overdueDocuments} overdue documents need immediate attention. ${dealsInProgress} deals in active DD. Average DD completion: ${fundAnalytics.ddProgress.avgCompletion}%.`,
-            confidence: 0.93
-          }}
-          tabs={[
+            confidence: 0.93,
+          },
+          tabs: [
             {
               id: 'fund-level',
               label: 'Fund Overview',
               count: fundAnalytics.ddProgress.atRisk,
-              priority: fundAnalytics.ddProgress.atRisk > 0 ? 'high' : undefined
-            }
-          ]}
-          activeTab="fund-level"
-        />
+              priority: fundAnalytics.ddProgress.atRisk > 0 ? 'high' : undefined,
+            },
+          ],
+          activeTab: 'fund-level',
+        }}
+      >
 
         {/* Fund Analytics Summary */}
         <div className="mb-8">
@@ -368,7 +304,7 @@ export function DealIntelligence() {
                       <Badge size="sm" variant="flat" className="bg-[var(--app-surface-hover)]">
                         {deal.stage}
                       </Badge>
-                      {getICStatusBadge(deal.icStatus)}
+                      <StatusBadge status={deal.icStatus} domain="deal-intel" size="sm" showIcon />
                     </div>
                   </div>
                 </div>
@@ -393,11 +329,12 @@ export function DealIntelligence() {
                 <div className="space-y-1.5 text-xs">
                   <div className="text-[var(--app-text-muted)] font-medium mb-1">Document Completion:</div>
                   {deal.categoryProgress.map((cat) => (
-                    <div key={cat.category} className="flex items-center justify-between">
+                    <div key={cat.category} className="flex items-center justify-between gap-2">
                       <span className="text-[var(--app-text-muted)] capitalize">{cat.category}:</span>
-                      <span className="font-medium">
-                        {getCategoryStatusIcon(cat.status)} {cat.completed}/{cat.total}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <StatusBadge status={cat.status} domain="deal-intel" size="sm" />
+                        <span className="font-medium">{cat.completed}/{cat.total}</span>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -405,7 +342,7 @@ export function DealIntelligence() {
             ))}
           </div>
         </div>
-      </PageContainer>
+      </PageScaffold>
     );
   }
 
@@ -436,7 +373,7 @@ export function DealIntelligence() {
                 <Badge size="sm" variant="flat" className="bg-[var(--app-surface-hover)]">
                   {selectedDeal.sector}
                 </Badge>
-                {getICStatusBadge(selectedDeal.icStatus)}
+                <StatusBadge status={selectedDeal.icStatus} domain="deal-intel" size="sm" showIcon />
               </div>
               <div className="flex gap-4 text-sm text-[var(--app-text-muted)]">
                 <span>Amount: {selectedDeal.amount}</span>
@@ -484,7 +421,7 @@ export function DealIntelligence() {
                             <span className="text-sm font-medium capitalize">{cat.category}</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className="text-sm">{getCategoryStatusIcon(cat.status)}</span>
+                            <StatusBadge status={cat.status} domain="deal-intel" size="sm" />
                             <span className="text-sm font-medium">{cat.completed}/{cat.total}</span>
                           </div>
                         </div>
@@ -528,7 +465,7 @@ export function DealIntelligence() {
                   </div>
                   <div className="flex items-center justify-between py-2">
                     <span className="text-sm text-[var(--app-text-muted)]">IC Status</span>
-                    {getICStatusBadge(selectedDeal.icStatus)}
+                    <StatusBadge status={selectedDeal.icStatus} domain="deal-intel" size="sm" showIcon />
                   </div>
                 </div>
               </Card>
@@ -762,26 +699,20 @@ export function DealIntelligence() {
           <Tab key="documents" title="DD Documents">
             <div>
               {/* Search and Filter */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div className="md:col-span-2">
-                  <Input
-                    type="text"
-                    placeholder="Search documents..."
-                    value={searchQuery}
-                    onChange={(e) => patchUI({ searchQuery: e.target.value })}
-                    startContent={<Search className="w-4 h-4 text-[var(--app-text-subtle)]" />}
-                    size="md"
-                  />
-                </div>
-                <div>
-                  <Button
-                    variant="flat"
-                    className="w-full justify-start"
-                    startContent={<Filter className="w-4 h-4" />}
-                  >
-                    Filter by Category
-                  </Button>
-                </div>
+              <div className="mb-6">
+                <SearchToolbar
+                  searchValue={searchQuery}
+                  onSearchChange={(value) => patchUI({ searchQuery: value })}
+                  searchPlaceholder="Search documents..."
+                  rightActions={(
+                    <Button
+                      variant="flat"
+                      startContent={<Filter className="w-4 h-4" />}
+                    >
+                      Filter by Category
+                    </Button>
+                  )}
+                />
               </div>
 
               {/* Document Categories Stats */}
@@ -844,17 +775,11 @@ export function DealIntelligence() {
                       >
                         <div className="flex items-center justify-between gap-4">
                           <div className="flex items-center gap-3 flex-1 min-w-0">
-                            {getStatusIcon(doc.status)}
+                            <FileText className="w-4 h-4 text-[var(--app-text-subtle)]" />
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
                                 <span className="font-medium text-sm truncate">{doc.name}</span>
-                                <Badge
-                                  size="sm"
-                                  variant="flat"
-                                  className={getStatusBadgeClass(doc.status)}
-                                >
-                                  {doc.status}
-                                </Badge>
+                                <StatusBadge status={doc.status} domain="deal-intel" size="sm" />
                               </div>
                               <div className="flex items-center gap-2 text-xs text-[var(--app-text-muted)]">
                                 <span className="capitalize">{doc.category}</span>
