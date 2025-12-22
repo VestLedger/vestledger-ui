@@ -2,6 +2,7 @@
 
 import { useUIKey } from '@/store/ui';
 import { Card, Button, Input, PageContainer, PageHeader, Breadcrumb, Badge } from '@/ui';
+import type { PageHeaderBadge } from '@/ui';
 import {
   User,
   Bell,
@@ -96,7 +97,7 @@ export function Settings() {
     ? 'Review member roles and access to keep permissions aligned with fund operations.'
     : `You are viewing ${activeSectionLabel}. Adjust preferences to keep your workspace aligned with your team.`;
 
-  const headerBadges = [
+  const headerBadges: PageHeaderBadge[] = [
     {
       label: `${settingsSections.length} sections`,
       size: 'md',
