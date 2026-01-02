@@ -5,6 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "analyze": "ANALYZE=true next build",
+    "analyze:server": "ANALYZE=true BUNDLE_ANALYZE=server next build",
+    "analyze:browser": "ANALYZE=true BUNDLE_ANALYZE=browser next build",
     "start": "next start",
     "lint": "next lint",
     "test": "vitest run",
@@ -40,6 +43,7 @@
     "redux-saga": "^1.4.2"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^14.2.0",
     "@testing-library/react": "^16.0.1",
     "@types/node": "^20.10.0",
     "@types/react": "^18.3.0",
