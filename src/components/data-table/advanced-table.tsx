@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { Card, Button, Input, Badge } from '@/ui';
 import { ChevronDown, ChevronUp, ChevronsUpDown, Search, Download, Settings2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
+import { TableRow } from './table-row';
 
 export interface ColumnDef<T> {
   key: string;
@@ -289,26 +290,12 @@ export function AdvancedTable<T extends object>({
                 </tr>
               ) : (
                 paginatedData.map((item, index) => (
-                  <tr
+                  <TableRow
                     key={index}
-                    className={`border-b border-[var(--app-border)] ${
-                      onRowClick ? 'cursor-pointer hover:bg-[var(--app-surface-hover)]' : ''
-                    }`}
-                    onClick={() => onRowClick?.(item)}
-                  >
-                    {columns.map((column) => (
-                      <td
-                        key={column.key}
-                        className={`py-3 px-4 ${
-                          column.align === 'right' ? 'text-right' :
-                          column.align === 'center' ? 'text-center' :
-                          'text-left'
-                        }`}
-                      >
-                        {column.render ? column.render(item) : String(getValue(item, column.key) ?? '')}
-                      </td>
-                    ))}
-                  </tr>
+                    item={item}
+                    columns={columns}
+                    onRowClick={onRowClick}
+                  />
                 ))
               )}
             </tbody>

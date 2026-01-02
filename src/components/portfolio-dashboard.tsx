@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react';
 import { Card, Badge, Button, Progress } from '@/ui';
 import {
   DollarSign,
@@ -10,6 +11,7 @@ import {
   Download,
 } from 'lucide-react';
 import { AdvancedTable } from '@/components/data-table/advanced-table';
+import type { ColumnDef } from '@/components/data-table/advanced-table';
 import { PortfolioTabHeader } from '@/components/portfolio-tab-header';
 import { MetricsGrid } from '@/components/ui';
 import type { MetricsGridItem } from '@/components/ui';
@@ -38,6 +40,7 @@ const getStatusBadge = (status: string) => {
 
 export function PortfolioDashboard() {
   const portfolioCompanies = getPortfolioCompanies();
+  type PortfolioCompanyRow = (typeof portfolioCompanies)[number];
   const portfolioSummary = getPortfolioSummary();
   const performanceData = getPortfolioPerformanceData();
   const assetAllocation = getPortfolioAssetAllocation();
@@ -114,6 +117,122 @@ export function PortfolioDashboard() {
 
   const totalUnrealizedValue = portfolioSummary.totalCurrentValue - portfolioSummary.totalInvested;
   const unrealizedReturn = ((totalUnrealizedValue / portfolioSummary.totalInvested) * 100);
+
+  const columns = useMemo<ColumnDef<PortfolioCompanyRow>[]>(() => ([
+    {
+      key: 'companyName',
+      label: 'Company',
+      sortable: true,
+      render: (company: PortfolioCompanyRow) => (
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-accent)] flex items-center justify-center flex-shrink-0">
+            <span className="text-white text-xs font-semibold">{company.companyName.charAt(0)}</span>
+          </div>
+          <span className="font-medium">{company.companyName}</span>
+        </div>
+      ),
+    },
+    {
+      key: 'sector',
+      label: 'Sector',
+      sortable: true,
+    },
+    {
+      key: 'stage',
+      label: 'Stage',
+      sortable: true,
+    },
+    {
+      key: 'arr',
+      label: 'ARR',
+      sortable: true,
+      align: 'right',
+      render: (company: PortfolioCompanyRow) => (
+        <div>
+          <div className="font-medium">${(company.arr / 1000000).toFixed(1)}M</div>
+          <div className="text-xs text-[var(--app-success)]">+{company.arrGrowth}%</div>
+        </div>
+      ),
+    },
+    {
+      key: 'currentValuation',
+      label: 'Valuation',
+      sortable: true,
+      align: 'right',
+      render: (company: PortfolioCompanyRow) => (
+        <span className="font-medium">${(company.currentValuation / 1000000).toFixed(0)}M</span>
+      ),
+    },
+    {
+      key: 'ownership',
+      label: 'Ownership',
+      sortable: true,
+      align: 'right',
+      render: (company: PortfolioCompanyRow) => (
+        <span className="text-sm">{company.ownership.toFixed(1)}%</span>
+      ),
+    },
+    {
+      key: 'moic',
+      label: 'MOIC',
+      sortable: true,
+      align: 'right',
+      render: (company: PortfolioCompanyRow) => (
+        <span className="font-medium">{company.moic.toFixed(1)}x</span>
+      ),
+    },
+    {
+      key: 'irr',
+      label: 'IRR',
+      sortable: true,
+      align: 'right',
+      render: (company: PortfolioCompanyRow) => (
+        <span className="text-sm text-[var(--app-success)]">{company.irr.toFixed(1)}%</span>
+      ),
+    },
+    {
+      key: 'runway',
+      label: 'Runway',
+      sortable: true,
+      align: 'right',
+      render: (company: PortfolioCompanyRow) => (
+        <div>
+          <div className="font-medium">{company.runway}mo</div>
+          <div className="text-xs text-[var(--app-text-muted)]">${(company.burnRate / 1000).toFixed(0)}k/mo</div>
+        </div>
+      ),
+    },
+    {
+      key: 'healthScore',
+      label: 'Health',
+      sortable: true,
+      align: 'center',
+      render: (company: PortfolioCompanyRow) => (
+        <div className="flex items-center justify-center gap-1">
+          <div
+            className="w-2 h-2 rounded-full"
+            style={{ backgroundColor: getHealthColor(company.healthScore) }}
+          />
+          <span className="text-sm font-medium">{company.healthScore}</span>
+        </div>
+      ),
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      sortable: true,
+      align: 'center',
+      render: (company: PortfolioCompanyRow) => (
+        <Badge
+          size="sm"
+          variant="flat"
+          className={getStatusBadge(company.status)}
+        >
+          {company.status}
+        </Badge>
+      ),
+    },
+  ]), []);
 
   return (
     <div>
@@ -227,121 +346,7 @@ export function PortfolioDashboard() {
         <AdvancedTable
           stateKey="portfolio-dashboard:companies"
           data={filteredCompanies}
-          columns={[
-            {
-              key: 'companyName',
-              label: 'Company',
-              sortable: true,
-              render: (company) => (
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-accent)] flex items-center justify-center flex-shrink-0">
-                    <span className="text-white text-xs font-semibold">{company.companyName.charAt(0)}</span>
-                  </div>
-                  <span className="font-medium">{company.companyName}</span>
-                </div>
-              ),
-            },
-            {
-              key: 'sector',
-              label: 'Sector',
-              sortable: true,
-            },
-            {
-              key: 'stage',
-              label: 'Stage',
-              sortable: true,
-            },
-            {
-              key: 'arr',
-              label: 'ARR',
-              sortable: true,
-              align: 'right',
-              render: (company) => (
-                <div>
-                  <div className="font-medium">${(company.arr / 1000000).toFixed(1)}M</div>
-                  <div className="text-xs text-[var(--app-success)]">+{company.arrGrowth}%</div>
-                </div>
-              ),
-            },
-            {
-              key: 'currentValuation',
-              label: 'Valuation',
-              sortable: true,
-              align: 'right',
-              render: (company) => (
-                <span className="font-medium">${(company.currentValuation / 1000000).toFixed(0)}M</span>
-              ),
-            },
-            {
-              key: 'ownership',
-              label: 'Ownership',
-              sortable: true,
-              align: 'right',
-              render: (company) => (
-                <span className="text-sm">{company.ownership.toFixed(1)}%</span>
-              ),
-            },
-            {
-              key: 'moic',
-              label: 'MOIC',
-              sortable: true,
-              align: 'right',
-              render: (company) => (
-                <span className="font-medium">{company.moic.toFixed(1)}x</span>
-              ),
-            },
-            {
-              key: 'irr',
-              label: 'IRR',
-              sortable: true,
-              align: 'right',
-              render: (company) => (
-                <span className="text-sm text-[var(--app-success)]">{company.irr.toFixed(1)}%</span>
-              ),
-            },
-            {
-              key: 'runway',
-              label: 'Runway',
-              sortable: true,
-              align: 'right',
-              render: (company) => (
-                <div>
-                  <div className="font-medium">{company.runway}mo</div>
-                  <div className="text-xs text-[var(--app-text-muted)]">${(company.burnRate / 1000).toFixed(0)}k/mo</div>
-                </div>
-              ),
-            },
-            {
-              key: 'healthScore',
-              label: 'Health',
-              sortable: true,
-              align: 'center',
-              render: (company) => (
-                <div className="flex items-center justify-center gap-1">
-                  <div
-                    className="w-2 h-2 rounded-full"
-                    style={{ backgroundColor: getHealthColor(company.healthScore) }}
-                  />
-                  <span className="text-sm font-medium">{company.healthScore}</span>
-                </div>
-              ),
-            },
-            {
-              key: 'status',
-              label: 'Status',
-              sortable: true,
-              align: 'center',
-              render: (company) => (
-                <Badge
-                  size="sm"
-                  variant="flat"
-                  className={getStatusBadge(company.status)}
-                >
-                  {company.status}
-                </Badge>
-              ),
-            },
-          ]}
+          columns={columns}
           onRowClick={(company) => console.log('View company:', company.companyName)}
           searchable={true}
           searchPlaceholder="Search companies..."

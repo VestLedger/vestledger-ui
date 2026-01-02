@@ -1,5 +1,6 @@
 'use client'
 
+import { memo } from 'react';
 import { Building2, DollarSign, Calendar } from 'lucide-react';
 import { Card, Badge, Progress } from '@/ui';
 
@@ -21,7 +22,7 @@ interface DealCardProps {
   outcome?: DealOutcome;
 }
 
-export function DealCard({ deal, outcome }: DealCardProps) {
+export const DealCard = memo(function DealCard({ deal, outcome }: DealCardProps) {
   const getOutcomeBadgeClass = (outcome: DealOutcome) => {
     switch (outcome) {
       case 'won':
@@ -86,4 +87,4 @@ export function DealCard({ deal, outcome }: DealCardProps) {
         </div>
     </Card>
   );
-}
+});

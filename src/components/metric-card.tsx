@@ -1,6 +1,6 @@
 'use client'
 
-import { isValidElement, type ReactNode } from 'react';
+import { isValidElement, memo, type ReactNode } from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Card, Badge } from '@/ui';
@@ -54,7 +54,7 @@ const getBenchmarkLabel = (position: MetricBenchmark['position']) => {
   }
 };
 
-export function MetricCard({
+export const MetricCard = memo(function MetricCard({
   label,
   value,
   change,
@@ -136,4 +136,4 @@ export function MetricCard({
       )}
     </Card>
   );
-}
+});
