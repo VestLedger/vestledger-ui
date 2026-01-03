@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { DollarSign, Users, Target, Clock, LayoutDashboard } from 'lucide-react';
 import { AIInsightsBanner } from './dashboard/ai-insights-banner';
 import { ActiveCapitalCalls } from './dashboard/active-capital-calls';
@@ -10,12 +11,6 @@ import { useDashboardData } from '@/hooks/use-dashboard-data';
 import { useAIInsights } from '@/hooks/use-ai-insights';
 import { useAuth } from '@/contexts/auth-context';
 import { useFund } from '@/contexts/fund-context';
-import { AnalystDashboard } from '@/components/dashboards/analyst-dashboard';
-import { OpsDashboard } from '@/components/dashboards/ops-dashboard';
-import { IRDashboard } from '@/components/dashboards/ir-dashboard';
-import { ResearcherDashboard } from '@/components/dashboards/researcher-dashboard';
-import { LPDashboard } from '@/components/dashboards/lp-dashboard';
-import { AuditorDashboard } from '@/components/dashboards/auditor-dashboard';
 import { MetricsGrid, PageScaffold } from '@/components/ui';
 import type { MetricsGridItem } from '@/components/ui';
 import { Card, Badge } from '@/ui';
@@ -32,6 +27,44 @@ const formatCurrency = (amount: number, showDecimals = false) => {
   }
   return `$${(amount / 1_000_000).toFixed(showDecimals ? 1 : 0)}M`;
 };
+
+const DashboardLoading = () => (
+  <div className="p-6 space-y-4 animate-pulse">
+    <div className="h-6 w-48 rounded bg-[var(--app-surface-hover)]" />
+    <div className="h-4 w-72 rounded bg-[var(--app-surface-hover)]" />
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="h-32 rounded bg-[var(--app-surface-hover)]" />
+      <div className="h-32 rounded bg-[var(--app-surface-hover)]" />
+      <div className="h-32 rounded bg-[var(--app-surface-hover)]" />
+      <div className="h-32 rounded bg-[var(--app-surface-hover)]" />
+    </div>
+  </div>
+);
+
+const AnalystDashboard = dynamic(
+  () => import('@/components/dashboards/analyst-dashboard').then((mod) => mod.AnalystDashboard),
+  { loading: () => <DashboardLoading /> }
+);
+const OpsDashboard = dynamic(
+  () => import('@/components/dashboards/ops-dashboard').then((mod) => mod.OpsDashboard),
+  { loading: () => <DashboardLoading /> }
+);
+const IRDashboard = dynamic(
+  () => import('@/components/dashboards/ir-dashboard').then((mod) => mod.IRDashboard),
+  { loading: () => <DashboardLoading /> }
+);
+const ResearcherDashboard = dynamic(
+  () => import('@/components/dashboards/researcher-dashboard').then((mod) => mod.ResearcherDashboard),
+  { loading: () => <DashboardLoading /> }
+);
+const LPDashboard = dynamic(
+  () => import('@/components/dashboards/lp-dashboard').then((mod) => mod.LPDashboard),
+  { loading: () => <DashboardLoading /> }
+);
+const AuditorDashboard = dynamic(
+  () => import('@/components/dashboards/auditor-dashboard').then((mod) => mod.AuditorDashboard),
+  { loading: () => <DashboardLoading /> }
+);
 
 export function DashboardV2() {
   const { user } = useAuth();

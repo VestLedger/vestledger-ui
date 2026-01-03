@@ -39,7 +39,6 @@
     "react-medium-image-zoom": "^5.4.0",
     "react-pdf": "7.7.3",
     "react-redux": "^9.2.0",
-    "recharts": "^2.15.2",
     "redux-saga": "^1.4.2"
   },
   "devDependencies": {
