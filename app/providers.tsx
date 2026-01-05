@@ -9,6 +9,7 @@ import { FundProvider } from '@/contexts/fund-context'
 import { Provider } from 'react-redux'
 import { store } from '@/store/store'
 import { clientMounted } from '@/store/slices/uiEffectsSlice'
+import { ThemeSync } from '@/components/theme-sync'
 
 export function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -19,6 +20,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <Provider store={store}>
       <NextUIProvider>
         <NextThemesProvider attribute="class" defaultTheme="dark">
+          <ThemeSync />
           <AuthProvider>
             <FundProvider>
               {children}

@@ -38,8 +38,33 @@ export function Topbar() {
   const searchRef = useRef<HTMLDivElement>(null);
 
   const handleLogout = () => {
+    // Clear cookie immediately before calling logout
+    const isProduction = window.location.hostname.includes('vestledger.com');
+    if (isProduction) {
+      document.cookie = 'isAuthenticated=; path=/; max-age=0; domain=.vestledger.com; SameSite=Lax';
+    } else {
+      document.cookie = 'isAuthenticated=; path=/; max-age=0; SameSite=Lax';
+    }
+
     logout();
-    router.push('/');
+
+    // Redirect to main domain homepage
+    // Construct the main domain URL by removing 'app.' subdomain
+    const currentHost = window.location.host;
+    const protocol = window.location.protocol;
+    let mainDomainUrl: string;
+
+    if (currentHost.startsWith('app.')) {
+      // Remove 'app.' prefix to get main domain
+      const mainHost = currentHost.replace(/^app\./, '');
+      mainDomainUrl = `${protocol}//${mainHost}`;
+    } else {
+      // Fallback to env var or localhost
+      mainDomainUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    }
+
+    console.log('[Topbar] Logging out from:', currentHost, 'redirecting to:', mainDomainUrl);
+    window.location.href = mainDomainUrl;
   };
 
   useEffect(() => {

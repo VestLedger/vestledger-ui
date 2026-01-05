@@ -11,6 +11,11 @@ const nextConfig = {
       : false,
   },
   productionBrowserSourceMaps: false,
+  // Allow cross-origin requests from app subdomain during development
+  allowedDevOrigins: [
+    'app.localhost:3000',
+    'app.vestledger.local:3000',
+  ],
   async headers() {
     return [
       {

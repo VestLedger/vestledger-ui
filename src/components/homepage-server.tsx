@@ -1,7 +1,8 @@
 import { Link as LinkIcon, RefreshCw, Sparkles, Shield, CheckCircle2, Gauge, Database } from 'lucide-react';
 import { StaticCard, StaticButton } from '@/ui/static';
 import Image from 'next/image';
-import { TriadOrbit, WorkflowFlow } from '@/components/public/visuals';
+import { DashboardMockup } from '@/components/public/dashboard-mockup';
+import { WorkflowFlow } from '@/components/public/visuals';
 
 export function HomepageServer() {
   const proofPoints = [
@@ -106,20 +107,7 @@ export function HomepageServer() {
             </p>
           </div>
           <div className="relative z-10">
-            <div className="rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)]/80 p-6 sm:p-8">
-              <TriadOrbit className="w-full h-48 sm:h-56 mb-5" />
-              <div className="space-y-3">
-                {pillars.map((pillar) => (
-                  <div key={pillar.title} className="border-t border-[var(--app-border)] pt-4">
-                    <p className="text-sm font-semibold">{pillar.title}</p>
-                    <p className="text-xs text-[var(--app-text-muted)]">{pillar.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="mt-4 text-sm text-[var(--app-text-muted)]">
-              Unified trust layer • Protocol-level verification
-            </div>
+            <DashboardMockup className="w-full" />
           </div>
         </div>
       </section>

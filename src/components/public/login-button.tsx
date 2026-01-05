@@ -1,23 +1,32 @@
 'use client';
 
-import { useState, lazy, Suspense } from 'react';
 import { StaticButton } from '@/ui/static';
 
-const LoginModal = lazy(() => import('./login-modal').then(mod => ({ default: mod.LoginModal })));
-
 export function LoginButton() {
-  const [showModal, setShowModal] = useState(false);
+  const handleLogin = () => {
+    // Use environment variable for dashboard URL, fallback to constructing from current host
+    const dashboardUrl = process.env.NEXT_PUBLIC_DASHBOARD_URL;
+
+    if (dashboardUrl) {
+      window.location.href = `${dashboardUrl}/login`;
+    } else {
+      // Fallback: construct app subdomain from current host
+      const currentHost = window.location.host;
+      const protocol = window.location.protocol;
+
+      // If already on app subdomain, just go to /login
+      if (currentHost.startsWith('app.')) {
+        window.location.href = '/login';
+      } else {
+        // Add 'app.' prefix to current domain
+        window.location.href = `${protocol}//app.${currentHost}/login`;
+      }
+    }
+  };
 
   return (
-    <>
-      <StaticButton variant="light" onClick={() => setShowModal(true)}>
-        Login
-      </StaticButton>
-      {showModal && (
-        <Suspense fallback={null}>
-          <LoginModal isOpen={showModal} onClose={() => setShowModal(false)} />
-        </Suspense>
-      )}
-    </>
+    <StaticButton variant="light" onClick={handleLogin}>
+      Login
+    </StaticButton>
   );
 }

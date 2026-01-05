@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ThemeProvider, useTheme } from 'next-themes';
+import { useTheme } from 'next-themes';
 import { Sun, Moon } from 'lucide-react';
 
-function ThemeToggleInner() {
+export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -32,14 +32,5 @@ function ThemeToggleInner() {
     >
       {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
     </button>
-  );
-}
-
-export function ThemeToggle() {
-  // Wrap in ThemeProvider only for this component to avoid blocking page render
-  return (
-    <ThemeProvider attribute="class" defaultTheme="dark">
-      <ThemeToggleInner />
-    </ThemeProvider>
   );
 }

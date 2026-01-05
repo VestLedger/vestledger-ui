@@ -28,3 +28,21 @@
 .dark .public-hero::after {
   background: radial-gradient(circle at 70% 10%, rgba(var(--app-secondary-rgb), 0.2), transparent 42%);
 }
+
+@keyframes dashboard-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.dashboard-float {
+  animation: dashboard-float 3s ease-in-out infinite;
+}
+
+.dashboard-float-delayed {
+  animation: dashboard-float 3s ease-in-out infinite;
+  animation-delay: 1s;
+}

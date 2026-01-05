@@ -8,6 +8,7 @@ import { NextUIProvider } from '@nextui-org/react';
 import { ThemeProvider as NextThemesProvider } from 'next-themes';
 import { AuthProvider } from '@/contexts/auth-context';
 import { FundProvider } from '@/contexts/fund-context';
+import { ThemeSync } from '@/components/theme-sync';
 
 export function DashboardProviders({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -18,6 +19,7 @@ export function DashboardProviders({ children }: { children: React.ReactNode }) 
     <Provider store={store}>
       <NextUIProvider>
         <NextThemesProvider attribute="class" defaultTheme="dark">
+          <ThemeSync />
           <AuthProvider>
             <FundProvider>
               {children}
