@@ -42,31 +42,31 @@ export function PublicHeader() {
   return (
     <>
       <nav
-        className="sticky top-0 left-0 right-0 z-50 w-full border-b border-[var(--app-border)] bg-[var(--app-surface)]/90 backdrop-blur-md supports-[backdrop-filter]:bg-[var(--app-surface)]/75"
+        className="sticky top-0 left-0 right-0 z-50 w-full border-b border-[var(--app-border)] bg-[var(--app-surface)]/92 backdrop-blur-md supports-[backdrop-filter]:bg-[var(--app-surface)]/80"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4 sm:gap-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3 sm:gap-6">
             <Link href="/" className="flex items-center gap-3">
               <Image
                 src="/logo/Print_Transparent.svg"
                 alt="VestLedger logo"
                 width={32}
                 height={32}
-                className="h-8 w-8"
+                className="h-8 w-8 logo-mark"
                 priority
               />
-              <span className="text-xl sm:text-2xl tracking-tight text-[var(--app-primary)] font-bold">
+              <span className="text-xl sm:text-2xl tracking-tight text-[var(--app-primary)] dark:text-[var(--app-text)] font-bold">
                 VestLedger
               </span>
             </Link>
-            <div className="hidden md:flex items-center gap-6">
+            <div className="hidden lg:flex items-center gap-6">
               <Link href="/features" className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-text)] transition-colors">Features</Link>
               <Link href="/how-it-works" className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-text)] transition-colors">How It Works</Link>
               <Link href="/security" className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-text)] transition-colors">Security</Link>
-              <Link href="/eoi" className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-text)] transition-colors">Get Early Access</Link>
+              <Link href="/about" className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-text)] transition-colors">About</Link>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Button
               isIconOnly
               variant="light"
@@ -76,8 +76,11 @@ export function PublicHeader() {
             >
               {mounted && (theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />)}
             </Button>
-            <Button color="primary" onPress={() => patchHeaderUI({ showLoginModal: true })}>
+            <Button variant="light" onPress={() => patchHeaderUI({ showLoginModal: true })}>
               Login
+            </Button>
+            <Button as={Link} href="/eoi" color="primary">
+              Request Demo
             </Button>
           </div>
         </div>

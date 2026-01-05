@@ -1,44 +1,39 @@
 'use client';
 
-import { Card, Button } from '@/ui';
+import { Button } from '@/ui';
 import {
-  Target,
   Users,
-  TrendingUp,
   Shield,
   Sparkles,
   ArrowRight,
-  Linkedin,
-  Twitter,
-  Mail,
-  Building2,
   Rocket,
   Heart,
   Globe
 } from 'lucide-react';
 import Link from 'next/link';
+import { SignalRings } from '@/components/public/visuals';
 
 export default function AboutPage() {
   const values = [
     {
       icon: Shield,
       title: 'Trust & Transparency',
-      description: 'We build systems where trust is cryptographically verifiable, not assumed.'
+      description: 'Trust is verifiable, not assumed. Every workflow is auditable by default.'
     },
     {
       icon: Sparkles,
       title: 'Innovation First',
-      description: 'We embrace cutting-edge technology to solve decades-old problems in new ways.'
+      description: 'We ship modern infrastructure that replaces outdated fund operations.'
     },
     {
       icon: Users,
       title: 'Partner Success',
-      description: 'Our success is measured by the operational excellence of our clients.'
+      description: 'We measure success by the operating velocity of our partner funds.'
     },
     {
       icon: Rocket,
       title: 'Move Fast',
-      description: 'We iterate rapidly and ship features that deliver immediate value.'
+      description: 'We deliver value quickly while maintaining institutional rigor.'
     }
   ];
 
@@ -73,22 +68,22 @@ export default function AboutPage() {
     {
       year: '2022',
       title: 'Founded',
-      description: 'VestLedger was founded to bring modern technology to venture capital operations.'
+      description: 'Founded to modernize venture capital operations with verifiable ownership.'
     },
     {
       year: '2023',
       title: 'First Pilot',
-      description: 'Launched pilot program with 5 early-stage VC firms managing $500M in AUM.'
+      description: 'Piloted with VC firms managing $500M in AUM.'
     },
     {
       year: '2024',
       title: 'Series A',
-      description: 'Raised $15M Series A led by Andreessen Horowitz to accelerate product development.'
+      description: 'Series A to accelerate product development and compliance readiness.'
     },
     {
       year: '2025',
       title: 'Platform Launch',
-      description: 'Launched the Triad OS platform with Tokenized Trust, Ops Automation, and AI Advisor.'
+      description: 'Launched the Triad OS platform for trust, ops, and intelligence.'
     }
   ];
 
@@ -100,51 +95,43 @@ export default function AboutPage() {
   ];
 
   return (
-    <div className="bg-[var(--app-bg)]">
+    <div className="text-[var(--app-text)]">
       {/* Hero Section */}
-      <section className="py-20 text-center px-4">
+      <section className="py-12 text-center px-4">
         <div className="max-w-4xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--app-primary-bg)] text-[var(--app-primary)] text-sm font-medium mb-6">
-            <Building2 className="w-4 h-4" />
-            <span>About VestLedger</span>
-          </div>
-          <h1 className="text-4xl sm:text-5xl font-bold mb-6">
-            Building the <span className="text-[var(--app-primary)]">Operating System</span> for Modern Venture Capital
+          <h1 className="text-4xl sm:text-5xl font-bold mb-5">
+            Building the <span className="text-[var(--app-primary)]">operating system</span> for modern funds.
           </h1>
-          <p className="text-xl text-[var(--app-text-muted)] max-w-3xl mx-auto mb-10">
-            We&apos;re on a mission to transform how venture capital firms, PE funds, and crypto funds operate—replacing
-            spreadsheets, siloed tools, and manual processes with an intelligent, unified platform.
+          <p className="text-xl text-[var(--app-text-muted)] max-w-3xl mx-auto mb-6">
+            We help venture, private equity, and crypto funds replace spreadsheets and manual workflows with a secure, unified operating system.
           </p>
+          <div className="mt-8 flex justify-center">
+            <SignalRings className="w-56 h-56" />
+          </div>
         </div>
       </section>
 
       {/* Mission Section */}
-      <section className="py-16 bg-[var(--app-surface)] border-y border-[var(--app-border)]">
+      <section className="py-12 bg-[var(--app-surface)]/85 border-y border-[var(--app-border)]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--app-secondary-bg)] text-[var(--app-secondary)] text-sm font-medium mb-4">
-                <Target className="w-4 h-4" />
-                <span>Our Mission</span>
-              </div>
-              <h2 className="text-3xl font-bold mb-4">
-                Empowering Fund Managers with Technology
+              <h2 className="text-3xl font-bold mb-3">
+                Empowering fund managers with verifiable infrastructure.
               </h2>
-              <p className="text-lg text-[var(--app-text-muted)] mb-6">
-                Traditional fund operations rely on disconnected tools, manual data entry, and outdated workflows.
-                We believe there&apos;s a better way.
+              <p className="text-lg text-[var(--app-text-muted)] mb-5">
+                Fund operations still rely on fragmented tooling. We built VestLedger to give funds a clear system of record.
               </p>
               <p className="text-lg text-[var(--app-text-muted)]">
-                VestLedger combines blockchain-based trust infrastructure, intelligent automation, and AI-powered
-                insights to help funds operate with the efficiency and transparency their LPs demand.
+                VestLedger combines blockchain-based ownership, intelligent automation, and AI-powered insights so funds can operate with institutional clarity.
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              {stats.map((stat, idx) => (
-                <Card key={idx} padding="lg" className="text-center">
+            <div className="grid grid-cols-2 gap-5 text-center">
+              {stats.map((stat) => (
+                <div key={stat.label} className="border-t border-[var(--app-border)] pt-4">
                   <div className="text-3xl font-bold text-[var(--app-primary)] mb-2">{stat.value}</div>
                   <div className="text-sm text-[var(--app-text-muted)]">{stat.label}</div>
-                </Card>
+                </div>
               ))}
             </div>
           </div>
@@ -152,61 +139,40 @@ export default function AboutPage() {
       </section>
 
       {/* Values Section */}
-      <section className="py-20 px-4">
+      <section className="py-12 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--app-accent-bg)] text-[var(--app-accent)] text-sm font-medium mb-4">
-              <Heart className="w-4 h-4" />
-              <span>Our Values</span>
-            </div>
-            <h2 className="text-3xl font-bold mb-4">What Drives Us</h2>
+          <div className="text-center mb-6">
+            <h2 className="text-3xl font-bold mb-3">What Drives Us</h2>
             <p className="text-lg text-[var(--app-text-muted)] max-w-2xl mx-auto">
               Our values guide every decision we make and every feature we build.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {values.map((value, idx) => {
-              const Icon = value.icon;
-              return (
-                <Card key={idx} padding="lg" className="text-center hover:border-[var(--app-primary)] transition-colors">
-                  <div className="w-12 h-12 rounded-xl bg-[var(--app-primary-bg)] text-[var(--app-primary)] flex items-center justify-center mx-auto mb-4">
-                    <Icon className="w-6 h-6" />
-                  </div>
-                  <h3 className="text-lg font-bold mb-2">{value.title}</h3>
-                  <p className="text-[var(--app-text-muted)] text-sm">{value.description}</p>
-                </Card>
-              );
-            })}
-          </div>
+          <ul className="space-y-3 text-sm text-[var(--app-text-muted)]">
+            {values.map((value) => (
+              <li key={value.title} className="flex items-start gap-3 border-t border-[var(--app-border)] pt-4">
+                <Heart className="w-4 h-4 text-[var(--app-secondary)] mt-0.5" />
+                <div>
+                  <p className="text-[var(--app-text)] font-semibold">{value.title}</p>
+                  <p>{value.description}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
       {/* Timeline Section */}
-      <section className="py-20 bg-[var(--app-surface)] border-y border-[var(--app-border)]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--app-secondary-bg)] text-[var(--app-secondary)] text-sm font-medium mb-4">
-              <TrendingUp className="w-4 h-4" />
-              <span>Our Journey</span>
-            </div>
-            <h2 className="text-3xl font-bold mb-4">Building the Future of Fund Operations</h2>
+      <section className="py-12 bg-[var(--app-surface)]/85 border-y border-[var(--app-border)]">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-6">
+            <h2 className="text-3xl font-bold mb-3">Building the Future of Fund Operations</h2>
           </div>
-          <div className="space-y-8">
-            {timeline.map((milestone, idx) => (
-              <div key={idx} className="flex gap-6">
-                <div className="flex flex-col items-center">
-                  <div className="w-12 h-12 rounded-full bg-[var(--app-primary)] text-white flex items-center justify-center font-bold shrink-0" role="img" aria-label={milestone.year}>
-                    {milestone.year.slice(2)}
-                  </div>
-                  {idx < timeline.length - 1 && (
-                    <div className="w-0.5 h-full bg-[var(--app-border)] mt-2" aria-hidden="true" />
-                  )}
-                </div>
-                <div className="pb-8">
-                  <time className="text-sm text-[var(--app-text-muted)] mb-1 block">{milestone.year}</time>
-                  <h3 className="text-xl font-bold mb-2">{milestone.title}</h3>
-                  <p className="text-[var(--app-text-muted)]">{milestone.description}</p>
-                </div>
+          <div className="grid md:grid-cols-4 gap-5 text-sm text-[var(--app-text-muted)]">
+            {timeline.map((milestone) => (
+              <div key={milestone.year} className="border-t border-[var(--app-border)] pt-4">
+                <time className="text-xs uppercase tracking-[0.2em]">{milestone.year}</time>
+                <h3 className="text-lg font-bold mt-2 mb-2">{milestone.title}</h3>
+                <p>{milestone.description}</p>
               </div>
             ))}
           </div>
@@ -214,56 +180,46 @@ export default function AboutPage() {
       </section>
 
       {/* Team Section */}
-      <section className="py-20 px-4">
+      <section className="py-12 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--app-primary-bg)] text-[var(--app-primary)] text-sm font-medium mb-4">
-              <Users className="w-4 h-4" />
-              <span>Our Team</span>
-            </div>
-            <h2 className="text-3xl font-bold mb-4">Meet the Team</h2>
+          <div className="text-center mb-6">
+            <h2 className="text-3xl font-bold mb-3">Meet the Team</h2>
             <p className="text-lg text-[var(--app-text-muted)] max-w-2xl mx-auto">
               We&apos;re a team of builders, operators, and technologists with deep expertise in venture capital,
               blockchain, and enterprise software.
             </p>
+            <p className="text-xs text-[var(--app-text-muted)] mt-2">Team profiles shown here are illustrative placeholders.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {team.map((member, idx) => (
-              <Card key={idx} padding="lg" className="text-center hover:border-[var(--app-primary)] transition-colors">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4" role="img" aria-label={`${member.name} profile picture`}>
-                  {member.image}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {team.map((member) => (
+              <div key={member.name} className="border-t border-[var(--app-border)] pt-5">
+                <div className="flex items-center gap-4 mb-2">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-secondary)] flex items-center justify-center text-white text-sm font-bold" role="img" aria-label={`${member.name} profile picture`}>
+                    {member.image}
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold">{member.name}</h3>
+                    <p className="text-sm text-[var(--app-primary)]">{member.role}</p>
+                  </div>
                 </div>
-                <h3 className="text-lg font-bold mb-1">{member.name}</h3>
-                <p className="text-sm text-[var(--app-primary)] mb-3">{member.role}</p>
-                <p className="text-sm text-[var(--app-text-muted)] mb-4">{member.bio}</p>
-                <div className="flex items-center justify-center gap-2">
-                  <button className="p-2 rounded-lg hover:bg-[var(--app-surface-hover)] transition-colors" aria-label={`View ${member.name}'s LinkedIn profile`}>
-                    <Linkedin className="w-4 h-4" />
-                  </button>
-                  <button className="p-2 rounded-lg hover:bg-[var(--app-surface-hover)] transition-colors" aria-label={`View ${member.name}'s Twitter profile`}>
-                    <Twitter className="w-4 h-4" />
-                  </button>
-                  <button className="p-2 rounded-lg hover:bg-[var(--app-surface-hover)] transition-colors" aria-label={`Email ${member.name}`}>
-                    <Mail className="w-4 h-4" />
-                  </button>
-                </div>
-              </Card>
+                <p className="text-sm text-[var(--app-text-muted)]">{member.bio}</p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 text-center px-4 bg-[var(--app-surface)] border-t border-[var(--app-border)]">
+      <section className="py-12 text-center px-4 bg-[var(--app-surface)]/85 border-t border-[var(--app-border)]">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold mb-4">Join Us on This Journey</h2>
-          <p className="text-lg text-[var(--app-text-muted)] mb-8">
+          <h2 className="text-3xl font-bold mb-3">Join Us on This Journey</h2>
+          <p className="text-lg text-[var(--app-text-muted)] mb-6">
             We&apos;re building the future of venture capital operations. Whether you&apos;re a fund manager looking to transform
             your operations or a talented individual wanting to join our mission, we&apos;d love to hear from you.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button as={Link} href="/eoi" color="primary" size="lg" endContent={<ArrowRight className="w-4 h-4" />}>
-              Request Demo Access
+              Request Demo
             </Button>
             <Button as={Link} href="/careers" variant="bordered" size="lg" endContent={<Globe className="w-4 h-4" />}>
               View Careers

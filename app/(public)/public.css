@@ -1,0 +1,30 @@
+.public-shell {
+  background-color: var(--app-bg);
+  background-image:
+    radial-gradient(circle at 18% 12%, rgba(var(--app-secondary-rgb), 0.14), transparent 46%),
+    radial-gradient(circle at 82% 6%, rgba(var(--app-primary-rgb), 0.18), transparent 42%);
+  background-size: auto, auto;
+}
+
+.dark .public-shell {
+  background-image:
+    radial-gradient(circle at 18% 12%, rgba(var(--app-secondary-rgb), 0.18), transparent 48%),
+    radial-gradient(circle at 82% 6%, rgba(var(--app-primary-rgb), 0.22), transparent 42%);
+}
+
+.public-hero {
+  position: relative;
+  overflow: hidden;
+}
+
+.public-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 70% 10%, rgba(var(--app-secondary-rgb), 0.14), transparent 42%);
+  pointer-events: none;
+}
+
+.dark .public-hero::after {
+  background: radial-gradient(circle at 70% 10%, rgba(var(--app-secondary-rgb), 0.2), transparent 42%);
+}

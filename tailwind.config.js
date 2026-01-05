@@ -17,73 +17,73 @@ module.exports = {
       themes: {
         light: {
           colors: {
-            background: "#FAF8F5", // Warm ivory background
-            foreground: "#2D1B4E", // Deep royal purple
+            background: "#F2F3F5",
+            foreground: "#15181E",
             primary: {
-              DEFAULT: "#6B46C1", // Rich royal purple
+              DEFAULT: "#2A3445",
               foreground: "#FFFFFF",
             },
             secondary: {
-              DEFAULT: "#D4AF37", // Royal gold
+              DEFAULT: "#9E6A34",
               foreground: "#FFFFFF",
             },
             success: {
-              DEFAULT: "#059669", // Emerald jewel
+              DEFAULT: "#2F7A68",
               foreground: "#FFFFFF",
             },
             warning: {
-              DEFAULT: "#D97706", // Amber jewel
+              DEFAULT: "#B47434",
               foreground: "#FFFFFF",
             },
             danger: {
-              DEFAULT: "#DC2626", // Ruby red
+              DEFAULT: "#B15A50",
               foreground: "#FFFFFF",
             },
             default: {
-              DEFAULT: "#FFFFFF", // Pure white surface
-              foreground: "#2D1B4E",
+              DEFAULT: "#FFFFFF",
+              foreground: "#15181E",
             },
-            focus: "#6B46C1", // Royal purple focus
-            content1: "#FFFFFF", // Pure white cards
-            content2: "#FAF8F5", // Warm ivory
-            content3: "#F5F3EE", // Warm hover
-            content4: "#F0EBE3", // Subtle ivory
+            focus: "#2A3445",
+            content1: "#FFFFFF",
+            content2: "#F1F2F4",
+            content3: "#E8EAEF",
+            content4: "#DFE3EA",
           },
           extend: "light",
         },
         dark: {
           colors: {
-            background: "#0F0A1A", // Professional deep charcoal
-            foreground: "#E8E6F0", // Soft white
+            background: "#0C1116",
+            foreground: "#E7EBF1",
             primary: {
-              DEFAULT: "#8B7AB8", // Refined royal purple
+              DEFAULT: "#35455E",
               foreground: "#FFFFFF",
             },
             secondary: {
-              DEFAULT: "#D4AF37", // Royal gold
-              foreground: "#0F0A1A",
+              DEFAULT: "#B67D40",
+              foreground: "#0C1116",
             },
             success: {
-              DEFAULT: "#34D399", // Bright emerald jewel
-              foreground: "#0F0A1A",
+              DEFAULT: "#4A8C79",
+              foreground: "#0C1116",
             },
             warning: {
-              DEFAULT: "#FBBF24", // Bright amber jewel
-              foreground: "#0F0A1A",
+              DEFAULT: "#C9823F",
+              foreground: "#0C1116",
             },
             danger: {
-              DEFAULT: "#F87171", // Bright ruby
-              foreground: "#0F0A1A",
+              DEFAULT: "#BB6A60",
+              foreground: "#0C1116",
             },
             default: {
-              DEFAULT: "#1A1625", // Dark slate purple surface
-              foreground: "#E8E6F0",
+              DEFAULT: "#171D24",
+              foreground: "#E7EBF1",
             },
-            focus: "#8B7AB8", // Refined purple focus
-            content1: "#1A1625", // Dark slate surface
-            content2: "#241D30", // Subtle hover
-            content3: "#2D2438", // Medium surface
-            content4: "#36304A", // Elevated surface
+            focus: "#35455E",
+            content1: "#171D24",
+            content2: "#1D242E",
+            content3: "#242D39",
+            content4: "#2C3746",
           },
           extend: "dark",
         },

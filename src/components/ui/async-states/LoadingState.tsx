@@ -20,7 +20,7 @@ export function LoadingState({
             alt="VestLedger logo"
             width={logoSize}
             height={logoSize}
-            className="animate-spin"
+            className="animate-spin logo-mark"
           />
         </div>
         <p className="text-[var(--app-text-muted)]">{message}</p>

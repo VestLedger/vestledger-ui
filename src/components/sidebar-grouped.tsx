@@ -152,7 +152,7 @@ export function SidebarGrouped() {
                 alt="VestLedger logo"
                 width={24}
                 height={24}
-                className="h-6 w-6"
+                className="h-6 w-6 logo-mark"
               />
             </div>
           </div>
@@ -164,7 +164,7 @@ export function SidebarGrouped() {
                 alt="VestLedger logo"
                 width={24}
                 height={24}
-                className="h-6 w-6"
+                className="h-6 w-6 logo-mark"
               />
             </div>
             <div>

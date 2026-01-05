@@ -13,7 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",
-    "lighthouse:auth": "lhci autorun --config=./lighthouserc.auth.json && node scripts/lhci-append-assertions.js auth",
+    "lighthouse:auth": "lhci autorun --config=./lighthouserc.auth.cjs && node scripts/lhci-append-assertions.js auth",
     "lighthouse:public": "lhci autorun --config=./lighthouserc.public.json && node scripts/lhci-append-assertions.js public",
     "cypress": "cypress open",
     "cypress:run": "cypress run",

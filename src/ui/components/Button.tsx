@@ -8,7 +8,7 @@ export interface ButtonProps extends NextUIButtonProps {
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
-  const { variant = 'solid', color = 'primary', size = 'md', ...rest } = props;
+  const { variant = 'solid', color = 'primary', size = 'md', radius = 'sm', ...rest } = props;
 
   return (
     <NextUIButton
@@ -16,6 +16,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) =>
       variant={variant}
       color={color}
       size={size}
+      radius={radius}
       {...rest}
     />
   );

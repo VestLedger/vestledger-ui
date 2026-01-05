@@ -1,7 +1,14 @@
 import type { Metadata, Viewport } from 'next'
-import { Providers } from './providers'
+import { Space_Grotesk } from 'next/font/google'
+import { DashboardProviders } from './providers-client'
 import { WebVitals } from './web-vitals'
 import './globals.css'
+
+const bodyFont = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-body',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: 'VestLedger - VC Workflow Management System',
@@ -14,7 +21,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#4f63c7',
+  themeColor: '#2a3445',
 }
 
 export default function RootLayout({
@@ -24,11 +31,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>
+      <body className={bodyFont.variable}>
         <WebVitals />
-        <Providers>
+        <DashboardProviders>
           {children}
-        </Providers>
+        </DashboardProviders>
       </body>
     </html>
   )

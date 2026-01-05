@@ -1,4 +1,4 @@
-import { Homepage } from '@/components/homepage';
+import { HomepageServer } from '@/components/homepage-server';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -12,10 +12,5 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return (
-    <>
-      <link rel="preload" href="/logo/Print_Transparent.svg" as="image" type="image/svg+xml" />
-      <Homepage />
-    </>
-  );
+  return <HomepageServer />;
 }

@@ -15,6 +15,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>((props,
     variant = 'light',
     color = 'default',
     size = 'md',
+    radius = 'sm',
     ...rest
   } = props;
 
@@ -25,6 +26,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>((props,
       variant={variant}
       color={color}
       size={size}
+      radius={radius}
       {...rest}
     >
       {icon}

@@ -1,14 +1,9 @@
 import { Link as LinkIcon, RefreshCw, Sparkles, Shield, CheckCircle2, Gauge, Database } from 'lucide-react';
-import { Card, Button } from '@/ui';
+import { StaticCard, StaticButton } from '@/ui/static';
 import Image from 'next/image';
-import Link from 'next/link';
 import { TriadOrbit, WorkflowFlow } from '@/components/public/visuals';
-import {
-  HomepageCTAButton,
-  HomepageHeroActions,
-} from '@/components/homepage-client';
 
-export function Homepage() {
+export function HomepageServer() {
   const proofPoints = [
     { value: '$2.4B+', label: 'AUM tracked' },
     { value: '500+', label: 'Active deals' },
@@ -85,7 +80,6 @@ export function Homepage() {
                 className="h-9 w-9 logo-mark"
                 priority
                 fetchPriority="high"
-                loading="eager"
               />
               <span className="text-xs uppercase tracking-[0.32em] text-[var(--app-text-muted)]">VestLedger</span>
             </div>
@@ -98,7 +92,15 @@ export function Homepage() {
             <p className="text-base sm:text-lg md:text-xl text-[var(--app-text-muted)] mb-6 leading-relaxed max-w-xl">
               VestLedger unifies tokenized trust, automated operations, and AI guidance so venture, PE, and crypto funds can operate with institutional-grade clarity.
             </p>
-            <HomepageHeroActions />
+            {/* CTA Buttons - Server Rendered */}
+            <div className="flex flex-col sm:flex-row items-center justify-start gap-3 sm:gap-4">
+              <StaticButton href="/eoi" color="primary" size="lg">
+                Request Demo
+              </StaticButton>
+              <StaticButton href="/how-it-works" variant="bordered" size="lg">
+                Watch Demo
+              </StaticButton>
+            </div>
             <p className="text-xs text-[var(--app-text-muted)] mt-4">
               Demo video coming soon. For now, explore the workflow.
             </p>
@@ -226,7 +228,7 @@ export function Homepage() {
 
       {/* CTA Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-12">
-        <Card className="rounded-xl border-[var(--app-border)] bg-[var(--app-surface)]/90" padding="lg">
+        <StaticCard className="rounded-xl border-[var(--app-border)] bg-[var(--app-surface)]/90" padding="lg">
           <div className="grid md:grid-cols-[0.6fr_0.4fr] gap-6 items-center">
             <div>
               <h3 className="text-2xl sm:text-3xl md:text-4xl mb-3">Ready to run your fund on a real system?</h3>
@@ -235,13 +237,15 @@ export function Homepage() {
               </p>
             </div>
             <div className="flex flex-col sm:flex-row md:flex-col gap-3 sm:gap-4 md:items-end">
-              <HomepageCTAButton />
-              <Button as={Link} href="/how-it-works" variant="bordered">
+              <StaticButton href="/eoi" color="primary" size="lg">
+                Request Demo
+              </StaticButton>
+              <StaticButton href="/how-it-works" variant="bordered" size="lg">
                 See How It Works
-              </Button>
+              </StaticButton>
             </div>
           </div>
-        </Card>
+        </StaticCard>
       </section>
     </div>
   );

@@ -1,8 +1,6 @@
-'use client';
-
-import { Card, Button } from '@/ui';
+import { StaticButton } from '@/ui/static';
 import { Link as LinkIcon, RefreshCw, Sparkles, ArrowRight, CheckCircle2 } from 'lucide-react';
-import Link from 'next/link';
+import { WorkflowFlow } from '@/components/public/visuals';
 
 export default function HowItWorksPage() {
   const phases = [
@@ -41,99 +39,165 @@ export default function HowItWorksPage() {
     },
   ];
 
+  const requirements = [
+    'Fund documentation and LP roster.',
+    'Current reporting and workflow templates.',
+    'Portfolio KPI sources and data owners.',
+    'Security and compliance requirements.',
+  ];
+
+  const deliverables = [
+    'Tokenized ownership registry baseline.',
+    'Automated capital call and distribution workflows.',
+    'LP reporting portal with live data.',
+    'AI insight layer configured to your fund.',
+  ];
+
   return (
-    <div className="bg-[var(--app-bg)]">
+    <div className="text-[var(--app-text)]">
       {/* Hero */}
-      <section className="py-20 text-center px-4 bg-[var(--app-surface)] border-b border-[var(--app-border)]">
+      <section className="py-12 text-center px-4 bg-[var(--app-surface)]/85 border-b border-[var(--app-border)]">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl sm:text-5xl font-bold mb-6">
-            How <span className="text-[var(--app-primary)]">Triad OS</span> Works
+          <h1 className="text-4xl sm:text-5xl font-bold mb-5">
+            How the Triad OS replaces legacy fund operations.
           </h1>
           <p className="text-xl text-[var(--app-text-muted)] max-w-2xl mx-auto">
-            Whether you&apos;re a VC, PE firm, or crypto fund, VestLedger&apos;s architecture is designed so each layer reinforces the others—creating compounding operational leverage and decision intelligence.
+            VestLedger rolls out in a phased engagement so you see measurable value before expanding scope. Each layer compounds trust, automation, and intelligence.
           </p>
+          <div className="mt-8 flex justify-center">
+            <WorkflowFlow className="w-72 h-32" />
+          </div>
         </div>
       </section>
 
       {/* Architecture Flow */}
-      <section className="py-24">
+      <section className="py-12">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <h2 className="text-3xl font-bold text-center mb-6">The Unified Architecture</h2>
-          <p className="text-lg text-[var(--app-text-muted)] text-center max-w-2xl mx-auto mb-16">
+          <h2 className="text-3xl font-bold text-center mb-5">The Unified Architecture</h2>
+          <p className="text-lg text-[var(--app-text-muted)] text-center max-w-2xl mx-auto mb-6">
             Token Layer provides real-time immutable truth. Ops Engine automates workflows anchored to that state. AI Advisor uses the clean data to guide decisions. All connected via a unified data fabric.
           </p>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Token Layer */}
-            <Card padding="lg" className="text-center border-2 border-[var(--app-primary)]">
-              <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[var(--app-primary-bg)] flex items-center justify-center text-[var(--app-primary)]" role="img" aria-label="Tokenized Trust Layer icon">
-                <LinkIcon className="w-8 h-8" aria-hidden="true" />
+          <div className="grid md:grid-cols-3 gap-6 text-sm text-[var(--app-text-muted)]">
+            <div className="border-t border-[var(--app-border)] pt-4">
+              <div className="flex items-center gap-2 mb-3 text-[var(--app-primary)]">
+                <LinkIcon className="w-4 h-4" aria-hidden="true" />
+                <span className="text-xs uppercase tracking-[0.2em]">Tokenized Trust</span>
               </div>
-              <h3 className="text-xl font-bold mb-2">1. Tokenized Trust</h3>
-              <p className="text-[var(--app-text-muted)]">On-chain ownership, cryptographic proofs, programmable compliance. The immutable source of truth.</p>
-            </Card>
-
-            {/* Ops Engine */}
-            <Card padding="lg" className="text-center border-2 border-[var(--app-secondary)]">
-              <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[var(--app-secondary-bg)] flex items-center justify-center text-[var(--app-secondary)]" role="img" aria-label="Automated Operations icon">
-                <RefreshCw className="w-8 h-8" aria-hidden="true" />
+              <h3 className="text-lg font-semibold mb-2">1. Immutable ownership</h3>
+              <p>On-chain ownership, cryptographic proofs, programmable compliance.</p>
+            </div>
+            <div className="border-t border-[var(--app-border)] pt-4">
+              <div className="flex items-center gap-2 mb-3 text-[var(--app-secondary)]">
+                <RefreshCw className="w-4 h-4" aria-hidden="true" />
+                <span className="text-xs uppercase tracking-[0.2em]">Automated Ops</span>
               </div>
-              <h3 className="text-xl font-bold mb-2">2. Automated Ops</h3>
-              <p className="text-[var(--app-text-muted)]">Capital calls, distributions, NAV calculations, and LP reporting—all automated end-to-end.</p>
-            </Card>
-
-            {/* AI Advisor */}
-            <Card padding="lg" className="text-center border-2 border-[var(--app-accent)]">
-              <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[var(--app-accent-bg)] flex items-center justify-center text-[var(--app-accent)]" role="img" aria-label="AI Advisor icon">
-                <Sparkles className="w-8 h-8" aria-hidden="true" />
+              <h3 className="text-lg font-semibold mb-2">2. Workflow engine</h3>
+              <p>Capital calls, distributions, NAV, and LP reporting automated end-to-end.</p>
+            </div>
+            <div className="border-t border-[var(--app-border)] pt-4">
+              <div className="flex items-center gap-2 mb-3 text-[var(--app-accent)]">
+                <Sparkles className="w-4 h-4" aria-hidden="true" />
+                <span className="text-xs uppercase tracking-[0.2em]">AI Advisor</span>
               </div>
-              <h3 className="text-xl font-bold mb-2">3. AI Advisor</h3>
-              <p className="text-[var(--app-text-muted)]">Synthesizes diligence, detects anomalies, generates LP narratives from live operational data.</p>
-            </Card>
+              <h3 className="text-lg font-semibold mb-2">3. Intelligence layer</h3>
+              <p>Briefs, anomaly detection, and LP narratives from live data.</p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Engagement Model */}
-      <section className="py-24 bg-[var(--app-surface)] border-y border-[var(--app-border)]">
+      <section className="py-12 bg-[var(--app-surface)]/85 border-y border-[var(--app-border)]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <h2 className="text-3xl font-bold text-center mb-6">Engagement Model</h2>
-          <p className="text-lg text-[var(--app-text-muted)] text-center max-w-2xl mx-auto mb-16">
+          <h2 className="text-3xl font-bold text-center mb-5">Engagement Model</h2>
+          <p className="text-lg text-[var(--app-text-muted)] text-center max-w-2xl mx-auto mb-6">
             We partner with funds in a phased approach, ensuring value at each step before expanding scope.
           </p>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="space-y-4">
             {phases.map((phase, idx) => (
-              <Card key={idx} padding="lg" className="border-[var(--app-border-subtle)]">
-                <div className="flex items-center gap-3 mb-4">
+              <div key={idx} className="border-t border-[var(--app-border)] pt-6">
+                <div className="flex flex-wrap items-center gap-3 mb-4">
                   <span className="text-xs font-bold uppercase text-[var(--app-primary)]">{phase.phase}</span>
-                  <span className="text-xs text-[var(--app-text-muted)]">({phase.duration})</span>
+                  <span className="text-xs text-[var(--app-text-muted)]">{phase.duration}</span>
                 </div>
-                <h3 className="text-xl font-bold mb-4">{phase.title}</h3>
-                <ul className="space-y-2">
+                <h3 className="text-xl font-bold mb-3">{phase.title}</h3>
+                <ul className="grid sm:grid-cols-2 gap-3 text-sm text-[var(--app-text-muted)]">
                   {phase.items.map((item, i) => (
-                    <li key={i} className="flex items-center gap-2 text-sm text-[var(--app-text-muted)]">
+                    <li key={i} className="flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-[var(--app-success)] flex-shrink-0" />
                       <span>{item}</span>
                     </li>
                   ))}
                 </ul>
-              </Card>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
+      {/* What We Need / What You Get */}
+      <section className="py-12">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="text-xl font-bold mb-3">What we need from you</h3>
+              <ul className="space-y-2 text-sm text-[var(--app-text-muted)]">
+                {requirements.map((item) => (
+                  <li key={item} className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[var(--app-primary)] mt-0.5" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold mb-3">What you get</h3>
+              <ul className="space-y-2 text-sm text-[var(--app-text-muted)]">
+                {deliverables.map((item) => (
+                  <li key={item} className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[var(--app-success)] mt-0.5" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Mini Case */}
+      <section className="py-12 bg-[var(--app-surface)]/85 border-y border-[var(--app-border)]">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <div className="grid md:grid-cols-[0.6fr_0.4fr] gap-6 items-center">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-[var(--app-text-muted)] mb-2">Pilot Example</p>
+              <h2 className="text-3xl font-bold mb-3">A mid-market VC firm reduced reporting time by 60%.</h2>
+              <p className="text-[var(--app-text-muted)]">
+                After implementing Tokenized Trust and Automated Operations, the fund moved LP reporting to a live portal, eliminating quarterly manual close processes.
+              </p>
+            </div>
+            <div className="text-center">
+              <p className="text-sm text-[var(--app-text-muted)] mb-2">Time to first automated report</p>
+              <p className="text-4xl font-semibold text-[var(--app-secondary)] mb-2">27 days</p>
+              <p className="text-xs text-[var(--app-text-muted)]">from kickoff to pilot delivery</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
-      <section className="py-24 text-center px-4">
+      <section className="py-12 text-center px-4">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold mb-6">Ready to Transform Your Fund Operations?</h2>
-          <p className="text-lg text-[var(--app-text-muted)] mb-8">
+          <h2 className="text-3xl font-bold mb-5">Ready to Transform Your Fund Operations?</h2>
+          <p className="text-lg text-[var(--app-text-muted)] mb-6">
             VestLedger invites VCs, PE firms, and crypto funds to adopt the Triad OS as their institutional operating infrastructure.
           </p>
-          <Button as={Link} href="/eoi" color="primary" size="lg" endContent={<ArrowRight className="w-4 h-4" />}>
-            Express Interest
-          </Button>
+          <StaticButton href="/eoi" color="primary" size="lg" className="inline-flex items-center gap-2">
+            Request Demo
+            <ArrowRight className="w-4 h-4" />
+          </StaticButton>
         </div>
       </section>
     </div>
