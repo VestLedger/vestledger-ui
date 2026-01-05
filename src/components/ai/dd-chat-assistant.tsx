@@ -218,6 +218,7 @@ export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealNam
             isIconOnly
             onPress={handleSend}
             isDisabled={!inputValue.trim()}
+            aria-label="Send message"
           >
             <Send className="w-4 h-4" />
           </Button>

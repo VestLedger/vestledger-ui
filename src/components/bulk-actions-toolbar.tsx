@@ -80,6 +80,7 @@ export function BulkActionsToolbar({
                 variant="flat"
                 isIconOnly
                 onPress={onClear}
+                aria-label="Clear selection"
                 className="bg-white/10 hover:bg-white/20"
               >
                 <X className="w-4 h-4" />
@@ -149,6 +150,7 @@ export function BulkActionsToolbar({
                 variant="flat"
                 isIconOnly
                 className="bg-white/10 hover:bg-white/20"
+                aria-label="More actions"
               >
                 <MoreHorizontal className="w-4 h-4" />
               </Button>

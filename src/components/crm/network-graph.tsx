@@ -230,6 +230,7 @@ export function NetworkGraph({
               isIconOnly
               isDisabled={depth <= 1}
               onPress={() => patchUI({ depth: Math.max(1, depth - 1) })}
+              aria-label="Decrease depth"
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
@@ -242,6 +243,7 @@ export function NetworkGraph({
               isIconOnly
               isDisabled={depth >= maxDepth}
               onPress={() => patchUI({ depth: Math.min(maxDepth, depth + 1) })}
+              aria-label="Increase depth"
             >
               <ChevronRight className="w-4 h-4" />
             </Button>

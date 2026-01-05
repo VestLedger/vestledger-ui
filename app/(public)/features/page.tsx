@@ -84,7 +84,7 @@ export default function FeaturesPage() {
       <section className="py-20 text-center px-4">
         <div className="max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--app-primary-bg)] text-[var(--app-primary)] text-sm font-medium mb-6">
-            <Layers className="w-4 h-4" />
+            <Layers className="w-4 h-4" aria-hidden="true" />
             <span>The Triad OS</span>
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold mb-6">

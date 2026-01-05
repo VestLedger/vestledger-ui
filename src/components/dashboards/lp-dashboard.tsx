@@ -239,7 +239,7 @@ export function LPDashboard() {
                      <div className="text-xs text-[var(--app-text-muted)]">{doc.type} • {doc.date}</div>
                    </div>
                  </div>
-                 <Button size="sm" variant="light" isIconOnly>
+                 <Button size="sm" variant="light" isIconOnly aria-label={`Download ${doc.name}`}>
                    <Download className="w-4 h-4" />
                  </Button>
                </div>

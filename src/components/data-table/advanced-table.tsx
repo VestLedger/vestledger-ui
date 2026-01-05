@@ -227,6 +227,7 @@ export function AdvancedTable<T extends object>({
                 size="sm"
                 variant="flat"
                 isIconOnly
+                aria-label="Toggle column visibility"
               >
                 <Settings2 className="w-3 h-3" />
               </Button>
@@ -334,6 +335,7 @@ export function AdvancedTable<T extends object>({
                 isIconOnly
                 isDisabled={safeCurrentPage === 1}
                 onPress={() => patchTableUI({ currentPage: Math.max(1, safeCurrentPage - 1) })}
+                aria-label="Previous page"
               >
                 <ChevronLeft className="w-4 h-4" />
               </Button>
@@ -343,6 +345,7 @@ export function AdvancedTable<T extends object>({
                 isIconOnly
                 isDisabled={safeCurrentPage === totalPages}
                 onPress={() => patchTableUI({ currentPage: Math.min(totalPages, safeCurrentPage + 1) })}
+                aria-label="Next page"
               >
                 <ChevronRight className="w-4 h-4" />
               </Button>

@@ -270,7 +270,13 @@ export function WaterfallModeling() {
                         </Badge>
                       </div>
                     </div>
-                    <Button size="sm" variant="light" isIconOnly className="text-[var(--app-text-muted)]">
+                    <Button
+                      size="sm"
+                      variant="light"
+                      isIconOnly
+                      aria-label={`Remove ${ic.name}`}
+                      className="text-[var(--app-text-muted)]"
+                    >
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
@@ -363,7 +369,7 @@ export function WaterfallModeling() {
               <Globe className="w-5 h-5 text-[var(--app-primary)]" />
               Waterfall Model
             </h3>
-            <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="grid grid-cols-2 gap-3 mb-4" role="radiogroup" aria-label="Waterfall model selection">
               <button
                 onClick={() => patchUI({ waterfallModel: 'european' })}
                 className={`p-4 rounded-lg border-2 transition-all text-left ${
@@ -371,9 +377,12 @@ export function WaterfallModeling() {
                     ? 'border-[var(--app-primary)] bg-[var(--app-primary-bg)]'
                     : 'border-[var(--app-border)] hover:border-[var(--app-border-subtle)]'
                 }`}
+                role="radio"
+                aria-checked={waterfallModel === 'european'}
+                aria-label="European waterfall model: Whole-fund waterfall where GP receives carry only after all LP capital returned"
               >
                 <div className="flex items-center gap-2 mb-2">
-                  <Globe className="w-5 h-5 text-[var(--app-primary)]" />
+                  <Globe className="w-5 h-5 text-[var(--app-primary)]" aria-hidden="true" />
                   <span className="font-medium">European</span>
                 </div>
                 <p className="text-xs text-[var(--app-text-muted)]">
@@ -387,9 +396,12 @@ export function WaterfallModeling() {
                     ? 'border-[var(--app-primary)] bg-[var(--app-primary-bg)]'
                     : 'border-[var(--app-border)] hover:border-[var(--app-border-subtle)]'
                 }`}
+                role="radio"
+                aria-checked={waterfallModel === 'american'}
+                aria-label="American waterfall model: Deal-by-deal waterfall where GP can receive carry on individual profitable exits"
               >
                 <div className="flex items-center gap-2 mb-2">
-                  <Flag className="w-5 h-5 text-[var(--app-secondary)]" />
+                  <Flag className="w-5 h-5 text-[var(--app-secondary)]" aria-hidden="true" />
                   <span className="font-medium">American</span>
                 </div>
                 <p className="text-xs text-[var(--app-text-muted)]">
@@ -401,27 +413,31 @@ export function WaterfallModeling() {
             {/* Hurdle Rate & Carry */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-sm font-medium mb-2 block">Hurdle Rate</label>
+                <label htmlFor="hurdle-rate" className="text-sm font-medium mb-2 block">Hurdle Rate</label>
                 <div className="flex items-center gap-2">
                   <Input
+                    id="hurdle-rate"
                     type="number"
                     value={hurdleRate.toString()}
                     onChange={(e) => patchUI({ hurdleRate: Number(e.target.value) })}
                     className="flex-1"
+                    aria-label="Hurdle rate percentage"
                   />
-                  <span className="text-sm text-[var(--app-text-muted)]">%</span>
+                  <span className="text-sm text-[var(--app-text-muted)]" aria-hidden="true">%</span>
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">GP Carry</label>
+                <label htmlFor="gp-carry" className="text-sm font-medium mb-2 block">GP Carry</label>
                 <div className="flex items-center gap-2">
                   <Input
+                    id="gp-carry"
                     type="number"
                     value={carryPercentage.toString()}
                     onChange={(e) => patchUI({ carryPercentage: Number(e.target.value) })}
                     className="flex-1"
+                    aria-label="GP carry percentage"
                   />
-                  <span className="text-sm text-[var(--app-text-muted)]">%</span>
+                  <span className="text-sm text-[var(--app-text-muted)]" aria-hidden="true">%</span>
                 </div>
               </div>
             </div>
@@ -435,13 +451,15 @@ export function WaterfallModeling() {
 
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">Exit Value</label>
+                <label htmlFor="exit-value" className="text-sm font-medium mb-2 block">Exit Value</label>
                 <Input
+                  id="exit-value"
                   type="number"
                   value={exitValue.toString()}
                   onChange={(e) => patchUI({ exitValue: Number(e.target.value) })}
                   startContent={<DollarSign className="w-4 h-4 text-[var(--app-text-muted)]" />}
                   placeholder="100000000"
+                  aria-label="Exit value in dollars"
                 />
               </div>
 

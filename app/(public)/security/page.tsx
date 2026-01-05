@@ -43,8 +43,8 @@ export default function SecurityPage() {
       {/* Header */}
       <section className="py-20 text-center px-4 bg-[var(--app-surface)] border-b border-[var(--app-border)]">
          <div className="flex justify-center mb-6">
-            <div className="p-4 bg-[var(--app-success-bg)] rounded-full text-[var(--app-success)]">
-                <Shield className="w-12 h-12" />
+            <div className="p-4 bg-[var(--app-success-bg)] rounded-full text-[var(--app-success)]" role="img" aria-label="Security shield">
+                <Shield className="w-12 h-12" aria-hidden="true" />
             </div>
          </div>
         <h1 className="text-4xl sm:text-5xl font-bold mb-6">

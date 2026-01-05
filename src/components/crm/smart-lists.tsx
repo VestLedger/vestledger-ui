@@ -231,6 +231,7 @@ export function SmartLists({ lists, onListSelect, onListSave, onListDelete, sele
                       isIconOnly
                       onPress={() => onListDelete(list.id)}
                       className="ml-2"
+                      aria-label={`Delete list ${list.name}`}
                     >
                       <Trash2 className="w-4 h-4 text-[var(--app-danger)]" />
                     </Button>
@@ -334,6 +335,7 @@ export function SmartLists({ lists, onListSelect, onListSave, onListDelete, sele
                         variant="light"
                         isIconOnly
                         onPress={() => removeCondition(condition.id)}
+                        aria-label="Remove filter"
                       >
                         <X className="w-4 h-4 text-[var(--app-danger)]" />
                       </Button>

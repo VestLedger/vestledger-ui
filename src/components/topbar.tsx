@@ -205,6 +205,7 @@ export function Topbar() {
           variant="light"
           isIconOnly
           onPress={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          aria-label="Toggle theme"
           className="text-[var(--app-text-muted)] hover:text-[var(--app-text)]"
         >
           {theme === 'dark' ? (

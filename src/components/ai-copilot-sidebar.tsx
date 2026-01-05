@@ -309,6 +309,7 @@ export function AICopilotSidebar() {
             size="sm"
             onClick={handleSendMessage}
             disabled={!inputValue.trim() || isTyping}
+            aria-label="Send message"
             className="px-3"
           >
             <Send className="w-4 h-4" />

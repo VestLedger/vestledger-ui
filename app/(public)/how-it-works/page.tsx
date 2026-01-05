@@ -66,8 +66,8 @@ export default function HowItWorksPage() {
           <div className="grid md:grid-cols-3 gap-8">
             {/* Token Layer */}
             <Card padding="lg" className="text-center border-2 border-[var(--app-primary)]">
-              <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[var(--app-primary-bg)] flex items-center justify-center text-[var(--app-primary)]">
-                <LinkIcon className="w-8 h-8" />
+              <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[var(--app-primary-bg)] flex items-center justify-center text-[var(--app-primary)]" role="img" aria-label="Tokenized Trust Layer icon">
+                <LinkIcon className="w-8 h-8" aria-hidden="true" />
               </div>
               <h3 className="text-xl font-bold mb-2">1. Tokenized Trust</h3>
               <p className="text-[var(--app-text-muted)]">On-chain ownership, cryptographic proofs, programmable compliance. The immutable source of truth.</p>
@@ -75,8 +75,8 @@ export default function HowItWorksPage() {
 
             {/* Ops Engine */}
             <Card padding="lg" className="text-center border-2 border-[var(--app-secondary)]">
-              <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[var(--app-secondary-bg)] flex items-center justify-center text-[var(--app-secondary)]">
-                <RefreshCw className="w-8 h-8" />
+              <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[var(--app-secondary-bg)] flex items-center justify-center text-[var(--app-secondary)]" role="img" aria-label="Automated Operations icon">
+                <RefreshCw className="w-8 h-8" aria-hidden="true" />
               </div>
               <h3 className="text-xl font-bold mb-2">2. Automated Ops</h3>
               <p className="text-[var(--app-text-muted)]">Capital calls, distributions, NAV calculations, and LP reporting—all automated end-to-end.</p>
@@ -84,8 +84,8 @@ export default function HowItWorksPage() {
 
             {/* AI Advisor */}
             <Card padding="lg" className="text-center border-2 border-[var(--app-accent)]">
-              <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[var(--app-accent-bg)] flex items-center justify-center text-[var(--app-accent)]">
-                <Sparkles className="w-8 h-8" />
+              <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[var(--app-accent-bg)] flex items-center justify-center text-[var(--app-accent)]" role="img" aria-label="AI Advisor icon">
+                <Sparkles className="w-8 h-8" aria-hidden="true" />
               </div>
               <h3 className="text-xl font-bold mb-2">3. AI Advisor</h3>
               <p className="text-[var(--app-text-muted)]">Synthesizes diligence, detects anomalies, generates LP narratives from live operational data.</p>

@@ -194,6 +194,7 @@ export function Valuation409A() {
                         variant="light"
                         size="sm"
                         isIconOnly
+                        aria-label="View valuation details"
                       >
                         <ChevronRight className="w-4 h-4" />
                       </Button>

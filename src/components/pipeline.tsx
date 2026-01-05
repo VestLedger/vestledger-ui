@@ -96,7 +96,12 @@ export function Pipeline() {
 
       {/* Action Bar */}
       <div className="flex items-center gap-2 sm:gap-3 mb-6">
-        <Button variant="bordered" className="text-[var(--app-text-muted)]" startContent={<Filter className="w-4 h-4" />}>
+        <Button
+          variant="bordered"
+          className="text-[var(--app-text-muted)]"
+          startContent={<Filter className="w-4 h-4" />}
+          aria-label="Filter deals"
+        >
           <span className="hidden sm:inline">Filter</span>
         </Button>
         <ButtonGroup>

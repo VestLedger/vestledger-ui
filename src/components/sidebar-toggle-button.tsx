@@ -23,8 +23,6 @@ export function SidebarToggleButton({
   return (
     <motion.button
       onClick={onToggle}
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 0.95 }}
       className="absolute top-1/2 -translate-y-1/2 w-6 h-12
                  bg-[var(--app-border)] hover:bg-[var(--app-primary)]
                  rounded-full flex items-center justify-center
@@ -36,8 +34,9 @@ export function SidebarToggleButton({
       aria-label={ariaLabel}
       aria-expanded={!isCollapsed}
     >
-      <Icon className="w-4 h-4 text-[var(--app-text-muted)]
-                       group-hover:text-white transition-colors" />
+      <span className="transition-transform duration-200 group-hover:scale-110 group-active:scale-95">
+        <Icon className="w-4 h-4 text-[var(--app-text-muted)] group-hover:text-white transition-colors" />
+      </span>
     </motion.button>
   );
 }

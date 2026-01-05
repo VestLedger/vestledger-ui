@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Providers } from './providers'
 import { WebVitals } from './web-vitals'
 import './globals.css'
@@ -6,9 +6,15 @@ import './globals.css'
 export const metadata: Metadata = {
   title: 'VestLedger - VC Workflow Management System',
   description: 'The next-generation workflow management system designed for venture capitalists.',
+  manifest: '/manifest.webmanifest',
   icons: {
-    icon: '/logo/Print_Transparent.svg',
+    icon: '/icons/icon-192.png',
+    apple: '/icons/icon-192.png',
   },
+}
+
+export const viewport: Viewport = {
+  themeColor: '#4f63c7',
 }
 
 export default function RootLayout({

@@ -429,13 +429,14 @@ export function Contacts() {
                       variant="flat"
                       isIconOnly
                       onPress={() => toggleStar(selectedContact.id)}
+                      aria-label={selectedContact.starred ? 'Unstar contact' : 'Star contact'}
                     >
                       <Star className={`w-4 h-4 ${selectedContact.starred ? 'fill-[var(--app-warning)] text-[var(--app-warning)]' : ''}`} />
                     </Button>
-                    <Button size="sm" variant="flat" isIconOnly>
+                    <Button size="sm" variant="flat" isIconOnly aria-label="Edit contact">
                       <Edit3 className="w-4 h-4" />
                     </Button>
-                    <Button size="sm" variant="flat" isIconOnly color="danger">
+                    <Button size="sm" variant="flat" isIconOnly color="danger" aria-label="Delete contact">
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>

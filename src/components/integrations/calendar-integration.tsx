@@ -392,6 +392,7 @@ export function CalendarIntegration({
                         variant="light"
                         isIconOnly
                         onPress={() => onSyncCalendar(account.id)}
+                        aria-label="Sync calendar"
                         title="Sync Now"
                       >
                         <RefreshCw className="w-4 h-4" />
@@ -403,6 +404,7 @@ export function CalendarIntegration({
                         variant="light"
                         isIconOnly
                         onPress={() => onConfigureRules(account.id)}
+                        aria-label="Configure calendar rules"
                         title="Configure Rules"
                       >
                         <Settings className="w-4 h-4" />

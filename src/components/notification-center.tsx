@@ -169,6 +169,7 @@ export function NotificationCenter({
                     variant="light"
                     isIconOnly
                     onPress={onMarkAllAsRead}
+                    aria-label="Mark all notifications as read"
                     title="Mark all as read"
                   >
                     <CheckCheck className="w-4 h-4" />
@@ -180,6 +181,7 @@ export function NotificationCenter({
                     variant="light"
                     isIconOnly
                     onPress={onClearAll}
+                    aria-label="Clear all notifications"
                     title="Clear all"
                   >
                     <Trash2 className="w-4 h-4" />

@@ -246,6 +246,7 @@ export function PortfolioDocuments() {
                                 variant="light"
                                 size="sm"
                                 isIconOnly
+                                aria-label={`Preview ${doc.name}`}
                                 onPress={() => {
                                   preview.openPreview({
                                     id: doc.id.toString(),
@@ -261,13 +262,23 @@ export function PortfolioDocuments() {
                               >
                                 <Eye className="w-4 h-4" />
                               </Button>
-                              <Button variant="light" size="sm" isIconOnly>
+                              <Button
+                                variant="light"
+                                size="sm"
+                                isIconOnly
+                                aria-label={`Download ${doc.name}`}
+                              >
                                 <Download className="w-4 h-4" />
                               </Button>
                             </>
                           )}
                           {doc.status === 'awaiting-upload' && (
-                            <Button variant="light" size="sm" isIconOnly>
+                            <Button
+                              variant="light"
+                              size="sm"
+                              isIconOnly
+                              aria-label={`Upload ${doc.name}`}
+                            >
                               <Upload className="w-4 h-4" />
                             </Button>
                           )}

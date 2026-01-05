@@ -1,35 +1,13 @@
-'use client'
-
-import { useUIKey } from '@/store/ui';
-import { ArrowRight, Link as LinkIcon, RefreshCw, Sparkles, Shield, CheckCircle2, Layers } from 'lucide-react';
-import { useAuth, PERSONA_CONFIG, UserRole } from '@/contexts/auth-context';
-import { Button, Input, Card, Modal } from '@/ui';
-import { Select, SelectItem } from "@nextui-org/react";
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { Link as LinkIcon, RefreshCw, Sparkles, Shield, CheckCircle2, Layers } from 'lucide-react';
+import { Card } from '@/ui';
 import Image from 'next/image';
+import {
+  HomepageCTAButton,
+  HomepageHeroActions,
+  HomepageLoginModal,
+} from '@/components/homepage-client';
 
 export function Homepage() {
-  const { login } = useAuth();
-  const router = useRouter();
-  const { value: homepageUI, patch: patchHomepageUI } = useUIKey('homepage', {
-    showLoginModal: false,
-    email: '',
-    password: '',
-    role: 'gp' as UserRole,
-  });
-  const showLoginModal = homepageUI.showLoginModal;
-  const email = homepageUI.email;
-  const password = homepageUI.password;
-  const role = homepageUI.role;
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    login(email, password, role);
-    patchHomepageUI({ showLoginModal: false, password: '' });
-    router.push('/dashboard');
-  };
-
   // Triad OS Feature Cards
   const features = [
     {
@@ -84,26 +62,21 @@ export function Homepage() {
               height={48}
               className="h-10 w-10"
               priority
+              fetchPriority="high"
+              loading="eager"
             />
             <span className="text-xs uppercase tracking-[0.35em] text-[var(--app-text-muted)]">VestLedger</span>
           </div>
           <div className="inline-block px-3 sm:px-4 py-1.5 sm:py-2 bg-[var(--app-primary-bg)] text-[var(--app-primary)] rounded-full text-xs sm:text-sm mb-4 sm:mb-6">
             Tokenized Trust • Automated Operations • AI Advisor
           </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-4 sm:mb-6 leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-4 sm:mb-6 leading-tight">
             The <span className="text-[var(--app-primary)]">Triad OS</span> for Private Markets
-          </h2>
+          </h1>
           <p className="text-base sm:text-lg md:text-xl text-[var(--app-text-muted)] mb-6 sm:mb-8 leading-relaxed px-4">
             VestLedger is an institutional operating system for venture capital, private equity, and crypto funds. Tokenized ownership, automated operations, and AI-powered intelligence—unified on one platform.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4">
-            <Button size="lg" color="primary" onPress={() => patchHomepageUI({ showLoginModal: true })} className="w-full sm:w-auto" endContent={<ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />}>
-              Get Started
-            </Button>
-            <Button variant="bordered" color="secondary" size="lg" className="w-full sm:w-auto">
-              Watch Demo
-            </Button>
-          </div>
+          <HomepageHeroActions />
         </div>
       </section>
 
@@ -179,9 +152,9 @@ export function Homepage() {
                 </div>
               </div>
             </div>
-            <div className="bg-gradient-to-br from-[var(--app-primary)] via-[var(--app-accent)] to-[var(--app-secondary)] rounded-2xl p-8 sm:p-12 flex items-center justify-center order-first md:order-last shadow-lg">
+            <div className="rounded-2xl p-8 sm:p-12 flex items-center justify-center order-first md:order-last shadow-lg" aria-label="Triad OS Stack visualization" style={{ background: 'linear-gradient(135deg, var(--app-primary) 0%, var(--app-secondary) 100%)' }}>
               <div className="text-white text-center">
-                <Layers className="w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-4 sm:mb-6 opacity-90" />
+                <Layers className="w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-4 sm:mb-6 opacity-90" aria-hidden="true" />
                 <p className="text-xl sm:text-2xl font-medium">The Triad OS Stack</p>
               </div>
             </div>
@@ -197,71 +170,11 @@ export function Homepage() {
             <p className="text-base sm:text-lg text-[var(--app-text-muted)] mb-6 sm:mb-8 max-w-2xl mx-auto px-4">
               Join leading venture capital firms who are already using vestledger to manage their portfolios.
             </p>
-            <Button size="lg" color="primary" onPress={() => patchHomepageUI({ showLoginModal: true })} endContent={<ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />}>
-              Start Your Free Trial
-            </Button>
+            <HomepageCTAButton />
           </div>
         </Card>
       </section>
-
-      {/* Login Modal */}
-      <Modal
-        isOpen={showLoginModal}
-        onOpenChange={(open) => patchHomepageUI({ showLoginModal: open })}
-        size="md"
-        title={
-          <div className="flex flex-col gap-1">
-            <h3 className="text-lg font-medium">Welcome back</h3>
-            <p className="text-sm text-[var(--app-text-muted)]">Sign in to your vestledger account</p>
-          </div>
-        }
-      >
-        <form onSubmit={handleLogin} className="space-y-4 pb-6">
-          <Input
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(e) => patchHomepageUI({ email: e.target.value })}
-            placeholder="you@company.com"
-            isRequired
-          />
-          <Select
-            label="Select Role (Demo)"
-            placeholder="Select a persona"
-            selectedKeys={[role]}
-            onChange={(e) => patchHomepageUI({ role: e.target.value as UserRole })}
-            disallowEmptySelection
-            variant="bordered"
-            classNames={{
-              trigger: "bg-[var(--app-surface-hover)] border border-[var(--app-border-subtle)]",
-            }}
-          >
-            {Object.values(PERSONA_CONFIG).map((persona) => (
-              <SelectItem key={persona.id} value={persona.id} textValue={persona.label}>
-                <div className="flex flex-col">
-                  <span className="text-small">{persona.label}</span>
-                  <span className="text-tiny text-[var(--app-text-muted)]">{persona.description}</span>
-                </div>
-              </SelectItem>
-            ))}
-          </Select>
-          <Input
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => patchHomepageUI({ password: e.target.value })}
-            placeholder="••••••••"
-            isRequired
-          />
-          <Button type="submit" color="primary" className="w-full">
-            Sign In
-          </Button>
-          <div className="text-center text-xs sm:text-sm text-[var(--app-text-muted)]">
-            Don&apos;t have an account?{' '}
-            <Link href="/eoi" className="text-[var(--app-primary)] hover:underline">Sign up</Link>
-          </div>
-        </form>
-      </Modal>
+      <HomepageLoginModal />
     </div>
   );
 }

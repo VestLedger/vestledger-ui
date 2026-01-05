@@ -45,6 +45,7 @@ export function FundSelector() {
         className="w-full justify-between bg-[var(--app-surface-hover)] hover:bg-[var(--app-border-subtle)] text-left"
         endContent={<ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />}
         onPress={() => patchUI({ isOpen: !isOpen })}
+        aria-label="Select fund"
       >
         <div className="flex items-center gap-2 flex-1 min-w-0">
           {viewMode === 'consolidated' ? (

@@ -1,0 +1,47 @@
+{
+  "ci": {
+    "collect": {
+      "startServerCommand": "pnpm run start",
+      "startServerReadyPattern": "started server",
+      "startServerReadyTimeout": 60000,
+      "numberOfRuns": 1,
+      "url": [
+        "http://localhost:3000/",
+        "http://localhost:3000/about",
+        "http://localhost:3000/features",
+        "http://localhost:3000/how-it-works",
+        "http://localhost:3000/security",
+        "http://localhost:3000/eoi",
+        "http://localhost:3000/dashboard",
+        "http://localhost:3000/pipeline",
+        "http://localhost:3000/portfolio",
+        "http://localhost:3000/contacts",
+        "http://localhost:3000/analytics",
+        "http://localhost:3000/audit-trail",
+        "http://localhost:3000/cap-table",
+        "http://localhost:3000/compliance",
+        "http://localhost:3000/deal-intelligence",
+        "http://localhost:3000/dealflow-review",
+        "http://localhost:3000/documents",
+        "http://localhost:3000/fund-admin",
+        "http://localhost:3000/integrations",
+        "http://localhost:3000/lp-management",
+        "http://localhost:3000/notifications",
+        "http://localhost:3000/reports",
+        "http://localhost:3000/settings",
+        "http://localhost:3000/tax-center",
+        "http://localhost:3000/waterfall",
+        "http://localhost:3000/ai-tools",
+        "http://localhost:3000/409a-valuations"
+      ],
+      "settings": {
+        "disableStorageReset": true
+      },
+      "puppeteerScript": "./scripts/lhci-auth.js"
+    },
+    "upload": {
+      "target": "filesystem",
+      "outputDir": ".lighthouseci"
+    }
+  }
+}

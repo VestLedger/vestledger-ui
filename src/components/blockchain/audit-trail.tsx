@@ -226,6 +226,7 @@ export function BlockchainAuditTrail() {
                       isIconOnly
                       className="w-5 h-5 min-w-0"
                       onPress={() => copyToClipboard(event.txHash)}
+                      aria-label="Copy transaction hash"
                     >
                       <Copy className="w-3 h-3" />
                     </Button>

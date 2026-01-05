@@ -77,7 +77,7 @@ export function ResearcherDashboard() {
                     <Badge variant="flat" color={report.status === 'Published' ? 'success' : 'warning'}>
                       {report.status}
                     </Badge>
-                    <Button size="sm" variant="light" isIconOnly>
+                    <Button size="sm" variant="light" isIconOnly aria-label={`Download ${report.name}`}>
                       <Download className="w-4 h-4" />
                     </Button>
                  </div>

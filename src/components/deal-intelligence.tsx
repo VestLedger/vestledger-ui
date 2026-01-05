@@ -803,11 +803,21 @@ export function DealIntelligence() {
                               <span className="text-xs text-[var(--app-text-muted)] hidden sm:inline">{doc.size}</span>
                             )}
                             <div className="flex gap-1">
-                              <Button variant="light" size="sm" isIconOnly>
+                              <Button
+                                variant="light"
+                                size="sm"
+                                isIconOnly
+                                aria-label={`Preview ${doc.name}`}
+                              >
                                 <Eye className="w-4 h-4" />
                               </Button>
                               {doc.size && (
-                                <Button variant="light" size="sm" isIconOnly>
+                                <Button
+                                  variant="light"
+                                  size="sm"
+                                  isIconOnly
+                                  aria-label={`Download ${doc.name}`}
+                                >
                                   <Download className="w-4 h-4" />
                                 </Button>
                               )}

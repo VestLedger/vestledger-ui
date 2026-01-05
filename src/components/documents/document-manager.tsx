@@ -401,6 +401,7 @@ export function DocumentManager({
                     variant={viewMode === 'list' ? 'solid' : 'flat'}
                     isIconOnly
                     onPress={() => patchUI({ viewMode: 'list' })}
+                    aria-label="List view"
                   >
                     <List className="w-4 h-4" />
                   </Button>
@@ -409,6 +410,7 @@ export function DocumentManager({
                     variant={viewMode === 'grid' ? 'solid' : 'flat'}
                     isIconOnly
                     onPress={() => patchUI({ viewMode: 'grid' })}
+                    aria-label="Grid view"
                   >
                     <Grid3x3 className="w-4 h-4" />
                   </Button>
@@ -566,6 +568,7 @@ export function DocumentManager({
                         variant="light"
                         isIconOnly
                         onPress={() => onToggleFavorite(doc.id)}
+                        aria-label={`Toggle favorite for ${doc.name}`}
                       >
                         <Star className={`w-4 h-4 ${doc.isFavorite ? 'fill-current text-[var(--app-warning)]' : ''}`} />
                       </Button>
@@ -576,6 +579,7 @@ export function DocumentManager({
                         variant="light"
                         isIconOnly
                         onPress={() => onDownloadDocument(doc.id)}
+                        aria-label={`Download ${doc.name}`}
                       >
                         <Download className="w-4 h-4" />
                       </Button>
@@ -586,6 +590,7 @@ export function DocumentManager({
                         variant="light"
                         isIconOnly
                         onPress={() => onShareDocument(doc.id)}
+                        aria-label={`Share ${doc.name}`}
                       >
                         <Share2 className="w-4 h-4" />
                       </Button>
@@ -596,6 +601,7 @@ export function DocumentManager({
                         variant="light"
                         isIconOnly
                         onPress={() => onDeleteDocument(doc.id)}
+                        aria-label={`Delete ${doc.name}`}
                       >
                         <Trash2 className="w-4 h-4 text-[var(--app-danger)]" />
                       </Button>

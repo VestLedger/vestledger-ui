@@ -213,7 +213,7 @@ export function CompanySearch() {
                 View Profile
               </Button>
               <div className="flex gap-2">
-                <Button size="sm" variant="bordered" isIconOnly>
+                <Button size="sm" variant="bordered" isIconOnly aria-label="Save company">
                   <Star className="w-4 h-4" />
                 </Button>
                 <Button size="sm" color="primary" startContent={<Plus className="w-4 h-4" />}>

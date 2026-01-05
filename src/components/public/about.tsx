@@ -195,15 +195,15 @@ export default function AboutPage() {
             {timeline.map((milestone, idx) => (
               <div key={idx} className="flex gap-6">
                 <div className="flex flex-col items-center">
-                  <div className="w-12 h-12 rounded-full bg-[var(--app-primary)] text-white flex items-center justify-center font-bold shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-[var(--app-primary)] text-white flex items-center justify-center font-bold shrink-0" role="img" aria-label={milestone.year}>
                     {milestone.year.slice(2)}
                   </div>
                   {idx < timeline.length - 1 && (
-                    <div className="w-0.5 h-full bg-[var(--app-border)] mt-2" />
+                    <div className="w-0.5 h-full bg-[var(--app-border)] mt-2" aria-hidden="true" />
                   )}
                 </div>
                 <div className="pb-8">
-                  <div className="text-sm text-[var(--app-text-muted)] mb-1">{milestone.year}</div>
+                  <time className="text-sm text-[var(--app-text-muted)] mb-1 block">{milestone.year}</time>
                   <h3 className="text-xl font-bold mb-2">{milestone.title}</h3>
                   <p className="text-[var(--app-text-muted)]">{milestone.description}</p>
                 </div>
@@ -230,20 +230,20 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {team.map((member, idx) => (
               <Card key={idx} padding="lg" className="text-center hover:border-[var(--app-primary)] transition-colors">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4">
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4" role="img" aria-label={`${member.name} profile picture`}>
                   {member.image}
                 </div>
                 <h3 className="text-lg font-bold mb-1">{member.name}</h3>
-                <div className="text-sm text-[var(--app-primary)] mb-3">{member.role}</div>
+                <p className="text-sm text-[var(--app-primary)] mb-3">{member.role}</p>
                 <p className="text-sm text-[var(--app-text-muted)] mb-4">{member.bio}</p>
                 <div className="flex items-center justify-center gap-2">
-                  <button className="p-2 rounded-lg hover:bg-[var(--app-surface-hover)] transition-colors">
+                  <button className="p-2 rounded-lg hover:bg-[var(--app-surface-hover)] transition-colors" aria-label={`View ${member.name}'s LinkedIn profile`}>
                     <Linkedin className="w-4 h-4" />
                   </button>
-                  <button className="p-2 rounded-lg hover:bg-[var(--app-surface-hover)] transition-colors">
+                  <button className="p-2 rounded-lg hover:bg-[var(--app-surface-hover)] transition-colors" aria-label={`View ${member.name}'s Twitter profile`}>
                     <Twitter className="w-4 h-4" />
                   </button>
-                  <button className="p-2 rounded-lg hover:bg-[var(--app-surface-hover)] transition-colors">
+                  <button className="p-2 rounded-lg hover:bg-[var(--app-surface-hover)] transition-colors" aria-label={`Email ${member.name}`}>
                     <Mail className="w-4 h-4" />
                   </button>
                 </div>

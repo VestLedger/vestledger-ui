@@ -121,6 +121,7 @@ export function SideDrawer({
                     size="sm"
                     isIconOnly
                     onPress={onClose}
+                    aria-label="Close panel"
                     className="ml-4"
                   >
                     <X className="w-5 h-5" />

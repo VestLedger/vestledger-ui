@@ -354,6 +354,7 @@ export function InteractionTimeline({
                                 variant="light"
                                 isIconOnly
                                 onPress={() => onEditInteraction(interaction.id)}
+                                aria-label="Edit interaction"
                               >
                                 <Edit3 className="w-3 h-3" />
                               </Button>
@@ -364,6 +365,7 @@ export function InteractionTimeline({
                                 variant="light"
                                 isIconOnly
                                 onPress={() => onDeleteInteraction(interaction.id)}
+                                aria-label="Delete interaction"
                               >
                                 <Trash2 className="w-3 h-3 text-[var(--app-danger)]" />
                               </Button>

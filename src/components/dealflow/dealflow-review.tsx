@@ -355,6 +355,8 @@ export function DealflowReview() {
                       ? 'bg-[var(--app-primary)] text-white'
                       : 'bg-[var(--app-surface-hover)] hover:bg-[var(--app-primary-bg)]'
                   }`}
+                  aria-label={`Navigate to slide ${idx + 1}: ${slide.title}`}
+                  aria-current={idx === currentSlideIndex ? 'true' : 'false'}
                 >
                   <p className="text-xs opacity-75 mb-1">Slide {idx + 1}</p>
                   <p className="text-sm font-medium">{slide.title}</p>
@@ -446,7 +448,7 @@ export function DealflowReview() {
                 </Badge>
                 <h3 className="text-2xl font-bold">{currentSlide.title}</h3>
               </div>
-              <Button size="sm" variant="flat" isIconOnly>
+              <Button size="sm" variant="flat" isIconOnly aria-label="Edit slide">
                 <Edit3 className="w-4 h-4" />
               </Button>
             </div>
@@ -465,14 +467,16 @@ export function DealflowReview() {
                 Previous
               </Button>
 
-              <div className="flex items-center gap-2">
-                {slides.map((_, idx) => (
+              <div className="flex items-center gap-2" role="navigation" aria-label="Slide navigation dots">
+                {slides.map((slide, idx) => (
                   <button
                     key={idx}
                     onClick={() => patchUI({ currentSlideIndex: idx })}
                     className={`w-2 h-2 rounded-full transition-colors ${
                       idx === currentSlideIndex ? 'bg-[var(--app-primary)]' : 'bg-[var(--app-border)]'
                     }`}
+                    aria-label={`Go to slide ${idx + 1}: ${slide.title}`}
+                    aria-current={idx === currentSlideIndex ? 'true' : 'false'}
                   />
                 ))}
               </div>
@@ -499,6 +503,7 @@ export function DealflowReview() {
               placeholder="Add your thoughts, questions, or concerns..."
               value={voteComment}
               onChange={(e) => patchVoteComment(e.target.value)}
+              aria-label="Discussion comments"
             />
           </Card>
 

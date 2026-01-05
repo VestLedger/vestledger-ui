@@ -19,6 +19,7 @@ npm-debug.log*
 .pnpm-store
 tsconfig.tsbuildinfo
 .claude
+.lighthouseci
 
 # Cypress output
 cypress/videos
