@@ -38,8 +38,19 @@ export function Topbar() {
   const searchRef = useRef<HTMLDivElement>(null);
 
   const handleLogout = () => {
+    // Set flag in sessionStorage to indicate logout in progress
+    sessionStorage.setItem('isLoggingOut', 'true');
+
+    // Clear auth state
     logout();
-    router.push('/');
+
+    // Redirect to public domain
+    const publicDomain = process.env.NEXT_PUBLIC_PUBLIC_DOMAIN || 'vestledger.local:3000';
+    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+    const redirectUrl = `${protocol}://${publicDomain}`;
+
+    console.log('Logging out, redirecting to:', redirectUrl);
+    window.location.href = redirectUrl;
   };
 
   useEffect(() => {

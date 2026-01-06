@@ -1,24 +1,23 @@
 'use client';
 
-import type { FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { Button, Input, Card, Textarea, Select } from '@/ui';
 import { ArrowLeft, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
-import { useUIKey } from '@/store/ui';
-import { useAppDispatch } from '@/store/hooks';
-import { eoiSubmitRequested } from '@/store/slices/uiEffectsSlice';
 
 export default function EOIPage() {
-  const dispatch = useAppDispatch();
-  const { value: ui } = useUIKey<{ submitted: boolean; loading: boolean }>('public:eoi', {
-    submitted: false,
-    loading: false,
-  });
-  const { submitted, loading } = ui;
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    dispatch(eoiSubmitRequested());
+    setLoading(true);
+
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    setLoading(false);
+    setSubmitted(true);
   };
 
   if (submitted) {

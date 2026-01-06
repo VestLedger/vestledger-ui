@@ -1,10 +1,8 @@
 {
   "ci": {
     "collect": {
-      "startServerCommand": "pnpm run start",
-      "startServerReadyPattern": "started server",
-      "startServerReadyTimeout": 60000,
       "numberOfRuns": 1,
+      "chromePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
       "url": [
         "http://localhost:3000/dashboard",
         "http://localhost:3000/pipeline",
@@ -28,13 +26,14 @@
         "http://localhost:3000/409a-valuations"
       ],
       "settings": {
-        "disableStorageReset": true
+        "disableStorageReset": true,
+        "chromeFlags": "--disable-features=NetworkService"
       },
       "puppeteerScript": "./scripts/lhci-auth.js"
     },
     "upload": {
       "target": "filesystem",
-      "outputDir": ".lighthouseci"
+      "outputDir": ".lighthouseci/auth"
     },
     "assert": {
       "assertions": {
