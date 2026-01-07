@@ -1,18 +1,15 @@
 import { Link as LinkIcon, RefreshCw, Sparkles, Shield, CheckCircle2, Layers } from 'lucide-react';
 import { StaticCard } from '@/ui/static';
 import Image from 'next/image';
+import { LoginButton } from './public/login-button';
 
 /**
  * Pure server-side homepage
- * Zero client-side JavaScript except theme toggle in header
+ * Minimal client-side JavaScript: theme toggle + login button
  * Replaces NextUI Card with StaticCard
- * Login redirects to app.vestledger.com/login
+ * Login dynamically detects app subdomain
  */
 export function HomepageStatic() {
-  // Determine app domain for login/signup links
-  const appDomain = process.env.NEXT_PUBLIC_APP_DOMAIN || 'app.vestledger.local:3000';
-  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-  const loginUrl = `${protocol}://${appDomain}/login`;
 
   // Triad OS Feature Cards
   const features = [
@@ -83,12 +80,9 @@ export function HomepageStatic() {
           </p>
           {/* Static CTA Buttons - Server Rendered */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-            <a
-              href={loginUrl}
-              className="inline-flex items-center justify-center px-6 py-3 text-lg rounded-lg font-medium bg-[var(--app-primary)] text-white hover:opacity-90 transition-opacity"
-            >
+            <LoginButton className="inline-flex items-center justify-center px-6 py-3 text-lg rounded-lg font-medium bg-[var(--app-primary)] text-white hover:opacity-90 transition-opacity">
               Get Started
-            </a>
+            </LoginButton>
             <a
               href="/how-it-works"
               className="inline-flex items-center justify-center px-6 py-3 text-lg rounded-lg font-medium border-2 border-[var(--app-border)] text-[var(--app-text)] hover:bg-[var(--app-surface-hover)] transition-colors"
@@ -189,12 +183,9 @@ export function HomepageStatic() {
             <p className="text-base sm:text-lg text-[var(--app-text-muted)] mb-6 sm:mb-8 max-w-2xl mx-auto px-4">
               Join leading venture capital firms who are already using VestLedger to manage their portfolios.
             </p>
-            <a
-              href={loginUrl}
-              className="inline-flex items-center justify-center px-6 py-3 text-lg rounded-lg font-medium bg-[var(--app-primary)] text-white hover:opacity-90 transition-opacity"
-            >
+            <LoginButton className="inline-flex items-center justify-center px-6 py-3 text-lg rounded-lg font-medium bg-[var(--app-primary)] text-white hover:opacity-90 transition-opacity">
               Start Your Free Trial
-            </a>
+            </LoginButton>
           </div>
         </StaticCard>
       </section>

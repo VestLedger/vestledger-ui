@@ -1,17 +1,13 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { ThemeToggle } from './theme-toggle';
+import { LoginButton } from './login-button';
 
 /**
  * Pure server-side header for public pages
- * Only client component is ThemeToggle (~2 KB)
- * Login button redirects to app subdomain login page
+ * Client components: ThemeToggle, LoginButton (minimal JS, ~3 KB total)
  */
 export function PublicHeaderStatic() {
-  // Determine login URL based on environment
-  const appDomain = process.env.NEXT_PUBLIC_APP_DOMAIN || 'app.vestledger.local:3000';
-  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-  const loginUrl = `${protocol}://${appDomain}/login`;
 
   return (
     <nav className="sticky top-0 left-0 right-0 z-50 w-full border-b border-[var(--app-border)] bg-[var(--app-surface)]/90 backdrop-blur-md supports-[backdrop-filter]:bg-[var(--app-surface)]/75">
@@ -59,12 +55,7 @@ export function PublicHeaderStatic() {
         </div>
         <div className="flex items-center gap-2 sm:gap-3">
           <ThemeToggle />
-          <a
-            href={loginUrl}
-            className="inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium text-sm bg-[var(--app-primary)] text-white hover:opacity-90 transition-opacity"
-          >
-            Login
-          </a>
+          <LoginButton />
           <Link
             href="/eoi"
             className="hidden sm:inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium text-sm border-2 border-[var(--app-primary)] text-[var(--app-primary)] hover:bg-[var(--app-primary-bg)] transition-colors"
