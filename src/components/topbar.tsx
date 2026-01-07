@@ -45,10 +45,27 @@ export function Topbar() {
     logout();
 
     // Redirect to public domain
-    const publicDomain = process.env.NEXT_PUBLIC_PUBLIC_DOMAIN || 'vestledger.local:3000';
-    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-    const redirectUrl = `${protocol}://${publicDomain}`;
+    // In production, automatically detect domain from current URL
+    const currentHostname = window.location.hostname;
+    const isProduction = process.env.NODE_ENV === 'production';
+    const protocol = isProduction ? 'https' : 'http';
 
+    let publicDomain: string;
+    if (isProduction && currentHostname.includes('.')) {
+      // Extract base domain from app subdomain
+      // app.vestledger.com → vestledger.com
+      // app.example.com → example.com
+      if (currentHostname.startsWith('app.')) {
+        publicDomain = currentHostname.substring(4); // Remove 'app.' prefix
+      } else {
+        publicDomain = currentHostname;
+      }
+    } else {
+      // Use env var if available, otherwise fallback to localhost
+      publicDomain = process.env.NEXT_PUBLIC_PUBLIC_DOMAIN || 'vestledger.local:3000';
+    }
+
+    const redirectUrl = `${protocol}://${publicDomain}`;
     console.log('Logging out, redirecting to:', redirectUrl);
     window.location.href = redirectUrl;
   };
