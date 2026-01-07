@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
-import { useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
+import { DashboardProviders } from '../providers-dashboard'
 import { useAuth } from '@/contexts/auth-context'
 import { NavigationProvider, useNavigation } from '@/contexts/navigation-context'
 import { SidebarGrouped } from '@/components/sidebar-grouped'
@@ -80,21 +81,39 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
   )
 }
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
+  const [isRedirecting, setIsRedirecting] = useState(false)
+
+  // Login page is in the (dashboard) route group but should NOT be protected
+  const isLoginPage = pathname === '/login'
+
+  // Always call hooks (rules of hooks) - but only use auth for protected pages
   const { hydrated, isAuthenticated } = useAuth()
-  const router = useRouter()
 
   useEffect(() => {
-    if (hydrated && !isAuthenticated) {
-      router.push('/')
-    }
-  }, [hydrated, isAuthenticated, router])
+    // Check if logout is in progress
+    const isLoggingOut = typeof window !== 'undefined' && sessionStorage.getItem('isLoggingOut') === 'true';
 
-  if (!hydrated || !isAuthenticated) {
+    // Only redirect if NOT on login page, user is not authenticated, AND not logging out
+    if (!isLoginPage && hydrated && !isAuthenticated && !isLoggingOut) {
+      // Set redirecting state to prevent further rendering
+      setIsRedirecting(true)
+
+      // Redirect to app subdomain login page (cross-domain requires full page navigation)
+      const appDomain = process.env.NEXT_PUBLIC_APP_DOMAIN || 'app.vestledger.local:3000';
+      const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+      window.location.href = `${protocol}://${appDomain}/login`;
+    }
+  }, [isLoginPage, hydrated, isAuthenticated])
+
+  // For login page, skip auth check and render directly
+  if (isLoginPage) {
+    return children
+  }
+
+  // Show nothing while redirecting or not authenticated
+  if (!hydrated || !isAuthenticated || isRedirecting) {
     return null
   }
 
@@ -102,5 +121,17 @@ export default function DashboardLayout({
     <NavigationProvider>
       <DashboardLayoutInner>{children}</DashboardLayoutInner>
     </NavigationProvider>
+  )
+}
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <DashboardProviders>
+      <DashboardLayoutContent>{children}</DashboardLayoutContent>
+    </DashboardProviders>
   )
 }

@@ -19,6 +19,31 @@ import { normalizeError } from '@/store/utils/normalizeError';
 const STORAGE_AUTH_KEY = 'isAuthenticated';
 const STORAGE_USER_KEY = 'user';
 
+function getAuthCookieDomain(hostname?: string | null) {
+  if (!hostname) return null;
+  if (hostname === 'localhost' || hostname.endsWith('.localhost')) return null;
+  if (/^\d{1,3}(?:\.\d{1,3}){3}$/.test(hostname)) return null;
+  const baseHost = hostname.startsWith('app.') ? hostname.slice(4) : hostname;
+  if (baseHost === 'localhost') return null;
+  return `.${baseHost}`;
+}
+
+function setAuthCookies(user: User) {
+  if (typeof document === 'undefined') return;
+  const domain = getAuthCookieDomain(window.location.hostname);
+  const domainAttribute = domain ? `; domain=${domain}` : '';
+  document.cookie = `isAuthenticated=true; path=/${domainAttribute}; max-age=86400; SameSite=Lax`;
+  document.cookie = `user=${encodeURIComponent(JSON.stringify(user))}; path=/${domainAttribute}; max-age=86400; SameSite=Lax`;
+}
+
+function clearAuthCookies() {
+  if (typeof document === 'undefined') return;
+  const domain = getAuthCookieDomain(window.location.hostname);
+  const domainAttribute = domain ? `; domain=${domain}` : '';
+  document.cookie = `isAuthenticated=; path=/${domainAttribute}; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+  document.cookie = `user=; path=/${domainAttribute}; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+}
+
 function* hydrateAuthWorker() {
   const savedAuth = safeLocalStorage.getItem(STORAGE_AUTH_KEY);
   const savedUser = safeLocalStorage.getJSON<Partial<User>>(STORAGE_USER_KEY);
@@ -30,6 +55,10 @@ function* hydrateAuthWorker() {
       role: savedUser.role ?? 'gp',
       avatar: savedUser.avatar,
     };
+
+    // Sync to cookies for middleware access
+    setAuthCookies(normalizedUser);
+
     yield put(authHydrated({ isAuthenticated: true, user: normalizedUser }));
     return;
   }
@@ -47,6 +76,9 @@ function* loginWorker(action: ReturnType<typeof loginRequested>) {
     // Persist to localStorage
     safeLocalStorage.setItem(STORAGE_AUTH_KEY, 'true');
     safeLocalStorage.setJSON(STORAGE_USER_KEY, user);
+
+    // Sync to cookies for middleware access
+    setAuthCookies(user);
   } catch (error: unknown) {
     console.error('Login failed', error);
     yield put(loginFailed(normalizeError(error)));
@@ -56,6 +88,10 @@ function* loginWorker(action: ReturnType<typeof loginRequested>) {
 function* logoutWorker() {
   safeLocalStorage.removeItem(STORAGE_AUTH_KEY);
   safeLocalStorage.removeItem(STORAGE_USER_KEY);
+
+  // Clear cookies
+  clearAuthCookies();
+
   yield put(loggedOut());
 }
 

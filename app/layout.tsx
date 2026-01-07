@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Providers } from './providers'
+import { RootProviders } from './providers-root'
 import { WebVitals } from './web-vitals'
 import './globals.css'
 
@@ -22,13 +22,17 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  // RootProviders: Shared providers for all routes (NextUI + Theme)
+  // Route-specific providers added in route group layouts:
+  // - (dashboard)/layout.tsx adds DashboardProviders (Redux + Auth + Fund)
+  // - (public)/layout.tsx has no additional providers
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
         <WebVitals />
-        <Providers>
+        <RootProviders>
           {children}
-        </Providers>
+        </RootProviders>
       </body>
     </html>
   )

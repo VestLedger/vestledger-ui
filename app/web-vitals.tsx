@@ -12,5 +12,6 @@ export function WebVitals() {
     }
   });
 
-  return null;
+  // Return empty fragment instead of null to avoid hydration warnings
+  return <></>;
 }

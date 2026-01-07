@@ -1,4 +1,4 @@
-import { PublicHeader } from '@/components/public/public-header';
+import { PublicHeaderStatic } from '@/components/public/public-header-static';
 import { PublicFooter } from '@/components/public/public-footer';
 import type { Metadata, Viewport } from 'next';
 
@@ -55,7 +55,7 @@ export default function PublicLayout({
 }) {
   return (
     <div className="min-h-screen bg-[var(--app-bg)] flex flex-col">
-      <PublicHeader />
+      <PublicHeaderStatic />
       <main className="flex-grow">
         {children}
       </main>
