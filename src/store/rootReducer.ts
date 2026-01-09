@@ -17,6 +17,8 @@ import { dealIntelligenceReducer } from './slices/dealIntelligenceSlice';
 import { crmReducer } from './slices/crmSlice';
 import { miscReducer } from './slices/miscSlice';
 import { searchReducer } from './slices/searchSlice';
+import { waterfallReducer } from './slices/waterfallSlice';
+import { distributionReducer } from './slices/distributionSlice';
 
 export const rootReducer = combineReducers({
   alerts: alertsReducer,
@@ -37,6 +39,8 @@ export const rootReducer = combineReducers({
   crm: crmReducer,
   misc: miscReducer,
   search: searchReducer,
+  waterfall: waterfallReducer,
+  distribution: distributionReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
