@@ -15,10 +15,35 @@ import {
   mockWaterfallScenarios,
   mockWaterfallTemplates,
 } from '@/data/mocks/analytics/waterfall';
+import { safeLocalStorage } from '@/lib/storage/safeLocalStorage';
 import {
   calculateWaterfall,
   calculateSensitivityAnalysis,
 } from '@/lib/calculations/waterfall';
+
+const STORAGE_KEY = 'vestledger-waterfall-scenarios';
+let scenarioStoreCache: WaterfallScenario[] | null = null;
+
+const seedScenarioStore = () =>
+  JSON.parse(JSON.stringify(mockWaterfallScenarios)) as WaterfallScenario[];
+
+const loadScenarioStore = (): WaterfallScenario[] => {
+  if (scenarioStoreCache) return scenarioStoreCache;
+  const stored = safeLocalStorage.getJSON<WaterfallScenario[]>(STORAGE_KEY);
+  if (stored && stored.length > 0) {
+    scenarioStoreCache = stored;
+    return stored;
+  }
+  const seeded = seedScenarioStore();
+  scenarioStoreCache = seeded;
+  safeLocalStorage.setJSON(STORAGE_KEY, seeded);
+  return seeded;
+};
+
+const persistScenarioStore = (scenarios: WaterfallScenario[]) => {
+  scenarioStoreCache = scenarios;
+  safeLocalStorage.setJSON(STORAGE_KEY, scenarios);
+};
 
 // ============================================================================
 // Scenario Management
@@ -38,7 +63,7 @@ export async function fetchWaterfallScenarios(
   params?: GetWaterfallScenariosParams
 ): Promise<WaterfallScenario[]> {
   if (isMockMode()) {
-    let scenarios = [...mockWaterfallScenarios];
+    let scenarios = [...loadScenarioStore()];
 
     // Apply filters
     if (params?.fundId) {
@@ -75,7 +100,7 @@ export async function fetchWaterfallScenarios(
  */
 export async function fetchWaterfallScenario(id: string): Promise<WaterfallScenario> {
   if (isMockMode()) {
-    const scenario = mockWaterfallScenarios.find((s) => s.id === id);
+    const scenario = loadScenarioStore().find((s) => s.id === id);
     if (!scenario) {
       throw new Error(`Waterfall scenario not found: ${id}`);
     }
@@ -92,6 +117,7 @@ export async function createWaterfallScenario(
   data: Omit<WaterfallScenario, 'id' | 'createdAt' | 'updatedAt' | 'version'>
 ): Promise<WaterfallScenario> {
   if (isMockMode()) {
+    const scenarios = loadScenarioStore();
     const newScenario: WaterfallScenario = {
       ...data,
       id: `scenario-${Date.now()}`,
@@ -100,7 +126,8 @@ export async function createWaterfallScenario(
       updatedAt: new Date().toISOString(),
     };
 
-    mockWaterfallScenarios.push(newScenario);
+    const next = [...scenarios, newScenario];
+    persistScenarioStore(next);
     return newScenario;
   }
 
@@ -115,20 +142,23 @@ export async function updateWaterfallScenario(
   data: Partial<WaterfallScenario>
 ): Promise<WaterfallScenario> {
   if (isMockMode()) {
-    const index = mockWaterfallScenarios.findIndex((s) => s.id === id);
+    const scenarios = loadScenarioStore();
+    const index = scenarios.findIndex((s) => s.id === id);
     if (index === -1) {
       throw new Error(`Waterfall scenario not found: ${id}`);
     }
 
     const updated = {
-      ...mockWaterfallScenarios[index],
+      ...scenarios[index],
       ...data,
       id, // Preserve ID
-      version: mockWaterfallScenarios[index].version + 1,
+      version: scenarios[index].version + 1,
       updatedAt: new Date().toISOString(),
     };
 
-    mockWaterfallScenarios[index] = updated;
+    const next = [...scenarios];
+    next[index] = updated;
+    persistScenarioStore(next);
     return updated;
   }
 
@@ -140,12 +170,14 @@ export async function updateWaterfallScenario(
  */
 export async function deleteWaterfallScenario(id: string): Promise<void> {
   if (isMockMode()) {
-    const index = mockWaterfallScenarios.findIndex((s) => s.id === id);
+    const scenarios = loadScenarioStore();
+    const index = scenarios.findIndex((s) => s.id === id);
     if (index === -1) {
       throw new Error(`Waterfall scenario not found: ${id}`);
     }
 
-    mockWaterfallScenarios.splice(index, 1);
+    const next = scenarios.filter((scenario) => scenario.id !== id);
+    persistScenarioStore(next);
     return;
   }
 
@@ -160,7 +192,8 @@ export async function duplicateWaterfallScenario(
   newName?: string
 ): Promise<WaterfallScenario> {
   if (isMockMode()) {
-    const original = mockWaterfallScenarios.find((s) => s.id === id);
+    const scenarios = loadScenarioStore();
+    const original = scenarios.find((s) => s.id === id);
     if (!original) {
       throw new Error(`Waterfall scenario not found: ${id}`);
     }
@@ -175,7 +208,8 @@ export async function duplicateWaterfallScenario(
       isFavorite: false,
     };
 
-    mockWaterfallScenarios.push(duplicate);
+    const next = [...scenarios, duplicate];
+    persistScenarioStore(next);
     return duplicate;
   }
 
@@ -261,6 +295,7 @@ export async function createScenarioFromTemplate(
   }
 ): Promise<WaterfallScenario> {
   if (isMockMode()) {
+    const scenarios = loadScenarioStore();
     const template = mockWaterfallTemplates.find((t) => t.id === templateId);
     if (!template) {
       throw new Error(`Template not found: ${templateId}`);
@@ -290,7 +325,8 @@ export async function createScenarioFromTemplate(
       tags: [template.name.toLowerCase().replace(/\s+/g, '-')],
     };
 
-    mockWaterfallScenarios.push(newScenario);
+    const next = [...scenarios, newScenario];
+    persistScenarioStore(next);
     return newScenario;
   }
 
@@ -306,18 +342,22 @@ export async function createScenarioFromTemplate(
  */
 export async function toggleScenarioFavorite(id: string): Promise<WaterfallScenario> {
   if (isMockMode()) {
-    const index = mockWaterfallScenarios.findIndex((s) => s.id === id);
+    const scenarios = loadScenarioStore();
+    const index = scenarios.findIndex((s) => s.id === id);
     if (index === -1) {
       throw new Error(`Waterfall scenario not found: ${id}`);
     }
 
-    mockWaterfallScenarios[index] = {
-      ...mockWaterfallScenarios[index],
-      isFavorite: !mockWaterfallScenarios[index].isFavorite,
+    const updated = {
+      ...scenarios[index],
+      isFavorite: !scenarios[index].isFavorite,
       updatedAt: new Date().toISOString(),
     };
 
-    return mockWaterfallScenarios[index];
+    const next = [...scenarios];
+    next[index] = updated;
+    persistScenarioStore(next);
+    return updated;
   }
 
   throw new Error('Waterfall API not implemented yet');

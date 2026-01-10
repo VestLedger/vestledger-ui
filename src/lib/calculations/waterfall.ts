@@ -512,6 +512,8 @@ export function calculateSensitivityAnalysis(
   const step = (maxExitValue - minExitValue) / steps;
   const dataPoints: SensitivityDataPoint[] = [];
   const breakEvenPoints: { tierName: string; exitValue: number }[] = [];
+  const activatedTiers = new Set<string>();
+  let previousResults: WaterfallResults | null = null;
 
   for (let i = 0; i <= steps; i++) {
     const exitValue = minExitValue + step * i;
@@ -538,19 +540,29 @@ export function calculateSensitivityAnalysis(
     });
 
     // Detect break-even points (tier activations)
-    if (i > 0) {
-      const prevResults = calculateWaterfall({ ...scenario, exitValue: minExitValue + step * (i - 1) });
-      const currentTierIndex = results.tierBreakdown.findIndex((t) => t.totalAmount > 0);
-      const prevTierIndex = prevResults.tierBreakdown.findIndex((t) => t.totalAmount > 0);
-
-      if (currentTierIndex !== prevTierIndex && currentTierIndex !== -1) {
-        const tier = results.tierBreakdown[currentTierIndex];
-        breakEvenPoints.push({
-          tierName: tier.tierName,
-          exitValue,
-        });
-      }
+    if (previousResults) {
+      const previousTotals = new Map(
+        previousResults.tierBreakdown.map((tier) => [tier.tierId, tier.totalAmount])
+      );
+      results.tierBreakdown.forEach((tier) => {
+        const prevAmount = previousTotals.get(tier.tierId) ?? 0;
+        if (prevAmount <= 0 && tier.totalAmount > 0 && !activatedTiers.has(tier.tierId)) {
+          activatedTiers.add(tier.tierId);
+          breakEvenPoints.push({
+            tierName: tier.tierName,
+            exitValue,
+          });
+        }
+      });
+    } else {
+      results.tierBreakdown.forEach((tier) => {
+        if (tier.totalAmount > 0) {
+          activatedTiers.add(tier.tierId);
+        }
+      });
     }
+
+    previousResults = results;
   }
 
   return {

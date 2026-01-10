@@ -148,7 +148,7 @@ export function PageHeader({
               <Button
                 key={index}
                 variant="bordered"
-                onClick={action.onClick}
+                onPress={action.onClick}
               >
                 {action.label}
               </Button>
@@ -157,7 +157,7 @@ export function PageHeader({
             {!actionContent && primaryAction && (
               <div className="relative">
                 <Button
-                  onClick={primaryAction.onClick}
+                  onPress={primaryAction.onClick}
                   className={primaryAction.aiSuggested ? 'relative' : ''}
                 >
                   {primaryAction.label}

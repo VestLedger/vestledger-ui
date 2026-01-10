@@ -5,6 +5,7 @@ import { Building2, User, Mail, Globe, DollarSign, Users, TrendingUp, FileText, 
 import { useUIKey } from '@/store/ui';
 import { useAppDispatch } from '@/store/hooks';
 import { startupApplicationSubmitRequested } from '@/store/slices/uiEffectsSlice';
+import { writeToClipboard } from '@/utils/clipboard';
 
 interface FormData {
   companyName: string;
@@ -77,7 +78,7 @@ export function StartupApplicationForm({ embedded = false }: { embedded?: boolea
 ></iframe>`;
 
   const copyEmbedCode = () => {
-    navigator.clipboard.writeText(embedCode);
+    void writeToClipboard(embedCode);
   };
 
   if (isSubmitted) {

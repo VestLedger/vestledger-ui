@@ -22,6 +22,7 @@ import {
 } from '@/services/ai/decisionWriterService';
 import { calculateBadges, type BadgeData } from '@/services/ai/aiBadgesService';
 import type { ExportJob, ReportTemplate } from '@/services/reports/reportExportService';
+import { writeToClipboard } from '@/utils/clipboard';
 
 type EOIState = { submitted: boolean; loading: boolean };
 type StartupApplicationState = { isSubmitting: boolean; isSubmitted: boolean };
@@ -115,7 +116,7 @@ function* decisionWriterCopyWorker(): SagaGenerator {
   if (!text) return;
 
   try {
-    yield call([navigator.clipboard, navigator.clipboard.writeText], text);
+    yield call(writeToClipboard, text);
   } catch {
     // ignore clipboard errors for mock flow
   }

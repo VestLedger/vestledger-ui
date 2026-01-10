@@ -19,6 +19,7 @@ import { useUIKey } from '@/store/ui';
 import { auditTrailRequested, auditTrailSelectors } from '@/store/slices/miscSlice';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
 import { formatCurrencyCompact, formatTimestamp, truncateHash } from '@/utils/formatting';
+import { writeToClipboard } from '@/utils/clipboard';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { PageScaffold, SearchToolbar } from '@/components/ui';
 
@@ -53,7 +54,7 @@ export function BlockchainAuditTrail() {
   }
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
+    void writeToClipboard(text);
   };
 
   const getEventIcon = (type: string) => {
