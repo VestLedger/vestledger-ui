@@ -157,6 +157,25 @@ export const routes: Record<string, RouteConfig> = {
     description: 'Capital calls and fund operations',
   },
 
+  fundAdminDistributionsNew: {
+    path: '/fund-admin/distributions/new',
+    label: 'New Distribution',
+    icon: Receipt,
+    breadcrumbs: [
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Back Office', href: '/dashboard' },
+      { label: 'Fund Admin', href: '/fund-admin' },
+      { label: 'New Distribution' },
+    ],
+    aiSuggestion: {
+      label: 'Waterfall Modeling',
+      href: '/waterfall',
+      reasoning: 'Run waterfall scenarios before finalizing LP allocations.',
+      confidence: 0.82,
+    },
+    description: 'Create a new distribution workflow',
+  },
+
   lpManagement: {
     path: '/lp-management',
     label: 'LP Management',

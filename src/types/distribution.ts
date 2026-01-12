@@ -431,6 +431,9 @@ export interface DistributionWizardState {
   waterfallData?: {
     scenarioId?: string;
     results?: WaterfallResults;
+    previewExitValue?: number;
+    previewTotalInvested?: number;
+    previewManagementFees?: number;
   };
   allocationsData?: LPAllocation[];
   taxData?: {
@@ -442,6 +445,11 @@ export interface DistributionWizardState {
   previewData?: {
     template: StatementTemplate;
     customBranding?: StatementBranding;
+    emailSubject?: string;
+    emailBody?: string;
+  };
+  submitData?: {
+    comment?: string;
   };
 
   // Validation

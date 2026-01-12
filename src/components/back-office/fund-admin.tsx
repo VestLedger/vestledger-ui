@@ -1,14 +1,15 @@
 'use client'
 
 import { useUIKey } from '@/store/ui'
-import { Card, Button, Badge, Progress, Select } from '@/ui'
-import { DollarSign, Send, Download, Users, FileText, Mail, ArrowUpRight, ArrowDownRight } from 'lucide-react'
+import { Card, Button, Progress, Select } from '@/ui'
+import { DollarSign, Send, Download, Users, Mail, ArrowUpRight, ArrowDownRight } from 'lucide-react'
 import { FundSelector } from '../fund-selector'
 import { getRouteConfig } from '@/config/routes'
 import { CarriedInterestTracker } from '../fund-admin/carried-interest-tracker'
 import { ExpenseTracker } from '../fund-admin/expense-tracker'
 import { NAVCalculator } from '../fund-admin/nav-calculator'
 import { TransferSecondary } from '../fund-admin/transfer-secondary'
+import { DistributionsList } from '../fund-admin/distributions/distributions-list'
 import { fundAdminRequested, fundAdminSelectors } from '@/store/slices/backOfficeSlice'
 import { ErrorState, LoadingState } from '@/components/ui/async-states'
 import { formatCurrency } from '@/utils/formatting'
@@ -280,67 +281,7 @@ export function FundAdmin() {
         )}
 
         {selectedTab === 'distributions' && (
-          <div className="space-y-3">
-            {distributions.map((dist) => (
-              <Card key={dist.id} padding="lg">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-4">
-                    <div className="p-3 rounded-lg bg-[var(--app-success-bg)]">
-                      <ArrowDownRight className="w-6 h-6 text-[var(--app-success)]" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold text-lg">Distribution #{dist.distributionNumber}</h3>
-                        <StatusBadge status={dist.status} domain="fund-admin" showIcon size="sm" />
-                        <Badge size="sm" className="bg-[var(--app-surface-hover)]">
-                          {dist.type.split('-').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-[var(--app-text-muted)] mb-1">{dist.fundName}</p>
-                      <p className="text-sm text-[var(--app-text-subtle)]">Source: {dist.source}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      size="sm"
-                      variant="bordered"
-                      startContent={<FileText className="w-4 h-4" />}
-                    >
-                      View Details
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="flat"
-                      startContent={<Download className="w-4 h-4" />}
-                    >
-                      Export
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-4 gap-4 mt-4">
-                  <div>
-                    <p className="text-xs text-[var(--app-text-muted)] mb-1">Total Amount</p>
-                    <p className="text-lg font-bold text-[var(--app-success)]">
-                      {formatCurrency(dist.totalAmount)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-[var(--app-text-muted)] mb-1">LPs</p>
-                    <p className="font-semibold">{dist.lpCount}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-[var(--app-text-muted)] mb-1">Distribution Date</p>
-                    <p className="font-semibold">{new Date(dist.distributionDate).toLocaleDateString()}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-[var(--app-text-muted)] mb-1">Per LP Avg</p>
-                    <p className="font-semibold">{formatCurrency(dist.totalAmount / dist.lpCount)}</p>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
+          <DistributionsList />
         )}
 
         {selectedTab === 'lp-responses' && (
