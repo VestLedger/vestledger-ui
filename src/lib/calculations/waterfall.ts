@@ -18,6 +18,31 @@ import type {
   SensitivityAnalysis,
 } from '@/types/waterfall';
 
+type InvestedBasis = 'commitment' | 'capitalCalled';
+
+type WaterfallCalculationOptions = {
+  includeCatchUp: boolean;
+  investedBasis: InvestedBasis;
+};
+
+const getInvestedAmount = (investorClass: InvestorClass, basis: InvestedBasis) =>
+  basis === 'capitalCalled' ? investorClass.capitalCalled : investorClass.commitment;
+
+const resolveTotalInvested = (
+  investorClasses: InvestorClass[],
+  scenarioTotalInvested: number,
+  options: WaterfallCalculationOptions
+) => {
+  if (options.investedBasis === 'capitalCalled') {
+    const capitalCalledTotal = investorClasses.reduce(
+      (sum, investorClass) => sum + investorClass.capitalCalled,
+      0
+    );
+    return capitalCalledTotal > 0 ? capitalCalledTotal : scenarioTotalInvested;
+  }
+  return scenarioTotalInvested;
+};
+
 // ============================================================================
 // Core Calculation Functions
 // ============================================================================
@@ -137,14 +162,22 @@ export function calculateTierAllocations(
  * 3. GP Catch-Up (100% to GP until GP has earned target carry %)
  * 4. Remaining Carry (Split between LP and GP, e.g., 80/20)
  */
-export function calculateEuropeanWaterfall(scenario: WaterfallScenario): WaterfallResults {
+function calculateWaterfallModel(
+  scenario: WaterfallScenario,
+  options: WaterfallCalculationOptions
+): WaterfallResults {
   const {
     investorClasses,
     tiers,
     exitValue,
-    totalInvested,
+    totalInvested: scenarioTotalInvested,
     managementFees,
   } = scenario;
+  const totalInvested = resolveTotalInvested(
+    investorClasses,
+    scenarioTotalInvested,
+    options
+  );
 
   // Sort tiers by order
   const sortedTiers = [...tiers].sort((a, b) => a.order - b.order);
@@ -159,7 +192,7 @@ export function calculateEuropeanWaterfall(scenario: WaterfallScenario): Waterfa
     classResultsMap.set(ic.id, {
       investorClassId: ic.id,
       investorClassName: ic.name,
-      invested: ic.commitment,
+      invested: getInvestedAmount(ic, options.investedBasis),
       returned: 0,
       multiple: 0,
       irr: 0,
@@ -180,6 +213,21 @@ export function calculateEuropeanWaterfall(scenario: WaterfallScenario): Waterfa
     let gpAmount = 0;
     let lpAmount = 0;
     const allocations: TierAllocation[] = [];
+
+    if (tier.type === 'catch-up' && !options.includeCatchUp) {
+      tierBreakdowns.push({
+        tierId: tier.id,
+        tierName: tier.name,
+        tierType: tier.type,
+        totalAmount: 0,
+        gpAmount: 0,
+        lpAmount: 0,
+        percentage: 0,
+        cumulativeAmount,
+        allocations,
+      });
+      continue;
+    }
 
     switch (tier.type) {
       case 'roc': {
@@ -406,7 +454,7 @@ export function calculateEuropeanWaterfall(scenario: WaterfallScenario): Waterfa
       totalAmount: tierAmount,
       gpAmount,
       lpAmount,
-      percentage: (tierAmount / exitValue) * 100,
+      percentage: exitValue > 0 ? (tierAmount / exitValue) * 100 : 0,
       cumulativeAmount,
       allocations,
     });
@@ -459,6 +507,13 @@ export function calculateEuropeanWaterfall(scenario: WaterfallScenario): Waterfa
   };
 }
 
+export function calculateEuropeanWaterfall(scenario: WaterfallScenario): WaterfallResults {
+  return calculateWaterfallModel(scenario, {
+    includeCatchUp: true,
+    investedBasis: 'commitment',
+  });
+}
+
 // ============================================================================
 // American Waterfall Model
 // ============================================================================
@@ -473,9 +528,12 @@ export function calculateEuropeanWaterfall(scenario: WaterfallScenario): Waterfa
  * 3. Carry on All Proceeds (Split on all remaining proceeds, e.g., 80/20)
  */
 export function calculateAmericanWaterfall(scenario: WaterfallScenario): WaterfallResults {
-  // American model is similar to European but without catch-up tier
-  // and carry applies to each deal individually
-  return calculateEuropeanWaterfall(scenario);
+  // American model approximated as deal-by-deal carry using capital-called basis.
+  // Catch-up tiers are skipped to reflect standard American structures.
+  return calculateWaterfallModel(scenario, {
+    includeCatchUp: false,
+    investedBasis: 'capitalCalled',
+  });
 }
 
 // ============================================================================

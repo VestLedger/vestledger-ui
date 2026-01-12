@@ -1,12 +1,9 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { Badge, Button, Card, Input, Select, Textarea } from "@/ui";
 import {
-  DocumentPreviewModal,
   getMockDocumentUrl,
-  type PreviewDocument,
-  useDocumentPreview,
 } from "@/components/documents/preview";
 import { useUIKey } from "@/store/ui";
 import type {
@@ -16,9 +13,11 @@ import type {
   StatementTemplateConfig,
 } from "@/types/distribution";
 import { formatCurrencyCompact } from "@/utils/formatting";
+import { StatementPreviewModal } from "./statement-preview-modal";
 
 type PreviewUIState = {
   selectedLPId: string;
+  isStatementPreviewOpen: boolean;
 };
 
 const TEMPLATE_OPTIONS: Array<{ value: StatementTemplate; label: string }> = [
@@ -56,17 +55,8 @@ export function DistributionStepPreview({
   const initialLPId = lpProfiles[0]?.id ?? "";
   const { value: ui, patch: patchUI } = useUIKey<PreviewUIState>(
     "distribution-statement-preview",
-    { selectedLPId: initialLPId }
+    { selectedLPId: initialLPId, isStatementPreviewOpen: false }
   );
-  const {
-    previewDocument,
-    previewDocuments,
-    currentIndex,
-    isOpen,
-    openPreview,
-    closePreview,
-    navigateToDocument,
-  } = useDocumentPreview();
 
   const selectedTemplate = templates.find((item) => item.template === template);
   const templateLabel = selectedTemplate?.name ?? "Statement";
@@ -81,31 +71,12 @@ export function DistributionStepPreview({
     }
   }, [lpProfiles, patchUI, ui.selectedLPId]);
 
+  const isStatementPreviewOpen = ui.isStatementPreviewOpen ?? false;
   const selectedLP = lpProfiles.find((lp) => lp.id === ui.selectedLPId) ?? lpProfiles[0] ?? null;
-  const statementDocuments = useMemo<PreviewDocument[]>(
-    () =>
-      lpProfiles.map((profile) => ({
-        id: `statement-${profile.id}-${template}`,
-        name: `${profile.name} - ${templateLabel}`,
-        type: "pdf",
-        url: getMockDocumentUrl("pdf"),
-        category: "Distribution Statement",
-        metadata: { template, lpId: profile.id },
-      })),
-    [lpProfiles, template, templateLabel]
-  );
-
-  const activeStatement =
-    statementDocuments.find((doc) => doc.metadata?.lpId === selectedLP?.id) ??
-    statementDocuments[0] ??
-    {
-      id: `statement-${template}`,
-      name: `${distributionName} ${templateLabel}`,
-      type: "pdf",
-      url: getMockDocumentUrl("pdf"),
-      category: "Distribution Statement",
-      metadata: { template },
-    };
+  const statementName = selectedLP
+    ? `${selectedLP.name} - ${templateLabel}`
+    : `${distributionName} - ${templateLabel}`;
+  const statementUrl = getMockDocumentUrl("pdf");
 
   return (
     <Card padding="lg" className="space-y-4">
@@ -291,21 +262,20 @@ export function DistributionStepPreview({
 
       <Button
         variant="bordered"
-        onPress={() => openPreview(activeStatement, statementDocuments)}
+        onPress={() => patchUI({ isStatementPreviewOpen: true })}
       >
         Preview Statement
       </Button>
 
-      {previewDocument && (
-        <DocumentPreviewModal
-          document={previewDocument}
-          documents={previewDocuments}
-          currentIndex={currentIndex}
-          isOpen={isOpen}
-          onClose={closePreview}
-          onNavigate={navigateToDocument}
-        />
-      )}
+      <StatementPreviewModal
+        isOpen={isStatementPreviewOpen}
+        onOpenChange={(open) => patchUI({ isStatementPreviewOpen: open })}
+        template={template}
+        branding={branding}
+        distributionName={distributionName}
+        documentUrl={statementUrl}
+        documentName={statementName}
+      />
     </Card>
   );
 }

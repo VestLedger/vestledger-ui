@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Badge, Button } from '@/ui';
 import { ListItemCard, SearchToolbar } from '@/components/ui';
 import { useUIKey } from '@/store/ui';
 import type { WaterfallScenario } from '@/types/waterfall';
-import { formatDate, formatTimestamp } from '@/utils/formatting';
+import { formatCurrencyCompact, formatDate, formatTimestamp } from '@/utils/formatting';
 import { safeLocalStorage } from '@/lib/storage/safeLocalStorage';
 import {
   Archive,
@@ -27,6 +27,8 @@ type ScenarioManagerUIState = {
 
 const RECENT_DAYS = 14;
 const ARCHIVE_STORAGE_KEY = 'vestledger-waterfall-archived-scenarios';
+const HISTORY_STORAGE_KEY = 'vestledger-waterfall-scenario-history';
+const MAX_HISTORY_ENTRIES = 8;
 
 const isRecent = (scenario: WaterfallScenario) => {
   const updated = new Date(scenario.updatedAt).getTime();
@@ -36,6 +38,28 @@ const isRecent = (scenario: WaterfallScenario) => {
 
 const getModelLabel = (model: WaterfallScenario['model']) =>
   model === 'european' ? 'European' : 'American';
+
+type ScenarioHistoryEntry = {
+  version: number;
+  updatedAt: string;
+  name: string;
+  model: WaterfallScenario['model'];
+  exitValue: number;
+  totalInvested: number;
+  investorClassCount: number;
+};
+
+type ScenarioHistoryStore = Record<string, ScenarioHistoryEntry[]>;
+
+const buildHistoryEntry = (scenario: WaterfallScenario): ScenarioHistoryEntry => ({
+  version: scenario.version,
+  updatedAt: scenario.updatedAt,
+  name: scenario.name,
+  model: scenario.model,
+  exitValue: scenario.exitValue,
+  totalInvested: scenario.totalInvested,
+  investorClassCount: scenario.investorClasses.length,
+});
 
 export interface ScenarioManagerProps {
   scenarios: WaterfallScenario[];
@@ -69,6 +93,8 @@ export function ScenarioManager({
     }
   );
   const hasInitialized = useRef(false);
+  const historyInitialized = useRef(false);
+  const [historyByScenarioId, setHistoryByScenarioId] = useState<ScenarioHistoryStore>({});
 
   useEffect(() => {
     if (hasInitialized.current) return;
@@ -84,10 +110,56 @@ export function ScenarioManager({
     safeLocalStorage.setJSON(ARCHIVE_STORAGE_KEY, ui.archivedScenarioIds);
   }, [ui.archivedScenarioIds]);
 
+  useEffect(() => {
+    if (historyInitialized.current) return;
+    const stored = safeLocalStorage.getJSON<ScenarioHistoryStore>(HISTORY_STORAGE_KEY);
+    if (stored) {
+      setHistoryByScenarioId(stored);
+    }
+    historyInitialized.current = true;
+  }, []);
+
+  useEffect(() => {
+    if (!historyInitialized.current) return;
+    setHistoryByScenarioId((prev) => {
+      let hasChanges = false;
+      const next: ScenarioHistoryStore = { ...prev };
+
+      scenarios.forEach((scenario) => {
+        const history = next[scenario.id] ?? [];
+        const hasVersion = history.some((entry) => entry.version === scenario.version);
+        if (hasVersion) return;
+
+        const updated = [buildHistoryEntry(scenario), ...history]
+          .sort((a, b) => b.version - a.version)
+          .slice(0, MAX_HISTORY_ENTRIES);
+        next[scenario.id] = updated;
+        hasChanges = true;
+      });
+
+      return hasChanges ? next : prev;
+    });
+  }, [scenarios]);
+
+  useEffect(() => {
+    if (!historyInitialized.current) return;
+    safeLocalStorage.setJSON(HISTORY_STORAGE_KEY, historyByScenarioId);
+  }, [historyByScenarioId]);
+
   const archivedSet = useMemo(
     () => new Set(ui.archivedScenarioIds),
     [ui.archivedScenarioIds]
   );
+
+  const selectedScenario = useMemo(
+    () => scenarios.find((scenario) => scenario.id === selectedScenarioId) ?? null,
+    [scenarios, selectedScenarioId]
+  );
+
+  const selectedHistory = useMemo(() => {
+    if (!selectedScenarioId) return [];
+    return historyByScenarioId[selectedScenarioId] ?? [];
+  }, [historyByScenarioId, selectedScenarioId]);
 
   const { activeScenarios, archivedScenarios } = useMemo(() => {
     const active = scenarios.filter((scenario) => !archivedSet.has(scenario.id));
@@ -331,6 +403,58 @@ export function ScenarioManager({
               No scenarios match this filter.
             </div>
           )}
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="text-xs uppercase tracking-wide text-[var(--app-text-subtle)]">
+            Scenario History
+          </div>
+          {selectedScenario && (
+            <Badge size="sm" variant="flat">
+              v{selectedScenario.version}
+            </Badge>
+          )}
+        </div>
+        {selectedScenario ? (
+          selectedHistory.length > 0 ? (
+            <div className="space-y-2">
+              {selectedHistory.map((entry) => (
+                <div
+                  key={`${entry.version}-${entry.updatedAt}`}
+                  className="rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] p-3 text-xs"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="font-semibold">v{entry.version}</div>
+                    <div className="text-[var(--app-text-muted)]">
+                      {formatTimestamp(new Date(entry.updatedAt))}
+                    </div>
+                  </div>
+                  <div className="mt-1 text-[var(--app-text-muted)]">{entry.name}</div>
+                  <div className="mt-2 flex flex-wrap items-center gap-2 text-[var(--app-text-muted)]">
+                    <Badge size="sm" variant="flat">
+                      {getModelLabel(entry.model)}
+                    </Badge>
+                    <span>{formatCurrencyCompact(entry.exitValue)} exit</span>
+                    <span>{formatCurrencyCompact(entry.totalInvested)} invested</span>
+                    <span>{entry.investorClassCount} classes</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-lg border border-dashed border-[var(--app-border)] p-3 text-sm text-[var(--app-text-muted)]">
+              No history recorded for this scenario yet.
+            </div>
+          )
+        ) : (
+          <div className="rounded-lg border border-dashed border-[var(--app-border)] p-3 text-sm text-[var(--app-text-muted)]">
+            Select a scenario to view version history.
+          </div>
+        )}
+        <div className="text-xs text-[var(--app-text-subtle)]">
+          History snapshots are stored locally when a scenario version changes.
         </div>
       </div>
     </div>

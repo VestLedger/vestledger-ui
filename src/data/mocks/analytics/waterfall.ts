@@ -584,7 +584,7 @@ export const mockWaterfallScenarios: WaterfallScenario[] = [
 ];
 
 mockWaterfallScenarios.forEach((scenario) => {
-  if (!scenario.results) {
+  if (!scenario.results || scenario.model === 'american') {
     scenario.results = calculateWaterfall(scenario);
   }
 });

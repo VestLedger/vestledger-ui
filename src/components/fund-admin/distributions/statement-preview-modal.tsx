@@ -1,6 +1,7 @@
 'use client';
 
 import { Badge, Button, Card, Modal } from '@/ui';
+import { PDFViewer } from '@/components/documents/preview/viewers/PDFViewer';
 import type { StatementBranding, StatementTemplate } from '@/types/distribution';
 
 export interface StatementPreviewModalProps {
@@ -9,6 +10,8 @@ export interface StatementPreviewModalProps {
   template: StatementTemplate;
   branding?: StatementBranding;
   distributionName: string;
+  documentUrl?: string;
+  documentName?: string;
 }
 
 export function StatementPreviewModal({
@@ -17,6 +20,8 @@ export function StatementPreviewModal({
   template,
   branding,
   distributionName,
+  documentUrl,
+  documentName,
 }: StatementPreviewModalProps) {
   return (
     <Modal
@@ -33,7 +38,7 @@ export function StatementPreviewModal({
     >
       <Card padding="lg" className="space-y-3 text-sm">
         <div className="flex items-center justify-between">
-          <div className="font-semibold">{distributionName}</div>
+          <div className="font-semibold">{documentName || distributionName}</div>
           <Badge size="sm" variant="flat">
             {template.replace('-', ' ')}
           </Badge>
@@ -51,6 +56,15 @@ export function StatementPreviewModal({
             <div>Contact: {branding?.contactInfo || 'No contact info provided'}</div>
           </div>
         </div>
+        {documentUrl ? (
+          <div className="h-[520px] overflow-hidden rounded-lg border border-[var(--app-border)]">
+            <PDFViewer url={documentUrl} />
+          </div>
+        ) : (
+          <div className="rounded-lg border border-dashed border-[var(--app-border)] p-6 text-center text-xs text-[var(--app-text-muted)]">
+            PDF preview will appear once a statement is generated.
+          </div>
+        )}
       </Card>
     </Modal>
   );
