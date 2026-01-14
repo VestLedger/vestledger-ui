@@ -21,6 +21,8 @@ import {
   distributionsRequested,
   distributionsLoaded,
   distributionsFailed,
+  distributionRequested,
+  distributionUpdated,
   createDistributionRequested,
   createDistributionSucceeded,
   createDistributionFailed,
@@ -39,6 +41,9 @@ import {
   rejectDistributionRequested,
   rejectDistributionSucceeded,
   rejectDistributionFailed,
+  returnForRevisionRequested,
+  returnForRevisionSucceeded,
+  returnForRevisionFailed,
   summaryRequested,
   summaryLoaded,
   summaryFailed,
@@ -60,12 +65,14 @@ import {
 } from '@/store/slices/distributionSlice';
 import {
   fetchDistributions,
+  fetchDistribution,
   createDistribution,
   updateDistribution,
   deleteDistribution,
   submitForApproval,
   approveDistribution,
   rejectDistribution,
+  returnForRevision,
   fetchDistributionSummary,
   fetchDistributionCalendarEvents,
   fetchFeeTemplates,
@@ -88,6 +95,16 @@ function* loadDistributionsWorker(
     yield put(distributionsLoaded({ distributions }));
   } catch (error: unknown) {
     console.error('Failed to load distributions', error);
+    yield put(distributionsFailed(normalizeError(error)));
+  }
+}
+
+function* loadDistributionWorker(action: PayloadAction<string>): SagaIterator {
+  try {
+    const distribution: Distribution = yield call(fetchDistribution, action.payload);
+    yield put(distributionUpdated(distribution));
+  } catch (error: unknown) {
+    console.error('Failed to load distribution', error);
     yield put(distributionsFailed(normalizeError(error)));
   }
 }
@@ -163,6 +180,18 @@ function* rejectDistributionWorker(
   } catch (error: unknown) {
     console.error('Failed to reject distribution', error);
     yield put(rejectDistributionFailed(normalizeError(error)));
+  }
+}
+
+function* returnForRevisionWorker(
+  action: PayloadAction<{ distributionId: string; approverId: string; reason: string }>
+): SagaIterator {
+  try {
+    const distribution: Distribution = yield call(returnForRevision, action.payload);
+    yield put(returnForRevisionSucceeded(distribution));
+  } catch (error: unknown) {
+    console.error('Failed to return distribution for revision', error);
+    yield put(returnForRevisionFailed(normalizeError(error)));
   }
 }
 
@@ -245,6 +274,7 @@ function* loadApprovalRulesWorker(): SagaIterator {
 export function* distributionSaga(): SagaIterator {
   // Distributions
   yield takeLatest(distributionsRequested.type, loadDistributionsWorker);
+  yield takeLatest(distributionRequested.type, loadDistributionWorker);
   yield takeLatest(createDistributionRequested.type, createDistributionWorker);
   yield takeLatest(updateDistributionRequested.type, updateDistributionWorker);
   yield takeLatest(deleteDistributionRequested.type, deleteDistributionWorker);
@@ -253,6 +283,7 @@ export function* distributionSaga(): SagaIterator {
   yield takeLatest(submitForApprovalRequested.type, submitForApprovalWorker);
   yield takeLatest(approveDistributionRequested.type, approveDistributionWorker);
   yield takeLatest(rejectDistributionRequested.type, rejectDistributionWorker);
+  yield takeLatest(returnForRevisionRequested.type, returnForRevisionWorker);
 
   // Supporting data
   yield takeLatest(summaryRequested.type, loadSummaryWorker);

@@ -415,6 +415,68 @@ export async function rejectDistribution(
   throw new Error('Distribution API not implemented yet');
 }
 
+export interface ReturnForRevisionParams {
+  distributionId: string;
+  approverId: string;
+  reason: string;
+}
+
+/**
+ * Return a distribution for revision
+ */
+export async function returnForRevision(
+  params: ReturnForRevisionParams
+): Promise<Distribution> {
+  if (isMockMode()) {
+    const index = mockDistributions.findIndex((d) => d.id === params.distributionId);
+    if (index === -1) {
+      throw new Error(`Distribution not found: ${params.distributionId}`);
+    }
+
+    const distribution = mockDistributions[index];
+    const currentStep = distribution.currentApprovalStep || 1;
+    const stepIndex = distribution.approvalSteps.findIndex((s) => s.order === currentStep);
+
+    if (stepIndex === -1) {
+      throw new Error('Current approval step not found');
+    }
+
+    distribution.approvalSteps[stepIndex] = {
+      ...distribution.approvalSteps[stepIndex],
+      status: 'returned',
+      comment: params.reason,
+      respondedAt: new Date().toISOString(),
+    };
+
+    const updated = {
+      ...distribution,
+      status: 'draft' as const,
+      isDraft: true,
+      revisionNumber: distribution.revisionNumber + 1,
+      updatedAt: new Date().toISOString(),
+      comments: [
+        ...distribution.comments,
+        {
+          id: `comment-${Date.now()}`,
+          distributionId: params.distributionId,
+          userId: params.approverId,
+          userName: distribution.approvalSteps[stepIndex].approverName,
+          userRole: distribution.approvalSteps[stepIndex].approverRole,
+          comment: params.reason,
+          isInternal: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      ],
+    };
+
+    mockDistributions[index] = updated;
+    return updated;
+  }
+
+  throw new Error('Distribution API not implemented yet');
+}
+
 // ============================================================================
 // Supporting Data
 // ============================================================================

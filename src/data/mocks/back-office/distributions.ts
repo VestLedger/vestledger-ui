@@ -1166,6 +1166,7 @@ export const mockDistributionCalendarEvents: DistributionCalendarEvent[] = [
     fundId: 'fund-2',
     fundName: 'Quantum Ventures Fund II',
     isRecurring: true,
+    reminderDaysBefore: [7, 1],
     color: '#f59e0b',
   },
   {
@@ -1192,6 +1193,7 @@ export const mockDistributionCalendarEvents: DistributionCalendarEvent[] = [
     fundId: 'fund-3',
     fundName: 'Quantum Ventures Fund III',
     isRecurring: false,
+    reminderDaysBefore: [7, 1],
     color: '#8b5cf6',
   },
   {
@@ -1204,6 +1206,7 @@ export const mockDistributionCalendarEvents: DistributionCalendarEvent[] = [
     fundName: 'Quantum Ventures Fund II',
     description: 'Recurring quarterly dividend',
     isRecurring: true,
+    reminderDaysBefore: [7, 1],
     color: '#6b7280',
   },
   {
@@ -1217,6 +1220,7 @@ export const mockDistributionCalendarEvents: DistributionCalendarEvent[] = [
     fundName: 'Quantum Ventures Fund II',
     description: 'Secondary sale (draft)',
     isRecurring: false,
+    reminderDaysBefore: [7],
     color: '#6b7280',
   },
 ];

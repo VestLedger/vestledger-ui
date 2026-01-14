@@ -20,7 +20,8 @@ import type {
   DistributionStatus,
 } from '@/types/distribution';
 import { formatCurrencyCompact, formatDate } from '@/utils/formatting';
-import { Plus } from 'lucide-react';
+import { distributionEventTypeLabels, getLabelForType } from '@/utils/styling/typeMappers';
+import { CalendarDays, Plus } from 'lucide-react';
 
 type DistributionListUIState = {
   searchQuery: string;
@@ -47,12 +48,6 @@ const EVENT_TYPE_OPTIONS: Array<{ value: DistributionListUIState['eventTypeFilte
   { value: 'partial-exit', label: 'Partial Exit' },
   { value: 'other', label: 'Other' },
 ];
-
-const formatEventType = (value: DistributionEventType) =>
-  value
-    .split('-')
-    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
-    .join(' ');
 
 export function DistributionsList() {
   const router = useRouter();
@@ -127,7 +122,7 @@ export function DistributionsList() {
       sortable: true,
       render: (item) => (
         <Badge size="sm" variant="flat">
-          {formatEventType(item.eventType)}
+          {getLabelForType(distributionEventTypeLabels, item.eventType)}
         </Badge>
       ),
     },
@@ -177,6 +172,14 @@ export function DistributionsList() {
           </Badge>
           <Button
             size="sm"
+            variant="bordered"
+            startContent={<CalendarDays className="h-4 w-4" />}
+            onPress={() => router.push('/fund-admin/distributions/calendar')}
+          >
+            Calendar
+          </Button>
+          <Button
+            size="sm"
             color="primary"
             startContent={<Plus className="h-4 w-4" />}
             onPress={() => router.push('/fund-admin/distributions/new')}
@@ -220,6 +223,7 @@ export function DistributionsList() {
               exportable={false}
               pageSize={8}
               searchKeys={['name', 'fundName', 'description', 'waterfallScenarioName']}
+              onRowClick={(item) => router.push(`/fund-admin/distributions/${item.id}`)}
             />
           )}
         </AsyncStateRenderer>

@@ -366,6 +366,7 @@ export interface DistributionCalendarEvent {
   fundName: string;
   description?: string;
   isRecurring: boolean;
+  reminderDaysBefore?: number[];
   color?: string;
 }
 

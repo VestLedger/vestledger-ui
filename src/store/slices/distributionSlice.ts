@@ -120,15 +120,16 @@ const distributionSlice = createSlice({
       state.distributions.error = undefined;
     },
     distributionUpdated: (state, action: PayloadAction<Distribution>) => {
-      if (state.distributions.data?.distributions) {
-        const index = state.distributions.data.distributions.findIndex(
-          (d) => d.id === action.payload.id
-        );
-        if (index !== -1) {
-          state.distributions.data.distributions[index] = action.payload;
-        } else {
-          state.distributions.data.distributions.push(action.payload);
-        }
+      if (!state.distributions.data) {
+        state.distributions.data = { distributions: [] };
+      }
+      const index = state.distributions.data.distributions.findIndex(
+        (d) => d.id === action.payload.id
+      );
+      if (index !== -1) {
+        state.distributions.data.distributions[index] = action.payload;
+      } else {
+        state.distributions.data.distributions.push(action.payload);
       }
       state.distributions.status = 'succeeded';
     },
@@ -265,6 +266,33 @@ const distributionSlice = createSlice({
       state.distributions.error = action.payload;
     },
 
+    // Return for revision
+    returnForRevisionRequested: (
+      state,
+      _action: PayloadAction<{ distributionId: string; approverId: string; reason: string }>
+    ) => {
+      state.distributions.status = 'loading';
+      state.distributions.error = undefined;
+    },
+    returnForRevisionSucceeded: (state, action: PayloadAction<Distribution>) => {
+      if (!state.distributions.data) {
+        state.distributions.data = { distributions: [] };
+      }
+      const index = state.distributions.data.distributions.findIndex(
+        (d) => d.id === action.payload.id
+      );
+      if (index !== -1) {
+        state.distributions.data.distributions[index] = action.payload;
+      } else {
+        state.distributions.data.distributions.push(action.payload);
+      }
+      state.distributions.status = 'succeeded';
+    },
+    returnForRevisionFailed: (state, action: PayloadAction<NormalizedError>) => {
+      state.distributions.status = 'failed';
+      state.distributions.error = action.payload;
+    },
+
     // Summary
     summaryRequested: (state) => {
       state.summary.status = 'loading';
@@ -396,6 +424,9 @@ export const {
   rejectDistributionRequested,
   rejectDistributionSucceeded,
   rejectDistributionFailed,
+  returnForRevisionRequested,
+  returnForRevisionSucceeded,
+  returnForRevisionFailed,
   summaryRequested,
   summaryLoaded,
   summaryFailed,
