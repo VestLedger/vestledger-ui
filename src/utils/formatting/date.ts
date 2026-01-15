@@ -27,3 +27,16 @@ export function formatDate(
   if (Number.isNaN(date.getTime())) return '';
   return date.toLocaleDateString(undefined, options);
 }
+
+/**
+ * Format a date/time value using locale-aware formatting.
+ * Returns an empty string if the value cannot be parsed.
+ */
+export function formatDateTime(
+  value: Date | string | number,
+  options?: Intl.DateTimeFormatOptions
+): string {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleString(undefined, options);
+}

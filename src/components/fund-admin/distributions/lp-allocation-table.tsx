@@ -4,7 +4,7 @@ import { useCallback, useMemo } from 'react';
 import { Badge, Button, Checkbox, Input } from '@/ui';
 import { AdvancedTable, type ColumnDef } from '@/components/data-table/advanced-table';
 import type { LPAllocation } from '@/types/distribution';
-import { formatCurrencyCompact } from '@/utils/formatting';
+import { formatCurrencyCompact, formatPercent } from '@/utils/formatting';
 import { getAllocationIssues } from '@/lib/validation/distribution';
 import { Download, RefreshCcw } from 'lucide-react';
 
@@ -56,7 +56,7 @@ export function LPAllocationTable({
         label: 'Pro-Rata',
         sortable: true,
         align: 'right',
-        render: (item) => `${item.proRataPercentage.toFixed(2)}%`,
+        render: (item) => formatPercent(item.proRataPercentage, 2),
       },
       {
         key: 'grossAmount',

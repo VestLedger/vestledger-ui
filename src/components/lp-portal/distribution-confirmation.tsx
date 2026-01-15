@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Badge, Button, Card } from "@/ui";
+import { ListItemCard, StatusBadge } from "@/components/ui";
 import type { LPDistributionConfirmation } from "@/data/mocks/lp-portal/lp-investor-portal";
 import { formatCurrency, formatDate } from "@/utils/formatting";
 import { CheckCircle } from "lucide-react";
@@ -52,27 +53,15 @@ export function DistributionConfirmation({ confirmations }: DistributionConfirma
           confirmations.map((item) => {
             const isConfirmed = confirmedIds.has(item.id) || Boolean(item.confirmedAt);
             return (
-              <div
+              <ListItemCard
                 key={item.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[var(--app-border)] px-3 py-2"
-              >
-                <div>
-                  <div className="text-sm font-semibold">{item.distributionName}</div>
-                  <div className="text-xs text-[var(--app-text-muted)]">
-                    Statement date {formatDate(item.statementDate)} - {formatCurrency(item.amount)}
-                  </div>
-                  {isConfirmed && (
-                    <div className="text-xs text-[var(--app-text-subtle)]">
-                      Confirmed {formatDate(item.confirmedAt || new Date())}
-                    </div>
-                  )}
-                </div>
-                <div className="flex items-center gap-2 text-xs text-[var(--app-text-muted)]">
-                  {isConfirmed ? (
-                    <Badge size="sm" variant="flat" className="bg-[var(--app-success-bg)] text-[var(--app-success)]">
-                      Confirmed
-                    </Badge>
-                  ) : (
+                title={item.distributionName}
+                description={`Statement date ${formatDate(item.statementDate)} - ${formatCurrency(item.amount)}`}
+                meta={isConfirmed ? `Confirmed ${formatDate(item.confirmedAt || new Date())}` : undefined}
+                badges={<StatusBadge status={isConfirmed ? "confirmed" : "pending"} size="sm" />}
+                padding="sm"
+                actions={(
+                  !isConfirmed ? (
                     <Button
                       size="sm"
                       color="primary"
@@ -82,9 +71,9 @@ export function DistributionConfirmation({ confirmations }: DistributionConfirma
                     >
                       Confirm Receipt
                     </Button>
-                  )}
-                </div>
-              </div>
+                  ) : undefined
+                )}
+              />
             );
           })
         )}

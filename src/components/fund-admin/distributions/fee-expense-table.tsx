@@ -5,7 +5,7 @@ import { Button, Input, Select, Textarea } from '@/ui';
 import { AdvancedTable, type ColumnDef } from '@/components/data-table/advanced-table';
 import { useUIKey } from '@/store/ui';
 import type { FeeLineItem, FeeTemplate, FeeType } from '@/types/distribution';
-import { formatCurrencyCompact } from '@/utils/formatting';
+import { formatCurrencyCompact, formatPercent } from '@/utils/formatting';
 import { Plus, Trash2 } from 'lucide-react';
 
 type FeeExpenseTableUIState = {
@@ -393,7 +393,7 @@ export function FeeExpenseTable({
         </div>
         <div className="text-right">
           <div className="text-[10px] text-[var(--app-text-muted)]">Fees %</div>
-          <div className="font-semibold">{feePercent.toFixed(1)}%</div>
+          <div className="font-semibold">{formatPercent(feePercent, 1)}</div>
         </div>
         <div className="text-right">
           <div className="text-[10px] text-[var(--app-text-muted)]">Net</div>

@@ -2,9 +2,11 @@
 
 import { useMemo } from "react";
 import { Badge, Button, Card } from "@/ui";
-import { StatusBadge } from "@/components/ui";
+import { ListItemCard, StatusBadge } from "@/components/ui";
 import type { LPDistributionStatement } from "@/data/mocks/lp-portal/lp-investor-portal";
 import { formatCurrency, formatDate } from "@/utils/formatting";
+import { getLabelForType, taxFormTypeLabels } from "@/utils/styling/typeMappers";
+import { getStatementTemplateLabel } from "@/components/fund-admin/distributions/statement-template-constants";
 import {
   DocumentPreviewModal,
   getMockDocumentUrl,
@@ -70,43 +72,39 @@ export function DistributionStatements({ statements }: DistributionStatementsPro
           </div>
         ) : (
           statements.map((statement) => (
-            <div
+            <ListItemCard
               key={statement.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[var(--app-border)] px-3 py-2"
-            >
-              <div>
+              title={statement.distributionName}
+              description={`Statement date ${formatDate(statement.statementDate)} - ${formatCurrency(statement.amount)}`}
+              meta={`Tax forms: ${statement.taxForms
+                .map((form) => `${getLabelForType(taxFormTypeLabels, form.type)} ${form.generated ? "ready" : "pending"}`)
+                .join(", ")}`}
+              padding="sm"
+              badges={(
                 <div className="flex items-center gap-2">
-                  <div className="text-sm font-semibold">{statement.distributionName}</div>
                   <Badge size="sm" variant="flat">
-                    {statement.template.replace("-", " ")}
+                    {getStatementTemplateLabel(statement.template)}
                   </Badge>
                   <StatusBadge status={statement.status} size="sm" />
                 </div>
-                <div className="text-xs text-[var(--app-text-muted)]">
-                  Statement date {formatDate(statement.statementDate)} - {formatCurrency(statement.amount)}
+              )}
+              actions={(
+                <div className="flex items-center gap-2 text-xs text-[var(--app-text-muted)]">
+                  <Button
+                    size="sm"
+                    variant="flat"
+                    startContent={<FileText className="h-4 w-4" />}
+                    onPress={() => handlePreview(statement)}
+                    isDisabled={statement.status !== "available"}
+                  >
+                    Preview
+                  </Button>
+                  <Button size="sm" variant="bordered" isDisabled={statement.status !== "available"}>
+                    Download
+                  </Button>
                 </div>
-                <div className="text-xs text-[var(--app-text-subtle)]">
-                  Tax forms:{" "}
-                  {statement.taxForms
-                    .map((form) => `${form.type.toUpperCase()} ${form.generated ? "ready" : "pending"}`)
-                    .join(", ")}
-                </div>
-              </div>
-              <div className="flex items-center gap-2 text-xs text-[var(--app-text-muted)]">
-                <Button
-                  size="sm"
-                  variant="flat"
-                  startContent={<FileText className="h-4 w-4" />}
-                  onPress={() => handlePreview(statement)}
-                  isDisabled={statement.status !== "available"}
-                >
-                  Preview
-                </Button>
-                <Button size="sm" variant="bordered" isDisabled={statement.status !== "available"}>
-                  Download
-                </Button>
-              </div>
-            </div>
+              )}
+            />
           ))
         )}
       </div>

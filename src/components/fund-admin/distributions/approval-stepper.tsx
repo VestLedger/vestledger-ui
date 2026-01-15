@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Badge, Button, Card, Textarea } from "@/ui";
-import { StatusBadge } from "@/components/ui";
+import { StatusBadge, Timeline, type TimelineItem } from "@/components/ui";
 import { getStatusColorVars } from "@/utils/styling/statusColors";
 import { formatDate } from "@/utils/formatting";
 import type { ApprovalStatus, ApprovalStep, Distribution } from "@/types/distribution";
@@ -136,6 +136,19 @@ export function ApprovalStepper({
       return aTime - bTime;
     });
   }, [approvalSteps, distribution.submittedForApprovalAt]);
+  const auditTimelineItems: TimelineItem[] = useMemo(
+    () =>
+      auditEvents.map((event) => {
+        const colors = getStatusColorVars(event.status, "fund-admin");
+        return {
+          id: event.id,
+          title: event.label,
+          subtitle: event.timestamp ? formatDate(event.timestamp) : undefined,
+          dotColor: colors.text,
+        };
+      }),
+    [auditEvents]
+  );
 
   const handleCommentChange = (stepId: string, value: string) => {
     setCommentDrafts((prev) => ({ ...prev, [stepId]: value }));
@@ -342,28 +355,7 @@ export function ApprovalStepper({
               Audit events will appear once approvals are actioned.
             </div>
           ) : (
-            <div className="space-y-4">
-              {auditEvents.map((event, index) => {
-                const colors = getStatusColorVars(event.status, "fund-admin");
-                return (
-                  <div
-                    key={event.id}
-                    className={`relative pl-6 ${index < auditEvents.length - 1 ? "border-l border-[var(--app-border)]" : ""}`}
-                  >
-                    <span
-                      className="absolute left-0 top-0 h-3 w-3 -translate-x-1/2 rounded-full border-2 border-[var(--app-surface)]"
-                      style={{ backgroundColor: colors.text }}
-                    />
-                    <div className="text-sm font-medium">{event.label}</div>
-                    {event.timestamp && (
-                      <div className="text-xs text-[var(--app-text-muted)]">
-                        {formatDate(event.timestamp)}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+            <Timeline items={auditTimelineItems} />
           )}
         </div>
 

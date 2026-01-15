@@ -3,7 +3,7 @@
  * Eliminates 68+ duplicate switch statements across components
  */
 
-import type { DistributionEventType } from '@/types/distribution';
+import type { DistributionEventType, TaxFormType } from '@/types/distribution';
 
 // ============================================================================
 // DEAL OUTCOME MAPPERS
@@ -64,6 +64,16 @@ export const distributionEventTypeLabels: Record<DistributionEventLabel, string>
   other: 'Other',
   scheduled: 'Scheduled',
   reminder: 'Reminder',
+};
+
+// ============================================================================
+// TAX FORM TYPE MAPPERS
+// ============================================================================
+
+export const taxFormTypeLabels: Record<TaxFormType, string> = {
+  k1: 'K-1',
+  '1099': '1099',
+  other: 'Other',
 };
 
 // ============================================================================

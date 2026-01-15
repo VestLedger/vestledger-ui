@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { Badge, Button, Card, Checkbox, Input, Select } from "@/ui";
 import { AsyncStateRenderer } from "@/components/ui/async-states";
+import { ListItemCard } from "@/components/ui";
 import { StatementPreviewModal } from "./statement-preview-modal";
 import { useUIKey } from "@/store/ui";
 import { useAsyncData } from "@/hooks/useAsyncData";
@@ -22,26 +23,18 @@ import {
   type PreviewDocument,
 } from "@/components/documents/preview";
 import { Download, FileText, Mail, Printer, ShieldCheck, Upload } from "lucide-react";
+import {
+  ILPA_CHECKLIST_ITEMS,
+  STATEMENT_TEMPLATE_OPTIONS,
+  type IlpaChecklistItem,
+} from "./statement-template-constants";
 
 type StatementGeneratorUIState = {
   template: StatementTemplate;
   branding: StatementBranding;
   isPreviewOpen: boolean;
-  ilpaChecklist: Record<string, boolean>;
+  ilpaChecklist: Record<IlpaChecklistItem, boolean>;
 };
-
-const ILPA_ITEMS = [
-  "Capital account summary and net IRR",
-  "Distribution waterfall detail",
-  "Fees, expenses, and carry disclosures",
-  "Tax form references (K-1 or 1099)",
-] as const;
-
-const TEMPLATE_OPTIONS: Array<{ value: StatementTemplate; label: string }> = [
-  { value: "standard", label: "Standard" },
-  { value: "ilpa-compliant", label: "ILPA Compliant" },
-  { value: "custom", label: "Custom" },
-];
 
 export interface StatementGeneratorProps {
   distribution: Distribution;
@@ -83,10 +76,13 @@ export function StatementGenerator({ distribution }: StatementGeneratorProps) {
         contactInfo: initialBranding.contactInfo ?? "",
       },
       isPreviewOpen: false,
-      ilpaChecklist: ILPA_ITEMS.reduce<Record<string, boolean>>((acc, item) => {
-        acc[item] = false;
-        return acc;
-      }, {}),
+      ilpaChecklist: ILPA_CHECKLIST_ITEMS.reduce(
+        (acc, item) => {
+          acc[item] = false;
+          return acc;
+        },
+        {} as Record<IlpaChecklistItem, boolean>
+      ),
     }
   );
 
@@ -94,7 +90,7 @@ export function StatementGenerator({ distribution }: StatementGeneratorProps) {
   const mergedBranding = mergeBranding(ui.branding, selectedTemplate?.defaultBranding);
 
   const isIlpaTemplate = ui.template === "ilpa-compliant";
-  const ilpaComplete = ILPA_ITEMS.every((item) => ui.ilpaChecklist[item]);
+  const ilpaComplete = ILPA_CHECKLIST_ITEMS.every((item) => ui.ilpaChecklist[item]);
   const canGenerate = !isIlpaTemplate || ilpaComplete;
 
   const firstLPName =
@@ -171,7 +167,7 @@ export function StatementGenerator({ distribution }: StatementGeneratorProps) {
               label="Statement template"
               selectedKeys={[ui.template]}
               onChange={(event) => handleTemplateChange(event.target.value as StatementTemplate)}
-              options={TEMPLATE_OPTIONS}
+              options={STATEMENT_TEMPLATE_OPTIONS}
             />
 
             {selectedTemplate && (
@@ -192,7 +188,7 @@ export function StatementGenerator({ distribution }: StatementGeneratorProps) {
                   </Badge>
                 </div>
                 <div className="mt-2 grid gap-2 text-xs text-[var(--app-text-muted)]">
-                  {ILPA_ITEMS.map((item) => (
+                  {ILPA_CHECKLIST_ITEMS.map((item) => (
                     <Checkbox
                       key={item}
                       isSelected={ui.ilpaChecklist[item]}
@@ -284,26 +280,23 @@ export function StatementGenerator({ distribution }: StatementGeneratorProps) {
               </div>
               <div className="mt-3 grid gap-3 md:grid-cols-2">
                 {taxFormDocs.map((doc) => (
-                  <div
+                  <ListItemCard
                     key={doc.id}
-                    className="flex items-center justify-between rounded-lg border border-[var(--app-border-subtle)] px-3 py-2 text-xs"
-                  >
-                    <div className="flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-[var(--app-primary)]" />
-                      <div>
-                        <div className="font-semibold">{doc.name}</div>
-                        <div className="text-[var(--app-text-muted)]">Backend generated</div>
+                    icon={<FileText className="h-4 w-4 text-[var(--app-primary)]" />}
+                    title={doc.name}
+                    description="Backend generated"
+                    padding="sm"
+                    actions={(
+                      <div className="flex items-center gap-2">
+                        <Button size="sm" variant="flat" onPress={() => openPreview(doc, taxFormDocs)}>
+                          Preview
+                        </Button>
+                        <Button size="sm" variant="bordered">
+                          Download
+                        </Button>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button size="sm" variant="flat" onPress={() => openPreview(doc, taxFormDocs)}>
-                        Preview
-                      </Button>
-                      <Button size="sm" variant="bordered">
-                        Download
-                      </Button>
-                    </div>
-                  </div>
+                    )}
+                  />
                 ))}
               </div>
             </div>

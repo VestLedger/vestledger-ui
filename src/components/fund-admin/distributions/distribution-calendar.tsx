@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Badge, Button, Card, Checkbox, Input, Select, Switch, Tabs, Tab } from "@/ui";
-import { PageScaffold, StatusBadge } from "@/components/ui";
+import { ListItemCard, PageScaffold, StatusBadge } from "@/components/ui";
 import { AsyncStateRenderer } from "@/components/ui/async-states";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { useUIKey } from "@/store/ui";
@@ -15,6 +15,7 @@ import {
 } from "@/store/slices/distributionSlice";
 import { useFund } from "@/contexts/fund-context";
 import type { Distribution, DistributionCalendarEvent } from "@/types/distribution";
+import { buildMonthDays } from "@/utils/calendar";
 import { formatCurrencyCompact, formatDate } from "@/utils/formatting";
 import { distributionEventTypeLabels, getLabelForType } from "@/utils/styling/typeMappers";
 import {
@@ -22,18 +23,13 @@ import {
   addMonths,
   compareAsc,
   differenceInCalendarDays,
-  endOfMonth,
-  endOfWeek,
-  eachDayOfInterval,
   format,
   isAfter,
   isBefore,
   isSameDay,
-  isSameMonth,
   parseISO,
   startOfDay,
   startOfMonth,
-  startOfWeek,
   subDays,
 } from "date-fns";
 import {
@@ -128,17 +124,6 @@ const buildTimelineSegments = (distribution: Distribution, today: Date): Timelin
   }
 
   return segments;
-};
-
-const buildMonthDays = (monthDate: Date) => {
-  const monthStart = startOfMonth(monthDate);
-  const monthEnd = endOfMonth(monthDate);
-  const calendarStart = startOfWeek(monthStart, { weekStartsOn: 0 });
-  const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 0 });
-  return eachDayOfInterval({ start: calendarStart, end: calendarEnd }).map((date) => ({
-    date,
-    isCurrentMonth: isSameMonth(date, monthDate),
-  }));
 };
 
 export function DistributionCalendar() {
@@ -594,26 +579,27 @@ export function DistributionCalendar() {
                 ) : (
                   <div className="grid gap-3">
                     {filteredEvents.map((event) => (
-                      <Card key={event.id} padding="md" className="flex flex-wrap items-center justify-between gap-3">
-                        <div>
+                      <ListItemCard
+                        key={event.id}
+                        title={event.title}
+                        description={`${event.fundName} - ${getLabelForType(distributionEventTypeLabels, event.eventType)}`}
+                        meta={`${formatDate(event.date)}${event.amount ? ` - ${formatCurrencyCompact(event.amount)}` : ""}`}
+                        badges={(
                           <div className="flex items-center gap-2">
-                            <div className="text-sm font-semibold">{event.title}</div>
                             <StatusBadge status={event.status} domain="fund-admin" size="sm" />
+                            {event.isRecurring && (
+                              <Badge
+                                size="sm"
+                                variant="flat"
+                                className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]"
+                              >
+                                <Repeat className="h-3 w-3 mr-1" />
+                                Recurring
+                              </Badge>
+                            )}
                           </div>
-                          <div className="text-xs text-[var(--app-text-muted)]">
-                            {event.fundName} - {getLabelForType(distributionEventTypeLabels, event.eventType)}
-                          </div>
-                          <div className="text-xs text-[var(--app-text-subtle)]">
-                            {formatDate(event.date)}{event.amount ? ` - ${formatCurrencyCompact(event.amount)}` : ""}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 text-xs text-[var(--app-text-muted)]">
-                          {event.isRecurring && (
-                            <Badge size="sm" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">
-                              <Repeat className="h-3 w-3 mr-1" />
-                              Recurring
-                            </Badge>
-                          )}
+                        )}
+                        actions={(
                           <Button
                             size="sm"
                             variant="flat"
@@ -627,8 +613,8 @@ export function DistributionCalendar() {
                           >
                             View
                           </Button>
-                        </div>
-                      </Card>
+                        )}
+                      />
                     ))}
                   </div>
                 )}
@@ -768,24 +754,24 @@ export function DistributionCalendar() {
             </div>
           ) : (
             upcomingAlerts.map(({ event, daysAway, daysBefore, reminderDate }) => (
-              <div
+              <ListItemCard
                 key={`${event.id}-${daysBefore}`}
-                className="rounded-lg border border-[var(--app-border)] px-3 py-2 text-sm"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="font-medium">{event.title}</div>
+                title={event.title}
+                description={`${event.fundName} - Reminder ${daysBefore}d before - ${formatDate(reminderDate)}`}
+                meta={(
+                  <span className="flex items-center gap-2">
+                    <Clock className="h-3 w-3" />
+                    Distribution date {formatDate(event.date)}
+                  </span>
+                )}
+                badges={(
                   <Badge size="sm" variant="flat">
                     {daysAway <= 0 ? "Today" : `${daysAway}d`}
                   </Badge>
-                </div>
-                <div className="mt-1 text-xs text-[var(--app-text-muted)]">
-                  {event.fundName} - Reminder {daysBefore}d before - {formatDate(reminderDate)}
-                </div>
-                <div className="mt-2 flex items-center gap-2 text-xs text-[var(--app-text-subtle)]">
-                  <Clock className="h-3 w-3" />
-                  Distribution date {formatDate(event.date)}
-                </div>
-              </div>
+                )}
+                padding="sm"
+                className="h-full"
+              />
             ))
           )}
         </div>

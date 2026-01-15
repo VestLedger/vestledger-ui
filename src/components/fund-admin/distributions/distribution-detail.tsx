@@ -3,7 +3,7 @@
 import { useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Badge, Button, Card, type PageHeaderBadge } from "@/ui";
-import { PageScaffold, StatusBadge, MetricsGrid, type MetricsGridItem } from "@/components/ui";
+import { ListItemCard, PageScaffold, StatusBadge, MetricsGrid, Timeline, type MetricsGridItem, type TimelineItem } from "@/components/ui";
 import { AsyncStateRenderer } from "@/components/ui/async-states";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { useAppDispatch } from "@/store/hooks";
@@ -16,13 +16,14 @@ import {
   setSelectedDistribution,
 } from "@/store/slices/distributionSlice";
 import type { Distribution, LPAllocation } from "@/types/distribution";
-import { formatCurrency, formatCurrencyCompact, formatDate } from "@/utils/formatting";
+import { formatCurrency, formatCurrencyCompact, formatDate, formatPercent } from "@/utils/formatting";
 import { getStatusColor } from "@/utils/styling/statusColors";
 import { distributionEventTypeLabels, getLabelForType } from "@/utils/styling/typeMappers";
 import { AdvancedTable, type ColumnDef } from "@/components/data-table/advanced-table";
 import { ApprovalStepper } from "./approval-stepper";
 import { ImpactPreviewPanel } from "./impact-preview-panel";
 import { StatementGenerator } from "./statement-generator";
+import { getStatementTemplateLabel } from "./statement-template-constants";
 import { CalendarDays, Download, Receipt, Users } from "lucide-react";
 
 const buildLifecycleEvents = (distribution: Distribution) => [
@@ -81,7 +82,7 @@ export function DistributionDetail() {
       key: "proRataPercentage",
       label: "Pro-Rata",
       sortable: true,
-      render: (item) => `${item.proRataPercentage.toFixed(2)}%`,
+      render: (item) => formatPercent(item.proRataPercentage, 2),
     },
     {
       key: "grossAmount",
@@ -108,9 +109,11 @@ export function DistributionDetail() {
       key: "isConfirmed",
       label: "Status",
       render: (item) => (
-        <Badge size="sm" variant="flat" color={item.isConfirmed ? "success" : "warning"}>
-          {item.isConfirmed ? "Confirmed" : "Pending"}
-        </Badge>
+        <StatusBadge
+          status={item.isConfirmed ? "confirmed" : "pending"}
+          domain="fund-admin"
+          size="sm"
+        />
       ),
     },
   ], []);
@@ -182,6 +185,12 @@ export function DistributionDetail() {
       >
         {(record) => {
           const lifecycleEvents = buildLifecycleEvents(record);
+          const lifecycleItems: TimelineItem[] = lifecycleEvents.map((event) => ({
+            id: event.id,
+            title: event.label,
+            subtitle: event.timestamp ? formatDate(event.timestamp) : "Pending",
+            dotColor: event.timestamp ? "var(--app-success)" : "var(--app-border)",
+          }));
           const allocations = record.lpAllocations ?? [];
           const statements = record.statements ?? [];
           const currentApprover = record.approvalSteps.find(
@@ -330,24 +339,7 @@ export function DistributionDetail() {
                 <div className="space-y-6">
                   <Card padding="lg">
                     <h3 className="text-lg font-semibold mb-4">Lifecycle Timeline</h3>
-                    <div className="space-y-4">
-                      {lifecycleEvents.map((event, index) => (
-                        <div
-                          key={event.id}
-                          className={`relative pl-6 ${index < lifecycleEvents.length - 1 ? "border-l border-[var(--app-border)]" : ""}`}
-                        >
-                          <span
-                            className={`absolute left-0 top-0 h-3 w-3 -translate-x-1/2 rounded-full border-2 border-[var(--app-surface)] ${
-                              event.timestamp ? "bg-[var(--app-success)]" : "bg-[var(--app-border)]"
-                            }`}
-                          />
-                          <div className="text-sm font-medium">{event.label}</div>
-                          <div className="text-xs text-[var(--app-text-muted)]">
-                            {event.timestamp ? formatDate(event.timestamp) : "Pending"}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                    <Timeline items={lifecycleItems} />
                   </Card>
 
                   <StatementGenerator distribution={record} />
@@ -372,17 +364,12 @@ export function DistributionDetail() {
                         </div>
                       ) : (
                         statements.map((statement) => (
-                          <div
+                          <ListItemCard
                             key={statement.id}
-                            className="rounded-lg border border-[var(--app-border)] px-3 py-2"
-                          >
-                            <div className="flex items-start justify-between gap-3">
-                              <div>
-                                <div className="text-sm font-medium">{statement.lpName}</div>
-                                <div className="text-xs text-[var(--app-text-muted)]">
-                                  Template: {statement.template}
-                                </div>
-                              </div>
+                            title={statement.lpName}
+                            description={`Template: ${getStatementTemplateLabel(statement.template)}`}
+                            padding="sm"
+                            actions={(
                               <Button
                                 size="sm"
                                 variant="flat"
@@ -391,8 +378,8 @@ export function DistributionDetail() {
                               >
                                 Download PDF
                               </Button>
-                            </div>
-                          </div>
+                            )}
+                          />
                         ))
                       )}
                     </div>

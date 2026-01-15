@@ -13,18 +13,17 @@ import type {
   StatementTemplateConfig,
 } from "@/types/distribution";
 import { formatCurrencyCompact } from "@/utils/formatting";
+import { getLabelForType, taxFormTypeLabels } from "@/utils/styling/typeMappers";
 import { StatementPreviewModal } from "./statement-preview-modal";
+import {
+  ILPA_CHECKLIST_ITEMS,
+  STATEMENT_TEMPLATE_OPTIONS,
+} from "./statement-template-constants";
 
 type PreviewUIState = {
   selectedLPId: string;
   isStatementPreviewOpen: boolean;
 };
-
-const TEMPLATE_OPTIONS: Array<{ value: StatementTemplate; label: string }> = [
-  { value: "standard", label: "Standard" },
-  { value: "ilpa-compliant", label: "ILPA Compliant" },
-  { value: "custom", label: "Custom" },
-];
 
 export interface DistributionStepPreviewProps {
   templates: StatementTemplateConfig[];
@@ -98,7 +97,7 @@ export function DistributionStepPreview({
             emailBody,
           })
         }
-        options={TEMPLATE_OPTIONS}
+        options={STATEMENT_TEMPLATE_OPTIONS}
       />
 
       {selectedTemplate && (
@@ -119,10 +118,9 @@ export function DistributionStepPreview({
             </Badge>
           </div>
           <ul className="mt-2 list-disc pl-4 text-xs text-[var(--app-text-muted)] space-y-1">
-            <li>Capital account summary and net IRR</li>
-            <li>Distribution waterfall detail</li>
-            <li>Fees, expenses, and carry disclosures</li>
-            <li>Tax form references (K-1/1099)</li>
+            {ILPA_CHECKLIST_ITEMS.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
           </ul>
         </div>
       )}
@@ -140,12 +138,12 @@ export function DistributionStepPreview({
 
       {selectedLP && (
         <div className="rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] p-3 text-sm">
-          <div className="flex items-center justify-between">
-            <div className="font-medium">{selectedLP.name}</div>
-            <Badge size="sm" variant="flat">
-              {selectedLP.taxFormType.toUpperCase()}
-            </Badge>
-          </div>
+            <div className="flex items-center justify-between">
+              <div className="font-medium">{selectedLP.name}</div>
+              <Badge size="sm" variant="flat">
+              {getLabelForType(taxFormTypeLabels, selectedLP.taxFormType)}
+              </Badge>
+            </div>
           <div className="mt-2 grid gap-2 text-xs md:grid-cols-2">
             <div>
               <div className="text-[var(--app-text-muted)]">Jurisdiction</div>

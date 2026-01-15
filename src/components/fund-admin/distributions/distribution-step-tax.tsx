@@ -8,8 +8,9 @@ import {
   type PreviewDocument,
   useDocumentPreview,
 } from "@/components/documents/preview";
-import type { LPAllocation, LPProfile, TaxFormType } from "@/types/distribution";
-import { formatCurrencyCompact } from "@/utils/formatting";
+import type { LPAllocation, LPProfile } from "@/types/distribution";
+import { formatCurrencyCompact, formatPercent } from "@/utils/formatting";
+import { getLabelForType, taxFormTypeLabels } from "@/utils/styling/typeMappers";
 
 export interface DistributionStepTaxProps {
   allocations: LPAllocation[];
@@ -85,11 +86,8 @@ export function DistributionStepTax({
     );
   };
 
-  const formatTaxFormType = (formType: TaxFormType) => {
-    if (formType === "k1") return "K-1";
-    if (formType === "1099") return "1099";
-    return "Other";
-  };
+  const formatTaxFormType = (formType: LPAllocation["taxFormType"]) =>
+    getLabelForType(taxFormTypeLabels, formType);
 
   const getTaxStatus = (allocation: LPAllocation) => {
     if (allocation.grossAmount <= 0) return "draft";
@@ -172,7 +170,10 @@ export function DistributionStepTax({
                 <div>
                   <div className="text-[var(--app-text-muted)]">Default Rate</div>
                   <div className="font-semibold">
-                    {(profile?.defaultTaxWithholdingRate ?? allocation.taxWithholdingRate).toFixed(1)}%
+                    {formatPercent(
+                      profile?.defaultTaxWithholdingRate ?? allocation.taxWithholdingRate,
+                      1
+                    )}
                   </div>
                 </div>
                 <div>

@@ -29,6 +29,7 @@ const STATUS_PRESETS = {
 const STATUS_COLOR_MAP: Record<StatusDomain, Record<string, StatusColorConfig>> = {
   general: {
     'completed': STATUS_PRESETS.success,
+    'confirmed': STATUS_PRESETS.success,
     'current': STATUS_PRESETS.success,
     'active': STATUS_PRESETS.success,
     'paid': STATUS_PRESETS.success,
@@ -99,6 +100,7 @@ const STATUS_COLOR_MAP: Record<StatusDomain, Record<string, StatusColorConfig>> 
     'published': STATUS_PRESETS.success,
     'paid': STATUS_PRESETS.success,
     'completed': STATUS_PRESETS.success,
+    'confirmed': STATUS_PRESETS.success,
     'approved': STATUS_PRESETS.info,
     'distributed': STATUS_PRESETS.success,
     'pending': STATUS_PRESETS.warning,

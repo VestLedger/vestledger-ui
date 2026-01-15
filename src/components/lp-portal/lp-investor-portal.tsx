@@ -18,7 +18,7 @@ import { useUIKey } from '@/store/ui';
 import { lpPortalRequested, lpPortalSelectors } from '@/store/slices/miscSlice';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
 import { PageScaffold } from '@/components/ui';
-import { formatCurrency, formatDate } from '@/utils/formatting';
+import { formatCurrency, formatDate, formatPercent } from '@/utils/formatting';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { DistributionUpcoming } from './distribution-upcoming';
 import { DistributionStatements } from './distribution-statements';
@@ -58,10 +58,12 @@ export function LPInvestorPortal() {
   const notificationPreferences = data?.notificationPreferences;
   const emailPreview = data?.emailPreview;
   const faqItems = data?.faqItems || [];
-
-  const formatPercent = (value: number) => {
-    return `${value.toFixed(1)}%`;
-  };
+  const deploymentPercent = investor.commitmentAmount > 0
+    ? (investor.calledCapital / investor.commitmentAmount) * 100
+    : 0;
+  const navChangePercent = investor.calledCapital > 0
+    ? (investor.navValue / investor.calledCapital - 1) * 100
+    : 0;
 
   const aiSummaryText = `${investor.name} committed ${formatCurrency(investor.commitmentAmount)} with ${formatCurrency(investor.calledCapital)} called. DPI ${investor.dpi.toFixed(2)}x and TVPI ${investor.tvpi.toFixed(2)}x.`;
   const headerBadges = [
@@ -95,13 +97,13 @@ export function LPInvestorPortal() {
             <p className="text-sm text-[var(--app-text-muted)] mb-1">Total Commitment</p>
             <p className="text-2xl font-bold">{formatCurrency(investor.commitmentAmount)}</p>
             <Progress
-              value={(investor.calledCapital / investor.commitmentAmount) * 100}
+              value={deploymentPercent}
               maxValue={100}
               className="h-2 mt-3"
-              aria-label={`Capital deployment ${((investor.calledCapital / investor.commitmentAmount) * 100).toFixed(0)}%`}
+              aria-label={`Capital deployment ${formatPercent(deploymentPercent, 0)}`}
             />
             <p className="text-xs text-[var(--app-text-subtle)] mt-1">
-              {((investor.calledCapital / investor.commitmentAmount) * 100).toFixed(0)}% deployed
+              {formatPercent(deploymentPercent, 0)} deployed
             </p>
           </Card>
 
@@ -111,7 +113,7 @@ export function LPInvestorPortal() {
             <div className="flex items-center gap-1 mt-3 text-[var(--app-success)]">
               <TrendingUp className="w-4 h-4" />
               <span className="text-sm font-medium">
-                {((investor.navValue / investor.calledCapital - 1) * 100).toFixed(1)}%
+                {formatPercent(navChangePercent, 1)}
               </span>
             </div>
           </Card>
@@ -181,7 +183,7 @@ export function LPInvestorPortal() {
                       <div>
                         <p className="font-semibold">{report.quarter} {report.year} Quarterly Report</p>
                         <p className="text-sm text-[var(--app-text-muted)]">
-                          Published: {new Date(report.publishedDate).toLocaleDateString()}
+                          Published: {formatDate(report.publishedDate)}
                         </p>
                       </div>
                     </div>
@@ -241,7 +243,7 @@ export function LPInvestorPortal() {
                         </div>
                         <p className="text-sm text-[var(--app-text-muted)] mb-1">{transaction.description}</p>
                         <p className="text-xs text-[var(--app-text-subtle)]">
-                          {new Date(transaction.date).toLocaleDateString()}
+                          {formatDate(transaction.date)}
                         </p>
                       </div>
                     </div>
@@ -356,7 +358,7 @@ export function LPInvestorPortal() {
                   </div>
                   <div>
                     <p className="text-sm text-[var(--app-text-muted)] mb-1">Investment Date</p>
-                    <p className="font-medium">{new Date(investor.joinDate).toLocaleDateString()}</p>
+                    <p className="font-medium">{formatDate(investor.joinDate)}</p>
                   </div>
                   <div>
                     <p className="text-sm text-[var(--app-text-muted)] mb-1">Commitment</p>

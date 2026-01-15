@@ -2,19 +2,15 @@
 
 import { useMemo } from "react";
 import { Badge, Button, Card } from "@/ui";
-import { StatusBadge } from "@/components/ui";
+import { ListItemCard, StatusBadge } from "@/components/ui";
 import type { LPUpcomingDistribution } from "@/data/mocks/lp-portal/lp-investor-portal";
+import { buildMonthDays } from "@/utils/calendar";
 import { formatCurrency, formatDate } from "@/utils/formatting";
 import { CalendarDays } from "lucide-react";
 import {
-  eachDayOfInterval,
-  endOfMonth,
-  endOfWeek,
   format,
-  isSameMonth,
   parseISO,
   startOfMonth,
-  startOfWeek,
 } from "date-fns";
 
 export interface DistributionUpcomingProps {
@@ -32,16 +28,7 @@ export function DistributionUpcoming({ distributions }: DistributionUpcomingProp
   const monthDate = startOfMonth(new Date());
   const monthLabel = format(monthDate, "MMMM yyyy");
 
-  const calendarDays = useMemo(() => {
-    const monthStart = startOfMonth(monthDate);
-    const monthEnd = endOfMonth(monthDate);
-    const calendarStart = startOfWeek(monthStart, { weekStartsOn: 0 });
-    const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 0 });
-    return eachDayOfInterval({ start: calendarStart, end: calendarEnd }).map((date) => ({
-      date,
-      isCurrentMonth: isSameMonth(date, monthDate),
-    }));
-  }, [monthDate]);
+  const calendarDays = useMemo(() => buildMonthDays(monthDate), [monthDate]);
 
   const eventsByDate = useMemo(() => {
     const map = new Map<string, LPUpcomingDistribution[]>();
@@ -111,31 +98,24 @@ export function DistributionUpcoming({ distributions }: DistributionUpcomingProp
           </div>
         ) : (
           sorted.map((item) => (
-            <div
+            <ListItemCard
               key={item.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[var(--app-border)] px-3 py-2"
-            >
-              <div>
-                <div className="flex items-center gap-2">
-                  <div className="text-sm font-semibold">{item.title}</div>
-                  <StatusBadge status={item.status} size="sm" />
+              title={item.title}
+              description={`${item.fundName} - ${formatDate(item.expectedDate)}`}
+              meta={item.notes}
+              badges={<StatusBadge status={item.status} size="sm" />}
+              padding="sm"
+              actions={(
+                <div className="flex items-center gap-2 text-xs text-[var(--app-text-muted)]">
+                  <Badge size="sm" variant="flat">
+                    {formatCurrency(item.estimatedAmount)}
+                  </Badge>
+                  <Button size="sm" variant="bordered">
+                    Details
+                  </Button>
                 </div>
-                <div className="text-xs text-[var(--app-text-muted)]">
-                  {item.fundName} - {formatDate(item.expectedDate)}
-                </div>
-                {item.notes && (
-                  <div className="text-xs text-[var(--app-text-subtle)]">{item.notes}</div>
-                )}
-              </div>
-              <div className="flex items-center gap-2 text-xs text-[var(--app-text-muted)]">
-                <Badge size="sm" variant="flat">
-                  {formatCurrency(item.estimatedAmount)}
-                </Badge>
-                <Button size="sm" variant="bordered">
-                  Details
-                </Button>
-              </div>
-            </div>
+              )}
+            />
           ))
         )}
         </div>

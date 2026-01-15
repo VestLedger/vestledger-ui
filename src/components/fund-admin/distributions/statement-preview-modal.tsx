@@ -3,6 +3,7 @@
 import { Badge, Button, Card, Modal } from '@/ui';
 import { PDFViewer } from '@/components/documents/preview/viewers/PDFViewer';
 import type { StatementBranding, StatementTemplate } from '@/types/distribution';
+import { getStatementTemplateLabel } from './statement-template-constants';
 
 export interface StatementPreviewModalProps {
   isOpen: boolean;
@@ -40,7 +41,7 @@ export function StatementPreviewModal({
         <div className="flex items-center justify-between">
           <div className="font-semibold">{documentName || distributionName}</div>
           <Badge size="sm" variant="flat">
-            {template.replace('-', ' ')}
+            {getStatementTemplateLabel(template)}
           </Badge>
         </div>
         <div className="text-[var(--app-text-muted)]">

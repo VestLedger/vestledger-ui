@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import { Badge, Button, Card, Progress } from "@/ui";
+import { Badge, Button, Card, Progress, WorkflowStepper, type WorkflowStep } from "@/ui";
 import { PageScaffold } from "@/components/ui";
 import { AsyncStateRenderer } from "@/components/ui/async-states";
 import { getRouteConfig } from "@/config/routes";
@@ -39,7 +39,7 @@ import type {
   ApprovalRule,
   ApprovalStep,
 } from "@/types/distribution";
-import { formatCurrencyCompact, formatDate } from "@/utils/formatting";
+import { formatCurrencyCompact, formatDate, formatDateTime } from "@/utils/formatting";
 import { getAllocationIssues } from "@/lib/validation/distribution";
 import { DistributionStepEvent } from "./distribution-step-event";
 import { DistributionStepFees } from "./distribution-step-fees";
@@ -416,6 +416,19 @@ export function DistributionWizard() {
   const progressValue = (currentStep / (STEP_LABELS.length - 1)) * 100;
   const validationForStep =
     wizard.validationErrors.find((entry) => entry.step === currentStep)?.errors ?? [];
+  const workflowSteps = useMemo<WorkflowStep[]>(
+    () =>
+      STEP_LABELS.map((label, index) => ({
+        id: `step-${index}`,
+        label,
+        status: wizard.completedSteps.includes(index)
+          ? "completed"
+          : index === currentStep
+          ? "current"
+          : "upcoming",
+      })),
+    [currentStep, wizard.completedSteps]
+  );
 
   const updateEventData = (patch: Partial<Distribution>) => {
     patchWizard({ eventData: { ...eventData, ...patch } });
@@ -854,23 +867,7 @@ export function DistributionWizard() {
           </Badge>
         </div>
         <Progress value={progressValue} maxValue={100} />
-        <div className="flex flex-wrap gap-2 text-xs text-[var(--app-text-muted)]">
-          {STEP_LABELS.map((label, index) => (
-            <div
-              key={label}
-              className={[
-                "rounded-full border px-3 py-1",
-                index === currentStep
-                  ? "border-[var(--app-primary)] text-[var(--app-primary)]"
-                  : wizard.completedSteps.includes(index)
-                  ? "border-[var(--app-success)] text-[var(--app-success)]"
-                  : "border-[var(--app-border)]",
-              ].join(" ")}
-            >
-              {label}
-            </div>
-          ))}
-        </div>
+        <WorkflowStepper steps={workflowSteps} showPredictions={false} />
       </Card>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
@@ -937,7 +934,7 @@ export function DistributionWizard() {
             <div className="text-sm font-semibold">Draft Status</div>
             <div className="text-xs text-[var(--app-text-muted)]">
               {wizard.draftSavedAt
-                ? `Last saved ${new Date(wizard.draftSavedAt).toLocaleString()}`
+                ? `Last saved ${formatDateTime(wizard.draftSavedAt)}`
                 : "No draft saved yet."}
             </div>
             <div className="text-xs text-[var(--app-text-subtle)]">
