@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import type { ReactNode } from 'react';
 import { Card, Button, Input, Badge } from '@/ui';
 import { ChevronDown, ChevronUp, ChevronsUpDown, Search, Download, Settings2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
@@ -9,6 +10,7 @@ import { TableRow } from './table-row';
 export interface ColumnDef<T> {
   key: string;
   label: string;
+  headerTitle?: string;
   sortable?: boolean;
   render?: (item: T) => React.ReactNode;
   width?: string;
@@ -28,6 +30,10 @@ export interface AdvancedTableProps<T> {
   exportFilename?: string;
   pageSize?: number;
   showColumnToggle?: boolean;
+  showResultsCount?: boolean;
+  toolbarStart?: ReactNode;
+  toolbarEnd?: ReactNode;
+  emptyMessage?: string;
   className?: string;
 }
 
@@ -59,6 +65,10 @@ export function AdvancedTable<T extends object>({
   exportFilename = 'export.csv',
   pageSize: initialPageSize = 10,
   showColumnToggle = true,
+  showResultsCount = true,
+  toolbarStart,
+  toolbarEnd,
+  emptyMessage = 'No data available',
   className = '',
 }: AdvancedTableProps<T>) {
   const initialVisibleColumns = useMemo(
@@ -185,73 +195,83 @@ export function AdvancedTable<T extends object>({
     });
   };
 
+  const hasToolbar = Boolean(
+    searchable || exportable || showColumnToggle || showResultsCount || toolbarStart || toolbarEnd
+  );
+
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          {searchable && (
-            <div className="flex-1 sm:flex-initial sm:w-80">
-                <Input
-                  placeholder={searchPlaceholder}
-                  value={searchQuery}
-                  onChange={(e) => {
-                    patchTableUI({ searchQuery: e.target.value, currentPage: 1 });
-                  }}
-                  startContent={<Search className="w-4 h-4 text-[var(--app-text-subtle)]" />}
-                />
-            </div>
-          )}
-        </div>
+      {hasToolbar && (
+        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            {searchable && (
+              <div className="flex-1 sm:flex-initial sm:w-80">
+                  <Input
+                    placeholder={searchPlaceholder}
+                    value={searchQuery}
+                    onChange={(e) => {
+                      patchTableUI({ searchQuery: e.target.value, currentPage: 1 });
+                    }}
+                    startContent={<Search className="w-4 h-4 text-[var(--app-text-subtle)]" />}
+                  />
+              </div>
+            )}
+            {toolbarStart}
+          </div>
 
-        <div className="flex items-center gap-2">
-          {/* Results count */}
-          <Badge size="sm" variant="flat" className="bg-[var(--app-surface-hover)] text-[var(--app-text-muted)]">
-            {sortedData.length} results
-          </Badge>
+          <div className="flex items-center gap-2">
+            {showResultsCount && (
+              <Badge size="sm" variant="flat" className="bg-[var(--app-surface-hover)] text-[var(--app-text-muted)]">
+                {sortedData.length} results
+              </Badge>
+            )}
 
-          {exportable && (
-            <Button
-              size="sm"
-              variant="flat"
-              startContent={<Download className="w-3 h-3" />}
-              onPress={handleExport}
-            >
-              Export
-            </Button>
-          )}
-
-          {showColumnToggle && (
-            <div className="relative group">
+            {exportable && (
               <Button
                 size="sm"
                 variant="flat"
-                isIconOnly
-                aria-label="Toggle column visibility"
+                startContent={<Download className="w-3 h-3" />}
+                onPress={handleExport}
               >
-                <Settings2 className="w-3 h-3" />
+                Export
               </Button>
-              <div className="absolute right-0 top-full mt-2 w-48 bg-[var(--app-surface)] border border-[var(--app-border)] rounded-lg shadow-lg p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
-                <p className="text-xs font-medium text-[var(--app-text-muted)] mb-2 px-2">Show Columns</p>
-                {initialColumns.map(col => (
-                  <label
-                    key={col.key}
-                    className="flex items-center gap-2 px-2 py-1.5 hover:bg-[var(--app-surface-hover)] rounded cursor-pointer"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={visibleColumns.includes(col.key)}
-                      onChange={() => toggleColumn(col.key)}
-                      className="rounded border-[var(--app-border)]"
-                    />
-                    <span className="text-sm">{col.label}</span>
-                  </label>
-                ))}
+            )}
+
+            {toolbarEnd}
+
+            {showColumnToggle && (
+              <div className="relative group">
+                <Button
+                  size="sm"
+                  variant="flat"
+                  isIconOnly
+                  aria-label="Toggle column visibility"
+                >
+                  <Settings2 className="w-3 h-3" />
+                </Button>
+                <div className="absolute right-0 top-full mt-2 w-48 bg-[var(--app-surface)] border border-[var(--app-border)] rounded-lg shadow-lg p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
+                  <p className="text-xs font-medium text-[var(--app-text-muted)] mb-2 px-2">Show Columns</p>
+                  {initialColumns.map(col => (
+                    <label
+                      key={col.key}
+                      className="flex items-center gap-2 px-2 py-1.5 hover:bg-[var(--app-surface-hover)] rounded cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={visibleColumns.includes(col.key)}
+                        onChange={() => toggleColumn(col.key)}
+                        className="rounded border-[var(--app-border)]"
+                      />
+                      <span className="text-sm">{col.label}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Table */}
       <Card padding="none" className="overflow-hidden">
@@ -268,6 +288,7 @@ export function AdvancedTable<T extends object>({
                       'text-left'
                     } ${column.sortable ? 'cursor-pointer hover:bg-[var(--app-surface-hover)] select-none' : ''}`}
                     style={{ width: column.width }}
+                    title={column.headerTitle}
                     onClick={() => column.sortable && handleSort(column.key)}
                   >
                     <div className={`flex items-center gap-1 ${
@@ -286,7 +307,7 @@ export function AdvancedTable<T extends object>({
               {paginatedData.length === 0 ? (
                 <tr>
                   <td colSpan={columns.length} className="py-12 text-center text-[var(--app-text-muted)]">
-                    {searchQuery ? 'No results found' : 'No data available'}
+                    {searchQuery ? 'No results found' : emptyMessage}
                   </td>
                 </tr>
               ) : (

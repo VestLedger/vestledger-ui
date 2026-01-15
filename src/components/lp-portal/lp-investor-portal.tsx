@@ -2,16 +2,35 @@
 
 import { Card, Button, Badge, Progress } from '@/ui';
 import { Tabs, Tab } from '@/ui';
-import { TrendingUp, Download, FileText, Calendar, Activity, PieChart, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import {
+  TrendingUp,
+  Download,
+  FileText,
+  Calendar,
+  Activity,
+  PieChart,
+  ArrowUpRight,
+  ArrowDownRight,
+  Receipt,
+  Users,
+} from 'lucide-react';
 import { useUIKey } from '@/store/ui';
 import { lpPortalRequested, lpPortalSelectors } from '@/store/slices/miscSlice';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
-import { formatCurrency } from '@/utils/formatting';
+import { PageScaffold } from '@/components/ui';
+import { formatCurrency, formatDate } from '@/utils/formatting';
 import { useAsyncData } from '@/hooks/useAsyncData';
+import { DistributionUpcoming } from './distribution-upcoming';
+import { DistributionStatements } from './distribution-statements';
+import { DistributionConfirmation } from './distribution-confirmation';
+import { DistributionPreferences } from './distribution-preferences';
+import { BankDetailsForm } from './bank-details-form';
+import { DistributionEmailPreview } from './distribution-email-preview';
+import { DistributionFAQ } from './distribution-faq';
 
 export function LPInvestorPortal() {
   const { data, isLoading, error, refetch } = useAsyncData(lpPortalRequested, lpPortalSelectors.selectState);
-  const { value: ui, patch: patchUI } = useUIKey('lp-investor-portal', { selectedTab: 'overview' });
+  const { value: ui, patch: patchUI } = useUIKey('lp-investor-portal', { selectedTab: 'distributions' });
   const { selectedTab } = ui;
 
   if (isLoading) return <LoadingState message="Loading LP portal…" />;
@@ -32,23 +51,44 @@ export function LPInvestorPortal() {
 
   const reports = data?.reports || [];
   const transactions = data?.transactions || [];
+  const distributionStatements = data?.distributionStatements || [];
+  const upcomingDistributions = data?.upcomingDistributions || [];
+  const distributionConfirmations = data?.distributionConfirmations || [];
+  const bankDetails = data?.bankDetails;
+  const notificationPreferences = data?.notificationPreferences;
+  const emailPreview = data?.emailPreview;
+  const faqItems = data?.faqItems || [];
 
   const formatPercent = (value: number) => {
     return `${value.toFixed(1)}%`;
   };
 
-  return (
-    <div className="min-h-screen bg-[var(--app-bg)]">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-[var(--app-primary)] to-[var(--app-accent)] text-white p-8">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold mb-2">{investor.fundName}</h1>
-          <p className="text-lg opacity-90">{investor.name}</p>
-          <p className="text-sm opacity-75 mt-1">Last updated: {new Date(investor.lastUpdate).toLocaleDateString()}</p>
-        </div>
-      </div>
+  const aiSummaryText = `${investor.name} committed ${formatCurrency(investor.commitmentAmount)} with ${formatCurrency(investor.calledCapital)} called. DPI ${investor.dpi.toFixed(2)}x and TVPI ${investor.tvpi.toFixed(2)}x.`;
+  const headerBadges = [
+    {
+      label: `Last updated ${formatDate(investor.lastUpdate)}`,
+      size: "sm" as const,
+      variant: "flat" as const,
+      className: "bg-[var(--app-surface-hover)] text-[var(--app-text-muted)]",
+    },
+  ];
 
-      <div className="max-w-7xl mx-auto p-8 space-y-6">
+  return (
+    <PageScaffold
+      routePath="/lp-portal"
+      containerProps={{ className: "space-y-6" }}
+      header={{
+        title: investor.fundName,
+        description: investor.name,
+        icon: Users,
+        badges: headerBadges,
+        aiSummary: {
+          text: aiSummaryText,
+          confidence: 0.84,
+        },
+      }}
+    >
+      <div className="space-y-6">
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card padding="lg">
@@ -218,6 +258,33 @@ export function LPInvestorPortal() {
             </div>
           </Tab>
 
+          {/* Distributions Tab */}
+          <Tab
+            key="distributions"
+            title={
+              <div className="flex items-center gap-2">
+                <Receipt className="w-4 h-4" />
+                <span>Distributions</span>
+              </div>
+            }
+          >
+            <div className="mt-4 space-y-6">
+              <DistributionUpcoming distributions={upcomingDistributions} />
+              <DistributionStatements statements={distributionStatements} />
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <DistributionConfirmation confirmations={distributionConfirmations} />
+                {notificationPreferences && (
+                  <DistributionPreferences preferences={notificationPreferences} />
+                )}
+              </div>
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                {bankDetails && <BankDetailsForm details={bankDetails} />}
+                {emailPreview && <DistributionEmailPreview preview={emailPreview} />}
+              </div>
+              <DistributionFAQ items={faqItems} />
+            </div>
+          </Tab>
+
           {/* Portfolio Tab */}
           <Tab
             key="portfolio"
@@ -324,6 +391,6 @@ export function LPInvestorPortal() {
           </Tab>
         </Tabs>
       </div>
-    </div>
+    </PageScaffold>
   );
 }

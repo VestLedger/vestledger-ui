@@ -233,6 +233,23 @@ export const routes: Record<string, RouteConfig> = {
     description: 'Limited partner relationships and reporting',
   },
 
+  lpPortal: {
+    path: '/lp-portal',
+    label: 'LP Portal',
+    icon: Users,
+    breadcrumbs: [
+      { label: 'Home', href: '/dashboard' },
+      { label: 'LP Portal' },
+    ],
+    aiSuggestion: {
+      label: 'Distributions',
+      href: '/fund-admin/distributions/calendar',
+      reasoning: 'Review distribution schedules that are surfaced to LPs.',
+      confidence: 0.74,
+    },
+    description: 'Investor-facing portal for distributions and documents',
+  },
+
   compliance: {
     path: '/compliance',
     label: 'Compliance',

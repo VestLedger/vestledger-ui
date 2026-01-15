@@ -11,7 +11,7 @@ import { normalizeError } from '@/store/utils/normalizeError';
 /**
  * Worker saga: Load pipeline data (stages, deals, copilot suggestions)
  */
-function* loadPipelineDataWorker(action: ReturnType<typeof pipelineDataRequested>): SagaIterator {
+export function* loadPipelineDataWorker(action: ReturnType<typeof pipelineDataRequested>): SagaIterator {
   try {
     const params = action.payload;
     const data = yield call(getPipelineData, params);

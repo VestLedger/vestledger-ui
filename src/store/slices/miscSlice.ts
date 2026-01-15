@@ -4,7 +4,18 @@ import { createInitialAsyncState } from '@/store/types/AsyncState';
 import type { RootState } from '../rootReducer';
 import type { CalendarAccount, CalendarEvent } from '@/components/integrations/calendar-integration';
 import type { IntegrationSummary } from '@/types/integrations';
-import type { InvestorData, QuarterlyReport, Transaction } from '@/data/mocks/lp-portal/lp-investor-portal';
+import type {
+  InvestorData,
+  QuarterlyReport,
+  Transaction,
+  LPDistributionStatement,
+  LPUpcomingDistribution,
+  LPDistributionConfirmation,
+  LPBankDetails,
+  LPNotificationPreferences,
+  LPEmailPreview,
+  LPFAQItem,
+} from '@/data/mocks/lp-portal/lp-investor-portal';
 import type { AuditEvent } from '@/data/mocks/blockchain/audit-trail';
 import type { Company } from '@/data/mocks/deal-intelligence/company-search';
 
@@ -19,6 +30,13 @@ interface LPPortalData {
   investor: InvestorData;
   reports: QuarterlyReport[];
   transactions: Transaction[];
+  distributionStatements: LPDistributionStatement[];
+  upcomingDistributions: LPUpcomingDistribution[];
+  distributionConfirmations: LPDistributionConfirmation[];
+  bankDetails: LPBankDetails;
+  notificationPreferences: LPNotificationPreferences;
+  emailPreview: LPEmailPreview;
+  faqItems: LPFAQItem[];
 }
 
 interface AuditTrailData {

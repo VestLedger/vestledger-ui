@@ -11,7 +11,7 @@ import { normalizeError } from '@/store/utils/normalizeError';
 /**
  * Worker saga: Load portfolio updates
  */
-function* loadPortfolioUpdatesWorker(
+export function* loadPortfolioUpdatesWorker(
   _action: ReturnType<typeof portfolioUpdatesRequested>
 ): SagaIterator {
   try {

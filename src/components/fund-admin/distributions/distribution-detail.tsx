@@ -22,6 +22,7 @@ import { distributionEventTypeLabels, getLabelForType } from "@/utils/styling/ty
 import { AdvancedTable, type ColumnDef } from "@/components/data-table/advanced-table";
 import { ApprovalStepper } from "./approval-stepper";
 import { ImpactPreviewPanel } from "./impact-preview-panel";
+import { StatementGenerator } from "./statement-generator";
 import { CalendarDays, Download, Receipt, Users } from "lucide-react";
 
 const buildLifecycleEvents = (distribution: Distribution) => [
@@ -348,6 +349,8 @@ export function DistributionDetail() {
                       ))}
                     </div>
                   </Card>
+
+                  <StatementGenerator distribution={record} />
 
                   <Card padding="lg">
                     <div className="flex items-start justify-between gap-3">

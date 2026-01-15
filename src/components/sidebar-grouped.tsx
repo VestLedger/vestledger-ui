@@ -66,6 +66,7 @@ const navigationStructure = {
     icon: Users,
     allowedRoles: ['lp'] as UserRole[],
     items: [
+      { id: 'lp-portal', href: '/lp-portal', label: 'LP Portal', icon: Users },
       { id: 'portfolio', href: '/portfolio', label: 'My Investments', icon: Briefcase },
       { id: 'reports', href: '/reports', label: 'Documents', icon: FileDown },
     ],

@@ -16,7 +16,7 @@ import { normalizeError } from '@/store/utils/normalizeError';
 /**
  * Worker saga: Load all CRM data
  */
-function* loadCRMDataWorker(action: ReturnType<typeof crmDataRequested>): SagaIterator {
+export function* loadCRMDataWorker(action: ReturnType<typeof crmDataRequested>): SagaIterator {
   try {
     const params = action.payload;
 
