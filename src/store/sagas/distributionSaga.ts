@@ -86,7 +86,7 @@ import { normalizeError } from '@/store/utils/normalizeError';
 // Distribution Workers
 // ============================================================================
 
-function* loadDistributionsWorker(
+export function* loadDistributionsWorker(
   action: PayloadAction<DistributionFilters | undefined>
 ): SagaIterator {
   try {
@@ -99,7 +99,7 @@ function* loadDistributionsWorker(
   }
 }
 
-function* loadDistributionWorker(action: PayloadAction<string>): SagaIterator {
+export function* loadDistributionWorker(action: PayloadAction<string>): SagaIterator {
   try {
     const distribution: Distribution = yield call(fetchDistribution, action.payload);
     yield put(distributionUpdated(distribution));
@@ -109,7 +109,7 @@ function* loadDistributionWorker(action: PayloadAction<string>): SagaIterator {
   }
 }
 
-function* createDistributionWorker(action: PayloadAction<Partial<Distribution>>): SagaIterator {
+export function* createDistributionWorker(action: PayloadAction<Partial<Distribution>>): SagaIterator {
   try {
     const distribution: Distribution = yield call(createDistribution, action.payload);
     yield put(createDistributionSucceeded(distribution));
@@ -119,7 +119,7 @@ function* createDistributionWorker(action: PayloadAction<Partial<Distribution>>)
   }
 }
 
-function* updateDistributionWorker(
+export function* updateDistributionWorker(
   action: PayloadAction<{ id: string; data: Partial<Distribution> }>
 ): SagaIterator {
   try {
@@ -132,7 +132,7 @@ function* updateDistributionWorker(
   }
 }
 
-function* deleteDistributionWorker(action: PayloadAction<string>): SagaIterator {
+export function* deleteDistributionWorker(action: PayloadAction<string>): SagaIterator {
   try {
     const id = action.payload;
     yield call(deleteDistribution, id);
@@ -147,7 +147,7 @@ function* deleteDistributionWorker(action: PayloadAction<string>): SagaIterator 
 // Approval Workflow Workers
 // ============================================================================
 
-function* submitForApprovalWorker(
+export function* submitForApprovalWorker(
   action: PayloadAction<{ distributionId: string; comment?: string }>
 ): SagaIterator {
   try {
@@ -159,7 +159,7 @@ function* submitForApprovalWorker(
   }
 }
 
-function* approveDistributionWorker(
+export function* approveDistributionWorker(
   action: PayloadAction<{ distributionId: string; approverId: string; comment?: string }>
 ): SagaIterator {
   try {
@@ -171,7 +171,7 @@ function* approveDistributionWorker(
   }
 }
 
-function* rejectDistributionWorker(
+export function* rejectDistributionWorker(
   action: PayloadAction<{ distributionId: string; approverId: string; reason: string }>
 ): SagaIterator {
   try {
@@ -183,7 +183,7 @@ function* rejectDistributionWorker(
   }
 }
 
-function* returnForRevisionWorker(
+export function* returnForRevisionWorker(
   action: PayloadAction<{ distributionId: string; approverId: string; reason: string }>
 ): SagaIterator {
   try {
@@ -199,7 +199,7 @@ function* returnForRevisionWorker(
 // Supporting Data Workers
 // ============================================================================
 
-function* loadSummaryWorker(): SagaIterator {
+export function* loadSummaryWorker(): SagaIterator {
   try {
     const summary: DistributionSummary = yield call(fetchDistributionSummary);
     yield put(summaryLoaded({ summary }));
@@ -209,7 +209,7 @@ function* loadSummaryWorker(): SagaIterator {
   }
 }
 
-function* loadCalendarEventsWorker(
+export function* loadCalendarEventsWorker(
   action: PayloadAction<{ startDate?: string; endDate?: string } | undefined>
 ): SagaIterator {
   try {
@@ -226,7 +226,7 @@ function* loadCalendarEventsWorker(
   }
 }
 
-function* loadFeeTemplatesWorker(action: PayloadAction<string | undefined>): SagaIterator {
+export function* loadFeeTemplatesWorker(action: PayloadAction<string | undefined>): SagaIterator {
   try {
     const fundId = action.payload;
     const templates: FeeTemplate[] = yield call(fetchFeeTemplates, fundId);
@@ -237,7 +237,7 @@ function* loadFeeTemplatesWorker(action: PayloadAction<string | undefined>): Sag
   }
 }
 
-function* loadStatementTemplatesWorker(): SagaIterator {
+export function* loadStatementTemplatesWorker(): SagaIterator {
   try {
     const templates: StatementTemplateConfig[] = yield call(fetchStatementTemplates);
     yield put(statementTemplatesLoaded({ templates }));
@@ -247,7 +247,7 @@ function* loadStatementTemplatesWorker(): SagaIterator {
   }
 }
 
-function* loadLPProfilesWorker(): SagaIterator {
+export function* loadLPProfilesWorker(): SagaIterator {
   try {
     const profiles: LPProfile[] = yield call(fetchLPProfiles);
     yield put(lpProfilesLoaded({ profiles }));
@@ -257,7 +257,7 @@ function* loadLPProfilesWorker(): SagaIterator {
   }
 }
 
-function* loadApprovalRulesWorker(): SagaIterator {
+export function* loadApprovalRulesWorker(): SagaIterator {
   try {
     const rules: ApprovalRule[] = yield call(fetchApprovalRules);
     yield put(approvalRulesLoaded({ rules }));

@@ -72,9 +72,14 @@ export function WorkflowStepper({
 
   if (orientation === 'vertical') {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4" role="list" aria-label="Workflow steps">
         {steps.map((step, index) => (
-          <div key={step.id} className="flex gap-4">
+          <div
+            key={step.id}
+            className="flex gap-4"
+            role="listitem"
+            aria-current={step.status === 'current' ? 'step' : undefined}
+          >
             {/* Icon & Connector */}
             <div className="flex flex-col items-center">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${getStepColor(step)}`}>
@@ -134,12 +139,17 @@ export function WorkflowStepper({
   // Horizontal orientation
   return (
     <div className="relative">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between" role="list" aria-label="Workflow steps">
         {steps.map((step, index) => {
           const isLast = index === steps.length - 1;
 
           return (
-            <div key={step.id} className="flex items-center flex-1">
+            <div
+              key={step.id}
+              className="flex items-center flex-1"
+              role="listitem"
+              aria-current={step.status === 'current' ? 'step' : undefined}
+            >
               {/* Step */}
               <div className="flex flex-col items-center">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center ${getStepColor(step)} transition-all`}>

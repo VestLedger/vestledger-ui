@@ -108,6 +108,17 @@ export function ApprovalStepper({
   const activeStep =
     currentStep ?? approvalSteps.find((step) => step.status === "pending") ?? null;
 
+  const statusSummary = useMemo(() => {
+    const counts = approvalSteps.reduce(
+      (acc, step) => {
+        acc[step.status] += 1;
+        return acc;
+      },
+      { pending: 0, approved: 0, rejected: 0, returned: 0 } as Record<ApprovalStatus, number>
+    );
+    return `Approval workflow status: ${counts.pending} pending, ${counts.approved} approved, ${counts.rejected} rejected, ${counts.returned} returned.`;
+  }, [approvalSteps]);
+
   const auditEvents = useMemo(() => {
     const events: Array<{ id: string; label: string; timestamp?: string; status: ApprovalStatus }> = [];
 
@@ -202,6 +213,9 @@ export function ApprovalStepper({
           </div>
         )}
       />
+      <div className="sr-only" role="status" aria-live="polite">
+        {statusSummary}
+      </div>
 
       <div className="flex flex-wrap items-center gap-2">
         {approvalSteps.map((step, index) => {

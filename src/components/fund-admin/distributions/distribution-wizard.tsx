@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { Badge, Button, Card, Progress, WorkflowStepper, type WorkflowStep } from "@/ui";
 import { PageScaffold } from "@/components/ui";
 import { AsyncStateRenderer } from "@/components/ui/async-states";
@@ -8,6 +8,7 @@ import { getRouteConfig } from "@/config/routes";
 import { useUIKey } from "@/store/ui";
 import { useAppDispatch } from "@/store/hooks";
 import { useAsyncData } from "@/hooks/useAsyncData";
+import { useDistributionDraft } from "@/hooks/useDistributionDraft";
 import {
   distributionsRequested,
   distributionsSelectors,
@@ -149,7 +150,7 @@ export function DistributionWizard() {
     [defaultEventData]
   );
 
-  const { value: wizard, patch: patchWizard } = useUIKey<DistributionWizardState>(
+  const { value: wizard, patch: patchWizard, set: setWizard } = useUIKey<DistributionWizardState>(
     "distribution-wizard",
     initialWizardState
   );
@@ -173,6 +174,14 @@ export function DistributionWizard() {
     [defaultPreviewData, wizard.previewData]
   );
   const comment = wizard.submitData?.comment ?? "";
+  const draftFundId = eventData.fundId || selectedFund?.id || "all-funds";
+
+  const { saveDraft, clearDraft } = useDistributionDraft({
+    fundId: draftFundId,
+    wizard,
+    setWizard,
+    patchWizard,
+  });
 
   useEffect(() => {
     if (!wizard.eventData) {
@@ -440,20 +449,27 @@ export function DistributionWizard() {
     [currentStep, wizard.completedSteps]
   );
 
+  const markEdited = useCallback(
+    (patch: Partial<DistributionWizardState>) => {
+      patchWizard({ ...patch, lastEditedAt: new Date().toISOString() });
+    },
+    [patchWizard]
+  );
+
   const updateEventData = (patch: Partial<Distribution>) => {
-    patchWizard({ eventData: { ...eventData, ...patch } });
+    markEdited({ eventData: { ...eventData, ...patch } });
   };
 
   const updateFees = (items: FeeLineItem[]) => {
-    patchWizard({ feesData: items });
+    markEdited({ feesData: items });
   };
 
   const updateAllocations = (next: LPAllocation[]) => {
-    patchWizard({ allocationsData: next });
+    markEdited({ allocationsData: next });
   };
 
   const updateAdvancedData = (next: DistributionWizardState["advancedData"]) => {
-    patchWizard({ advancedData: next });
+    markEdited({ advancedData: next });
   };
 
   const handleRecalculateAllocations = () => {
@@ -481,7 +497,7 @@ export function DistributionWizard() {
   };
 
   const updateImpact = (next: DistributionImpact) => {
-    patchWizard({ impactData: next });
+    markEdited({ impactData: next });
   };
 
   const handleRecalculateImpact = (distributionAmount: number) => {
@@ -494,7 +510,7 @@ export function DistributionWizard() {
     emailSubject?: string;
     emailBody?: string;
   }) => {
-    patchWizard({
+    markEdited({
       previewData: {
         template: next.template ?? previewData.template ?? DEFAULT_TEMPLATE,
         customBranding: next.branding ?? previewData.customBranding,
@@ -505,7 +521,7 @@ export function DistributionWizard() {
   };
 
   const updateApprovalComment = (nextComment: string) => {
-    patchWizard({
+    markEdited({
       submitData: {
         comment: nextComment,
       },
@@ -593,6 +609,11 @@ export function DistributionWizard() {
         isDraft: saved.isDraft,
         draftSavedAt: new Date().toISOString(),
       });
+      if (isDraft) {
+        saveDraft();
+      } else {
+        clearDraft();
+      }
     } catch (error) {
       console.error("Failed to save distribution", error);
     }
@@ -772,7 +793,7 @@ export function DistributionWizard() {
                 grossProceeds={grossProceeds}
                 previewResults={wizard.waterfallData?.results ?? null}
                 onChange={(scenarioId) =>
-                  patchWizard({
+                  markEdited({
                     waterfallData: scenarioId
                       ? {
                           scenarioId,
@@ -785,7 +806,7 @@ export function DistributionWizard() {
                   })
                 }
                 onPreview={(payload) =>
-                  patchWizard({
+                  markEdited({
                     waterfallData: {
                       scenarioId: wizard.waterfallData?.scenarioId,
                       results: payload.results,
@@ -880,6 +901,9 @@ export function DistributionWizard() {
       }}
     >
       <Card padding="lg" className="space-y-4">
+        <div className="sr-only" role="status" aria-live="polite">
+          Step {currentStep + 1} of {STEP_LABELS.length}: {STEP_LABELS[currentStep]}
+        </div>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <div className="text-sm text-[var(--app-text-muted)]">

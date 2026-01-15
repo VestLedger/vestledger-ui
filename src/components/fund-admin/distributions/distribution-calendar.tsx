@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Badge, Button, Card, Checkbox, Input, Select, Switch, Tabs, Tab } from "@/ui";
 import { ListItemCard, PageScaffold, SectionHeader, StatusBadge } from "@/components/ui";
@@ -15,12 +15,11 @@ import {
 } from "@/store/slices/distributionSlice";
 import { useFund } from "@/contexts/fund-context";
 import type { Distribution, DistributionCalendarEvent } from "@/types/distribution";
-import { buildMonthDays } from "@/utils/calendar";
 import { formatCurrencyCompact, formatDate } from "@/utils/formatting";
 import { distributionEventTypeLabels, getLabelForType } from "@/utils/styling/typeMappers";
+import { getStatusColorVars } from "@/utils/styling/statusColors";
 import {
   addDays,
-  addMonths,
   compareAsc,
   differenceInCalendarDays,
   format,
@@ -29,14 +28,17 @@ import {
   isSameDay,
   parseISO,
   startOfDay,
-  startOfMonth,
   subDays,
 } from "date-fns";
+import FullCalendar from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import timeGridPlugin from "@fullcalendar/timegrid";
+import interactionPlugin from "@fullcalendar/interaction";
+import type { DateClickArg } from "@fullcalendar/interaction";
+import type { EventClickArg, EventContentArg, EventInput } from "@fullcalendar/core";
 import {
   Bell,
   CalendarDays,
-  ChevronLeft,
-  ChevronRight,
   Clock,
   List,
   Plus,
@@ -61,7 +63,6 @@ type DistributionCalendarUIState = {
   view: CalendarView;
   listFilter: ListFilter;
   searchQuery: string;
-  monthOffset: number;
   showScheduleForm: boolean;
   scheduleForm: ScheduleFormState;
   scheduledDrafts: DistributionCalendarEvent[];
@@ -138,7 +139,6 @@ export function DistributionCalendar() {
       view: "calendar",
       listFilter: "upcoming",
       searchQuery: "",
-      monthOffset: 0,
       showScheduleForm: false,
       scheduleForm: {
         title: "",
@@ -196,25 +196,6 @@ export function DistributionCalendar() {
       return !isBefore(eventDate, today);
     });
   }, [allEvents, ui.listFilter, ui.searchQuery, today]);
-
-  const monthDate = useMemo(
-    () => addMonths(startOfMonth(new Date()), ui.monthOffset),
-    [ui.monthOffset]
-  );
-
-  const monthLabel = useMemo(() => format(monthDate, "MMMM yyyy"), [monthDate]);
-
-  const calendarDays = useMemo(() => buildMonthDays(monthDate), [monthDate]);
-
-  const eventsByDate = useMemo(() => {
-    const map = new Map<string, DistributionCalendarEvent[]>();
-    allEvents.forEach((event) => {
-      const list = map.get(event.date) ?? [];
-      list.push(event);
-      map.set(event.date, list);
-    });
-    return map;
-  }, [allEvents]);
 
   const upcomingAlerts = useMemo(() => {
     const alerts: Array<{
@@ -289,6 +270,91 @@ export function DistributionCalendar() {
       },
     });
   };
+
+  const calendarEvents = useMemo<EventInput[]>(() => {
+    return allEvents.map((event) => {
+      const statusColors = getStatusColorVars(event.status, "fund-admin");
+      const backgroundColor = event.color ?? statusColors.bg;
+      const borderColor = event.color ?? statusColors.text;
+      const textColor = event.color ? "#ffffff" : statusColors.text;
+      return {
+        id: event.id,
+        title: event.title,
+        start: event.date,
+        allDay: true,
+        display: "block",
+        backgroundColor,
+        borderColor,
+        textColor,
+        extendedProps: {
+          distributionId: event.distributionId,
+          amount: event.amount,
+          fundName: event.fundName,
+          eventType: event.eventType,
+          status: event.status,
+          isRecurring: event.isRecurring,
+        },
+      };
+    });
+  }, [allEvents]);
+
+  const handleDateClick = useCallback(
+    (arg: DateClickArg) => {
+      const nextDate = arg.dateStr.slice(0, 10);
+      patchUI({
+        showScheduleForm: true,
+        scheduleForm: {
+          ...ui.scheduleForm,
+          date: nextDate,
+        },
+      });
+    },
+    [patchUI, ui.scheduleForm]
+  );
+
+  const handleEventClick = useCallback(
+    (arg: EventClickArg) => {
+      const distributionId = arg.event.extendedProps?.distributionId as string | undefined;
+      if (distributionId) {
+        router.push(`/fund-admin/distributions/${distributionId}`);
+        return;
+      }
+
+      const nextDate = arg.event.startStr?.slice(0, 10) ?? todayKey;
+      patchUI({
+        showScheduleForm: true,
+        scheduleForm: {
+          ...ui.scheduleForm,
+          title: arg.event.title,
+          date: nextDate,
+        },
+      });
+    },
+    [patchUI, router, todayKey, ui.scheduleForm]
+  );
+
+  const renderEventContent = useCallback(
+    (content: EventContentArg) => {
+      const amount = content.event.extendedProps?.amount as number | undefined;
+      const fundName = content.event.extendedProps?.fundName as string | undefined;
+      return (
+        <div className="space-y-0.5 leading-tight">
+          <div className="truncate text-[10px] font-semibold">
+            {content.event.title}
+          </div>
+          {fundName && (
+            <div className="truncate text-[9px] text-[var(--app-text-subtle)]">
+              {fundName}
+            </div>
+          )}
+          {typeof amount === "number" && (
+            <div className="text-[9px]">{formatCurrencyCompact(amount)}</div>
+          )}
+        </div>
+      );
+    },
+    []
+  );
 
   return (
     <PageScaffold
@@ -454,83 +520,33 @@ export function DistributionCalendar() {
             {ui.view === "calendar" && (
               <Card padding="lg">
                 <SectionHeader
-                  title={monthLabel}
+                  title="Distribution Calendar"
+                  description="Month, week, and day views for scheduled distributions."
                   action={(
-                    <div className="flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="flat"
-                        isIconOnly
-                        aria-label="Previous month"
-                        onPress={() => patchUI({ monthOffset: ui.monthOffset - 1 })}
-                      >
-                        <ChevronLeft className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="flat"
-                        isIconOnly
-                        aria-label="Next month"
-                        onPress={() => patchUI({ monthOffset: ui.monthOffset + 1 })}
-                      >
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    <Badge size="sm" variant="flat">
+                      {allEvents.length} events
+                    </Badge>
                   )}
                   className="mb-4"
                 />
 
-                <div className="grid grid-cols-7 text-xs text-[var(--app-text-muted)] mb-2">
-                  {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-                    <div key={day} className="px-2 py-1 text-center">
-                      {day}
-                    </div>
-                  ))}
-                </div>
-
-                <div className="grid grid-cols-7 gap-2">
-                  {calendarDays.map((cell) => {
-                    const key = toDateKey(cell.date);
-                    const dayEvents = eventsByDate.get(key) ?? [];
-                    const isToday = key === todayKey;
-
-                    return (
-                      <div
-                        key={key}
-                        className={`min-h-[110px] rounded-lg border p-2 text-xs ${
-                          cell.isCurrentMonth ? "border-[var(--app-border)]" : "border-[var(--app-border-subtle)]"
-                        } ${isToday ? "bg-[var(--app-primary-bg)]" : "bg-[var(--app-surface)]"}`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className={cell.isCurrentMonth ? "font-medium" : "text-[var(--app-text-muted)]"}>
-                            {cell.date.getDate()}
-                          </span>
-                          {dayEvents.length > 0 && (
-                            <Badge size="sm" variant="flat">
-                              {dayEvents.length}
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="mt-2 space-y-1">
-                          {dayEvents.slice(0, 2).map((event) => (
-                            <div
-                              key={event.id}
-                              className="truncate rounded bg-[var(--app-surface-hover)] px-1.5 py-1 text-[10px]"
-                              title={event.title}
-                            >
-                              <span className="font-medium">{event.title}</span>
-                            </div>
-                          ))}
-                          {dayEvents.length > 2 && (
-                            <div className="text-[10px] text-[var(--app-text-muted)]">
-                              +{dayEvents.length - 2} more
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                <FullCalendar
+                  plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                  initialView="dayGridMonth"
+                  headerToolbar={{
+                    left: "prev,next today",
+                    center: "title",
+                    right: "dayGridMonth,timeGridWeek,timeGridDay",
+                  }}
+                  height="auto"
+                  events={calendarEvents}
+                  eventContent={renderEventContent}
+                  eventClick={handleEventClick}
+                  dateClick={handleDateClick}
+                  dayMaxEventRows={2}
+                  fixedWeekCount={false}
+                  selectable
+                />
               </Card>
             )}
 

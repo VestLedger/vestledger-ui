@@ -3,6 +3,7 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import { Button } from '@/ui';
+import { captureException, addBreadcrumb } from '@/lib/errorTracking';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -55,8 +56,28 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       console.error('Component stack:', errorInfo.componentStack);
     }
 
-    // TODO: Send to error tracking service (Sentry, etc.)
-    // Example: Sentry.captureException(error, { extra: { componentStack: errorInfo.componentStack } });
+    // Add breadcrumb for context
+    addBreadcrumb({
+      category: 'error-boundary',
+      message: `Error caught: ${error.message}`,
+      level: 'error',
+      data: {
+        errorName: error.name,
+        hasComponentStack: !!errorInfo.componentStack,
+      },
+    });
+
+    // Send to error tracking service (Sentry when configured)
+    captureException(error, {
+      componentStack: errorInfo.componentStack || undefined,
+      tags: {
+        errorBoundary: 'true',
+        errorType: error.name,
+      },
+      extra: {
+        componentStack: errorInfo.componentStack,
+      },
+    });
   }
 
   handleReset = (): void => {

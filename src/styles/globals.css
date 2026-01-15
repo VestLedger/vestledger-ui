@@ -109,3 +109,53 @@ html {
   box-shadow: var(--royal-glow-purple);
   transition: box-shadow 0.3s ease;
 }
+
+/* FullCalendar theme alignment */
+.fc {
+  --fc-page-bg-color: var(--app-surface);
+  --fc-border-color: var(--app-border);
+  --fc-neutral-bg-color: var(--app-surface-hover);
+  --fc-neutral-text-color: var(--app-text-muted);
+  --fc-button-text-color: var(--app-surface);
+  --fc-button-bg-color: var(--app-primary);
+  --fc-button-border-color: var(--app-primary);
+  --fc-button-hover-bg-color: var(--app-primary-hover);
+  --fc-button-hover-border-color: var(--app-primary-hover);
+  --fc-button-active-bg-color: var(--app-primary-hover);
+  --fc-button-active-border-color: var(--app-primary-hover);
+  --fc-event-text-color: #ffffff;
+  --fc-event-bg-color: var(--app-primary);
+  --fc-event-border-color: var(--app-primary);
+  --fc-today-bg-color: var(--app-primary-bg);
+  font-family: inherit;
+}
+
+.fc .fc-toolbar-title {
+  color: var(--app-text);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.fc .fc-button {
+  border-radius: 9999px;
+  box-shadow: none;
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+
+.fc .fc-button-primary:focus {
+  box-shadow: 0 0 0 2px var(--app-primary-bg);
+}
+
+.fc .fc-scrollgrid {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.fc .fc-daygrid-day-number {
+  color: var(--app-text-muted);
+}
+
+.fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
+  color: var(--app-text);
+}

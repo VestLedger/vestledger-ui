@@ -66,7 +66,7 @@ function* hydrateAuthWorker() {
   yield put(authHydrated({ isAuthenticated: false, user: null }));
 }
 
-function* loginWorker(action: ReturnType<typeof loginRequested>) {
+export function* loginWorker(action: ReturnType<typeof loginRequested>) {
   try {
     const { email, role } = action.payload;
     const user: User = createUser(email, role);
@@ -85,7 +85,7 @@ function* loginWorker(action: ReturnType<typeof loginRequested>) {
   }
 }
 
-function* logoutWorker() {
+export function* logoutWorker() {
   safeLocalStorage.removeItem(STORAGE_AUTH_KEY);
   safeLocalStorage.removeItem(STORAGE_USER_KEY);
 

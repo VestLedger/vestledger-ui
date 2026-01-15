@@ -600,7 +600,9 @@ export interface DistributionWizardState {
 
   // Draft
   isDraft: boolean;
+  draftId?: string;
   draftSavedAt?: string;
+  lastEditedAt?: string;
   autoSaveEnabled: boolean;
 }
 

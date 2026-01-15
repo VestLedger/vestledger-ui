@@ -166,6 +166,31 @@ export function WaterfallBarChart({ scenario, printMode }: WaterfallBarChartProp
           </BarChart>
         </ResponsiveContainer>
       </div>
+      <table className="sr-only" aria-label="Waterfall tier breakdown">
+        <caption>Waterfall tier breakdown</caption>
+        <thead>
+          <tr>
+            <th scope="col">Tier</th>
+            <th scope="col">Type</th>
+            <th scope="col">Tier Amount</th>
+            <th scope="col">LP Share</th>
+            <th scope="col">GP Share</th>
+            <th scope="col">Cumulative</th>
+          </tr>
+        </thead>
+        <tbody>
+          {chartData.map((entry) => (
+            <tr key={entry.name}>
+              <td>{entry.name}</td>
+              <td>{formatTierType(entry.type)}</td>
+              <td>{formatCurrencyCompact(entry.amount)}</td>
+              <td>{formatCurrencyCompact(entry.lpAmount)}</td>
+              <td>{formatCurrencyCompact(entry.gpAmount)}</td>
+              <td>{formatCurrencyCompact(entry.end)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

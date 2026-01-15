@@ -230,6 +230,7 @@ export function SensitivityPanel({
 
   const baseLabel = getModelLabel(scenario.model);
   const compareLabel = comparisonScenario ? getModelLabel(comparisonScenario.model) : undefined;
+  const rangeHelpId = `sensitivity-range-help-${scenario.id}`;
 
   const handleMinChange = (nextValue: number) => {
     const minValue = Math.min(nextValue, maxExitValue - rangeBounds.step);
@@ -285,6 +286,9 @@ export function SensitivityPanel({
             />
           </div>
           <div className="space-y-2">
+            <div id={rangeHelpId} className="sr-only">
+              Use arrow keys to adjust the range. Values update the sensitivity chart.
+            </div>
             <input
               type="range"
               min={rangeBounds.min}
@@ -294,6 +298,8 @@ export function SensitivityPanel({
               onChange={(event) => handleMinChange(Number(event.target.value))}
               className="w-full accent-[var(--app-primary)]"
               aria-label="Minimum exit value"
+              aria-describedby={rangeHelpId}
+              aria-valuetext={formatCurrencyCompact(normalizedRange.minValue)}
             />
             <input
               type="range"
@@ -304,6 +310,8 @@ export function SensitivityPanel({
               onChange={(event) => handleMaxChange(Number(event.target.value))}
               className="w-full accent-[var(--app-secondary)]"
               aria-label="Maximum exit value"
+              aria-describedby={rangeHelpId}
+              aria-valuetext={formatCurrencyCompact(normalizedRange.maxValue)}
             />
           </div>
           <div className="flex items-center gap-3">

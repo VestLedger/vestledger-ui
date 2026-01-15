@@ -55,7 +55,7 @@ import { normalizeError } from '@/store/utils/normalizeError';
 // Scenarios Workers
 // ============================================================================
 
-function* loadScenariosWorker(
+export function* loadScenariosWorker(
   action: PayloadAction<GetWaterfallScenariosParams | undefined>
 ): SagaIterator {
   try {
@@ -68,7 +68,7 @@ function* loadScenariosWorker(
   }
 }
 
-function* createScenarioWorker(
+export function* createScenarioWorker(
   action: PayloadAction<Omit<WaterfallScenario, 'id' | 'createdAt' | 'updatedAt' | 'version'>>
 ): SagaIterator {
   try {
@@ -80,7 +80,7 @@ function* createScenarioWorker(
   }
 }
 
-function* updateScenarioWorker(
+export function* updateScenarioWorker(
   action: PayloadAction<{ id: string; data: Partial<WaterfallScenario> }>
 ): SagaIterator {
   try {
@@ -93,7 +93,7 @@ function* updateScenarioWorker(
   }
 }
 
-function* deleteScenarioWorker(action: PayloadAction<string>): SagaIterator {
+export function* deleteScenarioWorker(action: PayloadAction<string>): SagaIterator {
   try {
     const id = action.payload;
     yield call(deleteWaterfallScenario, id);
@@ -104,7 +104,7 @@ function* deleteScenarioWorker(action: PayloadAction<string>): SagaIterator {
   }
 }
 
-function* duplicateScenarioWorker(
+export function* duplicateScenarioWorker(
   action: PayloadAction<{ id: string; newName?: string }>
 ): SagaIterator {
   try {
@@ -121,7 +121,7 @@ function* duplicateScenarioWorker(
 // Templates Workers
 // ============================================================================
 
-function* loadTemplatesWorker(): SagaIterator {
+export function* loadTemplatesWorker(): SagaIterator {
   try {
     const templates = yield call(fetchWaterfallTemplates);
     yield put(templatesLoaded({ templates }));
@@ -135,7 +135,7 @@ function* loadTemplatesWorker(): SagaIterator {
 // Calculation Workers
 // ============================================================================
 
-function* calculateWaterfallWorker(
+export function* calculateWaterfallWorker(
   action: PayloadAction<{ scenarioId?: string; scenario?: WaterfallScenario }>
 ): SagaIterator {
   try {
@@ -147,7 +147,7 @@ function* calculateWaterfallWorker(
   }
 }
 
-function* sensitivityAnalysisWorker(
+export function* sensitivityAnalysisWorker(
   action: PayloadAction<{
     scenarioId: string;
     minExitValue: number;
@@ -175,7 +175,7 @@ function* sensitivityAnalysisWorker(
 // Favorite Workers
 // ============================================================================
 
-function* toggleFavoriteWorker(action: PayloadAction<string>): SagaIterator {
+export function* toggleFavoriteWorker(action: PayloadAction<string>): SagaIterator {
   try {
     const id = action.payload;
     const scenario: WaterfallScenario = yield call(toggleScenarioFavorite, id);
