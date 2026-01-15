@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { Button, Card, Input } from "@/ui";
+import { SectionHeader } from "@/components/ui";
 import { useUIKey } from "@/store/ui";
 import type { DistributionImpact } from "@/types/distribution";
 import { formatCurrencyCompact } from "@/utils/formatting";
@@ -54,12 +55,10 @@ export function DistributionStepImpact({
 
   return (
     <Card padding="lg" className="space-y-4">
-      <div>
-        <h3 className="text-lg font-semibold">Impact Preview</h3>
-        <p className="text-sm text-[var(--app-text-muted)]">
-          Preview NAV, DPI, and TVPI changes before finalizing the distribution.
-        </p>
-      </div>
+      <SectionHeader
+        title="Impact Preview"
+        description="Preview NAV, DPI, and TVPI changes before finalizing the distribution."
+      />
 
       <Card padding="md" className="space-y-3">
         <div>

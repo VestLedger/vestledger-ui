@@ -1,6 +1,7 @@
 "use client";
 
 import { Card } from "@/ui";
+import { SectionHeader } from "@/components/ui";
 import type { LPAllocation } from "@/types/distribution";
 import { LPAllocationTable } from "./lp-allocation-table";
 import { formatCurrencyCompact } from "@/utils/formatting";
@@ -26,17 +27,15 @@ export function DistributionStepAllocations({
 
   return (
     <Card padding="lg" className="space-y-4">
-      <div>
-        <h3 className="text-lg font-semibold">LP Allocations</h3>
-        <p className="text-sm text-[var(--app-text-muted)]">
-          Review and adjust pro-rata allocations. Total distributed: {formatCurrencyCompact(totalDistributed)}.
+      <SectionHeader
+        title="LP Allocations"
+        description={`Review and adjust pro-rata allocations. Total distributed: ${formatCurrencyCompact(totalDistributed)}.`}
+      />
+      {comparisonLabel && (
+        <p className="text-xs text-[var(--app-text-muted)]">
+          Comparing against: {comparisonLabel}.
         </p>
-        {comparisonLabel && (
-          <p className="text-xs text-[var(--app-text-muted)]">
-            Comparing against: {comparisonLabel}.
-          </p>
-        )}
-      </div>
+      )}
 
       <LPAllocationTable
         allocations={allocations}

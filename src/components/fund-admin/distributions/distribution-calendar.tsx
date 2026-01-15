@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Badge, Button, Card, Checkbox, Input, Select, Switch, Tabs, Tab } from "@/ui";
-import { ListItemCard, PageScaffold, StatusBadge } from "@/components/ui";
+import { ListItemCard, PageScaffold, SectionHeader, StatusBadge } from "@/components/ui";
 import { AsyncStateRenderer } from "@/components/ui/async-states";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { useUIKey } from "@/store/ui";
@@ -329,17 +329,15 @@ export function DistributionCalendar() {
 
       {ui.showScheduleForm && (
         <Card padding="lg">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h3 className="text-lg font-semibold">Schedule Distribution</h3>
-              <p className="text-sm text-[var(--app-text-muted)]">
-                Add future distribution dates with reminder preferences.
-              </p>
-            </div>
-            <Badge size="sm" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">
-              Planner
-            </Badge>
-          </div>
+          <SectionHeader
+            title="Schedule Distribution"
+            description="Add future distribution dates with reminder preferences."
+            action={(
+              <Badge size="sm" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">
+                Planner
+              </Badge>
+            )}
+          />
 
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <Input
@@ -455,29 +453,32 @@ export function DistributionCalendar() {
           <>
             {ui.view === "calendar" && (
               <Card padding="lg">
-                <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-                  <div className="text-lg font-semibold">{monthLabel}</div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      size="sm"
-                      variant="flat"
-                      isIconOnly
-                      aria-label="Previous month"
-                      onPress={() => patchUI({ monthOffset: ui.monthOffset - 1 })}
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="flat"
-                      isIconOnly
-                      aria-label="Next month"
-                      onPress={() => patchUI({ monthOffset: ui.monthOffset + 1 })}
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
+                <SectionHeader
+                  title={monthLabel}
+                  action={(
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        variant="flat"
+                        isIconOnly
+                        aria-label="Previous month"
+                        onPress={() => patchUI({ monthOffset: ui.monthOffset - 1 })}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="flat"
+                        isIconOnly
+                        aria-label="Next month"
+                        onPress={() => patchUI({ monthOffset: ui.monthOffset + 1 })}
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                  className="mb-4"
+                />
 
                 <div className="grid grid-cols-7 text-xs text-[var(--app-text-muted)] mb-2">
                   {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
@@ -536,18 +537,16 @@ export function DistributionCalendar() {
             {ui.view === "list" && (
               <div className="space-y-4">
                 <Card padding="lg">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      <h3 className="text-lg font-semibold">Distribution Events</h3>
-                      <p className="text-sm text-[var(--app-text-muted)]">
-                        Filter distributions by timing and recurrence.
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-[var(--app-text-muted)]">
-                      <List className="h-4 w-4" />
-                      {filteredEvents.length} events
-                    </div>
-                  </div>
+                  <SectionHeader
+                    title="Distribution Events"
+                    description="Filter distributions by timing and recurrence."
+                    action={(
+                      <div className="flex items-center gap-2 text-xs text-[var(--app-text-muted)]">
+                        <List className="h-4 w-4" />
+                        {filteredEvents.length} events
+                      </div>
+                    )}
+                  />
 
                   <div className="mt-4 flex flex-wrap items-center gap-2">
                     {(["upcoming", "past", "recurring"] as ListFilter[]).map((filter) => (
@@ -657,28 +656,26 @@ export function DistributionCalendar() {
 
                   return (
                     <Card padding="lg">
-                      <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div>
-                          <h3 className="text-lg font-semibold">Lifecycle Timeline</h3>
-                          <p className="text-sm text-[var(--app-text-muted)]">
-                            Draft to approval to executed progression mapped across actual dates.
-                          </p>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--app-text-muted)]">
-                          <div className="flex items-center gap-1">
-                            <span className="h-2 w-2 rounded-full bg-[var(--app-warning-bg)]" />
-                            Draft
+                      <SectionHeader
+                        title="Lifecycle Timeline"
+                        description="Draft to approval to executed progression mapped across actual dates."
+                        action={(
+                          <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--app-text-muted)]">
+                            <div className="flex items-center gap-1">
+                              <span className="h-2 w-2 rounded-full bg-[var(--app-warning-bg)]" />
+                              Draft
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="h-2 w-2 rounded-full bg-[var(--app-info-bg)]" />
+                              Approval
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="h-2 w-2 rounded-full bg-[var(--app-success-bg)]" />
+                              Executed
+                            </div>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <span className="h-2 w-2 rounded-full bg-[var(--app-info-bg)]" />
-                            Approval
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span className="h-2 w-2 rounded-full bg-[var(--app-success-bg)]" />
-                            Executed
-                          </div>
-                        </div>
-                      </div>
+                        )}
+                      />
 
                       <div className="mt-4 flex justify-between text-xs text-[var(--app-text-muted)]">
                         <span>{format(rangeStartDate, "MMM d")}</span>
@@ -736,17 +733,15 @@ export function DistributionCalendar() {
       </AsyncStateRenderer>
 
       <Card padding="lg">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h3 className="text-lg font-semibold">Upcoming Alerts</h3>
-            <p className="text-sm text-[var(--app-text-muted)]">
-              Reminders are generated based on your scheduling preferences.
-            </p>
-          </div>
-          <Badge size="sm" variant="flat">
-            {upcomingAlerts.length} alerts
-          </Badge>
-        </div>
+        <SectionHeader
+          title="Upcoming Alerts"
+          description="Reminders are generated based on your scheduling preferences."
+          action={(
+            <Badge size="sm" variant="flat">
+              {upcomingAlerts.length} alerts
+            </Badge>
+          )}
+        />
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           {upcomingAlerts.length === 0 ? (
             <div className="text-sm text-[var(--app-text-muted)]">

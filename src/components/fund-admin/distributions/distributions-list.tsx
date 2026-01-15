@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Badge, Button, Card } from '@/ui';
-import { SearchToolbar, StatusBadge } from '@/components/ui';
+import { SearchToolbar, SectionHeader, StatusBadge } from '@/components/ui';
 import { AdvancedTable, type ColumnDef } from '@/components/data-table/advanced-table';
 import { AsyncStateRenderer } from '@/components/ui/async-states';
 import { useAsyncData } from '@/hooks/useAsyncData';
@@ -159,35 +159,34 @@ export function DistributionsList() {
 
   return (
     <Card padding="lg">
-      <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
-        <div>
-          <h3 className="text-lg font-semibold">Distributions</h3>
-          <p className="text-sm text-[var(--app-text-muted)]">
-            Track distributions, approvals, and LP allocations across funds.
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge size="sm" variant="flat">
-            {selectedFundLabel}
-          </Badge>
-          <Button
-            size="sm"
-            variant="bordered"
-            startContent={<CalendarDays className="h-4 w-4" />}
-            onPress={() => router.push('/fund-admin/distributions/calendar')}
-          >
-            Calendar
-          </Button>
-          <Button
-            size="sm"
-            color="primary"
-            startContent={<Plus className="h-4 w-4" />}
-            onPress={() => router.push('/fund-admin/distributions/new')}
-          >
-            New Distribution
-          </Button>
-        </div>
-      </div>
+      <SectionHeader
+        title="Distributions"
+        description="Track distributions, approvals, and LP allocations across funds."
+        action={(
+          <>
+            <Badge size="sm" variant="flat">
+              {selectedFundLabel}
+            </Badge>
+            <Button
+              size="sm"
+              variant="bordered"
+              startContent={<CalendarDays className="h-4 w-4" />}
+              onPress={() => router.push('/fund-admin/distributions/calendar')}
+            >
+              Calendar
+            </Button>
+            <Button
+              size="sm"
+              color="primary"
+              startContent={<Plus className="h-4 w-4" />}
+              onPress={() => router.push('/fund-admin/distributions/new')}
+            >
+              New Distribution
+            </Button>
+          </>
+        )}
+        className="mb-4"
+      />
 
       <SearchToolbar
         searchValue={ui.searchQuery}

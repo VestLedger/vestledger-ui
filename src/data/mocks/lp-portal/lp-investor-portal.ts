@@ -68,6 +68,24 @@ export interface LPDistributionConfirmation {
   confirmedAt?: string;
 }
 
+export type LPElectionStatus = 'pending' | 'submitted' | 'overdue';
+
+export interface LPDistributionElection {
+  id: string;
+  distributionName: string;
+  assetName: string;
+  dueDate: string;
+  estimatedValue: number;
+  electionType: 'cash' | 'shares' | 'split';
+  status: LPElectionStatus;
+  options: Array<{
+    id: string;
+    label: string;
+    description: string;
+  }>;
+  selectedOptionId?: string;
+}
+
 export interface LPBankDetails {
   accountName: string;
   bankName: string;
@@ -266,6 +284,57 @@ export const mockDistributionConfirmations: LPDistributionConfirmation[] = [
     amount: 2500000,
     requiresConfirmation: false,
     confirmedAt: '2024-12-02',
+  },
+];
+
+export const mockDistributionElections: LPDistributionElection[] = [
+  {
+    id: 'lp-election-1',
+    distributionName: 'DataCore AI Exit Distribution',
+    assetName: 'DataCore AI Common',
+    dueDate: '2024-10-05',
+    estimatedValue: 1_250_000,
+    electionType: 'split',
+    status: 'pending',
+    options: [
+      {
+        id: 'cash',
+        label: 'All Cash',
+        description: 'Receive cash proceeds based on current share value.',
+      },
+      {
+        id: 'shares',
+        label: 'All Shares',
+        description: 'Receive shares in-kind with fractional cash-in-lieu.',
+      },
+      {
+        id: 'split',
+        label: 'Split 60/40',
+        description: '60% shares, 40% cash distribution.',
+      },
+    ],
+    selectedOptionId: 'split',
+  },
+  {
+    id: 'lp-election-2',
+    distributionName: 'FinTech Labs Partial Exit',
+    assetName: 'FinTech Labs Note',
+    dueDate: '2024-10-18',
+    estimatedValue: 620_000,
+    electionType: 'cash',
+    status: 'overdue',
+    options: [
+      {
+        id: 'cash',
+        label: 'Cash Only',
+        description: 'Default cash distribution if no election submitted.',
+      },
+      {
+        id: 'shares',
+        label: 'In-Kind Note',
+        description: 'Receive the convertible note directly.',
+      },
+    ],
   },
 ];
 

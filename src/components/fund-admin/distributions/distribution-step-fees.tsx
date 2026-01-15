@@ -1,6 +1,7 @@
 "use client";
 
 import { Card } from "@/ui";
+import { SectionHeader } from "@/components/ui";
 import type { FeeLineItem, FeeTemplate } from "@/types/distribution";
 import { FeeExpenseTable } from "./fee-expense-table";
 
@@ -25,12 +26,10 @@ export function DistributionStepFees({
 }: DistributionStepFeesProps) {
   return (
     <Card padding="lg" className="space-y-4">
-      <div>
-        <h3 className="text-lg font-semibold">Fees & Expenses</h3>
-        <p className="text-sm text-[var(--app-text-muted)]">
-          Apply fee templates or add custom expenses to calculate net proceeds.
-        </p>
-      </div>
+      <SectionHeader
+        title="Fees & Expenses"
+        description="Apply fee templates or add custom expenses to calculate net proceeds."
+      />
 
       <FeeExpenseTable
         items={items}

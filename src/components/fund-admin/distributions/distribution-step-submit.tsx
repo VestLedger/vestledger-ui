@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge, Card, Textarea } from "@/ui";
+import { SectionHeader } from "@/components/ui";
 import type { ApprovalRule } from "@/types/distribution";
 import { formatCurrencyCompact } from "@/utils/formatting";
 
@@ -27,12 +28,10 @@ export function DistributionStepSubmit({
 
   return (
     <Card padding="lg" className="space-y-4">
-      <div>
-        <h3 className="text-lg font-semibold">Submit for Approval</h3>
-        <p className="text-sm text-[var(--app-text-muted)]">
-          Approval routing is auto-selected based on the distribution total.
-        </p>
-      </div>
+      <SectionHeader
+        title="Submit for Approval"
+        description="Approval routing is auto-selected based on the distribution total."
+      />
 
       <div className="rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] p-3 text-sm">
         <div className="flex items-center justify-between">

@@ -16,6 +16,8 @@ import type {
   TierAllocation,
   SensitivityDataPoint,
   SensitivityAnalysis,
+  BlendedWaterfallConfig,
+  TierTimelineEntry,
 } from '@/types/waterfall';
 
 type InvestedBasis = 'commitment' | 'capitalCalled';
@@ -42,6 +44,106 @@ const resolveTotalInvested = (
   }
   return scenarioTotalInvested;
 };
+
+const normalizeBlendConfig = (
+  config?: BlendedWaterfallConfig
+): { weights: BlendedWaterfallConfig; european: number; american: number } => {
+  const europeanWeight = Math.max(0, config?.europeanWeight ?? 50);
+  const americanWeight = Math.max(0, config?.americanWeight ?? 50);
+  const total = europeanWeight + americanWeight || 100;
+  return {
+    weights: {
+      europeanWeight,
+      americanWeight,
+    },
+    european: europeanWeight / total,
+    american: americanWeight / total,
+  };
+};
+
+const buildTierTimeline = (
+  scenario: WaterfallScenario,
+  results: WaterfallResults
+): TierTimelineEntry[] => {
+  const baseDate = scenario.createdAt ? new Date(scenario.createdAt) : new Date();
+  const tiers = results.tierBreakdown ?? [];
+  const periodMonths = Math.max(1, Math.round(12 / Math.max(tiers.length, 1)));
+
+  let cumulativeDistributed = 0;
+  return tiers.map((tier, index) => {
+    cumulativeDistributed += tier.totalAmount;
+    const reachedAt = new Date(baseDate);
+    reachedAt.setMonth(reachedAt.getMonth() + periodMonths * index);
+    return {
+      tierId: tier.tierId,
+      tierName: tier.tierName,
+      reachedAt: reachedAt.toISOString(),
+      exitValue: tier.cumulativeAmount,
+      cumulativeDistributed,
+    };
+  });
+};
+
+const buildClawbackSummary = (
+  scenario: WaterfallScenario,
+  results: WaterfallResults
+): WaterfallResults['clawback'] => {
+  const provision = scenario.clawbackProvision;
+  if (!provision?.enabled) return undefined;
+
+  const requiredReturn =
+    results.totalInvested * (1 + (provision.hurdleRate / 100) * provision.distributionLifeYears);
+  const shortfall = Math.max(0, requiredReturn - results.lpTotalReturn);
+  const clawbackDue = Math.min(
+    results.gpCarry,
+    shortfall * (provision.clawbackRate / 100)
+  );
+  const netCarryAfterClawback = Math.max(0, results.gpCarry - clawbackDue);
+  const status =
+    clawbackDue > 0 ? 'triggered' : shortfall > 0 ? 'at-risk' : 'clear';
+
+  return {
+    totalCarryPaid: results.gpCarry,
+    requiredReturn,
+    shortfall,
+    clawbackDue,
+    netCarryAfterClawback,
+    status,
+  };
+};
+
+const buildLookbackSummary = (
+  scenario: WaterfallScenario,
+  results: WaterfallResults
+): WaterfallResults['lookback'] => {
+  const provision = scenario.lookbackProvision;
+  if (!provision?.enabled) return undefined;
+
+  const lossesToRecover = Math.max(0, provision.lossCarryForward);
+  const carryAtRisk = results.gpCarry * (provision.carryAtRiskRate / 100);
+  const carryReleased = Math.max(0, results.gpCarry - carryAtRisk);
+  const status = lossesToRecover > 0 ? (carryAtRisk > 0 ? 'at-risk' : 'monitor') : 'cleared';
+
+  return {
+    lookbackYears: provision.lookbackYears,
+    lossesToRecover,
+    carryAtRisk,
+    carryReleased,
+    status,
+  };
+};
+
+const applyPhase6Enhancements = (
+  scenario: WaterfallScenario,
+  results: WaterfallResults,
+  blendedConfig?: BlendedWaterfallConfig
+): WaterfallResults => ({
+  ...results,
+  tierTimeline: buildTierTimeline(scenario, results),
+  clawback: buildClawbackSummary(scenario, results),
+  lookback: buildLookbackSummary(scenario, results),
+  blendedBreakdown: blendedConfig,
+});
 
 // ============================================================================
 // Core Calculation Functions
@@ -132,6 +234,9 @@ export function calculateTierAllocations(
     id: 'temp-scenario',
     name: 'Temporary Scenario',
     model,
+    ...(model === 'blended'
+      ? { blendedConfig: { europeanWeight: 50, americanWeight: 50 } }
+      : {}),
     investorClasses,
     tiers,
     exitValue,
@@ -508,10 +613,11 @@ function calculateWaterfallModel(
 }
 
 export function calculateEuropeanWaterfall(scenario: WaterfallScenario): WaterfallResults {
-  return calculateWaterfallModel(scenario, {
+  const results = calculateWaterfallModel(scenario, {
     includeCatchUp: true,
     investedBasis: 'commitment',
   });
+  return applyPhase6Enhancements(scenario, results);
 }
 
 // ============================================================================
@@ -530,10 +636,182 @@ export function calculateEuropeanWaterfall(scenario: WaterfallScenario): Waterfa
 export function calculateAmericanWaterfall(scenario: WaterfallScenario): WaterfallResults {
   // American model approximated as deal-by-deal carry using capital-called basis.
   // Catch-up tiers are skipped to reflect standard American structures.
-  return calculateWaterfallModel(scenario, {
+  const results = calculateWaterfallModel(scenario, {
     includeCatchUp: false,
     investedBasis: 'capitalCalled',
   });
+  return applyPhase6Enhancements(scenario, results);
+}
+
+// ============================================================================
+// Blended Waterfall Model
+// ============================================================================
+
+const blendNumber = (a: number, b: number, weightA: number, weightB: number) =>
+  a * weightA + b * weightB;
+
+const blendAllocations = (
+  european: TierAllocation[],
+  american: TierAllocation[],
+  weightEuropean: number,
+  weightAmerican: number
+): TierAllocation[] => {
+  const map = new Map<string, TierAllocation>();
+  european.forEach((allocation) => {
+    map.set(`${allocation.tierId}-${allocation.investorClassId}`, allocation);
+  });
+  american.forEach((allocation) => {
+    const key = `${allocation.tierId}-${allocation.investorClassId}`;
+    const existing = map.get(key);
+    if (!existing) {
+      map.set(key, allocation);
+    } else {
+      map.set(key, {
+        ...existing,
+        amount: blendNumber(existing.amount, allocation.amount, weightEuropean, weightAmerican),
+        percentage: blendNumber(
+          existing.percentage,
+          allocation.percentage,
+          weightEuropean,
+          weightAmerican
+        ),
+        cumulativeAmount: blendNumber(
+          existing.cumulativeAmount,
+          allocation.cumulativeAmount,
+          weightEuropean,
+          weightAmerican
+        ),
+      });
+    }
+  });
+  return Array.from(map.values());
+};
+
+const blendInvestorResults = (
+  european: InvestorClassResult[],
+  american: InvestorClassResult[],
+  weightEuropean: number,
+  weightAmerican: number
+): InvestorClassResult[] => {
+  const americanMap = new Map(american.map((result) => [result.investorClassId, result]));
+  return european.map((result) => {
+    const match = americanMap.get(result.investorClassId);
+    if (!match) return result;
+    return {
+      ...result,
+      invested: blendNumber(result.invested, match.invested, weightEuropean, weightAmerican),
+      returned: blendNumber(result.returned, match.returned, weightEuropean, weightAmerican),
+      multiple: blendNumber(result.multiple, match.multiple, weightEuropean, weightAmerican),
+      irr: blendNumber(result.irr, match.irr, weightEuropean, weightAmerican),
+      carry: blendNumber(result.carry, match.carry, weightEuropean, weightAmerican),
+      netReturn: blendNumber(result.netReturn, match.netReturn, weightEuropean, weightAmerican),
+      profit: blendNumber(result.profit, match.profit, weightEuropean, weightAmerican),
+      allocations: blendAllocations(
+        result.allocations,
+        match.allocations,
+        weightEuropean,
+        weightAmerican
+      ),
+    };
+  });
+};
+
+const blendTierBreakdown = (
+  european: TierBreakdown[],
+  american: TierBreakdown[],
+  exitValue: number,
+  weightEuropean: number,
+  weightAmerican: number
+): TierBreakdown[] => {
+  const americanMap = new Map(american.map((tier) => [tier.tierId, tier]));
+  let cumulativeAmount = 0;
+  return european.map((tier) => {
+    const match = americanMap.get(tier.tierId);
+    const totalAmount = match
+      ? blendNumber(tier.totalAmount, match.totalAmount, weightEuropean, weightAmerican)
+      : tier.totalAmount;
+    const gpAmount = match
+      ? blendNumber(tier.gpAmount, match.gpAmount, weightEuropean, weightAmerican)
+      : tier.gpAmount;
+    const lpAmount = match
+      ? blendNumber(tier.lpAmount, match.lpAmount, weightEuropean, weightAmerican)
+      : tier.lpAmount;
+    cumulativeAmount += totalAmount;
+    return {
+      ...tier,
+      totalAmount,
+      gpAmount,
+      lpAmount,
+      percentage: exitValue > 0 ? (totalAmount / exitValue) * 100 : 0,
+      cumulativeAmount,
+      allocations: match
+        ? blendAllocations(tier.allocations, match.allocations, weightEuropean, weightAmerican)
+        : tier.allocations,
+    };
+  });
+};
+
+export function calculateBlendedWaterfall(scenario: WaterfallScenario): WaterfallResults {
+  const { weights, european, american } = normalizeBlendConfig(scenario.blendedConfig);
+  const europeanResults = calculateEuropeanWaterfall({ ...scenario, model: 'european' });
+  const americanResults = calculateAmericanWaterfall({ ...scenario, model: 'american' });
+
+  const blendedResults: WaterfallResults = {
+    totalExitValue: scenario.exitValue,
+    totalInvested: scenario.totalInvested,
+    totalReturned: blendNumber(
+      europeanResults.totalReturned,
+      americanResults.totalReturned,
+      european,
+      american
+    ),
+    gpCarry: blendNumber(europeanResults.gpCarry, americanResults.gpCarry, european, american),
+    gpCarryPercentage: blendNumber(
+      europeanResults.gpCarryPercentage,
+      americanResults.gpCarryPercentage,
+      european,
+      american
+    ),
+    gpManagementFees: blendNumber(
+      europeanResults.gpManagementFees,
+      americanResults.gpManagementFees,
+      european,
+      american
+    ),
+    gpTotalReturn: blendNumber(
+      europeanResults.gpTotalReturn,
+      americanResults.gpTotalReturn,
+      european,
+      american
+    ),
+    lpTotalReturn: blendNumber(
+      europeanResults.lpTotalReturn,
+      americanResults.lpTotalReturn,
+      european,
+      american
+    ),
+    lpAverageMultiple: blendNumber(
+      europeanResults.lpAverageMultiple,
+      americanResults.lpAverageMultiple,
+      european,
+      american
+    ),
+    investorClassResults: blendInvestorResults(
+      europeanResults.investorClassResults,
+      americanResults.investorClassResults,
+      european,
+      american
+    ),
+    tierBreakdown: blendTierBreakdown(
+      europeanResults.tierBreakdown,
+      americanResults.tierBreakdown,
+      scenario.exitValue,
+      european,
+      american
+    ),
+  };
+
+  return applyPhase6Enhancements(scenario, blendedResults, weights);
 }
 
 // ============================================================================
@@ -549,6 +827,8 @@ export function calculateWaterfall(scenario: WaterfallScenario): WaterfallResult
       return calculateEuropeanWaterfall(scenario);
     case 'american':
       return calculateAmericanWaterfall(scenario);
+    case 'blended':
+      return calculateBlendedWaterfall(scenario);
     default:
       throw new Error(`Unsupported waterfall model: ${scenario.model}`);
   }

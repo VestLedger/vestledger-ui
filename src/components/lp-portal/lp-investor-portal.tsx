@@ -23,6 +23,7 @@ import { useAsyncData } from '@/hooks/useAsyncData';
 import { DistributionUpcoming } from './distribution-upcoming';
 import { DistributionStatements } from './distribution-statements';
 import { DistributionConfirmation } from './distribution-confirmation';
+import { DistributionElections } from './distribution-elections';
 import { DistributionPreferences } from './distribution-preferences';
 import { BankDetailsForm } from './bank-details-form';
 import { DistributionEmailPreview } from './distribution-email-preview';
@@ -54,6 +55,7 @@ export function LPInvestorPortal() {
   const distributionStatements = data?.distributionStatements || [];
   const upcomingDistributions = data?.upcomingDistributions || [];
   const distributionConfirmations = data?.distributionConfirmations || [];
+  const distributionElections = data?.distributionElections || [];
   const bankDetails = data?.bankDetails;
   const notificationPreferences = data?.notificationPreferences;
   const emailPreview = data?.emailPreview;
@@ -273,6 +275,7 @@ export function LPInvestorPortal() {
             <div className="mt-4 space-y-6">
               <DistributionUpcoming distributions={upcomingDistributions} />
               <DistributionStatements statements={distributionStatements} />
+              <DistributionElections elections={distributionElections} />
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 <DistributionConfirmation confirmations={distributionConfirmations} />
                 {notificationPreferences && (

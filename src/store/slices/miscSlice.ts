@@ -11,6 +11,7 @@ import type {
   LPDistributionStatement,
   LPUpcomingDistribution,
   LPDistributionConfirmation,
+  LPDistributionElection,
   LPBankDetails,
   LPNotificationPreferences,
   LPEmailPreview,
@@ -33,6 +34,7 @@ interface LPPortalData {
   distributionStatements: LPDistributionStatement[];
   upcomingDistributions: LPUpcomingDistribution[];
   distributionConfirmations: LPDistributionConfirmation[];
+  distributionElections: LPDistributionElection[];
   bankDetails: LPBankDetails;
   notificationPreferences: LPNotificationPreferences;
   emailPreview: LPEmailPreview;

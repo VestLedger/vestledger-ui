@@ -3,7 +3,16 @@
 import { useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Badge, Button, Card, type PageHeaderBadge } from "@/ui";
-import { ListItemCard, PageScaffold, StatusBadge, MetricsGrid, Timeline, type MetricsGridItem, type TimelineItem } from "@/components/ui";
+import {
+  ListItemCard,
+  PageScaffold,
+  SectionHeader,
+  StatusBadge,
+  MetricsGrid,
+  Timeline,
+  type MetricsGridItem,
+  type TimelineItem,
+} from "@/components/ui";
 import { AsyncStateRenderer } from "@/components/ui/async-states";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { useAppDispatch } from "@/store/hooks";
@@ -21,6 +30,7 @@ import { getStatusColor } from "@/utils/styling/statusColors";
 import { distributionEventTypeLabels, getLabelForType } from "@/utils/styling/typeMappers";
 import { AdvancedTable, type ColumnDef } from "@/components/data-table/advanced-table";
 import { ApprovalStepper } from "./approval-stepper";
+import { DistributionAdvancedSummary } from "./distribution-advanced-summary";
 import { ImpactPreviewPanel } from "./impact-preview-panel";
 import { StatementGenerator } from "./statement-generator";
 import { getStatementTemplateLabel } from "./statement-template-constants";
@@ -243,15 +253,11 @@ export function DistributionDetail() {
               <div className="grid grid-cols-1 gap-6 xl:grid-cols-[2fr_1fr]">
                 <div className="space-y-6">
                   <Card padding="lg">
-                    <div className="flex flex-wrap items-start justify-between gap-4">
-                      <div>
-                        <h3 className="text-lg font-semibold">Distribution Overview</h3>
-                        <p className="text-sm text-[var(--app-text-muted)]">
-                          Key milestones and allocation context for this distribution.
-                        </p>
-                      </div>
-                      <StatusBadge status={record.status} domain="fund-admin" showIcon size="sm" />
-                    </div>
+                    <SectionHeader
+                      title="Distribution Overview"
+                      description="Key milestones and allocation context for this distribution."
+                      action={<StatusBadge status={record.status} domain="fund-admin" showIcon size="sm" />}
+                    />
 
                     <div className="mt-4 grid gap-4 sm:grid-cols-2">
                       <div>
@@ -298,17 +304,15 @@ export function DistributionDetail() {
                   />
 
                   <Card padding="lg">
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div>
-                        <h3 className="text-lg font-semibold">LP Allocation Breakdown</h3>
-                        <p className="text-sm text-[var(--app-text-muted)]">
-                          View gross, tax, and net allocations across investors.
-                        </p>
-                      </div>
-                      <Badge size="sm" variant="flat">
-                        {allocations.length} allocations
-                      </Badge>
-                    </div>
+                    <SectionHeader
+                      title="LP Allocation Breakdown"
+                      description="View gross, tax, and net allocations across investors."
+                      action={(
+                        <Badge size="sm" variant="flat">
+                          {allocations.length} allocations
+                        </Badge>
+                      )}
+                    />
 
                     <div className="mt-4">
                       <AdvancedTable
@@ -328,34 +332,34 @@ export function DistributionDetail() {
                     <ImpactPreviewPanel impact={record.impact} />
                   ) : (
                     <Card padding="lg">
-                      <h3 className="text-lg font-semibold">Impact Preview</h3>
-                      <p className="text-sm text-[var(--app-text-muted)] mt-2">
-                        Impact analysis will appear once the distribution model is finalized.
-                      </p>
+                      <SectionHeader
+                        title="Impact Preview"
+                        description="Impact analysis will appear once the distribution model is finalized."
+                      />
                     </Card>
                   )}
+
+                  <DistributionAdvancedSummary distribution={record} />
                 </div>
 
                 <div className="space-y-6">
                   <Card padding="lg">
-                    <h3 className="text-lg font-semibold mb-4">Lifecycle Timeline</h3>
+                    <SectionHeader title="Lifecycle Timeline" className="mb-4" />
                     <Timeline items={lifecycleItems} />
                   </Card>
 
                   <StatementGenerator distribution={record} />
 
                   <Card padding="lg">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <h3 className="text-lg font-semibold">Statements & Documents</h3>
-                        <p className="text-sm text-[var(--app-text-muted)]">
-                          Download LP statements once generated by the backend.
-                        </p>
-                      </div>
-                      <Badge size="sm" variant="flat">
-                        {statements.length} statements
-                      </Badge>
-                    </div>
+                    <SectionHeader
+                      title="Statements & Documents"
+                      description="Download LP statements once generated by the backend."
+                      action={(
+                        <Badge size="sm" variant="flat">
+                          {statements.length} statements
+                        </Badge>
+                      )}
+                    />
 
                     <div className="mt-4 space-y-3">
                       {statements.length === 0 ? (
@@ -386,7 +390,7 @@ export function DistributionDetail() {
                   </Card>
 
                   <Card padding="lg">
-                    <h3 className="text-lg font-semibold">Internal Notes</h3>
+                    <SectionHeader title="Internal Notes" />
                     <div className="mt-3 space-y-2">
                       {record.comments.length === 0 ? (
                         <p className="text-sm text-[var(--app-text-muted)]">

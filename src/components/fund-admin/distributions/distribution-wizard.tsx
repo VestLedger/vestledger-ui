@@ -46,6 +46,7 @@ import { DistributionStepFees } from "./distribution-step-fees";
 import { DistributionStepWaterfall } from "./distribution-step-waterfall";
 import { DistributionStepAllocations } from "./distribution-step-allocations";
 import { DistributionStepTax } from "./distribution-step-tax";
+import { DistributionStepAdvanced } from "./distribution-step-advanced";
 import { DistributionStepImpact } from "./distribution-step-impact";
 import { DistributionStepPreview } from "./distribution-step-preview";
 import { DistributionStepSubmit } from "./distribution-step-submit";
@@ -57,6 +58,7 @@ const STEP_LABELS = [
   "Waterfall",
   "Allocations",
   "Tax",
+  "Advanced",
   "Impact",
   "Preview",
   "Submit",
@@ -137,6 +139,7 @@ export function DistributionWizard() {
       eventData: defaultEventData,
       feesData: [],
       allocationsData: [],
+      advancedData: {},
       impactData: buildImpact(0),
       previewData: { template: DEFAULT_TEMPLATE, emailSubject: "", emailBody: "" },
       validationErrors: [],
@@ -154,6 +157,7 @@ export function DistributionWizard() {
   const eventData = wizard.eventData ?? defaultEventData;
   const feeLineItems = wizard.feesData ?? [];
   const allocations = wizard.allocationsData ?? [];
+  const advancedData = wizard.advancedData ?? {};
   const impact = wizard.impactData ?? buildImpact(0);
   const defaultPreviewData = useMemo(
     () => ({
@@ -175,6 +179,12 @@ export function DistributionWizard() {
       patchWizard({ eventData: defaultEventData });
     }
   }, [defaultEventData, patchWizard, wizard.eventData]);
+
+  useEffect(() => {
+    if (wizard.totalSteps !== STEP_LABELS.length) {
+      patchWizard({ totalSteps: STEP_LABELS.length });
+    }
+  }, [patchWizard, wizard.totalSteps]);
 
   useEffect(() => {
     const distributionName = eventData.name?.trim();
@@ -442,6 +452,10 @@ export function DistributionWizard() {
     patchWizard({ allocationsData: next });
   };
 
+  const updateAdvancedData = (next: DistributionWizardState["advancedData"]) => {
+    patchWizard({ advancedData: next });
+  };
+
   const handleRecalculateAllocations = () => {
     if (lpProfiles.length === 0) return;
     const totalCommitment = lpProfiles.reduce((sum, profile) => sum + profile.totalCommitment, 0);
@@ -549,6 +563,7 @@ export function DistributionWizard() {
       waterfallScenarioName: scenarios.find((scenario) => scenario.id === wizard.waterfallData?.scenarioId)?.name,
       waterfallResults: waterfallResults ?? undefined,
       impact,
+      ...advancedData,
       approvalChainId: activeApprovalRule?.id ?? "",
       approvalSteps: buildApprovalSteps(activeApprovalRule),
       comments,
@@ -652,7 +667,9 @@ export function DistributionWizard() {
         }
         return errors;
       }
-      case 5: {
+      case 5:
+        return [];
+      case 6: {
         const errors: string[] = [];
         if (!impact) {
           errors.push("Impact preview is required.");
@@ -663,7 +680,7 @@ export function DistributionWizard() {
         if (impact.tvpiAfter < 0) errors.push("Projected TVPI cannot be negative.");
         return errors;
       }
-      case 6:
+      case 7:
         {
           const errors: string[] = [];
           if (!previewData.template) errors.push("Select a statement template.");
@@ -675,7 +692,7 @@ export function DistributionWizard() {
           }
           return errors;
         }
-      case 7:
+      case 8:
         if (!activeApprovalRule) return ["No approval rule matched this distribution total."];
         return [];
       default:
@@ -803,6 +820,14 @@ export function DistributionWizard() {
         );
       case 5:
         return (
+          <DistributionStepAdvanced
+            data={advancedData}
+            eventType={eventData.eventType}
+            onChange={updateAdvancedData}
+          />
+        );
+      case 6:
+        return (
           <DistributionStepImpact
             impact={impact}
             totalDistributed={totalDistributed}
@@ -810,7 +835,7 @@ export function DistributionWizard() {
             onRecalculate={handleRecalculateImpact}
           />
         );
-      case 6:
+      case 7:
         return (
           <DistributionStepPreview
             templates={statementTemplates}
@@ -830,7 +855,7 @@ export function DistributionWizard() {
             }
           />
         );
-      case 7:
+      case 8:
         return (
           <DistributionStepSubmit
             approvalRules={approvalRules}

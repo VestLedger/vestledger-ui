@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Badge, Button, Card, Textarea } from "@/ui";
-import { StatusBadge, Timeline, type TimelineItem } from "@/components/ui";
+import { SectionHeader, StatusBadge, Timeline, type TimelineItem } from "@/components/ui";
 import { getStatusColorVars } from "@/utils/styling/statusColors";
 import { formatDate } from "@/utils/formatting";
 import type { ApprovalStatus, ApprovalStep, Distribution } from "@/types/distribution";
@@ -191,19 +191,17 @@ export function ApprovalStepper({
 
   return (
     <Card padding="lg" className="space-y-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h3 className="text-lg font-semibold">Approval Workflow</h3>
-          <p className="text-sm text-[var(--app-text-muted)]">
-            Role-based approvals route automatically based on distribution amount.
-          </p>
-        </div>
-        <div className="flex items-center gap-2 rounded-full bg-[var(--app-surface-hover)] px-3 py-1 text-sm">
-          <Bell className="h-4 w-4 text-[var(--app-warning)]" />
-          <span className="font-medium">{pendingCount}</span>
-          <span className="text-[var(--app-text-muted)]">pending</span>
-        </div>
-      </div>
+      <SectionHeader
+        title="Approval Workflow"
+        description="Role-based approvals route automatically based on distribution amount."
+        action={(
+          <div className="flex items-center gap-2 rounded-full bg-[var(--app-surface-hover)] px-3 py-1 text-sm">
+            <Bell className="h-4 w-4 text-[var(--app-warning)]" />
+            <span className="font-medium">{pendingCount}</span>
+            <span className="text-[var(--app-text-muted)]">pending</span>
+          </div>
+        )}
+      />
 
       <div className="flex flex-wrap items-center gap-2">
         {approvalSteps.map((step, index) => {

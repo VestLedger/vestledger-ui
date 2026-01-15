@@ -1,6 +1,7 @@
 "use client";
 
 import { Card, Input, Select, Textarea } from "@/ui";
+import { SectionHeader } from "@/components/ui";
 import type { Distribution, DistributionEventType } from "@/types/distribution";
 
 const EVENT_TYPE_OPTIONS: Array<{ value: DistributionEventType; label: string }> = [
@@ -23,12 +24,10 @@ export function DistributionStepEvent({
 }: DistributionStepEventProps) {
   return (
     <Card padding="lg" className="space-y-4">
-      <div>
-        <h3 className="text-lg font-semibold">Distribution Event</h3>
-        <p className="text-sm text-[var(--app-text-muted)]">
-          Capture the core distribution details before calculating allocations.
-        </p>
-      </div>
+      <SectionHeader
+        title="Distribution Event"
+        description="Capture the core distribution details before calculating allocations."
+      />
 
       <div className="grid gap-4 md:grid-cols-2">
         <Input

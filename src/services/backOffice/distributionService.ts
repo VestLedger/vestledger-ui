@@ -143,6 +143,16 @@ export async function createDistribution(
       comments: [],
       isRecurring: data.isRecurring || false,
       ...(data.recurringSchedule && { recurringSchedule: data.recurringSchedule }),
+      ...(data.dikAssets && { dikAssets: data.dikAssets }),
+      ...(data.dikAllocations && { dikAllocations: data.dikAllocations }),
+      ...(data.elections && { elections: data.elections }),
+      ...(data.fractionalSharePolicy && { fractionalSharePolicy: data.fractionalSharePolicy }),
+      ...(data.securityTransfers && { securityTransfers: data.securityTransfers }),
+      ...(data.secondaryTransferAdjustments && { secondaryTransferAdjustments: data.secondaryTransferAdjustments }),
+      ...(data.stagedPayments && { stagedPayments: data.stagedPayments }),
+      ...(data.holdbackEscrow && { holdbackEscrow: data.holdbackEscrow }),
+      ...(data.sideLetterTerms && { sideLetterTerms: data.sideLetterTerms }),
+      ...(data.specialHandling && { specialHandling: data.specialHandling }),
     };
 
     mockDistributions.push(newDistribution);

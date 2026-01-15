@@ -53,7 +53,7 @@ const DEFAULT_STEPS = 20;
 const STEPS_OPTIONS = [10, 20, 30, 40];
 
 const getModelLabel = (model: WaterfallScenario['model']) =>
-  model === 'european' ? 'European' : 'American';
+  model === 'european' ? 'European' : model === 'american' ? 'American' : 'Blended';
 
 const buildDefaultState = (exitValue: number): SensitivityUIState => {
   const minExitValue = Math.max(0, Math.round(exitValue * 0.5));

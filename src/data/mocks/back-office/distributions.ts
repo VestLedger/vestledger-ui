@@ -6,6 +6,16 @@ import type {
   LPProfile,
   DistributionSummary,
   StatementTemplateConfig,
+  DistributionInKindAsset,
+  DistributionInKindAllocation,
+  DistributionElection,
+  FractionalSharePolicy,
+  SecurityTransfer,
+  SecondaryTransferAdjustment,
+  DistributionStage,
+  HoldbackEscrow,
+  SideLetterTerm,
+  SpecialDistributionDetails,
 } from '@/types/distribution';
 
 // ============================================================================
@@ -158,6 +168,225 @@ export const mockLPProfiles: LPProfile[] = [
     updatedAt: '2024-11-20T10:30:00Z',
   },
 ];
+
+// ============================================================================
+// Phase 6 Advanced Distribution Fixtures
+// ============================================================================
+
+export const mockDikAssets: DistributionInKindAsset[] = [
+  {
+    id: 'dik-asset-1',
+    name: 'DataCore AI Common',
+    assetType: 'equity',
+    ticker: 'DCRA',
+    totalShares: 150_000,
+    perShareValue: 120,
+    totalValue: 18_000_000,
+    custodyAccount: 'Northern Trust - Custody 4472',
+    settlementDate: '2024-10-05',
+    notes: 'Series D common shares distributed in-kind.',
+  },
+  {
+    id: 'dik-asset-2',
+    name: 'FinTech Labs Convertible Note',
+    assetType: 'debt',
+    cusip: 'FINL-2024-N',
+    totalShares: 25_000,
+    perShareValue: 98,
+    totalValue: 2_450_000,
+    custodyAccount: 'BNY Mellon - Custody 3319',
+    settlementDate: '2024-10-12',
+  },
+];
+
+export const mockFractionalSharePolicy: FractionalSharePolicy = {
+  method: 'cash-in-lieu',
+  cashInLieuRate: 102,
+  roundingPrecision: 2,
+};
+
+export const mockDikAllocations: DistributionInKindAllocation[] = [
+  {
+    id: 'dik-alloc-1',
+    assetId: 'dik-asset-1',
+    lpId: 'lp-1',
+    lpName: 'CalPERS',
+    sharesAllocated: 62_500,
+    fractionalShares: 0.45,
+    cashInLieuAmount: 54,
+    electionType: 'shares',
+  },
+  {
+    id: 'dik-alloc-2',
+    assetId: 'dik-asset-1',
+    lpId: 'lp-2',
+    lpName: 'Yale Endowment',
+    sharesAllocated: 47_250,
+    fractionalShares: 0.1,
+    cashInLieuAmount: 12,
+    electionType: 'split',
+  },
+  {
+    id: 'dik-alloc-3',
+    assetId: 'dik-asset-2',
+    lpId: 'lp-3',
+    lpName: 'Sequoia Heritage',
+    sharesAllocated: 18_900,
+    fractionalShares: 0.75,
+    cashInLieuAmount: 74,
+    electionType: 'cash',
+  },
+];
+
+export const mockDistributionElections: DistributionElection[] = [
+  {
+    id: 'election-1',
+    lpId: 'lp-1',
+    lpName: 'CalPERS',
+    electionType: 'shares',
+    sharePercentage: 100,
+    submittedAt: '2024-09-25T10:30:00Z',
+    status: 'confirmed',
+    notes: 'Prefers in-kind for DataCore position.',
+  },
+  {
+    id: 'election-2',
+    lpId: 'lp-2',
+    lpName: 'Yale Endowment',
+    electionType: 'split',
+    cashPercentage: 40,
+    sharePercentage: 60,
+    submittedAt: '2024-09-26T14:10:00Z',
+    status: 'pending',
+  },
+  {
+    id: 'election-3',
+    lpId: 'lp-3',
+    lpName: 'Sequoia Heritage',
+    electionType: 'cash',
+    cashPercentage: 100,
+    status: 'overdue',
+  },
+];
+
+export const mockSecurityTransfers: SecurityTransfer[] = [
+  {
+    id: 'transfer-1',
+    assetId: 'dik-asset-1',
+    lpId: 'lp-1',
+    lpName: 'CalPERS',
+    transferAgent: 'EquiTrust Transfer Co.',
+    status: 'processing',
+    submittedAt: '2024-10-03T09:00:00Z',
+    referenceId: 'TR-44921',
+  },
+  {
+    id: 'transfer-2',
+    assetId: 'dik-asset-1',
+    lpId: 'lp-2',
+    lpName: 'Yale Endowment',
+    transferAgent: 'EquiTrust Transfer Co.',
+    status: 'pending',
+    submittedAt: '2024-10-05T11:30:00Z',
+    referenceId: 'TR-44922',
+  },
+  {
+    id: 'transfer-3',
+    assetId: 'dik-asset-2',
+    lpId: 'lp-3',
+    lpName: 'Sequoia Heritage',
+    transferAgent: 'Axis Transfer Services',
+    status: 'settled',
+    submittedAt: '2024-10-02T08:45:00Z',
+    settledAt: '2024-10-08T16:00:00Z',
+    referenceId: 'TR-45010',
+  },
+];
+
+export const mockSecondaryTransferAdjustments: SecondaryTransferAdjustment[] = [
+  {
+    id: 'secondary-adjust-1',
+    lpId: 'lp-2',
+    lpName: 'Yale Endowment',
+    adjustmentAmount: -250_000,
+    reason: 'Secondary transfer to co-investor completed pre-record date.',
+    effectiveDate: '2024-09-20',
+    status: 'applied',
+  },
+  {
+    id: 'secondary-adjust-2',
+    lpId: 'lp-4',
+    lpName: 'Harborview Capital',
+    adjustmentAmount: 180_000,
+    reason: 'Transfer in from outgoing LP finalized.',
+    effectiveDate: '2024-09-20',
+    status: 'review',
+  },
+];
+
+export const mockStagedPayments: DistributionStage[] = [
+  {
+    id: 'stage-1',
+    label: 'Initial Release',
+    scheduledDate: '2024-10-01',
+    amount: 30_000_000,
+    status: 'completed',
+  },
+  {
+    id: 'stage-2',
+    label: 'Regulatory Holdback Release',
+    scheduledDate: '2024-11-15',
+    amount: 8_000_000,
+    status: 'processing',
+    notes: 'Awaiting escrow clearance.',
+  },
+  {
+    id: 'stage-3',
+    label: 'Final True-Up',
+    scheduledDate: '2024-12-05',
+    amount: 4_000_000,
+    status: 'scheduled',
+  },
+];
+
+export const mockHoldbackEscrow: HoldbackEscrow = {
+  amount: 6_500_000,
+  percentage: 5,
+  reason: 'Tax indemnity and litigation reserve.',
+  releaseDate: '2024-12-15',
+  status: 'held',
+  escrowAccount: 'JP Morgan Escrow 8891',
+};
+
+export const mockSideLetterTerms: SideLetterTerm[] = [
+  {
+    id: 'side-letter-1',
+    lpId: 'lp-1',
+    lpName: 'CalPERS',
+    termType: 'Management fee offset',
+    description: '50 bps fee offset on in-kind distributions.',
+    adjustmentType: 'fee',
+    adjustmentValue: '-0.50%',
+    applied: true,
+  },
+  {
+    id: 'side-letter-2',
+    lpId: 'lp-3',
+    lpName: 'Sequoia Heritage',
+    termType: 'Tax withholding cap',
+    description: 'Cap withholding at 5% for in-kind assets.',
+    adjustmentType: 'withholding',
+    adjustmentValue: '5%',
+    applied: false,
+  },
+];
+
+export const mockSpecialHandling: SpecialDistributionDetails = {
+  category: 'dividend-recap',
+  summary: 'Dividend recap distribution following refinancing event.',
+  leverageAmount: 75_000_000,
+  notes: 'Carry is subject to lookback until leverage paid down.',
+};
 
 // ============================================================================
 // Fee Templates
@@ -510,6 +739,15 @@ export const mockDistributions: Distribution[] = [
         updatedAt: '2024-09-15T10:30:00Z',
       },
     ],
+    dikAssets: mockDikAssets,
+    dikAllocations: mockDikAllocations,
+    elections: mockDistributionElections,
+    fractionalSharePolicy: mockFractionalSharePolicy,
+    securityTransfers: mockSecurityTransfers,
+    secondaryTransferAdjustments: mockSecondaryTransferAdjustments,
+    stagedPayments: mockStagedPayments,
+    holdbackEscrow: mockHoldbackEscrow,
+    sideLetterTerms: mockSideLetterTerms,
     isRecurring: false,
   },
 
@@ -687,6 +925,7 @@ export const mockDistributions: Distribution[] = [
     isDraft: false,
     revisionNumber: 1,
     comments: [],
+    specialHandling: mockSpecialHandling,
     isRecurring: true,
     recurringSchedule: {
       id: 'recur-1',

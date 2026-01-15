@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { Badge, Button, Card, Checkbox, Input, Select } from "@/ui";
 import { AsyncStateRenderer } from "@/components/ui/async-states";
-import { ListItemCard } from "@/components/ui";
+import { ListItemCard, SectionHeader } from "@/components/ui";
 import { StatementPreviewModal } from "./statement-preview-modal";
 import { useUIKey } from "@/store/ui";
 import { useAsyncData } from "@/hooks/useAsyncData";
@@ -138,17 +138,15 @@ export function StatementGenerator({ distribution }: StatementGeneratorProps) {
 
   return (
     <Card padding="lg" className="space-y-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h3 className="text-lg font-semibold">Statement Generator</h3>
-          <p className="text-sm text-[var(--app-text-muted)]">
-            Configure templates, branding, and tax forms before generating statements.
-          </p>
-        </div>
-        <Badge size="sm" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">
-          {distribution.statementsGenerated ? "Generated" : "Ready"}
-        </Badge>
-      </div>
+      <SectionHeader
+        title="Statement Generator"
+        description="Configure templates, branding, and tax forms before generating statements."
+        action={(
+          <Badge size="sm" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">
+            {distribution.statementsGenerated ? "Generated" : "Ready"}
+          </Badge>
+        )}
+      />
 
       <AsyncStateRenderer
         data={templatesData}

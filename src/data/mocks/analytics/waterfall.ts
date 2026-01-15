@@ -160,6 +160,18 @@ export const mockWaterfallScenarios: WaterfallScenario[] = [
     exitValue: 200_000_000,
     totalInvested: 50_000_000,
     managementFees: 5_000_000,
+    clawbackProvision: {
+      enabled: true,
+      hurdleRate: 8,
+      clawbackRate: 75,
+      distributionLifeYears: 5,
+    },
+    lookbackProvision: {
+      enabled: true,
+      lookbackYears: 3,
+      lossCarryForward: 2_500_000,
+      carryAtRiskRate: 25,
+    },
     results: {
       totalExitValue: 200_000_000,
       totalInvested: 50_000_000,
@@ -277,6 +289,18 @@ export const mockWaterfallScenarios: WaterfallScenario[] = [
     exitValue: 350_000_000,
     totalInvested: 50_000_000,
     managementFees: 5_000_000,
+    clawbackProvision: {
+      enabled: true,
+      hurdleRate: 7,
+      clawbackRate: 60,
+      distributionLifeYears: 4,
+    },
+    lookbackProvision: {
+      enabled: true,
+      lookbackYears: 2,
+      lossCarryForward: 1_250_000,
+      carryAtRiskRate: 20,
+    },
     results: {
       totalExitValue: 350_000_000,
       totalInvested: 50_000_000,
@@ -370,6 +394,44 @@ export const mockWaterfallScenarios: WaterfallScenario[] = [
     tags: ['upside', 'american', 'fund-ii'],
   },
 
+  // Scenario 2B: Blended Model - Hybrid Case
+  {
+    id: 'scenario-2b',
+    name: 'Fund II Hybrid - Blend',
+    description: 'Hybrid scenario blending European and American carry rules',
+    fundId: 'fund-2',
+    fundName: 'Quantum Ventures Fund II',
+    model: 'blended',
+    blendedConfig: {
+      europeanWeight: 60,
+      americanWeight: 40,
+    },
+    investorClasses: mockInvestorClasses,
+    tiers: europeanTiers,
+    exitValue: 280_000_000,
+    totalInvested: 50_000_000,
+    managementFees: 5_000_000,
+    clawbackProvision: {
+      enabled: true,
+      hurdleRate: 8,
+      clawbackRate: 65,
+      distributionLifeYears: 5,
+    },
+    lookbackProvision: {
+      enabled: true,
+      lookbackYears: 3,
+      lossCarryForward: 1_750_000,
+      carryAtRiskRate: 22,
+    },
+    isFavorite: false,
+    isTemplate: false,
+    version: 1,
+    createdAt: '2024-10-01T09:00:00Z',
+    updatedAt: '2024-11-21T09:00:00Z',
+    createdBy: 'Priya Nair',
+    tags: ['hybrid', 'blended', 'fund-ii'],
+  },
+
   // Scenario 3: European Model - Downside Case
   {
     id: 'scenario-3',
@@ -383,6 +445,18 @@ export const mockWaterfallScenarios: WaterfallScenario[] = [
     exitValue: 85_000_000,
     totalInvested: 50_000_000,
     managementFees: 5_000_000,
+    clawbackProvision: {
+      enabled: true,
+      hurdleRate: 8,
+      clawbackRate: 80,
+      distributionLifeYears: 6,
+    },
+    lookbackProvision: {
+      enabled: true,
+      lookbackYears: 4,
+      lossCarryForward: 5_000_000,
+      carryAtRiskRate: 35,
+    },
     results: {
       totalExitValue: 85_000_000,
       totalInvested: 50_000_000,
@@ -573,6 +647,18 @@ export const mockWaterfallScenarios: WaterfallScenario[] = [
     exitValue: 150_000_000,
     totalInvested: 45_000_000,
     managementFees: 3_000_000,
+    clawbackProvision: {
+      enabled: false,
+      hurdleRate: 8,
+      clawbackRate: 70,
+      distributionLifeYears: 5,
+    },
+    lookbackProvision: {
+      enabled: false,
+      lookbackYears: 3,
+      lossCarryForward: 0,
+      carryAtRiskRate: 0,
+    },
     isFavorite: false,
     isTemplate: false,
     version: 1,
@@ -584,9 +670,7 @@ export const mockWaterfallScenarios: WaterfallScenario[] = [
 ];
 
 mockWaterfallScenarios.forEach((scenario) => {
-  if (!scenario.results || scenario.model === 'american') {
-    scenario.results = calculateWaterfall(scenario);
-  }
+  scenario.results = calculateWaterfall(scenario);
 });
 
 // ============================================================================

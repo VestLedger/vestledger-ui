@@ -11,6 +11,7 @@ import {
   Users,
   Globe,
   Flag,
+  Shuffle,
   ArrowRight,
 } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
@@ -23,6 +24,9 @@ import { WaterfallBarChart } from '@/components/waterfall/charts/waterfall-bar-c
 import { ScenarioStackedChart } from '@/components/waterfall/charts/scenario-stacked-chart';
 import { LPWaterfallDetail } from '@/components/waterfall/charts/lp-waterfall-detail';
 import { TierBreakdownTable } from '@/components/waterfall/tier-breakdown-table';
+import { TierTimeline } from '@/components/waterfall/tier-timeline';
+import { ClawbackCalculator } from '@/components/waterfall/clawback-calculator';
+import { LookbackTracker } from '@/components/waterfall/lookback-tracker';
 import { SensitivityPanel } from '@/components/waterfall/sensitivity-panel';
 import { ScenarioManager } from '@/components/waterfall/scenario-manager';
 import { ExportMenu } from '@/components/waterfall/export-menu';
@@ -70,8 +74,14 @@ type WaterfallUIState = {
 const computeTotalInvested = (classes: InvestorClass[]) =>
   classes.reduce((sum, investorClass) => sum + investorClass.commitment, 0);
 
+const getModelLabel = (model: WaterfallModel) =>
+  model === 'european' ? 'European' : model === 'american' ? 'American' : 'Blended';
+
+const getModelShortLabel = (model: WaterfallModel) =>
+  model === 'european' ? 'EU' : model === 'american' ? 'US' : 'Blend';
+
 const buildScenarioName = (scenario: WaterfallScenario, exitValue: number) =>
-  `${formatCurrencyCompact(exitValue)} Exit (${scenario.model === 'european' ? 'EU' : 'US'})`;
+  `${formatCurrencyCompact(exitValue)} Exit (${getModelShortLabel(scenario.model)})`;
 
 export function WaterfallModeling() {
   const dispatch = useAppDispatch();
@@ -151,6 +161,10 @@ export function WaterfallModeling() {
   const defaultTiersByModel = useMemo<Record<WaterfallModel, WaterfallTier[]>>(() => ({
     european: scenarios.find((scenario) => scenario.model === 'european')?.tiers ?? [],
     american: scenarios.find((scenario) => scenario.model === 'american')?.tiers ?? [],
+    blended:
+      scenarios.find((scenario) => scenario.model === 'blended')?.tiers ??
+      scenarios.find((scenario) => scenario.model === 'european')?.tiers ??
+      [],
   }), [scenarios]);
 
   const scenarioOptions = scenarios.map((scenario) => ({
@@ -162,8 +176,11 @@ export function WaterfallModeling() {
   const totalInvested = activeScenario?.totalInvested ?? 0;
   const comparisonScenario = useMemo<WaterfallScenario | null>(() => {
     if (!selectedScenario) return null;
-    const targetModel: WaterfallModel =
-      selectedScenario.model === 'european' ? 'american' : 'european';
+    let targetModel: WaterfallModel =
+      selectedScenario.model === 'american' ? 'european' : 'american';
+    if (selectedScenario.model === 'blended') {
+      targetModel = 'european';
+    }
     const templateTiers = defaultTiersByModel[targetModel];
     if (!templateTiers.length) return null;
     return {
@@ -268,11 +285,16 @@ export function WaterfallModeling() {
     const templateTiers = defaultTiersByModel[model];
     const nextTiers =
       templateTiers.length > 0 ? templateTiers.map((tier) => ({ ...tier })) : selectedScenario.tiers;
+    const blendedConfig =
+      model === 'blended'
+        ? selectedScenario.blendedConfig ?? { europeanWeight: 60, americanWeight: 40 }
+        : selectedScenario.blendedConfig;
 
     const updatedScenario: WaterfallScenario = {
       ...selectedScenario,
       model,
       tiers: nextTiers,
+      blendedConfig,
       updatedAt: new Date().toISOString(),
     };
 
@@ -389,24 +411,69 @@ export function WaterfallModeling() {
           description: 'Split remaining proceeds per deal-by-deal carry structure.',
         },
       ]
-    : [
-        {
-          title: 'Return of Capital',
-          description: 'Return invested capital to LPs before carry is applied.',
-        },
-        {
-          title: 'Preferred Return',
-          description: 'Deliver preferred return to LPs based on hurdle rate.',
-        },
-        {
-          title: 'GP Catch-Up',
-          description: 'Catch up the GP to the agreed carry percentage.',
-        },
-        {
-          title: 'Final Split',
-          description: 'Split remaining proceeds according to carry terms.',
-        },
-      ];
+    : selectedScenario?.model === 'blended'
+      ? [
+          {
+            title: 'Return of Capital',
+            description: 'Blend fund-level and deal-level return of capital rules.',
+          },
+          {
+            title: 'Preferred Return',
+            description: 'Preferred return applied with hybrid hurdle assumptions.',
+          },
+          {
+            title: 'GP Catch-Up (EU)',
+            description: 'Include European-style catch-up where applicable.',
+          },
+          {
+            title: 'Deal-Level Carry (US)',
+            description: 'Apply deal-level carry to remaining proceeds.',
+          },
+          {
+            title: 'Final Split',
+            description: 'Finalize blended carry split across LPs and GP.',
+          },
+        ]
+      : [
+          {
+            title: 'Return of Capital',
+            description: 'Return invested capital to LPs before carry is applied.',
+          },
+          {
+            title: 'Preferred Return',
+            description: 'Deliver preferred return to LPs based on hurdle rate.',
+          },
+          {
+            title: 'GP Catch-Up',
+            description: 'Catch up the GP to the agreed carry percentage.',
+          },
+          {
+            title: 'Final Split',
+            description: 'Split remaining proceeds according to carry terms.',
+          },
+        ];
+
+  const modelSummary = selectedScenario
+    ? selectedScenario.model === 'european'
+      ? 'European (whole-fund)'
+      : selectedScenario.model === 'american'
+        ? 'American (deal-by-deal)'
+        : 'Blended (hybrid EU/US)'
+    : null;
+
+  const blendedConfig = selectedScenario?.blendedConfig ?? { europeanWeight: 50, americanWeight: 50 };
+
+  const handleBlendWeightChange = (value: number) => {
+    if (!selectedScenario) return;
+    const europeanWeight = Math.min(100, Math.max(0, value));
+    const americanWeight = Math.max(0, 100 - europeanWeight);
+    handleScenarioPatch({
+      blendedConfig: {
+        europeanWeight,
+        americanWeight,
+      },
+    });
+  };
 
   return (
     <PageScaffold
@@ -417,7 +484,7 @@ export function WaterfallModeling() {
         icon: TrendingDown,
         aiSummary: {
           text: selectedScenario
-            ? `${selectedScenario.investorClasses.length} classes, ${formatCurrencyCompact(totalInvested)} invested. ${scenarios.length} scenarios modeled. Current model: ${selectedScenario.model === 'european' ? 'European (whole-fund)' : 'American (deal-by-deal)'} waterfall.`
+            ? `${selectedScenario.investorClasses.length} classes, ${formatCurrencyCompact(totalInvested)} invested. ${scenarios.length} scenarios modeled. Current model: ${modelSummary} waterfall.`
             : 'No active scenario selected.',
           confidence: 0.9,
         },
@@ -519,6 +586,16 @@ export function WaterfallModeling() {
               )}
 
               {!printMode && activeScenario && (
+                <div className="space-y-4">
+                  <TierTimeline scenario={activeScenario} />
+                  <div className="grid gap-4 lg:grid-cols-2">
+                    <ClawbackCalculator scenario={activeScenario} />
+                    <LookbackTracker scenario={activeScenario} />
+                  </div>
+                </div>
+              )}
+
+              {!printMode && activeScenario && (
                 <SensitivityPanel
                   scenario={activeScenario}
                   comparisonScenario={comparisonScenario}
@@ -545,7 +622,7 @@ export function WaterfallModeling() {
                     <h3 className="text-lg font-semibold">Scenario Builder</h3>
                     {selectedScenario && (
                       <Badge size="sm" variant="flat">
-                        {selectedScenario.model === 'european' ? 'European' : 'American'}
+                        {getModelLabel(selectedScenario.model)}
                       </Badge>
                     )}
                   </div>
@@ -561,7 +638,7 @@ export function WaterfallModeling() {
 
                     <div>
                       <div className="text-sm font-medium mb-2">Waterfall Model</div>
-                      <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label="Waterfall model selection">
+                      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3" role="radiogroup" aria-label="Waterfall model selection">
                         <button
                           type="button"
                           onClick={() => handleModelChange('european')}
@@ -600,7 +677,47 @@ export function WaterfallModeling() {
                             Deal-by-deal waterfall with carry on individual exits.
                           </p>
                         </button>
+                        <button
+                          type="button"
+                          onClick={() => handleModelChange('blended')}
+                          className={`rounded-lg border-2 p-4 text-left transition-all ${
+                            selectedScenario?.model === 'blended'
+                              ? 'border-[var(--app-primary)] bg-[var(--app-primary-bg)]'
+                              : 'border-[var(--app-border)] hover:border-[var(--app-border-subtle)]'
+                          }`}
+                          role="radio"
+                          aria-checked={selectedScenario?.model === 'blended'}
+                        >
+                          <div className="flex items-center gap-2 mb-2">
+                            <Shuffle className="h-5 w-5 text-[var(--app-accent)]" aria-hidden="true" />
+                            <span className="font-medium">Blended</span>
+                          </div>
+                          <p className="text-xs text-[var(--app-text-muted)]">
+                            Hybrid waterfall blending European and American carry.
+                          </p>
+                        </button>
                       </div>
+                      {selectedScenario?.model === 'blended' && (
+                        <div className="mt-3 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] p-3">
+                          <div className="text-xs font-semibold text-[var(--app-text-muted)] mb-2">
+                            Blend Weights
+                          </div>
+                          <div className="grid gap-3 md:grid-cols-2">
+                            <Input
+                              label="European weight (%)"
+                              type="number"
+                              value={blendedConfig.europeanWeight.toString()}
+                              onChange={(event) => handleBlendWeightChange(Number(event.target.value) || 0)}
+                            />
+                            <Input
+                              label="American weight (%)"
+                              type="number"
+                              value={blendedConfig.americanWeight.toString()}
+                              isReadOnly
+                            />
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <div>

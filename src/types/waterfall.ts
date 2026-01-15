@@ -8,8 +8,35 @@
 // Enums and Constants
 // ============================================================================
 
-export type WaterfallModel = 'european' | 'american';
+export type WaterfallModel = 'european' | 'american' | 'blended';
 export type TierType = 'roc' | 'preferred-return' | 'catch-up' | 'carry' | 'custom';
+
+export interface BlendedWaterfallConfig {
+  europeanWeight: number; // 0-100
+  americanWeight: number; // 0-100
+}
+
+export interface ClawbackProvision {
+  enabled: boolean;
+  hurdleRate: number; // %
+  clawbackRate: number; // % of shortfall recaptured
+  distributionLifeYears: number;
+}
+
+export interface LookbackProvision {
+  enabled: boolean;
+  lookbackYears: number;
+  lossCarryForward: number;
+  carryAtRiskRate: number; // %
+}
+
+export interface TierTimelineEntry {
+  tierId: string;
+  tierName: string;
+  reachedAt: string;
+  exitValue: number;
+  cumulativeDistributed: number;
+}
 
 // ============================================================================
 // Investor Class
@@ -94,6 +121,25 @@ export interface WaterfallResults {
 
   // Tier-by-tier breakdown
   tierBreakdown: TierBreakdown[];
+
+  // Phase 6 enhancements
+  tierTimeline?: TierTimelineEntry[];
+  clawback?: {
+    totalCarryPaid: number;
+    requiredReturn: number;
+    shortfall: number;
+    clawbackDue: number;
+    netCarryAfterClawback: number;
+    status: 'clear' | 'at-risk' | 'triggered';
+  };
+  lookback?: {
+    lookbackYears: number;
+    lossesToRecover: number;
+    carryAtRisk: number;
+    carryReleased: number;
+    status: 'monitor' | 'at-risk' | 'cleared';
+  };
+  blendedBreakdown?: BlendedWaterfallConfig;
 }
 
 export interface InvestorClassResult {
@@ -134,8 +180,12 @@ export interface WaterfallScenario {
 
   // Model configuration
   model: WaterfallModel;
+  blendedConfig?: BlendedWaterfallConfig;
   investorClasses: InvestorClass[];
   tiers: WaterfallTier[];
+
+  clawbackProvision?: ClawbackProvision;
+  lookbackProvision?: LookbackProvision;
 
   // Input parameters
   exitValue: number;

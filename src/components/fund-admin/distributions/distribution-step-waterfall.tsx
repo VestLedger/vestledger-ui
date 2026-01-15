@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Badge, Button, Card, Input, Select } from "@/ui";
+import { SectionHeader } from "@/components/ui";
 import { useUIKey } from "@/store/ui";
 import type { WaterfallScenario, WaterfallResults } from "@/types/waterfall";
 import { formatCurrencyCompact } from "@/utils/formatting";
@@ -14,6 +15,9 @@ type WaterfallPreviewUIState = {
   totalInvested: number;
   managementFees: number;
 };
+
+const getModelLabel = (model: WaterfallScenario["model"]) =>
+  model === "european" ? "European" : model === "american" ? "American" : "Blended";
 
 export interface DistributionStepWaterfallProps {
   scenarios: WaterfallScenario[];
@@ -106,22 +110,20 @@ export function DistributionStepWaterfall({
 
   return (
     <Card padding="lg" className="space-y-4">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h3 className="text-lg font-semibold">Waterfall Integration</h3>
-          <p className="text-sm text-[var(--app-text-muted)]">
-            Select a modeled waterfall scenario to drive allocations and carry.
-          </p>
-        </div>
-        <Button
-          size="sm"
-          variant="bordered"
-          startContent={<ExternalLink className="h-4 w-4" />}
-          onPress={() => window.open("/waterfall", "_blank", "noopener")}
-        >
-          Open Waterfall Modeling
-        </Button>
-      </div>
+      <SectionHeader
+        title="Waterfall Integration"
+        description="Select a modeled waterfall scenario to drive allocations and carry."
+        action={(
+          <Button
+            size="sm"
+            variant="bordered"
+            startContent={<ExternalLink className="h-4 w-4" />}
+            onPress={() => window.open("/waterfall", "_blank", "noopener")}
+          >
+            Open Waterfall Modeling
+          </Button>
+        )}
+      />
 
       <Select
         label="Waterfall Scenario"
@@ -136,7 +138,7 @@ export function DistributionStepWaterfall({
           <div className="rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] p-4 text-sm">
             <div className="flex items-center gap-2 mb-3">
               <Badge size="sm" variant="flat">
-                {selectedScenario.model === "european" ? "European" : "American"}
+                {getModelLabel(selectedScenario.model)}
               </Badge>
               <span className="text-[var(--app-text-muted)]">
                 {selectedScenario.investorClasses.length} classes

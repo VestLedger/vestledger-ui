@@ -37,7 +37,7 @@ const isRecent = (scenario: WaterfallScenario) => {
 };
 
 const getModelLabel = (model: WaterfallScenario['model']) =>
-  model === 'european' ? 'European' : 'American';
+  model === 'european' ? 'European' : model === 'american' ? 'American' : 'Blended';
 
 type ScenarioHistoryEntry = {
   version: number;

@@ -41,6 +41,16 @@ export type StatementTemplate = 'standard' | 'ilpa-compliant' | 'custom';
 
 export type TaxFormType = 'k1' | '1099' | 'other';
 
+export type DistributionElectionType = 'cash' | 'shares' | 'split';
+
+export type SecurityTransferStatus = 'pending' | 'submitted' | 'processing' | 'settled' | 'failed';
+
+export type DistributionStageStatus = 'scheduled' | 'processing' | 'completed' | 'on-hold';
+
+export type HoldbackStatus = 'held' | 'scheduled' | 'released';
+
+export type FractionalShareMethod = 'cash-in-lieu' | 'round-down' | 'round-up';
+
 // ============================================================================
 // Statement Branding + Template Config
 // ============================================================================
@@ -61,6 +71,111 @@ export interface StatementTemplateConfig {
   isSystem: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+// ============================================================================
+// Distribution-In-Kind (DIK) + Advanced Features
+// ============================================================================
+
+export interface DistributionInKindAsset {
+  id: string;
+  name: string;
+  assetType: 'equity' | 'debt' | 'fund-interest' | 'other';
+  ticker?: string;
+  cusip?: string;
+  totalShares: number;
+  perShareValue: number;
+  totalValue: number;
+  custodyAccount?: string;
+  settlementDate?: string;
+  notes?: string;
+}
+
+export interface DistributionInKindAllocation {
+  id: string;
+  assetId: string;
+  lpId: string;
+  lpName: string;
+  sharesAllocated: number;
+  fractionalShares: number;
+  cashInLieuAmount: number;
+  electionType: DistributionElectionType;
+}
+
+export interface DistributionElection {
+  id: string;
+  lpId: string;
+  lpName: string;
+  electionType: DistributionElectionType;
+  cashPercentage?: number;
+  sharePercentage?: number;
+  submittedAt?: string;
+  status: 'pending' | 'confirmed' | 'overdue';
+  notes?: string;
+}
+
+export interface FractionalSharePolicy {
+  method: FractionalShareMethod;
+  cashInLieuRate?: number;
+  roundingPrecision?: number;
+}
+
+export interface SecurityTransfer {
+  id: string;
+  assetId: string;
+  lpId: string;
+  lpName: string;
+  transferAgent: string;
+  status: SecurityTransferStatus;
+  submittedAt?: string;
+  settledAt?: string;
+  referenceId?: string;
+}
+
+export interface SecondaryTransferAdjustment {
+  id: string;
+  lpId: string;
+  lpName: string;
+  adjustmentAmount: number;
+  reason: string;
+  effectiveDate: string;
+  status: 'pending' | 'applied' | 'review';
+}
+
+export interface DistributionStage {
+  id: string;
+  label: string;
+  scheduledDate: string;
+  amount: number;
+  status: DistributionStageStatus;
+  notes?: string;
+}
+
+export interface HoldbackEscrow {
+  amount: number;
+  percentage: number;
+  reason: string;
+  releaseDate: string;
+  status: HoldbackStatus;
+  escrowAccount?: string;
+}
+
+export interface SideLetterTerm {
+  id: string;
+  lpId: string;
+  lpName: string;
+  termType: string;
+  description: string;
+  adjustmentType: 'fee' | 'withholding' | 'holdback' | 'other';
+  adjustmentValue: string;
+  applied: boolean;
+}
+
+export interface SpecialDistributionDetails {
+  category: 'dividend-recap' | 'refinancing' | 'secondary' | 'other';
+  summary: string;
+  leverageAmount?: number;
+  notes?: string;
 }
 
 // ============================================================================
@@ -316,6 +431,18 @@ export interface Distribution {
   // Scheduling
   isRecurring: boolean;
   recurringSchedule?: RecurringSchedule;
+
+  // Phase 6 enhancements
+  dikAssets?: DistributionInKindAsset[];
+  dikAllocations?: DistributionInKindAllocation[];
+  elections?: DistributionElection[];
+  fractionalSharePolicy?: FractionalSharePolicy;
+  securityTransfers?: SecurityTransfer[];
+  secondaryTransferAdjustments?: SecondaryTransferAdjustment[];
+  stagedPayments?: DistributionStage[];
+  holdbackEscrow?: HoldbackEscrow;
+  sideLetterTerms?: SideLetterTerm[];
+  specialHandling?: SpecialDistributionDetails;
 }
 
 // ============================================================================
@@ -451,6 +578,18 @@ export interface DistributionWizardState {
   };
   submitData?: {
     comment?: string;
+  };
+  advancedData?: {
+    dikAssets?: DistributionInKindAsset[];
+    dikAllocations?: DistributionInKindAllocation[];
+    elections?: DistributionElection[];
+    fractionalSharePolicy?: FractionalSharePolicy;
+    securityTransfers?: SecurityTransfer[];
+    secondaryTransferAdjustments?: SecondaryTransferAdjustment[];
+    stagedPayments?: DistributionStage[];
+    holdbackEscrow?: HoldbackEscrow;
+    sideLetterTerms?: SideLetterTerm[];
+    specialHandling?: SpecialDistributionDetails;
   };
 
   // Validation

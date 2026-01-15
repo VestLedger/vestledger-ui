@@ -1,7 +1,7 @@
 "use client";
 
 import { Badge, Button, Card, Input, Switch } from "@/ui";
-import { StatusBadge } from "@/components/ui";
+import { SectionHeader, StatusBadge } from "@/components/ui";
 import {
   DocumentPreviewModal,
   getMockDocumentUrl,
@@ -109,12 +109,10 @@ export function DistributionStepTax({
 
   return (
     <Card padding="lg" className="space-y-4">
-      <div>
-        <h3 className="text-lg font-semibold">Tax Withholding</h3>
-        <p className="text-sm text-[var(--app-text-muted)]">
-          Auto-populated from LP profiles with manual override when required.
-        </p>
-      </div>
+      <SectionHeader
+        title="Tax Withholding"
+        description="Auto-populated from LP profiles with manual override when required."
+      />
 
       <div className="grid gap-3 md:grid-cols-3">
         <div className="rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-2 text-sm">

@@ -25,5 +25,8 @@ export type { SearchToolbarProps, SearchToolbarFilter, SearchToolbarDropdown } f
 export { ListItemCard } from './ListItemCard';
 export type { ListItemCardProps } from './ListItemCard';
 
+export { SectionHeader } from './SectionHeader';
+export type { SectionHeaderProps } from './SectionHeader';
+
 export { Timeline } from './Timeline';
 export type { TimelineItem, TimelineProps } from './Timeline';

@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { Badge, Button, Card, Input, Select, Textarea } from "@/ui";
+import { SectionHeader } from "@/components/ui";
 import {
   getMockDocumentUrl,
 } from "@/components/documents/preview";
@@ -79,12 +80,10 @@ export function DistributionStepPreview({
 
   return (
     <Card padding="lg" className="space-y-4">
-      <div>
-        <h3 className="text-lg font-semibold">Statement Preview</h3>
-        <p className="text-sm text-[var(--app-text-muted)]">
-          Configure statement templates and preview the LP notification email.
-        </p>
-      </div>
+      <SectionHeader
+        title="Statement Preview"
+        description="Configure statement templates and preview the LP notification email."
+      />
 
       <Select
         label="Statement template"
