@@ -1,15 +1,17 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Badge, Button, Card } from "@/ui";
 import { ListItemCard, StatusBadge } from "@/components/ui";
 import type { LPUpcomingDistribution } from "@/data/mocks/lp-portal/lp-investor-portal";
 import { buildMonthDays } from "@/utils/calendar";
 import { formatCurrency, formatDate } from "@/utils/formatting";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import {
+  addMonths,
   format,
   parseISO,
+  subMonths,
   startOfMonth,
 } from "date-fns";
 
@@ -25,7 +27,12 @@ export function DistributionUpcoming({ distributions }: DistributionUpcomingProp
       ),
     [distributions]
   );
-  const monthDate = startOfMonth(new Date());
+  const [monthDate, setMonthDate] = useState(() => {
+    if (sorted.length === 0) {
+      return startOfMonth(new Date());
+    }
+    return startOfMonth(parseISO(sorted[0].expectedDate));
+  });
   const monthLabel = format(monthDate, "MMMM yyyy");
 
   const calendarDays = useMemo(() => buildMonthDays(monthDate), [monthDate]);
@@ -58,7 +65,27 @@ export function DistributionUpcoming({ distributions }: DistributionUpcomingProp
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[280px_1fr]">
         <div className="rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] p-3">
-          <div className="text-sm font-semibold">{monthLabel}</div>
+          <div className="flex items-center justify-between gap-2">
+            <Button
+              size="sm"
+              variant="bordered"
+              isIconOnly
+              aria-label="Previous month"
+              onPress={() => setMonthDate((current) => subMonths(current, 1))}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <div className="text-sm font-semibold">{monthLabel}</div>
+            <Button
+              size="sm"
+              variant="bordered"
+              isIconOnly
+              aria-label="Next month"
+              onPress={() => setMonthDate((current) => addMonths(current, 1))}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
           <div className="mt-2 grid grid-cols-7 text-[10px] text-[var(--app-text-muted)]">
             {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
               <div key={day} className="py-1 text-center">
@@ -92,32 +119,32 @@ export function DistributionUpcoming({ distributions }: DistributionUpcomingProp
         </div>
 
         <div className="space-y-3">
-        {sorted.length === 0 ? (
-          <div className="text-sm text-[var(--app-text-muted)]">
-            No upcoming distributions scheduled yet.
-          </div>
-        ) : (
-          sorted.map((item) => (
-            <ListItemCard
-              key={item.id}
-              title={item.title}
-              description={`${item.fundName} - ${formatDate(item.expectedDate)}`}
-              meta={item.notes}
-              badges={<StatusBadge status={item.status} size="sm" />}
-              padding="sm"
-              actions={(
-                <div className="flex items-center gap-2 text-xs text-[var(--app-text-muted)]">
-                  <Badge size="sm" variant="flat">
-                    {formatCurrency(item.estimatedAmount)}
-                  </Badge>
-                  <Button size="sm" variant="bordered">
-                    Details
-                  </Button>
-                </div>
-              )}
-            />
-          ))
-        )}
+          {sorted.length === 0 ? (
+            <div className="text-sm text-[var(--app-text-muted)]">
+              No upcoming distributions scheduled yet.
+            </div>
+          ) : (
+            sorted.map((item) => (
+              <ListItemCard
+                key={item.id}
+                title={item.title}
+                description={`${item.fundName} - ${formatDate(item.expectedDate)}`}
+                meta={item.notes}
+                badges={<StatusBadge status={item.status} size="sm" />}
+                padding="sm"
+                actions={(
+                  <div className="flex items-center gap-2 text-xs text-[var(--app-text-muted)]">
+                    <Badge size="sm" variant="flat">
+                      {formatCurrency(item.estimatedAmount)}
+                    </Badge>
+                    <Button size="sm" variant="bordered">
+                      Details
+                    </Button>
+                  </div>
+                )}
+              />
+            ))
+          )}
         </div>
       </div>
     </Card>

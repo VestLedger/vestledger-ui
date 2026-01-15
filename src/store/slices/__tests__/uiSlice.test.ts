@@ -6,6 +6,7 @@ import {
   clearUIState,
   uiSelectors,
 } from '../uiSlice';
+import type { RootState } from '@/store/rootReducer';
 
 describe('uiSlice', () => {
   const initialState = {
@@ -171,7 +172,7 @@ describe('uiSlice', () => {
           theme: 'dark',
         },
       },
-    } as any; // Using any for test simplicity
+    } as RootState;
 
     it('selectByKey should return entire byKey object', () => {
       const result = uiSelectors.selectByKey(mockRootState);

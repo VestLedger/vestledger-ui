@@ -20,6 +20,11 @@ export interface DistributionStatementsProps {
 }
 
 export function DistributionStatements({ statements }: DistributionStatementsProps) {
+  const resolveStatementUrl = (statement: LPDistributionStatement) => {
+    const url = statement.pdfUrl;
+    return url && url !== "#" ? url : getMockDocumentUrl("pdf");
+  };
+
   const previewDocs = useMemo<PreviewDocument[]>(
     () =>
       statements
@@ -28,7 +33,7 @@ export function DistributionStatements({ statements }: DistributionStatementsPro
           id: statement.id,
           name: statement.distributionName,
           type: "pdf",
-          url: statement.pdfUrl || getMockDocumentUrl("pdf"),
+          url: resolveStatementUrl(statement),
           category: "Distribution Statement",
         })),
     [statements]

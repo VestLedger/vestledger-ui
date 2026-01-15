@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Badge, Button, Card } from "@/ui";
 import { ListItemCard, StatusBadge } from "@/components/ui";
 import type { LPDistributionConfirmation } from "@/data/mocks/lp-portal/lp-investor-portal";
@@ -16,14 +16,23 @@ export function DistributionConfirmation({ confirmations }: DistributionConfirma
     () =>
       new Set(
         confirmations
-          .filter((item) => !item.requiresConfirmation && item.confirmedAt)
+          .filter((item) => item.confirmedAt)
           .map((item) => item.id)
       )
   );
 
+  const isConfirmed = useCallback(
+    (item: LPDistributionConfirmation) =>
+      confirmedIds.has(item.id) || Boolean(item.confirmedAt),
+    [confirmedIds]
+  );
+
   const pendingItems = useMemo(
-    () => confirmations.filter((item) => item.requiresConfirmation),
-    [confirmations]
+    () =>
+      confirmations.filter(
+        (item) => item.requiresConfirmation && !isConfirmed(item)
+      ),
+    [confirmations, isConfirmed]
   );
 
   const handleConfirm = (id: string) => {
@@ -51,17 +60,17 @@ export function DistributionConfirmation({ confirmations }: DistributionConfirma
           </div>
         ) : (
           confirmations.map((item) => {
-            const isConfirmed = confirmedIds.has(item.id) || Boolean(item.confirmedAt);
+            const confirmed = isConfirmed(item);
             return (
               <ListItemCard
                 key={item.id}
                 title={item.distributionName}
                 description={`Statement date ${formatDate(item.statementDate)} - ${formatCurrency(item.amount)}`}
-                meta={isConfirmed ? `Confirmed ${formatDate(item.confirmedAt || new Date())}` : undefined}
-                badges={<StatusBadge status={isConfirmed ? "confirmed" : "pending"} size="sm" />}
+                meta={confirmed ? `Confirmed ${formatDate(item.confirmedAt || new Date())}` : undefined}
+                badges={<StatusBadge status={confirmed ? "confirmed" : "pending"} size="sm" />}
                 padding="sm"
                 actions={(
-                  !isConfirmed ? (
+                  !confirmed ? (
                     <Button
                       size="sm"
                       color="primary"
