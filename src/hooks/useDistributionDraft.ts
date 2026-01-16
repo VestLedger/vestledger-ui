@@ -86,6 +86,7 @@ export function useDistributionDraft(params: {
   const { fundId, wizard, setWizard, patchWizard } = params;
   const hasRestoredRef = useRef(false);
   const previousStepRef = useRef(wizard.currentStep);
+  const lastConfirmedUrlRef = useRef<string | null>(null);
 
   const latestKey = useMemo(() => buildLatestKey(fundId), [fundId]);
 
@@ -155,6 +156,53 @@ export function useDistributionDraft(params: {
     };
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty]);
+
+  useEffect(() => {
+    if (!isDirty || !isBrowser()) return;
+    lastConfirmedUrlRef.current = window.location.href;
+  }, [isDirty]);
+
+  useEffect(() => {
+    if (!isDirty || !isBrowser()) return undefined;
+    const handleClick = (event: MouseEvent) => {
+      if (event.defaultPrevented) return;
+      if (event.button !== 0) return;
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const target = event.target as HTMLElement | null;
+      const anchor = target?.closest("a");
+      if (!anchor) return;
+      if (anchor.target === "_blank" || anchor.hasAttribute("download")) return;
+      const href = anchor.getAttribute("href");
+      if (!href || href.startsWith("#")) return;
+      const destination = new URL(href, window.location.href);
+      const current = new URL(window.location.href);
+      if (destination.pathname === current.pathname) return;
+      const confirmed = window.confirm("You have unsaved changes. Leave this page?");
+      if (!confirmed) {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+      lastConfirmedUrlRef.current = destination.href;
+    };
+    document.addEventListener("click", handleClick, true);
+    return () => document.removeEventListener("click", handleClick, true);
+  }, [isDirty]);
+
+  useEffect(() => {
+    if (!isDirty || !isBrowser()) return undefined;
+    const handlePopState = () => {
+      const confirmed = window.confirm("You have unsaved changes. Leave this page?");
+      if (confirmed) {
+        lastConfirmedUrlRef.current = window.location.href;
+        return;
+      }
+      const fallbackUrl = lastConfirmedUrlRef.current ?? window.location.href;
+      window.history.pushState(null, "", fallbackUrl);
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
   }, [isDirty]);
 
   return {

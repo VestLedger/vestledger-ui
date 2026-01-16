@@ -109,26 +109,38 @@ export function* loadDistributionWorker(action: PayloadAction<string>): SagaIter
   }
 }
 
-export function* createDistributionWorker(action: PayloadAction<Partial<Distribution>>): SagaIterator {
+export function* createDistributionWorker(
+  action: PayloadAction<{ data: Partial<Distribution>; requestId: string }>
+): SagaIterator {
   try {
-    const distribution: Distribution = yield call(createDistribution, action.payload);
-    yield put(createDistributionSucceeded(distribution));
+    const distribution: Distribution = yield call(createDistribution, action.payload.data);
+    yield put(createDistributionSucceeded({ distribution, requestId: action.payload.requestId }));
   } catch (error: unknown) {
     console.error('Failed to create distribution', error);
-    yield put(createDistributionFailed(normalizeError(error)));
+    yield put(
+      createDistributionFailed({
+        error: normalizeError(error),
+        requestId: action.payload.requestId,
+      })
+    );
   }
 }
 
 export function* updateDistributionWorker(
-  action: PayloadAction<{ id: string; data: Partial<Distribution> }>
+  action: PayloadAction<{ id: string; data: Partial<Distribution>; requestId: string }>
 ): SagaIterator {
   try {
     const { id, data } = action.payload;
     const distribution: Distribution = yield call(updateDistribution, id, data);
-    yield put(updateDistributionSucceeded(distribution));
+    yield put(updateDistributionSucceeded({ distribution, requestId: action.payload.requestId }));
   } catch (error: unknown) {
     console.error('Failed to update distribution', error);
-    yield put(updateDistributionFailed(normalizeError(error)));
+    yield put(
+      updateDistributionFailed({
+        error: normalizeError(error),
+        requestId: action.payload.requestId,
+      })
+    );
   }
 }
 

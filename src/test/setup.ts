@@ -67,14 +67,23 @@ console.error = (...args) => {
   originalConsoleError.apply(console, args);
 };
 
-// Mock localStorage
+// Mock localStorage with in-memory storage
+const localStorageStore = new Map<string, string>();
 const localStorageMock = {
-  getItem: () => null,
-  setItem: () => {},
-  removeItem: () => {},
-  clear: () => {},
-  length: 0,
-  key: () => null,
+  get length() {
+    return localStorageStore.size;
+  },
+  key: (index: number) => Array.from(localStorageStore.keys())[index] ?? null,
+  getItem: (key: string) => localStorageStore.get(key) ?? null,
+  setItem: (key: string, value: string) => {
+    localStorageStore.set(key, value);
+  },
+  removeItem: (key: string) => {
+    localStorageStore.delete(key);
+  },
+  clear: () => {
+    localStorageStore.clear();
+  },
 };
 
 Object.defineProperty(window, 'localStorage', {

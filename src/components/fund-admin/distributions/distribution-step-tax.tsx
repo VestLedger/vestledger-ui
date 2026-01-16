@@ -16,12 +16,16 @@ export interface DistributionStepTaxProps {
   allocations: LPAllocation[];
   lpProfiles: LPProfile[];
   onChange: (allocations: LPAllocation[]) => void;
+  rateErrors?: Record<string, string>;
+  showErrors?: boolean;
 }
 
 export function DistributionStepTax({
   allocations,
   lpProfiles,
   onChange,
+  rateErrors,
+  showErrors = false,
 }: DistributionStepTaxProps) {
   const {
     previewDocument,
@@ -193,6 +197,8 @@ export function DistributionStepTax({
                       handleRateChange(allocation.id, Number(event.target.value) || 0)
                     }
                     isDisabled={!allocation.isTaxOverride}
+                    isInvalid={showErrors && Boolean(rateErrors?.[allocation.id])}
+                    errorMessage={showErrors ? rateErrors?.[allocation.id] : undefined}
                   />
                 </div>
                 <div>

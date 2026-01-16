@@ -34,7 +34,6 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import type { DateClickArg } from "@fullcalendar/interaction";
 import type { EventClickArg, EventContentArg, EventInput } from "@fullcalendar/core";
 import {
   Bell,
@@ -66,6 +65,11 @@ type DistributionCalendarUIState = {
   showScheduleForm: boolean;
   scheduleForm: ScheduleFormState;
   scheduledDrafts: DistributionCalendarEvent[];
+};
+
+type CalendarDateClickArg = {
+  dateStr: string;
+  date: Date;
 };
 
 const toDateKey = (value: Date) => format(value, "yyyy-MM-dd");
@@ -299,7 +303,7 @@ export function DistributionCalendar() {
   }, [allEvents]);
 
   const handleDateClick = useCallback(
-    (arg: DateClickArg) => {
+    (arg: CalendarDateClickArg) => {
       const nextDate = arg.dateStr.slice(0, 10);
       patchUI({
         showScheduleForm: true,

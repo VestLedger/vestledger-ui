@@ -13,6 +13,12 @@ export interface DistributionStepAllocationsProps {
   onRecalculate: () => void;
   comparisonMap?: Record<string, number>;
   comparisonLabel?: string;
+  allocationErrors?: Record<string, Partial<{
+    grossAmount: string;
+    netAmount: string;
+    taxWithholdingRate: string;
+  }>>;
+  showErrors?: boolean;
 }
 
 export function DistributionStepAllocations({
@@ -22,6 +28,8 @@ export function DistributionStepAllocations({
   onRecalculate,
   comparisonMap,
   comparisonLabel,
+  allocationErrors,
+  showErrors = false,
 }: DistributionStepAllocationsProps) {
   const hasComparison = !!comparisonLabel && !!comparisonMap && Object.keys(comparisonMap).length > 0;
 
@@ -43,6 +51,8 @@ export function DistributionStepAllocations({
         onRecalculate={onRecalculate}
         comparisonMap={comparisonMap}
         showComparison={hasComparison}
+        allocationErrors={allocationErrors}
+        showErrors={showErrors}
       />
     </Card>
   );

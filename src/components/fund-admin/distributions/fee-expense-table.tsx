@@ -30,6 +30,11 @@ const getFeeAmount = (item: FeeLineItem, grossProceeds: number) => {
   return 0;
 };
 
+export type FeeLineItemErrors = Partial<{
+  amount: string;
+  percentage: string;
+}>;
+
 export interface FeeExpenseTableProps {
   items: FeeLineItem[];
   templates: FeeTemplate[];
@@ -38,6 +43,8 @@ export interface FeeExpenseTableProps {
   error?: { message?: string } | null;
   onRetry?: () => void;
   onChange: (items: FeeLineItem[]) => void;
+  itemErrors?: Record<string, FeeLineItemErrors>;
+  showErrors?: boolean;
 }
 
 export function FeeExpenseTable({
@@ -48,6 +55,8 @@ export function FeeExpenseTable({
   error,
   onRetry,
   onChange,
+  itemErrors,
+  showErrors = false,
 }: FeeExpenseTableProps) {
   const { value: ui, patch: patchUI } = useUIKey<FeeExpenseTableUIState>(
     'distribution-fee-expense-table',
@@ -68,6 +77,10 @@ export function FeeExpenseTable({
   const managementFeeAmount = (ui.managementFeeBase * ui.managementFeeRate) / 100;
 
   const selectedTemplate = templates.find((template) => template.id === ui.selectedTemplateId);
+  const visibleItemErrors = useMemo(
+    () => (showErrors ? itemErrors ?? {} : {}),
+    [itemErrors, showErrors]
+  );
 
   useEffect(() => {
     if (ui.managementFeeBaseSource !== 'gross') return;
@@ -162,18 +175,23 @@ export function FeeExpenseTable({
       headerTitle: 'Fixed amount deducted from gross proceeds.',
       align: 'right',
       width: '120px',
-      render: (item) => (
-        <Input
-          type="number"
-          value={item.amount.toString()}
-          onChange={(event) =>
-            handleUpdate(item.id, {
-              amount: Number(event.target.value) || 0,
-            })
-          }
-          placeholder="0"
-        />
-      ),
+      render: (item) => {
+        const error = visibleItemErrors[item.id]?.amount;
+        return (
+          <Input
+            type="number"
+            value={item.amount.toString()}
+            onChange={(event) =>
+              handleUpdate(item.id, {
+                amount: Number(event.target.value) || 0,
+              })
+            }
+            placeholder="0"
+            isInvalid={Boolean(error)}
+            errorMessage={error}
+          />
+        );
+      },
     },
     {
       key: 'percentage',
@@ -181,19 +199,24 @@ export function FeeExpenseTable({
       headerTitle: 'Percent of gross proceeds.',
       align: 'right',
       width: '120px',
-      render: (item) => (
-        <Input
-          type="number"
-          value={item.percentage?.toString() ?? ''}
-          onChange={(event) => {
-            const value = Number(event.target.value);
-            handleUpdate(item.id, {
-              percentage: Number.isNaN(value) ? undefined : value,
-            });
-          }}
-          placeholder="%"
-        />
-      ),
+      render: (item) => {
+        const error = visibleItemErrors[item.id]?.percentage;
+        return (
+          <Input
+            type="number"
+            value={item.percentage?.toString() ?? ''}
+            onChange={(event) => {
+              const value = Number(event.target.value);
+              handleUpdate(item.id, {
+                percentage: Number.isNaN(value) ? undefined : value,
+              });
+            }}
+            placeholder="%"
+            isInvalid={Boolean(error)}
+            errorMessage={error}
+          />
+        );
+      },
     },
     {
       key: 'calculated',
@@ -237,7 +260,7 @@ export function FeeExpenseTable({
         </Button>
       ),
     },
-  ], [grossProceeds, handleDelete, handleUpdate]);
+  ], [grossProceeds, handleDelete, handleUpdate, visibleItemErrors]);
 
   const handleApplyManagementFee = () => {
     if (managementFeeAmount <= 0) return;

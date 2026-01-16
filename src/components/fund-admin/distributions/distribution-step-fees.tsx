@@ -3,7 +3,7 @@
 import { Card } from "@/ui";
 import { SectionHeader } from "@/components/ui";
 import type { FeeLineItem, FeeTemplate } from "@/types/distribution";
-import { FeeExpenseTable } from "./fee-expense-table";
+import { FeeExpenseTable, type FeeLineItemErrors } from "./fee-expense-table";
 
 export interface DistributionStepFeesProps {
   items: FeeLineItem[];
@@ -13,6 +13,8 @@ export interface DistributionStepFeesProps {
   error?: { message?: string } | null;
   onRetry?: () => void;
   onChange: (items: FeeLineItem[]) => void;
+  itemErrors?: Record<string, FeeLineItemErrors>;
+  showErrors?: boolean;
 }
 
 export function DistributionStepFees({
@@ -23,6 +25,8 @@ export function DistributionStepFees({
   error,
   onRetry,
   onChange,
+  itemErrors,
+  showErrors = false,
 }: DistributionStepFeesProps) {
   return (
     <Card padding="lg" className="space-y-4">
@@ -39,6 +43,8 @@ export function DistributionStepFees({
         error={error}
         onRetry={onRetry}
         onChange={onChange}
+        itemErrors={itemErrors}
+        showErrors={showErrors}
       />
     </Card>
   );

@@ -214,6 +214,35 @@ export function ScenarioStackedChart({
           ))}
         </div>
       )}
+      <table className="sr-only" aria-label="Scenario comparison breakdown">
+        <caption>Scenario comparison by investor class</caption>
+        <thead>
+          <tr>
+            <th scope="col">Scenario</th>
+            <th scope="col">Exit Value</th>
+            <th scope="col">Total Returned</th>
+            {orderedClasses.map((investorClass) => (
+              <th key={investorClass.id} scope="col">
+                {investorClass.name}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {chartData.map((row) => (
+            <tr key={row.name}>
+              <td>{row.name}</td>
+              <td>{formatCurrencyCompact(Number(row.exitValue))}</td>
+              <td>{formatCurrencyCompact(Number(row.totalReturned))}</td>
+              {orderedClasses.map((investorClass) => (
+                <td key={`${row.name}-${investorClass.id}`}>
+                  {formatCurrencyCompact(Number(row[investorClass.id] ?? 0))}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

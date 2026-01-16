@@ -1,12 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Badge, Button, Card } from "@/ui";
 import { ListItemCard, StatusBadge } from "@/components/ui";
+import { EmptyState } from "@/components/ui/async-states";
 import type { LPUpcomingDistribution } from "@/data/mocks/lp-portal/lp-investor-portal";
 import { buildMonthDays } from "@/utils/calendar";
 import { formatCurrency, formatDate } from "@/utils/formatting";
-import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
+import { CalendarDays, CalendarX, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   addMonths,
   format,
@@ -20,6 +22,7 @@ export interface DistributionUpcomingProps {
 }
 
 export function DistributionUpcoming({ distributions }: DistributionUpcomingProps) {
+  const router = useRouter();
   const sorted = useMemo(
     () =>
       [...distributions].sort(
@@ -120,9 +123,19 @@ export function DistributionUpcoming({ distributions }: DistributionUpcomingProp
 
         <div className="space-y-3">
           {sorted.length === 0 ? (
-            <div className="text-sm text-[var(--app-text-muted)]">
-              No upcoming distributions scheduled yet.
-            </div>
+            <EmptyState
+              icon={CalendarX}
+              title="No scheduled distributions"
+              action={(
+                <Button
+                  size="sm"
+                  color="primary"
+                  onPress={() => router.push("/fund-admin/distributions/calendar")}
+                >
+                  Schedule Distribution
+                </Button>
+              )}
+            />
           ) : (
             sorted.map((item) => (
               <ListItemCard

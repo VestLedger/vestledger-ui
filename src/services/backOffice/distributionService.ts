@@ -25,6 +25,46 @@ import {
   mockApprovalRules,
 } from '@/data/mocks/back-office/distributions';
 
+const FEE_TYPES = new Set(['management-fee', 'admin-fee']);
+
+const getFeeAmount = (item: Distribution['feeLineItems'][number], grossProceeds: number) => {
+  if (item.amount > 0) return item.amount;
+  if (item.percentage) return (item.percentage / 100) * grossProceeds;
+  return 0;
+};
+
+const recalculateTotals = (distribution: Partial<Distribution>) => {
+  const grossProceeds = distribution.grossProceeds ?? 0;
+  const feeLineItems = distribution.feeLineItems ?? [];
+  const totalFees = feeLineItems.reduce((sum, item) => {
+    if (!FEE_TYPES.has(item.type)) return sum;
+    return sum + getFeeAmount(item, grossProceeds);
+  }, 0);
+  const totalExpenses = feeLineItems.reduce((sum, item) => {
+    if (FEE_TYPES.has(item.type)) return sum;
+    return sum + getFeeAmount(item, grossProceeds);
+  }, 0);
+  const netProceeds = Math.max(0, grossProceeds - totalFees - totalExpenses);
+  const allocations = distribution.lpAllocations ?? [];
+  const totalTaxWithholding = allocations.reduce(
+    (sum, allocation) => sum + allocation.taxWithholdingAmount,
+    0
+  );
+  const allocatedNetTotal = allocations.reduce((sum, allocation) => sum + allocation.netAmount, 0);
+  const totalDistributed = allocations.length > 0
+    ? allocatedNetTotal
+    : Math.max(0, netProceeds - totalTaxWithholding);
+
+  return {
+    grossProceeds,
+    totalFees,
+    totalExpenses,
+    netProceeds,
+    totalTaxWithholding,
+    totalDistributed,
+  };
+};
+
 // ============================================================================
 // Distribution Management
 // ============================================================================
@@ -113,6 +153,7 @@ export async function createDistribution(
   data: Partial<Distribution>
 ): Promise<Distribution> {
   if (isMockMode()) {
+    const totals = recalculateTotals(data);
     const newDistribution: Distribution = {
       id: `dist-${Date.now()}`,
       fundId: data.fundId || '',
@@ -123,12 +164,12 @@ export async function createDistribution(
       paymentDate: data.paymentDate || new Date().toISOString().split('T')[0],
       description: data.description,
       status: 'draft',
-      grossProceeds: data.grossProceeds || 0,
-      totalFees: data.totalFees || 0,
-      totalExpenses: data.totalExpenses || 0,
-      netProceeds: data.netProceeds || 0,
-      totalTaxWithholding: data.totalTaxWithholding || 0,
-      totalDistributed: data.totalDistributed || 0,
+      grossProceeds: totals.grossProceeds,
+      totalFees: totals.totalFees,
+      totalExpenses: totals.totalExpenses,
+      netProceeds: totals.netProceeds,
+      totalTaxWithholding: totals.totalTaxWithholding,
+      totalDistributed: totals.totalDistributed,
       feeLineItems: data.feeLineItems || [],
       lpAllocations: data.lpAllocations || [],
       approvalChainId: data.approvalChainId || '',
@@ -175,9 +216,14 @@ export async function updateDistribution(
       throw new Error(`Distribution not found: ${id}`);
     }
 
-    const updated = {
+    const base = {
       ...mockDistributions[index],
       ...data,
+    };
+    const totals = recalculateTotals(base);
+    const updated = {
+      ...base,
+      ...totals,
       id, // Preserve ID
       revisionNumber: mockDistributions[index].revisionNumber + 1,
       updatedAt: new Date().toISOString(),

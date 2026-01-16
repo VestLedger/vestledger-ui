@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo } from "react";
-import { Badge, Button, Card, Progress, WorkflowStepper, type WorkflowStep } from "@/ui";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Badge, Button, Card, Modal, Progress, WorkflowStepper, useToast, type WorkflowStep } from "@/ui";
 import { PageScaffold } from "@/components/ui";
 import { AsyncStateRenderer } from "@/components/ui/async-states";
 import { getRouteConfig } from "@/config/routes";
 import { useUIKey } from "@/store/ui";
-import { useAppDispatch } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { useDistributionDraft } from "@/hooks/useDistributionDraft";
 import {
@@ -20,7 +21,8 @@ import {
   lpProfilesSelectors,
   approvalRulesRequested,
   approvalRulesSelectors,
-  distributionUpdated,
+  createDistributionRequested,
+  updateDistributionRequested,
   setSelectedDistribution,
 } from "@/store/slices/distributionSlice";
 import {
@@ -42,6 +44,7 @@ import type {
 } from "@/types/distribution";
 import { formatCurrencyCompact, formatDate, formatDateTime } from "@/utils/formatting";
 import { getAllocationIssues } from "@/lib/validation/distribution";
+import type { NormalizedError } from "@/store/types/AsyncState";
 import { DistributionStepEvent } from "./distribution-step-event";
 import { DistributionStepFees } from "./distribution-step-fees";
 import { DistributionStepWaterfall } from "./distribution-step-waterfall";
@@ -51,7 +54,6 @@ import { DistributionStepAdvanced } from "./distribution-step-advanced";
 import { DistributionStepImpact } from "./distribution-step-impact";
 import { DistributionStepPreview } from "./distribution-step-preview";
 import { DistributionStepSubmit } from "./distribution-step-submit";
-import { createDistribution, updateDistribution } from "@/services/backOffice/distributionService";
 
 const STEP_LABELS = [
   "Event",
@@ -65,7 +67,37 @@ const STEP_LABELS = [
   "Submit",
 ];
 
+const STEP_IDS = [
+  "event",
+  "fees",
+  "waterfall",
+  "allocations",
+  "tax",
+  "advanced",
+  "impact",
+  "preview",
+  "submit",
+];
+
 const DEFAULT_TEMPLATE: StatementTemplate = "standard";
+
+const resolveStepIndex = (value?: string | null) => {
+  if (!value) return null;
+  const normalized = value.trim().toLowerCase();
+  const idIndex = STEP_IDS.findIndex((id) => id === normalized);
+  if (idIndex >= 0) return idIndex;
+  const labelIndex = STEP_LABELS.findIndex(
+    (label) => label.toLowerCase() === normalized
+  );
+  if (labelIndex >= 0) return labelIndex;
+  const numeric = Number(normalized);
+  if (Number.isFinite(numeric)) {
+    const oneBased = Math.round(numeric) - 1;
+    if (oneBased >= 0 && oneBased < STEP_LABELS.length) return oneBased;
+    if (numeric >= 0 && numeric < STEP_LABELS.length) return Math.round(numeric);
+  }
+  return null;
+};
 
 const buildImpact = (totalDistributed: number): DistributionImpact => {
   const navBefore = 320_000_000;
@@ -111,8 +143,124 @@ const getFeeAmount = (item: FeeLineItem, grossProceeds: number) => {
 
 const FEE_TYPES = new Set(["management-fee", "admin-fee"]);
 
+type EventFieldErrors = Partial<{
+  name: string;
+  eventType: string;
+  eventDate: string;
+  grossProceeds: string;
+}>;
+
+type FeeLineItemFieldErrors = Partial<{
+  amount: string;
+  percentage: string;
+}>;
+
+type AllocationFieldErrors = Partial<{
+  grossAmount: string;
+  netAmount: string;
+  taxWithholdingRate: string;
+}>;
+
+type ImpactFieldErrors = Partial<{
+  navAfter: string;
+  dpiAfter: string;
+  tvpiAfter: string;
+}>;
+
+type PreviewFieldErrors = Partial<{
+  template: string;
+  emailSubject: string;
+  emailBody: string;
+}>;
+
+const getEventFieldErrors = (data: Partial<Distribution>): EventFieldErrors => ({
+  name: data.name?.trim() ? undefined : "Name is required.",
+  eventType: data.eventType ? undefined : "Event type is required.",
+  eventDate: data.eventDate ? undefined : "Event date is required.",
+  grossProceeds:
+    data.grossProceeds && data.grossProceeds > 0
+      ? undefined
+      : "Gross proceeds must be greater than zero.",
+});
+
+const getFeeLineItemErrors = (
+  items: FeeLineItem[]
+): Record<string, FeeLineItemFieldErrors> => {
+  return items.reduce<Record<string, FeeLineItemFieldErrors>>((acc, item) => {
+    const errors: FeeLineItemFieldErrors = {};
+    if (item.amount < 0) {
+      errors.amount = "Amount cannot be negative.";
+    }
+    if (item.percentage !== undefined && item.percentage < 0) {
+      errors.percentage = "Percent cannot be negative.";
+    }
+    const hasAmount = item.amount > 0;
+    const hasPercent = (item.percentage ?? 0) > 0;
+    if (!hasAmount && !hasPercent) {
+      const message = "Enter amount or percentage.";
+      if (!errors.amount) errors.amount = message;
+      if (!errors.percentage) errors.percentage = message;
+    }
+    if (Object.keys(errors).length > 0) {
+      acc[item.id] = errors;
+    }
+    return acc;
+  }, {});
+};
+
+const getAllocationFieldErrors = (allocation: LPAllocation): AllocationFieldErrors => {
+  const errors: AllocationFieldErrors = {};
+  const issues = getAllocationIssues(allocation);
+  issues.forEach((issue) => {
+    if (issue.toLowerCase().includes("gross amount")) {
+      errors.grossAmount = issue;
+      return;
+    }
+    if (issue.toLowerCase().includes("net amount")) {
+      errors.netAmount = issue;
+      return;
+    }
+    if (issue.toLowerCase().includes("tax withholding rate")) {
+      errors.taxWithholdingRate = issue;
+    }
+  });
+  return errors;
+};
+
+const buildAllocationErrorMap = (
+  allocations: LPAllocation[]
+): Record<string, AllocationFieldErrors> =>
+  allocations.reduce<Record<string, AllocationFieldErrors>>((acc, allocation) => {
+    const errors = getAllocationFieldErrors(allocation);
+    if (Object.keys(errors).length > 0) {
+      acc[allocation.id] = errors;
+    }
+    return acc;
+  }, {});
+
+const getImpactFieldErrors = (impact?: DistributionImpact | null): ImpactFieldErrors => {
+  const errors: ImpactFieldErrors = {};
+  if (!impact) return errors;
+  if (impact.navAfter < 0) errors.navAfter = "Projected NAV cannot be negative.";
+  if (impact.dpiAfter < 0) errors.dpiAfter = "Projected DPI cannot be negative.";
+  if (impact.tvpiAfter < 0) errors.tvpiAfter = "Projected TVPI cannot be negative.";
+  return errors;
+};
+
+const getPreviewFieldErrors = (
+  preview: DistributionWizardState["previewData"]
+): PreviewFieldErrors => ({
+  template: preview?.template ? undefined : "Select a statement template.",
+  emailSubject: preview?.emailSubject?.trim() ? undefined : "Email subject is required.",
+  emailBody: preview?.emailBody?.trim() ? undefined : "Email body is required.",
+});
+
 export function DistributionWizard() {
   const routeConfig = getRouteConfig("/fund-admin/distributions/new");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const toast = useToast();
   const dispatch = useAppDispatch();
   const { selectedFund, viewMode } = useFund();
   const today = new Date().toISOString().split("T")[0];
@@ -154,10 +302,17 @@ export function DistributionWizard() {
     "distribution-wizard",
     initialWizardState
   );
+  const [pendingSave, setPendingSave] = useState<{
+    requestId: string;
+    status: DistributionStatus;
+    isDraft: boolean;
+  } | null>(null);
+  const [blockingError, setBlockingError] = useState<NormalizedError | null>(null);
+  const [isBlockingErrorOpen, setIsBlockingErrorOpen] = useState(false);
 
   const eventData = wizard.eventData ?? defaultEventData;
-  const feeLineItems = wizard.feesData ?? [];
-  const allocations = wizard.allocationsData ?? [];
+  const feeLineItems = useMemo(() => wizard.feesData ?? [], [wizard.feesData]);
+  const allocations = useMemo(() => wizard.allocationsData ?? [], [wizard.allocationsData]);
   const advancedData = wizard.advancedData ?? {};
   const impact = wizard.impactData ?? buildImpact(0);
   const defaultPreviewData = useMemo(
@@ -175,6 +330,22 @@ export function DistributionWizard() {
   );
   const comment = wizard.submitData?.comment ?? "";
   const draftFundId = eventData.fundId || selectedFund?.id || "all-funds";
+  const stepParam = searchParams.get("step");
+  const resolvedStep = useMemo(() => resolveStepIndex(stepParam), [stepParam]);
+
+  const updateStepInUrl = useCallback(
+    (stepIndex: number, replace = false) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("step", STEP_IDS[stepIndex] ?? "event");
+      const nextUrl = `${pathname}?${params.toString()}`;
+      if (replace) {
+        router.replace(nextUrl);
+      } else {
+        router.push(nextUrl);
+      }
+    },
+    [pathname, router, searchParams]
+  );
 
   const { saveDraft, clearDraft } = useDistributionDraft({
     fundId: draftFundId,
@@ -183,11 +354,68 @@ export function DistributionWizard() {
     patchWizard,
   });
 
+  const saveState = useAppSelector((state) => state.distribution.save);
+  const isSaving = saveState.status === "loading" && pendingSave !== null;
+
   useEffect(() => {
     if (!wizard.eventData) {
       patchWizard({ eventData: defaultEventData });
     }
   }, [defaultEventData, patchWizard, wizard.eventData]);
+
+  useEffect(() => {
+    if (!pendingSave) return;
+    if (saveState.status === "loading") return;
+
+    if (saveState.status === "failed") {
+      setBlockingError(
+        saveState.error ?? {
+          message: "Unable to save the distribution right now.",
+          code: "SAVE_FAILED",
+        }
+      );
+      setIsBlockingErrorOpen(true);
+      return;
+    }
+
+    if (saveState.status === "succeeded" && saveState.data) {
+      if (saveState.data.requestId !== pendingSave.requestId) return;
+      const saved = saveState.data.distribution;
+      dispatch(setSelectedDistribution(saved.id));
+      patchWizard({
+        eventData: {
+          ...eventData,
+          id: saved.id,
+          status: saved.status,
+          createdAt: saved.createdAt,
+          updatedAt: saved.updatedAt,
+        },
+        isDraft: saved.isDraft,
+        draftSavedAt: new Date().toISOString(),
+      });
+      if (pendingSave.isDraft) {
+        saveDraft();
+        toast.success("Draft saved.");
+      } else {
+        clearDraft();
+        toast.success("Distribution submitted for approval.");
+      }
+      setBlockingError(null);
+      setIsBlockingErrorOpen(false);
+      setPendingSave(null);
+    }
+  }, [
+    clearDraft,
+    dispatch,
+    eventData,
+    patchWizard,
+    pendingSave,
+    saveDraft,
+    saveState.data,
+    saveState.error,
+    saveState.status,
+    toast,
+  ]);
 
   useEffect(() => {
     if (wizard.totalSteps !== STEP_LABELS.length) {
@@ -235,6 +463,28 @@ export function DistributionWizard() {
   const totalDistributed = allocations.length > 0
     ? allocatedTotal
     : Math.max(0, netProceeds - totalTaxWithholding);
+
+  const eventFieldErrors = useMemo(() => getEventFieldErrors(eventData), [eventData]);
+  const feeItemErrors = useMemo(() => getFeeLineItemErrors(feeLineItems), [feeLineItems]);
+  const allocationFieldErrors = useMemo(
+    () => buildAllocationErrorMap(allocations),
+    [allocations]
+  );
+  const impactFieldErrors = useMemo(() => getImpactFieldErrors(impact), [impact]);
+  const previewFieldErrors = useMemo(
+    () => getPreviewFieldErrors(previewData),
+    [previewData]
+  );
+  const taxRateErrors = useMemo(
+    () =>
+      allocations.reduce<Record<string, string>>((acc, allocation) => {
+        if (allocation.taxWithholdingRate < 0 || allocation.taxWithholdingRate > 100) {
+          acc[allocation.id] = "Tax withholding rate must be between 0 and 100.";
+        }
+        return acc;
+      }, {}),
+    [allocations]
+  );
 
   const { data: feeTemplatesData, isLoading: feeTemplatesLoading, error: feeTemplatesError, refetch: refetchFeeTemplates } =
     useAsyncData(feeTemplatesRequested, feeTemplatesSelectors.selectState, {
@@ -433,8 +683,20 @@ export function DistributionWizard() {
   const currentStep = wizard.currentStep;
   const isLastStep = currentStep === STEP_LABELS.length - 1;
   const progressValue = (currentStep / (STEP_LABELS.length - 1)) * 100;
+
+  useEffect(() => {
+    if (resolvedStep === null) return;
+    if (resolvedStep === currentStep) return;
+    patchWizard({ currentStep: resolvedStep });
+  }, [currentStep, patchWizard, resolvedStep]);
+
+  useEffect(() => {
+    if (resolvedStep !== null) return;
+    updateStepInUrl(currentStep, true);
+  }, [currentStep, resolvedStep, updateStepInUrl]);
   const validationForStep =
     wizard.validationErrors.find((entry) => entry.step === currentStep)?.errors ?? [];
+  const showStepErrors = validationForStep.length > 0;
   const workflowSteps = useMemo<WorkflowStep[]>(
     () =>
       STEP_LABELS.map((label, index) => ({
@@ -590,46 +852,24 @@ export function DistributionWizard() {
     } satisfies Partial<Distribution>;
   };
 
-  const handlePersistDistribution = async (status: DistributionStatus, isDraft: boolean) => {
-    try {
-      const payload = buildDistributionPayload(status, isDraft);
-      const saved = eventData.id
-        ? await updateDistribution(eventData.id, payload)
-        : await createDistribution(payload);
-      dispatch(distributionUpdated(saved));
-      dispatch(setSelectedDistribution(saved.id));
-      patchWizard({
-        eventData: {
-          ...eventData,
-          id: saved.id,
-          status: saved.status,
-          createdAt: saved.createdAt,
-          updatedAt: saved.updatedAt,
-        },
-        isDraft: saved.isDraft,
-        draftSavedAt: new Date().toISOString(),
-      });
-      if (isDraft) {
-        saveDraft();
-      } else {
-        clearDraft();
-      }
-    } catch (error) {
-      console.error("Failed to save distribution", error);
+  const handlePersistDistribution = (status: DistributionStatus, isDraft: boolean) => {
+    const payload = buildDistributionPayload(status, isDraft);
+    const requestId = `save-${Date.now()}`;
+    setBlockingError(null);
+    setIsBlockingErrorOpen(false);
+    setPendingSave({ requestId, status, isDraft });
+
+    if (eventData.id) {
+      dispatch(updateDistributionRequested({ id: eventData.id, data: payload, requestId }));
+    } else {
+      dispatch(createDistributionRequested({ data: payload, requestId }));
     }
   };
 
   const validateStep = (step: number): string[] => {
     switch (step) {
       case 0: {
-        const errors: string[] = [];
-        if (!eventData.name) errors.push("Name is required.");
-        if (!eventData.eventType) errors.push("Event type is required.");
-        if (!eventData.eventDate) errors.push("Event date is required.");
-        if (!eventData.grossProceeds || eventData.grossProceeds <= 0) {
-          errors.push("Gross proceeds must be greater than zero.");
-        }
-        return errors;
+        return Object.values(eventFieldErrors).filter(Boolean) as string[];
       }
       case 1: {
         const errors: string[] = [];
@@ -696,22 +936,12 @@ export function DistributionWizard() {
           errors.push("Impact preview is required.");
           return errors;
         }
-        if (impact.navAfter < 0) errors.push("Projected NAV cannot be negative.");
-        if (impact.dpiAfter < 0) errors.push("Projected DPI cannot be negative.");
-        if (impact.tvpiAfter < 0) errors.push("Projected TVPI cannot be negative.");
+        errors.push(...(Object.values(impactFieldErrors).filter(Boolean) as string[]));
         return errors;
       }
       case 7:
         {
-          const errors: string[] = [];
-          if (!previewData.template) errors.push("Select a statement template.");
-          if (!previewData.emailSubject?.trim()) {
-            errors.push("Email subject is required.");
-          }
-          if (!previewData.emailBody?.trim()) {
-            errors.push("Email body is required.");
-          }
-          return errors;
+          return Object.values(previewFieldErrors).filter(Boolean) as string[];
         }
       case 8:
         if (!activeApprovalRule) return ["No approval rule matched this distribution total."];
@@ -721,7 +951,15 @@ export function DistributionWizard() {
     }
   };
 
-  const handleNext = async () => {
+  const goToStep = useCallback(
+    (nextStep: number, patch: Partial<DistributionWizardState> = {}) => {
+      patchWizard({ currentStep: nextStep, ...patch });
+      updateStepInUrl(nextStep);
+    },
+    [patchWizard, updateStepInUrl]
+  );
+
+  const handleNext = () => {
     const errors = validateStep(currentStep);
     const nextErrors = wizard.validationErrors.filter((entry) => entry.step !== currentStep);
     if (errors.length > 0) {
@@ -730,7 +968,7 @@ export function DistributionWizard() {
     }
 
     if (isLastStep) {
-      await handlePersistDistribution("pending-approval", false);
+      handlePersistDistribution("pending-approval", false);
       patchWizard({ validationErrors: nextErrors });
       return;
     }
@@ -739,19 +977,36 @@ export function DistributionWizard() {
       ? wizard.completedSteps
       : [...wizard.completedSteps, currentStep];
 
-    patchWizard({
-      currentStep: Math.min(currentStep + 1, STEP_LABELS.length - 1),
+    const nextStep = Math.min(currentStep + 1, STEP_LABELS.length - 1);
+    goToStep(nextStep, {
       completedSteps: nextCompleted,
       validationErrors: nextErrors,
     });
   };
 
   const handleBack = () => {
-    patchWizard({ currentStep: Math.max(currentStep - 1, 0) });
+    const nextStep = Math.max(currentStep - 1, 0);
+    goToStep(nextStep);
   };
 
-  const handleSaveDraft = async () => {
-    await handlePersistDistribution("draft", true);
+  const handleSaveDraft = () => {
+    handlePersistDistribution("draft", true);
+  };
+
+  const handleDismissSaveError = () => {
+    setIsBlockingErrorOpen(false);
+    setBlockingError(null);
+    setPendingSave(null);
+  };
+
+  const handleRetrySave = () => {
+    if (!pendingSave) {
+      handleDismissSaveError();
+      return;
+    }
+    setIsBlockingErrorOpen(false);
+    setBlockingError(null);
+    handlePersistDistribution(pendingSave.status, pendingSave.isDraft);
   };
 
   const renderStep = () => {
@@ -761,6 +1016,8 @@ export function DistributionWizard() {
           <DistributionStepEvent
             eventData={eventData}
             onChange={updateEventData}
+            errors={eventFieldErrors}
+            showErrors={showStepErrors}
           />
         );
       case 1:
@@ -773,6 +1030,8 @@ export function DistributionWizard() {
             error={feeTemplatesError}
             onRetry={refetchFeeTemplates}
             onChange={updateFees}
+            itemErrors={feeItemErrors}
+            showErrors={showStepErrors}
           />
         );
       case 2:
@@ -792,6 +1051,8 @@ export function DistributionWizard() {
                 selectedScenarioId={wizard.waterfallData?.scenarioId}
                 grossProceeds={grossProceeds}
                 previewResults={wizard.waterfallData?.results ?? null}
+                error={wizard.waterfallData?.scenarioId ? undefined : "Select a waterfall scenario."}
+                showErrors={showStepErrors}
                 onChange={(scenarioId) =>
                   markEdited({
                     waterfallData: scenarioId
@@ -829,6 +1090,8 @@ export function DistributionWizard() {
             onRecalculate={handleRecalculateAllocations}
             comparisonMap={previousAllocationMap}
             comparisonLabel={comparisonLabel}
+            allocationErrors={allocationFieldErrors}
+            showErrors={showStepErrors}
           />
         );
       case 4:
@@ -837,6 +1100,8 @@ export function DistributionWizard() {
             allocations={allocations}
             lpProfiles={lpProfiles}
             onChange={updateAllocations}
+            rateErrors={taxRateErrors}
+            showErrors={showStepErrors}
           />
         );
       case 5:
@@ -854,6 +1119,8 @@ export function DistributionWizard() {
             totalDistributed={totalDistributed}
             onChange={updateImpact}
             onRecalculate={handleRecalculateImpact}
+            fieldErrors={impactFieldErrors}
+            showErrors={showStepErrors}
           />
         );
       case 7:
@@ -866,6 +1133,8 @@ export function DistributionWizard() {
             lpProfiles={lpProfiles}
             emailSubject={previewData.emailSubject}
             emailBody={previewData.emailBody}
+            errors={previewFieldErrors}
+            showErrors={showStepErrors}
             onChange={(next) =>
               updatePreview({
                 template: next.template,
@@ -996,20 +1265,56 @@ export function DistributionWizard() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Button
           variant="light"
-          isDisabled={currentStep === 0}
+          isDisabled={currentStep === 0 || isSaving}
           onPress={handleBack}
         >
           Back
         </Button>
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="bordered" onPress={handleSaveDraft}>
+          <Button variant="bordered" onPress={handleSaveDraft} isDisabled={isSaving}>
             Save Draft
           </Button>
-          <Button color="primary" onPress={handleNext}>
+          <Button color="primary" onPress={handleNext} isDisabled={isSaving}>
             {isLastStep ? "Submit for Approval" : "Save & Continue"}
           </Button>
         </div>
       </div>
+
+      <Modal
+        title="Unable to save distribution"
+        isOpen={isBlockingErrorOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            handleDismissSaveError();
+          }
+        }}
+        isDismissable
+        footer={(
+          <div className="flex flex-wrap justify-end gap-2">
+            <Button variant="light" onPress={handleDismissSaveError}>
+              Dismiss
+            </Button>
+            <Button
+              color="primary"
+              onPress={handleRetrySave}
+              isDisabled={!pendingSave || isSaving}
+            >
+              Retry Save
+            </Button>
+          </div>
+        )}
+      >
+        <div className="space-y-2 text-sm">
+          <p className="text-[var(--app-text-muted)]">
+            We could not save your distribution. Please review the details and try again.
+          </p>
+          {blockingError?.message && (
+            <div className="rounded-md border border-[var(--app-danger)] bg-[var(--app-danger-bg)] px-3 py-2 text-xs text-[var(--app-danger)]">
+              {blockingError.message}
+            </div>
+          )}
+        </div>
+      </Modal>
     </PageScaffold>
   );
 }

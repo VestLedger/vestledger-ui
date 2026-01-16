@@ -21,7 +21,7 @@ import type {
 } from '@/types/distribution';
 import { formatCurrencyCompact, formatDate } from '@/utils/formatting';
 import { distributionEventTypeLabels, getLabelForType } from '@/utils/styling/typeMappers';
-import { CalendarDays, Plus } from 'lucide-react';
+import { CalendarDays, Files, Plus } from 'lucide-react';
 
 type DistributionListUIState = {
   searchQuery: string;
@@ -209,8 +209,12 @@ export function DistributionsList() {
           isLoading={isLoading}
           error={error}
           onRetry={refetch}
-          emptyTitle="No distributions yet"
-          emptyMessage="Create a distribution to start tracking allocations."
+          emptyIcon={Files}
+          emptyTitle="No distributions created"
+          emptyAction={{
+            label: "Create Distribution",
+            onClick: () => router.push("/fund-admin/distributions/new"),
+          }}
           isEmpty={(value) => !value?.distributions?.length}
         >
           {() => (

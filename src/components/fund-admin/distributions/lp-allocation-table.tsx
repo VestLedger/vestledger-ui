@@ -14,6 +14,12 @@ export interface LPAllocationTableProps {
   onRecalculate?: () => void;
   comparisonMap?: Record<string, number>;
   showComparison?: boolean;
+  allocationErrors?: Record<string, Partial<{
+    grossAmount: string;
+    netAmount: string;
+    taxWithholdingRate: string;
+  }>>;
+  showErrors?: boolean;
 }
 
 const DEFAULT_PAGE_SIZE = 8;
@@ -24,7 +30,13 @@ export function LPAllocationTable({
   onRecalculate,
   comparisonMap,
   showComparison = false,
+  allocationErrors,
+  showErrors = false,
 }: LPAllocationTableProps) {
+  const visibleAllocationErrors = useMemo(
+    () => (showErrors ? allocationErrors ?? {} : {}),
+    [allocationErrors, showErrors]
+  );
   const handleUpdate = useCallback(
     (id: string, patch: Partial<LPAllocation>) => {
       onChange(
@@ -63,30 +75,40 @@ export function LPAllocationTable({
         label: 'Gross',
         sortable: true,
         align: 'right',
-        render: (item) => (
-          <Input
-            type="number"
-            value={item.grossAmount.toString()}
-            onChange={(event) =>
-              handleUpdate(item.id, { grossAmount: Number(event.target.value) || 0 })
-            }
-          />
-        ),
+        render: (item) => {
+          const error = visibleAllocationErrors[item.id]?.grossAmount;
+          return (
+            <Input
+              type="number"
+              value={item.grossAmount.toString()}
+              onChange={(event) =>
+                handleUpdate(item.id, { grossAmount: Number(event.target.value) || 0 })
+              }
+              isInvalid={Boolean(error)}
+              errorMessage={error}
+            />
+          );
+        },
       },
       {
         key: 'netAmount',
         label: 'Net',
         sortable: true,
         align: 'right',
-        render: (item) => (
-          <Input
-            type="number"
-            value={item.netAmount.toString()}
-            onChange={(event) =>
-              handleUpdate(item.id, { netAmount: Number(event.target.value) || 0 })
-            }
-          />
-        ),
+        render: (item) => {
+          const error = visibleAllocationErrors[item.id]?.netAmount;
+          return (
+            <Input
+              type="number"
+              value={item.netAmount.toString()}
+              onChange={(event) =>
+                handleUpdate(item.id, { netAmount: Number(event.target.value) || 0 })
+              }
+              isInvalid={Boolean(error)}
+              errorMessage={error}
+            />
+          );
+        },
       },
       {
         key: 'hasSpecialTerms',
@@ -133,7 +155,7 @@ export function LPAllocationTable({
     }
 
     return base;
-  }, [comparisonMap, handleUpdate, showComparison]);
+  }, [comparisonMap, handleUpdate, showComparison, visibleAllocationErrors]);
 
   const toolbarStart = (
     <>
@@ -170,7 +192,7 @@ export function LPAllocationTable({
       showColumnToggle={false}
       pageSize={DEFAULT_PAGE_SIZE}
       toolbarStart={toolbarStart}
-      emptyMessage="No allocations available."
+      emptyMessage="Run waterfall calculation to generate allocations."
     />
   );
 }

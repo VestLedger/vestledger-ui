@@ -18,6 +18,12 @@ export interface DistributionStepImpactProps {
   totalDistributed: number;
   onChange: (impact: DistributionImpact) => void;
   onRecalculate?: (distributionAmount: number) => void;
+  fieldErrors?: Partial<{
+    navAfter: string;
+    dpiAfter: string;
+    tvpiAfter: string;
+  }>;
+  showErrors?: boolean;
 }
 
 export function DistributionStepImpact({
@@ -25,7 +31,10 @@ export function DistributionStepImpact({
   totalDistributed,
   onChange,
   onRecalculate,
+  fieldErrors,
+  showErrors = false,
 }: DistributionStepImpactProps) {
+  const errors = showErrors ? fieldErrors ?? {} : {};
   const { value: ui, patch: patchUI } = useUIKey<ImpactWhatIfUIState>(
     "distribution-impact-whatif",
     {
@@ -101,6 +110,8 @@ export function DistributionStepImpact({
               navChange: (Number(event.target.value) || 0) - impact.navBefore,
             })
           }
+          isInvalid={Boolean(errors.navAfter)}
+          errorMessage={errors.navAfter}
         />
         <Input
           label="Projected DPI After"
@@ -113,6 +124,8 @@ export function DistributionStepImpact({
               dpiChange: (Number(event.target.value) || 0) - impact.dpiBefore,
             })
           }
+          isInvalid={Boolean(errors.dpiAfter)}
+          errorMessage={errors.dpiAfter}
         />
         <Input
           label="Projected TVPI After"
@@ -125,6 +138,8 @@ export function DistributionStepImpact({
               tvpiChange: (Number(event.target.value) || 0) - impact.tvpiBefore,
             })
           }
+          isInvalid={Boolean(errors.tvpiAfter)}
+          errorMessage={errors.tvpiAfter}
         />
         <Input
           label="Projected Undrawn After"

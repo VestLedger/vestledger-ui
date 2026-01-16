@@ -8,6 +8,7 @@ import {
   createDistributionSucceeded,
   createDistributionFailed,
   updateDistributionSucceeded,
+  updateDistributionFailed,
   deleteDistributionSucceeded,
   submitForApprovalSucceeded,
   approveDistributionSucceeded,
@@ -27,6 +28,7 @@ import {
   type DistributionSummaryData,
   type CalendarEventsData,
   type FeeTemplatesData,
+  type DistributionSaveData,
 } from '../distributionSlice';
 import type { NormalizedError } from '@/store/types/AsyncState';
 import type { Distribution, DistributionCalendarEvent, FeeTemplate } from '@/types/distribution';
@@ -91,6 +93,11 @@ describe('distributionSlice', () => {
       status: 'idle' as const,
       error: undefined,
     },
+    save: {
+      data: null as DistributionSaveData | null,
+      status: 'idle' as const,
+      error: undefined,
+    },
     summary: {
       data: null as DistributionSummaryData | null,
       status: 'idle' as const,
@@ -130,6 +137,7 @@ describe('distributionSlice', () => {
       const state = distributionReducer(undefined, { type: '@@INIT' });
       expect(state.distributions.status).toBe('idle');
       expect(state.distributions.data).toBeNull();
+      expect(state.save.status).toBe('idle');
       expect(state.summary.status).toBe('idle');
       expect(state.calendarEvents.status).toBe('idle');
       expect(state.selectedDistributionId).toBeNull();
@@ -190,15 +198,24 @@ describe('distributionSlice', () => {
     });
 
     it('createDistributionSucceeded should add new distribution', () => {
-      const state = distributionReducer(initialState, createDistributionSucceeded(mockDistribution));
+      const state = distributionReducer(
+        initialState,
+        createDistributionSucceeded({ distribution: mockDistribution, requestId: 'req-1' })
+      );
       expect(state.distributions.data?.distributions).toEqual([mockDistribution]);
+      expect(state.save.status).toBe('succeeded');
+      expect(state.save.data?.distribution.id).toBe(mockDistribution.id);
     });
 
     it('createDistributionFailed should set error', () => {
       const error: NormalizedError = { message: 'Failed to create' };
-      const state = distributionReducer(initialState, createDistributionFailed(error));
+      const state = distributionReducer(
+        initialState,
+        createDistributionFailed({ error, requestId: 'req-1' })
+      );
       expect(state.distributions.status).toBe('failed');
       expect(state.distributions.error).toEqual(error);
+      expect(state.save.status).toBe('failed');
     });
 
     it('updateDistributionSucceeded should update distribution', () => {
@@ -211,8 +228,23 @@ describe('distributionSlice', () => {
         },
       };
       const updatedDistribution = { ...mockDistribution, status: 'pending-approval' as const };
-      const state = distributionReducer(stateWithDistributions, updateDistributionSucceeded(updatedDistribution));
+      const state = distributionReducer(
+        stateWithDistributions,
+        updateDistributionSucceeded({ distribution: updatedDistribution, requestId: 'req-2' })
+      );
       expect(state.distributions.data?.distributions[0]?.status).toBe('pending-approval');
+      expect(state.save.status).toBe('succeeded');
+    });
+
+    it('updateDistributionFailed should set error', () => {
+      const error: NormalizedError = { message: 'Failed to update' };
+      const state = distributionReducer(
+        initialState,
+        updateDistributionFailed({ error, requestId: 'req-2' })
+      );
+      expect(state.distributions.status).toBe('failed');
+      expect(state.distributions.error).toEqual(error);
+      expect(state.save.status).toBe('failed');
     });
 
     it('deleteDistributionSucceeded should remove distribution', () => {

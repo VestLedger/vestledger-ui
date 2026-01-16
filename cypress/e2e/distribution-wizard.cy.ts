@@ -3,7 +3,7 @@ const fillInputByLabel = (label: string, value: string) => {
     .invoke("attr", "for")
     .then((id) => {
       if (id) {
-        cy.get(`#${id}`).clear().type(value);
+        cy.get(`[id="${id}"]`).clear().type(value);
         return;
       }
 
@@ -17,6 +17,10 @@ const fillInputByLabel = (label: string, value: string) => {
 };
 
 describe("Distribution wizard", () => {
+  beforeEach(() => {
+    cy.seedAuth();
+  });
+
   it("progresses from event to fees step", () => {
     cy.visit("/fund-admin/distributions/new");
     cy.contains("Create Distribution").should("be.visible");

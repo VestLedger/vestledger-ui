@@ -6,6 +6,7 @@ import { ThemeProvider as NextThemesProvider, useTheme } from 'next-themes';
 import { ReactNode } from 'react';
 import { getThemeFromCookie, setThemeCookie } from '@/lib/theme-sync';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { ToastProvider } from '@/ui';
 
 /**
  * Syncs theme between next-themes (localStorage) and cookies (cross-subdomain)
@@ -77,7 +78,7 @@ export function RootProviders({ children }: { children: ReactNode }) {
       <NextThemesProvider attribute="class" defaultTheme="dark" storageKey="theme">
         <ThemeSyncWrapper>
           <NextUIProvider>
-            {children}
+            <ToastProvider>{children}</ToastProvider>
           </NextUIProvider>
         </ThemeSyncWrapper>
       </NextThemesProvider>

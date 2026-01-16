@@ -27,6 +27,7 @@ export function PageScaffold({
   const routeConfig = routePath ? getRouteConfig(routePath) : undefined;
   const resolvedBreadcrumbs = breadcrumbs ?? routeConfig?.breadcrumbs;
   const resolvedSuggestion = aiSuggestion ?? routeConfig?.aiSuggestion;
+  const contentId = 'page-content';
 
   const resolvedHeader: PageHeaderProps = {
     ...header,
@@ -35,6 +36,12 @@ export function PageScaffold({
 
   return (
     <PageContainer {...containerProps}>
+      <a
+        href={`#${contentId}`}
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-[var(--app-surface)] focus:px-3 focus:py-2 focus:text-sm focus:text-[var(--app-text)] focus:shadow-lg"
+      >
+        Skip to content
+      </a>
       {resolvedBreadcrumbs && resolvedBreadcrumbs.length > 0 && (
         <Breadcrumb items={resolvedBreadcrumbs} aiSuggestion={resolvedSuggestion} />
       )}
@@ -47,7 +54,9 @@ export function PageScaffold({
         </div>
       )}
 
-      {children}
+      <div id={contentId} tabIndex={-1}>
+        {children}
+      </div>
     </PageContainer>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Badge, Button, Card, Input, Select } from '@/ui';
 import {
   TrendingDown,
@@ -13,6 +13,7 @@ import {
   Flag,
   Shuffle,
   ArrowRight,
+  FolderOpen,
 } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
@@ -32,7 +33,14 @@ import { ScenarioManager } from '@/components/waterfall/scenario-manager';
 import { ExportMenu } from '@/components/waterfall/export-menu';
 import { CustomTierBuilder } from '@/components/waterfall/custom-tier-builder';
 import { calculateWaterfall } from '@/lib/calculations/waterfall';
-import type { InvestorClass, WaterfallModel, WaterfallScenario, WaterfallTier } from '@/types/waterfall';
+import type {
+  InvestorClass,
+  WaterfallTemplate,
+  WaterfallModel,
+  WaterfallResults,
+  WaterfallScenario,
+  WaterfallTier,
+} from '@/types/waterfall';
 import {
   addComparisonScenario,
   clearComparisonScenarios,
@@ -54,6 +62,7 @@ import {
   distributionsSelectors,
 } from '@/store/slices/distributionSlice';
 import { useAsyncData } from '@/hooks/useAsyncData';
+import { mockInvestorClasses, mockWaterfallTemplates } from '@/data/mocks/analytics/waterfall';
 
 const chartOptions = [
   { id: 'waterfall', label: 'Waterfall Flow', icon: BarChart3 },
@@ -82,6 +91,40 @@ const getModelShortLabel = (model: WaterfallModel) =>
 
 const buildScenarioName = (scenario: WaterfallScenario, exitValue: number) =>
   `${formatCurrencyCompact(exitValue)} Exit (${getModelShortLabel(scenario.model)})`;
+
+const buildStarterScenario = (
+  template?: WaterfallTemplate
+): Omit<WaterfallScenario, 'id' | 'createdAt' | 'updatedAt' | 'version'> => {
+  const baseTemplate = template ?? mockWaterfallTemplates[0];
+  const now = new Date().toISOString();
+  const seed = Date.now();
+  const investorClasses = mockInvestorClasses.map((investorClass, index) => ({
+    ...investorClass,
+    id: `ic-${seed}-${index}`,
+    createdAt: now,
+    updatedAt: now,
+  }));
+  const tiers = (baseTemplate?.tiers ?? []).map((tier, index) => ({
+    ...tier,
+    id: `tier-${seed}-${index}`,
+    order: tier.order ?? index,
+  }));
+
+  return {
+    name: 'Starter Scenario',
+    description: 'Auto-generated starter scenario',
+    model: baseTemplate?.model ?? 'european',
+    investorClasses,
+    tiers,
+    exitValue: 200_000_000,
+    totalInvested: computeTotalInvested(investorClasses),
+    managementFees: 5_000_000,
+    isFavorite: false,
+    isTemplate: false,
+    createdBy: 'Ops Team',
+    tags: ['starter'],
+  };
+};
 
 export function WaterfallModeling() {
   const dispatch = useAppDispatch();
@@ -135,15 +178,28 @@ export function WaterfallModeling() {
   const selectedScenario =
     scenarios.find((scenario) => scenario.id === selectedScenarioId) ?? scenarios[0] ?? null;
 
-  const activeScenario = useMemo(() => {
-    if (!selectedScenario) return null;
+  const [activeScenario, setActiveScenario] = useState<WaterfallScenario | null>(null);
+  const [calculationError, setCalculationError] = useState<string | null>(null);
+  const lastValidResultsRef = useRef<WaterfallResults | null>(null);
+
+  useEffect(() => {
+    if (!selectedScenario) {
+      setActiveScenario(null);
+      setCalculationError(null);
+      return;
+    }
 
     const totalInvested = computeTotalInvested(selectedScenario.investorClasses);
     const needsPreview =
       exitValueInput !== selectedScenario.exitValue || !selectedScenario.results;
 
     if (!needsPreview) {
-      return selectedScenario;
+      setActiveScenario(selectedScenario);
+      if (selectedScenario.results) {
+        lastValidResultsRef.current = selectedScenario.results;
+      }
+      setCalculationError(null);
+      return;
     }
 
     const previewScenario: WaterfallScenario = {
@@ -152,10 +208,17 @@ export function WaterfallModeling() {
       totalInvested,
     };
 
-    return {
-      ...previewScenario,
-      results: calculateWaterfall(previewScenario),
-    };
+    try {
+      const results = calculateWaterfall(previewScenario);
+      lastValidResultsRef.current = results;
+      setCalculationError(null);
+      setActiveScenario({ ...previewScenario, results });
+    } catch (error) {
+      console.error("Waterfall calculation failed", error);
+      setCalculationError("Calculation failed. Showing the last valid results.");
+      const fallbackResults = lastValidResultsRef.current ?? selectedScenario.results ?? null;
+      setActiveScenario({ ...previewScenario, results: fallbackResults ?? undefined });
+    }
   }, [exitValueInput, selectedScenario]);
 
   const defaultTiersByModel = useMemo<Record<WaterfallModel, WaterfallTier[]>>(() => ({
@@ -221,6 +284,19 @@ export function WaterfallModeling() {
 
   const lpAllocations = selectedDistribution?.lpAllocations ?? [];
 
+  const runCalculation = (scenario: WaterfallScenario) => {
+    try {
+      const results = calculateWaterfall(scenario);
+      lastValidResultsRef.current = results;
+      setCalculationError(null);
+      return results;
+    } catch (error) {
+      console.error("Waterfall calculation failed", error);
+      setCalculationError("Calculation failed. Showing the last valid results.");
+      return lastValidResultsRef.current ?? scenario.results ?? null;
+    }
+  };
+
   const updateScenario = (nextScenario: WaterfallScenario) => {
     dispatch(updateScenarioRequested({ id: nextScenario.id, data: nextScenario }));
   };
@@ -234,7 +310,7 @@ export function WaterfallModeling() {
     };
     updateScenario({
       ...updatedScenario,
-      results: calculateWaterfall(updatedScenario),
+      results: runCalculation(updatedScenario) ?? undefined,
     });
   };
 
@@ -275,7 +351,7 @@ export function WaterfallModeling() {
 
     updateScenario({
       ...updatedScenario,
-      results: calculateWaterfall(updatedScenario),
+      results: runCalculation(updatedScenario) ?? undefined,
     });
   };
 
@@ -300,7 +376,7 @@ export function WaterfallModeling() {
 
     updateScenario({
       ...updatedScenario,
-      results: calculateWaterfall(updatedScenario),
+      results: runCalculation(updatedScenario) ?? undefined,
     });
   };
 
@@ -323,10 +399,17 @@ export function WaterfallModeling() {
 
     const scenarioWithResults = {
       ...scenarioDraft,
-      results: calculateWaterfall(scenarioDraft),
+      results: runCalculation(scenarioDraft) ?? undefined,
     };
 
     const { id: _id, createdAt: _createdAt, updatedAt: _updatedAt, version: _version, ...payload } = scenarioWithResults;
+    dispatch(createScenarioRequested(payload));
+    patchUI({ pendingScenarioSelection: true });
+  };
+
+  const handleCreateStarterScenario = () => {
+    const template = templates[0] ?? mockWaterfallTemplates[0];
+    const payload = buildStarterScenario(template);
     dispatch(createScenarioRequested(payload));
     patchUI({ pendingScenarioSelection: true });
   };
@@ -501,8 +584,9 @@ export function WaterfallModeling() {
         isLoading={isLoading}
         error={error}
         onRetry={refetch}
-        emptyTitle="No waterfall scenarios"
-        emptyMessage="Load or create a scenario to start modeling distributions."
+        emptyIcon={FolderOpen}
+        emptyTitle="No waterfall scenarios yet"
+        emptyAction={{ label: "Create your first scenario", onClick: handleCreateStarterScenario }}
         isEmpty={(data) => !data?.scenarios?.length}
       >
         {() => (
@@ -575,6 +659,11 @@ export function WaterfallModeling() {
                     onSelectLp={(id) => patchUI({ selectedLpId: id })}
                     printMode={printMode}
                   />
+                )}
+                {calculationError && (
+                  <div className="mt-4 rounded-lg border border-[var(--app-warning)] bg-[var(--app-warning-bg)] px-4 py-3 text-sm text-[var(--app-warning)]">
+                    {calculationError}
+                  </div>
                 )}
               </Card>
 

@@ -16,12 +16,22 @@ const EVENT_TYPE_OPTIONS: Array<{ value: DistributionEventType; label: string }>
 export interface DistributionStepEventProps {
   eventData: Partial<Distribution>;
   onChange: (patch: Partial<Distribution>) => void;
+  errors?: Partial<{
+    name: string;
+    eventType: string;
+    eventDate: string;
+    grossProceeds: string;
+  }>;
+  showErrors?: boolean;
 }
 
 export function DistributionStepEvent({
   eventData,
   onChange,
+  errors,
+  showErrors = false,
 }: DistributionStepEventProps) {
+  const fieldErrors = showErrors ? errors ?? {} : {};
   return (
     <Card padding="lg" className="space-y-4">
       <SectionHeader
@@ -35,6 +45,8 @@ export function DistributionStepEvent({
           value={eventData.name ?? ""}
           onChange={(event) => onChange({ name: event.target.value })}
           placeholder="Fund II Exit Distribution"
+          isInvalid={Boolean(fieldErrors.name)}
+          errorMessage={fieldErrors.name}
         />
         <Select
           label="Event type"
@@ -44,12 +56,16 @@ export function DistributionStepEvent({
           }
           options={EVENT_TYPE_OPTIONS}
           placeholder="Select event type"
+          isInvalid={Boolean(fieldErrors.eventType)}
+          errorMessage={fieldErrors.eventType}
         />
         <Input
           label="Event date"
           type="date"
           value={eventData.eventDate ?? ""}
           onChange={(event) => onChange({ eventDate: event.target.value })}
+          isInvalid={Boolean(fieldErrors.eventDate)}
+          errorMessage={fieldErrors.eventDate}
         />
         <Input
           label="Payment date"
@@ -64,6 +80,8 @@ export function DistributionStepEvent({
           onChange={(event) =>
             onChange({ grossProceeds: Number(event.target.value) || 0 })
           }
+          isInvalid={Boolean(fieldErrors.grossProceeds)}
+          errorMessage={fieldErrors.grossProceeds}
         />
         <Input
           label="Fund"

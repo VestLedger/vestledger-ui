@@ -34,6 +34,12 @@ export interface DistributionStepPreviewProps {
   lpProfiles: LPProfile[];
   emailSubject?: string;
   emailBody?: string;
+  errors?: Partial<{
+    template: string;
+    emailSubject: string;
+    emailBody: string;
+  }>;
+  showErrors?: boolean;
   onChange: (next: {
     template: StatementTemplate;
     branding?: StatementBranding;
@@ -50,6 +56,8 @@ export function DistributionStepPreview({
   lpProfiles,
   emailSubject,
   emailBody,
+  errors,
+  showErrors = false,
   onChange,
 }: DistributionStepPreviewProps) {
   const initialLPId = lpProfiles[0]?.id ?? "";
@@ -64,6 +72,7 @@ export function DistributionStepPreview({
   const fallbackBody = `Hello,\n\nYour ${distributionName} statement is ready for review. Please log in to the LP portal to view details and confirm receipt.\n\nThank you,\nVestLedger Operations`;
   const previewSubject = emailSubject?.trim() || fallbackSubject;
   const previewBody = emailBody?.trim() || fallbackBody;
+  const fieldErrors = showErrors ? errors ?? {} : {};
 
   useEffect(() => {
     if (!ui.selectedLPId && lpProfiles.length > 0) {
@@ -97,6 +106,8 @@ export function DistributionStepPreview({
           })
         }
         options={STATEMENT_TEMPLATE_OPTIONS}
+        isInvalid={Boolean(fieldErrors.template)}
+        errorMessage={fieldErrors.template}
       />
 
       {selectedTemplate && (
@@ -175,6 +186,8 @@ export function DistributionStepPreview({
           })
         }
         placeholder={fallbackSubject}
+        isInvalid={Boolean(fieldErrors.emailSubject)}
+        errorMessage={fieldErrors.emailSubject}
       />
 
       <Textarea
@@ -190,6 +203,8 @@ export function DistributionStepPreview({
         }
         minRows={5}
         placeholder={fallbackBody}
+        isInvalid={Boolean(fieldErrors.emailBody)}
+        errorMessage={fieldErrors.emailBody}
       />
 
       <div className="rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] p-3 text-sm">

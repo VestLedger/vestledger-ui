@@ -140,6 +140,7 @@ export function LPWaterfallDetail({
   const distributionDateLabel = sourceDistribution?.eventDate
     ? formatDate(sourceDistribution.eventDate)
     : null;
+  const accessibleRows = selectedLP ? [selectedLP] : lpRows;
 
   return (
     <div
@@ -245,6 +246,35 @@ export function LPWaterfallDetail({
           </div>
         </div>
       )}
+      <table className="sr-only" aria-label="LP distribution breakdown">
+        <caption>LP distribution breakdown</caption>
+        <thead>
+          <tr>
+            <th scope="col">LP</th>
+            <th scope="col">Investor Class</th>
+            <th scope="col">Ownership</th>
+            <th scope="col">Invested</th>
+            <th scope="col">Returned</th>
+            <th scope="col">Net Return</th>
+            <th scope="col">Multiple</th>
+            <th scope="col">IRR</th>
+          </tr>
+        </thead>
+        <tbody>
+          {accessibleRows.map((row) => (
+            <tr key={`sr-${row.id}`}>
+              <td>{row.name}</td>
+              <td>{row.investorClassName}</td>
+              <td>{row.ownershipPercentage.toFixed(1)}%</td>
+              <td>{formatCurrencyCompact(row.invested)}</td>
+              <td>{formatCurrencyCompact(row.returned)}</td>
+              <td>{formatCurrencyCompact(row.netReturn)}</td>
+              <td>{row.multiple.toFixed(2)}x</td>
+              <td>{row.irr.toFixed(1)}%</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

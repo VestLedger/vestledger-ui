@@ -52,9 +52,17 @@ export interface ApprovalRulesData {
   rules: ApprovalRule[];
 }
 
+export interface DistributionSaveData {
+  distribution: Distribution;
+  requestId: string;
+}
+
 interface DistributionState {
   // Distributions list
   distributions: AsyncState<DistributionsData>;
+
+  // Save operations
+  save: AsyncState<DistributionSaveData>;
 
   // Summary/metrics
   summary: AsyncState<DistributionSummaryData>;
@@ -81,6 +89,7 @@ interface DistributionState {
 
 const initialState: DistributionState = {
   distributions: createInitialAsyncState<DistributionsData>(),
+  save: createInitialAsyncState<DistributionSaveData>(),
   summary: createInitialAsyncState<DistributionSummaryData>(),
   calendarEvents: createInitialAsyncState<CalendarEventsData>(),
   feeTemplates: createInitialAsyncState<FeeTemplatesData>(),
@@ -135,44 +144,73 @@ const distributionSlice = createSlice({
     },
 
     // Create distribution
-    createDistributionRequested: (state, _action: PayloadAction<Partial<Distribution>>) => {
+    createDistributionRequested: (
+      state,
+      _action: PayloadAction<{ data: Partial<Distribution>; requestId: string }>
+    ) => {
       state.distributions.status = 'loading';
       state.distributions.error = undefined;
+      state.save.status = 'loading';
+      state.save.error = undefined;
     },
-    createDistributionSucceeded: (state, action: PayloadAction<Distribution>) => {
+    createDistributionSucceeded: (
+      state,
+      action: PayloadAction<DistributionSaveData>
+    ) => {
       if (!state.distributions.data) {
         state.distributions.data = { distributions: [] };
       }
-      state.distributions.data.distributions.push(action.payload);
+      state.distributions.data.distributions.push(action.payload.distribution);
       state.distributions.status = 'succeeded';
+      state.save.data = action.payload;
+      state.save.status = 'succeeded';
+      state.save.error = undefined;
     },
-    createDistributionFailed: (state, action: PayloadAction<NormalizedError>) => {
+    createDistributionFailed: (
+      state,
+      action: PayloadAction<{ error: NormalizedError; requestId: string }>
+    ) => {
       state.distributions.status = 'failed';
-      state.distributions.error = action.payload;
+      state.distributions.error = action.payload.error;
+      state.save.status = 'failed';
+      state.save.error = action.payload.error;
     },
 
     // Update distribution
     updateDistributionRequested: (
       state,
-      _action: PayloadAction<{ id: string; data: Partial<Distribution> }>
+      _action: PayloadAction<{ id: string; data: Partial<Distribution>; requestId: string }>
     ) => {
       state.distributions.status = 'loading';
       state.distributions.error = undefined;
+      state.save.status = 'loading';
+      state.save.error = undefined;
     },
-    updateDistributionSucceeded: (state, action: PayloadAction<Distribution>) => {
+    updateDistributionSucceeded: (
+      state,
+      action: PayloadAction<DistributionSaveData>
+    ) => {
       if (state.distributions.data?.distributions) {
         const index = state.distributions.data.distributions.findIndex(
-          (d) => d.id === action.payload.id
+          (d) => d.id === action.payload.distribution.id
         );
         if (index !== -1) {
-          state.distributions.data.distributions[index] = action.payload;
+          state.distributions.data.distributions[index] = action.payload.distribution;
         }
       }
       state.distributions.status = 'succeeded';
+      state.save.data = action.payload;
+      state.save.status = 'succeeded';
+      state.save.error = undefined;
     },
-    updateDistributionFailed: (state, action: PayloadAction<NormalizedError>) => {
+    updateDistributionFailed: (
+      state,
+      action: PayloadAction<{ error: NormalizedError; requestId: string }>
+    ) => {
       state.distributions.status = 'failed';
-      state.distributions.error = action.payload;
+      state.distributions.error = action.payload.error;
+      state.save.status = 'failed';
+      state.save.error = action.payload.error;
     },
 
     // Delete distribution
@@ -452,6 +490,10 @@ export const {
 // Centralized selectors (custom because of nested AsyncState)
 export const distributionsSelectors = createAsyncSelectors<DistributionsData>(
   (state) => state.distribution.distributions
+);
+
+export const saveSelectors = createAsyncSelectors<DistributionSaveData>(
+  (state) => state.distribution.save
 );
 
 export const summarySelectors = createAsyncSelectors<DistributionSummaryData>(

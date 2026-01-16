@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Badge, Button, Card, Input, Select } from "@/ui";
+import { Badge, Button, Card, Input, Select, useToast } from "@/ui";
 import { SectionHeader } from "@/components/ui";
 import { useUIKey } from "@/store/ui";
 import type { WaterfallScenario, WaterfallResults } from "@/types/waterfall";
@@ -24,6 +24,8 @@ export interface DistributionStepWaterfallProps {
   selectedScenarioId?: string;
   grossProceeds?: number;
   previewResults?: WaterfallResults | null;
+  error?: string;
+  showErrors?: boolean;
   onChange: (scenarioId: string | undefined) => void;
   onPreview?: (payload: {
     results: WaterfallResults;
@@ -38,9 +40,12 @@ export function DistributionStepWaterfall({
   selectedScenarioId,
   grossProceeds,
   previewResults,
+  error,
+  showErrors = false,
   onChange,
   onPreview,
 }: DistributionStepWaterfallProps) {
+  const toast = useToast();
   const [isPreviewing, setIsPreviewing] = useState(false);
   const [previewError, setPreviewError] = useState<string | null>(null);
   const scenarioOptions = useMemo(
@@ -103,6 +108,7 @@ export function DistributionStepWaterfall({
     } catch (error) {
       console.error("Failed to preview waterfall", error);
       setPreviewError("Unable to calculate preview results.");
+      toast.error("Unable to calculate preview results.");
     } finally {
       setIsPreviewing(false);
     }
@@ -131,6 +137,8 @@ export function DistributionStepWaterfall({
         onChange={(event) => onChange(event.target.value || undefined)}
         options={scenarioOptions}
         placeholder="Choose a scenario"
+        isInvalid={showErrors && Boolean(error)}
+        errorMessage={showErrors ? error : undefined}
       />
 
       {selectedScenario ? (
