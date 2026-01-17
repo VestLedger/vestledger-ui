@@ -82,6 +82,9 @@ interface DistributionState {
   // Approval rules
   approvalRules: AsyncState<ApprovalRulesData>;
 
+  // Per-distribution errors (for single-entity failures)
+  distributionErrors: Record<string, NormalizedError>;
+
   // UI state
   selectedDistributionId: string | null;
   currentFilters: DistributionFilters | null;
@@ -96,6 +99,7 @@ const initialState: DistributionState = {
   statementTemplates: createInitialAsyncState<StatementTemplatesData>(),
   lpProfiles: createInitialAsyncState<LPProfilesData>(),
   approvalRules: createInitialAsyncState<ApprovalRulesData>(),
+  distributionErrors: {},
   selectedDistributionId: null,
   currentFilters: null,
 };
@@ -141,6 +145,16 @@ const distributionSlice = createSlice({
         state.distributions.data.distributions.push(action.payload);
       }
       state.distributions.status = 'succeeded';
+    },
+    // Single distribution error (for fetch by ID failures)
+    distributionFailed: (
+      state,
+      action: PayloadAction<{ id: string; error: NormalizedError }>
+    ) => {
+      state.distributionErrors[action.payload.id] = action.payload.error;
+    },
+    clearDistributionError: (state, action: PayloadAction<string>) => {
+      delete state.distributionErrors[action.payload];
     },
 
     // Create distribution
@@ -444,6 +458,8 @@ export const {
   distributionsFailed,
   distributionRequested,
   distributionUpdated,
+  distributionFailed,
+  clearDistributionError,
   createDistributionRequested,
   createDistributionSucceeded,
   createDistributionFailed,
@@ -537,6 +553,10 @@ export const distributionUISelectors = {
     const distributions = state.distribution?.distributions.data?.distributions || [];
     return distributions.filter((d) => d.isDraft);
   },
+  selectDistributionError: (state: RootState, distributionId: string): NormalizedError | undefined =>
+    state.distribution?.distributionErrors[distributionId],
+  selectDistributionErrors: (state: RootState): Record<string, NormalizedError> =>
+    state.distribution?.distributionErrors || {},
 };
 
 export const distributionReducer = distributionSlice.reducer;

@@ -130,6 +130,7 @@ describe('distributionSlice', () => {
     },
     selectedDistributionId: null as string | null,
     currentFilters: null,
+    distributionErrors: {},
   };
 
   describe('initial state', () => {

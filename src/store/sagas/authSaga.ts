@@ -68,8 +68,8 @@ function* hydrateAuthWorker() {
 
 export function* loginWorker(action: ReturnType<typeof loginRequested>) {
   try {
-    const { email, role } = action.payload;
-    const user: User = createUser(email, role);
+    const { email, password, role } = action.payload;
+    const user: User = yield call(createUser, email, password, role);
 
     yield put(loginSucceeded(user));
 

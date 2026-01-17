@@ -23,6 +23,7 @@ import {
   distributionsFailed,
   distributionRequested,
   distributionUpdated,
+  distributionFailed,
   createDistributionRequested,
   createDistributionSucceeded,
   createDistributionFailed,
@@ -63,6 +64,7 @@ import {
   approvalRulesLoaded,
   approvalRulesFailed,
 } from '@/store/slices/distributionSlice';
+import { errorTracking } from '@/lib/errorTracking';
 import {
   fetchDistributions,
   fetchDistribution,
@@ -94,18 +96,23 @@ export function* loadDistributionsWorker(
     const distributions: Distribution[] = yield call(fetchDistributions, filters);
     yield put(distributionsLoaded({ distributions }));
   } catch (error: unknown) {
-    console.error('Failed to load distributions', error);
+    errorTracking.captureException(error as Error, {
+      extra: { context: 'loadDistributionsWorker', filters: action.payload },
+    });
     yield put(distributionsFailed(normalizeError(error)));
   }
 }
 
 export function* loadDistributionWorker(action: PayloadAction<string>): SagaIterator {
+  const distributionId = action.payload;
   try {
-    const distribution: Distribution = yield call(fetchDistribution, action.payload);
+    const distribution: Distribution = yield call(fetchDistribution, distributionId);
     yield put(distributionUpdated(distribution));
   } catch (error: unknown) {
-    console.error('Failed to load distribution', error);
-    yield put(distributionsFailed(normalizeError(error)));
+    errorTracking.captureException(error as Error, {
+      extra: { context: 'loadDistributionWorker', distributionId },
+    });
+    yield put(distributionFailed({ id: distributionId, error: normalizeError(error) }));
   }
 }
 

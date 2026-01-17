@@ -23,11 +23,9 @@ vi.mock('@/lib/storage/safeLocalStorage', () => ({
 
 describe('authSaga', () => {
   const mockUser: User = {
-    id: 'user-1',
-    email: 'test@example.com',
     name: 'Test User',
-    role: 'fund-manager',
-    createdAt: '2024-01-01',
+    email: 'test@example.com',
+    role: 'gp',
   };
 
   beforeEach(() => {
@@ -36,13 +34,13 @@ describe('authSaga', () => {
 
   describe('loginWorker', () => {
     it('should dispatch loginSucceeded on successful login', async () => {
-      vi.mocked(authService.createUser).mockReturnValue(mockUser);
+      vi.mocked(authService.createUser).mockResolvedValue(mockUser);
 
       const dispatched: unknown[] = [];
       const action = loginRequested({
         email: 'test@example.com',
         password: 'password123',
-        role: 'fund-manager',
+        role: 'gp',
       });
 
       await runSaga(
@@ -58,15 +56,13 @@ describe('authSaga', () => {
     });
 
     it('should dispatch loginFailed on error', async () => {
-      vi.mocked(authService.createUser).mockImplementation(() => {
-        throw new Error('Login error');
-      });
+      vi.mocked(authService.createUser).mockRejectedValue(new Error('Login error'));
 
       const dispatched: unknown[] = [];
       const action = loginRequested({
         email: 'test@example.com',
         password: 'password123',
-        role: 'fund-manager',
+        role: 'gp',
       });
 
       await runSaga(

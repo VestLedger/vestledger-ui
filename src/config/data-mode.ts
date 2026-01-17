@@ -24,8 +24,8 @@ export type FeatureName =
  * If not specified, falls back to global DATA_MODE.
  */
 const featureFlags: Partial<Record<FeatureName, boolean>> = {
-  // Example: Uncomment to enable API mode for specific features
-  // auth: true,        // Use real auth API
+  // Auth is backed by the API; keep other features in mock mode for now.
+  auth: true,
   // funds: true,       // Use real funds API
   // dashboards: false, // Force mock mode for dashboards
 };
@@ -50,4 +50,3 @@ export function isMockMode(feature?: FeatureName): boolean {
   // Fall back to global mode
   return getDataMode() === 'mock';
 }
-
