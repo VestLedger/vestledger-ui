@@ -4,10 +4,11 @@ import { loginWorker, logoutWorker } from '../authSaga';
 import { loginRequested, loginSucceeded, loginFailed, loggedOut } from '@/store/slices/authSlice';
 import * as authService from '@/services/authService';
 import type { User } from '@/types/auth';
+import type { AuthResult } from '@/services/authService';
 
 // Mock the authService
 vi.mock('@/services/authService', () => ({
-  createUser: vi.fn(),
+  authenticateUser: vi.fn(),
 }));
 
 // Mock safeLocalStorage
@@ -28,13 +29,18 @@ describe('authSaga', () => {
     role: 'gp',
   };
 
+  const mockAuthResult: AuthResult = {
+    user: mockUser,
+    accessToken: 'mock-jwt-token',
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   describe('loginWorker', () => {
-    it('should dispatch loginSucceeded on successful login', async () => {
-      vi.mocked(authService.createUser).mockResolvedValue(mockUser);
+    it('should dispatch loginSucceeded with user and token on successful login', async () => {
+      vi.mocked(authService.authenticateUser).mockResolvedValue(mockAuthResult);
 
       const dispatched: unknown[] = [];
       const action = loginRequested({
@@ -52,11 +58,13 @@ describe('authSaga', () => {
         action
       ).toPromise();
 
-      expect(dispatched).toContainEqual(loginSucceeded(mockUser));
+      expect(dispatched).toContainEqual(
+        loginSucceeded({ user: mockUser, accessToken: 'mock-jwt-token' })
+      );
     });
 
     it('should dispatch loginFailed on error', async () => {
-      vi.mocked(authService.createUser).mockRejectedValue(new Error('Login error'));
+      vi.mocked(authService.authenticateUser).mockRejectedValue(new Error('Login error'));
 
       const dispatched: unknown[] = [];
       const action = loginRequested({
@@ -76,6 +84,34 @@ describe('authSaga', () => {
 
       expect(dispatched).toHaveLength(1);
       expect(dispatched[0]).toHaveProperty('type', loginFailed.type);
+    });
+
+    it('should handle null accessToken', async () => {
+      const resultWithoutToken: AuthResult = {
+        user: mockUser,
+        accessToken: null,
+      };
+      vi.mocked(authService.authenticateUser).mockResolvedValue(resultWithoutToken);
+
+      const dispatched: unknown[] = [];
+      const action = loginRequested({
+        email: 'test@example.com',
+        password: 'password123',
+        role: 'gp',
+      });
+
+      await runSaga(
+        {
+          dispatch: (action: unknown) => dispatched.push(action),
+          getState: () => ({}),
+        },
+        loginWorker,
+        action
+      ).toPromise();
+
+      expect(dispatched).toContainEqual(
+        loginSucceeded({ user: mockUser, accessToken: null })
+      );
     });
   });
 

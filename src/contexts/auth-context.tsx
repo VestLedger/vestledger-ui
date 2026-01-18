@@ -7,7 +7,10 @@ import {
   loginRequested,
   logoutRequested,
   switchRoleRequested,
+  clearAuthError,
+  type AuthStatus,
 } from '@/store/slices/authSlice';
+import type { NormalizedError } from '@/store/types/AsyncState';
 import type { User, UserRole } from '@/types/auth';
 import { PERSONA_CONFIG } from '@/types/auth';
 
@@ -17,9 +20,13 @@ export { PERSONA_CONFIG };
 interface AuthContextType {
   hydrated: boolean;
   isAuthenticated: boolean;
+  status: AuthStatus;
+  error: NormalizedError | undefined;
+  accessToken: string | null;
   login: (email: string, password: string, role?: UserRole) => void;
   logout: () => void;
   switchRole: (role: UserRole) => void;
+  clearError: () => void;
   user: User | null;
 }
 
@@ -32,6 +39,9 @@ export function useAuth() {
   const hydrated = useAppSelector((state) => state.auth.hydrated);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
   const user = useAppSelector((state) => state.auth.user);
+  const status = useAppSelector((state) => state.auth.status);
+  const error = useAppSelector((state) => state.auth.error);
+  const accessToken = useAppSelector((state) => state.auth.accessToken);
 
   const login = useCallback<AuthContextType['login']>(
     (email, password, role = 'gp') => {
@@ -51,5 +61,9 @@ export function useAuth() {
     [dispatch]
   );
 
-  return { hydrated, isAuthenticated, login, logout, switchRole, user };
+  const clearError = useCallback<AuthContextType['clearError']>(() => {
+    dispatch(clearAuthError());
+  }, [dispatch]);
+
+  return { hydrated, isAuthenticated, status, error, accessToken, login, logout, switchRole, clearError, user };
 }

@@ -20,17 +20,18 @@ import type { RootState } from '@/store/rootReducer';
 
 describe('authSlice', () => {
   const mockUser: User = {
-    id: 'user-1',
     email: 'test@example.com',
     name: 'Test User',
-    role: 'fund-manager',
-    createdAt: '2024-01-01',
+    role: 'gp',
   };
+
+  const mockAccessToken = 'mock-jwt-token';
 
   const initialState = {
     hydrated: false,
     isAuthenticated: false,
     user: null as User | null,
+    accessToken: null as string | null,
     status: 'idle' as AuthStatus,
     error: undefined as NormalizedError | undefined,
   };
@@ -41,31 +42,34 @@ describe('authSlice', () => {
       expect(state.hydrated).toBe(false);
       expect(state.isAuthenticated).toBe(false);
       expect(state.user).toBeNull();
+      expect(state.accessToken).toBeNull();
       expect(state.status).toBe('idle');
       expect(state.error).toBeUndefined();
     });
   });
 
   describe('authHydrated', () => {
-    it('should set hydrated state with authenticated user', () => {
+    it('should set hydrated state with authenticated user and token', () => {
       const state = authReducer(
         initialState,
-        authHydrated({ isAuthenticated: true, user: mockUser })
+        authHydrated({ isAuthenticated: true, user: mockUser, accessToken: mockAccessToken })
       );
       expect(state.hydrated).toBe(true);
       expect(state.isAuthenticated).toBe(true);
       expect(state.user).toEqual(mockUser);
+      expect(state.accessToken).toBe(mockAccessToken);
       expect(state.status).toBe('succeeded');
     });
 
     it('should set hydrated state without authenticated user', () => {
       const state = authReducer(
         initialState,
-        authHydrated({ isAuthenticated: false, user: null })
+        authHydrated({ isAuthenticated: false, user: null, accessToken: null })
       );
       expect(state.hydrated).toBe(true);
       expect(state.isAuthenticated).toBe(false);
       expect(state.user).toBeNull();
+      expect(state.accessToken).toBeNull();
       expect(state.status).toBe('succeeded');
     });
   });
@@ -75,7 +79,7 @@ describe('authSlice', () => {
       const params: LoginParams = {
         email: 'test@example.com',
         password: 'password123',
-        role: 'fund-manager',
+        role: 'gp',
       };
       const state = authReducer(initialState, loginRequested(params));
       expect(state.status).toBe('loading');
@@ -91,7 +95,7 @@ describe('authSlice', () => {
       const params: LoginParams = {
         email: 'test@example.com',
         password: 'password123',
-        role: 'fund-manager',
+        role: 'gp',
       };
       const state = authReducer(stateWithError, loginRequested(params));
       expect(state.error).toBeUndefined();
@@ -99,16 +103,34 @@ describe('authSlice', () => {
   });
 
   describe('loginSucceeded', () => {
-    it('should set authenticated state with user', () => {
+    it('should set authenticated state with user and token', () => {
       const loadingState = {
         ...initialState,
         status: 'loading' as AuthStatus,
       };
-      const state = authReducer(loadingState, loginSucceeded(mockUser));
+      const state = authReducer(
+        loadingState,
+        loginSucceeded({ user: mockUser, accessToken: mockAccessToken })
+      );
       expect(state.isAuthenticated).toBe(true);
       expect(state.user).toEqual(mockUser);
+      expect(state.accessToken).toBe(mockAccessToken);
       expect(state.status).toBe('succeeded');
       expect(state.error).toBeUndefined();
+    });
+
+    it('should handle null accessToken', () => {
+      const loadingState = {
+        ...initialState,
+        status: 'loading' as AuthStatus,
+      };
+      const state = authReducer(
+        loadingState,
+        loginSucceeded({ user: mockUser, accessToken: null })
+      );
+      expect(state.isAuthenticated).toBe(true);
+      expect(state.user).toEqual(mockUser);
+      expect(state.accessToken).toBeNull();
     });
   });
 
@@ -144,16 +166,18 @@ describe('authSlice', () => {
   });
 
   describe('loggedOut', () => {
-    it('should clear authenticated state', () => {
+    it('should clear authenticated state and token', () => {
       const authenticatedState = {
         ...initialState,
         isAuthenticated: true,
         user: mockUser,
+        accessToken: mockAccessToken,
         status: 'loading' as AuthStatus,
       };
       const state = authReducer(authenticatedState, loggedOut());
       expect(state.isAuthenticated).toBe(false);
       expect(state.user).toBeNull();
+      expect(state.accessToken).toBeNull();
       expect(state.status).toBe('idle');
       expect(state.error).toBeUndefined();
     });
@@ -167,7 +191,7 @@ describe('authSlice', () => {
         user: mockUser,
         status: 'succeeded' as AuthStatus,
       };
-      const newRole: UserRole = 'investor';
+      const newRole: UserRole = 'analyst';
       const state = authReducer(authenticatedState, switchRoleRequested(newRole));
       expect(state.status).toBe('loading');
       expect(state.error).toBeUndefined();
@@ -185,7 +209,7 @@ describe('authSlice', () => {
       const updatedUser: User = {
         ...mockUser,
         name: 'Updated Name',
-        role: 'investor',
+        role: 'analyst',
       };
       const state = authReducer(authenticatedState, userUpdated(updatedUser));
       expect(state.user).toEqual(updatedUser);
@@ -224,6 +248,7 @@ describe('authSlice', () => {
         hydrated: true,
         isAuthenticated: true,
         user: mockUser,
+        accessToken: mockAccessToken,
         status: 'succeeded' as AuthStatus,
         error: undefined,
       },
@@ -239,6 +264,10 @@ describe('authSlice', () => {
 
     it('selectUser should return user', () => {
       expect(authSelectors.selectUser(mockRootState)).toEqual(mockUser);
+    });
+
+    it('selectAccessToken should return access token', () => {
+      expect(authSelectors.selectAccessToken(mockRootState)).toBe(mockAccessToken);
     });
 
     it('selectStatus should return status', () => {

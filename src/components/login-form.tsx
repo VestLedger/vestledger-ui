@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button, Input, Card } from '@/ui';
 import { Select, SelectItem } from '@nextui-org/react';
@@ -11,38 +11,47 @@ export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<UserRole>('gp');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { login, isAuthenticated, hydrated } = useAuth();
+  const { login, isAuthenticated, hydrated, status, error, clearError } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const hasAttemptedLogin = useRef(false);
 
   // Get redirect parameter from URL
   const redirectTo = searchParams.get('redirect') || '/dashboard';
 
+  // Handle successful authentication - redirect to intended page
   useEffect(() => {
-    // If already authenticated, redirect to intended page
     if (hydrated && isAuthenticated) {
       router.push(redirectTo);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hydrated, isAuthenticated]);
+  }, [hydrated, isAuthenticated, router, redirectTo]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      login(email, password, role);
-      // Wait for auth to complete, then redirect
-      setTimeout(() => {
-        router.push(redirectTo);
-      }, 100);
-    } catch (error) {
-      console.error('Login failed:', error);
-      setIsLoading(false);
+  // Handle login failure - stop spinner and show error
+  useEffect(() => {
+    if (status === 'failed' && hasAttemptedLogin.current) {
+      setIsSubmitting(false);
     }
+  }, [status]);
+
+  // Clear error when user starts typing
+  useEffect(() => {
+    if (error) {
+      clearError();
+    }
+    // Only clear on input changes, not when error changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [email, password, role]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    hasAttemptedLogin.current = true;
+    login(email, password, role);
   };
+
+  const isLoading = isSubmitting && status === 'loading';
 
   // Show loading state while auth is hydrating
   if (!hydrated) {
@@ -120,6 +129,12 @@ export function LoginForm() {
           isRequired
           autoComplete="current-password"
         />
+
+        {error && (
+          <div className="p-3 rounded-md bg-red-500/10 border border-red-500/20 text-red-500 text-sm">
+            {error.message || 'Login failed. Please check your credentials.'}
+          </div>
+        )}
 
         <Button
           type="submit"

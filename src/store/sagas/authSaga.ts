@@ -1,5 +1,5 @@
 import { call, delay, put, race, select, take, takeLatest } from 'redux-saga/effects';
-import { createUser } from '@/services/authService';
+import { authenticateUser, type AuthResult } from '@/services/authService';
 import type { RootState } from '@/store/rootReducer';
 import type { User, UserRole } from '@/types/auth';
 import {
@@ -18,6 +18,7 @@ import { normalizeError } from '@/store/utils/normalizeError';
 
 const STORAGE_AUTH_KEY = 'isAuthenticated';
 const STORAGE_USER_KEY = 'user';
+const STORAGE_TOKEN_KEY = 'accessToken';
 
 function getAuthCookieDomain(hostname?: string | null) {
   if (!hostname) return null;
@@ -47,6 +48,7 @@ function clearAuthCookies() {
 function* hydrateAuthWorker() {
   const savedAuth = safeLocalStorage.getItem(STORAGE_AUTH_KEY);
   const savedUser = safeLocalStorage.getJSON<Partial<User>>(STORAGE_USER_KEY);
+  const savedToken = safeLocalStorage.getItem(STORAGE_TOKEN_KEY);
 
   if (savedAuth === 'true' && savedUser?.email && savedUser?.name) {
     const normalizedUser: User = {
@@ -59,26 +61,29 @@ function* hydrateAuthWorker() {
     // Sync to cookies for middleware access
     setAuthCookies(normalizedUser);
 
-    yield put(authHydrated({ isAuthenticated: true, user: normalizedUser }));
+    yield put(authHydrated({ isAuthenticated: true, user: normalizedUser, accessToken: savedToken }));
     return;
   }
 
-  yield put(authHydrated({ isAuthenticated: false, user: null }));
+  yield put(authHydrated({ isAuthenticated: false, user: null, accessToken: null }));
 }
 
 export function* loginWorker(action: ReturnType<typeof loginRequested>) {
   try {
     const { email, password, role } = action.payload;
-    const user: User = yield call(createUser, email, password, role);
+    const result: AuthResult = yield call(authenticateUser, email, password, role);
 
-    yield put(loginSucceeded(user));
+    yield put(loginSucceeded({ user: result.user, accessToken: result.accessToken }));
 
     // Persist to localStorage
     safeLocalStorage.setItem(STORAGE_AUTH_KEY, 'true');
-    safeLocalStorage.setJSON(STORAGE_USER_KEY, user);
+    safeLocalStorage.setJSON(STORAGE_USER_KEY, result.user);
+    if (result.accessToken) {
+      safeLocalStorage.setItem(STORAGE_TOKEN_KEY, result.accessToken);
+    }
 
     // Sync to cookies for middleware access
-    setAuthCookies(user);
+    setAuthCookies(result.user);
   } catch (error: unknown) {
     console.error('Login failed', error);
     yield put(loginFailed(normalizeError(error)));
@@ -88,6 +93,7 @@ export function* loginWorker(action: ReturnType<typeof loginRequested>) {
 export function* logoutWorker() {
   safeLocalStorage.removeItem(STORAGE_AUTH_KEY);
   safeLocalStorage.removeItem(STORAGE_USER_KEY);
+  safeLocalStorage.removeItem(STORAGE_TOKEN_KEY);
 
   // Clear cookies
   clearAuthCookies();

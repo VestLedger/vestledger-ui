@@ -20,6 +20,11 @@ export interface LoginParams {
   role: UserRole;
 }
 
+export interface LoginSuccessPayload {
+  user: User;
+  accessToken: string | null;
+}
+
 interface AuthState {
   // Hydration state (SSR → client)
   hydrated: boolean;
@@ -27,6 +32,7 @@ interface AuthState {
   // Auth state
   isAuthenticated: boolean;
   user: User | null;
+  accessToken: string | null;
 
   // Async operation state (standardized)
   status: AuthStatus;
@@ -37,6 +43,7 @@ const initialState: AuthState = {
   hydrated: false,
   isAuthenticated: false,
   user: null,
+  accessToken: null,
   status: 'idle',
   error: undefined,
 };
@@ -47,11 +54,12 @@ const authSlice = createSlice({
   reducers: {
     authHydrated: (
       state,
-      action: PayloadAction<{ isAuthenticated: boolean; user: User | null }>
+      action: PayloadAction<{ isAuthenticated: boolean; user: User | null; accessToken: string | null }>
     ) => {
       state.hydrated = true;
       state.isAuthenticated = action.payload.isAuthenticated;
       state.user = action.payload.user;
+      state.accessToken = action.payload.accessToken;
       state.status = 'succeeded';
     },
 
@@ -60,9 +68,10 @@ const authSlice = createSlice({
       state.error = undefined;
     },
 
-    loginSucceeded: (state, action: PayloadAction<User>) => {
+    loginSucceeded: (state, action: PayloadAction<LoginSuccessPayload>) => {
       state.isAuthenticated = true;
-      state.user = action.payload;
+      state.user = action.payload.user;
+      state.accessToken = action.payload.accessToken;
       state.status = 'succeeded';
       state.error = undefined;
     },
@@ -80,6 +89,7 @@ const authSlice = createSlice({
     loggedOut: (state) => {
       state.isAuthenticated = false;
       state.user = null;
+      state.accessToken = null;
       state.status = 'idle';
       state.error = undefined;
     },
@@ -123,6 +133,7 @@ export const authSelectors = {
   selectHydrated: (state: RootState) => state.auth.hydrated,
   selectIsAuthenticated: (state: RootState) => state.auth.isAuthenticated,
   selectUser: (state: RootState) => state.auth.user,
+  selectAccessToken: (state: RootState) => state.auth.accessToken,
 
   // Async state selectors (standardized)
   selectStatus: (state: RootState) => state.auth.status,

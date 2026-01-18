@@ -1,4 +1,5 @@
 import { getApiBaseUrl } from '@/api/config';
+import { ApiError } from '@/api/errors';
 import { isMockMode } from '@/config/data-mode';
 import { createMockUser } from '@/data/mocks/auth';
 import type { User, UserRole } from '@/types/auth';
@@ -14,13 +15,10 @@ type AuthResponse = {
   access_token?: string;
 };
 
-type ApiError = Error & { status?: number };
-
-function normalizeUsername(email: string): string {
-  const local = email.split('@')[0] ?? '';
-  const sanitized = local.replace(/[^a-zA-Z0-9._-]/g, '');
-  return sanitized || `user_${Date.now()}`;
-}
+export type AuthResult = {
+  user: User;
+  accessToken: string | null;
+};
 
 function normalizeName(email: string): string {
   const local = email.split('@')[0] ?? '';
@@ -57,38 +55,42 @@ async function postAuth(path: string, body: Record<string, unknown>): Promise<Au
     const message = Array.isArray(payload.message)
       ? payload.message.join(', ')
       : payload.message || response.statusText;
-    const error = new Error(message) as ApiError;
-    error.status = response.status;
-    throw error;
+    throw new ApiError({
+      message,
+      status: response.status,
+      details: payload,
+    });
   }
 
   return payload as AuthResponse;
 }
 
+export async function authenticateUser(
+  email: string,
+  password: string,
+  role: UserRole
+): Promise<AuthResult> {
+  if (isMockMode('auth')) {
+    return {
+      user: createMockUser(email, role),
+      accessToken: null,
+    };
+  }
+
+  // Login-only flow: users must be pre-created by a superuser
+  const response = await postAuth('/auth/login', { email, password });
+  return {
+    user: mapUser(response.user, role),
+    accessToken: response.access_token ?? null,
+  };
+}
+
+/** @deprecated Use authenticateUser instead */
 export async function createUser(
   email: string,
   password: string,
   role: UserRole
 ): Promise<User> {
-  if (isMockMode('auth')) return createMockUser(email, role);
-
-  const username = normalizeUsername(email);
-  const name = normalizeName(email);
-
-  try {
-    const response = await postAuth('/auth/signup', {
-      email,
-      username,
-      name,
-      password,
-    });
-    return mapUser(response.user, role);
-  } catch (error: unknown) {
-    const apiError = error as ApiError;
-    if (apiError.status === 409) {
-      const response = await postAuth('/auth/login', { email, password });
-      return mapUser(response.user, role);
-    }
-    throw error;
-  }
+  const result = await authenticateUser(email, password, role);
+  return result.user;
 }
