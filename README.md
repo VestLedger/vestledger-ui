@@ -12,8 +12,8 @@ Next.js application for VestLedger platform with subdomain-based architecture fo
 
 If you start the stack from the repo root with `docker compose up`, the UI is
 served via nginx:
-- Public UI: `http://vestledger.local:8000`
-- App UI: `http://app.vestledger.local:8000`
+- Public UI: `https://vestledger.local`
+- App UI: `https://app.vestledger.local`
 
 The steps below are for running the UI directly with Next.js.
 
