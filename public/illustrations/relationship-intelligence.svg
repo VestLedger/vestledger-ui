@@ -1,0 +1,77 @@
+<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="vesta-gradient-4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#047857"/>
+      <stop offset="50%" stop-color="#0d9488"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+    <linearGradient id="vesta-gradient-subtle-4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#047857" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0.1"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Connection lines (draw first so they're behind nodes) -->
+  <!-- From center to all nodes -->
+  <line x1="200" y1="150" x2="100" y2="80" stroke="url(#vesta-gradient-4)" stroke-width="1.5" opacity="0.6"/>
+  <line x1="200" y1="150" x2="300" y2="80" stroke="url(#vesta-gradient-4)" stroke-width="1.5" opacity="0.6"/>
+  <line x1="200" y1="150" x2="80" y2="180" stroke="url(#vesta-gradient-4)" stroke-width="1.5" opacity="0.6"/>
+  <line x1="200" y1="150" x2="320" y2="180" stroke="url(#vesta-gradient-4)" stroke-width="1.5" opacity="0.6"/>
+  <line x1="200" y1="150" x2="120" y2="250" stroke="url(#vesta-gradient-4)" stroke-width="1.5" opacity="0.6"/>
+  <line x1="200" y1="150" x2="280" y2="250" stroke="url(#vesta-gradient-4)" stroke-width="1.5" opacity="0.6"/>
+
+  <!-- Cross connections -->
+  <line x1="100" y1="80" x2="300" y2="80" stroke="url(#vesta-gradient-4)" stroke-width="1" opacity="0.3"/>
+  <line x1="100" y1="80" x2="80" y2="180" stroke="url(#vesta-gradient-4)" stroke-width="1" opacity="0.3"/>
+  <line x1="300" y1="80" x2="320" y2="180" stroke="url(#vesta-gradient-4)" stroke-width="1" opacity="0.3"/>
+  <line x1="80" y1="180" x2="120" y2="250" stroke="url(#vesta-gradient-4)" stroke-width="1" opacity="0.3"/>
+  <line x1="320" y1="180" x2="280" y2="250" stroke="url(#vesta-gradient-4)" stroke-width="1" opacity="0.3"/>
+  <line x1="120" y1="250" x2="280" y2="250" stroke="url(#vesta-gradient-4)" stroke-width="1" opacity="0.3"/>
+
+  <!-- Central Vesta node (larger, more prominent) -->
+  <circle cx="200" cy="150" r="35" fill="url(#vesta-gradient-4)" opacity="0.9"/>
+  <circle cx="200" cy="150" r="25" fill="url(#vesta-gradient-subtle-4)" stroke="white" stroke-width="2" opacity="0.9"/>
+  <!-- Vesta icon simplified -->
+  <circle cx="200" cy="142" r="8" fill="white" opacity="0.9"/>
+  <path d="M188 162 Q200 152 212 162" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.9"/>
+
+  <!-- LP node (building icon) - top left -->
+  <circle cx="100" cy="80" r="25" fill="url(#vesta-gradient-subtle-4)" stroke="url(#vesta-gradient-4)" stroke-width="2"/>
+  <rect x="88" y="70" width="24" height="20" rx="2" fill="none" stroke="url(#vesta-gradient-4)" stroke-width="1.5"/>
+  <line x1="94" y1="75" x2="94" y2="85" stroke="url(#vesta-gradient-4)" stroke-width="1.5"/>
+  <line x1="100" y1="75" x2="100" y2="85" stroke="url(#vesta-gradient-4)" stroke-width="1.5"/>
+  <line x1="106" y1="75" x2="106" y2="85" stroke="url(#vesta-gradient-4)" stroke-width="1.5"/>
+
+  <!-- Co-investor node (handshake) - top right -->
+  <circle cx="300" cy="80" r="25" fill="url(#vesta-gradient-subtle-4)" stroke="url(#vesta-gradient-4)" stroke-width="2"/>
+  <path d="M288 85 L295 78 L300 83 L305 78 L312 85" stroke="url(#vesta-gradient-4)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M290 85 L295 85 M305 85 L310 85" stroke="url(#vesta-gradient-4)" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Founder node (lightbulb) - left -->
+  <circle cx="80" cy="180" r="22" fill="url(#vesta-gradient-subtle-4)" stroke="url(#vesta-gradient-4)" stroke-width="2"/>
+  <path d="M80 168 Q90 175 86 185 L74 185 Q70 175 80 168" stroke="url(#vesta-gradient-4)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <line x1="76" y1="189" x2="84" y2="189" stroke="url(#vesta-gradient-4)" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="77" y1="192" x2="83" y2="192" stroke="url(#vesta-gradient-4)" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Portfolio company node (chart) - right -->
+  <circle cx="320" cy="180" r="22" fill="url(#vesta-gradient-subtle-4)" stroke="url(#vesta-gradient-4)" stroke-width="2"/>
+  <path d="M308 190 L308 172 L332 172" stroke="url(#vesta-gradient-4)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M312 186 L318 180 L324 184 L330 175" stroke="url(#vesta-gradient-4)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Team member nodes - bottom -->
+  <circle cx="120" cy="250" r="20" fill="url(#vesta-gradient-subtle-4)" stroke="url(#vesta-gradient-4)" stroke-width="2"/>
+  <circle cx="120" cy="244" r="6" fill="url(#vesta-gradient-4)" opacity="0.7"/>
+  <path d="M110 260 Q120 252 130 260" stroke="url(#vesta-gradient-4)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+
+  <circle cx="280" cy="250" r="20" fill="url(#vesta-gradient-subtle-4)" stroke="url(#vesta-gradient-4)" stroke-width="2"/>
+  <circle cx="280" cy="244" r="6" fill="url(#vesta-gradient-4)" opacity="0.7"/>
+  <path d="M270 260 Q280 252 290 260" stroke="url(#vesta-gradient-4)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+
+  <!-- Connection pulse indicators -->
+  <circle cx="150" cy="115" r="4" fill="url(#vesta-gradient-4)" opacity="0.6"/>
+  <circle cx="250" cy="115" r="4" fill="url(#vesta-gradient-4)" opacity="0.6"/>
+  <circle cx="140" cy="165" r="4" fill="url(#vesta-gradient-4)" opacity="0.6"/>
+  <circle cx="260" cy="165" r="4" fill="url(#vesta-gradient-4)" opacity="0.6"/>
+  <circle cx="160" cy="200" r="4" fill="url(#vesta-gradient-4)" opacity="0.6"/>
+  <circle cx="240" cy="200" r="4" fill="url(#vesta-gradient-4)" opacity="0.6"/>
+</svg>

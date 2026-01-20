@@ -5,11 +5,11 @@ import type { Metadata, Viewport } from 'next';
 export const metadata: Metadata = {
   metadataBase: new URL('https://vestledger.com'),
   title: {
-    default: 'VestLedger - The Triad OS for Private Markets',
+    default: 'VestLedger - AI-Native Fund Intelligence',
     template: '%s | VestLedger',
   },
-  description: 'Institutional operating system for venture capital, private equity, and crypto funds. Tokenized ownership, automated operations, and AI-powered intelligence.',
-  keywords: ['venture capital', 'private equity', 'crypto funds', 'fund administration', 'VC software', 'LP portal', 'tokenized assets'],
+  description: 'Meet Vesta. Your personal AI for fund management. VestLedger gives every fund professional an intelligent assistant to analyze, remember, and act.',
+  keywords: ['AI fund management', 'fund intelligence', 'Vesta AI', 'VC AI assistant', 'LP management', 'fund operations AI', 'venture capital', 'private equity'],
   authors: [{ name: 'VestLedger' }],
   creator: 'VestLedger',
   publisher: 'VestLedger',
@@ -28,13 +28,13 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     siteName: 'VestLedger',
-    title: 'VestLedger - The Triad OS for Private Markets',
-    description: 'Institutional operating system for venture capital, private equity, and crypto funds.',
+    title: 'VestLedger - Meet Vesta, Your AI Fund Partner',
+    description: 'AI-native fund intelligence. Every fund professional gets an intelligent assistant to analyze faster, remember everything, and act proactively.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'VestLedger - The Triad OS for Private Markets',
-    description: 'Institutional operating system for venture capital, private equity, and crypto funds.',
+    title: 'VestLedger - Meet Vesta, Your AI Fund Partner',
+    description: 'AI-native fund intelligence. Every fund professional gets an intelligent assistant to analyze faster, remember everything, and act proactively.',
     creator: '@vestledger',
   },
 };

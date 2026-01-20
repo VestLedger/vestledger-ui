@@ -24,14 +24,14 @@ export default function EOIPage() {
     return (
       <div className="min-h-[80vh] flex flex-col items-center justify-center p-4">
         <div className="text-center max-w-md">
-          <div className="w-16 h-16 bg-[var(--app-success-bg)] text-[var(--app-success)] rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle2 className="w-8 h-8" />
+          <div className="w-16 h-16 bg-gradient-to-br from-[#047857] to-[#10b981] rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_40px_rgba(16,185,129,0.3)]">
+            <CheckCircle2 className="w-8 h-8 text-white" />
           </div>
-          <h2 className="text-3xl font-bold mb-4">Request Received!</h2>
+          <h2 className="text-3xl font-bold mb-4">Your Vesta Journey Begins</h2>
           <p className="text-[var(--app-text-muted)] mb-8">
-            Thank you for your interest in VestLedger. Our team will review your application and get back to you within 24 hours.
+            Thank you for reaching out. Our team will prepare to onboard your Vesta. Expect to hear from us within 24 hours.
           </p>
-          <Button as={Link} href="/" color="primary">
+          <Button as={Link} href="/" className="btn-primary">
             Return to Homepage
           </Button>
         </div>
@@ -47,9 +47,9 @@ export default function EOIPage() {
       </Link>
 
       <div className="text-center mb-12">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Join the Pilot Program</h1>
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Meet Your <span className="text-vesta">Vesta</span></h1>
         <p className="text-lg text-[var(--app-text-muted)] max-w-xl mx-auto">
-          Get early access to VestLedger and help shape the future of VC operations. Limited spots available for the upcoming cohort.
+          Get early access to your own AI fund assistant. We&apos;ll onboard Vesta to your fund and show you what intelligent fund management looks like.
         </p>
       </div>
 
@@ -149,8 +149,8 @@ export default function EOIPage() {
           </div>
 
           <Textarea
-            label="What are your biggest operational challenges?"
-            placeholder="e.g., Managing deal flow, LP reporting, messy cap tables..."
+            label="What would you want Vesta to help with first?"
+            placeholder="e.g., Analyzing deal flow, remembering LP preferences, automating capital calls..."
             minRows={3}
             variant="bordered"
              classNames={{
@@ -160,12 +160,11 @@ export default function EOIPage() {
 
           <Button
             type="submit"
-            color="primary"
             size="lg"
-            className="w-full font-semibold"
+            className="w-full font-semibold btn-primary"
             isLoading={loading}
           >
-            {loading ? 'Submitting...' : 'Request Access'}
+            {loading ? 'Submitting...' : 'Request Your Vesta'}
           </Button>
           
           <p className="text-xs text-center text-[var(--app-text-muted)]">

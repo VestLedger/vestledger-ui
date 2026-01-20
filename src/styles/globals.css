@@ -31,6 +31,17 @@
 
   /* Focus ring */
   --app-focus-ring: 0 0 0 2px #fafaf8, 0 0 0 4px rgba(4, 120, 87, 0.40);
+
+  /* Vesta Identity */
+  --vesta-glow: 0 0 60px rgba(16, 185, 129, 0.3);
+  --vesta-glow-subtle: 0 0 30px rgba(16, 185, 129, 0.15);
+
+  /* Enhanced Shadows (depth hierarchy) */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-glow: 0 0 40px rgba(4, 120, 87, 0.15);
 }
 
 .dark {
@@ -50,6 +61,17 @@
 
   /* Focus ring */
   --app-focus-ring: 0 0 0 2px #0f1412, 0 0 0 4px rgba(16, 185, 129, 0.50);
+
+  /* Vesta Identity (dark mode) */
+  --vesta-glow: 0 0 80px rgba(16, 185, 129, 0.4);
+  --vesta-glow-subtle: 0 0 40px rgba(16, 185, 129, 0.2);
+
+  /* Enhanced Shadows (dark mode) */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+  --shadow-glow: 0 0 50px rgba(16, 185, 129, 0.2);
 }
 
 /* ============================================
@@ -153,4 +175,214 @@ html {
 
 .fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
   color: var(--app-text);
+}
+
+/* ============================================
+   Vesta Animations
+   ============================================ */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: var(--vesta-glow-subtle); }
+  50% { box-shadow: var(--vesta-glow); }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ============================================
+   Vesta Utility Classes
+   ============================================ */
+
+/* Gradient text for "Vesta" branding */
+.text-vesta {
+  background: linear-gradient(135deg, #047857 0%, #0d9488 50%, #10b981 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ============================================
+   Button System
+   ============================================ */
+
+/* Primary button - Vesta gradient */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #047857 0%, #0d9488 50%, #10b981 100%);
+  background-size: 200% 200%;
+  color: white;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  box-shadow: var(--shadow-md), 0 0 20px rgba(16, 185, 129, 0.2);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background-position: 100% 50%;
+  box-shadow: var(--shadow-lg), 0 0 30px rgba(16, 185, 129, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Secondary button - bordered/outline style */
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: transparent;
+  color: var(--app-text);
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  border-color: var(--app-primary);
+  color: var(--app-primary);
+  background: var(--app-primary-bg);
+  transform: translateY(-1px);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Tertiary button - ghost/text style */
+.btn-tertiary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: transparent;
+  color: var(--app-text-muted);
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-tertiary:hover {
+  color: var(--app-text);
+  background: var(--app-surface-hover);
+  transform: translateY(-1px);
+}
+
+.btn-tertiary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Button sizes */
+.btn-sm {
+  padding: 8px 16px;
+  font-size: 0.8125rem;
+  border-radius: 10px;
+}
+
+.btn-lg {
+  padding: 16px 32px;
+  font-size: 1rem;
+  border-radius: 14px;
+}
+
+/* Elevated card with depth */
+.card-elevated {
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-elevated:hover {
+  box-shadow: var(--shadow-xl);
+  transform: translateY(-2px);
+  border-color: var(--app-primary);
+}
+
+/* Vesta glow card */
+.card-vesta {
+  background: linear-gradient(180deg, rgba(4, 120, 87, 0.03) 0%, transparent 100%);
+  border: 1px solid rgba(4, 120, 87, 0.2);
+  border-radius: 16px;
+  box-shadow: var(--vesta-glow-subtle);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-vesta:hover {
+  box-shadow: var(--vesta-glow);
+  border-color: var(--app-primary);
+}
+
+.dark .card-vesta {
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.05) 0%, transparent 100%);
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+/* Hero background with gradient mesh */
+.hero-bg {
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(4, 120, 87, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 50%, rgba(13, 148, 136, 0.08) 0%, transparent 50%),
+    var(--app-bg);
+}
+
+.dark .hero-bg {
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(16, 185, 129, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 50%, rgba(13, 148, 136, 0.1) 0%, transparent 50%),
+    var(--app-bg);
+}
+
+/* Animation utilities */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 4s ease-in-out infinite;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+.animate-gradient-shift {
+  animation: gradient-shift 3s ease infinite;
+  background-size: 200% 200%;
 }

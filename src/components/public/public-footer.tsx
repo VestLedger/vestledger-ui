@@ -20,7 +20,7 @@ export function PublicFooter() {
               <h4 className="text-base sm:text-lg text-app-primary dark:text-app-dark-primary font-bold">VestLedger</h4>
             </Link>
             <p className="text-xs sm:text-sm text-app-text-muted dark:text-app-dark-text-muted">
-              The next-generation VC workflow management platform.
+              AI-native fund intelligence, powered by Vesta.
             </p>
           </div>
           <div>

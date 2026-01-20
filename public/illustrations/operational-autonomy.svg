@@ -1,0 +1,70 @@
+<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="vesta-gradient-3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#047857"/>
+      <stop offset="50%" stop-color="#0d9488"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+    <linearGradient id="vesta-gradient-subtle-3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#047857" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0.1"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Central automation hub -->
+  <circle cx="200" cy="150" r="40" fill="url(#vesta-gradient-subtle-3)" stroke="url(#vesta-gradient-3)" stroke-width="2"/>
+  <circle cx="200" cy="150" r="25" fill="url(#vesta-gradient-3)" opacity="0.8"/>
+
+  <!-- Gear teeth on central hub -->
+  <rect x="195" y="105" width="10" height="12" rx="2" fill="url(#vesta-gradient-3)"/>
+  <rect x="195" y="183" width="10" height="12" rx="2" fill="url(#vesta-gradient-3)"/>
+  <rect x="155" y="145" width="12" height="10" rx="2" fill="url(#vesta-gradient-3)"/>
+  <rect x="233" y="145" width="12" height="10" rx="2" fill="url(#vesta-gradient-3)"/>
+
+  <!-- Flow paths - left input -->
+  <path d="M50 80 Q80 80 90 110 Q100 140 130 150" stroke="url(#vesta-gradient-3)" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <circle cx="50" cy="80" r="15" fill="url(#vesta-gradient-subtle-3)" stroke="url(#vesta-gradient-3)" stroke-width="1.5"/>
+  <rect x="43" y="73" width="14" height="14" rx="2" fill="none" stroke="url(#vesta-gradient-3)" stroke-width="1.5"/>
+
+  <path d="M50 220 Q80 220 90 190 Q100 160 130 150" stroke="url(#vesta-gradient-3)" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <circle cx="50" cy="220" r="15" fill="url(#vesta-gradient-subtle-3)" stroke="url(#vesta-gradient-3)" stroke-width="1.5"/>
+  <path d="M43 215 L50 225 L57 215" stroke="url(#vesta-gradient-3)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="50" y1="215" x2="50" y2="225" stroke="url(#vesta-gradient-3)" stroke-width="1.5"/>
+
+  <!-- Flow paths - right output -->
+  <path d="M270 150 Q300 140 310 110 Q320 80 350 80" stroke="url(#vesta-gradient-3)" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <circle cx="350" cy="80" r="15" fill="url(#vesta-gradient-3)" opacity="0.8"/>
+  <path d="M343 80 L350 72 L357 80 M350 72 L350 88" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <path d="M270 150 Q300 160 310 190 Q320 220 350 220" stroke="url(#vesta-gradient-3)" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <circle cx="350" cy="220" r="15" fill="url(#vesta-gradient-3)" opacity="0.8"/>
+  <path d="M343 220 L357 220 M357 213 L357 227" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+  <!-- Middle output -->
+  <path d="M240 150 L310 150" stroke="url(#vesta-gradient-3)" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <circle cx="350" cy="150" r="18" fill="url(#vesta-gradient-3)" opacity="0.9"/>
+  <path d="M342 150 L350 158 L358 142" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="310" y1="150" x2="332" y2="150" stroke="url(#vesta-gradient-3)" stroke-width="2"/>
+
+  <!-- Flow arrows -->
+  <path d="M115 145 L125 150 L115 155" stroke="url(#vesta-gradient-3)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M320 75 L330 80 L320 85" stroke="url(#vesta-gradient-3)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M320 215 L330 220 L320 225" stroke="url(#vesta-gradient-3)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Rotating indicator in center -->
+  <circle cx="200" cy="150" r="10" fill="white" opacity="0.3"/>
+  <path d="M195 145 L200 150 L195 155 M205 145 L200 150 L205 155" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>
+
+  <!-- Small satellite gears -->
+  <circle cx="130" cy="90" r="12" fill="url(#vesta-gradient-subtle-3)" stroke="url(#vesta-gradient-3)" stroke-width="1.5"/>
+  <circle cx="130" cy="90" r="5" fill="url(#vesta-gradient-3)" opacity="0.6"/>
+
+  <circle cx="270" cy="90" r="12" fill="url(#vesta-gradient-subtle-3)" stroke="url(#vesta-gradient-3)" stroke-width="1.5"/>
+  <circle cx="270" cy="90" r="5" fill="url(#vesta-gradient-3)" opacity="0.6"/>
+
+  <circle cx="130" cy="210" r="12" fill="url(#vesta-gradient-subtle-3)" stroke="url(#vesta-gradient-3)" stroke-width="1.5"/>
+  <circle cx="130" cy="210" r="5" fill="url(#vesta-gradient-3)" opacity="0.6"/>
+
+  <circle cx="270" cy="210" r="12" fill="url(#vesta-gradient-subtle-3)" stroke="url(#vesta-gradient-3)" stroke-width="1.5"/>
+  <circle cx="270" cy="210" r="5" fill="url(#vesta-gradient-3)" opacity="0.6"/>
+</svg>

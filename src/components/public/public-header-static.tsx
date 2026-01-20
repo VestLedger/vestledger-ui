@@ -58,9 +58,9 @@ export function PublicHeaderStatic() {
           <LoginButton />
           <Link
             href="/eoi"
-            className="hidden sm:inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium text-sm border-2 border-[var(--app-primary)] text-[var(--app-primary)] hover:bg-[var(--app-primary-bg)] transition-colors"
+            className="hidden sm:flex btn-primary btn-sm"
           >
-            Request Demo
+            Meet Vesta
           </Link>
         </div>
       </div>
