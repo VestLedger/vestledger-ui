@@ -25,14 +25,14 @@ const weightClasses = {
 };
 
 const colorClasses = {
-  default: 'text-[var(--app-text)]',
-  primary: 'text-[var(--app-primary)]',
-  secondary: 'text-[var(--app-secondary)]',
-  muted: 'text-[var(--app-text-muted)]',
-  subtle: 'text-[var(--app-text-subtle)]',
-  success: 'text-[var(--app-success)]',
-  warning: 'text-[var(--app-warning)]',
-  danger: 'text-[var(--app-danger)]',
+  default: 'text-app-text dark:text-app-dark-text',
+  primary: 'text-app-primary dark:text-app-dark-primary',
+  secondary: 'text-app-secondary dark:text-app-dark-secondary',
+  muted: 'text-app-text-muted dark:text-app-dark-text-muted',
+  subtle: 'text-app-text-subtle dark:text-app-dark-text-subtle',
+  success: 'text-app-success dark:text-app-dark-success',
+  warning: 'text-app-warning dark:text-app-dark-warning',
+  danger: 'text-app-danger dark:text-app-dark-danger',
 };
 
 export function Text({

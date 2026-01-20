@@ -10,9 +10,9 @@ export interface LinkProps {
 }
 
 const colorClasses = {
-  default: 'text-[var(--app-text)] hover:text-[var(--app-primary)]',
-  primary: 'text-[var(--app-primary)] hover:text-[var(--app-primary-hover)]',
-  secondary: 'text-[var(--app-secondary)] hover:text-[var(--app-secondary-hover)]',
+  default: 'text-app-text dark:text-app-dark-text hover:text-app-primary dark:hover:text-app-dark-primary',
+  primary: 'text-app-primary dark:text-app-dark-primary hover:text-app-primary-hover dark:hover:text-app-dark-primary-hover',
+  secondary: 'text-app-secondary dark:text-app-dark-secondary hover:text-app-secondary-hover dark:hover:text-app-dark-secondary-hover',
 };
 
 export function Link({ children, href, color = 'primary', external = false, className = '' }: LinkProps) {

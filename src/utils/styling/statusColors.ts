@@ -17,13 +17,14 @@ export interface StatusColorConfig {
   border?: string;
 }
 
+// Tailwind class presets for status colors (light/dark mode compatible)
 const STATUS_PRESETS = {
-  success: { bg: 'var(--app-success-bg)', text: 'var(--app-success)' },
-  warning: { bg: 'var(--app-warning-bg)', text: 'var(--app-warning)' },
-  info: { bg: 'var(--app-info-bg)', text: 'var(--app-info)' },
-  danger: { bg: 'var(--app-danger-bg)', text: 'var(--app-danger)' },
-  muted: { bg: 'var(--app-surface-hover)', text: 'var(--app-text-muted)' },
-  primary: { bg: 'var(--app-primary-bg)', text: 'var(--app-primary)' },
+  success: { bg: 'bg-app-success/10 dark:bg-app-dark-success/15', text: 'text-app-success dark:text-app-dark-success' },
+  warning: { bg: 'bg-app-warning/10 dark:bg-app-dark-warning/15', text: 'text-app-warning dark:text-app-dark-warning' },
+  info: { bg: 'bg-app-info/10 dark:bg-app-dark-info/15', text: 'text-app-info dark:text-app-dark-info' },
+  danger: { bg: 'bg-app-danger/10 dark:bg-app-dark-danger/15', text: 'text-app-danger dark:text-app-dark-danger' },
+  muted: { bg: 'bg-app-surface-hover dark:bg-app-dark-surface-hover', text: 'text-app-text-muted dark:text-app-dark-text-muted' },
+  primary: { bg: 'bg-app-primary/10 dark:bg-app-dark-primary/15', text: 'text-app-primary dark:text-app-dark-primary' },
 } as const;
 
 const STATUS_COLOR_MAP: Record<StatusDomain, Record<string, StatusColorConfig>> = {
@@ -192,8 +193,8 @@ const STATUS_COLOR_MAP: Record<StatusDomain, Record<string, StatusColorConfig>> 
 
 /**
  * Get Tailwind classes for status badge
- * @example getStatusColor('completed') => "bg-[var(--app-success-bg)] text-[var(--app-success)]"
- * @example getStatusColor('sent', 'tax') => "bg-[var(--app-success-bg)] text-[var(--app-success)]"
+ * @example getStatusColor('completed') => "bg-app-success/10 dark:bg-app-dark-success/15 text-app-success dark:text-app-dark-success"
+ * @example getStatusColor('sent', 'tax') => "bg-app-success/10 dark:bg-app-dark-success/15 text-app-success dark:text-app-dark-success"
  */
 export function getStatusColor(status: string, domain: StatusDomain = 'general'): string {
   const config = STATUS_COLOR_MAP[domain][status.toLowerCase()];
@@ -201,25 +202,25 @@ export function getStatusColor(status: string, domain: StatusDomain = 'general')
     // Fallback to general domain
     const fallback = STATUS_COLOR_MAP.general[status.toLowerCase()];
     if (!fallback) {
-      return 'bg-[var(--app-surface-hover)] text-[var(--app-text-muted)]';
+      return 'bg-app-surface-hover dark:bg-app-dark-surface-hover text-app-text-muted dark:text-app-dark-text-muted';
     }
-    return `bg-[${fallback.bg}] text-[${fallback.text}]`;
+    return `${fallback.bg} ${fallback.text}`;
   }
 
-  return `bg-[${config.bg}] text-[${config.text}]`;
+  return `${config.bg} ${config.text}`;
 }
 
 /**
- * Get CSS variable names for status
- * @example getStatusColorVars('completed') => { bg: 'var(--app-success-bg)', text: 'var(--app-success)' }
+ * Get Tailwind class names for status (separate bg and text)
+ * @example getStatusColorVars('completed') => { bg: 'bg-app-success/10 dark:bg-app-dark-success/15', text: 'text-app-success dark:text-app-dark-success' }
  */
 export function getStatusColorVars(status: string, domain: StatusDomain = 'general'): StatusColorConfig {
   const config = STATUS_COLOR_MAP[domain][status.toLowerCase()];
   if (!config) {
     const fallback = STATUS_COLOR_MAP.general[status.toLowerCase()];
     return fallback || {
-      bg: 'var(--app-surface-hover)',
-      text: 'var(--app-text-muted)',
+      bg: 'bg-app-surface-hover dark:bg-app-dark-surface-hover',
+      text: 'text-app-text-muted dark:text-app-dark-text-muted',
     };
   }
   return config;

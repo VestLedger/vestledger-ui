@@ -1,18 +1,16 @@
 const { nextui } = require("@nextui-org/react");
 const path = require("path");
+const { colors } = require("./src/styles/colors");
 
 /**
  * THEMING CONFIGURATION
  * =====================
- * Single source of truth: src/styles/globals.css
+ * Single source of truth: src/styles/colors.js
  *
- * This file does two things:
- * 1. Maps CSS variables to Tailwind utilities (bg-app-primary, text-app-muted)
- * 2. Provides NextUI theme colors (NextUI requires hex values, not CSS variables)
- *
- * WHEN CHANGING COLORS:
- * - Edit globals.css (the source of truth)
- * - Update NextUI theme hex values below to match
+ * Usage in components:
+ * - Tailwind classes: bg-app-primary, text-app-muted, border-app-border
+ * - Dark mode: dark:bg-app-primary (automatically uses dark palette)
+ * - NextUI props: color="primary", color="danger"
  */
 
 /** @type {import('tailwindcss').Config} */
@@ -24,37 +22,56 @@ module.exports = {
   ],
   theme: {
     extend: {
-      // Expose CSS variables as Tailwind utilities (e.g., bg-app-primary, text-app-muted)
       colors: {
+        // Light mode colors (default)
         app: {
-          bg: "var(--app-bg)",
-          surface: "var(--app-surface)",
-          "surface-2": "var(--app-surface-2)",
-          "surface-hover": "var(--app-surface-hover)",
-          border: "var(--app-border)",
-          "border-subtle": "var(--app-border-subtle)",
-          "border-strong": "var(--app-border-strong)",
-          text: "var(--app-text)",
-          "text-muted": "var(--app-text-muted)",
-          "text-subtle": "var(--app-text-subtle)",
-          primary: "var(--app-primary)",
-          "primary-hover": "var(--app-primary-hover)",
-          "primary-bg": "var(--app-primary-bg)",
-          secondary: "var(--app-secondary)",
-          "secondary-hover": "var(--app-secondary-hover)",
-          "secondary-bg": "var(--app-secondary-bg)",
-          success: "var(--app-success)",
-          "success-bg": "var(--app-success-bg)",
-          warning: "var(--app-warning)",
-          "warning-bg": "var(--app-warning-bg)",
-          danger: "var(--app-danger)",
-          "danger-bg": "var(--app-danger-bg)",
-          info: "var(--app-info)",
-          "info-bg": "var(--app-info-bg)",
-          accent: "var(--app-accent)",
-          "accent-hover": "var(--app-accent-hover)",
-          link: "var(--app-link)",
-          "link-hover": "var(--app-link-hover)",
+          bg: colors.light.bg,
+          surface: colors.light.surface,
+          "surface-2": colors.light["surface-2"],
+          "surface-hover": colors.light["surface-hover"],
+          border: colors.light.border,
+          "border-subtle": colors.light["border-subtle"],
+          "border-strong": colors.light["border-strong"],
+          text: colors.light.text,
+          "text-muted": colors.light["text-muted"],
+          "text-subtle": colors.light["text-subtle"],
+          primary: colors.light.primary,
+          "primary-hover": colors.light["primary-hover"],
+          secondary: colors.light.secondary,
+          "secondary-hover": colors.light["secondary-hover"],
+          success: colors.light.success,
+          warning: colors.light.warning,
+          danger: colors.light.danger,
+          info: colors.light.info,
+          accent: colors.light.accent,
+          "accent-hover": colors.light["accent-hover"],
+          link: colors.light.link,
+          "link-hover": colors.light["link-hover"],
+        },
+        // Dark mode colors (accessed via dark: prefix)
+        "app-dark": {
+          bg: colors.dark.bg,
+          surface: colors.dark.surface,
+          "surface-2": colors.dark["surface-2"],
+          "surface-hover": colors.dark["surface-hover"],
+          border: colors.dark.border,
+          "border-subtle": colors.dark["border-subtle"],
+          "border-strong": colors.dark["border-strong"],
+          text: colors.dark.text,
+          "text-muted": colors.dark["text-muted"],
+          "text-subtle": colors.dark["text-subtle"],
+          primary: colors.dark.primary,
+          "primary-hover": colors.dark["primary-hover"],
+          secondary: colors.dark.secondary,
+          "secondary-hover": colors.dark["secondary-hover"],
+          success: colors.dark.success,
+          warning: colors.dark.warning,
+          danger: colors.dark.danger,
+          info: colors.dark.info,
+          accent: colors.dark.accent,
+          "accent-hover": colors.dark["accent-hover"],
+          link: colors.dark.link,
+          "link-hover": colors.dark["link-hover"],
         },
       },
     },
@@ -62,70 +79,68 @@ module.exports = {
   darkMode: "class",
   plugins: [
     nextui({
-      // NextUI requires hex values (doesn't support CSS variables)
-      // Keep these in sync with globals.css
       themes: {
         light: {
           colors: {
-            background: "#fafaf8", // --app-bg
-            foreground: "#1a1f1e", // --app-text
+            background: colors.light.bg,
+            foreground: colors.light.text,
             primary: {
-              DEFAULT: "#047857",
+              DEFAULT: colors.light.primary,
               foreground: "#FFFFFF",
             },
             secondary: {
-              DEFAULT: "#d4a332",
+              DEFAULT: colors.light.secondary,
               foreground: "#FFFFFF",
             },
             success: {
-              DEFAULT: "#16a34a",
+              DEFAULT: colors.light.success,
               foreground: "#FFFFFF",
             },
             warning: {
-              DEFAULT: "#d97706",
+              DEFAULT: colors.light.warning,
               foreground: "#FFFFFF",
             },
             danger: {
-              DEFAULT: "#dc2626",
+              DEFAULT: colors.light.danger,
               foreground: "#FFFFFF",
             },
             default: {
-              DEFAULT: "#ffffff",
-              foreground: "#1a1f1e",
+              DEFAULT: colors.light.surface,
+              foreground: colors.light.text,
             },
-            focus: "#047857",
+            focus: colors.light.primary,
           },
           extend: "light",
         },
         dark: {
           colors: {
-            background: "#0f1412", // --app-bg
-            foreground: "#f7f7f6", // --app-text
+            background: colors.dark.bg,
+            foreground: colors.dark.text,
             primary: {
-              DEFAULT: "#10b981",
+              DEFAULT: colors.dark.primary,
               foreground: "#FFFFFF",
             },
             secondary: {
-              DEFAULT: "#fbbf24",
-              foreground: "#0f1412",
+              DEFAULT: colors.dark.secondary,
+              foreground: colors.dark.bg,
             },
             success: {
-              DEFAULT: "#22c55e",
-              foreground: "#0f1412",
+              DEFAULT: colors.dark.success,
+              foreground: colors.dark.bg,
             },
             warning: {
-              DEFAULT: "#f59e0b",
-              foreground: "#0f1412",
+              DEFAULT: colors.dark.warning,
+              foreground: colors.dark.bg,
             },
             danger: {
-              DEFAULT: "#ef4444",
-              foreground: "#0f1412",
+              DEFAULT: colors.dark.danger,
+              foreground: colors.dark.bg,
             },
             default: {
-              DEFAULT: "#161c1a",
-              foreground: "#f7f7f6",
+              DEFAULT: colors.dark.surface,
+              foreground: colors.dark.text,
             },
-            focus: "#10b981",
+            focus: colors.dark.primary,
           },
           extend: "dark",
         },

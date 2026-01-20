@@ -25,13 +25,13 @@ export function NavigationItem({ id, href, label, icon: Icon, isCollapsed = fals
   const getBadgeColor = (variant: 'danger' | 'warning' | 'info') => {
     switch (variant) {
       case 'danger':
-        return 'bg-[var(--app-danger-bg)] text-[var(--app-danger)]';
+        return 'bg-app-danger/10 text-app-danger dark:bg-app-dark-danger/15 dark:text-app-dark-danger';
       case 'warning':
-        return 'bg-[var(--app-warning-bg)] text-[var(--app-warning)]';
+        return 'bg-app-warning/10 text-app-warning dark:bg-app-dark-warning/15 dark:text-app-dark-warning';
       case 'info':
-        return 'bg-[var(--app-info-bg)] text-[var(--app-info)]';
+        return 'bg-app-info/10 text-app-info dark:bg-app-dark-info/15 dark:text-app-dark-info';
       default:
-        return 'bg-[var(--app-surface-hover)]';
+        return 'bg-app-surface-hover dark:bg-app-dark-surface-hover';
     }
   };
 
@@ -44,8 +44,8 @@ export function NavigationItem({ id, href, label, icon: Icon, isCollapsed = fals
           group relative flex items-center ${isCollapsed ? 'justify-center' : 'justify-between gap-3'} px-3 py-2.5 rounded-lg
           transition-all duration-150
           ${isActive
-            ? 'bg-[var(--app-surface-hover)] border-l-2 border-[var(--app-primary)] shadow-[0_0_12px_rgba(4,120,87,0.3)]'
-            : 'hover:bg-[var(--app-surface-hover)]'
+            ? 'bg-app-surface-hover dark:bg-app-dark-surface-hover border-l-2 border-app-primary dark:border-app-dark-primary shadow-[0_0_12px_rgba(4,120,87,0.3)] dark:shadow-[0_0_12px_rgba(16,185,129,0.3)]'
+            : 'hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover'
           }
         `}
         title={isCollapsed ? label : undefined}
@@ -57,8 +57,8 @@ export function NavigationItem({ id, href, label, icon: Icon, isCollapsed = fals
               className={`
                 w-5 h-5 transition-colors duration-150
                 ${isActive
-                  ? 'text-[var(--app-primary)]'
-                  : 'text-[var(--app-text-muted)] group-hover:text-[var(--app-text)]'
+                  ? 'text-app-primary dark:text-app-dark-primary'
+                  : 'text-app-text-muted dark:text-app-dark-text-muted group-hover:text-app-text dark:group-hover:text-app-dark-text'
                 }
               `}
             />
@@ -71,10 +71,10 @@ export function NavigationItem({ id, href, label, icon: Icon, isCollapsed = fals
               </div>
             )}
             {/* Tooltip on hover */}
-            <div className="absolute left-full ml-2 px-2 py-1 bg-[var(--app-surface)]
+            <div className="absolute left-full ml-2 px-2 py-1 bg-app-surface dark:bg-app-dark-surface
                             rounded shadow-lg text-sm opacity-0 group-hover:opacity-100
                             pointer-events-none transition-opacity z-50 whitespace-nowrap
-                            border border-[var(--app-border)]">
+                            border border-app-border dark:border-app-dark-border">
               {label}
             </div>
           </div>
@@ -86,16 +86,16 @@ export function NavigationItem({ id, href, label, icon: Icon, isCollapsed = fals
                 className={`
                   w-5 h-5 flex-shrink-0 transition-colors duration-150
                   ${isActive
-                    ? 'text-[var(--app-primary)]'
-                    : 'text-[var(--app-text-muted)] group-hover:text-[var(--app-text)]'
+                    ? 'text-app-primary dark:text-app-dark-primary'
+                    : 'text-app-text-muted dark:text-app-dark-text-muted group-hover:text-app-text dark:group-hover:text-app-dark-text'
                   }
                 `}
               />
               <span className={`
                 text-sm font-medium truncate transition-colors duration-150
                 ${isActive
-                  ? 'text-[var(--app-text)]'
-                  : 'text-[var(--app-text-muted)] group-hover:text-[var(--app-text)]'
+                  ? 'text-app-text dark:text-app-dark-text'
+                  : 'text-app-text-muted dark:text-app-dark-text-muted group-hover:text-app-text dark:group-hover:text-app-dark-text'
                 }
               `}>
                 {label}
@@ -120,7 +120,7 @@ export function NavigationItem({ id, href, label, icon: Icon, isCollapsed = fals
 
         {/* Active Indicator Glow */}
         {isActive && (
-          <div className="absolute inset-0 rounded-lg pointer-events-none opacity-10 bg-gradient-to-r from-[var(--app-primary)] to-transparent" />
+          <div className="absolute inset-0 rounded-lg pointer-events-none opacity-10 bg-gradient-to-r from-app-primary dark:from-app-dark-primary to-transparent" />
         )}
       </motion.div>
     </Link>

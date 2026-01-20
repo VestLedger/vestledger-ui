@@ -12,27 +12,27 @@ export interface AlertProps {
 
 const variantStyles = {
   info: {
-    bg: 'bg-[var(--app-info-bg)]',
-    border: 'border-[var(--app-info)]',
-    text: 'text-[var(--app-info)]',
+    bg: 'bg-app-info/10 dark:bg-app-dark-info/15',
+    border: 'border-app-info dark:border-app-dark-info',
+    text: 'text-app-info dark:text-app-dark-info',
     icon: Info,
   },
   success: {
-    bg: 'bg-[var(--app-success-bg)]',
-    border: 'border-[var(--app-success)]',
-    text: 'text-[var(--app-success)]',
+    bg: 'bg-app-success/10 dark:bg-app-dark-success/15',
+    border: 'border-app-success dark:border-app-dark-success',
+    text: 'text-app-success dark:text-app-dark-success',
     icon: CheckCircle2,
   },
   warning: {
-    bg: 'bg-[var(--app-warning-bg)]',
-    border: 'border-[var(--app-warning)]',
-    text: 'text-[var(--app-warning)]',
+    bg: 'bg-app-warning/10 dark:bg-app-dark-warning/15',
+    border: 'border-app-warning dark:border-app-dark-warning',
+    text: 'text-app-warning dark:text-app-dark-warning',
     icon: AlertTriangle,
   },
   danger: {
-    bg: 'bg-[var(--app-danger-bg)]',
-    border: 'border-[var(--app-danger)]',
-    text: 'text-[var(--app-danger)]',
+    bg: 'bg-app-danger/10 dark:bg-app-dark-danger/15',
+    border: 'border-app-danger dark:border-app-dark-danger',
+    text: 'text-app-danger dark:text-app-dark-danger',
     icon: AlertCircle,
   },
 };
@@ -59,7 +59,7 @@ export function Alert({
           {title && (
             <div className={`font-medium mb-1 ${styles.text}`}>{title}</div>
           )}
-          <div className="text-sm text-[var(--app-text)]">{children}</div>
+          <div className="text-sm text-app-text dark:text-app-dark-text">{children}</div>
         </div>
         {dismissible && onDismiss && (
           <button

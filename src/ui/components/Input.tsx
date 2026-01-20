@@ -20,7 +20,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
       variant={variant}
       size={size}
       classNames={{
-        inputWrapper: 'bg-[var(--app-surface-hover)] border border-[var(--app-border-subtle)]',
+        inputWrapper: 'bg-app-surface-hover dark:bg-app-dark-surface-hover border border-app-border-subtle dark:border-app-dark-border-subtle',
         ...classNames,
       }}
       {...rest}

@@ -34,18 +34,18 @@ export function Breadcrumb({ items, aiSuggestion }: BreadcrumbProps) {
               {item.href ? (
                 <Link
                   href={item.href}
-                  className="text-[var(--app-text-muted)] hover:text-[var(--app-primary)] transition-colors"
+                  className="text-app-text-muted dark:text-app-dark-text-muted hover:text-app-primary dark:hover:text-app-dark-primary transition-colors"
                 >
                   {item.label}
                 </Link>
               ) : (
-                <span className={isLast ? 'text-[var(--app-text)] font-medium' : 'text-[var(--app-text-muted)]'}>
+                <span className={isLast ? 'text-app-text dark:text-app-dark-text font-medium' : 'text-app-text-muted dark:text-app-dark-text-muted'}>
                   {item.label}
                 </span>
               )}
 
               {!isLast && (
-                <ChevronRight className="w-4 h-4 text-[var(--app-text-subtle)]" />
+                <ChevronRight className="w-4 h-4 text-app-text-subtle dark:text-app-dark-text-subtle" />
               )}
             </div>
           );
@@ -55,7 +55,7 @@ export function Breadcrumb({ items, aiSuggestion }: BreadcrumbProps) {
       {/* AI Suggestion */}
       {aiSuggestion && (
         <div className="relative inline-block group">
-          <button className="flex items-center gap-2 text-xs text-[var(--app-primary)] hover:text-[var(--app-primary-hover)] transition-colors">
+          <button className="flex items-center gap-2 text-xs text-app-primary dark:text-app-dark-primary hover:text-app-primary-hover dark:hover:text-app-dark-primary-hover transition-colors">
             <Sparkles className="w-3 h-3" />
             <span>Frequently visited next: {aiSuggestion.label}</span>
           </button>
@@ -68,24 +68,24 @@ export function Breadcrumb({ items, aiSuggestion }: BreadcrumbProps) {
             initial={false}
             className="absolute top-full left-0 mt-2 z-10 opacity-0 translate-y-[-5px] pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-150"
           >
-            <div className="bg-[var(--app-surface)] border border-[var(--app-border)] rounded-lg shadow-xl p-3 min-w-[280px]">
+            <div className="bg-app-surface dark:bg-app-dark-surface border border-app-border dark:border-app-dark-border rounded-lg shadow-xl p-3 min-w-[280px]">
               <div className="flex items-start gap-2 mb-2">
-                <Sparkles className="w-4 h-4 text-[var(--app-primary)] mt-0.5 flex-shrink-0" />
+                <Sparkles className="w-4 h-4 text-app-primary dark:text-app-dark-primary mt-0.5 flex-shrink-0" />
                 <div className="flex-1">
-                  <p className="text-xs font-semibold text-[var(--app-text)] mb-1">
+                  <p className="text-xs font-semibold text-app-text dark:text-app-dark-text mb-1">
                     AI Navigation Suggestion
                   </p>
-                  <p className="text-xs text-[var(--app-text-muted)] mb-2">
+                  <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-2">
                     {aiSuggestion.reasoning}
                   </p>
                   <div className="flex items-center gap-2">
-                    <div className="flex-1 h-1 bg-[var(--app-surface-hover)] rounded-full overflow-hidden">
+                    <div className="flex-1 h-1 bg-app-surface-hover dark:bg-app-dark-surface-hover rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-[var(--app-primary)] rounded-full"
+                        className="h-full bg-app-primary dark:bg-app-dark-primary rounded-full"
                         style={{ width: `${aiSuggestion.confidence * 100}%` }}
                       />
                     </div>
-                    <span className="text-xs font-bold text-[var(--app-primary)]">
+                    <span className="text-xs font-bold text-app-primary dark:text-app-dark-primary">
                       {Math.round(aiSuggestion.confidence * 100)}%
                     </span>
                   </div>
@@ -93,7 +93,7 @@ export function Breadcrumb({ items, aiSuggestion }: BreadcrumbProps) {
               </div>
               <Link
                 href={aiSuggestion.href}
-                className="block w-full text-center py-2 px-3 rounded bg-[var(--app-primary)]/10 hover:bg-[var(--app-primary)]/20 text-xs font-medium text-[var(--app-primary)] transition-colors"
+                className="block w-full text-center py-2 px-3 rounded bg-app-primary/10 dark:bg-app-dark-primary/15 hover:bg-app-primary/20 dark:hover:bg-app-dark-primary/25 text-xs font-medium text-app-primary dark:text-app-dark-primary transition-colors"
               >
                 Go to {aiSuggestion.label}
               </Link>

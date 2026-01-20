@@ -1,161 +1,73 @@
 /*
- * THEMING: SINGLE SOURCE OF TRUTH
- * ================================
- * All colors are defined here as CSS variables.
- * tailwind.config.js maps these to Tailwind utilities (bg-app-primary, text-app-muted).
+ * GLOBAL STYLES
+ * =============
+ * Colors are defined in src/styles/colors.js
+ * Use Tailwind classes: bg-app-primary, text-app-muted, border-app-border
+ * For dark mode: dark:bg-app-dark-primary, dark:text-app-dark-text
  *
- * TO CHANGE COLORS: Edit this file only.
- *
- * USAGE:
- * - CSS variables:     var(--app-primary), var(--app-bg)
- * - Tailwind classes:  bg-app-primary, text-app-muted, border-app-border
- * - Arbitrary values:  bg-[var(--app-primary)]
+ * CSS variables below are ONLY for third-party libraries (FullCalendar)
+ * and special CSS features (shadows, focus rings) that can't use Tailwind.
  */
 
+/* ============================================
+   CSS Variables for third-party libraries
+   Keep in sync with src/styles/colors.js
+   ============================================ */
 :root {
-  /* VestLedger — Deep Emerald + Rich Gold Light Mode (Premium) */
-
-  /* Foundations */
-  --app-bg: #fafaf8;                 /* Warm White */
-  --app-surface: #ffffff;            /* Elevated surface */
-  --app-surface-2: #f5f4f0;          /* Warm Stone */
-  --app-surface-hover: #eceae4;      /* Light Stone */
-
-  /* Borders */
-  --app-border: #d9d6cf;             /* Warm Gray */
-  --app-border-subtle: #e4e2dc;
+  /* Colors for FullCalendar and other libraries */
+  --app-bg: #fafaf8;
+  --app-surface: #ffffff;
+  --app-surface-hover: #eceae4;
+  --app-border: #d9d6cf;
   --app-border-strong: #c5c1b8;
-
-  /* Text */
-  --app-text: #1a1f1e;               /* Near Black */
-  --app-text-muted: #4a5250;         /* Dark Gray */
-  --app-text-subtle: #6e7572;
-
-  /* Brand & Identity — VIBRANT */
-  --app-primary: #047857;            /* Deep Emerald (vivid) */
-  --app-primary-hover: #059669;      /* Bright Emerald */
+  --app-text: #1a1f1e;
+  --app-text-muted: #4a5250;
+  --app-primary: #047857;
   --app-primary-bg: rgba(4, 120, 87, 0.10);
 
-  --app-secondary: #d4a332;          /* Rich Gold (saturated) */
-  --app-secondary-hover: #b8922a;    /* Deep Gold */
-  --app-secondary-bg: rgba(212, 163, 50, 0.12);
-
-  /* Status (operational, not brand) */
-  --app-success: #16a34a;            /* Vivid Green */
-  --app-success-bg: rgba(22, 163, 74, 0.10);
-  --app-warning: #d97706;            /* Vivid Amber */
-  --app-warning-bg: rgba(217, 119, 6, 0.10);
-  --app-danger: #dc2626;             /* Vivid Red */
-  --app-danger-bg: rgba(220, 38, 38, 0.10);
-  --app-info: #0891b2;               /* Vivid Cyan */
-  --app-info-bg: rgba(8, 145, 178, 0.10);
-
-  /* Accent (de-emphasized; use sparingly) */
-  --app-accent: #0d9488;             /* Teal */
-  --app-accent-hover: #0f766e;
-
-  /* Sidebar */
-  --app-sidebar-bg: #fafaf8;
-  --app-sidebar-border: #d9d6cf;
-
-  /* Gradients (richer, more visible) */
-  --gradient-emerald: linear-gradient(135deg, rgba(4, 120, 87, 0.08) 0%, rgba(5, 150, 105, 0.05) 100%);
-  --gradient-gold: linear-gradient(135deg, rgba(212, 163, 50, 0.15) 0%, rgba(184, 146, 42, 0.10) 100%);
-
-  /* Shadows (elevation-based) */
+  /* Shadows */
   --app-shadow-1: 0 1px 3px rgba(26, 31, 30, 0.10), 0 4px 12px rgba(26, 31, 30, 0.08);
   --app-shadow-2: 0 4px 8px rgba(26, 31, 30, 0.12), 0 12px 32px rgba(26, 31, 30, 0.10);
 
-  /* Focus (accessible, visible) */
-  --app-focus-ring: 0 0 0 2px var(--app-bg), 0 0 0 4px rgba(4, 120, 87, 0.40);
-
-  /* Tab Component Variables */
-  --tab-cursor: var(--app-primary);
-  --tab-selected-text-solid: #ffffff;
-  --tab-selected-text-underlined: var(--app-primary);
-
-  /* Link/CTA distinction */
-  --app-link: #047857;
-  --app-link-hover: #059669;
+  /* Focus ring */
+  --app-focus-ring: 0 0 0 2px #fafaf8, 0 0 0 4px rgba(4, 120, 87, 0.40);
 }
 
 .dark {
-  /* VestLedger — Deep Emerald + Rich Gold Dark Mode (Luxe) */
-
-  /* Foundations */
-  --app-bg: #0f1412;                 /* Deep Forest Black */
-  --app-surface: #161c1a;            /* Elevated Panel */
-  --app-surface-2: #1c2421;          /* Card Surface */
+  --app-bg: #0f1412;
+  --app-surface: #161c1a;
   --app-surface-hover: #242d2a;
-
-  /* Borders */
   --app-border: #2d3835;
-  --app-border-subtle: #232c29;
   --app-border-strong: #3a4743;
-
-  /* Text */
-  --app-text: #f7f7f6;               /* Bright Ivory */
-  --app-text-muted: #c4cac8;         /* Silver */
-  --app-text-subtle: #919996;
-
-  /* Brand & Identity — VIBRANT (lightened for dark bg) */
-  --app-primary: #10b981;            /* Emerald (bright for dark) */
-  --app-primary-hover: #34d399;      /* Light Emerald */
+  --app-text: #f7f7f6;
+  --app-text-muted: #c4cac8;
+  --app-primary: #10b981;
   --app-primary-bg: rgba(16, 185, 129, 0.15);
 
-  --app-secondary: #fbbf24;          /* Bright Gold */
-  --app-secondary-hover: #fcd34d;    /* Light Gold */
-  --app-secondary-bg: rgba(251, 191, 36, 0.15);
-
-  /* Status (operational, not brand) */
-  --app-success: #22c55e;            /* Bright Green */
-  --app-success-bg: rgba(34, 197, 94, 0.15);
-  --app-warning: #f59e0b;            /* Bright Amber */
-  --app-warning-bg: rgba(245, 158, 11, 0.15);
-  --app-danger: #ef4444;             /* Bright Red */
-  --app-danger-bg: rgba(239, 68, 68, 0.15);
-  --app-info: #06b6d4;               /* Bright Cyan */
-  --app-info-bg: rgba(6, 182, 212, 0.15);
-
-  /* Accent (de-emphasized) */
-  --app-accent: #14b8a6;             /* Bright Teal */
-  --app-accent-hover: #2dd4bf;
-
-  /* Sidebar */
-  --app-sidebar-bg: #0c100e;
-  --app-sidebar-border: #2d3835;
-
-  /* Gradients (richer for dark mode) */
-  --gradient-emerald: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(5, 150, 105, 0.08) 100%);
-  --gradient-gold: linear-gradient(135deg, rgba(251, 191, 36, 0.12) 0%, rgba(245, 158, 11, 0.08) 100%);
-
-  /* Shadows (deeper for dark mode) */
+  /* Shadows */
   --app-shadow-1: 0 1px 3px rgba(0, 0, 0, 0.35), 0 6px 16px rgba(0, 0, 0, 0.30);
   --app-shadow-2: 0 4px 8px rgba(0, 0, 0, 0.40), 0 16px 40px rgba(0, 0, 0, 0.35);
 
-  /* Focus (accessible, visible on dark) */
-  --app-focus-ring: 0 0 0 2px var(--app-bg), 0 0 0 4px rgba(16, 185, 129, 0.50);
-
-  /* Tab Component Variables */
-  --tab-cursor: var(--app-primary);
-  --tab-selected-text-solid: #0f1412;
-  --tab-selected-text-underlined: var(--app-primary);
-
-  /* Link/CTA distinction */
-  --app-link: #10b981;
-  --app-link-hover: #34d399;
+  /* Focus ring */
+  --app-focus-ring: 0 0 0 2px #0f1412, 0 0 0 4px rgba(16, 185, 129, 0.50);
 }
 
+/* ============================================
+   Base styles
+   ============================================ */
 html {
   font-size: 16px;
+  scrollbar-width: thin;
 }
 
-/* Ensure any uncolored borders fall back to the theme border */
+/* Default border color */
 *, *::before, *::after {
   border-color: var(--app-border);
 }
 
-/* Scrollbars: visible, subtle, enterprise-friendly */
+/* ============================================
+   Scrollbars
+   ============================================ */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -176,11 +88,9 @@ html {
   background-color: rgba(196, 202, 200, 0.25);
 }
 
-html {
-  scrollbar-width: thin; /* Firefox */
-}
-
-/* Enterprise hover: elevation + border refinement */
+/* ============================================
+   Utility classes
+   ============================================ */
 .hover-elevate:hover,
 .hover-glow:hover {
   box-shadow: var(--app-shadow-1);
@@ -188,14 +98,14 @@ html {
   transition: box-shadow 0.18s ease, border-color 0.18s ease;
 }
 
-/* FullCalendar theme alignment (outlined buttons by default) */
+/* ============================================
+   FullCalendar theme
+   ============================================ */
 .fc {
   --fc-page-bg-color: var(--app-surface);
   --fc-border-color: var(--app-border);
   --fc-neutral-bg-color: var(--app-surface-hover);
   --fc-neutral-text-color: var(--app-text-muted);
-
-  /* Buttons: outline-first enterprise style */
   --fc-button-text-color: var(--app-primary);
   --fc-button-bg-color: transparent;
   --fc-button-border-color: var(--app-border-strong);
@@ -203,22 +113,16 @@ html {
   --fc-button-hover-border-color: var(--app-primary);
   --fc-button-active-bg-color: var(--app-primary);
   --fc-button-active-border-color: var(--app-primary);
-
-  /* Events */
   --fc-event-text-color: #ffffff;
   --fc-event-bg-color: var(--app-primary);
   --fc-event-border-color: var(--app-primary);
-
-  /* Today highlight (subtle) */
   --fc-today-bg-color: var(--app-primary-bg);
-
   font-family: inherit;
 }
 
-/* Dark mode FullCalendar active button text */
 .dark .fc .fc-button-primary:not(:disabled).fc-button-active,
 .dark .fc .fc-button-primary:not(:disabled):active {
-  color: #0f1412; /* Deep Forest for contrast on bright primary */
+  color: #0f1412;
 }
 
 .fc .fc-toolbar-title {

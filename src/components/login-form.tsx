@@ -58,7 +58,7 @@ export function LoginForm() {
     return (
       <Card padding="lg">
         <div className="text-center py-12">
-          <div className="animate-pulse text-[var(--app-text-muted)]">
+          <div className="animate-pulse text-app-text-muted dark:text-app-dark-text-muted">
             Loading...
           </div>
         </div>
@@ -78,10 +78,10 @@ export function LoginForm() {
             className="h-12 w-12"
             priority
           />
-          <span className="text-2xl font-bold text-[var(--app-primary)]">VestLedger</span>
+          <span className="text-2xl font-bold text-app-primary dark:text-app-dark-primary">VestLedger</span>
         </div>
         <h1 className="text-2xl font-semibold mb-2">Welcome back</h1>
-        <p className="text-sm text-[var(--app-text-muted)]">
+        <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">
           Sign in to your VestLedger account
         </p>
       </div>
@@ -105,14 +105,14 @@ export function LoginForm() {
           disallowEmptySelection
           variant="bordered"
           classNames={{
-            trigger: 'bg-[var(--app-surface-hover)] border border-[var(--app-border-subtle)]',
+            trigger: 'bg-app-surface-hover dark:bg-app-dark-surface-hover border border-app-border-subtle dark:border-app-dark-border-subtle',
           }}
         >
           {Object.values(PERSONA_CONFIG).map((persona) => (
             <SelectItem key={persona.id} value={persona.id} textValue={persona.label}>
               <div className="flex flex-col">
                 <span className="text-small">{persona.label}</span>
-                <span className="text-tiny text-[var(--app-text-muted)]">
+                <span className="text-tiny text-app-text-muted dark:text-app-dark-text-muted">
                   {persona.description}
                 </span>
               </div>
@@ -146,11 +146,11 @@ export function LoginForm() {
           Sign In
         </Button>
 
-        <div className="text-center text-sm text-[var(--app-text-muted)]">
+        <div className="text-center text-sm text-app-text-muted dark:text-app-dark-text-muted">
           Don&apos;t have an account?{' '}
           <a
             href={`${process.env.NEXT_PUBLIC_PUBLIC_DOMAIN ? `https://${process.env.NEXT_PUBLIC_PUBLIC_DOMAIN}` : 'http://vestledger.local:3000'}/eoi`}
-            className="text-[var(--app-primary)] hover:underline"
+            className="text-app-primary dark:text-app-dark-primary hover:underline"
           >
             Request Access
           </a>

@@ -16,7 +16,7 @@ export function Card({ children, header, footer, padding = 'md', className = '',
     lg: 'p-8',
   };
 
-  const cardClass = `bg-[var(--app-surface)] border border-[var(--app-border)] rounded-lg ${className}`;
+  const cardClass = `bg-app-surface dark:bg-app-dark-surface border border-app-border dark:border-app-dark-border rounded-lg ${className}`;
 
   return (
     <NextUICard className={cardClass} {...rest}>

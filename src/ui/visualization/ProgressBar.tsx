@@ -28,10 +28,10 @@ export function ProgressBar({
   };
 
   const colorClasses = {
-    success: 'bg-[var(--app-success)]',
-    primary: 'bg-[var(--app-primary)]',
-    warning: 'bg-[var(--app-warning)]',
-    danger: 'bg-[var(--app-danger)]',
+    success: 'bg-app-success dark:bg-app-dark-success',
+    primary: 'bg-app-primary dark:bg-app-dark-primary',
+    warning: 'bg-app-warning dark:bg-app-dark-warning',
+    danger: 'bg-app-danger dark:bg-app-dark-danger',
   };
 
   const clampedValue = Math.min(Math.max(value, 0), 100);
@@ -39,7 +39,7 @@ export function ProgressBar({
   return (
     <div className={className}>
       <div
-        className={`w-full bg-[var(--app-surface-hover)] rounded-full overflow-hidden ${sizeClasses[size]}`}
+        className={`w-full bg-app-surface-hover dark:bg-app-dark-surface-hover rounded-full overflow-hidden ${sizeClasses[size]}`}
         role="progressbar"
         aria-valuenow={clampedValue}
         aria-valuemin={0}
@@ -64,11 +64,11 @@ export function ProgressBar({
       {showLabel && (
         <div className="flex items-center justify-between mt-1">
           {label && (
-            <span className="text-xs text-[var(--app-text-subtle)]">
+            <span className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle">
               {label}
             </span>
           )}
-          <span className="text-xs font-medium text-[var(--app-text-muted)]">
+          <span className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted">
             {Math.round(clampedValue)}%
           </span>
         </div>

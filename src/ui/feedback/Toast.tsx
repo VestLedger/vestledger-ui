@@ -31,24 +31,24 @@ const DEFAULT_DURATION_MS = 4000;
 
 const variantStyles: Record<ToastVariant, { background: string; text: string; border: string }> = {
   info: {
-    background: "bg-[var(--app-info-bg)]",
-    text: "text-[var(--app-info)]",
-    border: "border-[var(--app-info)]/20",
+    background: "bg-app-info/10 dark:bg-app-dark-info/15",
+    text: "text-app-info dark:text-app-dark-info",
+    border: "border-app-info/20 dark:border-app-dark-info/20",
   },
   success: {
-    background: "bg-[var(--app-success-bg)]",
-    text: "text-[var(--app-success)]",
-    border: "border-[var(--app-success)]/20",
+    background: "bg-app-success/10 dark:bg-app-dark-success/15",
+    text: "text-app-success dark:text-app-dark-success",
+    border: "border-app-success/20 dark:border-app-dark-success/20",
   },
   warning: {
-    background: "bg-[var(--app-warning-bg)]",
-    text: "text-[var(--app-warning)]",
-    border: "border-[var(--app-warning)]/20",
+    background: "bg-app-warning/10 dark:bg-app-dark-warning/15",
+    text: "text-app-warning dark:text-app-dark-warning",
+    border: "border-app-warning/20 dark:border-app-dark-warning/20",
   },
   error: {
-    background: "bg-[var(--app-danger-bg)]",
-    text: "text-[var(--app-danger)]",
-    border: "border-[var(--app-danger)]/20",
+    background: "bg-app-danger/10 dark:bg-app-dark-danger/15",
+    text: "text-app-danger dark:text-app-dark-danger",
+    border: "border-app-danger/20 dark:border-app-dark-danger/20",
   },
 };
 
@@ -77,13 +77,13 @@ function ToastViewport({
             <div className="flex items-start justify-between gap-2">
               <div>
                 {toast.title && <div className="text-sm font-semibold">{toast.title}</div>}
-                <div className="text-xs text-[var(--app-text-muted)]">{toast.message}</div>
+                <div className="text-xs text-app-text-muted dark:text-app-dark-text-muted">{toast.message}</div>
               </div>
               <button
                 type="button"
                 aria-label="Dismiss notification"
                 onClick={() => onDismiss(toast.id)}
-                className="rounded-md p-1 text-[var(--app-text-muted)] hover:text-[var(--app-text)]"
+                className="rounded-md p-1 text-app-text-muted dark:text-app-dark-text-muted hover:text-app-text dark:hover:text-app-dark-text"
               >
                 <X className="h-4 w-4" />
               </button>

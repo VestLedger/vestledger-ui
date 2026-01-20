@@ -36,16 +36,16 @@ const sizeMap = {
 };
 
 const colorMap = {
-  default: 'text-[var(--app-text)]',
-  muted: 'text-[var(--app-text-muted)]',
-  subtle: 'text-[var(--app-text-subtle)]',
-  primary: 'text-[var(--app-primary)]',
-  secondary: 'text-[var(--app-secondary)]',
-  success: 'text-[var(--app-success)]',
-  warning: 'text-[var(--app-warning)]',
-  danger: 'text-[var(--app-danger)]',
-  accent: 'text-[var(--app-accent)]',
-  info: 'text-[var(--app-info)]',
+  default: 'text-app-text dark:text-app-dark-text',
+  muted: 'text-app-text-muted dark:text-app-dark-text-muted',
+  subtle: 'text-app-text-subtle dark:text-app-dark-text-subtle',
+  primary: 'text-app-primary dark:text-app-dark-primary',
+  secondary: 'text-app-secondary dark:text-app-dark-secondary',
+  success: 'text-app-success dark:text-app-dark-success',
+  warning: 'text-app-warning dark:text-app-dark-warning',
+  danger: 'text-app-danger dark:text-app-dark-danger',
+  accent: 'text-app-accent dark:text-app-dark-accent',
+  info: 'text-app-info dark:text-app-dark-info',
 };
 
 export const Icon = forwardRef<SVGSVGElement, IconProps>(
