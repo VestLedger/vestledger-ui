@@ -36,6 +36,12 @@
   --vesta-glow: 0 0 60px rgba(16, 185, 129, 0.3);
   --vesta-glow-subtle: 0 0 30px rgba(16, 185, 129, 0.15);
 
+  /* Gold Accent (trust, premium, achievements) */
+  --app-secondary: #d4a332;
+  --app-secondary-bg: rgba(212, 163, 50, 0.10);
+  --gold-glow: 0 0 40px rgba(212, 163, 50, 0.25);
+  --gold-glow-subtle: 0 0 20px rgba(212, 163, 50, 0.12);
+
   /* Enhanced Shadows (depth hierarchy) */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -65,6 +71,12 @@
   /* Vesta Identity (dark mode) */
   --vesta-glow: 0 0 80px rgba(16, 185, 129, 0.4);
   --vesta-glow-subtle: 0 0 40px rgba(16, 185, 129, 0.2);
+
+  /* Gold Accent (dark mode - brighter amber) */
+  --app-secondary: #fbbf24;
+  --app-secondary-bg: rgba(251, 191, 36, 0.15);
+  --gold-glow: 0 0 50px rgba(251, 191, 36, 0.3);
+  --gold-glow-subtle: 0 0 25px rgba(251, 191, 36, 0.15);
 
   /* Enhanced Shadows (dark mode) */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
@@ -211,6 +223,65 @@ html {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+/* Gold gradient text for premium/trust highlights */
+.text-gold {
+  background: linear-gradient(135deg, #d4a332 0%, #f0c45a 50%, #d4a332 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .text-gold {
+  background: linear-gradient(135deg, #fbbf24 0%, #fcd34d 50%, #fbbf24 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Emerald to Gold gradient text (premium Vesta) */
+.text-vesta-gold {
+  background: linear-gradient(135deg, #047857 0%, #0d9488 40%, #d4a332 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .text-vesta-gold {
+  background: linear-gradient(135deg, #10b981 0%, #14b8a6 40%, #fbbf24 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Gold icon container (for trust/compliance badges) */
+.icon-gold {
+  background: linear-gradient(135deg, #d4a332 0%, #f0c45a 100%);
+  box-shadow: var(--gold-glow-subtle);
+}
+
+.dark .icon-gold {
+  background: linear-gradient(135deg, #fbbf24 0%, #fcd34d 100%);
+}
+
+/* Premium card with gold accent */
+.card-premium {
+  background: var(--app-surface);
+  border: 1px solid rgba(212, 163, 50, 0.3);
+  border-radius: 16px;
+  box-shadow: var(--shadow-md), var(--gold-glow-subtle);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-premium:hover {
+  box-shadow: var(--shadow-xl), var(--gold-glow);
+  border-color: var(--app-secondary);
+  transform: translateY(-2px);
+}
+
+.dark .card-premium {
+  border-color: rgba(251, 191, 36, 0.25);
 }
 
 /* ============================================

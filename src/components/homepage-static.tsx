@@ -72,12 +72,12 @@ export function HomepageStatic() {
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <LoginButton className="btn-primary text-lg">
+              <LoginButton className="btn-primary btn-lg">
                 Get Started with Vesta
               </LoginButton>
               <a
                 href="/how-it-works"
-                className="inline-flex items-center justify-center px-6 py-3.5 text-lg rounded-xl font-medium border-2 border-[var(--app-border)] text-[var(--app-text)] hover:bg-[var(--app-surface-hover)] hover:border-[var(--app-primary)] transition-all"
+                className="btn-secondary btn-lg"
               >
                 See How Vesta Works
               </a>
@@ -92,7 +92,7 @@ export function HomepageStatic() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
-                <div className="text-3xl sm:text-4xl font-bold mb-2 text-vesta">{stat.value}</div>
+                <div className="text-3xl sm:text-4xl font-bold mb-2 text-gold">{stat.value}</div>
                 <div className="text-sm text-[var(--app-text-muted)]">{stat.label}</div>
               </div>
             ))}
@@ -185,7 +185,7 @@ export function HomepageStatic() {
             <p className="text-lg text-[var(--app-text-muted)] mb-8 max-w-2xl mx-auto">
               Join funds who have moved from managing tools to working with intelligence.
             </p>
-            <LoginButton className="btn-primary text-lg">
+            <LoginButton className="btn-primary btn-lg">
               Get Started
             </LoginButton>
           </div>

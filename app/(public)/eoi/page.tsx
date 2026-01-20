@@ -24,12 +24,12 @@ export default function EOIPage() {
     return (
       <div className="min-h-[80vh] flex flex-col items-center justify-center p-4">
         <div className="text-center max-w-md">
-          <div className="w-16 h-16 bg-gradient-to-br from-[#047857] to-[#10b981] rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_40px_rgba(16,185,129,0.3)]">
+          <div className="w-16 h-16 icon-gold rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle2 className="w-8 h-8 text-white" />
           </div>
-          <h2 className="text-3xl font-bold mb-4">Your Vesta Journey Begins</h2>
+          <h2 className="text-3xl font-bold mb-4">Your <span className="text-vesta-gold">Vesta Journey</span> Begins</h2>
           <p className="text-[var(--app-text-muted)] mb-8">
-            Thank you for reaching out. Our team will prepare to onboard your Vesta. Expect to hear from us within 24 hours.
+            Thank you for reaching out. Our team will prepare to onboard your Vesta. Expect to hear from us within <span className="text-gold font-semibold">24 hours</span>.
           </p>
           <Button as={Link} href="/" className="btn-primary">
             Return to Homepage
@@ -47,9 +47,12 @@ export default function EOIPage() {
       </Link>
 
       <div className="text-center mb-12">
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--app-secondary-bg)] text-[var(--app-secondary)] rounded-full text-sm font-medium mb-6">
+          <span>Early Access</span>
+        </div>
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Meet Your <span className="text-vesta">Vesta</span></h1>
         <p className="text-lg text-[var(--app-text-muted)] max-w-xl mx-auto">
-          Get early access to your own AI fund assistant. We&apos;ll onboard Vesta to your fund and show you what intelligent fund management looks like.
+          Get <span className="text-gold font-semibold">early access</span> to your own AI fund assistant. We&apos;ll onboard Vesta to your fund and show you what intelligent fund management looks like.
         </p>
       </div>
 

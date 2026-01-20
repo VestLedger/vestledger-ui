@@ -138,8 +138,8 @@ export default function AboutPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               {stats.map((stat, idx) => (
-                <Card key={idx} padding="lg" className="text-center">
-                  <div className="text-3xl font-bold text-[var(--app-primary)] mb-2">{stat.value}</div>
+                <Card key={idx} padding="lg" className="text-center card-elevated">
+                  <div className="text-3xl font-bold text-gold mb-2">{stat.value}</div>
                   <div className="text-sm text-[var(--app-text-muted)]">{stat.label}</div>
                 </Card>
               ))}
@@ -165,9 +165,9 @@ export default function AboutPage() {
             {values.map((value, idx) => {
               const Icon = value.icon;
               return (
-                <Card key={idx} padding="lg" className="text-center hover:border-[var(--app-primary)] transition-colors">
-                  <div className="w-12 h-12 rounded-xl bg-[var(--app-primary-bg)] text-[var(--app-primary)] flex items-center justify-center mx-auto mb-4">
-                    <Icon className="w-6 h-6" />
+                <Card key={idx} padding="lg" className="text-center card-elevated">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#047857] to-[#10b981] flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <Icon className="w-6 h-6 text-white" />
                   </div>
                   <h3 className="text-lg font-bold mb-2">{value.title}</h3>
                   <p className="text-[var(--app-text-muted)] text-sm">{value.description}</p>
@@ -192,7 +192,7 @@ export default function AboutPage() {
             {timeline.map((milestone, idx) => (
               <div key={idx} className="flex gap-6">
                 <div className="flex flex-col items-center">
-                  <div className="w-12 h-12 rounded-full bg-[var(--app-primary)] text-white flex items-center justify-center font-bold shrink-0" role="img" aria-label={milestone.year}>
+                  <div className="w-12 h-12 rounded-full icon-gold text-white flex items-center justify-center font-bold shrink-0" role="img" aria-label={milestone.year}>
                     {milestone.year.slice(2)}
                   </div>
                   {idx < timeline.length - 1 && (
@@ -200,7 +200,7 @@ export default function AboutPage() {
                   )}
                 </div>
                 <div className="pb-8">
-                  <time className="text-sm text-[var(--app-text-muted)] mb-1 block">{milestone.year}</time>
+                  <time className="text-sm text-gold font-semibold mb-1 block">{milestone.year}</time>
                   <h3 className="text-xl font-bold mb-2">{milestone.title}</h3>
                   <p className="text-[var(--app-text-muted)]">{milestone.description}</p>
                 </div>

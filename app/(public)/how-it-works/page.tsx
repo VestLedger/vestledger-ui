@@ -88,7 +88,7 @@ export default function HowItWorksPage() {
                     <div className="flex-grow">
                       <div className="flex flex-wrap items-center gap-3 mb-2">
                         <span className="text-sm font-bold uppercase text-[var(--app-primary)]">{phase.phase}</span>
-                        <span className="text-sm text-[var(--app-text-muted)]">({phase.duration})</span>
+                        <span className="text-sm font-semibold text-gold">({phase.duration})</span>
                       </div>
                       <h3 className="text-2xl sm:text-3xl font-bold mb-3">{phase.title}</h3>
                       <p className="text-lg text-[var(--app-text-muted)] mb-6">{phase.description}</p>

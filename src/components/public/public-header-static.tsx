@@ -29,25 +29,25 @@ export function PublicHeaderStatic() {
           <div className="hidden md:flex items-center gap-6">
             <Link
               href="/features"
-              className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-text)] transition-colors"
+              className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-primary)] transition-colors"
             >
               Features
             </Link>
             <Link
               href="/how-it-works"
-              className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-text)] transition-colors"
+              className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-primary)] transition-colors"
             >
               How It Works
             </Link>
             <Link
               href="/security"
-              className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-text)] transition-colors"
+              className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-primary)] transition-colors"
             >
               Security
             </Link>
             <Link
               href="/about"
-              className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-text)] transition-colors"
+              className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-primary)] transition-colors"
             >
               About
             </Link>
