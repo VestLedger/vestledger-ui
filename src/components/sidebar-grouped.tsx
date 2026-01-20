@@ -66,6 +66,7 @@ const navigationStructure = {
     icon: Users,
     allowedRoles: ['lp'] as UserRole[],
     items: [
+      { id: 'lp-portal', href: '/lp-portal', label: 'LP Portal', icon: Users },
       { id: 'portfolio', href: '/portfolio', label: 'My Investments', icon: Briefcase },
       { id: 'reports', href: '/reports', label: 'Documents', icon: FileDown },
     ],
@@ -118,10 +119,9 @@ export function SidebarGrouped() {
         width: effectivelyCollapsed ? '64px' : '256px',
       }}
       transition={{ duration: 0.2, ease: 'easeInOut' }}
-      className="relative flex flex-col h-full border-r border-[var(--app-sidebar-border)]"
+      className="relative flex flex-col h-full border-r border-app-border dark:border-app-dark-border bg-gradient-to-t from-app-primary/10 dark:from-app-dark-primary/15 to-app-surface dark:to-app-dark-surface"
       style={{
         willChange: 'width',
-        background: 'linear-gradient(to top, var(--app-primary-bg), var(--app-sidebar-bg))'
       }}
     >
       {/* Toggle Button */}
@@ -140,13 +140,13 @@ export function SidebarGrouped() {
 
       {/* Header / Branding */}
       <div
-        className="px-4 h-[69px] border-b border-[var(--app-sidebar-border)] flex-shrink-0 flex items-center"
+        className="px-4 h-[69px] border-b border-app-border dark:border-app-dark-border flex-shrink-0 flex items-center"
         onMouseEnter={() => isCollapsed && patchSidebarUI({ isHovered: true })}
         onMouseLeave={() => patchSidebarUI({ isHovered: false })}
       >
         {effectivelyCollapsed ? (
           <div className="flex items-center justify-center w-full">
-            <div className="w-9 h-9 rounded-lg bg-[var(--app-surface)]/80 border border-[var(--app-border)] flex items-center justify-center">
+            <div className="w-9 h-9 rounded-lg bg-app-surface/80 dark:bg-app-dark-surface/80 border border-app-border dark:border-app-dark-border flex items-center justify-center">
               <Image
                 src="/logo/Print_Transparent.svg"
                 alt="VestLedger logo"
@@ -158,7 +158,7 @@ export function SidebarGrouped() {
           </div>
         ) : (
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-[var(--app-surface)]/80 border border-[var(--app-border)] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-app-surface/80 dark:bg-app-dark-surface/80 border border-app-border dark:border-app-dark-border flex items-center justify-center">
               <Image
                 src="/logo/Print_Transparent.svg"
                 alt="VestLedger logo"
@@ -168,8 +168,8 @@ export function SidebarGrouped() {
               />
             </div>
             <div>
-              <h1 className="text-sm font-bold text-[var(--app-text)]">VestLedger</h1>
-              <p className="text-xs text-[var(--app-text-muted)]">AI-Powered VC</p>
+              <h1 className="text-sm font-bold text-app-text dark:text-app-dark-text">VestLedger</h1>
+              <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">AI-Powered VC</p>
             </div>
           </div>
         )}
@@ -309,7 +309,7 @@ export function SidebarGrouped() {
 
       {/* Footer */}
       <div
-        className="p-4 border-t border-[var(--app-sidebar-border)] space-y-3 flex-shrink-0"
+        className="p-4 border-t border-app-border dark:border-app-dark-border space-y-3 flex-shrink-0"
         onMouseEnter={() => isCollapsed && patchSidebarUI({ isHovered: true })}
         onMouseLeave={() => patchSidebarUI({ isHovered: false })}
       >

@@ -35,12 +35,12 @@ export function NavigationGroup({
           !isExpanded ? (
             <button
               onClick={() => toggleGroup(id)}
-              className="flex items-center justify-center p-2 w-full rounded-lg hover:bg-[var(--app-surface-hover)] transition-colors"
+              className="flex items-center justify-center p-2 w-full rounded-lg hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover transition-colors"
               title={label}
               aria-label={label}
               aria-expanded={isExpanded}
             >
-              <Icon className={`w-5 h-5 ${alwaysExpanded ? 'text-[var(--app-primary)]' : 'text-[var(--app-text-muted)]'}`} />
+              <Icon className={`w-5 h-5 ${alwaysExpanded ? 'text-app-primary dark:text-app-dark-primary' : 'text-app-text-muted dark:text-app-dark-text-muted'}`} />
             </button>
           ) : (
             // Keep the space but make it invisible when expanded
@@ -58,7 +58,7 @@ export function NavigationGroup({
             transition-colors duration-150
             ${alwaysExpanded
               ? 'cursor-default'
-              : 'cursor-pointer hover:bg-[var(--app-surface-hover)]'
+              : 'cursor-pointer hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover'
             }
           `}
           aria-expanded={isExpanded}
@@ -69,16 +69,16 @@ export function NavigationGroup({
               <Icon className={`
                 w-4 h-4
                 ${alwaysExpanded
-                  ? 'text-[var(--app-primary)]'
-                  : 'text-[var(--app-text-muted)]'
+                  ? 'text-app-primary dark:text-app-dark-primary'
+                  : 'text-app-text-muted dark:text-app-dark-text-muted'
                 }
               `} />
             )}
             <span className={`
               text-xs font-semibold uppercase tracking-wider
               ${alwaysExpanded
-                ? 'text-[var(--app-text)]'
-                : 'text-[var(--app-text-muted)]'
+                ? 'text-app-text dark:text-app-dark-text'
+                : 'text-app-text-muted dark:text-app-dark-text-muted'
               }
             `}>
               {label}
@@ -90,7 +90,7 @@ export function NavigationGroup({
               animate={{ rotate: isExpanded ? 180 : 0 }}
               transition={{ duration: 0.2, ease: 'easeInOut' }}
             >
-              <ChevronDown className="w-4 h-4 text-[var(--app-text-muted)]" />
+              <ChevronDown className="w-4 h-4 text-app-text-muted dark:text-app-dark-text-muted" />
             </motion.div>
           )}
         </button>

@@ -20,6 +20,7 @@ import {
   Settings,
   Receipt,
   Bell,
+  CalendarDays,
 } from 'lucide-react';
 import type { BreadcrumbItem, AISuggestion } from '@/ui';
 
@@ -157,6 +158,63 @@ export const routes: Record<string, RouteConfig> = {
     description: 'Capital calls and fund operations',
   },
 
+  fundAdminDistributionsNew: {
+    path: '/fund-admin/distributions/new',
+    label: 'New Distribution',
+    icon: Receipt,
+    breadcrumbs: [
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Back Office', href: '/dashboard' },
+      { label: 'Fund Admin', href: '/fund-admin' },
+      { label: 'New Distribution' },
+    ],
+    aiSuggestion: {
+      label: 'Waterfall Modeling',
+      href: '/waterfall',
+      reasoning: 'Run waterfall scenarios before finalizing LP allocations.',
+      confidence: 0.82,
+    },
+    description: 'Create a new distribution workflow',
+  },
+
+  fundAdminDistributionsCalendar: {
+    path: '/fund-admin/distributions/calendar',
+    label: 'Distribution Calendar',
+    icon: CalendarDays,
+    breadcrumbs: [
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Back Office', href: '/dashboard' },
+      { label: 'Fund Admin', href: '/fund-admin' },
+      { label: 'Distribution Calendar' },
+    ],
+    aiSuggestion: {
+      label: 'New Distribution',
+      href: '/fund-admin/distributions/new',
+      reasoning: 'Schedule a new distribution after reviewing the calendar.',
+      confidence: 0.8,
+    },
+    description: 'Schedule and monitor upcoming distributions',
+  },
+
+  fundAdminDistributionDetail: {
+    path: '/fund-admin/distributions/[id]',
+    label: 'Distribution Detail',
+    icon: Receipt,
+    breadcrumbs: [
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Back Office', href: '/dashboard' },
+      { label: 'Fund Admin', href: '/fund-admin' },
+      { label: 'Distribution Detail' },
+    ],
+    aiSuggestion: {
+      label: 'Distribution Calendar',
+      href: '/fund-admin/distributions/calendar',
+      reasoning: 'Review upcoming distributions after approving this payout.',
+      confidence: 0.78,
+    },
+    description: 'Review approvals, allocations, and statements',
+  },
+
   lpManagement: {
     path: '/lp-management',
     label: 'LP Management',
@@ -173,6 +231,23 @@ export const routes: Record<string, RouteConfig> = {
       confidence: 0.83,
     },
     description: 'Limited partner relationships and reporting',
+  },
+
+  lpPortal: {
+    path: '/lp-portal',
+    label: 'LP Portal',
+    icon: Users,
+    breadcrumbs: [
+      { label: 'Home', href: '/dashboard' },
+      { label: 'LP Portal' },
+    ],
+    aiSuggestion: {
+      label: 'Distributions',
+      href: '/fund-admin/distributions/calendar',
+      reasoning: 'Review distribution schedules that are surfaced to LPs.',
+      confidence: 0.74,
+    },
+    description: 'Investor-facing portal for distributions and documents',
   },
 
   compliance: {

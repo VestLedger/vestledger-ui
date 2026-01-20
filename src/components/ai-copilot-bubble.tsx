@@ -19,7 +19,7 @@ export function AICopilotBubble({ onClick, unreadCount }: AICopilotBubbleProps) 
       className="fixed bottom-6 right-6 w-14 h-14 rounded-full
                  bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-secondary)]
                  shadow-2xl flex items-center justify-center z-50
-                 hover:shadow-[0_0_30px_var(--royal-glow-purple)]
+                 hover:shadow-[0_0_30px_rgba(4,120,87,0.4)]
                  transition-shadow cursor-pointer"
       aria-label="Open AI Copilot"
     >

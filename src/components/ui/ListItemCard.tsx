@@ -1,7 +1,7 @@
 'use client'
 
 import type { ReactNode } from 'react';
-import { Card } from '@/ui';
+import { Card, type CardProps } from '@/ui';
 
 export interface ListItemCardProps {
   icon?: ReactNode;
@@ -12,6 +12,7 @@ export interface ListItemCardProps {
   actions?: ReactNode;
   onClick?: () => void;
   className?: string;
+  padding?: CardProps['padding'];
 }
 
 export function ListItemCard({
@@ -23,6 +24,7 @@ export function ListItemCard({
   actions,
   onClick,
   className,
+  padding = 'md',
 }: ListItemCardProps) {
   const clickableClasses = onClick
     ? 'cursor-pointer hover:bg-[var(--app-surface-hover)] transition-colors'
@@ -37,7 +39,7 @@ export function ListItemCard({
 
   return (
     <Card
-      padding="md"
+      padding={padding}
       className={classes}
       onClick={onClick}
     >

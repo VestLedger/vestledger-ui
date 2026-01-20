@@ -88,7 +88,7 @@ export function ResearcherDashboard() {
 
         <Card padding="md">
           <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-purple-500" />
+            <TrendingUp className="w-5 h-5 text-[var(--app-primary)]" />
             Trending Topics
           </h3>
           <div className="space-y-3">

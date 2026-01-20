@@ -22,6 +22,9 @@ import {
 } from '@/services/ai/decisionWriterService';
 import { calculateBadges, type BadgeData } from '@/services/ai/aiBadgesService';
 import type { ExportJob, ReportTemplate } from '@/services/reports/reportExportService';
+import { writeToClipboard } from '@/utils/clipboard';
+import { errorTracking } from '@/lib/errorTracking';
+import { normalizeError } from '@/store/utils/normalizeError';
 
 type EOIState = { submitted: boolean; loading: boolean };
 type StartupApplicationState = { isSubmitting: boolean; isSubmitted: boolean };
@@ -49,39 +52,69 @@ const selectUIKey =
   (state: RootState) =>
     state.ui.byKey[key] as T | undefined;
 
-function* eoiSubmitWorker(): SagaGenerator {
+export function* eoiSubmitWorker(): SagaGenerator {
   const key = 'public:eoi';
-  const stored = (yield select(selectUIKey<EOIState>(key))) as EOIState | undefined;
-  const current: EOIState = stored ?? { submitted: false, loading: false };
-  if (current.loading || current.submitted) return;
+  try {
+    const stored = (yield select(selectUIKey<EOIState>(key))) as EOIState | undefined;
+    const current: EOIState = stored ?? { submitted: false, loading: false };
+    if (current.loading || current.submitted) return;
 
-  yield put(patchUIState({ key, patch: { loading: true } }));
-  yield delay(1500);
-  yield put(patchUIState({ key, patch: { loading: false, submitted: true } }));
+    yield put(patchUIState({ key, patch: { loading: true } }));
+    yield delay(1500);
+    yield put(patchUIState({ key, patch: { loading: false, submitted: true } }));
+  } catch (error: unknown) {
+    errorTracking.captureException(error as Error, {
+      extra: { context: 'eoiSubmitWorker', key },
+    });
+    yield put(patchUIState({
+      key,
+      patch: { loading: false, submitted: false, error: normalizeError(error) },
+    }));
+  }
 }
 
-function* startupApplicationSubmitWorker(): SagaGenerator {
+export function* startupApplicationSubmitWorker(): SagaGenerator {
   const key = 'startup-application-form';
-  const stored = (yield select(selectUIKey<StartupApplicationState>(key))) as
-    | StartupApplicationState
-    | undefined;
-  const current: StartupApplicationState = stored ?? { isSubmitting: false, isSubmitted: false };
-  if (current.isSubmitting) return;
+  try {
+    const stored = (yield select(selectUIKey<StartupApplicationState>(key))) as
+      | StartupApplicationState
+      | undefined;
+    const current: StartupApplicationState = stored ?? { isSubmitting: false, isSubmitted: false };
+    if (current.isSubmitting) return;
 
-  yield put(patchUIState({ key, patch: { isSubmitting: true } }));
-  yield delay(1500);
-  yield put(patchUIState({ key, patch: { isSubmitting: false, isSubmitted: true } }));
+    yield put(patchUIState({ key, patch: { isSubmitting: true } }));
+    yield delay(1500);
+    yield put(patchUIState({ key, patch: { isSubmitting: false, isSubmitted: true } }));
+  } catch (error: unknown) {
+    errorTracking.captureException(error as Error, {
+      extra: { context: 'startupApplicationSubmitWorker', key },
+    });
+    yield put(patchUIState({
+      key,
+      patch: { isSubmitting: false, isSubmitted: false, error: normalizeError(error) },
+    }));
+  }
 }
 
-function* pitchDeckUploadWorker(): SagaGenerator {
+export function* pitchDeckUploadWorker(): SagaGenerator {
   const key = 'pitch-deck-reader';
-  const stored = (yield select(selectUIKey<PitchDeckReaderState>(key))) as PitchDeckReaderState | undefined;
-  const current: PitchDeckReaderState = stored ?? { isUploading: false };
-  if (current.isUploading) return;
+  try {
+    const stored = (yield select(selectUIKey<PitchDeckReaderState>(key))) as PitchDeckReaderState | undefined;
+    const current: PitchDeckReaderState = stored ?? { isUploading: false };
+    if (current.isUploading) return;
 
-  yield put(patchUIState({ key, patch: { isUploading: true } }));
-  yield delay(2000);
-  yield put(patchUIState({ key, patch: { isUploading: false } }));
+    yield put(patchUIState({ key, patch: { isUploading: true } }));
+    yield delay(2000);
+    yield put(patchUIState({ key, patch: { isUploading: false } }));
+  } catch (error: unknown) {
+    errorTracking.captureException(error as Error, {
+      extra: { context: 'pitchDeckUploadWorker', key },
+    });
+    yield put(patchUIState({
+      key,
+      patch: { isUploading: false, error: normalizeError(error) },
+    }));
+  }
 }
 
 function* decisionWriterGenerateWorker(): SagaGenerator {
@@ -115,7 +148,7 @@ function* decisionWriterCopyWorker(): SagaGenerator {
   if (!text) return;
 
   try {
-    yield call([navigator.clipboard, navigator.clipboard.writeText], text);
+    yield call(writeToClipboard, text);
   } catch {
     // ignore clipboard errors for mock flow
   }

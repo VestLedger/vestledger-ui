@@ -13,3 +13,6 @@ export type { SkeletonProps } from './Skeleton';
 
 export { Progress } from './Progress';
 export type { ProgressProps } from './Progress';
+
+export { ToastProvider, useToast } from './Toast';
+export type { ToastOptions, ToastVariant } from './Toast';

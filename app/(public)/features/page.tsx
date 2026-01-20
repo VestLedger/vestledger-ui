@@ -1,78 +1,112 @@
 'use client';
 
 import { Card, Button } from '@/ui';
-import { Link as LinkIcon, RefreshCw, Sparkles, Shield, Layers, ArrowRight, Eye, FileText, BarChart3, Bot, Database, CheckCircle2 } from 'lucide-react';
+import {
+  Brain, Clock, Zap, Users, Bot, ArrowRight,
+  TrendingUp, FileText, Eye,
+  Calendar, CheckCircle2, History,
+  DollarSign, Mail, Shield,
+  Building, UserPlus, Network
+} from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
+
+// Map capability titles to their illustrations
+const illustrationMap: Record<string, string> = {
+  'Decision Intelligence': '/illustrations/decision-intelligence.svg',
+  'Temporal Memory': '/illustrations/temporal-memory.svg',
+  'Operational Autonomy': '/illustrations/operational-autonomy.svg',
+  'Relationship Intelligence': '/illustrations/relationship-intelligence.svg',
+};
 
 export default function FeaturesPage() {
-  // Triad OS Pillars
-  const triadPillars = [
+  // Vesta's four capabilities with sub-features
+  const vestaCapabilities = [
     {
-      title: "Tokenized Trust Layer",
-      description: "A modern, compliance-native foundation for fund administration and LP trust.",
-      icon: LinkIcon,
-      color: 'primary',
+      title: 'Decision Intelligence',
+      description: 'Vesta brings institutional rigor to every investment decision.',
+      icon: Brain,
       features: [
         {
-          title: "On-Chain Ownership",
-          description: "Real-time, immutable ownership records verified on the blockchain.",
-          icon: Database
+          title: 'Investment Analysis',
+          description: 'Vesta synthesizes diligence materials, market data, and historical patterns into actionable insights.',
+          icon: TrendingUp
         },
         {
-          title: "Cryptographic Proofs",
-          description: "Capital calls, distributions, and balances are cryptographically provable.",
-          icon: Shield
-        },
-        {
-          title: "Programmable Compliance",
-          description: "Accreditation, jurisdiction checks, transfer restrictions, and lockups are enforced automatically.",
-          icon: CheckCircle2
-        }
-      ]
-    },
-    {
-      title: "Automated Operations Layer",
-      description: "A consistent, efficient, audit-perfect operating rhythm for the entire fund lifecycle.",
-      icon: RefreshCw,
-      color: 'secondary',
-      features: [
-        {
-          title: "Automated Capital Calls & Distributions",
-          description: "End-to-end automation from initiation to settlement. No spreadsheets.",
-          icon: RefreshCw
-        },
-        {
-          title: "Real-Time LP Reporting",
-          description: "Replace quarterly PDFs with a live portal of performance data.",
-          icon: BarChart3
-        },
-        {
-          title: "Unified KPI Ingestion",
-          description: "Standardized, real-time KPI data from all portfolio companies.",
-          icon: Layers
-        }
-      ]
-    },
-    {
-      title: "AI Advisor Layer",
-      description: "Better decisions, earlier risk detection, and a smarter investment rhythm.",
-      icon: Sparkles,
-      color: 'accent',
-      features: [
-        {
-          title: "Investment Committee Ready Briefs",
-          description: "Synthesize diligence into IC-ready documents with variance and scenario analysis.",
+          title: 'Memo Support',
+          description: 'From first draft to IC-ready, Vesta helps you build and refine investment memos with live data.',
           icon: FileText
         },
         {
-          title: "Anomaly Detection",
-          description: "Detect outliers and anomalies in portfolio KPIs before they become problems.",
+          title: 'Pattern Recognition',
+          description: 'Vesta spots trends, outliers, and risks across your portfolio before they become problems.',
           icon: Eye
+        }
+      ]
+    },
+    {
+      title: 'Temporal Memory',
+      description: 'Vesta never forgets what matters—and makes sure you don\'t either.',
+      icon: Clock,
+      features: [
+        {
+          title: 'Deadline Awareness',
+          description: 'Covenant dates, subscription periods, reporting deadlines—all tracked and proactively surfaced.',
+          icon: Calendar
         },
         {
-          title: "LP Narrative Generation",
-          description: "Produce investor updates and internal reports from live operational data.",
-          icon: Bot
+          title: 'Obligation Tracking',
+          description: 'Vesta remembers commitments across LPs, co-investors, and portfolio companies.',
+          icon: CheckCircle2
+        },
+        {
+          title: 'Contextual History',
+          description: 'Every conversation, every document, every decision—Vesta builds on what came before.',
+          icon: History
+        }
+      ]
+    },
+    {
+      title: 'Operational Autonomy',
+      description: 'Vesta handles the routine so you can focus on the exceptional.',
+      icon: Zap,
+      features: [
+        {
+          title: 'Capital Operations',
+          description: 'Capital calls and distributions executed end-to-end, with full audit trails.',
+          icon: DollarSign
+        },
+        {
+          title: 'LP Communications',
+          description: 'Quarterly updates, ad-hoc reports, and performance narratives—generated from live data.',
+          icon: Mail
+        },
+        {
+          title: 'Compliance Automation',
+          description: 'Accreditation checks, jurisdiction rules, and regulatory filings—handled automatically.',
+          icon: Shield
+        }
+      ]
+    },
+    {
+      title: 'Relationship Intelligence',
+      description: 'Vesta maintains institutional memory across your entire network.',
+      icon: Users,
+      features: [
+        {
+          title: 'LP Context',
+          description: 'Vesta knows your LPs—their preferences, history, and communication patterns.',
+          icon: Building
+        },
+        {
+          title: 'Founder Relationships',
+          description: 'Every portfolio company interaction builds on previous context.',
+          icon: UserPlus
+        },
+        {
+          title: 'Co-Investor Network',
+          description: 'Track syndicate relationships, past deals, and future opportunities.',
+          icon: Network
         }
       ]
     }
@@ -81,47 +115,64 @@ export default function FeaturesPage() {
   return (
     <div className="bg-[var(--app-bg)]">
       {/* Hero */}
-      <section className="py-20 text-center px-4">
+      <section className="hero-bg py-20 sm:py-24 text-center px-4">
         <div className="max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--app-primary-bg)] text-[var(--app-primary)] text-sm font-medium mb-6">
-            <Layers className="w-4 h-4" aria-hidden="true" />
-            <span>The Triad OS</span>
+            <Bot className="w-4 h-4" aria-hidden="true" />
+            <span>Vesta Capabilities</span>
           </div>
-          <h1 className="text-4xl sm:text-5xl font-bold mb-6">
-            Three Layers. <span className="text-[var(--app-primary)]">One System.</span> Total Transformation.
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6">
+            Your Fund. <span className="text-vesta">Her Intelligence.</span>
           </h1>
-          <p className="text-xl text-[var(--app-text-muted)] max-w-2xl mx-auto mb-10">
-            VestLedger unifies Tokenized Trust, Automated Operations, and AI Advisor into a single, coherent infrastructure for VCs, PE firms, and crypto funds.
+          <p className="text-xl text-[var(--app-text-muted)] mb-4">
+            Four capabilities that make Vesta your indispensable counterpart.
           </p>
-          <Button as={Link} href="/eoi" color="primary" size="lg" endContent={<ArrowRight className="w-4 h-4" />}>
-            Start Your Pilot
+          <p className="text-lg text-[var(--app-text-muted)] max-w-2xl mx-auto mb-10">
+            Vesta is not a feature. She is a persistent, role-aware agent who analyzes, remembers, acts, and connects—so you can focus on what only you can do.
+          </p>
+          <Button as={Link} href="/eoi" className="btn-primary" size="lg" endContent={<ArrowRight className="w-4 h-4" />}>
+            Start with Vesta
           </Button>
         </div>
       </section>
 
-      {/* Triad Pillars */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-24 space-y-24">
-        {triadPillars.map((pillar, index) => {
-          const PillarIcon = pillar.icon;
-           return (
-             <section key={index} id={pillar.title.toLowerCase().replace(/ /g, '-')}>
-               <div className="mb-12 flex items-center gap-4 border-b border-[var(--app-border)] pb-6">
-                 <div className={`p-4 rounded-xl bg-[var(--app-${pillar.color}-bg)] text-[var(--app-${pillar.color})]`}>
-                   <PillarIcon className="w-10 h-10" />
-                 </div>
-                <div>
-                   <h2 className="text-3xl font-bold">{pillar.title}</h2>
-                   <p className="text-lg text-[var(--app-text-muted)]">{pillar.description}</p>
+      {/* Vesta Capabilities */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24 space-y-24">
+        {vestaCapabilities.map((capability, index) => {
+          const CapabilityIcon = capability.icon;
+          const isEven = index % 2 === 0;
+          return (
+            <section key={index} id={capability.title.toLowerCase().replace(/ /g, '-')}>
+              {/* Header with illustration */}
+              <div className={`mb-12 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center ${isEven ? '' : 'lg:flex-row-reverse'}`}>
+                <div className={`flex items-start gap-5 ${isEven ? 'lg:order-1' : 'lg:order-2'}`}>
+                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#047857] to-[#10b981] flex items-center justify-center shadow-lg flex-shrink-0">
+                    <CapabilityIcon className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-bold mb-2">{capability.title}</h2>
+                    <p className="text-lg text-[var(--app-text-muted)]">{capability.description}</p>
+                  </div>
+                </div>
+                <div className={`flex justify-center ${isEven ? 'lg:order-2' : 'lg:order-1'}`}>
+                  <div className="relative w-full max-w-[300px] aspect-[4/3] opacity-80 hover:opacity-100 transition-opacity">
+                    <Image
+                      src={illustrationMap[capability.title]}
+                      alt={`${capability.title} illustration`}
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                 {pillar.features.map((feature, fIndex) => {
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {capability.features.map((feature, fIndex) => {
                   const FeatureIcon = feature.icon;
                   return (
-                    <Card key={fIndex} padding="lg" className="h-full border-[var(--app-border-subtle)] hover:border-[var(--app-primary)] transition-colors">
-                      <div className="mb-4 w-12 h-12 rounded-lg bg-[var(--app-surface-hover)] flex items-center justify-center text-[var(--app-secondary)]">
-                        <FeatureIcon className="w-6 h-6" />
+                    <Card key={fIndex} padding="lg" className="card-elevated h-full">
+                      <div className="mb-4 w-12 h-12 rounded-lg bg-[var(--app-primary-bg)] flex items-center justify-center">
+                        <FeatureIcon className="w-6 h-6 text-[var(--app-primary)]" />
                       </div>
                       <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
                       <p className="text-[var(--app-text-muted)] leading-relaxed">
@@ -132,39 +183,36 @@ export default function FeaturesPage() {
                 })}
               </div>
             </section>
-           )
+          );
         })}
       </div>
 
-      {/* Architecture Diagram Placeholder */}
-      <section className="py-20 bg-[var(--app-surface)] border-y border-[var(--app-border)]">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 text-center">
-          <h2 className="text-3xl font-bold mb-6">Unified Architecture</h2>
-          <p className="text-lg text-[var(--app-text-muted)] mb-12 max-w-2xl mx-auto">
-            Token Layer provides immutable truth. Ops Engine automates workflows. AI Advisor guides decisions. All synchronized by a unified data fabric.
+      {/* What Powers Vesta (downplayed infrastructure) */}
+      <section className="py-16 sm:py-20 bg-[var(--app-surface)] border-y border-[var(--app-border)]">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-4">What Powers <span className="text-vesta-gold">Vesta</span></h2>
+          <p className="text-lg text-[var(--app-text-muted)] max-w-2xl mx-auto">
+            Behind Vesta is VestLedger's institutional infrastructure—immutable records, automated operations, and unified data. You never touch it. Vesta does.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <div className="flex items-center gap-2 px-6 py-3 rounded-lg bg-[var(--app-primary-bg)] text-[var(--app-primary)] font-medium">
-              <LinkIcon className="w-5 h-5" /> Token Layer
-            </div>
-            <ArrowRight className="w-6 h-6 text-[var(--app-text-muted)] hidden sm:block" />
-            <div className="flex items-center gap-2 px-6 py-3 rounded-lg bg-[var(--app-secondary-bg)] text-[var(--app-secondary)] font-medium">
-              <RefreshCw className="w-5 h-5" /> Ops Engine
-            </div>
-            <ArrowRight className="w-6 h-6 text-[var(--app-text-muted)] hidden sm:block" />
-            <div className="flex items-center gap-2 px-6 py-3 rounded-lg bg-[var(--app-accent-bg)] text-[var(--app-accent)] font-medium">
-              <Sparkles className="w-5 h-5" /> AI Advisor
-            </div>
-          </div>
         </div>
       </section>
 
       {/* CTA */}
-       <section className="py-24 text-center px-4">
-        <h2 className="text-3xl font-bold mb-6">Ready to adopt the Triad OS?</h2>
-        <Button as={Link} href="/eoi" color="secondary" size="lg">
-          Request Demo Access
-        </Button>
+      <section className="py-20 sm:py-24 text-center px-4">
+        <div className="max-w-3xl mx-auto">
+          <div className="flex justify-center mb-6">
+            <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-[#047857] via-[#0d9488] to-[#10b981] flex items-center justify-center shadow-[0_0_40px_rgba(16,185,129,0.3)]">
+              <Bot className="w-8 h-8 text-white" />
+            </div>
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-bold mb-4">See How Vesta Works For Your Fund</h2>
+          <p className="text-lg text-[var(--app-text-muted)] mb-8">
+            Every fund is unique. Let us show you how Vesta adapts to yours.
+          </p>
+          <Button as={Link} href="/eoi" className="btn-primary" size="lg">
+            Request a Demo
+          </Button>
+        </div>
       </section>
     </div>
   );

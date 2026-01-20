@@ -5,8 +5,17 @@ Next.js application for VestLedger platform with subdomain-based architecture fo
 ## Quick Start
 
 ### Prerequisites
-- Node.js 18+ and pnpm installed
+- Node.js 20+ and pnpm installed
 - Access to `/etc/hosts` file for local subdomain setup
+
+### Using Docker Compose (nginx)
+
+If you start the stack from the repo root with `docker compose up`, the UI is
+served via nginx:
+- Public UI: `https://vestledger.local`
+- App UI: `https://app.vestledger.local`
+
+The steps below are for running the UI directly with Next.js.
 
 ### 1. Configure Local Domains (One-Time Setup)
 
@@ -24,23 +33,23 @@ sudo nano /etc/hosts
 ### 2. Install Dependencies & Start Server
 
 ```bash
-# From project root
+# From repo root
 pnpm install
 
-# Start development server
-pnpm dev
+# Start development server (use 3001 if API runs on 3000)
+pnpm --filter vestledger-ui dev -- --hostname 0.0.0.0 --port 3001
 ```
 
 ### 3. Access the Application
 
-- **Public Pages**: http://vestledger.local:3000
-- **Login Page**: http://app.vestledger.local:3000/login
-- **Dashboard**: http://app.vestledger.local:3000/dashboard
+- **Public Pages**: http://vestledger.local:3001
+- **Login Page**: http://app.vestledger.local:3001/login
+- **Dashboard**: http://app.vestledger.local:3001/dashboard
 
 ### 4. Test the Full Flow
 
-1. Visit http://vestledger.local:3000
-2. Click "Login" → Should redirect to `app.vestledger.local:3000/login`
+1. Visit http://vestledger.local:3001
+2. Click "Login" → Should redirect to `app.vestledger.local:3001/login`
 3. Enter any email (e.g., `test@example.com`)
 4. Select a role (e.g., "Strategic Decision Maker")
 5. Enter any password

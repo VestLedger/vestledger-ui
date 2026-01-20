@@ -16,6 +16,8 @@ import { dealIntelligenceSaga } from './sagas/dealIntelligenceSaga';
 import { crmSaga } from './sagas/crmSaga';
 import { miscSaga } from './sagas/miscSaga';
 import { searchSaga } from './sagas/searchSaga';
+import { waterfallSaga } from './sagas/waterfallSaga';
+import { distributionSaga } from './sagas/distributionSaga';
 
 export function* rootSaga() {
   yield all([
@@ -36,5 +38,7 @@ export function* rootSaga() {
     call(crmSaga),
     call(miscSaga),
     call(searchSaga),
+    call(waterfallSaga),
+    call(distributionSaga),
   ]);
 }

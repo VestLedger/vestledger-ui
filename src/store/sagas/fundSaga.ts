@@ -44,7 +44,7 @@ function* persistViewModeWorker(): SagaIterator {
   safeLocalStorage.setItem(STORAGE_FUND_VIEW_MODE, viewMode);
 }
 
-function* loadFundsWorker(action: ReturnType<typeof fundsRequested>): SagaIterator {
+export function* loadFundsWorker(action: ReturnType<typeof fundsRequested>): SagaIterator {
   try {
     const params = action.payload;
     const funds: Fund[] = yield call(fetchFunds, params);

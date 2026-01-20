@@ -29,7 +29,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>((props, ref) =>
       variant={variant}
       size={size}
       classNames={{
-        trigger: 'bg-[var(--app-surface-hover)] border border-[var(--app-border-subtle)]',
+        trigger: 'bg-app-surface-hover dark:bg-app-dark-surface-hover border border-app-border-subtle dark:border-app-dark-border-subtle',
         ...classNames,
       }}
       {...rest}

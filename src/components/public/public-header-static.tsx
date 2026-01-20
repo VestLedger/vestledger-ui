@@ -29,25 +29,25 @@ export function PublicHeaderStatic() {
           <div className="hidden md:flex items-center gap-6">
             <Link
               href="/features"
-              className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-text)] transition-colors"
+              className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-primary)] transition-colors"
             >
               Features
             </Link>
             <Link
               href="/how-it-works"
-              className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-text)] transition-colors"
+              className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-primary)] transition-colors"
             >
               How It Works
             </Link>
             <Link
               href="/security"
-              className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-text)] transition-colors"
+              className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-primary)] transition-colors"
             >
               Security
             </Link>
             <Link
               href="/about"
-              className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-text)] transition-colors"
+              className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-primary)] transition-colors"
             >
               About
             </Link>
@@ -58,9 +58,9 @@ export function PublicHeaderStatic() {
           <LoginButton />
           <Link
             href="/eoi"
-            className="hidden sm:inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium text-sm border-2 border-[var(--app-primary)] text-[var(--app-primary)] hover:bg-[var(--app-primary-bg)] transition-colors"
+            className="hidden sm:flex btn-primary btn-sm"
           >
-            Request Demo
+            Meet Vesta
           </Link>
         </div>
       </div>

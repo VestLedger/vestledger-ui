@@ -31,7 +31,8 @@ export function LoginButton({ children = 'Login', className }: LoginButtonProps)
     window.location.href = loginUrl;
   };
 
-  const defaultClassName = "inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium text-sm bg-[var(--app-primary)] text-white hover:opacity-90 transition-opacity";
+  // Uses btn-secondary from the design system (globals.css)
+  const defaultClassName = "btn-secondary btn-sm";
 
   return (
     <button

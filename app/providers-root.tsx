@@ -1,10 +1,12 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NextUIProvider } from '@nextui-org/react';
 import { ThemeProvider as NextThemesProvider, useTheme } from 'next-themes';
 import { ReactNode } from 'react';
 import { getThemeFromCookie, setThemeCookie } from '@/lib/theme-sync';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { ToastProvider } from '@/ui';
 
 /**
  * Syncs theme between next-themes (localStorage) and cookies (cross-subdomain)
@@ -72,12 +74,14 @@ function ThemeSyncWrapper({ children }: { children: ReactNode }) {
  */
 export function RootProviders({ children }: { children: ReactNode }) {
   return (
-    <NextThemesProvider attribute="class" defaultTheme="dark" storageKey="theme">
-      <ThemeSyncWrapper>
-        <NextUIProvider>
-          {children}
-        </NextUIProvider>
-      </ThemeSyncWrapper>
-    </NextThemesProvider>
+    <ErrorBoundary>
+      <NextThemesProvider attribute="class" defaultTheme="light" storageKey="theme">
+        <ThemeSyncWrapper>
+          <NextUIProvider>
+            <ToastProvider>{children}</ToastProvider>
+          </NextUIProvider>
+        </ThemeSyncWrapper>
+      </NextThemesProvider>
+    </ErrorBoundary>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button, Input, Card } from '@/ui';
 import { Select, SelectItem } from '@nextui-org/react';
@@ -11,45 +11,54 @@ export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<UserRole>('gp');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { login, isAuthenticated, hydrated } = useAuth();
+  const { login, isAuthenticated, hydrated, status, error, clearError } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const hasAttemptedLogin = useRef(false);
 
   // Get redirect parameter from URL
   const redirectTo = searchParams.get('redirect') || '/dashboard';
 
+  // Handle successful authentication - redirect to intended page
   useEffect(() => {
-    // If already authenticated, redirect to intended page
     if (hydrated && isAuthenticated) {
       router.push(redirectTo);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hydrated, isAuthenticated]);
+  }, [hydrated, isAuthenticated, router, redirectTo]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      login(email, password, role);
-      // Wait for auth to complete, then redirect
-      setTimeout(() => {
-        router.push(redirectTo);
-      }, 100);
-    } catch (error) {
-      console.error('Login failed:', error);
-      setIsLoading(false);
+  // Handle login failure - stop spinner and show error
+  useEffect(() => {
+    if (status === 'failed' && hasAttemptedLogin.current) {
+      setIsSubmitting(false);
     }
+  }, [status]);
+
+  // Clear error when user starts typing
+  useEffect(() => {
+    if (error) {
+      clearError();
+    }
+    // Only clear on input changes, not when error changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [email, password, role]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    hasAttemptedLogin.current = true;
+    login(email, password, role);
   };
+
+  const isLoading = isSubmitting && status === 'loading';
 
   // Show loading state while auth is hydrating
   if (!hydrated) {
     return (
       <Card padding="lg">
         <div className="text-center py-12">
-          <div className="animate-pulse text-[var(--app-text-muted)]">
+          <div className="animate-pulse text-app-text-muted dark:text-app-dark-text-muted">
             Loading...
           </div>
         </div>
@@ -69,10 +78,10 @@ export function LoginForm() {
             className="h-12 w-12"
             priority
           />
-          <span className="text-2xl font-bold text-[var(--app-primary)]">VestLedger</span>
+          <span className="text-2xl font-bold text-app-primary dark:text-app-dark-primary">VestLedger</span>
         </div>
         <h1 className="text-2xl font-semibold mb-2">Welcome back</h1>
-        <p className="text-sm text-[var(--app-text-muted)]">
+        <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">
           Sign in to your VestLedger account
         </p>
       </div>
@@ -96,14 +105,14 @@ export function LoginForm() {
           disallowEmptySelection
           variant="bordered"
           classNames={{
-            trigger: 'bg-[var(--app-surface-hover)] border border-[var(--app-border-subtle)]',
+            trigger: 'bg-app-surface-hover dark:bg-app-dark-surface-hover border border-app-border-subtle dark:border-app-dark-border-subtle',
           }}
         >
           {Object.values(PERSONA_CONFIG).map((persona) => (
             <SelectItem key={persona.id} value={persona.id} textValue={persona.label}>
               <div className="flex flex-col">
                 <span className="text-small">{persona.label}</span>
-                <span className="text-tiny text-[var(--app-text-muted)]">
+                <span className="text-tiny text-app-text-muted dark:text-app-dark-text-muted">
                   {persona.description}
                 </span>
               </div>
@@ -121,6 +130,12 @@ export function LoginForm() {
           autoComplete="current-password"
         />
 
+        {error && (
+          <div className="p-3 rounded-md bg-red-500/10 border border-red-500/20 text-red-500 text-sm">
+            {error.message || 'Login failed. Please check your credentials.'}
+          </div>
+        )}
+
         <Button
           type="submit"
           color="primary"
@@ -131,11 +146,11 @@ export function LoginForm() {
           Sign In
         </Button>
 
-        <div className="text-center text-sm text-[var(--app-text-muted)]">
+        <div className="text-center text-sm text-app-text-muted dark:text-app-dark-text-muted">
           Don&apos;t have an account?{' '}
           <a
             href={`${process.env.NEXT_PUBLIC_PUBLIC_DOMAIN ? `https://${process.env.NEXT_PUBLIC_PUBLIC_DOMAIN}` : 'http://vestledger.local:3000'}/eoi`}
-            className="text-[var(--app-primary)] hover:underline"
+            className="text-app-primary dark:text-app-dark-primary hover:underline"
           >
             Request Access
           </a>

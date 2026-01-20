@@ -17,10 +17,10 @@ const levelClasses = {
 };
 
 const colorClasses = {
-  default: 'text-[var(--app-text)]',
-  primary: 'text-[var(--app-primary)]',
-  secondary: 'text-[var(--app-secondary)]',
-  muted: 'text-[var(--app-text-muted)]',
+  default: 'text-app-text dark:text-app-dark-text',
+  primary: 'text-app-primary dark:text-app-dark-primary',
+  secondary: 'text-app-secondary dark:text-app-dark-secondary',
+  muted: 'text-app-text-muted dark:text-app-dark-text-muted',
 };
 
 export function Heading({ children, level = 2, color = 'default', className = '' }: HeadingProps) {

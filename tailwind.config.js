@@ -1,5 +1,17 @@
 const { nextui } = require("@nextui-org/react");
 const path = require("path");
+const { colors } = require("./src/styles/colors");
+
+/**
+ * THEMING CONFIGURATION
+ * =====================
+ * Single source of truth: src/styles/colors.js
+ *
+ * Usage in components:
+ * - Tailwind classes: bg-app-primary, text-app-muted, border-app-border
+ * - Dark mode: dark:bg-app-primary (automatically uses dark palette)
+ * - NextUI props: color="primary", color="danger"
+ */
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -9,7 +21,60 @@ module.exports = {
     path.join(path.dirname(require.resolve("@nextui-org/theme")), "**/*.{js,ts,jsx,tsx}"),
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        // Light mode colors (default)
+        app: {
+          bg: colors.light.bg,
+          surface: colors.light.surface,
+          "surface-2": colors.light["surface-2"],
+          "surface-hover": colors.light["surface-hover"],
+          border: colors.light.border,
+          "border-subtle": colors.light["border-subtle"],
+          "border-strong": colors.light["border-strong"],
+          text: colors.light.text,
+          "text-muted": colors.light["text-muted"],
+          "text-subtle": colors.light["text-subtle"],
+          primary: colors.light.primary,
+          "primary-hover": colors.light["primary-hover"],
+          secondary: colors.light.secondary,
+          "secondary-hover": colors.light["secondary-hover"],
+          success: colors.light.success,
+          warning: colors.light.warning,
+          danger: colors.light.danger,
+          info: colors.light.info,
+          accent: colors.light.accent,
+          "accent-hover": colors.light["accent-hover"],
+          link: colors.light.link,
+          "link-hover": colors.light["link-hover"],
+        },
+        // Dark mode colors (accessed via dark: prefix)
+        "app-dark": {
+          bg: colors.dark.bg,
+          surface: colors.dark.surface,
+          "surface-2": colors.dark["surface-2"],
+          "surface-hover": colors.dark["surface-hover"],
+          border: colors.dark.border,
+          "border-subtle": colors.dark["border-subtle"],
+          "border-strong": colors.dark["border-strong"],
+          text: colors.dark.text,
+          "text-muted": colors.dark["text-muted"],
+          "text-subtle": colors.dark["text-subtle"],
+          primary: colors.dark.primary,
+          "primary-hover": colors.dark["primary-hover"],
+          secondary: colors.dark.secondary,
+          "secondary-hover": colors.dark["secondary-hover"],
+          success: colors.dark.success,
+          warning: colors.dark.warning,
+          danger: colors.dark.danger,
+          info: colors.dark.info,
+          accent: colors.dark.accent,
+          "accent-hover": colors.dark["accent-hover"],
+          link: colors.dark.link,
+          "link-hover": colors.dark["link-hover"],
+        },
+      },
+    },
   },
   darkMode: "class",
   plugins: [
@@ -17,73 +82,65 @@ module.exports = {
       themes: {
         light: {
           colors: {
-            background: "#FAF8F5", // Warm ivory background
-            foreground: "#2D1B4E", // Deep royal purple
+            background: colors.light.bg,
+            foreground: colors.light.text,
             primary: {
-              DEFAULT: "#6B46C1", // Rich royal purple
+              DEFAULT: colors.light.primary,
               foreground: "#FFFFFF",
             },
             secondary: {
-              DEFAULT: "#D4AF37", // Royal gold
+              DEFAULT: colors.light.secondary,
               foreground: "#FFFFFF",
             },
             success: {
-              DEFAULT: "#059669", // Emerald jewel
+              DEFAULT: colors.light.success,
               foreground: "#FFFFFF",
             },
             warning: {
-              DEFAULT: "#D97706", // Amber jewel
+              DEFAULT: colors.light.warning,
               foreground: "#FFFFFF",
             },
             danger: {
-              DEFAULT: "#DC2626", // Ruby red
+              DEFAULT: colors.light.danger,
               foreground: "#FFFFFF",
             },
             default: {
-              DEFAULT: "#FFFFFF", // Pure white surface
-              foreground: "#2D1B4E",
+              DEFAULT: colors.light.surface,
+              foreground: colors.light.text,
             },
-            focus: "#6B46C1", // Royal purple focus
-            content1: "#FFFFFF", // Pure white cards
-            content2: "#FAF8F5", // Warm ivory
-            content3: "#F5F3EE", // Warm hover
-            content4: "#F0EBE3", // Subtle ivory
+            focus: colors.light.primary,
           },
           extend: "light",
         },
         dark: {
           colors: {
-            background: "#0F0A1A", // Professional deep charcoal
-            foreground: "#E8E6F0", // Soft white
+            background: colors.dark.bg,
+            foreground: colors.dark.text,
             primary: {
-              DEFAULT: "#8B7AB8", // Refined royal purple
+              DEFAULT: colors.dark.primary,
               foreground: "#FFFFFF",
             },
             secondary: {
-              DEFAULT: "#D4AF37", // Royal gold
-              foreground: "#0F0A1A",
+              DEFAULT: colors.dark.secondary,
+              foreground: colors.dark.bg,
             },
             success: {
-              DEFAULT: "#34D399", // Bright emerald jewel
-              foreground: "#0F0A1A",
+              DEFAULT: colors.dark.success,
+              foreground: colors.dark.bg,
             },
             warning: {
-              DEFAULT: "#FBBF24", // Bright amber jewel
-              foreground: "#0F0A1A",
+              DEFAULT: colors.dark.warning,
+              foreground: colors.dark.bg,
             },
             danger: {
-              DEFAULT: "#F87171", // Bright ruby
-              foreground: "#0F0A1A",
+              DEFAULT: colors.dark.danger,
+              foreground: colors.dark.bg,
             },
             default: {
-              DEFAULT: "#1A1625", // Dark slate purple surface
-              foreground: "#E8E6F0",
+              DEFAULT: colors.dark.surface,
+              foreground: colors.dark.text,
             },
-            focus: "#8B7AB8", // Refined purple focus
-            content1: "#1A1625", // Dark slate surface
-            content2: "#241D30", // Subtle hover
-            content3: "#2D2438", // Medium surface
-            content4: "#36304A", // Elevated surface
+            focus: colors.dark.primary,
           },
           extend: "dark",
         },

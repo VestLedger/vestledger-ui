@@ -16,14 +16,14 @@ export function Tabs({ classNames, ...props }: TabsProps) {
     <NextUITabs
       classNames={{
         base: cn("px-4 sm:px-6 lg:px-8", classNames?.base),
-        tabList: cn("gap-4 border-b border-[var(--app-border)]", classNames?.tabList),
-        cursor: cn("bg-[var(--tab-cursor)]", classNames?.cursor),
+        tabList: cn("gap-4 border-b border-app-border dark:border-app-dark-border", classNames?.tabList),
+        cursor: cn("bg-app-primary dark:bg-app-dark-primary", classNames?.cursor),
         tab: cn("px-4 py-3", classNames?.tab),
         tabContent: cn(
-          "text-[var(--app-text-muted)]",
-          isSolid 
-            ? "group-data-[selected=true]:text-[var(--tab-selected-text-solid)]"
-            : "group-data-[selected=true]:text-[var(--tab-selected-text-underlined)]",
+          "text-app-text-muted dark:text-app-dark-text-muted",
+          isSolid
+            ? "group-data-[selected=true]:text-white"
+            : "group-data-[selected=true]:text-app-primary dark:group-data-[selected=true]:text-app-dark-primary",
           classNames?.tabContent
         ),
         ...classNames,

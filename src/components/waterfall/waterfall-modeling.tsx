@@ -1,223 +1,561 @@
 'use client';
 
-import { Card, Button, Badge, Input, Progress } from '@/ui';
-import { TrendingDown, DollarSign, TrendingUp, PieChart, Trash2, Play, Layers, ArrowRight, Globe, Flag, Calculator } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Badge, Button, Card, Input, Select } from '@/ui';
+import {
+  TrendingDown,
+  Play,
+  Printer,
+  BarChart3,
+  Layers,
+  Users,
+  Globe,
+  Flag,
+  Shuffle,
+  ArrowRight,
+  FolderOpen,
+} from 'lucide-react';
 import { useUIKey } from '@/store/ui';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { formatCurrencyCompact } from '@/utils/formatting';
 import { PageScaffold } from '@/components/ui';
+import { AsyncStateRenderer } from '@/components/ui/async-states';
+import { InvestorClassManager } from '@/components/waterfall/investor-class-manager';
+import { WaterfallBarChart } from '@/components/waterfall/charts/waterfall-bar-chart';
+import { ScenarioStackedChart } from '@/components/waterfall/charts/scenario-stacked-chart';
+import { LPWaterfallDetail } from '@/components/waterfall/charts/lp-waterfall-detail';
+import { TierBreakdownTable } from '@/components/waterfall/tier-breakdown-table';
+import { TierTimeline } from '@/components/waterfall/tier-timeline';
+import { ClawbackCalculator } from '@/components/waterfall/clawback-calculator';
+import { LookbackTracker } from '@/components/waterfall/lookback-tracker';
+import { SensitivityPanel } from '@/components/waterfall/sensitivity-panel';
+import { ScenarioManager } from '@/components/waterfall/scenario-manager';
+import { ExportMenu } from '@/components/waterfall/export-menu';
+import { CustomTierBuilder } from '@/components/waterfall/custom-tier-builder';
+import { calculateWaterfall } from '@/lib/calculations/waterfall';
+import type {
+  InvestorClass,
+  WaterfallTemplate,
+  WaterfallModel,
+  WaterfallResults,
+  WaterfallScenario,
+  WaterfallTier,
+} from '@/types/waterfall';
+import {
+  addComparisonScenario,
+  clearComparisonScenarios,
+  createScenarioRequested,
+  deleteScenarioRequested,
+  duplicateScenarioRequested,
+  removeComparisonScenario,
+  scenariosRequested,
+  scenariosSelectors,
+  setSelectedScenario,
+  templatesRequested,
+  templatesSelectors,
+  toggleFavoriteRequested,
+  updateScenarioRequested,
+  waterfallUISelectors,
+} from '@/store/slices/waterfallSlice';
+import {
+  distributionsRequested,
+  distributionsSelectors,
+} from '@/store/slices/distributionSlice';
+import { useAsyncData } from '@/hooks/useAsyncData';
+import { mockInvestorClasses, mockWaterfallTemplates } from '@/data/mocks/analytics/waterfall';
 
-type WaterfallModel = 'european' | 'american';
+const chartOptions = [
+  { id: 'waterfall', label: 'Waterfall Flow', icon: BarChart3 },
+  { id: 'scenario', label: 'Scenario Comparison', icon: Layers },
+  { id: 'lp', label: 'LP Detail', icon: Users },
+] as const;
 
-interface InvestorClass {
-  id: string;
-  name: string;
-  type: 'common' | 'preferred' | 'participating-preferred';
-  investedAmount: number;
-  ownership: number;
-  liquidationPreference: number;
-  participationCap?: number;
-  color: string;
-}
+type ChartOptionId = typeof chartOptions[number]['id'];
 
-interface Scenario {
-  id: string;
-  name: string;
-  exitValue: number;
-  model: WaterfallModel;
-  results: { classId: string; distribution: number; multiple: number; carry?: number }[];
-  gpCarry: number;
-}
+type WaterfallUIState = {
+  exitValueInput: number;
+  activeChart: ChartOptionId;
+  printMode: boolean;
+  selectedLpId: string | null;
+  pendingScenarioSelection: boolean;
+};
 
-const defaultInvestorClasses: InvestorClass[] = [
-  {
-    id: 'class-a',
-    name: 'Class A Common',
-    type: 'common',
-    investedAmount: 3_000_000,
-    ownership: 25,
-    liquidationPreference: 0,
-    color: 'var(--app-info)'
-  },
-  {
-    id: 'class-b',
-    name: 'Class B Common',
-    type: 'common',
-    investedAmount: 2_000_000,
-    ownership: 15,
-    liquidationPreference: 0,
-    color: 'var(--app-accent)'
-  },
-  {
-    id: 'series-a',
-    name: 'Series A Preferred',
-    type: 'preferred',
-    investedAmount: 10_000_000,
-    ownership: 35,
-    liquidationPreference: 1,
-    color: 'var(--app-primary)'
-  },
-  {
-    id: 'series-b',
-    name: 'Series B Preferred',
-    type: 'participating-preferred',
-    investedAmount: 20_000_000,
-    ownership: 25,
-    liquidationPreference: 1.5,
-    participationCap: 3,
-    color: 'var(--app-secondary)'
-  },
-];
+const computeTotalInvested = (classes: InvestorClass[]) =>
+  classes.reduce((sum, investorClass) => sum + investorClass.commitment, 0);
+
+const getModelLabel = (model: WaterfallModel) =>
+  model === 'european' ? 'European' : model === 'american' ? 'American' : 'Blended';
+
+const getModelShortLabel = (model: WaterfallModel) =>
+  model === 'european' ? 'EU' : model === 'american' ? 'US' : 'Blend';
+
+const buildScenarioName = (scenario: WaterfallScenario, exitValue: number) =>
+  `${formatCurrencyCompact(exitValue)} Exit (${getModelShortLabel(scenario.model)})`;
+
+const buildStarterScenario = (
+  template?: WaterfallTemplate
+): Omit<WaterfallScenario, 'id' | 'createdAt' | 'updatedAt' | 'version'> => {
+  const baseTemplate = template ?? mockWaterfallTemplates[0];
+  const now = new Date().toISOString();
+  const seed = Date.now();
+  const investorClasses = mockInvestorClasses.map((investorClass, index) => ({
+    ...investorClass,
+    id: `ic-${seed}-${index}`,
+    createdAt: now,
+    updatedAt: now,
+  }));
+  const tiers = (baseTemplate?.tiers ?? []).map((tier, index) => ({
+    ...tier,
+    id: `tier-${seed}-${index}`,
+    order: tier.order ?? index,
+  }));
+
+  return {
+    name: 'Starter Scenario',
+    description: 'Auto-generated starter scenario',
+    model: baseTemplate?.model ?? 'european',
+    investorClasses,
+    tiers,
+    exitValue: 200_000_000,
+    totalInvested: computeTotalInvested(investorClasses),
+    managementFees: 5_000_000,
+    isFavorite: false,
+    isTemplate: false,
+    createdBy: 'Ops Team',
+    tags: ['starter'],
+  };
+};
 
 export function WaterfallModeling() {
-  const { value: ui, patch: patchUI } = useUIKey<{
-    investorClasses: InvestorClass[];
-    exitValue: number;
-    scenarios: Scenario[];
-    showAddClass: boolean;
-    waterfallModel: WaterfallModel;
-    hurdleRate: number;
-    carryPercentage: number;
-  }>('waterfall-modeling', {
-    investorClasses: defaultInvestorClasses,
-    exitValue: 100_000_000,
-    scenarios: [],
-    showAddClass: false,
-    waterfallModel: 'european',
-    hurdleRate: 8,
-    carryPercentage: 20,
+  const dispatch = useAppDispatch();
+  const selectedScenarioId = useAppSelector(waterfallUISelectors.selectSelectedScenarioId);
+  const comparisonScenarioIds = useAppSelector(waterfallUISelectors.selectComparisonScenarioIds);
+  const { data: scenariosData, isLoading, error, refetch } = useAsyncData(
+    scenariosRequested,
+    scenariosSelectors.selectState
+  );
+  const {
+    data: templatesData,
+    isLoading: templatesLoading,
+    error: templatesError,
+    refetch: refetchTemplates,
+  } = useAsyncData(
+    templatesRequested,
+    templatesSelectors.selectState
+  );
+  const {
+    data: distributionsData,
+    isLoading: distributionsLoading,
+    error: distributionsError,
+    refetch: refetchDistributions,
+  } = useAsyncData(
+    distributionsRequested,
+    distributionsSelectors.selectState
+  );
+
+  const scenarios = useMemo(() => scenariosData?.scenarios ?? [], [scenariosData?.scenarios]);
+  const templates = useMemo(() => templatesData?.templates ?? [], [templatesData?.templates]);
+  const distributions = useMemo(
+    () => distributionsData?.distributions ?? [],
+    [distributionsData?.distributions]
+  );
+
+  const { value: ui, patch: patchUI } = useUIKey<WaterfallUIState>('waterfall-modeling', {
+    exitValueInput: 0,
+    activeChart: 'waterfall',
+    printMode: false,
+    selectedLpId: null,
+    pendingScenarioSelection: false,
   });
-  const { investorClasses, exitValue, scenarios, waterfallModel, hurdleRate, carryPercentage } = ui;
+  const {
+    exitValueInput,
+    activeChart,
+    printMode,
+    selectedLpId = null,
+    pendingScenarioSelection,
+  } = ui;
 
-  const totalInvested = investorClasses.reduce((sum, ic) => sum + ic.investedAmount, 0);
+  const selectedScenario =
+    scenarios.find((scenario) => scenario.id === selectedScenarioId) ?? scenarios[0] ?? null;
 
-  const calculateWaterfall = (exitVal: number, model: WaterfallModel): { results: { classId: string; distribution: number; multiple: number }[]; gpCarry: number } => {
-    let remaining = exitVal;
-    const results: { classId: string; distribution: number; multiple: number }[] = [];
-    let gpCarry = 0;
+  const [activeScenario, setActiveScenario] = useState<WaterfallScenario | null>(null);
+  const [calculationError, setCalculationError] = useState<string | null>(null);
+  const lastValidResultsRef = useRef<WaterfallResults | null>(null);
 
-    // Sort by liquidation preference (highest first)
-    const sortedClasses = [...investorClasses].sort((a, b) => b.liquidationPreference - a.liquidationPreference);
-
-    if (model === 'european') {
-      // EUROPEAN (WHOLE-FUND) WATERFALL
-      // 1. Return all contributed capital to LPs first
-      // 2. Pay hurdle/preferred return on entire fund
-      // 3. GP catch-up (if applicable)
-      // 4. Remaining profit split (80/20)
-
-      // Step 1: Return of Capital
-      const totalCapital = totalInvested;
-      const capitalReturn = Math.min(totalCapital, remaining);
-      remaining -= capitalReturn;
-
-      // Distribute capital return proportionally
-      for (const ic of investorClasses) {
-        const share = (ic.investedAmount / totalCapital) * capitalReturn;
-        results.push({ classId: ic.id, distribution: share, multiple: share / ic.investedAmount });
-      }
-
-      // Step 2: Preferred Return (hurdle)
-      const hurdleAmount = totalCapital * (hurdleRate / 100);
-      const hurdlePayment = Math.min(hurdleAmount, remaining);
-      remaining -= hurdlePayment;
-
-      // Add hurdle to LP distributions
-      for (const ic of investorClasses) {
-        const hurdleShare = (ic.investedAmount / totalCapital) * hurdlePayment;
-        const existing = results.find(r => r.classId === ic.id)!;
-        existing.distribution += hurdleShare;
-        existing.multiple = existing.distribution / ic.investedAmount;
-      }
-
-      // Step 3: GP Catch-up (20% of hurdle to equalize)
-      const catchUp = Math.min(remaining, hurdlePayment * (carryPercentage / (100 - carryPercentage)));
-      gpCarry += catchUp;
-      remaining -= catchUp;
-
-      // Step 4: Profit split (80/20)
-      const lpProfitShare = remaining * ((100 - carryPercentage) / 100);
-      gpCarry += remaining * (carryPercentage / 100);
-
-      for (const ic of investorClasses) {
-        const profitShare = (ic.investedAmount / totalCapital) * lpProfitShare;
-        const existing = results.find(r => r.classId === ic.id)!;
-        existing.distribution += profitShare;
-        existing.multiple = existing.distribution / ic.investedAmount;
-      }
-
-    } else {
-      // AMERICAN (DEAL-BY-DEAL) WATERFALL
-      // 1. Pay liquidation preferences first
-      // 2. GP can take carry on profitable deals immediately
-      // 3. Remaining distributed pro-rata
-
-      // Step 1: Pay liquidation preferences
-      for (const ic of sortedClasses) {
-        if (ic.liquidationPreference > 0) {
-          const prefAmount = ic.investedAmount * ic.liquidationPreference;
-          const payout = Math.min(prefAmount, remaining);
-          results.push({ classId: ic.id, distribution: payout, multiple: payout / ic.investedAmount });
-          remaining -= payout;
-        }
-      }
-
-      // Step 2: Calculate GP carry on profits above capital
-      if (remaining > 0) {
-        const profits = remaining;
-        gpCarry = profits * (carryPercentage / 100);
-        const lpShare = profits * ((100 - carryPercentage) / 100);
-        remaining = lpShare;
-      }
-
-      // Step 3: Distribute remaining pro-rata
-      if (remaining > 0) {
-        for (const ic of investorClasses) {
-          const proRataShare = (ic.ownership / 100) * remaining;
-          const existingResult = results.find(r => r.classId === ic.id);
-          if (existingResult) {
-            existingResult.distribution += proRataShare;
-            existingResult.multiple = existingResult.distribution / ic.investedAmount;
-          } else {
-            results.push({
-              classId: ic.id,
-              distribution: proRataShare,
-              multiple: proRataShare / ic.investedAmount
-            });
-          }
-        }
-      }
+  useEffect(() => {
+    if (!selectedScenario) {
+      setActiveScenario(null);
+      setCalculationError(null);
+      return;
     }
 
-    // Ensure all classes have a result
-    for (const ic of investorClasses) {
-      if (!results.find(r => r.classId === ic.id)) {
-        results.push({ classId: ic.id, distribution: 0, multiple: 0 });
+    const totalInvested = computeTotalInvested(selectedScenario.investorClasses);
+    const needsPreview =
+      exitValueInput !== selectedScenario.exitValue || !selectedScenario.results;
+
+    if (!needsPreview) {
+      setActiveScenario(selectedScenario);
+      if (selectedScenario.results) {
+        lastValidResultsRef.current = selectedScenario.results;
       }
+      setCalculationError(null);
+      return;
     }
 
-    return { results, gpCarry };
-  };
-
-  const runScenario = () => {
-    const { results, gpCarry } = calculateWaterfall(exitValue, waterfallModel);
-    const newScenario: Scenario = {
-      id: `scenario-${Date.now()}`,
-      name: `${formatCurrencyCompact(exitValue)} Exit (${waterfallModel === 'european' ? 'EU' : 'US'})`,
-      exitValue,
-      model: waterfallModel,
-      results,
-      gpCarry
+    const previewScenario: WaterfallScenario = {
+      ...selectedScenario,
+      exitValue: exitValueInput,
+      totalInvested,
     };
-    patchUI({ scenarios: [...scenarios, newScenario] });
+
+    try {
+      const results = calculateWaterfall(previewScenario);
+      lastValidResultsRef.current = results;
+      setCalculationError(null);
+      setActiveScenario({ ...previewScenario, results });
+    } catch (error) {
+      console.error("Waterfall calculation failed", error);
+      setCalculationError("Calculation failed. Showing the last valid results.");
+      const fallbackResults = lastValidResultsRef.current ?? selectedScenario.results ?? null;
+      setActiveScenario({ ...previewScenario, results: fallbackResults ?? undefined });
+    }
+  }, [exitValueInput, selectedScenario]);
+
+  const defaultTiersByModel = useMemo<Record<WaterfallModel, WaterfallTier[]>>(() => ({
+    european: scenarios.find((scenario) => scenario.model === 'european')?.tiers ?? [],
+    american: scenarios.find((scenario) => scenario.model === 'american')?.tiers ?? [],
+    blended:
+      scenarios.find((scenario) => scenario.model === 'blended')?.tiers ??
+      scenarios.find((scenario) => scenario.model === 'european')?.tiers ??
+      [],
+  }), [scenarios]);
+
+  const scenarioOptions = scenarios.map((scenario) => ({
+    value: scenario.id,
+    label: scenario.name,
+  }));
+
+  const scenarioResults = activeScenario?.results;
+  const totalInvested = activeScenario?.totalInvested ?? 0;
+  const comparisonScenario = useMemo<WaterfallScenario | null>(() => {
+    if (!selectedScenario) return null;
+    let targetModel: WaterfallModel =
+      selectedScenario.model === 'american' ? 'european' : 'american';
+    if (selectedScenario.model === 'blended') {
+      targetModel = 'european';
+    }
+    const templateTiers = defaultTiersByModel[targetModel];
+    if (!templateTiers.length) return null;
+    return {
+      ...selectedScenario,
+      model: targetModel,
+      tiers: templateTiers.map((tier) => ({ ...tier })),
+    };
+  }, [defaultTiersByModel, selectedScenario]);
+  const comparisonScenarios = useMemo(() => {
+    if (!activeScenario || !selectedScenario) return scenarios;
+    const baseList = comparisonScenarioIds.length > 0
+      ? scenarios.filter((scenario) => comparisonScenarioIds.includes(scenario.id))
+      : scenarios;
+    const withActive = baseList.some((scenario) => scenario.id === selectedScenario.id)
+      ? baseList.map((scenario) => (scenario.id === selectedScenario.id ? activeScenario : scenario))
+      : [activeScenario, ...baseList];
+    return withActive;
+  }, [activeScenario, comparisonScenarioIds, scenarios, selectedScenario]);
+
+  const scenarioDistributions = useMemo(() => {
+    if (!selectedScenario) return [];
+    return distributions.filter(
+      (distribution) => distribution.waterfallScenarioId === selectedScenario.id
+    );
+  }, [distributions, selectedScenario]);
+
+  const selectedDistribution = useMemo(() => {
+    if (scenarioDistributions.length === 0) return null;
+    return scenarioDistributions.reduce((latest, current) => {
+      if (!latest) return current;
+      const latestDate = Date.parse(latest.eventDate || latest.updatedAt);
+      const currentDate = Date.parse(current.eventDate || current.updatedAt);
+      const latestValue = Number.isNaN(latestDate) ? 0 : latestDate;
+      const currentValue = Number.isNaN(currentDate) ? 0 : currentDate;
+      return currentValue > latestValue ? current : latest;
+    }, null as (typeof scenarioDistributions)[number] | null);
+  }, [scenarioDistributions]);
+
+  const lpAllocations = selectedDistribution?.lpAllocations ?? [];
+
+  const runCalculation = (scenario: WaterfallScenario) => {
+    try {
+      const results = calculateWaterfall(scenario);
+      lastValidResultsRef.current = results;
+      setCalculationError(null);
+      return results;
+    } catch (error) {
+      console.error("Waterfall calculation failed", error);
+      setCalculationError("Calculation failed. Showing the last valid results.");
+      return lastValidResultsRef.current ?? scenario.results ?? null;
+    }
   };
 
-  const getTypeLabel = (type: string) => {
-    switch (type) {
-      case 'common': return 'Common';
-      case 'preferred': return 'Non-Participating Preferred';
-      case 'participating-preferred': return 'Participating Preferred';
-      default: return type;
+  const updateScenario = (nextScenario: WaterfallScenario) => {
+    dispatch(updateScenarioRequested({ id: nextScenario.id, data: nextScenario }));
+  };
+
+  const handleScenarioPatch = (patch: Partial<WaterfallScenario>) => {
+    if (!selectedScenario) return;
+    const updatedScenario: WaterfallScenario = {
+      ...selectedScenario,
+      ...patch,
+      updatedAt: new Date().toISOString(),
+    };
+    updateScenario({
+      ...updatedScenario,
+      results: runCalculation(updatedScenario) ?? undefined,
+    });
+  };
+
+  const handleToggleFavorite = (id: string) => {
+    dispatch(toggleFavoriteRequested(id));
+  };
+
+  const handleDuplicateScenario = (id: string) => {
+    dispatch(duplicateScenarioRequested({ id }));
+  };
+
+  const handleDeleteScenario = (id: string) => {
+    dispatch(deleteScenarioRequested(id));
+  };
+
+  const handleToggleComparison = (id: string) => {
+    if (comparisonScenarioIds.includes(id)) {
+      dispatch(removeComparisonScenario(id));
+    } else {
+      dispatch(addComparisonScenario(id));
     }
+  };
+
+  const handleClearComparison = () => {
+    dispatch(clearComparisonScenarios());
+  };
+
+  const handleInvestorClassesChange = (nextClasses: InvestorClass[]) => {
+    if (!selectedScenario) return;
+
+    const totalInvested = computeTotalInvested(nextClasses);
+    const updatedScenario: WaterfallScenario = {
+      ...selectedScenario,
+      investorClasses: nextClasses,
+      totalInvested,
+      updatedAt: new Date().toISOString(),
+    };
+
+    updateScenario({
+      ...updatedScenario,
+      results: runCalculation(updatedScenario) ?? undefined,
+    });
+  };
+
+  const handleModelChange = (model: WaterfallModel) => {
+    if (!selectedScenario || selectedScenario.model === model) return;
+
+    const templateTiers = defaultTiersByModel[model];
+    const nextTiers =
+      templateTiers.length > 0 ? templateTiers.map((tier) => ({ ...tier })) : selectedScenario.tiers;
+    const blendedConfig =
+      model === 'blended'
+        ? selectedScenario.blendedConfig ?? { europeanWeight: 60, americanWeight: 40 }
+        : selectedScenario.blendedConfig;
+
+    const updatedScenario: WaterfallScenario = {
+      ...selectedScenario,
+      model,
+      tiers: nextTiers,
+      blendedConfig,
+      updatedAt: new Date().toISOString(),
+    };
+
+    updateScenario({
+      ...updatedScenario,
+      results: runCalculation(updatedScenario) ?? undefined,
+    });
+  };
+
+  const handleRunScenario = () => {
+    if (!selectedScenario) return;
+
+    const now = new Date().toISOString();
+    const scenarioDraft: WaterfallScenario = {
+      ...selectedScenario,
+      id: 'draft',
+      name: buildScenarioName(selectedScenario, exitValueInput),
+      exitValue: exitValueInput,
+      totalInvested: computeTotalInvested(selectedScenario.investorClasses),
+      createdAt: now,
+      updatedAt: now,
+      version: 1,
+      isFavorite: false,
+      isTemplate: false,
+    };
+
+    const scenarioWithResults = {
+      ...scenarioDraft,
+      results: runCalculation(scenarioDraft) ?? undefined,
+    };
+
+    const { id: _id, createdAt: _createdAt, updatedAt: _updatedAt, version: _version, ...payload } = scenarioWithResults;
+    dispatch(createScenarioRequested(payload));
+    patchUI({ pendingScenarioSelection: true });
+  };
+
+  const handleCreateStarterScenario = () => {
+    const template = templates[0] ?? mockWaterfallTemplates[0];
+    const payload = buildStarterScenario(template);
+    dispatch(createScenarioRequested(payload));
+    patchUI({ pendingScenarioSelection: true });
+  };
+
+  const handlePrint = () => {
+    patchUI({ printMode: true });
+    if (typeof window !== 'undefined') {
+      window.setTimeout(() => window.print(), 200);
+    }
+  };
+
+  const handleScenarioSelect = (scenarioId: string) => {
+    const scenario = scenarios.find((item) => item.id === scenarioId) ?? null;
+    dispatch(setSelectedScenario(scenarioId));
+    patchUI({
+      exitValueInput: scenario?.exitValue ?? 0,
+      selectedLpId: null,
+    });
+  };
+
+  useEffect(() => {
+    if (!selectedScenarioId && scenarios.length > 0) {
+      dispatch(setSelectedScenario(scenarios[0].id));
+    }
+  }, [dispatch, scenarios, selectedScenarioId]);
+
+  useEffect(() => {
+    if (!selectedScenario) return;
+    patchUI({
+      exitValueInput: selectedScenario.exitValue,
+      selectedLpId: null,
+    });
+  }, [patchUI, selectedScenario]);
+
+  const previousScenarioCount = useRef(0);
+
+  useEffect(() => {
+    const previousCount = previousScenarioCount.current;
+    previousScenarioCount.current = scenarios.length;
+
+    if (!pendingScenarioSelection || scenarios.length <= previousCount) return;
+
+    const latestScenario = scenarios.reduce<WaterfallScenario | null>((latest, scenario) => {
+      if (!latest) return scenario;
+      return new Date(scenario.createdAt).getTime() > new Date(latest.createdAt).getTime()
+        ? scenario
+        : latest;
+    }, null);
+
+    if (latestScenario) {
+      dispatch(setSelectedScenario(latestScenario.id));
+      patchUI({
+        exitValueInput: latestScenario.exitValue,
+        selectedLpId: null,
+        pendingScenarioSelection: false,
+      });
+    } else {
+      patchUI({ pendingScenarioSelection: false });
+    }
+  }, [dispatch, patchUI, pendingScenarioSelection, scenarios]);
+
+  useEffect(() => {
+    const handleAfterPrint = () => {
+      patchUI({ printMode: false });
+    };
+    window.addEventListener('afterprint', handleAfterPrint);
+    return () => window.removeEventListener('afterprint', handleAfterPrint);
+  }, [patchUI]);
+
+  const waterfallSteps = selectedScenario?.model === 'american'
+    ? [
+        {
+          title: 'Return of Capital',
+          description: 'Return invested capital to LPs before carry is applied.',
+        },
+        {
+          title: 'Preferred Return',
+          description: 'Deliver preferred return to LPs based on hurdle rate.',
+        },
+        {
+          title: 'Carry on Remaining',
+          description: 'Split remaining proceeds per deal-by-deal carry structure.',
+        },
+      ]
+    : selectedScenario?.model === 'blended'
+      ? [
+          {
+            title: 'Return of Capital',
+            description: 'Blend fund-level and deal-level return of capital rules.',
+          },
+          {
+            title: 'Preferred Return',
+            description: 'Preferred return applied with hybrid hurdle assumptions.',
+          },
+          {
+            title: 'GP Catch-Up (EU)',
+            description: 'Include European-style catch-up where applicable.',
+          },
+          {
+            title: 'Deal-Level Carry (US)',
+            description: 'Apply deal-level carry to remaining proceeds.',
+          },
+          {
+            title: 'Final Split',
+            description: 'Finalize blended carry split across LPs and GP.',
+          },
+        ]
+      : [
+          {
+            title: 'Return of Capital',
+            description: 'Return invested capital to LPs before carry is applied.',
+          },
+          {
+            title: 'Preferred Return',
+            description: 'Deliver preferred return to LPs based on hurdle rate.',
+          },
+          {
+            title: 'GP Catch-Up',
+            description: 'Catch up the GP to the agreed carry percentage.',
+          },
+          {
+            title: 'Final Split',
+            description: 'Split remaining proceeds according to carry terms.',
+          },
+        ];
+
+  const modelSummary = selectedScenario
+    ? selectedScenario.model === 'european'
+      ? 'European (whole-fund)'
+      : selectedScenario.model === 'american'
+        ? 'American (deal-by-deal)'
+        : 'Blended (hybrid EU/US)'
+    : null;
+
+  const blendedConfig = selectedScenario?.blendedConfig ?? { europeanWeight: 50, americanWeight: 50 };
+
+  const handleBlendWeightChange = (value: number) => {
+    if (!selectedScenario) return;
+    const europeanWeight = Math.min(100, Math.max(0, value));
+    const americanWeight = Math.max(0, 100 - europeanWeight);
+    handleScenarioPatch({
+      blendedConfig: {
+        europeanWeight,
+        americanWeight,
+      },
+    });
   };
 
   return (
@@ -225,348 +563,376 @@ export function WaterfallModeling() {
       routePath="/waterfall"
       header={{
         title: 'Waterfall Modeling',
-        description: 'Model exit scenarios and distribution waterfalls',
+        description: 'Model exit scenarios and visualize distribution waterfalls',
         icon: TrendingDown,
         aiSummary: {
-          text: `${investorClasses.length} investor classes totaling ${formatCurrencyCompact(totalInvested)} invested. ${scenarios.length} scenario${scenarios.length !== 1 ? 's' : ''} modeled. Current model: ${waterfallModel === 'european' ? 'European (whole-fund)' : 'American (deal-by-deal)'} waterfall.`,
-          confidence: 0.91,
+          text: selectedScenario
+            ? `${selectedScenario.investorClasses.length} classes, ${formatCurrencyCompact(totalInvested)} invested. ${scenarios.length} scenarios modeled. Current model: ${modelSummary} waterfall.`
+            : 'No active scenario selected.',
+          confidence: 0.9,
         },
         secondaryActions: [
           {
-            label: 'Export',
-            onClick: () => console.log('Export waterfall models'),
+            label: 'Export PDF',
+            onClick: handlePrint,
           },
         ],
-        primaryAction: {
-          label: 'Add Class',
-          onClick: () => patchUI({ showAddClass: true }),
-        },
       }}
     >
-      <div className="mt-6 grid lg:grid-cols-3 gap-6">
-        {/* Left: Investor Classes */}
-        <div className="lg:col-span-2 space-y-4">
-          <Card padding="lg">
-            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Layers className="w-5 h-5 text-[var(--app-primary)]" />
-              Investor Classes
-            </h3>
-            <div className="space-y-3">
-              {investorClasses.map((ic) => (
-                <div
-                  key={ic.id}
-                  className="p-4 rounded-lg border border-[var(--app-border)] hover:border-[var(--app-primary)] transition-colors"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="w-4 h-4 rounded-full"
-                        style={{ backgroundColor: ic.color }}
-                      />
-                      <div>
-                        <h4 className="font-medium">{ic.name}</h4>
-                        <Badge size="sm" variant="flat" className="mt-1">
-                          {getTypeLabel(ic.type)}
-                        </Badge>
-                      </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="light"
-                      isIconOnly
-                      aria-label={`Remove ${ic.name}`}
-                      className="text-[var(--app-text-muted)]"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
+      <AsyncStateRenderer
+        data={scenariosData}
+        isLoading={isLoading}
+        error={error}
+        onRetry={refetch}
+        emptyIcon={FolderOpen}
+        emptyTitle="No waterfall scenarios yet"
+        emptyAction={{ label: "Create your first scenario", onClick: handleCreateStarterScenario }}
+        isEmpty={(data) => !data?.scenarios?.length}
+      >
+        {() => (
+          <div className={`mt-6 grid gap-6 ${printMode ? 'lg:grid-cols-1' : 'lg:grid-cols-3'}`}>
+            <div className={`space-y-4 ${printMode ? '' : 'lg:col-span-2'}`}>
+              {!printMode && (
+                <InvestorClassManager
+                  classes={selectedScenario?.investorClasses ?? []}
+                  onChange={handleInvestorClassesChange}
+                />
+              )}
 
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-                    <div>
-                      <div className="text-[var(--app-text-muted)] mb-1">Invested</div>
-                      <div className="font-medium">{formatCurrencyCompact(ic.investedAmount)}</div>
-                    </div>
-                    <div>
-                      <div className="text-[var(--app-text-muted)] mb-1">Ownership</div>
-                      <div className="font-medium">{ic.ownership}%</div>
-                    </div>
-                    <div>
-                      <div className="text-[var(--app-text-muted)] mb-1">Liq. Pref</div>
-                      <div className="font-medium">{ic.liquidationPreference}x</div>
-                    </div>
-                    {ic.participationCap && (
-                      <div>
-                        <div className="text-[var(--app-text-muted)] mb-1">Cap</div>
-                        <div className="font-medium">{ic.participationCap}x</div>
-                      </div>
+              <Card padding="lg">
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                  <div>
+                    <h3 className="text-lg font-semibold">Waterfall Visualizations</h3>
+                    <p className="text-sm text-[var(--app-text-muted)]">
+                      Switch between waterfall flow, scenario comparison, and LP drill-down views.
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant={printMode ? 'solid' : 'bordered'}
+                    className="print:hidden"
+                    onPress={() => patchUI({ printMode: !printMode })}
+                    startContent={<Printer className="h-4 w-4" />}
+                  >
+                    {printMode ? 'Print Mode' : 'Print View'}
+                  </Button>
+                </div>
+
+                <div className="flex flex-wrap gap-2 mb-4 print:hidden">
+                  {chartOptions.map((option) => {
+                    const Icon = option.icon;
+                    const isActive = activeChart === option.id;
+                    return (
+                      <Button
+                        key={option.id}
+                        size="sm"
+                        variant={isActive ? 'solid' : 'flat'}
+                        color={isActive ? 'primary' : 'default'}
+                        onPress={() => patchUI({ activeChart: option.id })}
+                        startContent={<Icon className="h-4 w-4" />}
+                      >
+                        {option.label}
+                      </Button>
+                    );
+                  })}
+                </div>
+
+                {activeChart === 'waterfall' && (
+                  <WaterfallBarChart scenario={activeScenario} printMode={printMode} />
+                )}
+                {activeChart === 'scenario' && (
+                  <ScenarioStackedChart
+                    scenarios={comparisonScenarios}
+                    legendClasses={activeScenario?.investorClasses}
+                    printMode={printMode}
+                  />
+                )}
+                {activeChart === 'lp' && (
+                  <LPWaterfallDetail
+                    scenario={activeScenario}
+                    lpAllocations={lpAllocations}
+                    isLoading={distributionsLoading}
+                    error={distributionsError}
+                    onRetry={refetchDistributions}
+                    selectedLpId={selectedLpId}
+                    sourceDistribution={selectedDistribution}
+                    onSelectLp={(id) => patchUI({ selectedLpId: id })}
+                    printMode={printMode}
+                  />
+                )}
+                {calculationError && (
+                  <div className="mt-4 rounded-lg border border-[var(--app-warning)] bg-[var(--app-warning-bg)] px-4 py-3 text-sm text-[var(--app-warning)]">
+                    {calculationError}
+                  </div>
+                )}
+              </Card>
+
+              {!printMode && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Tier Breakdown</h3>
+                  <TierBreakdownTable scenario={activeScenario} />
+                </div>
+              )}
+
+              {!printMode && activeScenario && (
+                <div className="space-y-4">
+                  <TierTimeline scenario={activeScenario} />
+                  <div className="grid gap-4 lg:grid-cols-2">
+                    <ClawbackCalculator scenario={activeScenario} />
+                    <LookbackTracker scenario={activeScenario} />
+                  </div>
+                </div>
+              )}
+
+              {!printMode && activeScenario && (
+                <SensitivityPanel
+                  scenario={activeScenario}
+                  comparisonScenario={comparisonScenario}
+                  printMode={printMode}
+                />
+              )}
+
+              {!printMode && selectedScenario && (
+                <CustomTierBuilder
+                  scenario={selectedScenario}
+                  templates={templates}
+                  isLoading={templatesLoading}
+                  error={templatesError}
+                  onRetry={refetchTemplates}
+                  onScenarioChange={handleScenarioPatch}
+                />
+              )}
+            </div>
+
+            {!printMode && (
+              <div className="space-y-4">
+                <Card padding="lg">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold">Scenario Builder</h3>
+                    {selectedScenario && (
+                      <Badge size="sm" variant="flat">
+                        {getModelLabel(selectedScenario.model)}
+                      </Badge>
                     )}
                   </div>
-                </div>
-              ))}
-            </div>
 
-            <div className="mt-4 pt-4 border-t border-[var(--app-border)]">
-              <div className="flex justify-between text-sm">
-                <span className="text-[var(--app-text-muted)]">Total Invested</span>
-                <span className="font-semibold">{formatCurrencyCompact(totalInvested)}</span>
-              </div>
-            </div>
-          </Card>
+                  <div className="space-y-4">
+                    <Select
+                      label="Scenario"
+                      options={scenarioOptions}
+                      selectedKeys={selectedScenario ? [selectedScenario.id] : []}
+                      onChange={(event) => handleScenarioSelect(event.target.value)}
+                      disallowEmptySelection
+                    />
 
-          {/* Scenario Results */}
-          {scenarios.length > 0 && (
-            <Card padding="lg">
-              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-[var(--app-success)]" />
-                Scenario Results
-              </h3>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-[var(--app-border)]">
-                      <th className="text-left py-3 px-2 font-medium text-[var(--app-text-muted)]">Scenario</th>
-                      {investorClasses.map((ic) => (
-                        <th key={ic.id} className="text-right py-3 px-2 font-medium text-[var(--app-text-muted)]">
-                          {ic.name}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {scenarios.map((scenario) => (
-                      <tr key={scenario.id} className="border-b border-[var(--app-border-subtle)]">
-                        <td className="py-3 px-2">
-                          <div className="font-medium">{scenario.name}</div>
-                          <div className="text-xs text-[var(--app-text-muted)]">
-                            {formatCurrencyCompact(scenario.exitValue)} exit
+                    <div>
+                      <div className="text-sm font-medium mb-2">Waterfall Model</div>
+                      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3" role="radiogroup" aria-label="Waterfall model selection">
+                        <button
+                          type="button"
+                          onClick={() => handleModelChange('european')}
+                          className={`rounded-lg border-2 p-4 text-left transition-all ${
+                            selectedScenario?.model === 'european'
+                              ? 'border-[var(--app-primary)] bg-[var(--app-primary-bg)]'
+                              : 'border-[var(--app-border)] hover:border-[var(--app-border-subtle)]'
+                          }`}
+                          role="radio"
+                          aria-checked={selectedScenario?.model === 'european'}
+                        >
+                          <div className="flex items-center gap-2 mb-2">
+                            <Globe className="h-5 w-5 text-[var(--app-primary)]" aria-hidden="true" />
+                            <span className="font-medium">European</span>
                           </div>
-                        </td>
-                        {investorClasses.map((ic) => {
-                          const result = scenario.results.find(r => r.classId === ic.id);
-                          return (
-                            <td key={ic.id} className="text-right py-3 px-2">
-                              <div className="font-medium">{formatCurrencyCompact(result?.distribution || 0)}</div>
-                              <div className={`text-xs ${(result?.multiple || 0) >= 1 ? 'text-[var(--app-success)]' : 'text-[var(--app-danger)]'}`}>
-                                {(result?.multiple || 0).toFixed(2)}x
-                              </div>
-                            </td>
-                          );
-                        })}
-                      </tr>
+                          <p className="text-xs text-[var(--app-text-muted)]">
+                            Whole-fund waterfall with GP carry after LP capital return.
+                          </p>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleModelChange('american')}
+                          className={`rounded-lg border-2 p-4 text-left transition-all ${
+                            selectedScenario?.model === 'american'
+                              ? 'border-[var(--app-primary)] bg-[var(--app-primary-bg)]'
+                              : 'border-[var(--app-border)] hover:border-[var(--app-border-subtle)]'
+                          }`}
+                          role="radio"
+                          aria-checked={selectedScenario?.model === 'american'}
+                        >
+                          <div className="flex items-center gap-2 mb-2">
+                            <Flag className="h-5 w-5 text-[var(--app-secondary)]" aria-hidden="true" />
+                            <span className="font-medium">American</span>
+                          </div>
+                          <p className="text-xs text-[var(--app-text-muted)]">
+                            Deal-by-deal waterfall with carry on individual exits.
+                          </p>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleModelChange('blended')}
+                          className={`rounded-lg border-2 p-4 text-left transition-all ${
+                            selectedScenario?.model === 'blended'
+                              ? 'border-[var(--app-primary)] bg-[var(--app-primary-bg)]'
+                              : 'border-[var(--app-border)] hover:border-[var(--app-border-subtle)]'
+                          }`}
+                          role="radio"
+                          aria-checked={selectedScenario?.model === 'blended'}
+                        >
+                          <div className="flex items-center gap-2 mb-2">
+                            <Shuffle className="h-5 w-5 text-[var(--app-accent)]" aria-hidden="true" />
+                            <span className="font-medium">Blended</span>
+                          </div>
+                          <p className="text-xs text-[var(--app-text-muted)]">
+                            Hybrid waterfall blending European and American carry.
+                          </p>
+                        </button>
+                      </div>
+                      {selectedScenario?.model === 'blended' && (
+                        <div className="mt-3 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] p-3">
+                          <div className="text-xs font-semibold text-[var(--app-text-muted)] mb-2">
+                            Blend Weights
+                          </div>
+                          <div className="grid gap-3 md:grid-cols-2">
+                            <Input
+                              label="European weight (%)"
+                              type="number"
+                              value={blendedConfig.europeanWeight.toString()}
+                              onChange={(event) => handleBlendWeightChange(Number(event.target.value) || 0)}
+                            />
+                            <Input
+                              label="American weight (%)"
+                              type="number"
+                              value={blendedConfig.americanWeight.toString()}
+                              isReadOnly
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div>
+                      <label htmlFor="exit-value" className="text-sm font-medium mb-2 block">
+                        Exit Value
+                      </label>
+                      <Input
+                        id="exit-value"
+                        type="number"
+                        value={exitValueInput.toString()}
+                        onChange={(event) => patchUI({ exitValueInput: Number(event.target.value) || 0 })}
+                        placeholder="100000000"
+                        aria-label="Exit value in dollars"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Quick Scenarios</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {[50_000_000, 100_000_000, 250_000_000, 500_000_000].map((value) => (
+                          <Button
+                            key={value}
+                            size="sm"
+                            variant={exitValueInput === value ? 'solid' : 'flat'}
+                            color={exitValueInput === value ? 'primary' : 'default'}
+                            onPress={() => patchUI({ exitValueInput: value })}
+                          >
+                            {formatCurrencyCompact(value)}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <Button
+                      color="primary"
+                      className="w-full"
+                      size="lg"
+                      startContent={<Play className="h-4 w-4" />}
+                      onPress={handleRunScenario}
+                    >
+                      Calculate Distribution
+                    </Button>
+                  </div>
+                </Card>
+
+                <Card padding="lg">
+                  <h3 className="text-lg font-semibold mb-4">Scenario Summary</h3>
+                  {activeScenario && scenarioResults ? (
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <div className="text-[var(--app-text-muted)]">Exit Value</div>
+                        <div className="font-semibold">{formatCurrencyCompact(activeScenario.exitValue)}</div>
+                      </div>
+                      <div>
+                        <div className="text-[var(--app-text-muted)]">Total Invested</div>
+                        <div className="font-semibold">{formatCurrencyCompact(totalInvested)}</div>
+                      </div>
+                      <div>
+                        <div className="text-[var(--app-text-muted)]">LP Return</div>
+                        <div className="font-semibold">{formatCurrencyCompact(scenarioResults.lpTotalReturn)}</div>
+                      </div>
+                      <div>
+                        <div className="text-[var(--app-text-muted)]">GP Carry</div>
+                        <div className="font-semibold">{formatCurrencyCompact(scenarioResults.gpCarry)}</div>
+                      </div>
+                      <div>
+                        <div className="text-[var(--app-text-muted)]">LP Avg Multiple</div>
+                        <div className="font-semibold">{scenarioResults.lpAverageMultiple.toFixed(2)}x</div>
+                      </div>
+                      <div>
+                        <div className="text-[var(--app-text-muted)]">Carry %</div>
+                        <div className="font-semibold">{scenarioResults.gpCarryPercentage.toFixed(1)}%</div>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-[var(--app-text-muted)]">
+                      Select a scenario to view summary metrics.
+                    </p>
+                  )}
+                </Card>
+
+                <Card padding="lg">
+                  <h3 className="text-lg font-semibold mb-4">Waterfall Steps</h3>
+                  <div className="space-y-3 text-sm">
+                    {waterfallSteps.map((step, index) => (
+                      <div key={step.title} className="space-y-2">
+                        <div className="flex items-start gap-3">
+                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--app-primary-bg)] text-[var(--app-primary)] text-xs font-bold">
+                            {index + 1}
+                          </div>
+                          <div>
+                            <div className="font-medium">{step.title}</div>
+                            <div className="text-[var(--app-text-muted)]">{step.description}</div>
+                          </div>
+                        </div>
+                        {index < waterfallSteps.length - 1 && (
+                          <ArrowRight className="h-4 w-4 text-[var(--app-text-muted)] ml-1" />
+                        )}
+                      </div>
                     ))}
-                  </tbody>
-                </table>
-              </div>
-            </Card>
-          )}
-        </div>
+                  </div>
+                </Card>
 
-        {/* Right: Scenario Builder */}
-        <div className="space-y-4">
-          {/* Waterfall Model Selector */}
-          <Card padding="lg">
-            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Globe className="w-5 h-5 text-[var(--app-primary)]" />
-              Waterfall Model
-            </h3>
-            <div className="grid grid-cols-2 gap-3 mb-4" role="radiogroup" aria-label="Waterfall model selection">
-              <button
-                onClick={() => patchUI({ waterfallModel: 'european' })}
-                className={`p-4 rounded-lg border-2 transition-all text-left ${
-                  waterfallModel === 'european'
-                    ? 'border-[var(--app-primary)] bg-[var(--app-primary-bg)]'
-                    : 'border-[var(--app-border)] hover:border-[var(--app-border-subtle)]'
-                }`}
-                role="radio"
-                aria-checked={waterfallModel === 'european'}
-                aria-label="European waterfall model: Whole-fund waterfall where GP receives carry only after all LP capital returned"
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <Globe className="w-5 h-5 text-[var(--app-primary)]" aria-hidden="true" />
-                  <span className="font-medium">European</span>
-                </div>
-                <p className="text-xs text-[var(--app-text-muted)]">
-                  Whole-fund waterfall. GP receives carry only after all LP capital returned.
-                </p>
-              </button>
-              <button
-                onClick={() => patchUI({ waterfallModel: 'american' })}
-                className={`p-4 rounded-lg border-2 transition-all text-left ${
-                  waterfallModel === 'american'
-                    ? 'border-[var(--app-primary)] bg-[var(--app-primary-bg)]'
-                    : 'border-[var(--app-border)] hover:border-[var(--app-border-subtle)]'
-                }`}
-                role="radio"
-                aria-checked={waterfallModel === 'american'}
-                aria-label="American waterfall model: Deal-by-deal waterfall where GP can receive carry on individual profitable exits"
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <Flag className="w-5 h-5 text-[var(--app-secondary)]" aria-hidden="true" />
-                  <span className="font-medium">American</span>
-                </div>
-                <p className="text-xs text-[var(--app-text-muted)]">
-                  Deal-by-deal waterfall. GP can receive carry on individual profitable exits.
-                </p>
-              </button>
-            </div>
-
-            {/* Hurdle Rate & Carry */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label htmlFor="hurdle-rate" className="text-sm font-medium mb-2 block">Hurdle Rate</label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="hurdle-rate"
-                    type="number"
-                    value={hurdleRate.toString()}
-                    onChange={(e) => patchUI({ hurdleRate: Number(e.target.value) })}
-                    className="flex-1"
-                    aria-label="Hurdle rate percentage"
+                <Card padding="lg">
+                  <ScenarioManager
+                    scenarios={scenarios}
+                    selectedScenarioId={selectedScenario?.id ?? null}
+                    comparisonScenarioIds={comparisonScenarioIds}
+                    onSelectScenario={handleScenarioSelect}
+                    onToggleFavorite={handleToggleFavorite}
+                    onDuplicateScenario={handleDuplicateScenario}
+                    onDeleteScenario={handleDeleteScenario}
+                    onToggleComparison={handleToggleComparison}
+                    onClearComparison={handleClearComparison}
                   />
-                  <span className="text-sm text-[var(--app-text-muted)]" aria-hidden="true">%</span>
-                </div>
-              </div>
-              <div>
-                <label htmlFor="gp-carry" className="text-sm font-medium mb-2 block">GP Carry</label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="gp-carry"
-                    type="number"
-                    value={carryPercentage.toString()}
-                    onChange={(e) => patchUI({ carryPercentage: Number(e.target.value) })}
-                    className="flex-1"
-                    aria-label="GP carry percentage"
-                  />
-                  <span className="text-sm text-[var(--app-text-muted)]" aria-hidden="true">%</span>
-                </div>
-              </div>
-            </div>
-          </Card>
+                </Card>
 
-          <Card padding="lg">
-            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Play className="w-5 h-5 text-[var(--app-primary)]" />
-              Run Scenario
-            </h3>
-
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="exit-value" className="text-sm font-medium mb-2 block">Exit Value</label>
-                <Input
-                  id="exit-value"
-                  type="number"
-                  value={exitValue.toString()}
-                  onChange={(e) => patchUI({ exitValue: Number(e.target.value) })}
-                  startContent={<DollarSign className="w-4 h-4 text-[var(--app-text-muted)]" />}
-                  placeholder="100000000"
-                  aria-label="Exit value in dollars"
+                <ExportMenu
+                  scenario={selectedScenario}
+                  onPrint={handlePrint}
                 />
               </div>
-
-              {/* Quick Presets */}
-              <div>
-                <label className="text-sm font-medium mb-2 block">Quick Scenarios</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {[50_000_000, 100_000_000, 250_000_000, 500_000_000].map((val) => (
-                    <Button
-                      key={val}
-                      size="sm"
-                      variant={exitValue === val ? 'solid' : 'flat'}
-                      color={exitValue === val ? 'primary' : 'default'}
-                      onPress={() => patchUI({ exitValue: val })}
-                    >
-                      {formatCurrencyCompact(val)}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-
-              <Button
-                color="primary"
-                className="w-full"
-                size="lg"
-                startContent={<Play className="w-4 h-4" />}
-                onPress={runScenario}
-              >
-                Calculate Distribution
-              </Button>
-            </div>
-          </Card>
-
-          {/* Waterfall Visualization */}
-          <Card padding="lg">
-            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <PieChart className="w-5 h-5 text-[var(--app-secondary)]" />
-              Distribution Preview
-            </h3>
-
-            {scenarios.length > 0 ? (
-              <div className="space-y-3">
-                {(() => {
-                  const latestScenario = scenarios[scenarios.length - 1];
-                  return investorClasses.map((ic) => {
-                    const result = latestScenario.results.find(r => r.classId === ic.id);
-                    const percentage = ((result?.distribution || 0) / latestScenario.exitValue) * 100;
-                    return (
-                      <div key={ic.id}>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span className="flex items-center gap-2">
-                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: ic.color }} />
-                            {ic.name}
-                          </span>
-                          <span className="font-medium">{percentage.toFixed(1)}%</span>
-                        </div>
-                        <Progress
-                          value={percentage}
-                          maxValue={100}
-                          className="h-2"
-                          aria-label={`${ic.name} distribution ${percentage.toFixed(1)}%`}
-                          style={{ ['--progress-color' as string]: ic.color }}
-                        />
-                      </div>
-                    );
-                  });
-                })()}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-[var(--app-text-muted)]">
-                <Calculator className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                <p className="text-sm">Run a scenario to see distribution</p>
-              </div>
             )}
-          </Card>
-
-          {/* Waterfall Steps */}
-          <Card padding="lg">
-            <h3 className="text-lg font-semibold mb-4">Waterfall Steps</h3>
-            <div className="space-y-3 text-sm">
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-[var(--app-primary-bg)] text-[var(--app-primary)] flex items-center justify-center text-xs font-bold">1</div>
-                <div>
-                  <div className="font-medium">Liquidation Preferences</div>
-                  <div className="text-[var(--app-text-muted)]">Pay preferred shareholders their preferences first</div>
-                </div>
-              </div>
-              <ArrowRight className="w-4 h-4 text-[var(--app-text-muted)] ml-1" />
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-[var(--app-primary-bg)] text-[var(--app-primary)] flex items-center justify-center text-xs font-bold">2</div>
-                <div>
-                  <div className="font-medium">Participation</div>
-                  <div className="text-[var(--app-text-muted)]">Participating preferred shares in remaining proceeds</div>
-                </div>
-              </div>
-              <ArrowRight className="w-4 h-4 text-[var(--app-text-muted)] ml-1" />
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-full bg-[var(--app-primary-bg)] text-[var(--app-primary)] flex items-center justify-center text-xs font-bold">3</div>
-                <div>
-                  <div className="font-medium">Pro-Rata Distribution</div>
-                  <div className="text-[var(--app-text-muted)]">Remaining proceeds distributed by ownership</div>
-                </div>
-              </div>
-            </div>
-          </Card>
-        </div>
-      </div>
+          </div>
+        )}
+      </AsyncStateRenderer>
     </PageScaffold>
   );
 }

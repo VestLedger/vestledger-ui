@@ -3,6 +3,8 @@
  * Eliminates 68+ duplicate switch statements across components
  */
 
+import type { DistributionEventType, TaxFormType } from '@/types/distribution';
+
 // ============================================================================
 // DEAL OUTCOME MAPPERS
 // ============================================================================
@@ -45,6 +47,33 @@ export const documentStatusLabels: Record<DocumentStatus, string> = {
   sent: 'Sent',
   signed: 'Signed',
   archived: 'Archived',
+};
+
+// ============================================================================
+// DISTRIBUTION EVENT TYPE MAPPERS
+// ============================================================================
+
+export type DistributionEventLabel = DistributionEventType | 'scheduled' | 'reminder';
+
+export const distributionEventTypeLabels: Record<DistributionEventLabel, string> = {
+  exit: 'Exit',
+  dividend: 'Dividend',
+  recapitalization: 'Recapitalization',
+  refinancing: 'Refinancing',
+  'partial-exit': 'Partial Exit',
+  other: 'Other',
+  scheduled: 'Scheduled',
+  reminder: 'Reminder',
+};
+
+// ============================================================================
+// TAX FORM TYPE MAPPERS
+// ============================================================================
+
+export const taxFormTypeLabels: Record<TaxFormType, string> = {
+  k1: 'K-1',
+  '1099': '1099',
+  other: 'Other',
 };
 
 // ============================================================================

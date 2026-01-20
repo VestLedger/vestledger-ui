@@ -42,7 +42,7 @@ export function PublicHeader() {
   return (
     <>
       <nav
-        className="sticky top-0 left-0 right-0 z-50 w-full border-b border-[var(--app-border)] bg-[var(--app-surface)]/90 backdrop-blur-md supports-[backdrop-filter]:bg-[var(--app-surface)]/75"
+        className="sticky top-0 left-0 right-0 z-50 w-full border-b border-app-border dark:border-app-dark-border bg-app-surface/90 dark:bg-app-dark-surface/90 backdrop-blur-md supports-[backdrop-filter]:bg-app-surface/75 dark:supports-[backdrop-filter]:bg-app-dark-surface/75"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4 sm:gap-8">
@@ -55,15 +55,15 @@ export function PublicHeader() {
                 className="h-8 w-8"
                 priority
               />
-              <span className="text-xl sm:text-2xl tracking-tight text-[var(--app-primary)] font-bold">
+              <span className="text-xl sm:text-2xl tracking-tight text-app-primary dark:text-app-dark-primary font-bold">
                 VestLedger
               </span>
             </Link>
             <div className="hidden md:flex items-center gap-6">
-              <Link href="/features" className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-text)] transition-colors">Features</Link>
-              <Link href="/how-it-works" className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-text)] transition-colors">How It Works</Link>
-              <Link href="/security" className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-text)] transition-colors">Security</Link>
-              <Link href="/eoi" className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-text)] transition-colors">Get Early Access</Link>
+              <Link href="/features" className="text-sm text-app-text-muted dark:text-app-dark-text-muted hover:text-app-text dark:hover:text-app-dark-text transition-colors">Features</Link>
+              <Link href="/how-it-works" className="text-sm text-app-text-muted dark:text-app-dark-text-muted hover:text-app-text dark:hover:text-app-dark-text transition-colors">How It Works</Link>
+              <Link href="/security" className="text-sm text-app-text-muted dark:text-app-dark-text-muted hover:text-app-text dark:hover:text-app-dark-text transition-colors">Security</Link>
+              <Link href="/eoi" className="text-sm text-app-text-muted dark:text-app-dark-text-muted hover:text-app-text dark:hover:text-app-dark-text transition-colors">Get Early Access</Link>
             </div>
           </div>
           <div className="flex items-center gap-4">
@@ -72,7 +72,7 @@ export function PublicHeader() {
               variant="light"
               onPress={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
               aria-label="Toggle theme"
-              className="text-[var(--app-text-muted)]"
+              className="text-app-text-muted dark:text-app-dark-text-muted"
             >
               {mounted && (theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />)}
             </Button>
@@ -91,7 +91,7 @@ export function PublicHeader() {
         title={
           <div className="flex flex-col gap-1">
             <h3 className="text-lg font-medium">Welcome back</h3>
-            <p className="text-sm text-[var(--app-text-muted)]">Sign in to your vestledger account</p>
+            <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Sign in to your vestledger account</p>
           </div>
         }
       >
@@ -112,14 +112,14 @@ export function PublicHeader() {
             disallowEmptySelection
             variant="bordered"
             classNames={{
-               trigger: "bg-[var(--app-surface-hover)] border border-[var(--app-border-subtle)]",
+               trigger: "bg-app-surface-hover dark:bg-app-dark-surface-hover border border-app-border-subtle dark:border-app-dark-border-subtle",
             }}
           >
             {Object.values(PERSONA_CONFIG).map((persona) => (
               <SelectItem key={persona.id} value={persona.id} textValue={persona.label}>
                 <div className="flex flex-col">
                   <span className="text-small">{persona.label}</span>
-                  <span className="text-tiny text-[var(--app-text-muted)]">{persona.description}</span>
+                  <span className="text-tiny text-app-text-muted dark:text-app-dark-text-muted">{persona.description}</span>
                 </div>
               </SelectItem>
             ))}
@@ -135,9 +135,9 @@ export function PublicHeader() {
           <Button type="submit" color="primary" className="w-full">
             Sign In
           </Button>
-          <div className="text-center text-xs sm:text-sm text-[var(--app-text-muted)]">
+          <div className="text-center text-xs sm:text-sm text-app-text-muted dark:text-app-dark-text-muted">
             Don&apos;t have an account?{' '}
-            <Link href="/eoi" className="text-[var(--app-primary)] hover:underline">Sign up</Link>
+            <Link href="/eoi" className="text-app-primary dark:text-app-dark-primary hover:underline">Sign up</Link>
           </div>
         </form>
       </Modal>

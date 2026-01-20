@@ -1,12 +1,11 @@
 # VestLedger UI Library
 
-A centralized, type-safe UI component library for the VestLedger application. Built on top of NextUI with custom styling that follows the luxurious, tech-forward, and energetic design system.
+A centralized, type-safe UI component library for the VestLedger application. Built on top of NextUI with custom styling following an enterprise-grade design system.
 
 ## 🎨 Design Principles
 
-- **Luxurious**: Deep blacks, rich golds, and premium indigo tones
-- **Tech-Forward**: Electric blues, cyan accents, and vibrant gradients
-- **Energetic**: Bright, saturated colors that feel dynamic and modern
+- **Enterprise**: Emerald identity with champagne value accents — institutional and premium
+- **Accessible**: WCAG-compliant contrast ratios in both light and dark modes
 - **Intuitive**: Clear semantic colors (green=success, red=danger, etc.)
 - **Consistent**: All components use CSS variables for automatic theme switching
 
@@ -21,10 +20,13 @@ import { Button, Card, Heading } from '@/ui';
 ## 🧩 Component Categories
 
 ### Components (Base)
-- **Button** - Primary action buttons with variants
+- **Button** - Primary action buttons with variants and loading states
 - **Card** - Content containers with header/footer support
 - **Badge** - Status indicators and labels
-- **IconButton** - Icon-only buttons
+- **IconButton** - Icon-only buttons with required accessibility labels
+- **DropdownButton** - Button with dropdown menu for multiple actions
+- **ToggleButtonGroup** - Button group for single/multi-select choices (view switchers, filters)
+- **FloatingActionButton (FAB)** - Sticky circular button for primary screen action
 - **Input** - Text input fields
 - **Select** - Dropdown selection
 - **Checkbox** - Boolean selection
@@ -56,17 +58,134 @@ import { Button, Card, Heading } from '@/ui';
 ```tsx
 import { Button } from '@/ui';
 
+// Primary CTA (solid)
 <Button color="primary" size="lg">
   Get Started
 </Button>
 
-<Button variant="bordered" color="secondary">
+// Secondary action (outlined)
+<Button variant="bordered" color="primary">
   Learn More
 </Button>
 
-<Button variant="light" color="danger">
+// Tertiary/ghost action
+<Button variant="light" color="default">
+  Cancel
+</Button>
+
+// Danger/destructive action
+<Button variant="solid" color="danger">
   Delete
 </Button>
+
+// Loading state (prevents double-click)
+<Button color="primary" isLoading>
+  Submitting...
+</Button>
+
+// Disabled state
+<Button color="primary" isDisabled>
+  Unavailable
+</Button>
+
+// With icon
+<Button color="primary" startContent={<PlusIcon />}>
+  Add Item
+</Button>
+```
+
+### DropdownButton
+
+```tsx
+import { DropdownButton } from '@/ui';
+
+// Export menu
+<DropdownButton
+  label="Export"
+  items={[
+    { key: 'csv', label: 'Export as CSV' },
+    { key: 'pdf', label: 'Export as PDF' },
+    { key: 'xlsx', label: 'Export as Excel' },
+  ]}
+  onAction={(key) => handleExport(key)}
+/>
+
+// With icons and descriptions
+<DropdownButton
+  label="Actions"
+  variant="bordered"
+  items={[
+    { key: 'edit', label: 'Edit', startContent: <EditIcon /> },
+    { key: 'duplicate', label: 'Duplicate', description: 'Create a copy' },
+    { key: 'delete', label: 'Delete', color: 'danger', isDivider: true },
+  ]}
+  onAction={handleAction}
+/>
+```
+
+### ToggleButtonGroup
+
+```tsx
+import { ToggleButtonGroup } from '@/ui';
+
+// View switcher (single selection)
+const [view, setView] = useState(new Set(['grid']));
+
+<ToggleButtonGroup
+  aria-label="View mode"
+  options={[
+    { key: 'grid', label: 'Grid', icon: <GridIcon /> },
+    { key: 'list', label: 'List', icon: <ListIcon /> },
+    { key: 'table', label: 'Table', icon: <TableIcon /> },
+  ]}
+  selectedKeys={view}
+  onSelectionChange={setView}
+  selectionMode="single"
+/>
+
+// Filter toggles (multiple selection)
+<ToggleButtonGroup
+  aria-label="Status filters"
+  options={[
+    { key: 'active', label: 'Active' },
+    { key: 'pending', label: 'Pending' },
+    { key: 'closed', label: 'Closed' },
+  ]}
+  selectedKeys={selectedStatuses}
+  onSelectionChange={setSelectedStatuses}
+  selectionMode="multiple"
+/>
+```
+
+### FloatingActionButton (FAB)
+
+```tsx
+import { FloatingActionButton, FAB } from '@/ui';
+
+// Standard FAB (bottom-right by default)
+<FloatingActionButton
+  icon={<PlusIcon />}
+  aria-label="Create new item"
+  onPress={() => setIsModalOpen(true)}
+/>
+
+// Extended FAB with label
+<FAB
+  icon={<PlusIcon />}
+  label="New Distribution"
+  isExtended
+  aria-label="Create new distribution"
+  onPress={() => router.push('/distributions/new')}
+/>
+
+// Custom position and color
+<FAB
+  icon={<EditIcon />}
+  position="bottom-left"
+  color="secondary"
+  aria-label="Edit"
+  onPress={handleEdit}
+/>
 ```
 
 ### Card
@@ -177,11 +296,11 @@ import { Input, Select, Checkbox, Switch } from '@/ui';
 All components automatically adapt to light/dark mode using CSS variables:
 
 ### Semantic Colors
-- `primary` - Electric indigo (main brand color)
-- `secondary` - Rich gold (luxury accent)
-- `success` - Emerald green (positive actions)
+- `primary` - Deep Emerald (main brand/CTA color)
+- `secondary` - Champagne/Antique Brass (value outcomes accent)
+- `success` - Forest Green (positive actions)
 - `warning` - Amber (caution)
-- `danger` - Red (destructive actions)
+- `danger` - Brick Red (destructive actions)
 - `default` - Neutral gray
 
 ### Usage in Custom Components
