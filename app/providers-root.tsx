@@ -75,7 +75,7 @@ function ThemeSyncWrapper({ children }: { children: ReactNode }) {
 export function RootProviders({ children }: { children: ReactNode }) {
   return (
     <ErrorBoundary>
-      <NextThemesProvider attribute="class" defaultTheme="dark" storageKey="theme">
+      <NextThemesProvider attribute="class" defaultTheme="light" storageKey="theme">
         <ThemeSyncWrapper>
           <NextUIProvider>
             <ToastProvider>{children}</ToastProvider>

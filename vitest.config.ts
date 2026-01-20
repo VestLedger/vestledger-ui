@@ -20,15 +20,21 @@ export default defineConfig({
     exclude: ['node_modules', 'cypress'],
     coverage: {
       provider: 'v8',
+      include: ['src/**/*.{ts,tsx}'],
       exclude: [
-        'node_modules',
+        'node_modules/**',
+        '**/node_modules/**',
         'cypress',
         '**/*.config.*',
         '**/mocks/**',
         '**/data/mocks/**',
         '**/*.d.ts',
         '**/types/**',
+        '**/__tests__/**',
+        '**/*.test.*',
+        '**/*.spec.*',
       ],
+      all: false,
       reporter: ['text', 'json', 'html'],
       thresholds: {
         // Start with achievable thresholds, increase over time

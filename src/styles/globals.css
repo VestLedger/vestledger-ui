@@ -1,133 +1,224 @@
+/*
+ * THEMING: SINGLE SOURCE OF TRUTH
+ * ================================
+ * All colors are defined here as CSS variables.
+ * tailwind.config.js maps these to Tailwind utilities (bg-app-primary, text-app-muted).
+ *
+ * TO CHANGE COLORS: Edit this file only.
+ *
+ * USAGE:
+ * - CSS variables:     var(--app-primary), var(--app-bg)
+ * - Tailwind classes:  bg-app-primary, text-app-muted, border-app-border
+ * - Arbitrary values:  bg-[var(--app-primary)]
+ */
+
 :root {
-  /* Calmer Light Mode */
-  --app-bg: #f6f7fa;
-  --app-surface: #ffffff;
-  --app-surface-hover: #eef1f6;
-  --app-border: #dfe3eb;
-  --app-border-subtle: #e7eaf1;
-  --app-text: #1f2430;
-  --app-text-muted: #5b6275;
-  --app-text-subtle: #8a90a2;
-  --app-primary: #4f63c7;
-  --app-primary-hover: #4155b5;
-  --app-primary-bg: rgba(79, 99, 199, 0.08);
-  --app-secondary: #c48d3b;
-  --app-secondary-hover: #b27c2f;
-  --app-success: #2f9d63;
-  --app-success-bg: rgba(47, 157, 99, 0.08);
-  --app-warning: #d48a28;
-  --app-warning-bg: rgba(212, 138, 40, 0.08);
-  --app-danger: #d35454;
-  --app-danger-bg: rgba(211, 84, 84, 0.08);
-  --app-accent: #be6b92;
-  --app-accent-hover: #a95c80;
-  --app-info: #3b93b6;
-  --app-info-bg: rgba(59, 147, 182, 0.08);
-  --app-sidebar-bg: #ffffff;
-  --app-sidebar-border: #dfe3eb;
+  /* VestLedger — Deep Emerald + Rich Gold Light Mode (Premium) */
 
-  /* Gentle gradients */
-  --gradient-royal: linear-gradient(135deg, #4f63c7 0%, #be6b92 50%, #c48d3b 100%);
-  --gradient-jewel: linear-gradient(135deg, #be6b92 0%, #4f63c7 100%);
+  /* Foundations */
+  --app-bg: #fafaf8;                 /* Warm White */
+  --app-surface: #ffffff;            /* Elevated surface */
+  --app-surface-2: #f5f4f0;          /* Warm Stone */
+  --app-surface-hover: #eceae4;      /* Light Stone */
 
-  /* Subtle glows */
-  --royal-glow-purple: 0 0 12px rgba(79, 99, 199, 0.18);
-  --royal-glow-gold: 0 0 12px rgba(196, 141, 59, 0.2);
-  --royal-glow-amethyst: 0 0 12px rgba(190, 107, 146, 0.18);
+  /* Borders */
+  --app-border: #d9d6cf;             /* Warm Gray */
+  --app-border-subtle: #e4e2dc;
+  --app-border-strong: #c5c1b8;
+
+  /* Text */
+  --app-text: #1a1f1e;               /* Near Black */
+  --app-text-muted: #4a5250;         /* Dark Gray */
+  --app-text-subtle: #6e7572;
+
+  /* Brand & Identity — VIBRANT */
+  --app-primary: #047857;            /* Deep Emerald (vivid) */
+  --app-primary-hover: #059669;      /* Bright Emerald */
+  --app-primary-bg: rgba(4, 120, 87, 0.10);
+
+  --app-secondary: #d4a332;          /* Rich Gold (saturated) */
+  --app-secondary-hover: #b8922a;    /* Deep Gold */
+  --app-secondary-bg: rgba(212, 163, 50, 0.12);
+
+  /* Status (operational, not brand) */
+  --app-success: #16a34a;            /* Vivid Green */
+  --app-success-bg: rgba(22, 163, 74, 0.10);
+  --app-warning: #d97706;            /* Vivid Amber */
+  --app-warning-bg: rgba(217, 119, 6, 0.10);
+  --app-danger: #dc2626;             /* Vivid Red */
+  --app-danger-bg: rgba(220, 38, 38, 0.10);
+  --app-info: #0891b2;               /* Vivid Cyan */
+  --app-info-bg: rgba(8, 145, 178, 0.10);
+
+  /* Accent (de-emphasized; use sparingly) */
+  --app-accent: #0d9488;             /* Teal */
+  --app-accent-hover: #0f766e;
+
+  /* Sidebar */
+  --app-sidebar-bg: #fafaf8;
+  --app-sidebar-border: #d9d6cf;
+
+  /* Gradients (richer, more visible) */
+  --gradient-emerald: linear-gradient(135deg, rgba(4, 120, 87, 0.08) 0%, rgba(5, 150, 105, 0.05) 100%);
+  --gradient-gold: linear-gradient(135deg, rgba(212, 163, 50, 0.15) 0%, rgba(184, 146, 42, 0.10) 100%);
+
+  /* Shadows (elevation-based) */
+  --app-shadow-1: 0 1px 3px rgba(26, 31, 30, 0.10), 0 4px 12px rgba(26, 31, 30, 0.08);
+  --app-shadow-2: 0 4px 8px rgba(26, 31, 30, 0.12), 0 12px 32px rgba(26, 31, 30, 0.10);
+
+  /* Focus (accessible, visible) */
+  --app-focus-ring: 0 0 0 2px var(--app-bg), 0 0 0 4px rgba(4, 120, 87, 0.40);
 
   /* Tab Component Variables */
   --tab-cursor: var(--app-primary);
-  --tab-selected-text-solid: white;
+  --tab-selected-text-solid: #ffffff;
   --tab-selected-text-underlined: var(--app-primary);
+
+  /* Link/CTA distinction */
+  --app-link: #047857;
+  --app-link-hover: #059669;
 }
 
 .dark {
-  /* Calmer Dark Mode */
-  --app-bg: #0f1117;
-  --app-surface: #161922;
-  --app-surface-hover: #1d202b;
-  --app-border: #222633;
-  --app-border-subtle: #1a1d27;
-  --app-text: #e6e8ee;
-  --app-text-muted: #a5acb8;
-  --app-text-subtle: #7f8694;
-  --app-primary: #6c7ad8;
-  --app-primary-hover: #8390e4;
-  --app-primary-bg: rgba(108, 122, 216, 0.12);
-  --app-secondary: #cfa86a;
-  --app-secondary-hover: #dfba7d;
-  --app-success: #4bb181;
-  --app-success-bg: rgba(75, 177, 129, 0.12);
-  --app-warning: #e0a54f;
-  --app-warning-bg: rgba(224, 165, 79, 0.12);
-  --app-danger: #d66c6c;
-  --app-danger-bg: rgba(214, 108, 108, 0.12);
-  --app-accent: #c07ea4;
-  --app-accent-hover: #d49aba;
-  --app-info: #4ca4c4;
-  --app-info-bg: rgba(76, 164, 196, 0.12);
-  --app-sidebar-bg: #121520;
-  --app-sidebar-border: #222633;
+  /* VestLedger — Deep Emerald + Rich Gold Dark Mode (Luxe) */
 
-  /* Gentle gradients */
-  --gradient-royal: linear-gradient(135deg, #6c7ad8 0%, #c07ea4 50%, #cfa86a 100%);
-  --gradient-jewel: linear-gradient(135deg, #c07ea4 0%, #6c7ad8 100%);
+  /* Foundations */
+  --app-bg: #0f1412;                 /* Deep Forest Black */
+  --app-surface: #161c1a;            /* Elevated Panel */
+  --app-surface-2: #1c2421;          /* Card Surface */
+  --app-surface-hover: #242d2a;
 
-  /* Subtle glows */
-  --royal-glow-purple: 0 0 12px rgba(108, 122, 216, 0.22);
-  --royal-glow-gold: 0 0 12px rgba(207, 168, 106, 0.22);
-  --royal-glow-amethyst: 0 0 12px rgba(192, 126, 164, 0.22);
+  /* Borders */
+  --app-border: #2d3835;
+  --app-border-subtle: #232c29;
+  --app-border-strong: #3a4743;
+
+  /* Text */
+  --app-text: #f7f7f6;               /* Bright Ivory */
+  --app-text-muted: #c4cac8;         /* Silver */
+  --app-text-subtle: #919996;
+
+  /* Brand & Identity — VIBRANT (lightened for dark bg) */
+  --app-primary: #10b981;            /* Emerald (bright for dark) */
+  --app-primary-hover: #34d399;      /* Light Emerald */
+  --app-primary-bg: rgba(16, 185, 129, 0.15);
+
+  --app-secondary: #fbbf24;          /* Bright Gold */
+  --app-secondary-hover: #fcd34d;    /* Light Gold */
+  --app-secondary-bg: rgba(251, 191, 36, 0.15);
+
+  /* Status (operational, not brand) */
+  --app-success: #22c55e;            /* Bright Green */
+  --app-success-bg: rgba(34, 197, 94, 0.15);
+  --app-warning: #f59e0b;            /* Bright Amber */
+  --app-warning-bg: rgba(245, 158, 11, 0.15);
+  --app-danger: #ef4444;             /* Bright Red */
+  --app-danger-bg: rgba(239, 68, 68, 0.15);
+  --app-info: #06b6d4;               /* Bright Cyan */
+  --app-info-bg: rgba(6, 182, 212, 0.15);
+
+  /* Accent (de-emphasized) */
+  --app-accent: #14b8a6;             /* Bright Teal */
+  --app-accent-hover: #2dd4bf;
+
+  /* Sidebar */
+  --app-sidebar-bg: #0c100e;
+  --app-sidebar-border: #2d3835;
+
+  /* Gradients (richer for dark mode) */
+  --gradient-emerald: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(5, 150, 105, 0.08) 100%);
+  --gradient-gold: linear-gradient(135deg, rgba(251, 191, 36, 0.12) 0%, rgba(245, 158, 11, 0.08) 100%);
+
+  /* Shadows (deeper for dark mode) */
+  --app-shadow-1: 0 1px 3px rgba(0, 0, 0, 0.35), 0 6px 16px rgba(0, 0, 0, 0.30);
+  --app-shadow-2: 0 4px 8px rgba(0, 0, 0, 0.40), 0 16px 40px rgba(0, 0, 0, 0.35);
+
+  /* Focus (accessible, visible on dark) */
+  --app-focus-ring: 0 0 0 2px var(--app-bg), 0 0 0 4px rgba(16, 185, 129, 0.50);
 
   /* Tab Component Variables */
   --tab-cursor: var(--app-primary);
-  --tab-selected-text-solid: var(--app-bg);
+  --tab-selected-text-solid: #0f1412;
   --tab-selected-text-underlined: var(--app-primary);
+
+  /* Link/CTA distinction */
+  --app-link: #10b981;
+  --app-link-hover: #34d399;
 }
 
 html {
   font-size: 16px;
 }
 
-/* Remove loud hover animation; keep things steady */
-
 /* Ensure any uncolored borders fall back to the theme border */
 *, *::before, *::after {
   border-color: var(--app-border);
 }
-/* Scrollbar styling */
+
+/* Scrollbars: visible, subtle, enterprise-friendly */
 ::-webkit-scrollbar {
-  display: none;
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(74, 82, 80, 0.30);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background-color: rgba(196, 202, 200, 0.25);
 }
 
 html {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: thin; /* Firefox */
 }
 
-/* Energetic card hover effects */
+/* Enterprise hover: elevation + border refinement */
+.hover-elevate:hover,
 .hover-glow:hover {
-  box-shadow: var(--royal-glow-purple);
-  transition: box-shadow 0.3s ease;
+  box-shadow: var(--app-shadow-1);
+  border-color: var(--app-border-strong);
+  transition: box-shadow 0.18s ease, border-color 0.18s ease;
 }
 
-/* FullCalendar theme alignment */
+/* FullCalendar theme alignment (outlined buttons by default) */
 .fc {
   --fc-page-bg-color: var(--app-surface);
   --fc-border-color: var(--app-border);
   --fc-neutral-bg-color: var(--app-surface-hover);
   --fc-neutral-text-color: var(--app-text-muted);
-  --fc-button-text-color: var(--app-surface);
-  --fc-button-bg-color: var(--app-primary);
-  --fc-button-border-color: var(--app-primary);
-  --fc-button-hover-bg-color: var(--app-primary-hover);
-  --fc-button-hover-border-color: var(--app-primary-hover);
-  --fc-button-active-bg-color: var(--app-primary-hover);
-  --fc-button-active-border-color: var(--app-primary-hover);
+
+  /* Buttons: outline-first enterprise style */
+  --fc-button-text-color: var(--app-primary);
+  --fc-button-bg-color: transparent;
+  --fc-button-border-color: var(--app-border-strong);
+  --fc-button-hover-bg-color: var(--app-primary-bg);
+  --fc-button-hover-border-color: var(--app-primary);
+  --fc-button-active-bg-color: var(--app-primary);
+  --fc-button-active-border-color: var(--app-primary);
+
+  /* Events */
   --fc-event-text-color: #ffffff;
   --fc-event-bg-color: var(--app-primary);
   --fc-event-border-color: var(--app-primary);
+
+  /* Today highlight (subtle) */
   --fc-today-bg-color: var(--app-primary-bg);
+
   font-family: inherit;
+}
+
+/* Dark mode FullCalendar active button text */
+.dark .fc .fc-button-primary:not(:disabled).fc-button-active,
+.dark .fc .fc-button-primary:not(:disabled):active {
+  color: #0f1412; /* Deep Forest for contrast on bright primary */
 }
 
 .fc .fc-toolbar-title {
@@ -144,7 +235,7 @@ html {
 }
 
 .fc .fc-button-primary:focus {
-  box-shadow: 0 0 0 2px var(--app-primary-bg);
+  box-shadow: var(--app-focus-ring);
 }
 
 .fc .fc-scrollgrid {

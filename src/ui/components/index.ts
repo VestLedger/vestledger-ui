@@ -11,6 +11,15 @@ export type { BadgeProps } from './Badge';
 export { IconButton } from './IconButton';
 export type { IconButtonProps } from './IconButton';
 
+export { DropdownButton } from './DropdownButton';
+export type { DropdownButtonProps, DropdownButtonItem } from './DropdownButton';
+
+export { ToggleButtonGroup } from './ToggleButtonGroup';
+export type { ToggleButtonGroupProps, ToggleButtonOption } from './ToggleButtonGroup';
+
+export { FloatingActionButton, FAB } from './FloatingActionButton';
+export type { FloatingActionButtonProps } from './FloatingActionButton';
+
 export { Icon } from './Icon';
 export type { IconProps } from './Icon';
 

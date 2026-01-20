@@ -230,7 +230,7 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {team.map((member, idx) => (
               <Card key={idx} padding="lg" className="text-center hover:border-[var(--app-primary)] transition-colors">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4" role="img" aria-label={`${member.name} profile picture`}>
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-secondary)] flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4" role="img" aria-label={`${member.name} profile picture`}>
                   {member.image}
                 </div>
                 <h3 className="text-lg font-bold mb-1">{member.name}</h3>

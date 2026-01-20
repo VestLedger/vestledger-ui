@@ -44,7 +44,7 @@ export function NavigationItem({ id, href, label, icon: Icon, isCollapsed = fals
           group relative flex items-center ${isCollapsed ? 'justify-center' : 'justify-between gap-3'} px-3 py-2.5 rounded-lg
           transition-all duration-150
           ${isActive
-            ? 'bg-[var(--app-surface-hover)] border-l-2 border-[var(--app-primary)] shadow-[0_0_12px_var(--royal-glow-purple)]'
+            ? 'bg-[var(--app-surface-hover)] border-l-2 border-[var(--app-primary)] shadow-[0_0_12px_rgba(4,120,87,0.3)]'
             : 'hover:bg-[var(--app-surface-hover)]'
           }
         `}

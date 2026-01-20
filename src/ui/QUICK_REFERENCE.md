@@ -189,8 +189,8 @@ import {
 ## Color System
 
 ### Semantic Colors (Use These!)
-- `primary` - Electric indigo (main actions)
-- `secondary` - Rich gold (luxury accents)
+- `primary` - Deep Emerald (main actions)
+- `secondary` - Rich Gold (luxury accents)
 - `success` - Green (positive/complete)
 - `warning` - Amber (caution/pending)
 - `danger` - Red (destructive/error)

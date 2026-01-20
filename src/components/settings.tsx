@@ -469,7 +469,7 @@ export function Settings() {
                 ].map((member, idx) => (
                   <div key={idx} className="flex items-center justify-between p-4 rounded-lg border border-[var(--app-border)]">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-secondary)] flex items-center justify-center text-white font-semibold">
                         {member.name.split(' ').map(n => n[0]).join('')}
                       </div>
                       <div>
