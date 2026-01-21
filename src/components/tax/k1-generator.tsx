@@ -273,15 +273,15 @@ export function K1Generator({
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <FileText className="w-5 h-5 text-[var(--app-primary)]" />
+              <FileText className="w-5 h-5 text-app-primary dark:text-app-dark-primary" />
               <h3 className="text-lg font-semibold">K-1 Generation</h3>
             </div>
             {activeConfig && (
               <div className="space-y-1 text-sm">
-                <p className="text-[var(--app-text-muted)]">
+                <p className="text-app-text-muted dark:text-app-dark-text-muted">
                   {activeConfig.fundName} • Tax Year {activeConfig.taxYear}
                 </p>
-                <p className="text-xs text-[var(--app-text-subtle)]">
+                <p className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle">
                   EIN: {activeConfig.ein} • {activeConfig.entityType.toUpperCase()}
                 </p>
               </div>
@@ -290,7 +290,7 @@ export function K1Generator({
 
           <div className="flex items-center gap-2">
             <select
-              className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+              className="px-3 py-2 text-sm rounded-lg border border-app-border dark:border-app-dark-border bg-app-surface dark:bg-app-dark-surface text-app-text dark:text-app-dark-text"
               value={selectedTaxYear}
               onChange={(e) => patchUI({ selectedTaxYear: Number(e.target.value) })}
             >
@@ -324,26 +324,26 @@ export function K1Generator({
         {/* Configuration Summary */}
         {activeConfig && (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-surface-hover)]">
-              <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Allocation Method</p>
+            <div className="p-3 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
+              <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Allocation Method</p>
               <p className="text-sm font-medium capitalize">
                 {activeConfig.allocationMethod.replace(/-/g, ' ')}
               </p>
             </div>
-            <div className="p-3 rounded-lg bg-[var(--app-surface-hover)]">
-              <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Custom Fields</p>
+            <div className="p-3 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
+              <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Custom Fields</p>
               <p className="text-sm font-medium">
                 {activeConfig.customFields.length} Configured
               </p>
             </div>
-            <div className="p-3 rounded-lg bg-[var(--app-surface-hover)]">
-              <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">State Filings</p>
+            <div className="p-3 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
+              <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">State Filings</p>
               <p className="text-sm font-medium">
                 {activeConfig.stateFilings.length} States
               </p>
             </div>
-            <div className="p-3 rounded-lg bg-[var(--app-surface-hover)]">
-              <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Preparer</p>
+            <div className="p-3 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
+              <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Preparer</p>
               <p className="text-sm font-medium">
                 {activeConfig.preparerInfo.isSelfPrepared ? 'Self-Prepared' : activeConfig.preparerInfo.firmName}
               </p>
@@ -354,28 +354,28 @@ export function K1Generator({
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-6 gap-3">
-        <Card padding="sm" className="bg-[var(--app-text-muted)]/10">
-          <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Total K-1s</p>
+        <Card padding="sm" className="bg-app-text-muted/10 dark:bg-app-dark-text-muted/10">
+          <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Total K-1s</p>
           <p className="text-2xl font-bold">{filteredDocuments.length}</p>
         </Card>
-        <Card padding="sm" className="bg-[var(--app-warning-bg)]">
-          <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Draft</p>
-          <p className="text-2xl font-bold text-[var(--app-warning)]">{statusCounts.draft}</p>
+        <Card padding="sm" className="bg-app-warning-bg dark:bg-app-dark-warning-bg">
+          <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Draft</p>
+          <p className="text-2xl font-bold text-app-warning dark:text-app-dark-warning">{statusCounts.draft}</p>
         </Card>
-        <Card padding="sm" className="bg-[var(--app-warning-bg)]">
-          <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Review</p>
-          <p className="text-2xl font-bold text-[var(--app-warning)]">{statusCounts.review}</p>
+        <Card padding="sm" className="bg-app-warning-bg dark:bg-app-dark-warning-bg">
+          <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Review</p>
+          <p className="text-2xl font-bold text-app-warning dark:text-app-dark-warning">{statusCounts.review}</p>
         </Card>
-        <Card padding="sm" className="bg-[var(--app-info-bg)]">
-          <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Approved</p>
-          <p className="text-2xl font-bold text-[var(--app-info)]">{statusCounts.approved}</p>
+        <Card padding="sm" className="bg-app-info-bg dark:bg-app-dark-info-bg">
+          <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Approved</p>
+          <p className="text-2xl font-bold text-app-info dark:text-app-dark-info">{statusCounts.approved}</p>
         </Card>
-        <Card padding="sm" className="bg-[var(--app-success-bg)]">
-          <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Sent</p>
-          <p className="text-2xl font-bold text-[var(--app-success)]">{statusCounts.sent}</p>
+        <Card padding="sm" className="bg-app-success-bg dark:bg-app-dark-success-bg">
+          <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Sent</p>
+          <p className="text-2xl font-bold text-app-success dark:text-app-dark-success">{statusCounts.sent}</p>
         </Card>
-        <Card padding="sm" className="bg-[var(--app-surface-hover)] border border-[var(--app-border)]">
-          <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Total Income</p>
+        <Card padding="sm" className="bg-app-surface-hover dark:bg-app-dark-surface-hover border border-app-border dark:border-app-dark-border">
+          <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Total Income</p>
           <p className="text-lg font-bold">{formatCurrency(totalIncome)}</p>
         </Card>
       </div>
@@ -389,7 +389,7 @@ export function K1Generator({
           rightActions={(
             <div className="flex flex-wrap items-center gap-2">
               <select
-                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+                className="px-3 py-2 text-sm rounded-lg border border-app-border dark:border-app-dark-border bg-app-surface dark:bg-app-dark-surface text-app-text dark:text-app-dark-text"
                 value={filterStatus}
                 onChange={(e) => patchUI({ filterStatus: e.target.value as K1Document['status'] | 'all' })}
               >
@@ -429,7 +429,7 @@ export function K1Generator({
       <Card padding="md">
         <div className="space-y-2">
           {filteredDocuments.length === 0 ? (
-            <div className="text-center py-8 text-sm text-[var(--app-text-muted)]">
+            <div className="text-center py-8 text-sm text-app-text-muted dark:text-app-dark-text-muted">
               <FileText className="w-8 h-8 mx-auto mb-2 opacity-50" />
               <p>No K-1 documents found</p>
             </div>
@@ -441,7 +441,7 @@ export function K1Generator({
               return (
                 <div
                   key={doc.id}
-                  className="p-4 rounded-lg bg-[var(--app-surface-hover)] hover:bg-[var(--app-surface)] border border-[var(--app-border)] transition-colors"
+                  className="p-4 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover hover:bg-app-surface dark:hover:bg-app-dark-surface border border-app-border dark:border-app-dark-border transition-colors"
                 >
                   {/* Header */}
                   <div className="flex items-start justify-between mb-3">
@@ -450,17 +450,17 @@ export function K1Generator({
                         <span className="font-medium">{doc.partnerName}</span>
                         <StatusBadge status={doc.status} domain="tax" size="sm" showIcon />
                         {doc.isGeneralPartner && (
-                          <Badge size="sm" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">
+                          <Badge size="sm" variant="flat" className="bg-app-primary-bg dark:bg-app-dark-primary-bg text-app-primary dark:text-app-dark-primary">
                             GP
                           </Badge>
                         )}
                         {doc.amendments && doc.amendments.length > 0 && (
-                          <Badge size="sm" variant="flat" className="bg-[var(--app-danger-bg)] text-[var(--app-danger)]">
+                          <Badge size="sm" variant="flat" className="bg-app-danger-bg dark:bg-app-dark-danger-bg text-app-danger dark:text-app-dark-danger">
                             {doc.amendments.length} Amendment{doc.amendments.length > 1 ? 's' : ''}
                           </Badge>
                         )}
                       </div>
-                      <div className="flex items-center gap-3 text-xs text-[var(--app-text-muted)]">
+                      <div className="flex items-center gap-3 text-xs text-app-text-muted dark:text-app-dark-text-muted">
                         <span>SSN: ***-**-{doc.partnerSSN}</span>
                         <span>•</span>
                         <span>{doc.partnerType === 'individual' ? 'Individual' : 'Entity'}</span>
@@ -470,7 +470,7 @@ export function K1Generator({
                     </div>
                     <div className="text-right">
                       {doc.deliveryMethod && (
-                        <p className="text-xs text-[var(--app-text-muted)] mb-1">
+                        <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-1">
                           Delivery: {doc.deliveryMethod}
                         </p>
                       )}
@@ -480,10 +480,10 @@ export function K1Generator({
                           variant="flat"
                           className={
                             doc.deliveryStatus === 'sent' || doc.deliveryStatus === 'downloaded'
-                              ? 'bg-[var(--app-success-bg)] text-[var(--app-success)]'
+                              ? 'bg-app-success-bg dark:bg-app-dark-success-bg text-app-success dark:text-app-dark-success'
                               : doc.deliveryStatus === 'bounced'
-                              ? 'bg-[var(--app-danger-bg)] text-[var(--app-danger)]'
-                              : 'bg-[var(--app-warning-bg)] text-[var(--app-warning)]'
+                              ? 'bg-app-danger-bg dark:bg-app-dark-danger-bg text-app-danger dark:text-app-dark-danger'
+                              : 'bg-app-warning-bg dark:bg-app-dark-warning-bg text-app-warning dark:text-app-dark-warning'
                           }
                         >
                           {doc.deliveryStatus}
@@ -493,32 +493,32 @@ export function K1Generator({
                   </div>
 
                   {/* Financial Summary */}
-                  <div className="grid grid-cols-4 gap-3 mb-3 p-3 rounded-lg bg-[var(--app-surface)]">
+                  <div className="grid grid-cols-4 gap-3 mb-3 p-3 rounded-lg bg-app-surface dark:bg-app-dark-surface">
                     <div>
-                      <p className="text-xs text-[var(--app-text-muted)] mb-1">Beginning Capital</p>
+                      <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-1">Beginning Capital</p>
                       <p className="text-sm font-bold">{formatCurrency(doc.beginningCapital)}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-[var(--app-text-muted)] mb-1">Total Income</p>
-                      <p className="text-sm font-bold text-[var(--app-success)]">
+                      <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-1">Total Income</p>
+                      <p className="text-sm font-bold text-app-success dark:text-app-dark-success">
                         {formatCurrency(totalIncomeAmount)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-[var(--app-text-muted)] mb-1">Deductions</p>
-                      <p className="text-sm font-bold text-[var(--app-danger)]">
+                      <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-1">Deductions</p>
+                      <p className="text-sm font-bold text-app-danger dark:text-app-dark-danger">
                         {formatCurrency(totalDeductions)}
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-[var(--app-text-muted)] mb-1">Ending Capital</p>
+                      <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-1">Ending Capital</p>
                       <p className="text-sm font-bold">{formatCurrency(doc.endingCapital)}</p>
                     </div>
                   </div>
 
                   {/* Income Items Summary */}
                   <div className="mb-3">
-                    <p className="text-xs font-medium text-[var(--app-text-muted)] mb-2">
+                    <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-2">
                       Income Items ({doc.incomeItems.length})
                     </p>
                     <div className="flex flex-wrap gap-2">
@@ -527,13 +527,13 @@ export function K1Generator({
                           key={item.id}
                           size="sm"
                           variant="flat"
-                          className="bg-[var(--app-success-bg)] text-[var(--app-success)]"
+                          className="bg-app-success-bg dark:bg-app-dark-success-bg text-app-success dark:text-app-dark-success"
                         >
                           {item.box}: {formatCurrency(item.amount)}
                         </Badge>
                       ))}
                       {doc.incomeItems.length > 5 && (
-                        <Badge size="sm" variant="flat" className="bg-[var(--app-text-muted)]/10">
+                        <Badge size="sm" variant="flat" className="bg-app-text-muted/10 dark:bg-app-dark-text-muted/10">
                           +{doc.incomeItems.length - 5} more
                         </Badge>
                       )}
@@ -543,7 +543,7 @@ export function K1Generator({
                   {/* State K-1s */}
                   {doc.stateK1s.length > 0 && (
                     <div className="mb-3">
-                      <p className="text-xs font-medium text-[var(--app-text-muted)] mb-2">
+                      <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-2">
                         State K-1s ({doc.stateK1s.length})
                       </p>
                       <div className="flex flex-wrap gap-2">
@@ -552,7 +552,7 @@ export function K1Generator({
                             key={idx}
                             size="sm"
                             variant="flat"
-                            className="bg-[var(--app-info-bg)] text-[var(--app-info)]"
+                            className="bg-app-info-bg dark:bg-app-dark-info-bg text-app-info dark:text-app-dark-info"
                           >
                             {state.state}: {formatCurrency(state.stateIncome)}
                           </Badge>
@@ -562,7 +562,7 @@ export function K1Generator({
                   )}
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2 pt-3 border-t border-[var(--app-border)]">
+                  <div className="flex items-center gap-2 pt-3 border-t border-app-border dark:border-app-dark-border">
                     {onPreviewK1 && (
                       <Button
                         size="sm"
@@ -597,7 +597,7 @@ export function K1Generator({
                       <Button
                         size="sm"
                         variant="light"
-                        className="text-[var(--app-danger)]"
+                        className="text-app-danger dark:text-app-dark-danger"
                         startContent={<AlertCircle className="w-3 h-3" />}
                         onPress={() => onAmendK1(doc.id)}
                       >

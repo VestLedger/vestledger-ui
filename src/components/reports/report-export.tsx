@@ -85,8 +85,8 @@ export function ReportExport() {
                 padding="lg"
                 className={`cursor-pointer transition-all ${
                   selectedTemplate?.id === template.id
-                    ? 'border-2 border-[var(--app-primary)] bg-[var(--app-primary-bg)]'
-                    : 'hover:border-[var(--app-primary)]'
+                    ? 'border-2 border-app-primary dark:border-app-dark-primary bg-app-primary-bg dark:bg-app-dark-primary-bg'
+                    : 'hover:border-app-primary dark:hover:border-app-dark-primary'
                 }`}
                 onClick={() => {
                   patchUI({
@@ -100,25 +100,25 @@ export function ReportExport() {
                   <div>
                     <h4 className="font-semibold mb-1">{template.name}</h4>
                     <div className="flex items-center gap-2">
-                      <Badge size="sm" variant="flat" className="bg-[var(--app-surface-hover)]">
+                      <Badge size="sm" variant="flat" className="bg-app-surface-hover dark:bg-app-dark-surface-hover">
                         {template.type}
                       </Badge>
-                      <Badge size="sm" variant="flat" className="bg-[var(--app-surface-hover)]">
+                      <Badge size="sm" variant="flat" className="bg-app-surface-hover dark:bg-app-dark-surface-hover">
                         {getFormatIcon(template.format)}
                         <span className="ml-1">{template.format.toUpperCase()}</span>
                       </Badge>
                     </div>
                   </div>
                   {selectedTemplate?.id === template.id && (
-                    <Check className="w-5 h-5 text-[var(--app-primary)]" />
+                    <Check className="w-5 h-5 text-app-primary dark:text-app-dark-primary" />
                   )}
                 </div>
 
-                <p className="text-sm text-[var(--app-text-muted)] mb-3">
+                <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted mb-3">
                   {template.description}
                 </p>
 
-                <div className="flex items-center justify-between text-xs text-[var(--app-text-subtle)]">
+                <div className="flex items-center justify-between text-xs text-app-text-subtle dark:text-app-dark-text-subtle">
                   <span>{template.sections.length} sections</span>
                   {template.estimatedPages && <span>~{template.estimatedPages} pages</span>}
                 </div>
@@ -130,17 +130,17 @@ export function ReportExport() {
           <div className="mt-6">
             <h3 className="font-semibold mb-4">Recent Exports</h3>
             <Card padding="none">
-              <div className="divide-y divide-[var(--app-border)]">
+              <div className="divide-y divide-app-border dark:divide-app-dark-border">
                 {exportJobs.map((job) => (
                   <div key={job.id} className="p-4">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-[var(--app-surface-hover)]">
+                        <div className="p-2 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
                           {getFormatIcon(job.format)}
                         </div>
                         <div>
                           <p className="font-medium">{job.reportName}</p>
-                          <p className="text-xs text-[var(--app-text-muted)]">
+                          <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">
                             {new Date(job.createdAt).toLocaleString()}
                           </p>
                         </div>
@@ -157,7 +157,7 @@ export function ReportExport() {
                     {job.status === 'processing' && (
                       <div className="mt-2">
                         <Progress value={job.progress} maxValue={100} className="h-2" aria-label={`Export job progress ${job.progress}%`} />
-                        <p className="text-xs text-[var(--app-text-subtle)] mt-1">
+                        <p className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle mt-1">
                           {job.progress}% complete
                         </p>
                       </div>
@@ -186,8 +186,8 @@ export function ReportExport() {
                         onClick={() => patchUI({ exportFormat: format })}
                         className={`p-3 rounded-lg border-2 transition-all ${
                           exportFormat === format
-                            ? 'border-[var(--app-primary)] bg-[var(--app-primary-bg)]'
-                            : 'border-[var(--app-border)] hover:border-[var(--app-primary)]'
+                            ? 'border-app-primary dark:border-app-dark-primary bg-app-primary-bg dark:bg-app-dark-primary-bg'
+                            : 'border-app-border dark:border-app-dark-border hover:border-app-primary dark:hover:border-app-dark-primary'
                         }`}
                       >
                         <div className="flex flex-col items-center gap-1">
@@ -207,21 +207,21 @@ export function ReportExport() {
                   </label>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <label className="text-xs text-[var(--app-text-muted)] mb-1 block">From</label>
+                      <label className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-1 block">From</label>
                       <input
                         type="date"
                         value={dateRange.start}
                         onChange={(e) => patchUI({ dateRange: { ...dateRange, start: e.target.value } })}
-                        className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+                        className="w-full px-3 py-2 text-sm rounded-lg border border-app-border dark:border-app-dark-border bg-app-surface dark:bg-app-dark-surface text-app-text dark:text-app-dark-text"
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-[var(--app-text-muted)] mb-1 block">To</label>
+                      <label className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-1 block">To</label>
                       <input
                         type="date"
                         value={dateRange.end}
                         onChange={(e) => patchUI({ dateRange: { ...dateRange, end: e.target.value } })}
-                        className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+                        className="w-full px-3 py-2 text-sm rounded-lg border border-app-border dark:border-app-dark-border bg-app-surface dark:bg-app-dark-surface text-app-text dark:text-app-dark-text"
                       />
                     </div>
                   </div>
@@ -240,14 +240,14 @@ export function ReportExport() {
                         onClick={() => toggleSection(section)}
                         className={`w-full text-left p-2 rounded-lg border transition-all ${
                           selectedSections.includes(section)
-                            ? 'border-[var(--app-primary)] bg-[var(--app-primary-bg)]'
-                            : 'border-[var(--app-border)] hover:border-[var(--app-primary)]'
+                            ? 'border-app-primary dark:border-app-dark-primary bg-app-primary-bg dark:bg-app-dark-primary-bg'
+                            : 'border-app-border dark:border-app-dark-border hover:border-app-primary dark:hover:border-app-dark-primary'
                         }`}
                       >
                         <div className="flex items-center justify-between">
                           <span className="text-sm">{section}</span>
                           {selectedSections.includes(section) && (
-                            <Check className="w-4 h-4 text-[var(--app-primary)]" />
+                            <Check className="w-4 h-4 text-app-primary dark:text-app-dark-primary" />
                           )}
                         </div>
                       </button>
@@ -265,7 +265,7 @@ export function ReportExport() {
                     <button
                       onClick={() => patchUI({ scheduleEnabled: !scheduleEnabled })}
                       className={`w-12 h-6 rounded-full transition-colors ${
-                        scheduleEnabled ? 'bg-[var(--app-primary)]' : 'bg-[var(--app-border)]'
+                        scheduleEnabled ? 'bg-app-primary dark:bg-app-dark-primary' : 'bg-app-border dark:bg-app-dark-border'
                       }`}
                     >
                       <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
@@ -275,12 +275,12 @@ export function ReportExport() {
                   </div>
                   {scheduleEnabled && (
                     <div className="space-y-2">
-                      <select className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]">
+                      <select className="w-full px-3 py-2 text-sm rounded-lg border border-app-border dark:border-app-dark-border bg-app-surface dark:bg-app-dark-surface text-app-text dark:text-app-dark-text">
                         <option>Weekly</option>
                         <option>Monthly</option>
                         <option>Quarterly</option>
                       </select>
-                      <div className="p-2 rounded-lg bg-[var(--app-info-bg)] text-xs text-[var(--app-info)]">
+                      <div className="p-2 rounded-lg bg-app-info-bg dark:bg-app-dark-info-bg text-xs text-app-info dark:text-app-dark-info">
                         Report will be automatically generated and emailed
                       </div>
                     </div>
@@ -308,15 +308,15 @@ export function ReportExport() {
                 </div>
 
                 {/* Info */}
-                <div className="p-3 rounded-lg bg-[var(--app-surface-hover)] text-xs text-[var(--app-text-muted)]">
+                <div className="p-3 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover text-xs text-app-text-muted dark:text-app-dark-text-muted">
                   <Clock className="w-4 h-4 mb-1" />
                   Estimated generation time: 2-5 minutes
                 </div>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-12">
-                <FileText className="w-12 h-12 text-[var(--app-text-subtle)] mb-3" />
-                <p className="text-center text-sm text-[var(--app-text-muted)]">
+                <FileText className="w-12 h-12 text-app-text-subtle dark:text-app-dark-text-subtle mb-3" />
+                <p className="text-center text-sm text-app-text-muted dark:text-app-dark-text-muted">
                   Select a report template to configure export options
                 </p>
               </div>

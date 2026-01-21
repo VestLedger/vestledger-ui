@@ -38,7 +38,7 @@ export function AuditorDashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold">Auditor View</h2>
-          <p className="text-sm text-[var(--app-text-muted)]">Compliance records, audit trails, and reports</p>
+          <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Compliance records, audit trails, and reports</p>
         </div>
         <div className="flex gap-2">
           <Button variant="bordered" startContent={<Search className="w-4 h-4" />}>
@@ -63,18 +63,18 @@ export function AuditorDashboard() {
            </div>
            <div className="space-y-3">
              {auditTrail.map((entry, idx) => (
-               <div key={idx} className="flex items-center justify-between p-3 rounded-lg border border-[var(--app-border-subtle)] hover:bg-[var(--app-surface-hover)] transition-colors">
+               <div key={idx} className="flex items-center justify-between p-3 rounded-lg border border-app-border-subtle dark:border-app-dark-border-subtle hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover transition-colors">
                  <div className="flex items-center gap-3">
-                   <div className="w-10 h-10 rounded-lg bg-[var(--app-success-bg)] flex items-center justify-center text-[var(--app-success)]">
+                   <div className="w-10 h-10 rounded-lg bg-app-success-bg dark:bg-app-dark-success-bg flex items-center justify-center text-app-success dark:text-app-dark-success">
                      <CheckCircle2 className="w-5 h-5" />
                    </div>
                    <div>
                      <div className="font-medium text-sm">{entry.action}</div>
-                     <div className="text-xs text-[var(--app-text-muted)]">{entry.fund} • {entry.date}</div>
+                     <div className="text-xs text-app-text-muted dark:text-app-dark-text-muted">{entry.fund} • {entry.date}</div>
                    </div>
                  </div>
                  <div className="text-right">
-                   <code className="text-xs bg-[var(--app-surface-hover)] px-2 py-1 rounded text-[var(--app-primary)]">
+                   <code className="text-xs bg-app-surface-hover dark:bg-app-dark-surface-hover px-2 py-1 rounded text-app-primary dark:text-app-dark-primary">
                      {entry.hash}
                    </code>
                  </div>
@@ -93,7 +93,7 @@ export function AuditorDashboard() {
               <div key={i} className="flex items-center justify-between p-2">
                  <div>
                    <div className="text-sm font-medium">{item.item}</div>
-                   <div className="text-xs text-[var(--app-text-muted)]">{item.lastCheck}</div>
+                   <div className="text-xs text-app-text-muted dark:text-app-dark-text-muted">{item.lastCheck}</div>
                  </div>
                  <Badge size="sm" variant="flat" color={item.status === 'Passed' ? 'success' : 'warning'}>
                    {item.status}

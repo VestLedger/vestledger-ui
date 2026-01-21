@@ -16,10 +16,10 @@ export function FundSelector() {
 
   const getFundStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'text-[var(--app-success)] border-[var(--app-success)]';
-      case 'closed': return 'text-[var(--app-text-muted)] border-[var(--app-border)]';
-      case 'fundraising': return 'text-[var(--app-warning)] border-[var(--app-warning)]';
-      default: return 'text-[var(--app-text-muted)] border-[var(--app-border)]';
+      case 'active': return 'text-app-success dark:text-app-dark-success border-app-success dark:border-app-dark-success';
+      case 'closed': return 'text-app-text-muted dark:text-app-dark-text-muted border-app-border dark:border-app-dark-border';
+      case 'fundraising': return 'text-app-warning dark:text-app-dark-warning border-app-warning dark:border-app-dark-warning';
+      default: return 'text-app-text-muted dark:text-app-dark-text-muted border-app-border dark:border-app-dark-border';
     }
   };
 
@@ -42,7 +42,7 @@ export function FundSelector() {
       {/* Current Selection Button */}
       <Button
         variant="flat"
-        className="w-full justify-between bg-[var(--app-surface-hover)] hover:bg-[var(--app-border-subtle)] text-left"
+        className="w-full justify-between bg-app-surface-hover dark:bg-app-dark-surface-hover hover:bg-app-border-subtle dark:hover:bg-app-dark-border-subtle text-left"
         endContent={<ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />}
         onPress={() => patchUI({ isOpen: !isOpen })}
         aria-label="Select fund"
@@ -50,12 +50,12 @@ export function FundSelector() {
         <div className="flex items-center gap-2 flex-1 min-w-0">
           {viewMode === 'consolidated' ? (
             <>
-              <Layers className="w-4 h-4 text-[var(--app-primary)] flex-shrink-0" />
+              <Layers className="w-4 h-4 text-app-primary dark:text-app-dark-primary flex-shrink-0" />
               <span className="truncate text-sm">All Funds</span>
             </>
           ) : (
             <>
-              <BarChart3 className="w-4 h-4 text-[var(--app-primary)] flex-shrink-0" />
+              <BarChart3 className="w-4 h-4 text-app-primary dark:text-app-dark-primary flex-shrink-0" />
               <span className="truncate text-sm">{selectedFund?.displayName || 'Select Fund'}</span>
             </>
           )}
@@ -71,8 +71,8 @@ export function FundSelector() {
               <button
                 className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
                   viewMode === 'consolidated'
-                    ? 'bg-[var(--app-primary-bg)] text-[var(--app-primary)]'
-                    : 'hover:bg-[var(--app-surface-hover)]'
+                    ? 'bg-app-primary-bg dark:bg-app-dark-primary-bg text-app-primary dark:text-app-dark-primary'
+                    : 'hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover'
                 }`}
                 onClick={handleConsolidatedView}
               >
@@ -81,7 +81,7 @@ export function FundSelector() {
                     <Layers className="w-4 h-4" />
                     <div>
                       <div className="text-sm font-medium">All Funds (Consolidated)</div>
-                      <div className="text-xs text-[var(--app-text-muted)]">
+                      <div className="text-xs text-app-text-muted dark:text-app-dark-text-muted">
                         {summary.totalFunds} funds • {formatCurrencyCompact(summary.totalCommitment)} AUM
                       </div>
                     </div>
@@ -90,7 +90,7 @@ export function FundSelector() {
                 </div>
               </button>
 
-              <div className="my-2 border-t border-[var(--app-border)]" />
+              <div className="my-2 border-t border-app-border dark:border-app-dark-border" />
 
               {/* Individual Funds */}
               {funds.map((fund) => (
@@ -98,8 +98,8 @@ export function FundSelector() {
                   key={fund.id}
                   className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
                     selectedFund?.id === fund.id && viewMode === 'individual'
-                      ? 'bg-[var(--app-primary-bg)] text-[var(--app-primary)]'
-                      : 'hover:bg-[var(--app-surface-hover)]'
+                      ? 'bg-app-primary-bg dark:bg-app-dark-primary-bg text-app-primary dark:text-app-dark-primary'
+                      : 'hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover'
                   }`}
                   onClick={() => handleFundSelect(fund)}
                 >
@@ -115,10 +115,10 @@ export function FundSelector() {
                           {fund.status}
                         </Badge>
                       </div>
-                      <div className="text-xs text-[var(--app-text-muted)]">
+                      <div className="text-xs text-app-text-muted dark:text-app-dark-text-muted">
                         {formatCurrencyCompact(fund.totalCommitment)} • {fund.portfolioCount} companies
                       </div>
-                      <div className="text-xs text-[var(--app-text-subtle)]">
+                      <div className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle">
                         IRR: {fund.irr.toFixed(1)}% • TVPI: {fund.tvpi.toFixed(2)}x
                       </div>
                     </div>

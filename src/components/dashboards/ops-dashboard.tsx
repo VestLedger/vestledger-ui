@@ -38,7 +38,7 @@ export function OpsDashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold">Operations Center</h2>
-          <p className="text-sm text-[var(--app-text-muted)]">Fund administration and compliance overview</p>
+          <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Fund administration and compliance overview</p>
         </div>
         <div className="flex gap-2">
           <Button variant="bordered" startContent={<Download className="w-4 h-4" />}>
@@ -63,12 +63,12 @@ export function OpsDashboard() {
            </h3>
            <div className="space-y-3">
              {complianceAlerts.map((alert, i) => (
-               <div key={i} className="p-3 bg-[var(--app-surface-hover)]/30 rounded-lg border-l-2 border-amber-500">
+               <div key={i} className="p-3 bg-app-surface-hover/30 dark:bg-app-dark-surface-hover/30 rounded-lg border-l-2 border-amber-500">
                   <div className="flex justify-between items-start">
                     <div className="font-medium text-sm">{alert.title}</div>
                     <Badge size="sm" variant="flat" className="text-[10px]">{alert.fund}</Badge>
                   </div>
-                  <div className="text-xs text-[var(--app-text-muted)] mt-1">{alert.description}</div>
+                  <div className="text-xs text-app-text-muted dark:text-app-dark-text-muted mt-1">{alert.description}</div>
                </div>
              ))}
            </div>
@@ -81,10 +81,10 @@ export function OpsDashboard() {
            </h3>
            <div className="space-y-4">
              {upcomingDistributions.map((dist, i) => (
-               <div key={i} className="flex items-center justify-between pb-3 border-b border-[var(--app-border-subtle)] last:border-0 last:pb-0">
+               <div key={i} className="flex items-center justify-between pb-3 border-b border-app-border-subtle dark:border-app-dark-border-subtle last:border-0 last:pb-0">
                   <div>
                     <div className="font-medium text-sm">{dist.event}</div>
-                    <div className="text-xs text-[var(--app-text-muted)]">{dist.date}</div>
+                    <div className="text-xs text-app-text-muted dark:text-app-dark-text-muted">{dist.date}</div>
                   </div>
                   <div className="text-right">
                     <div className="font-medium">{dist.amount}</div>

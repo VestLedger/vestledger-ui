@@ -38,7 +38,7 @@ export function ResearcherDashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold">Research Hub</h2>
-          <p className="text-sm text-[var(--app-text-muted)]">Analytics, market trends, and benchmarking</p>
+          <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Analytics, market trends, and benchmarking</p>
         </div>
         <div className="flex gap-2">
           <Button variant="bordered" startContent={<Search className="w-4 h-4" />}>
@@ -63,14 +63,14 @@ export function ResearcherDashboard() {
            </div>
            <div className="space-y-4">
              {recentReports.map((report, idx) => (
-               <div key={idx} className="flex items-center justify-between p-3 rounded-lg border border-[var(--app-border-subtle)] hover:bg-[var(--app-surface-hover)] transition-colors">
+               <div key={idx} className="flex items-center justify-between p-3 rounded-lg border border-app-border-subtle dark:border-app-dark-border-subtle hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover transition-colors">
                  <div className="flex items-center gap-3">
-                   <div className="w-10 h-10 rounded-lg bg-[var(--app-primary-bg)] flex items-center justify-center text-[var(--app-primary)]">
+                   <div className="w-10 h-10 rounded-lg bg-app-primary-bg dark:bg-app-dark-primary-bg flex items-center justify-center text-app-primary dark:text-app-dark-primary">
                      <FileText className="w-5 h-5" />
                    </div>
                    <div>
                      <div className="font-medium">{report.name}</div>
-                     <div className="text-xs text-[var(--app-text-muted)]">{report.type} Report • {report.date}</div>
+                     <div className="text-xs text-app-text-muted dark:text-app-dark-text-muted">{report.type} Report • {report.date}</div>
                    </div>
                  </div>
                  <div className="flex items-center gap-3">
@@ -88,7 +88,7 @@ export function ResearcherDashboard() {
 
         <Card padding="md">
           <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-[var(--app-primary)]" />
+            <TrendingUp className="w-5 h-5 text-app-primary dark:text-app-dark-primary" />
             Trending Topics
           </h3>
           <div className="space-y-3">
@@ -97,8 +97,8 @@ export function ResearcherDashboard() {
                  <div>
                    <div className="text-sm font-medium">{item.topic}</div>
                    <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                     item.sentiment === 'Hot' ? 'bg-red-500/10 text-red-500' : 
-                     item.sentiment === 'Rising' ? 'bg-green-500/10 text-green-500' : 
+                     item.sentiment === 'Hot' ? 'bg-red-500/10 text-red-500' :
+                     item.sentiment === 'Rising' ? 'bg-green-500/10 text-green-500' :
                      item.sentiment === 'Mixed' ? 'bg-yellow-500/10 text-yellow-500' :
                      'bg-gray-500/10 text-gray-500'
                    }`}>

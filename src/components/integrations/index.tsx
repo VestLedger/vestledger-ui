@@ -79,15 +79,15 @@ export function Integrations() {
           {filteredIntegrations.map((integration) => {
             const Icon = integrationIconMap[integration.icon];
             return (
-              <Card key={integration.id} padding="lg" className="hover:border-[var(--app-primary)] transition-colors">
+              <Card key={integration.id} padding="lg" className="hover:border-app-primary dark:hover:border-app-dark-primary transition-colors">
                 <div className="flex items-start justify-between mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-[var(--app-primary-bg)] text-[var(--app-primary)] flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-xl bg-app-primary-bg dark:bg-app-dark-primary-bg text-app-primary dark:text-app-dark-primary flex items-center justify-center">
                     <Icon className="w-6 h-6" />
                   </div>
                   <StatusBadge status={integration.status} domain="integrations" size="sm" showIcon />
                 </div>
                 <h3 className="text-lg font-bold mb-2">{integration.name}</h3>
-                <p className="text-[var(--app-text-muted)] text-sm mb-4">
+                <p className="text-app-text-muted dark:text-app-dark-text-muted text-sm mb-4">
                   {integration.description}
                 </p>
                 <div className="flex gap-2">

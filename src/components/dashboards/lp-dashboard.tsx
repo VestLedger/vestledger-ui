@@ -53,7 +53,7 @@ export function LPDashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold">LP Portal</h2>
-          <p className="text-sm text-[var(--app-text-muted)]">Your investment overview and documents</p>
+          <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Your investment overview and documents</p>
         </div>
         <div className="flex gap-2">
           <Button variant="bordered" startContent={<Calendar className="w-4 h-4" />}>
@@ -67,12 +67,12 @@ export function LPDashboard() {
 
       {/* Pending Actions Alert */}
       {(pendingCalls.length > 0 || pendingSignatures.length > 0) && (
-        <Card padding="md" className="border-[var(--app-warning)] bg-[var(--app-warning-bg)]">
+        <Card padding="md" className="border-app-warning dark:border-app-dark-warning bg-app-warning-bg dark:bg-app-dark-warning-bg">
           <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-[var(--app-warning)] flex-shrink-0 mt-0.5" />
+            <AlertCircle className="w-5 h-5 text-app-warning dark:text-app-dark-warning flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <h3 className="font-medium text-[var(--app-warning)]">Action Required</h3>
-              <p className="text-sm text-[var(--app-text-muted)] mt-1">
+              <h3 className="font-medium text-app-warning dark:text-app-dark-warning">Action Required</h3>
+              <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted mt-1">
                 You have {pendingCalls.length} pending capital call{pendingCalls.length !== 1 ? 's' : ''} and{' '}
                 {pendingSignatures.length} document{pendingSignatures.length !== 1 ? 's' : ''} awaiting signature.
               </p>
@@ -90,25 +90,25 @@ export function LPDashboard() {
       <Card padding="md">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-medium flex items-center gap-2">
-            <Wallet className="w-5 h-5 text-[var(--app-primary)]" />
+            <Wallet className="w-5 h-5 text-app-primary dark:text-app-dark-primary" />
             Commitment Status
           </h3>
-          <Badge variant="flat" className="bg-[var(--app-info-bg)] text-[var(--app-info)]">
+          <Badge variant="flat" className="bg-app-info-bg dark:bg-app-dark-info-bg text-app-info dark:text-app-dark-info">
             Fund III
           </Badge>
         </div>
         <div className="grid sm:grid-cols-3 gap-4 mb-4">
           <div>
-            <div className="text-xs text-[var(--app-text-muted)] mb-1">Total Commitment</div>
+            <div className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-1">Total Commitment</div>
             <div className="text-xl font-bold">{formatCurrencyCompact(totalCommitment)}</div>
           </div>
           <div>
-            <div className="text-xs text-[var(--app-text-muted)] mb-1">Called to Date</div>
-            <div className="text-xl font-bold text-[var(--app-success)]">{formatCurrencyCompact(calledAmount)}</div>
+            <div className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-1">Called to Date</div>
+            <div className="text-xl font-bold text-app-success dark:text-app-dark-success">{formatCurrencyCompact(calledAmount)}</div>
           </div>
           <div>
-            <div className="text-xs text-[var(--app-text-muted)] mb-1">Unfunded Commitment</div>
-            <div className="text-xl font-bold text-[var(--app-warning)]">{formatCurrencyCompact(unfundedCommitment)}</div>
+            <div className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-1">Unfunded Commitment</div>
+            <div className="text-xl font-bold text-app-warning dark:text-app-dark-warning">{formatCurrencyCompact(unfundedCommitment)}</div>
           </div>
         </div>
         <div>
@@ -125,7 +125,7 @@ export function LPDashboard() {
         <Card padding="md">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-medium flex items-center gap-2">
-              <CreditCard className="w-5 h-5 text-[var(--app-warning)]" />
+              <CreditCard className="w-5 h-5 text-app-warning dark:text-app-dark-warning" />
               Pending Capital Calls
             </h3>
             {pendingCalls.length > 0 && (
@@ -135,15 +135,15 @@ export function LPDashboard() {
           {pendingCalls.length > 0 ? (
             <div className="space-y-3">
               {pendingCalls.map((call) => (
-                <div key={call.id} className="p-4 rounded-lg border border-[var(--app-warning)] bg-[var(--app-warning-bg)]/30">
+                <div key={call.id} className="p-4 rounded-lg border border-app-warning dark:border-app-dark-warning bg-app-warning-bg/30 dark:bg-app-dark-warning-bg/30">
                   <div className="flex items-start justify-between mb-3">
                     <div>
                       <div className="font-medium">{call.fundName}</div>
-                      <div className="text-sm text-[var(--app-text-muted)]">Capital Call #{call.callNumber}</div>
+                      <div className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Capital Call #{call.callNumber}</div>
                     </div>
                     <Badge
                       size="sm"
-                      className={call.status === 'overdue' ? 'bg-[var(--app-danger-bg)] text-[var(--app-danger)]' : 'bg-[var(--app-warning-bg)] text-[var(--app-warning)]'}
+                      className={call.status === 'overdue' ? 'bg-app-danger-bg dark:bg-app-dark-danger-bg text-app-danger dark:text-app-dark-danger' : 'bg-app-warning-bg dark:bg-app-dark-warning-bg text-app-warning dark:text-app-dark-warning'}
                     >
                       <Clock className="w-3 h-3 mr-1" />
                       {getDaysUntilDue(call.dueDate)}
@@ -152,7 +152,7 @@ export function LPDashboard() {
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="text-2xl font-bold">{formatCurrencyCompact(call.amount)}</div>
-                      <div className="text-xs text-[var(--app-text-muted)]">Due: {call.dueDate.toLocaleDateString()}</div>
+                      <div className="text-xs text-app-text-muted dark:text-app-dark-text-muted">Due: {call.dueDate.toLocaleDateString()}</div>
                     </div>
                     <Button color="primary" startContent={<CreditCard className="w-4 h-4" />}>
                       Pay Now
@@ -162,7 +162,7 @@ export function LPDashboard() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-[var(--app-text-muted)]">
+            <div className="text-center py-8 text-app-text-muted dark:text-app-dark-text-muted">
               <CheckCircle2 className="w-12 h-12 mx-auto mb-3 opacity-30" />
               <p className="text-sm">No pending capital calls</p>
             </div>
@@ -173,7 +173,7 @@ export function LPDashboard() {
         <Card padding="md">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-medium flex items-center gap-2">
-              <Pen className="w-5 h-5 text-[var(--app-primary)]" />
+              <Pen className="w-5 h-5 text-app-primary dark:text-app-dark-primary" />
               Documents Awaiting Signature
             </h3>
             {pendingSignatures.length > 0 && (
@@ -183,26 +183,26 @@ export function LPDashboard() {
           {pendingSignatures.length > 0 ? (
             <div className="space-y-3">
               {pendingSignatures.map((sig) => (
-                <div key={sig.id} className="p-4 rounded-lg border border-[var(--app-border)] hover:border-[var(--app-primary)] transition-colors">
+                <div key={sig.id} className="p-4 rounded-lg border border-app-border dark:border-app-dark-border hover:border-app-primary dark:hover:border-app-dark-primary transition-colors">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-[var(--app-primary-bg)] flex items-center justify-center">
-                        <FileText className="w-5 h-5 text-[var(--app-primary)]" />
+                      <div className="w-10 h-10 rounded-lg bg-app-primary-bg dark:bg-app-dark-primary-bg flex items-center justify-center">
+                        <FileText className="w-5 h-5 text-app-primary dark:text-app-dark-primary" />
                       </div>
                       <div>
                         <div className="font-medium text-sm">{sig.documentName}</div>
-                        <div className="text-xs text-[var(--app-text-muted)]">{sig.documentType}</div>
+                        <div className="text-xs text-app-text-muted dark:text-app-dark-text-muted">{sig.documentType}</div>
                       </div>
                     </div>
                     <Badge
                       size="sm"
-                      className={sig.urgency === 'high' ? 'bg-[var(--app-danger-bg)] text-[var(--app-danger)]' : 'bg-[var(--app-info-bg)] text-[var(--app-info)]'}
+                      className={sig.urgency === 'high' ? 'bg-app-danger-bg dark:bg-app-dark-danger-bg text-app-danger dark:text-app-dark-danger' : 'bg-app-info-bg dark:bg-app-dark-info-bg text-app-info dark:text-app-dark-info'}
                     >
                       {sig.urgency} priority
                     </Badge>
                   </div>
                   <div className="flex items-center justify-between">
-                    <div className="text-xs text-[var(--app-text-muted)]">
+                    <div className="text-xs text-app-text-muted dark:text-app-dark-text-muted">
                       Requested: {sig.requestedDate.toLocaleDateString()}
                     </div>
                     <Button size="sm" color="primary" startContent={<Pen className="w-3 h-3" />}>
@@ -213,7 +213,7 @@ export function LPDashboard() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-[var(--app-text-muted)]">
+            <div className="text-center py-8 text-app-text-muted dark:text-app-dark-text-muted">
               <CheckCircle2 className="w-12 h-12 mx-auto mb-3 opacity-30" />
               <p className="text-sm">No documents awaiting signature</p>
             </div>
@@ -229,14 +229,14 @@ export function LPDashboard() {
            </div>
            <div className="space-y-3">
              {documents.map((doc, idx) => (
-               <div key={idx} className="flex items-center justify-between p-3 rounded-lg border border-[var(--app-border-subtle)] hover:bg-[var(--app-surface-hover)] transition-colors">
+               <div key={idx} className="flex items-center justify-between p-3 rounded-lg border border-app-border-subtle dark:border-app-dark-border-subtle hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover transition-colors">
                  <div className="flex items-center gap-3">
-                   <div className="w-10 h-10 rounded-lg bg-[var(--app-primary-bg)] flex items-center justify-center text-[var(--app-primary)]">
+                   <div className="w-10 h-10 rounded-lg bg-app-primary-bg dark:bg-app-dark-primary-bg flex items-center justify-center text-app-primary dark:text-app-dark-primary">
                      <FileText className="w-5 h-5" />
                    </div>
                    <div>
                      <div className="font-medium text-sm">{doc.name}</div>
-                     <div className="text-xs text-[var(--app-text-muted)]">{doc.type} • {doc.date}</div>
+                     <div className="text-xs text-app-text-muted dark:text-app-dark-text-muted">{doc.type} • {doc.date}</div>
                    </div>
                  </div>
                  <Button size="sm" variant="light" isIconOnly aria-label={`Download ${doc.name}`}>
@@ -254,10 +254,10 @@ export function LPDashboard() {
           </h3>
           <div className="space-y-3">
             {capitalActivity.map((item, i) => (
-              <div key={i} className="flex items-center justify-between p-3 rounded-lg border border-[var(--app-border-subtle)]">
+              <div key={i} className="flex items-center justify-between p-3 rounded-lg border border-app-border-subtle dark:border-app-dark-border-subtle">
                  <div>
                    <div className="text-sm font-medium">{item.type}</div>
-                   <div className="text-xs text-[var(--app-text-muted)]">{item.date}</div>
+                   <div className="text-xs text-app-text-muted dark:text-app-dark-text-muted">{item.date}</div>
                  </div>
                  <div className="text-right">
                    <div className={`font-medium ${item.type === 'Distribution' ? 'text-green-500' : ''}`}>{item.amount}</div>
@@ -272,14 +272,14 @@ export function LPDashboard() {
       </div>
 
       {/* Blockchain Verification Badge */}
-      <Card padding="md" className="bg-gradient-to-r from-[var(--app-primary-bg)] to-[var(--app-surface)]">
+      <Card padding="md" className="bg-gradient-to-r from-app-primary-bg dark:from-app-dark-primary-bg to-app-surface dark:to-app-dark-surface">
         <div className="flex items-center gap-4">
-          <div className="p-3 rounded-xl bg-[var(--app-primary)]">
+          <div className="p-3 rounded-xl bg-app-primary dark:bg-app-dark-primary">
             <Shield className="w-6 h-6 text-white" />
           </div>
           <div className="flex-1">
             <h3 className="font-medium">Blockchain-Verified Records</h3>
-            <p className="text-sm text-[var(--app-text-muted)]">
+            <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">
               All your capital activity and ownership records are cryptographically secured on VestLedger&apos;s private blockchain.
             </p>
           </div>

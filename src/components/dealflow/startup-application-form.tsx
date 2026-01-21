@@ -85,11 +85,11 @@ export function StartupApplicationForm({ embedded = false }: { embedded?: boolea
     return (
       <Card padding="lg" className="max-w-2xl mx-auto">
         <div className="text-center py-12">
-          <div className="w-16 h-16 rounded-full bg-[var(--app-success-bg)] flex items-center justify-center mx-auto mb-4">
-            <CheckCircle2 className="w-8 h-8 text-[var(--app-success)]" />
+          <div className="w-16 h-16 rounded-full bg-app-success-bg dark:bg-app-dark-success-bg flex items-center justify-center mx-auto mb-4">
+            <CheckCircle2 className="w-8 h-8 text-app-success dark:text-app-dark-success" />
           </div>
           <h3 className="text-2xl font-bold mb-2">Application Submitted!</h3>
-          <p className="text-[var(--app-text-muted)] mb-6">
+          <p className="text-app-text-muted dark:text-app-dark-text-muted mb-6">
             Thank you for your interest. Our team will review your application and get back to you within 5-7 business days.
           </p>
           <div className="flex justify-center gap-3">
@@ -114,7 +114,7 @@ export function StartupApplicationForm({ embedded = false }: { embedded?: boolea
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-2xl font-bold mb-2">Startup Application Form</h2>
-              <p className="text-[var(--app-text-muted)]">
+              <p className="text-app-text-muted dark:text-app-dark-text-muted">
                 Embeddable form to capture startup applications directly into your dealflow
               </p>
             </div>
@@ -128,11 +128,11 @@ export function StartupApplicationForm({ embedded = false }: { embedded?: boolea
           </div>
 
           {showEmbedCode && (
-            <Card padding="md" className="mb-6 bg-[var(--app-surface-hover)]">
+            <Card padding="md" className="mb-6 bg-app-surface-hover dark:bg-app-dark-surface-hover">
               <div className="flex items-start justify-between gap-4 mb-2">
                 <div>
                   <h4 className="font-medium mb-1">Embed on Your Website</h4>
-                  <p className="text-xs text-[var(--app-text-muted)]">
+                  <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">
                     Copy this code and paste it into your website to embed the application form
                   </p>
                 </div>
@@ -145,7 +145,7 @@ export function StartupApplicationForm({ embedded = false }: { embedded?: boolea
                   Copy
                 </Button>
               </div>
-              <pre className="bg-[var(--app-surface)] p-4 rounded-lg text-xs overflow-x-auto border border-[var(--app-border)]">
+              <pre className="bg-app-surface dark:bg-app-dark-surface p-4 rounded-lg text-xs overflow-x-auto border border-app-border dark:border-app-dark-border">
                 <code>{embedCode}</code>
               </pre>
             </Card>
@@ -158,7 +158,7 @@ export function StartupApplicationForm({ embedded = false }: { embedded?: boolea
           {/* Company Information */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <Building2 className="w-5 h-5 text-[var(--app-primary)]" />
+              <Building2 className="w-5 h-5 text-app-primary dark:text-app-dark-primary" />
               <h3 className="font-semibold">Company Information</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -174,7 +174,7 @@ export function StartupApplicationForm({ embedded = false }: { embedded?: boolea
                 placeholder="https://acme.com"
                 value={formData.website}
                 onChange={(e) => handleChange('website', e.target.value)}
-                startContent={<Globe className="w-4 h-4 text-[var(--app-text-subtle)]" />}
+                startContent={<Globe className="w-4 h-4 text-app-text-subtle dark:text-app-dark-text-subtle" />}
               />
               <Input
                 label="One-Liner *"
@@ -190,7 +190,7 @@ export function StartupApplicationForm({ embedded = false }: { embedded?: boolea
           {/* Founder Information */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <User className="w-5 h-5 text-[var(--app-primary)]" />
+              <User className="w-5 h-5 text-app-primary dark:text-app-dark-primary" />
               <h3 className="font-semibold">Founder Information</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -207,7 +207,7 @@ export function StartupApplicationForm({ embedded = false }: { embedded?: boolea
                 placeholder="john@acme.com"
                 value={formData.founderEmail}
                 onChange={(e) => handleChange('founderEmail', e.target.value)}
-                startContent={<Mail className="w-4 h-4 text-[var(--app-text-subtle)]" />}
+                startContent={<Mail className="w-4 h-4 text-app-text-subtle dark:text-app-dark-text-subtle" />}
                 required
               />
               <Input
@@ -223,14 +223,14 @@ export function StartupApplicationForm({ embedded = false }: { embedded?: boolea
           {/* Company Details */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <TrendingUp className="w-5 h-5 text-[var(--app-primary)]" />
+              <TrendingUp className="w-5 h-5 text-app-primary dark:text-app-dark-primary" />
               <h3 className="font-semibold">Company Details</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm text-[var(--app-text-muted)] mb-2 block">Sector *</label>
+                <label className="text-sm text-app-text-muted dark:text-app-dark-text-muted mb-2 block">Sector *</label>
                 <select
-                  className="w-full px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+                  className="w-full px-3 py-2 rounded-lg border border-app-border bg-app-surface text-app-text dark:border-app-dark-border dark:bg-app-dark-surface dark:text-app-dark-text"
                   value={formData.sector}
                   onChange={(e) => handleChange('sector', e.target.value)}
                   required
@@ -246,9 +246,9 @@ export function StartupApplicationForm({ embedded = false }: { embedded?: boolea
                 </select>
               </div>
               <div>
-                <label className="text-sm text-[var(--app-text-muted)] mb-2 block">Stage *</label>
+                <label className="text-sm text-app-text-muted dark:text-app-dark-text-muted mb-2 block">Stage *</label>
                 <select
-                  className="w-full px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+                  className="w-full px-3 py-2 rounded-lg border border-app-border bg-app-surface text-app-text dark:border-app-dark-border dark:bg-app-dark-surface dark:text-app-dark-text"
                   value={formData.stage}
                   onChange={(e) => handleChange('stage', e.target.value)}
                   required
@@ -266,21 +266,21 @@ export function StartupApplicationForm({ embedded = false }: { embedded?: boolea
                 placeholder="$2M"
                 value={formData.fundingAmount}
                 onChange={(e) => handleChange('fundingAmount', e.target.value)}
-                startContent={<DollarSign className="w-4 h-4 text-[var(--app-text-subtle)]" />}
+                startContent={<DollarSign className="w-4 h-4 text-app-text-subtle dark:text-app-dark-text-subtle" />}
               />
               <Input
                 label="Current ARR/Revenue"
                 placeholder="$500k"
                 value={formData.currentRevenue}
                 onChange={(e) => handleChange('currentRevenue', e.target.value)}
-                startContent={<DollarSign className="w-4 h-4 text-[var(--app-text-subtle)]" />}
+                startContent={<DollarSign className="w-4 h-4 text-app-text-subtle dark:text-app-dark-text-subtle" />}
               />
               <Input
                 label="Team Size"
                 placeholder="5"
                 value={formData.teamSize}
                 onChange={(e) => handleChange('teamSize', e.target.value)}
-                startContent={<Users className="w-4 h-4 text-[var(--app-text-subtle)]" />}
+                startContent={<Users className="w-4 h-4 text-app-text-subtle dark:text-app-dark-text-subtle" />}
               />
               <Input
                 label="Location"
@@ -294,14 +294,14 @@ export function StartupApplicationForm({ embedded = false }: { embedded?: boolea
           {/* Pitch & Details */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <FileText className="w-5 h-5 text-[var(--app-primary)]" />
+              <FileText className="w-5 h-5 text-app-primary dark:text-app-dark-primary" />
               <h3 className="font-semibold">Pitch & Details</h3>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="text-sm text-[var(--app-text-muted)] mb-2 block">Problem You&apos;re Solving *</label>
+                <label className="text-sm text-app-text-muted dark:text-app-dark-text-muted mb-2 block">Problem You&apos;re Solving *</label>
                 <textarea
-                  className="w-full px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] min-h-[80px]"
+                  className="w-full px-3 py-2 rounded-lg border border-app-border bg-app-surface text-app-text dark:border-app-dark-border dark:bg-app-dark-surface dark:text-app-dark-text min-h-[80px]"
                   placeholder="Describe the problem your startup is addressing..."
                   value={formData.problem}
                   onChange={(e) => handleChange('problem', e.target.value)}
@@ -309,9 +309,9 @@ export function StartupApplicationForm({ embedded = false }: { embedded?: boolea
                 />
               </div>
               <div>
-                <label className="text-sm text-[var(--app-text-muted)] mb-2 block">Your Solution *</label>
+                <label className="text-sm text-app-text-muted dark:text-app-dark-text-muted mb-2 block">Your Solution *</label>
                 <textarea
-                  className="w-full px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] min-h-[80px]"
+                  className="w-full px-3 py-2 rounded-lg border border-app-border bg-app-surface text-app-text dark:border-app-dark-border dark:bg-app-dark-surface dark:text-app-dark-text min-h-[80px]"
                   placeholder="Explain how your product/service solves this problem..."
                   value={formData.solution}
                   onChange={(e) => handleChange('solution', e.target.value)}
@@ -319,9 +319,9 @@ export function StartupApplicationForm({ embedded = false }: { embedded?: boolea
                 />
               </div>
               <div>
-                <label className="text-sm text-[var(--app-text-muted)] mb-2 block">Traction & Key Metrics</label>
+                <label className="text-sm text-app-text-muted dark:text-app-dark-text-muted mb-2 block">Traction & Key Metrics</label>
                 <textarea
-                  className="w-full px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] min-h-[80px]"
+                  className="w-full px-3 py-2 rounded-lg border border-app-border bg-app-surface text-app-text dark:border-app-dark-border dark:bg-app-dark-surface dark:text-app-dark-text min-h-[80px]"
                   placeholder="Share any traction, metrics, or milestones (users, revenue, partnerships, etc.)"
                   value={formData.traction}
                   onChange={(e) => handleChange('traction', e.target.value)}
@@ -332,14 +332,14 @@ export function StartupApplicationForm({ embedded = false }: { embedded?: boolea
                 placeholder="https://docsend.com/..."
                 value={formData.pitchDeckUrl}
                 onChange={(e) => handleChange('pitchDeckUrl', e.target.value)}
-                startContent={<FileText className="w-4 h-4 text-[var(--app-text-subtle)]" />}
+                startContent={<FileText className="w-4 h-4 text-app-text-subtle dark:text-app-dark-text-subtle" />}
               />
             </div>
           </div>
 
           {/* Submit */}
-          <div className="flex items-center justify-between pt-4 border-t border-[var(--app-border)]">
-            <p className="text-xs text-[var(--app-text-subtle)]">
+          <div className="flex items-center justify-between pt-4 border-t border-app-border dark:border-app-dark-border">
+            <p className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle">
               * Required fields
             </p>
             <Button
@@ -356,12 +356,12 @@ export function StartupApplicationForm({ embedded = false }: { embedded?: boolea
       </Card>
 
       {!embedded && (
-        <Card padding="md" className="mt-4 bg-[var(--app-info-bg)] border-[var(--app-info)]/20">
+        <Card padding="md" className="mt-4 bg-app-info-bg dark:bg-app-dark-info-bg border-app-info/20 dark:border-app-dark-info/20">
           <div className="flex items-start gap-2">
-            <FileText className="w-4 h-4 text-[var(--app-info)] mt-0.5 flex-shrink-0" />
+            <FileText className="w-4 h-4 text-app-info dark:text-app-dark-info mt-0.5 flex-shrink-0" />
             <div>
-              <p className="text-sm font-medium text-[var(--app-info)] mb-1">Automatic Dealflow Integration</p>
-              <p className="text-xs text-[var(--app-text-muted)]">
+              <p className="text-sm font-medium text-app-info dark:text-app-dark-info mb-1">Automatic Dealflow Integration</p>
+              <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">
                 Submissions from this form automatically populate your VestLedger dealflow pipeline in the &quot;Sourced&quot; stage.
                 You&apos;ll receive email notifications for new applications and can configure auto-categorization rules.
               </p>

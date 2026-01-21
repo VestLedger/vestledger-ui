@@ -39,13 +39,13 @@ export function Compliance() {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'high':
-        return 'text-[var(--app-danger)]';
+        return 'text-app-danger dark:text-app-dark-danger';
       case 'medium':
-        return 'text-[var(--app-warning)]';
+        return 'text-app-warning dark:text-app-dark-warning';
       case 'low':
-        return 'text-[var(--app-info)]';
+        return 'text-app-info dark:text-app-dark-info';
       default:
-        return 'text-[var(--app-text-muted)]';
+        return 'text-app-text-muted dark:text-app-dark-text-muted';
     }
   };
 
@@ -169,34 +169,34 @@ export function Compliance() {
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-4 flex-1">
                       <div className={`p-3 rounded-lg ${
-                        item.status === 'overdue' ? 'bg-[var(--app-danger-bg)]' :
-                        item.status === 'in-progress' ? 'bg-[var(--app-warning-bg)]' :
-                        item.status === 'completed' ? 'bg-[var(--app-success-bg)]' :
-                        'bg-[var(--app-info-bg)]'
+                        item.status === 'overdue' ? 'bg-app-danger-bg dark:bg-app-dark-danger-bg' :
+                        item.status === 'in-progress' ? 'bg-app-warning-bg dark:bg-app-dark-warning-bg' :
+                        item.status === 'completed' ? 'bg-app-success-bg dark:bg-app-dark-success-bg' :
+                        'bg-app-info-bg dark:bg-app-dark-info-bg'
                       }`}>
                         {item.type === 'filing' && <FileText className={`w-6 h-6 ${
-                          item.status === 'overdue' ? 'text-[var(--app-danger)]' :
-                          item.status === 'in-progress' ? 'text-[var(--app-warning)]' :
-                          item.status === 'completed' ? 'text-[var(--app-success)]' :
-                          'text-[var(--app-info)]'
+                          item.status === 'overdue' ? 'text-app-danger dark:text-app-dark-danger' :
+                          item.status === 'in-progress' ? 'text-app-warning dark:text-app-dark-warning' :
+                          item.status === 'completed' ? 'text-app-success dark:text-app-dark-success' :
+                          'text-app-info dark:text-app-dark-info'
                         }`} />}
                         {item.type === 'report' && <FileText className={`w-6 h-6 ${
-                          item.status === 'overdue' ? 'text-[var(--app-danger)]' :
-                          item.status === 'in-progress' ? 'text-[var(--app-warning)]' :
-                          item.status === 'completed' ? 'text-[var(--app-success)]' :
-                          'text-[var(--app-info)]'
+                          item.status === 'overdue' ? 'text-app-danger dark:text-app-dark-danger' :
+                          item.status === 'in-progress' ? 'text-app-warning dark:text-app-dark-warning' :
+                          item.status === 'completed' ? 'text-app-success dark:text-app-dark-success' :
+                          'text-app-info dark:text-app-dark-info'
                         }`} />}
                         {item.type === 'certification' && <Shield className={`w-6 h-6 ${
-                          item.status === 'overdue' ? 'text-[var(--app-danger)]' :
-                          item.status === 'in-progress' ? 'text-[var(--app-warning)]' :
-                          item.status === 'completed' ? 'text-[var(--app-success)]' :
-                          'text-[var(--app-info)]'
+                          item.status === 'overdue' ? 'text-app-danger dark:text-app-dark-danger' :
+                          item.status === 'in-progress' ? 'text-app-warning dark:text-app-dark-warning' :
+                          item.status === 'completed' ? 'text-app-success dark:text-app-dark-success' :
+                          'text-app-info dark:text-app-dark-info'
                         }`} />}
                         {item.type === 'audit' && <Scale className={`w-6 h-6 ${
-                          item.status === 'overdue' ? 'text-[var(--app-danger)]' :
-                          item.status === 'in-progress' ? 'text-[var(--app-warning)]' :
-                          item.status === 'completed' ? 'text-[var(--app-success)]' :
-                          'text-[var(--app-info)]'
+                          item.status === 'overdue' ? 'text-app-danger dark:text-app-dark-danger' :
+                          item.status === 'in-progress' ? 'text-app-warning dark:text-app-dark-warning' :
+                          item.status === 'completed' ? 'text-app-success dark:text-app-dark-success' :
+                          'text-app-info dark:text-app-dark-info'
                         }`} />}
                       </div>
                       <div className="flex-1">
@@ -208,9 +208,9 @@ export function Compliance() {
                           </Badge>
                         </div>
 
-                        <p className="text-sm text-[var(--app-text-muted)] mb-3">{item.description}</p>
+                        <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted mb-3">{item.description}</p>
 
-                        <div className="flex items-center gap-4 text-sm text-[var(--app-text-subtle)]">
+                        <div className="flex items-center gap-4 text-sm text-app-text-subtle dark:text-app-dark-text-subtle">
                           <div className="flex items-center gap-1">
                             <Calendar className="w-4 h-4" />
                             <span>Due: {new Date(item.dueDate).toLocaleDateString()}</span>
@@ -249,7 +249,7 @@ export function Compliance() {
               <h3 className="font-semibold mb-4">Required Filings</h3>
               <div className="space-y-3">
                 {regulatoryFilings.map((filing) => (
-                  <div key={filing.id} className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
+                  <div key={filing.id} className="p-4 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
@@ -259,23 +259,23 @@ export function Compliance() {
 
                         <div className="grid grid-cols-5 gap-4 text-sm">
                           <div>
-                            <p className="text-[var(--app-text-muted)]">Regulator</p>
+                            <p className="text-app-text-muted dark:text-app-dark-text-muted">Regulator</p>
                             <p className="font-medium">{filing.regulator}</p>
                           </div>
                           <div>
-                            <p className="text-[var(--app-text-muted)]">Frequency</p>
+                            <p className="text-app-text-muted dark:text-app-dark-text-muted">Frequency</p>
                             <p className="font-medium">{filing.frequency}</p>
                           </div>
                           <div>
-                            <p className="text-[var(--app-text-muted)]">Last Filed</p>
+                            <p className="text-app-text-muted dark:text-app-dark-text-muted">Last Filed</p>
                             <p className="font-medium">{new Date(filing.lastFiled).toLocaleDateString()}</p>
                           </div>
                           <div>
-                            <p className="text-[var(--app-text-muted)]">Next Due</p>
+                            <p className="text-app-text-muted dark:text-app-dark-text-muted">Next Due</p>
                             <p className="font-medium">{filing.nextDue !== 'N/A' ? new Date(filing.nextDue).toLocaleDateString() : 'N/A'}</p>
                           </div>
                           <div>
-                            <p className="text-[var(--app-text-muted)]">Fund</p>
+                            <p className="text-app-text-muted dark:text-app-dark-text-muted">Fund</p>
                             <p className="font-medium">{filing.fundName}</p>
                           </div>
                         </div>
@@ -299,14 +299,14 @@ export function Compliance() {
               <h3 className="font-semibold mb-4">Audit Schedule</h3>
               <div className="space-y-3">
                 {auditSchedule.map((audit) => (
-                  <div key={audit.id} className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
+                  <div key={audit.id} className="p-4 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
                     <div className="flex items-start justify-between mb-3">
                       <div>
                         <div className="flex items-center gap-2 mb-1">
                           <h4 className="font-semibold">{audit.auditType} - {audit.year}</h4>
                           <StatusBadge status={audit.status} domain="compliance" showIcon size="sm" />
                         </div>
-                        <p className="text-sm text-[var(--app-text-muted)]">
+                        <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">
                           Auditor: {audit.auditor} • Fund: {audit.fundName}
                         </p>
                       </div>
@@ -314,17 +314,17 @@ export function Compliance() {
 
                     <div className="grid grid-cols-3 gap-4 text-sm">
                       <div>
-                        <p className="text-[var(--app-text-muted)]">Start Date</p>
+                        <p className="text-app-text-muted dark:text-app-dark-text-muted">Start Date</p>
                         <p className="font-medium">{new Date(audit.startDate).toLocaleDateString()}</p>
                       </div>
                       <div>
-                        <p className="text-[var(--app-text-muted)]">Completion Date</p>
+                        <p className="text-app-text-muted dark:text-app-dark-text-muted">Completion Date</p>
                         <p className="font-medium">
                           {audit.completionDate ? new Date(audit.completionDate).toLocaleDateString() : 'In Progress'}
                         </p>
                       </div>
                       <div>
-                        <p className="text-[var(--app-text-muted)]">Duration</p>
+                        <p className="text-app-text-muted dark:text-app-dark-text-muted">Duration</p>
                         <p className="font-medium">
                           {audit.completionDate
                             ? `${Math.ceil((new Date(audit.completionDate).getTime() - new Date(audit.startDate).getTime()) / (1000 * 60 * 60 * 24))} days`
@@ -384,12 +384,12 @@ export function Compliance() {
               </div>
             </Card>
 
-            <Card padding="md" className="bg-[var(--app-info-bg)] border-[var(--app-info)]/20">
+            <Card padding="md" className="bg-app-info-bg dark:bg-app-dark-info-bg border-app-info/20 dark:border-app-dark-info/20">
               <div className="flex items-start gap-3">
-                <Shield className="w-5 h-5 text-[var(--app-info)] flex-shrink-0 mt-0.5" />
+                <Shield className="w-5 h-5 text-app-info dark:text-app-dark-info flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-[var(--app-info)] mb-1">Compliance Reminders</p>
-                  <p className="text-xs text-[var(--app-text-muted)]">
+                  <p className="text-sm font-medium text-app-info dark:text-app-dark-info mb-1">Compliance Reminders</p>
+                  <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">
                     Stay up-to-date with regulatory requirements. Set up automated reminders for recurring
                     filings and certifications. Contact the compliance team for any questions or concerns.
                   </p>

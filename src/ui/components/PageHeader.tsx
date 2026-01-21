@@ -84,44 +84,44 @@ export function PageHeader({
         <div className="flex items-start gap-4 flex-1">
           {/* Icon */}
           {Icon && (
-            <div className="p-3 rounded-xl bg-gradient-to-br from-[var(--app-primary)]/10 to-[var(--app-accent)]/5 border border-[var(--app-primary)]/20">
-              <Icon className="w-6 h-6 text-[var(--app-primary)]" />
+            <div className="p-3 rounded-xl bg-gradient-to-br from-app-primary/10 to-app-accent/5 dark:from-app-dark-primary/10 dark:to-app-dark-accent/5 border border-app-primary/20 dark:border-app-dark-primary/20">
+              <Icon className="w-6 h-6 text-app-primary dark:text-app-dark-primary" />
             </div>
           )}
 
           {/* Title & Description */}
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-3xl font-bold text-[var(--app-text)]">
+              <h1 className="text-3xl font-bold text-app-text dark:text-app-dark-text">
                 {title}
               </h1>
 
               {/* AI Summary Icon */}
               {aiSummary && (
                 <div className="relative inline-block group">
-                  <button className="p-1.5 rounded-lg bg-[var(--app-primary)]/10 hover:bg-[var(--app-primary)]/20 transition-colors" aria-label="AI Summary">
-                    <Sparkles className="w-4 h-4 text-[var(--app-primary)]" />
+                  <button className="p-1.5 rounded-lg bg-app-primary/10 dark:bg-app-dark-primary/10 hover:bg-app-primary/20 dark:hover:bg-app-dark-primary/20 transition-colors" aria-label="AI Summary">
+                    <Sparkles className="w-4 h-4 text-app-primary dark:text-app-dark-primary" />
                   </button>
 
                   {/* AI Summary Tooltip */}
                   <div className="absolute top-full left-0 mt-2 z-20 opacity-0 translate-y-[5px] pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:translate-y-0 group-focus-within:pointer-events-auto transition-all duration-150">
-                    <div className="bg-[var(--app-surface)] border border-[var(--app-border)] rounded-lg shadow-xl p-4 min-w-[320px] max-w-[400px]">
+                    <div className="bg-app-surface dark:bg-app-dark-surface border border-app-border dark:border-app-dark-border rounded-lg shadow-xl p-4 min-w-[320px] max-w-[400px]">
                       <div className="flex items-start gap-2 mb-3">
-                        <Sparkles className="w-4 h-4 text-[var(--app-primary)] mt-0.5 flex-shrink-0" />
+                        <Sparkles className="w-4 h-4 text-app-primary dark:text-app-dark-primary mt-0.5 flex-shrink-0" />
                         <div className="flex-1">
-                          <p className="text-xs font-semibold text-[var(--app-text)] mb-1">AI Page Summary</p>
-                          <p className="text-sm text-[var(--app-text-muted)] leading-relaxed">{aiSummary.text}</p>
+                          <p className="text-xs font-semibold text-app-text dark:text-app-dark-text mb-1">AI Page Summary</p>
+                          <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted leading-relaxed">{aiSummary.text}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-[var(--app-text-subtle)]">Confidence:</span>
-                        <div className="flex-1 h-1.5 bg-[var(--app-surface-hover)] rounded-full overflow-hidden">
+                        <span className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle">Confidence:</span>
+                        <div className="flex-1 h-1.5 bg-app-surface-hover dark:bg-app-dark-surface-hover rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-[var(--app-primary)] rounded-full"
+                            className="h-full bg-app-primary dark:bg-app-dark-primary rounded-full"
                             style={{ width: `${aiSummary.confidence * 100}%` }}
                           />
                         </div>
-                        <span className="text-xs font-bold text-[var(--app-primary)]">
+                        <span className="text-xs font-bold text-app-primary dark:text-app-dark-primary">
                           {Math.round(aiSummary.confidence * 100)}%
                         </span>
                       </div>
@@ -132,7 +132,7 @@ export function PageHeader({
             </div>
 
             {description && (
-              <p className="text-[var(--app-text-muted)] text-base">
+              <p className="text-app-text-muted dark:text-app-dark-text-muted text-base">
                 {description}
               </p>
             )}
@@ -168,7 +168,7 @@ export function PageHeader({
 
                 {primaryAction.aiSuggested && primaryAction.confidence && (
                   <div className="absolute -top-2 -right-2">
-                    <div className="px-1.5 py-0.5 rounded-full bg-[var(--app-primary)] text-white text-xs font-bold shadow-lg">
+                    <div className="px-1.5 py-0.5 rounded-full bg-app-primary dark:bg-app-dark-primary text-white text-xs font-bold shadow-lg">
                       {Math.round(primaryAction.confidence * 100)}%
                     </div>
                   </div>
@@ -212,10 +212,10 @@ export function PageHeader({
             onSelectionChange={(key) => onTabChange?.(key as string)}
             classNames={{
               base: "w-full p-0",
-              tabList: "w-full relative rounded-none p-0 border-b border-[var(--app-border)] gap-6",
-              cursor: "w-full bg-[var(--app-primary)]",
+              tabList: "w-full relative rounded-none p-0 border-b border-app-border dark:border-app-dark-border gap-6",
+              cursor: "w-full bg-app-primary dark:bg-app-dark-primary",
               tab: "max-w-fit px-0 h-14",
-              tabContent: "group-data-[selected=true]:text-[var(--app-primary)] text-[var(--app-text-muted)] font-medium"
+              tabContent: "group-data-[selected=true]:text-app-primary dark:group-data-[selected=true]:text-app-dark-primary text-app-text-muted dark:text-app-dark-text-muted font-medium"
             }}
           >
             {tabs.map((tab) => (

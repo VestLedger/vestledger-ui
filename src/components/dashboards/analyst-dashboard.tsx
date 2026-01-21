@@ -38,7 +38,7 @@ export function AnalystDashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold">Analyst Workspace</h2>
-          <p className="text-sm text-[var(--app-text-muted)]">Deal flow and market intelligence</p>
+          <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Deal flow and market intelligence</p>
         </div>
         <div className="flex gap-2">
           <Button color="primary" startContent={<Search className="w-4 h-4" />}>
@@ -60,14 +60,14 @@ export function AnalystDashboard() {
            </div>
            <div className="space-y-4">
              {recentDeals.map((deal, idx) => (
-               <div key={idx} className="flex items-center justify-between p-3 rounded-lg border border-[var(--app-border-subtle)] hover:bg-[var(--app-surface-hover)] transition-colors">
+               <div key={idx} className="flex items-center justify-between p-3 rounded-lg border border-app-border-subtle dark:border-app-dark-border-subtle hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover transition-colors">
                  <div className="flex items-center gap-3">
-                   <div className="w-10 h-10 rounded-full bg-[var(--app-primary-bg)] flex items-center justify-center text-[var(--app-primary)] font-bold">
+                   <div className="w-10 h-10 rounded-full bg-app-primary-bg dark:bg-app-dark-primary-bg flex items-center justify-center text-app-primary dark:text-app-dark-primary font-bold">
                      {deal.name.substring(0, 2)}
                    </div>
                    <div>
                      <div className="font-medium">{deal.name}</div>
-                     <div className="text-xs text-[var(--app-text-muted)]">{deal.sector}</div>
+                     <div className="text-xs text-app-text-muted dark:text-app-dark-text-muted">{deal.sector}</div>
                    </div>
                  </div>
                  <div className="flex items-center gap-3">
@@ -75,8 +75,8 @@ export function AnalystDashboard() {
                       {deal.stage}
                     </Badge>
                     <div className="text-right">
-                       <div className="text-sm font-bold text-[var(--app-success)]">{deal.score}/100</div>
-                       <div className="text-[10px] text-[var(--app-text-muted)]">Score</div>
+                       <div className="text-sm font-bold text-app-success dark:text-app-dark-success">{deal.score}/100</div>
+                       <div className="text-[10px] text-app-text-muted dark:text-app-dark-text-muted">Score</div>
                     </div>
                  </div>
                </div>
@@ -89,11 +89,11 @@ export function AnalystDashboard() {
           <div className="space-y-3">
             {urgentTasks.map((item, i) => (
               <div key={i} className="flex items-start gap-3 p-2">
-                 <CheckCircle2 className="w-5 h-5 text-[var(--app-text-muted)] mt-0.5" />
+                 <CheckCircle2 className="w-5 h-5 text-app-text-muted dark:text-app-dark-text-muted mt-0.5" />
                  <div>
                    <div className="text-sm font-medium">{item.task}</div>
                    <div className="flex items-center gap-2 mt-1">
-                     <span className="text-xs text-[var(--app-text-muted)] flex items-center gap-1">
+                     <span className="text-xs text-app-text-muted dark:text-app-dark-text-muted flex items-center gap-1">
                        <Clock className="w-3 h-3" /> {item.due}
                      </span>
                      <span className={`text-[10px] px-1.5 py-0.5 rounded ${item.priority === 'High' ? 'bg-red-500/10 text-red-500' : 'bg-yellow-500/10 text-yellow-500'}`}>

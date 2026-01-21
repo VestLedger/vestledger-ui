@@ -38,7 +38,7 @@ export function IRDashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold">Relationship Navigator</h2>
-          <p className="text-sm text-[var(--app-text-muted)]">LP communications and investor relations</p>
+          <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">LP communications and investor relations</p>
         </div>
         <div className="flex gap-2">
           <Button variant="bordered" startContent={<Mail className="w-4 h-4" />}>
@@ -63,21 +63,21 @@ export function IRDashboard() {
            </div>
            <div className="space-y-4">
              {recentInteractions.map((interaction, idx) => (
-               <div key={idx} className="flex items-center justify-between p-3 rounded-lg border border-[var(--app-border-subtle)] hover:bg-[var(--app-surface-hover)] transition-colors">
+               <div key={idx} className="flex items-center justify-between p-3 rounded-lg border border-app-border-subtle dark:border-app-dark-border-subtle hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover transition-colors">
                  <div className="flex items-center gap-3">
-                   <div className="w-10 h-10 rounded-full bg-[var(--app-secondary-bg)] flex items-center justify-center text-[var(--app-secondary)] font-bold">
+                   <div className="w-10 h-10 rounded-full bg-app-secondary-bg dark:bg-app-dark-secondary-bg flex items-center justify-center text-app-secondary dark:text-app-dark-secondary font-bold">
                      {interaction.lp.substring(0, 2)}
                    </div>
                    <div>
                      <div className="font-medium">{interaction.lp}</div>
-                     <div className="text-xs text-[var(--app-text-muted)]">{interaction.notes}</div>
+                     <div className="text-xs text-app-text-muted dark:text-app-dark-text-muted">{interaction.notes}</div>
                    </div>
                  </div>
                  <div className="flex items-center gap-3">
                     <Badge variant="flat" color={interaction.type === 'Call' ? 'primary' : interaction.type === 'Email' ? 'secondary' : 'warning'}>
                       {interaction.type}
                     </Badge>
-                    <span className="text-xs text-[var(--app-text-muted)]">{interaction.date}</span>
+                    <span className="text-xs text-app-text-muted dark:text-app-dark-text-muted">{interaction.date}</span>
                  </div>
                </div>
              ))}
@@ -91,10 +91,10 @@ export function IRDashboard() {
           </h3>
           <div className="space-y-3">
             {upcomingTasks.map((item, i) => (
-              <div key={i} className="flex items-center justify-between p-2 rounded border-l-2 border-[var(--app-primary)]">
+              <div key={i} className="flex items-center justify-between p-2 rounded border-l-2 border-app-primary dark:border-app-dark-primary">
                  <div>
                    <div className="text-sm font-medium">{item.task}</div>
-                   <div className="text-xs text-[var(--app-text-muted)]">Due: {item.due}</div>
+                   <div className="text-xs text-app-text-muted dark:text-app-dark-text-muted">Due: {item.due}</div>
                  </div>
                  <span className={`text-[10px] px-1.5 py-0.5 rounded ${item.priority === 'High' ? 'bg-red-500/10 text-red-500' : 'bg-yellow-500/10 text-yellow-500'}`}>
                    {item.priority}

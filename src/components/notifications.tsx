@@ -20,15 +20,15 @@ type NotificationsUIState = {
 const getIcon = (type: string) => {
   switch (type) {
     case 'success':
-      return <CheckCircle className="w-5 h-5 text-[var(--app-success)]" />;
+      return <CheckCircle className="w-5 h-5 text-app-success dark:text-app-dark-success" />;
     case 'warning':
-      return <AlertTriangle className="w-5 h-5 text-[var(--app-warning)]" />;
+      return <AlertTriangle className="w-5 h-5 text-app-warning dark:text-app-dark-warning" />;
     case 'error':
-      return <AlertCircle className="w-5 h-5 text-[var(--app-danger)]" />;
+      return <AlertCircle className="w-5 h-5 text-app-danger dark:text-app-dark-danger" />;
     case 'info':
-      return <Info className="w-5 h-5 text-[var(--app-info)]" />;
+      return <Info className="w-5 h-5 text-app-info dark:text-app-dark-info" />;
     default:
-      return <Bell className="w-5 h-5 text-[var(--app-text-muted)]" />;
+      return <Bell className="w-5 h-5 text-app-text-muted dark:text-app-dark-text-muted" />;
   }
 };
 
@@ -78,7 +78,7 @@ export function Notifications() {
       label: `${totalCount} total`,
       size: 'md',
       variant: 'bordered',
-      className: 'text-[var(--app-text-muted)] border-[var(--app-border)]',
+      className: 'text-app-text-muted dark:text-app-dark-text-muted border-app-border dark:border-app-dark-border',
     },
   ];
 
@@ -87,7 +87,7 @@ export function Notifications() {
       label: `${unreadCount} unread`,
       size: 'md',
       variant: 'flat',
-      className: 'bg-[var(--app-primary-bg)] text-[var(--app-primary)]',
+      className: 'bg-app-primary-bg dark:bg-app-dark-primary-bg text-app-primary dark:text-app-dark-primary',
     });
   }
 
@@ -96,7 +96,7 @@ export function Notifications() {
       label: `${alertCount} alerts`,
       size: 'md',
       variant: 'bordered',
-      className: 'text-[var(--app-warning)] border-[var(--app-warning)]',
+      className: 'text-app-warning dark:text-app-dark-warning border-app-warning dark:border-app-dark-warning',
     });
   }
 
@@ -105,7 +105,7 @@ export function Notifications() {
       label: `${systemCount} system`,
       size: 'md',
       variant: 'bordered',
-      className: 'text-[var(--app-info)] border-[var(--app-info)]',
+      className: 'text-app-info dark:text-app-dark-info border-app-info dark:border-app-dark-info',
     });
   }
 
@@ -140,7 +140,7 @@ export function Notifications() {
         },
         actionContent: (
           <div className="flex items-center gap-2">
-            <span className="text-sm text-[var(--app-text-muted)]">Filter</span>
+            <span className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Filter</span>
             <Select
               aria-label="Filter notifications"
               size="sm"
@@ -189,7 +189,7 @@ export function Notifications() {
             meta={notification.timestamp.toLocaleString()}
             badges={
               !notification.read ? (
-                <Badge size="sm" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">
+                <Badge size="sm" variant="flat" className="bg-app-primary-bg dark:bg-app-dark-primary-bg text-app-primary dark:text-app-dark-primary">
                   New
                 </Badge>
               ) : null
@@ -198,7 +198,7 @@ export function Notifications() {
               !notification.read ? (
                 <button
                   onClick={() => dispatch(markAlertRead(notification.id))}
-                  className="text-xs text-[var(--app-primary)] hover:underline"
+                  className="text-xs text-app-primary dark:text-app-dark-primary hover:underline"
                 >
                   Mark as read
                 </button>

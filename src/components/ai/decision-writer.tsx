@@ -62,7 +62,7 @@ export function DecisionWriter() {
           {/* Deal Information */}
           <Card padding="lg">
             <h3 className="font-semibold mb-4 flex items-center gap-2">
-              <FileText className="w-4 h-4 text-[var(--app-primary)]" />
+              <FileText className="w-4 h-4 text-app-primary dark:text-app-dark-primary" />
               Deal Information
             </h3>
 
@@ -109,7 +109,7 @@ export function DecisionWriter() {
           {/* Rejection Reasons */}
           <Card padding="lg">
             <h3 className="font-semibold mb-4 flex items-center gap-2">
-              <ThumbsDown className="w-4 h-4 text-[var(--app-primary)]" />
+              <ThumbsDown className="w-4 h-4 text-app-primary dark:text-app-dark-primary" />
               Rejection Reasons
             </h3>
 
@@ -120,7 +120,7 @@ export function DecisionWriter() {
 
                 return (
                   <div key={category}>
-                    <p className="text-xs font-medium text-[var(--app-text-muted)] mb-2 uppercase">
+                    <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-2 uppercase">
                       {category}
                     </p>
                     <div className="space-y-2">
@@ -130,14 +130,14 @@ export function DecisionWriter() {
                           onClick={() => toggleReason(reason.id)}
                           className={`w-full text-left p-3 rounded-lg border-2 transition-all ${
                             reason.selected
-                              ? 'border-[var(--app-primary)] bg-[var(--app-primary-bg)]'
-                              : 'border-[var(--app-border)] hover:border-[var(--app-primary)] hover:bg-[var(--app-surface-hover)]'
+                              ? 'border-app-primary dark:border-app-dark-primary bg-app-primary-bg dark:bg-app-dark-primary-bg'
+                              : 'border-app-border dark:border-app-dark-border hover:border-app-primary dark:hover:border-app-dark-primary hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover'
                           }`}
                         >
                           <div className="flex items-center justify-between">
                             <span className="text-sm">{reason.label}</span>
                             {reason.selected && (
-                              <Check className="w-4 h-4 text-[var(--app-primary)]" />
+                              <Check className="w-4 h-4 text-app-primary dark:text-app-dark-primary" />
                             )}
                           </div>
                         </button>
@@ -150,7 +150,7 @@ export function DecisionWriter() {
               <div>
                 <label className="text-sm font-medium mb-2 block">Custom Reason (Optional)</label>
                 <textarea
-                  className="w-full px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] min-h-[80px]"
+                  className="w-full px-3 py-2 rounded-lg border border-app-border dark:border-app-dark-border bg-app-surface dark:bg-app-dark-surface text-app-text dark:text-app-dark-text min-h-[80px]"
                   placeholder="Add a custom reason specific to this deal..."
                   value={customReason}
                   onChange={(e) => patchUI({ customReason: e.target.value })}
@@ -162,7 +162,7 @@ export function DecisionWriter() {
           {/* Tone Selection */}
           <Card padding="lg">
             <h3 className="font-semibold mb-4 flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 text-[var(--app-primary)]" />
+              <MessageSquare className="w-4 h-4 text-app-primary dark:text-app-dark-primary" />
               Letter Tone
             </h3>
 
@@ -173,17 +173,17 @@ export function DecisionWriter() {
                   onClick={() => patchUI({ tone: option.value })}
                   className={`w-full text-left p-3 rounded-lg border-2 transition-all ${
                     tone === option.value
-                      ? 'border-[var(--app-primary)] bg-[var(--app-primary-bg)]'
-                      : 'border-[var(--app-border)] hover:border-[var(--app-primary)] hover:bg-[var(--app-surface-hover)]'
+                      ? 'border-app-primary dark:border-app-dark-primary bg-app-primary-bg dark:bg-app-dark-primary-bg'
+                      : 'border-app-border dark:border-app-dark-border hover:border-app-primary dark:hover:border-app-dark-primary hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium text-sm">{option.label}</p>
-                      <p className="text-xs text-[var(--app-text-muted)]">{option.description}</p>
+                      <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">{option.description}</p>
                     </div>
                     {tone === option.value && (
-                      <Check className="w-4 h-4 text-[var(--app-primary)]" />
+                      <Check className="w-4 h-4 text-app-primary dark:text-app-dark-primary" />
                     )}
                   </div>
                 </button>
@@ -210,7 +210,7 @@ export function DecisionWriter() {
           <Card padding="lg" className="sticky top-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[var(--app-primary)]" />
+                <Sparkles className="w-4 h-4 text-app-primary dark:text-app-dark-primary" />
                 Generated Letter
               </h3>
               {generatedLetter && (
@@ -251,8 +251,8 @@ export function DecisionWriter() {
 
             {generatedLetter ? (
               <div className="space-y-4">
-                <div className="p-4 rounded-lg bg-[var(--app-surface-hover)] border border-[var(--app-border)]">
-                  <pre className="whitespace-pre-wrap font-sans text-sm text-[var(--app-text)]">
+                <div className="p-4 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover border border-app-border dark:border-app-dark-border">
+                  <pre className="whitespace-pre-wrap font-sans text-sm text-app-text dark:text-app-dark-text">
                     {generatedLetter}
                   </pre>
                 </div>
@@ -273,14 +273,14 @@ export function DecisionWriter() {
                   </Button>
                 </div>
 
-                <div className="p-3 rounded-lg bg-[var(--app-success-bg)] border border-[var(--app-success)]/20">
+                <div className="p-3 rounded-lg bg-app-success-bg dark:bg-app-dark-success-bg border border-app-success/20 dark:border-app-dark-success/20">
                   <div className="flex items-start gap-2">
-                    <Check className="w-4 h-4 text-[var(--app-success)] mt-0.5 flex-shrink-0" />
+                    <Check className="w-4 h-4 text-app-success dark:text-app-dark-success mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="text-sm font-medium text-[var(--app-success)] mb-1">
+                      <p className="text-sm font-medium text-app-success dark:text-app-dark-success mb-1">
                         Letter Ready
                       </p>
-                      <p className="text-xs text-[var(--app-text-muted)]">
+                      <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">
                         Your personalized rejection letter has been generated. Review and edit as needed before sending.
                       </p>
                     </div>
@@ -289,13 +289,13 @@ export function DecisionWriter() {
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-12">
-                <div className="w-16 h-16 rounded-full bg-[var(--app-primary-bg)] flex items-center justify-center mb-4">
-                  <Sparkles className="w-8 h-8 text-[var(--app-primary)]" />
+                <div className="w-16 h-16 rounded-full bg-app-primary-bg dark:bg-app-dark-primary-bg flex items-center justify-center mb-4">
+                  <Sparkles className="w-8 h-8 text-app-primary dark:text-app-dark-primary" />
                 </div>
-                <p className="text-center text-[var(--app-text-muted)] mb-2">
+                <p className="text-center text-app-text-muted dark:text-app-dark-text-muted mb-2">
                   No letter generated yet
                 </p>
-                <p className="text-center text-sm text-[var(--app-text-subtle)]">
+                <p className="text-center text-sm text-app-text-subtle dark:text-app-dark-text-subtle">
                   Fill in the deal information and select reasons to generate a personalized rejection letter
                 </p>
               </div>
@@ -303,14 +303,14 @@ export function DecisionWriter() {
           </Card>
 
           {/* Tips */}
-          <Card padding="md" className="mt-4 bg-[var(--app-info-bg)] border-[var(--app-info)]/20">
+          <Card padding="md" className="mt-4 bg-app-info-bg dark:bg-app-dark-info-bg border-app-info/20 dark:border-app-dark-info/20">
             <div className="flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 text-[var(--app-info)] mt-0.5 flex-shrink-0" />
+              <AlertCircle className="w-4 h-4 text-app-info dark:text-app-dark-info mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-sm font-medium text-[var(--app-info)] mb-1">
+                <p className="text-sm font-medium text-app-info dark:text-app-dark-info mb-1">
                   Best Practices
                 </p>
-                <ul className="text-xs text-[var(--app-text-muted)] space-y-1 list-disc list-inside">
+                <ul className="text-xs text-app-text-muted dark:text-app-dark-text-muted space-y-1 list-disc list-inside">
                   <li>Select 2-4 specific reasons for authenticity</li>
                   <li>Warm tone helps maintain relationships for future opportunities</li>
                   <li>Always review and personalize before sending</li>

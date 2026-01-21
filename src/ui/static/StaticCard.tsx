@@ -11,7 +11,7 @@ export interface StaticCardProps {
 /**
  * Pure server-side card component
  * Zero client-side JavaScript, no hydration
- * Uses CSS variables for theming (same as NextUI components)
+ * Uses Tailwind classes for theming (same as NextUI components)
  */
 export function StaticCard({
   children,
@@ -29,7 +29,7 @@ export function StaticCard({
 
   return (
     <div
-      className={`bg-[var(--app-surface)] border border-[var(--app-border)] rounded-lg ${paddingClasses[padding]} ${className}`}
+      className={`bg-app-surface dark:bg-app-dark-surface border border-app-border dark:border-app-dark-border rounded-lg ${paddingClasses[padding]} ${className}`}
       style={style}
       onClick={onClick}
     >

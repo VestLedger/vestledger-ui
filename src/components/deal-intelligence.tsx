@@ -106,31 +106,31 @@ export function DealIntelligence() {
         {/* Fund Analytics Summary */}
         <div className="mb-8">
           <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
-            <BarChart className="w-5 h-5 text-[var(--app-primary)]" />
+            <BarChart className="w-5 h-5 text-app-primary dark:text-app-dark-primary" />
             Fund Analytics
           </h3>
 
           {/* Deal Flow Metrics */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <Card padding="md">
-              <div className="text-sm text-[var(--app-text-muted)] mb-1">Active Deals</div>
-              <div className="text-3xl font-medium text-[var(--app-primary)]">{fundAnalytics.dealFlowMetrics.activeDeals}</div>
-              <div className="text-xs text-[var(--app-text-subtle)] mt-1">in due diligence</div>
+              <div className="text-sm text-app-text-muted dark:text-app-dark-text-muted mb-1">Active Deals</div>
+              <div className="text-3xl font-medium text-app-primary dark:text-app-dark-primary">{fundAnalytics.dealFlowMetrics.activeDeals}</div>
+              <div className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle mt-1">in due diligence</div>
             </Card>
             <Card padding="md">
-              <div className="text-sm text-[var(--app-text-muted)] mb-1">Avg Time in DD</div>
-              <div className="text-3xl font-medium text-[var(--app-primary)]">{fundAnalytics.dealFlowMetrics.avgTimeInDD}</div>
-              <div className="text-xs text-[var(--app-text-subtle)] mt-1">days</div>
+              <div className="text-sm text-app-text-muted dark:text-app-dark-text-muted mb-1">Avg Time in DD</div>
+              <div className="text-3xl font-medium text-app-primary dark:text-app-dark-primary">{fundAnalytics.dealFlowMetrics.avgTimeInDD}</div>
+              <div className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle mt-1">days</div>
             </Card>
             <Card padding="md">
-              <div className="text-sm text-[var(--app-text-muted)] mb-1">DD-to-IC Rate</div>
-              <div className="text-3xl font-medium text-[var(--app-primary)]">{fundAnalytics.dealFlowMetrics.ddToICConversionRate}%</div>
-              <div className="text-xs text-[var(--app-text-subtle)] mt-1">conversion</div>
+              <div className="text-sm text-app-text-muted dark:text-app-dark-text-muted mb-1">DD-to-IC Rate</div>
+              <div className="text-3xl font-medium text-app-primary dark:text-app-dark-primary">{fundAnalytics.dealFlowMetrics.ddToICConversionRate}%</div>
+              <div className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle mt-1">conversion</div>
             </Card>
             <Card padding="md">
-              <div className="text-sm text-[var(--app-text-muted)] mb-1">Ready for IC</div>
-              <div className="text-3xl font-medium text-[var(--app-success)]">{fundAnalytics.dealFlowMetrics.readyForIC}</div>
-              <div className="text-xs text-[var(--app-text-subtle)] mt-1">deals</div>
+              <div className="text-sm text-app-text-muted dark:text-app-dark-text-muted mb-1">Ready for IC</div>
+              <div className="text-3xl font-medium text-app-success dark:text-app-dark-success">{fundAnalytics.dealFlowMetrics.readyForIC}</div>
+              <div className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle mt-1">deals</div>
             </Card>
           </div>
 
@@ -143,12 +143,12 @@ export function DealIntelligence() {
                 {fundAnalytics.dealDistribution.byStage.map((item) => (
                   <div key={item.stage}>
                     <div className="flex items-center justify-between text-sm mb-1">
-                      <span className="text-[var(--app-text-muted)]">{item.stage}</span>
+                      <span className="text-app-text-muted dark:text-app-dark-text-muted">{item.stage}</span>
                       <span className="font-medium">{item.count}</span>
                     </div>
-                    <div className="w-full bg-[var(--app-surface-hover)] rounded-full h-2">
+                    <div className="w-full bg-app-surface-hover dark:bg-app-dark-surface-hover rounded-full h-2">
                       <div
-                        className="bg-[var(--app-primary)] h-2 rounded-full transition-all"
+                        className="bg-app-primary dark:bg-app-dark-primary h-2 rounded-full transition-all"
                         style={{ width: `${(item.count / fundAnalytics.dealFlowMetrics.activeDeals) * 100}%` }}
                       />
                     </div>
@@ -164,12 +164,12 @@ export function DealIntelligence() {
                 {fundAnalytics.dealDistribution.bySector.map((item) => (
                   <div key={item.sector}>
                     <div className="flex items-center justify-between text-sm mb-1">
-                      <span className="text-[var(--app-text-muted)]">{item.sector}</span>
+                      <span className="text-app-text-muted dark:text-app-dark-text-muted">{item.sector}</span>
                       <span className="font-medium">{item.count}</span>
                     </div>
-                    <div className="w-full bg-[var(--app-surface-hover)] rounded-full h-2">
+                    <div className="w-full bg-app-surface-hover dark:bg-app-dark-surface-hover rounded-full h-2">
                       <div
-                        className="bg-[var(--app-accent)] h-2 rounded-full transition-all"
+                        className="bg-app-accent dark:bg-app-dark-accent h-2 rounded-full transition-all"
                         style={{ width: `${(item.count / fundAnalytics.dealFlowMetrics.activeDeals) * 100}%` }}
                       />
                     </div>
@@ -184,8 +184,8 @@ export function DealIntelligence() {
               <div className="space-y-4">
                 <div>
                   <div className="flex items-center justify-between text-sm mb-2">
-                    <span className="text-[var(--app-text-muted)]">Avg Completion</span>
-                    <span className="font-medium text-[var(--app-primary)]">{fundAnalytics.ddProgress.avgCompletion}%</span>
+                    <span className="text-app-text-muted dark:text-app-dark-text-muted">Avg Completion</span>
+                    <span className="font-medium text-app-primary dark:text-app-dark-primary">{fundAnalytics.ddProgress.avgCompletion}%</span>
                   </div>
                   <Progress
                     value={fundAnalytics.ddProgress.avgCompletion}
@@ -193,22 +193,22 @@ export function DealIntelligence() {
                     aria-label={`Average DD completion ${fundAnalytics.ddProgress.avgCompletion}%`}
                     classNames={{
                       base: "h-2",
-                      track: "bg-[var(--app-surface-hover)]",
-                      indicator: "bg-[var(--app-primary)]"
+                      track: "bg-app-surface-hover dark:bg-app-dark-surface-hover",
+                      indicator: "bg-app-primary dark:bg-app-dark-primary"
                     }}
                   />
                 </div>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-[var(--app-success)]">● On Track</span>
+                    <span className="text-app-success dark:text-app-dark-success">On Track</span>
                     <span className="font-medium">{fundAnalytics.ddProgress.onTrack} deals</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-[var(--app-warning)]">● At Risk</span>
+                    <span className="text-app-warning dark:text-app-dark-warning">At Risk</span>
                     <span className="font-medium">{fundAnalytics.ddProgress.atRisk} deals</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-[var(--app-danger)]">● Blocked</span>
+                    <span className="text-app-danger dark:text-app-dark-danger">Blocked</span>
                     <span className="font-medium">{fundAnalytics.ddProgress.blocked} deal</span>
                   </div>
                 </div>
@@ -219,39 +219,39 @@ export function DealIntelligence() {
 
         {/* DD Status Summary */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <Card padding="md" className="border-[var(--app-border)]">
+          <Card padding="md" className="border-app-border dark:border-app-dark-border">
             <div className="flex items-center gap-3">
-              <CheckCircle2 className="w-5 h-5 text-[var(--app-success)]" />
+              <CheckCircle2 className="w-5 h-5 text-app-success dark:text-app-dark-success" />
               <div>
                 <div className="text-2xl font-medium">{dealsReadyForIC}</div>
-                <div className="text-sm text-[var(--app-text-muted)]">Ready for IC</div>
+                <div className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Ready for IC</div>
               </div>
             </div>
           </Card>
-          <Card padding="md" className="border-[var(--app-border)]">
+          <Card padding="md" className="border-app-border dark:border-app-dark-border">
             <div className="flex items-center gap-3">
-              <Clock className="w-5 h-5 text-[var(--app-info)]" />
+              <Clock className="w-5 h-5 text-app-info dark:text-app-dark-info" />
               <div>
                 <div className="text-2xl font-medium">{dealsInProgress}</div>
-                <div className="text-sm text-[var(--app-text-muted)]">DD In Progress</div>
+                <div className="text-sm text-app-text-muted dark:text-app-dark-text-muted">DD In Progress</div>
               </div>
             </div>
           </Card>
-          <Card padding="md" className="border-[var(--app-border)]">
+          <Card padding="md" className="border-app-border dark:border-app-dark-border">
             <div className="flex items-center gap-3">
-              <AlertCircle className="w-5 h-5 text-[var(--app-danger)]" />
+              <AlertCircle className="w-5 h-5 text-app-danger dark:text-app-dark-danger" />
               <div>
                 <div className="text-2xl font-medium">{overdueDocuments}</div>
-                <div className="text-sm text-[var(--app-text-muted)]">Overdue Documents</div>
+                <div className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Overdue Documents</div>
               </div>
             </div>
           </Card>
-          <Card padding="md" className="border-[var(--app-border)]">
+          <Card padding="md" className="border-app-border dark:border-app-dark-border">
             <div className="flex items-center gap-3">
-              <Eye className="w-5 h-5 text-[var(--app-warning)]" />
+              <Eye className="w-5 h-5 text-app-warning dark:text-app-dark-warning" />
               <div>
                 <div className="text-2xl font-medium">{pendingReviews}</div>
-                <div className="text-sm text-[var(--app-text-muted)]">Pending Reviews</div>
+                <div className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Pending Reviews</div>
               </div>
             </div>
           </Card>
@@ -261,10 +261,10 @@ export function DealIntelligence() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-medium flex items-center gap-2">
-              <Search className="w-5 h-5 text-[var(--app-primary)]" />
+              <Search className="w-5 h-5 text-app-primary dark:text-app-dark-primary" />
               AI Deal Sourcing
             </h3>
-            <Badge size="sm" variant="flat" className="bg-[var(--app-success-bg)] text-[var(--app-success)]">
+            <Badge size="sm" variant="flat" className="bg-app-success-bg dark:bg-app-dark-success-bg text-app-success dark:text-app-dark-success">
               New Leads
             </Badge>
           </div>
@@ -274,14 +274,14 @@ export function DealIntelligence() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-medium flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-[var(--app-primary)]" />
+              <TrendingUp className="w-5 h-5 text-app-primary dark:text-app-dark-primary" />
               Active Deals - Due Diligence
             </h3>
             <Button
               variant="flat"
               size="sm"
               startContent={<Upload className="w-4 h-4" />}
-              className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]"
+              className="bg-app-primary-bg dark:bg-app-dark-primary-bg text-app-primary dark:text-app-dark-primary"
             >
               Upload Document
             </Button>
@@ -295,13 +295,13 @@ export function DealIntelligence() {
                 isPressable
                 onPress={() => handleDealClick(deal)}
                 padding="md"
-                className="cursor-pointer hover:border-[var(--app-primary)] transition-all"
+                className="cursor-pointer hover:border-app-primary dark:hover:border-app-dark-primary transition-all"
               >
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <h4 className="font-medium mb-1">{deal.name}</h4>
                     <div className="flex gap-2 mb-2">
-                      <Badge size="sm" variant="flat" className="bg-[var(--app-surface-hover)]">
+                      <Badge size="sm" variant="flat" className="bg-app-surface-hover dark:bg-app-dark-surface-hover">
                         {deal.stage}
                       </Badge>
                       <StatusBadge status={deal.icStatus} domain="deal-intel" size="sm" showIcon />
@@ -311,7 +311,7 @@ export function DealIntelligence() {
 
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-[var(--app-text-muted)]">DD Progress</span>
+                    <span className="text-app-text-muted dark:text-app-dark-text-muted">DD Progress</span>
                     <span className="font-medium">{deal.progress}%</span>
                   </div>
                   <Progress
@@ -320,17 +320,17 @@ export function DealIntelligence() {
                     aria-label={`${deal.name} DD progress ${deal.progress}%`}
                     classNames={{
                       base: "h-2",
-                      track: "bg-[var(--app-surface-hover)]",
-                      indicator: "bg-[var(--app-primary)]"
+                      track: "bg-app-surface-hover dark:bg-app-dark-surface-hover",
+                      indicator: "bg-app-primary dark:bg-app-dark-primary"
                     }}
                   />
                 </div>
 
                 <div className="space-y-1.5 text-xs">
-                  <div className="text-[var(--app-text-muted)] font-medium mb-1">Document Completion:</div>
+                  <div className="text-app-text-muted dark:text-app-dark-text-muted font-medium mb-1">Document Completion:</div>
                   {deal.categoryProgress.map((cat) => (
                     <div key={cat.category} className="flex items-center justify-between gap-2">
-                      <span className="text-[var(--app-text-muted)] capitalize">{cat.category}:</span>
+                      <span className="text-app-text-muted dark:text-app-dark-text-muted capitalize">{cat.category}:</span>
                       <div className="flex items-center gap-2">
                         <StatusBadge status={cat.status} domain="deal-intel" size="sm" />
                         <span className="font-medium">{cat.completed}/{cat.total}</span>
@@ -367,23 +367,23 @@ export function DealIntelligence() {
             <div>
               <h2 className="text-2xl sm:text-3xl mb-2">{selectedDeal.name}</h2>
               <div className="flex gap-2 mb-2">
-                <Badge size="sm" variant="flat" className="bg-[var(--app-surface-hover)]">
+                <Badge size="sm" variant="flat" className="bg-app-surface-hover dark:bg-app-dark-surface-hover">
                   {selectedDeal.stage}
                 </Badge>
-                <Badge size="sm" variant="flat" className="bg-[var(--app-surface-hover)]">
+                <Badge size="sm" variant="flat" className="bg-app-surface-hover dark:bg-app-dark-surface-hover">
                   {selectedDeal.sector}
                 </Badge>
                 <StatusBadge status={selectedDeal.icStatus} domain="deal-intel" size="sm" showIcon />
               </div>
-              <div className="flex gap-4 text-sm text-[var(--app-text-muted)]">
+              <div className="flex gap-4 text-sm text-app-text-muted dark:text-app-dark-text-muted">
                 <span>Amount: {selectedDeal.amount}</span>
-                <span>•</span>
+                <span>-</span>
                 <span>Founder: {selectedDeal.founder}</span>
               </div>
             </div>
             <div className="text-right">
-              <div className="text-sm text-[var(--app-text-muted)]">DD Progress</div>
-              <div className="text-3xl font-medium text-[var(--app-primary)]">{selectedDeal.progress}%</div>
+              <div className="text-sm text-app-text-muted dark:text-app-dark-text-muted">DD Progress</div>
+              <div className="text-3xl font-medium text-app-primary dark:text-app-dark-primary">{selectedDeal.progress}%</div>
             </div>
           </div>
 
@@ -393,8 +393,8 @@ export function DealIntelligence() {
             aria-label={`${selectedDeal.name} overall DD progress ${selectedDeal.progress}%`}
             classNames={{
               base: "h-3",
-              track: "bg-[var(--app-surface-hover)]",
-              indicator: "bg-[var(--app-primary)]"
+              track: "bg-app-surface-hover dark:bg-app-dark-surface-hover",
+              indicator: "bg-app-primary dark:bg-app-dark-primary"
             }}
           />
         </div>
@@ -417,7 +417,7 @@ export function DealIntelligence() {
                       <div key={cat.category}>
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2">
-                            <CategoryIcon className="w-4 h-4 text-[var(--app-primary)]" />
+                            <CategoryIcon className="w-4 h-4 text-app-primary dark:text-app-dark-primary" />
                             <span className="text-sm font-medium capitalize">{cat.category}</span>
                           </div>
                           <div className="flex items-center gap-2">
@@ -431,10 +431,10 @@ export function DealIntelligence() {
                           aria-label={`${cat.category} category ${percentage.toFixed(0)}% complete`}
                           classNames={{
                             base: "h-2",
-                            track: "bg-[var(--app-surface-hover)]",
-                            indicator: cat.status === 'completed' ? 'bg-[var(--app-success)]' :
-                                       cat.status === 'overdue' ? 'bg-[var(--app-danger)]' :
-                                       'bg-[var(--app-warning)]'
+                            track: "bg-app-surface-hover dark:bg-app-dark-surface-hover",
+                            indicator: cat.status === 'completed' ? 'bg-app-success dark:bg-app-dark-success' :
+                                       cat.status === 'overdue' ? 'bg-app-danger dark:bg-app-dark-danger' :
+                                       'bg-app-warning dark:bg-app-dark-warning'
                           }}
                         />
                       </div>
@@ -447,24 +447,24 @@ export function DealIntelligence() {
               <Card padding="md">
                 <h3 className="text-lg font-medium mb-4">Key Metrics</h3>
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between py-2 border-b border-[var(--app-border)]">
-                    <span className="text-sm text-[var(--app-text-muted)]">Investment Amount</span>
+                  <div className="flex items-center justify-between py-2 border-b border-app-border dark:border-app-dark-border">
+                    <span className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Investment Amount</span>
                     <span className="font-medium">{selectedDeal.amount}</span>
                   </div>
-                  <div className="flex items-center justify-between py-2 border-b border-[var(--app-border)]">
-                    <span className="text-sm text-[var(--app-text-muted)]">Stage</span>
+                  <div className="flex items-center justify-between py-2 border-b border-app-border dark:border-app-dark-border">
+                    <span className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Stage</span>
                     <span className="font-medium">{selectedDeal.stage}</span>
                   </div>
-                  <div className="flex items-center justify-between py-2 border-b border-[var(--app-border)]">
-                    <span className="text-sm text-[var(--app-text-muted)]">Sector</span>
+                  <div className="flex items-center justify-between py-2 border-b border-app-border dark:border-app-dark-border">
+                    <span className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Sector</span>
                     <span className="font-medium">{selectedDeal.sector}</span>
                   </div>
-                  <div className="flex items-center justify-between py-2 border-b border-[var(--app-border)]">
-                    <span className="text-sm text-[var(--app-text-muted)]">Total Documents</span>
+                  <div className="flex items-center justify-between py-2 border-b border-app-border dark:border-app-dark-border">
+                    <span className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Total Documents</span>
                     <span className="font-medium">{selectedDeal.docsCount}</span>
                   </div>
                   <div className="flex items-center justify-between py-2">
-                    <span className="text-sm text-[var(--app-text-muted)]">IC Status</span>
+                    <span className="text-sm text-app-text-muted dark:text-app-dark-text-muted">IC Status</span>
                     <StatusBadge status={selectedDeal.icStatus} domain="deal-intel" size="sm" showIcon />
                   </div>
                 </div>
@@ -478,7 +478,7 @@ export function DealIntelligence() {
               if (!analytics) {
                 return (
                   <Card padding="md">
-                    <div className="text-center py-12 text-[var(--app-text-muted)]">
+                    <div className="text-center py-12 text-app-text-muted dark:text-app-dark-text-muted">
                       <BarChart className="w-12 h-12 mx-auto mb-4 opacity-50" />
                       <p>Analytics data not available for this deal</p>
                     </div>
@@ -491,88 +491,88 @@ export function DealIntelligence() {
                   {/* Financial Metrics */}
                   <div>
                     <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
-                      <DollarSign className="w-5 h-5 text-[var(--app-primary)]" />
+                      <DollarSign className="w-5 h-5 text-app-primary dark:text-app-dark-primary" />
                       Financial Metrics
                     </h3>
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                       {/* Revenue Metrics */}
                       <Card padding="md">
-                        <h4 className="text-sm font-medium text-[var(--app-text-muted)] mb-3">Revenue</h4>
+                        <h4 className="text-sm font-medium text-app-text-muted dark:text-app-dark-text-muted mb-3">Revenue</h4>
                         <div className="space-y-3">
                           <div>
-                            <div className="text-xs text-[var(--app-text-subtle)]">ARR</div>
-                            <div className="text-2xl font-medium text-[var(--app-primary)]">
+                            <div className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle">ARR</div>
+                            <div className="text-2xl font-medium text-app-primary dark:text-app-dark-primary">
                               ${(analytics.financial.revenue.arr / 1000000).toFixed(1)}M
                             </div>
                           </div>
                           <div>
-                            <div className="text-xs text-[var(--app-text-subtle)]">MRR</div>
+                            <div className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle">MRR</div>
                             <div className="text-xl font-medium">
                               ${(analytics.financial.revenue.mrr / 1000).toFixed(0)}K
                             </div>
                           </div>
-                          <div className="flex justify-between text-sm pt-2 border-t border-[var(--app-border)]">
-                            <span className="text-[var(--app-text-muted)]">MoM Growth</span>
-                            <span className="font-medium text-[var(--app-success)]">+{analytics.financial.revenue.growthRateMoM}%</span>
+                          <div className="flex justify-between text-sm pt-2 border-t border-app-border dark:border-app-dark-border">
+                            <span className="text-app-text-muted dark:text-app-dark-text-muted">MoM Growth</span>
+                            <span className="font-medium text-app-success dark:text-app-dark-success">+{analytics.financial.revenue.growthRateMoM}%</span>
                           </div>
                           <div className="flex justify-between text-sm">
-                            <span className="text-[var(--app-text-muted)]">YoY Growth</span>
-                            <span className="font-medium text-[var(--app-success)]">+{analytics.financial.revenue.growthRateYoY}%</span>
+                            <span className="text-app-text-muted dark:text-app-dark-text-muted">YoY Growth</span>
+                            <span className="font-medium text-app-success dark:text-app-dark-success">+{analytics.financial.revenue.growthRateYoY}%</span>
                           </div>
                         </div>
                       </Card>
 
                       {/* Efficiency Metrics */}
                       <Card padding="md">
-                        <h4 className="text-sm font-medium text-[var(--app-text-muted)] mb-3">Efficiency</h4>
+                        <h4 className="text-sm font-medium text-app-text-muted dark:text-app-dark-text-muted mb-3">Efficiency</h4>
                         <div className="space-y-3">
                           <div>
-                            <div className="text-xs text-[var(--app-text-subtle)]">Burn Rate</div>
-                            <div className="text-2xl font-medium text-[var(--app-warning)]">
+                            <div className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle">Burn Rate</div>
+                            <div className="text-2xl font-medium text-app-warning dark:text-app-dark-warning">
                               ${(analytics.financial.efficiency.burnRate / 1000).toFixed(0)}K
                             </div>
-                            <div className="text-xs text-[var(--app-text-subtle)]">per month</div>
+                            <div className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle">per month</div>
                           </div>
                           <div>
-                            <div className="text-xs text-[var(--app-text-subtle)]">Runway</div>
+                            <div className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle">Runway</div>
                             <div className="text-xl font-medium">
                               {analytics.financial.efficiency.runway} months
                             </div>
                           </div>
-                          <div className="flex justify-between text-sm pt-2 border-t border-[var(--app-border)]">
-                            <span className="text-[var(--app-text-muted)]">CAC</span>
+                          <div className="flex justify-between text-sm pt-2 border-t border-app-border dark:border-app-dark-border">
+                            <span className="text-app-text-muted dark:text-app-dark-text-muted">CAC</span>
                             <span className="font-medium">${analytics.financial.efficiency.cac}</span>
                           </div>
                           <div className="flex justify-between text-sm">
-                            <span className="text-[var(--app-text-muted)]">LTV</span>
+                            <span className="text-app-text-muted dark:text-app-dark-text-muted">LTV</span>
                             <span className="font-medium">${(analytics.financial.efficiency.ltv / 1000).toFixed(1)}K</span>
                           </div>
                           <div className="flex justify-between text-sm font-medium">
-                            <span className="text-[var(--app-text-muted)]">LTV:CAC</span>
-                            <span className="text-[var(--app-success)]">{analytics.financial.efficiency.ltvCacRatio.toFixed(1)}x</span>
+                            <span className="text-app-text-muted dark:text-app-dark-text-muted">LTV:CAC</span>
+                            <span className="text-app-success dark:text-app-dark-success">{analytics.financial.efficiency.ltvCacRatio.toFixed(1)}x</span>
                           </div>
                         </div>
                       </Card>
 
                       {/* Unit Economics */}
                       <Card padding="md">
-                        <h4 className="text-sm font-medium text-[var(--app-text-muted)] mb-3">Unit Economics</h4>
+                        <h4 className="text-sm font-medium text-app-text-muted dark:text-app-dark-text-muted mb-3">Unit Economics</h4>
                         <div className="space-y-3">
                           <div>
-                            <div className="text-xs text-[var(--app-text-subtle)]">Gross Margin</div>
-                            <div className="text-2xl font-medium text-[var(--app-primary)]">
+                            <div className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle">Gross Margin</div>
+                            <div className="text-2xl font-medium text-app-primary dark:text-app-dark-primary">
                               {analytics.financial.unitEconomics.grossMargin}%
                             </div>
                           </div>
                           <div>
-                            <div className="text-xs text-[var(--app-text-subtle)]">Contribution Margin</div>
+                            <div className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle">Contribution Margin</div>
                             <div className="text-xl font-medium">
                               {analytics.financial.unitEconomics.contributionMargin}%
                             </div>
                           </div>
-                          <div className="flex justify-between text-sm pt-2 border-t border-[var(--app-border)]">
-                            <span className="text-[var(--app-text-muted)]">Payback Period</span>
+                          <div className="flex justify-between text-sm pt-2 border-t border-app-border dark:border-app-dark-border">
+                            <span className="text-app-text-muted dark:text-app-dark-text-muted">Payback Period</span>
                             <span className="font-medium">{analytics.financial.unitEconomics.paybackPeriod} mo</span>
                           </div>
                         </div>
@@ -583,42 +583,42 @@ export function DealIntelligence() {
                   {/* Market Analytics */}
                   <div>
                     <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
-                      <BarChart className="w-5 h-5 text-[var(--app-primary)]" />
+                      <BarChart className="w-5 h-5 text-app-primary dark:text-app-dark-primary" />
                       Market Analytics
                     </h3>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                       {/* Market Size */}
                       <Card padding="md">
-                        <h4 className="text-sm font-medium text-[var(--app-text-muted)] mb-4">Market Size</h4>
+                        <h4 className="text-sm font-medium text-app-text-muted dark:text-app-dark-text-muted mb-4">Market Size</h4>
                         <div className="space-y-4">
                           <div>
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-sm text-[var(--app-text-muted)]">TAM</span>
-                              <span className="text-xl font-medium text-[var(--app-primary)]">${analytics.market.marketSize.tam}B</span>
+                              <span className="text-sm text-app-text-muted dark:text-app-dark-text-muted">TAM</span>
+                              <span className="text-xl font-medium text-app-primary dark:text-app-dark-primary">${analytics.market.marketSize.tam}B</span>
                             </div>
-                            <div className="w-full bg-[var(--app-surface-hover)] rounded-full h-3">
-                              <div className="bg-[var(--app-primary)] h-3 rounded-full" style={{ width: '100%' }} />
+                            <div className="w-full bg-app-surface-hover dark:bg-app-dark-surface-hover rounded-full h-3">
+                              <div className="bg-app-primary dark:bg-app-dark-primary h-3 rounded-full" style={{ width: '100%' }} />
                             </div>
                           </div>
                           <div>
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-sm text-[var(--app-text-muted)]">SAM</span>
+                              <span className="text-sm text-app-text-muted dark:text-app-dark-text-muted">SAM</span>
                               <span className="text-lg font-medium">${analytics.market.marketSize.sam}B</span>
                             </div>
-                            <div className="w-full bg-[var(--app-surface-hover)] rounded-full h-3">
-                              <div className="bg-[var(--app-accent)] h-3 rounded-full"
+                            <div className="w-full bg-app-surface-hover dark:bg-app-dark-surface-hover rounded-full h-3">
+                              <div className="bg-app-accent dark:bg-app-dark-accent h-3 rounded-full"
                                 style={{ width: `${(analytics.market.marketSize.sam / analytics.market.marketSize.tam) * 100}%` }}
                               />
                             </div>
                           </div>
                           <div>
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-sm text-[var(--app-text-muted)]">SOM (3-year)</span>
+                              <span className="text-sm text-app-text-muted dark:text-app-dark-text-muted">SOM (3-year)</span>
                               <span className="text-lg font-medium">${analytics.market.marketSize.som}M</span>
                             </div>
-                            <div className="w-full bg-[var(--app-surface-hover)] rounded-full h-3">
-                              <div className="bg-[var(--app-success)] h-3 rounded-full"
+                            <div className="w-full bg-app-surface-hover dark:bg-app-dark-surface-hover rounded-full h-3">
+                              <div className="bg-app-success dark:bg-app-dark-success h-3 rounded-full"
                                 style={{ width: `${(analytics.market.marketSize.som / (analytics.market.marketSize.sam * 1000)) * 100}%` }}
                               />
                             </div>
@@ -628,27 +628,27 @@ export function DealIntelligence() {
 
                       {/* Customer Metrics */}
                       <Card padding="md">
-                        <h4 className="text-sm font-medium text-[var(--app-text-muted)] mb-4">Customer Metrics</h4>
+                        <h4 className="text-sm font-medium text-app-text-muted dark:text-app-dark-text-muted mb-4">Customer Metrics</h4>
                         <div className="space-y-3">
                           <div className="flex justify-between items-center">
-                            <span className="text-sm text-[var(--app-text-muted)]">Total Customers</span>
-                            <span className="text-xl font-medium text-[var(--app-primary)]">
+                            <span className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Total Customers</span>
+                            <span className="text-xl font-medium text-app-primary dark:text-app-dark-primary">
                               {analytics.market.customers.totalCustomers.toLocaleString()}
                             </span>
                           </div>
                           <div className="flex justify-between items-center">
-                            <span className="text-sm text-[var(--app-text-muted)]">NPS Score</span>
-                            <span className="text-xl font-medium text-[var(--app-success)]">
+                            <span className="text-sm text-app-text-muted dark:text-app-dark-text-muted">NPS Score</span>
+                            <span className="text-xl font-medium text-app-success dark:text-app-dark-success">
                               {analytics.market.customers.nps}
                             </span>
                           </div>
-                          <div className="flex justify-between items-center pt-2 border-t border-[var(--app-border)]">
-                            <span className="text-sm text-[var(--app-text-muted)]">Monthly Churn</span>
+                          <div className="flex justify-between items-center pt-2 border-t border-app-border dark:border-app-dark-border">
+                            <span className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Monthly Churn</span>
                             <span className="font-medium">{analytics.market.customers.churnRate}%</span>
                           </div>
                           <div className="flex justify-between items-center">
-                            <span className="text-sm text-[var(--app-text-muted)]">Net Revenue Retention</span>
-                            <span className="text-lg font-medium text-[var(--app-success)]">
+                            <span className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Net Revenue Retention</span>
+                            <span className="text-lg font-medium text-app-success dark:text-app-dark-success">
                               {analytics.market.customers.nrr}%
                             </span>
                           </div>
@@ -660,31 +660,31 @@ export function DealIntelligence() {
                   {/* Team Metrics */}
                   <div>
                     <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
-                      <Users className="w-5 h-5 text-[var(--app-primary)]" />
+                      <Users className="w-5 h-5 text-app-primary dark:text-app-dark-primary" />
                       Team & Execution
                     </h3>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                       <Card padding="md">
                         <div className="flex justify-between items-center mb-2">
-                          <span className="text-sm text-[var(--app-text-muted)]">Team Size</span>
-                          <span className="text-3xl font-medium text-[var(--app-primary)]">
+                          <span className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Team Size</span>
+                          <span className="text-3xl font-medium text-app-primary dark:text-app-dark-primary">
                             {analytics.team.size}
                           </span>
                         </div>
-                        <div className="text-xs text-[var(--app-text-subtle)]">employees</div>
+                        <div className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle">employees</div>
                       </Card>
 
                       <Card padding="md">
                         <div className="flex justify-between items-center mb-2">
-                          <span className="text-sm text-[var(--app-text-muted)]">Founder Experience</span>
-                          <span className="text-3xl font-medium text-[var(--app-primary)]">
+                          <span className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Founder Experience</span>
+                          <span className="text-3xl font-medium text-app-primary dark:text-app-dark-primary">
                             {analytics.team.founderExperienceScore}/10
                           </span>
                         </div>
-                        <div className="w-full bg-[var(--app-surface-hover)] rounded-full h-2 mt-2">
+                        <div className="w-full bg-app-surface-hover dark:bg-app-dark-surface-hover rounded-full h-2 mt-2">
                           <div
-                            className="bg-[var(--app-primary)] h-2 rounded-full"
+                            className="bg-app-primary dark:bg-app-dark-primary h-2 rounded-full"
                             style={{ width: `${analytics.team.founderExperienceScore * 10}%` }}
                           />
                         </div>
@@ -724,14 +724,14 @@ export function DealIntelligence() {
                     <Card
                       key={category.id}
                       padding="sm"
-                      className="hover:border-[var(--app-border-subtle)] transition-colors cursor-pointer"
+                      className="hover:border-app-border-subtle dark:hover:border-app-dark-border-subtle transition-colors cursor-pointer"
                     >
                       <div className="flex items-center gap-2 mb-2">
-                        <CategoryIcon className="w-4 h-4 text-[var(--app-primary)]" />
+                        <CategoryIcon className="w-4 h-4 text-app-primary dark:text-app-dark-primary" />
                         <span className="text-sm font-medium">{category.name}</span>
                       </div>
                       <div className="text-2xl font-medium">{count}</div>
-                      <div className="text-xs text-[var(--app-text-muted)]">documents</div>
+                      <div className="text-xs text-app-text-muted dark:text-app-dark-text-muted">documents</div>
                     </Card>
                   );
                 })}
@@ -753,7 +753,7 @@ export function DealIntelligence() {
                       variant="flat"
                       size="sm"
                       startContent={<Upload className="w-4 h-4" />}
-                      className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]"
+                      className="bg-app-primary-bg dark:bg-app-dark-primary-bg text-app-primary dark:text-app-dark-primary"
                     >
                       Upload
                     </Button>
@@ -761,7 +761,7 @@ export function DealIntelligence() {
                 </div>
 
                 {filteredDocuments.length === 0 ? (
-                  <div className="text-center py-12 text-[var(--app-text-muted)]">
+                  <div className="text-center py-12 text-app-text-muted dark:text-app-dark-text-muted">
                     <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
                     <p>No documents found matching your criteria</p>
                   </div>
@@ -771,27 +771,27 @@ export function DealIntelligence() {
                       <Card
                         key={doc.id}
                         padding="sm"
-                        className="hover:bg-[var(--app-surface-hover)] transition-colors cursor-pointer"
+                        className="hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover transition-colors cursor-pointer"
                       >
                         <div className="flex items-center justify-between gap-4">
                           <div className="flex items-center gap-3 flex-1 min-w-0">
-                            <FileText className="w-4 h-4 text-[var(--app-text-subtle)]" />
+                            <FileText className="w-4 h-4 text-app-text-subtle dark:text-app-dark-text-subtle" />
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
                                 <span className="font-medium text-sm truncate">{doc.name}</span>
                                 <StatusBadge status={doc.status} domain="deal-intel" size="sm" />
                               </div>
-                              <div className="flex items-center gap-2 text-xs text-[var(--app-text-muted)]">
+                              <div className="flex items-center gap-2 text-xs text-app-text-muted dark:text-app-dark-text-muted">
                                 <span className="capitalize">{doc.category}</span>
                                 {doc.uploadedBy && (
                                   <>
-                                    <span>•</span>
+                                    <span>-</span>
                                     <span>{doc.uploadedBy}</span>
                                   </>
                                 )}
                                 {doc.uploadedDate && (
                                   <>
-                                    <span>•</span>
+                                    <span>-</span>
                                     <span>{doc.uploadedDate}</span>
                                   </>
                                 )}
@@ -800,7 +800,7 @@ export function DealIntelligence() {
                           </div>
                           <div className="flex items-center gap-4">
                             {doc.size && (
-                              <span className="text-xs text-[var(--app-text-muted)] hidden sm:inline">{doc.size}</span>
+                              <span className="text-xs text-app-text-muted dark:text-app-dark-text-muted hidden sm:inline">{doc.size}</span>
                             )}
                             <div className="flex gap-1">
                               <Button
@@ -834,7 +834,7 @@ export function DealIntelligence() {
 
           <Tab key="analysis" title="Analysis & Insights">
             <Card padding="md">
-              <div className="text-center py-12 text-[var(--app-text-muted)]">
+              <div className="text-center py-12 text-app-text-muted dark:text-app-dark-text-muted">
                 <Brain className="w-12 h-12 mx-auto mb-4 opacity-50" />
                 <p>Investment thesis and analysis coming soon</p>
               </div>
@@ -843,7 +843,7 @@ export function DealIntelligence() {
 
           <Tab key="ic-materials" title="IC Materials">
             <Card padding="md">
-              <div className="text-center py-12 text-[var(--app-text-muted)]">
+              <div className="text-center py-12 text-app-text-muted dark:text-app-dark-text-muted">
                 <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
                 <p>Investment Committee materials coming soon</p>
               </div>

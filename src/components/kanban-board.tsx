@@ -143,7 +143,7 @@ export function KanbanBoard<T extends KanbanItemBase>({
                 <Badge
                   size="sm"
                   variant="flat"
-                  className="bg-[var(--app-surface-hover)] text-[var(--app-text-muted)]"
+                  className="bg-app-surface-hover dark:bg-app-dark-surface-hover text-app-text-muted dark:text-app-dark-text-muted"
                 >
                   {column.items.length}
                 </Badge>
@@ -159,7 +159,7 @@ export function KanbanBoard<T extends KanbanItemBase>({
                 data-column-id={column.id}
               >
                 {column.items.length === 0 ? (
-                  <div className="text-center py-8 text-sm text-[var(--app-text-muted)]">
+                  <div className="text-center py-8 text-sm text-app-text-muted dark:text-app-dark-text-muted">
                     No items
                   </div>
                 ) : (

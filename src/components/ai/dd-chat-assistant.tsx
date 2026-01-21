@@ -60,17 +60,17 @@ export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealNam
   return (
     <Card padding="none" className="flex flex-col h-[600px]">
       {/* Header */}
-      <div className="p-4 border-b border-[var(--app-border)]">
+      <div className="p-4 border-b border-app-border dark:border-app-dark-border">
         <div className="flex items-center gap-2 mb-2">
-          <Sparkles className="w-5 h-5 text-[var(--app-primary)]" />
+          <Sparkles className="w-5 h-5 text-app-primary dark:text-app-dark-primary" />
           <h3 className="font-semibold">AI Due Diligence Assistant</h3>
           {dealName && (
-            <Badge size="sm" variant="flat" className="bg-[var(--app-surface-hover)]">
+            <Badge size="sm" variant="flat" className="bg-app-surface-hover dark:bg-app-dark-surface-hover">
               {dealName}
             </Badge>
           )}
         </div>
-        <p className="text-xs text-[var(--app-text-muted)]">
+        <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">
           Ask questions about deals, analyze metrics, and get AI-powered insights
         </p>
       </div>
@@ -81,8 +81,8 @@ export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealNam
           <div key={message.id} className={`flex gap-3 ${message.role === 'user' ? 'flex-row-reverse' : ''}`}>
             <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
               message.role === 'user'
-                ? 'bg-[var(--app-primary)]'
-                : 'bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-secondary)]'
+                ? 'bg-app-primary dark:bg-app-dark-primary'
+                : 'bg-gradient-to-br from-app-primary to-app-secondary dark:from-app-dark-primary dark:to-app-dark-secondary'
             }`}>
               {message.role === 'user' ? (
                 <User className="w-4 h-4 text-white" />
@@ -95,8 +95,8 @@ export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealNam
               <div className={`max-w-[85%] ${message.role === 'user' ? 'text-right' : ''}`}>
                 <div className={`rounded-lg p-3 ${
                   message.role === 'user'
-                    ? 'bg-[var(--app-primary)] text-white'
-                    : 'bg-[var(--app-surface-hover)] text-[var(--app-text)]'
+                    ? 'bg-app-primary dark:bg-app-dark-primary text-white'
+                    : 'bg-app-surface-hover dark:bg-app-dark-surface-hover text-app-text dark:text-app-dark-text'
                 }`}>
                   <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                 </div>
@@ -108,18 +108,18 @@ export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealNam
                       <div
                         key={idx}
                         className={`flex items-start gap-2 p-2 rounded-lg text-xs ${
-                          insight.type === 'positive' ? 'bg-[var(--app-success-bg)]' :
-                          insight.type === 'negative' ? 'bg-[var(--app-danger-bg)]' :
-                          'bg-[var(--app-info-bg)]'
+                          insight.type === 'positive' ? 'bg-app-success-bg dark:bg-app-dark-success-bg' :
+                          insight.type === 'negative' ? 'bg-app-danger-bg dark:bg-app-dark-danger-bg' :
+                          'bg-app-info-bg dark:bg-app-dark-info-bg'
                         }`}
                       >
-                        {insight.type === 'positive' ? <TrendingUp className="w-3 h-3 text-[var(--app-success)] mt-0.5" /> :
-                         insight.type === 'negative' ? <AlertCircle className="w-3 h-3 text-[var(--app-danger)] mt-0.5" /> :
-                         <Lightbulb className="w-3 h-3 text-[var(--app-info)] mt-0.5" />}
+                        {insight.type === 'positive' ? <TrendingUp className="w-3 h-3 text-app-success dark:text-app-dark-success mt-0.5" /> :
+                         insight.type === 'negative' ? <AlertCircle className="w-3 h-3 text-app-danger dark:text-app-dark-danger mt-0.5" /> :
+                         <Lightbulb className="w-3 h-3 text-app-info dark:text-app-dark-info mt-0.5" />}
                         <span className={
-                          insight.type === 'positive' ? 'text-[var(--app-success)]' :
-                          insight.type === 'negative' ? 'text-[var(--app-danger)]' :
-                          'text-[var(--app-info)]'
+                          insight.type === 'positive' ? 'text-app-success dark:text-app-dark-success' :
+                          insight.type === 'negative' ? 'text-app-danger dark:text-app-dark-danger' :
+                          'text-app-info dark:text-app-dark-info'
                         }>{insight.text}</span>
                       </div>
                     ))}
@@ -129,14 +129,14 @@ export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealNam
                 {/* Related Documents */}
                 {message.relatedDocs && message.relatedDocs.length > 0 && (
                   <div className="mt-3">
-                    <p className="text-xs text-[var(--app-text-muted)] mb-2">📎 Related Documents:</p>
+                    <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-2">📎 Related Documents:</p>
                     <div className="flex flex-wrap gap-2">
                       {message.relatedDocs.map((doc, idx) => (
                         <Badge
                           key={idx}
                           size="sm"
                           variant="flat"
-                          className="bg-[var(--app-surface-hover)] cursor-pointer hover:bg-[var(--app-primary-bg)] hover:text-[var(--app-primary)]"
+                          className="bg-app-surface-hover dark:bg-app-dark-surface-hover cursor-pointer hover:bg-app-primary-bg hover:text-app-primary dark:hover:bg-app-dark-primary-bg dark:hover:text-app-dark-primary"
                           onClick={() => {
                             preview.openPreview({
                               id: doc.name,
@@ -158,13 +158,13 @@ export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealNam
                 {/* Suggested Questions */}
                 {message.suggestedQuestions && message.suggestedQuestions.length > 0 && (
                   <div className="mt-3">
-                    <p className="text-xs text-[var(--app-text-muted)] mb-2">💡 Suggested questions:</p>
+                    <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-2">💡 Suggested questions:</p>
                     <div className="space-y-1">
                       {message.suggestedQuestions.map((question, idx) => (
                         <button
                           key={idx}
                           onClick={() => handleSuggestedQuestion(question)}
-                          className="block w-full text-left text-xs p-2 rounded-lg bg-[var(--app-surface)] hover:bg-[var(--app-surface-hover)] text-[var(--app-text-muted)] hover:text-[var(--app-primary)] transition-colors"
+                          className="block w-full text-left text-xs p-2 rounded-lg bg-app-surface dark:bg-app-dark-surface hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover text-app-text-muted dark:text-app-dark-text-muted hover:text-app-primary dark:hover:text-app-dark-primary transition-colors"
                         >
                           {question}
                         </button>
@@ -173,7 +173,7 @@ export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealNam
                   </div>
                 )}
 
-                <p className="text-xs text-[var(--app-text-subtle)] mt-1">
+                <p className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle mt-1">
                   {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </p>
               </div>
@@ -183,15 +183,15 @@ export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealNam
 
         {isTyping && (
           <div className="flex gap-3">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-secondary)] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-app-primary to-app-secondary dark:from-app-dark-primary dark:to-app-dark-secondary flex items-center justify-center">
               <Bot className="w-4 h-4 text-white" />
             </div>
             <div className="flex-1">
-              <div className="bg-[var(--app-surface-hover)] rounded-lg p-3 max-w-[100px]">
+              <div className="bg-app-surface-hover dark:bg-app-dark-surface-hover rounded-lg p-3 max-w-[100px]">
                 <div className="flex gap-1">
-                  <div className="w-2 h-2 rounded-full bg-[var(--app-text-muted)] animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                  <div className="w-2 h-2 rounded-full bg-[var(--app-text-muted)] animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                  <div className="w-2 h-2 rounded-full bg-[var(--app-text-muted)] animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                  <div className="w-2 h-2 rounded-full bg-app-text-muted dark:bg-app-dark-text-muted animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-2 h-2 rounded-full bg-app-text-muted dark:bg-app-dark-text-muted animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-2 h-2 rounded-full bg-app-text-muted dark:bg-app-dark-text-muted animate-bounce" style={{ animationDelay: '300ms' }}></div>
                 </div>
               </div>
             </div>
@@ -202,7 +202,7 @@ export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealNam
       </div>
 
       {/* Input */}
-      <div className="p-4 border-t border-[var(--app-border)]">
+      <div className="p-4 border-t border-app-border dark:border-app-dark-border">
         <div className="flex gap-2">
           <Input
             type="text"
@@ -223,7 +223,7 @@ export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealNam
             <Send className="w-4 h-4" />
           </Button>
         </div>
-        <p className="text-xs text-[var(--app-text-subtle)] mt-2">
+        <p className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle mt-2">
           AI assistant analyzes uploaded documents, financial data, and market research
         </p>
       </div>

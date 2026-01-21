@@ -32,11 +32,11 @@ export function QuickActions({ actions }: QuickActionsProps) {
   return (
     <div className="mb-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-[var(--app-text)] flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-[var(--app-primary)]" />
+        <h3 className="text-sm font-semibold text-app-text dark:text-app-dark-text flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-app-primary dark:text-app-dark-primary" />
           Quick Actions
         </h3>
-        <span className="text-xs text-[var(--app-text-subtle)]">
+        <span className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle">
           AI-suggested actions appear first
         </span>
       </div>
@@ -59,8 +59,8 @@ export function QuickActions({ actions }: QuickActionsProps) {
                 className={`
                   relative w-full p-4 rounded-lg border transition-all duration-200
                   ${action.aiSuggested
-                    ? 'bg-gradient-to-br from-[var(--app-primary)]/10 to-[var(--app-accent)]/5 border-[var(--app-border)] hover:border-[var(--app-primary)]/40'
-                    : 'bg-[var(--app-surface)] border-[var(--app-border)] hover:border-[var(--app-primary)]/30'
+                    ? 'bg-gradient-to-br from-app-primary/10 to-app-accent/5 dark:from-app-dark-primary/10 dark:to-app-dark-accent/5 border-app-border dark:border-app-dark-border hover:border-app-primary/40 dark:hover:border-app-dark-primary/40'
+                    : 'bg-app-surface dark:bg-app-dark-surface border-app-border dark:border-app-dark-border hover:border-app-primary/30 dark:hover:border-app-dark-primary/30'
                   }
                   hover:shadow-lg
                 `}
@@ -68,10 +68,10 @@ export function QuickActions({ actions }: QuickActionsProps) {
                 {/* AI Badge */}
                 {action.aiSuggested && (
                   <div className="absolute top-2 right-2">
-                    <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[var(--app-primary)]/20">
-                      <Sparkles className="w-3 h-3 text-[var(--app-primary)]" />
+                    <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-app-primary/20 dark:bg-app-dark-primary/20">
+                      <Sparkles className="w-3 h-3 text-app-primary dark:text-app-dark-primary" />
                       {action.confidence && (
-                        <span className="text-xs font-bold text-[var(--app-primary)]">
+                        <span className="text-xs font-bold text-app-primary dark:text-app-dark-primary">
                           {Math.round(action.confidence * 100)}%
                         </span>
                       )}
@@ -83,26 +83,26 @@ export function QuickActions({ actions }: QuickActionsProps) {
                 <div className={`
                   w-10 h-10 rounded-lg flex items-center justify-center mb-3
                   ${action.aiSuggested
-                    ? 'bg-[var(--app-primary)]/20'
-                    : 'bg-[var(--app-surface-hover)]'
+                    ? 'bg-app-primary/20 dark:bg-app-dark-primary/20'
+                    : 'bg-app-surface-hover dark:bg-app-dark-surface-hover'
                   }
                 `}>
                   <Icon className={`
                     w-5 h-5
                     ${action.aiSuggested
-                      ? 'text-[var(--app-primary)]'
-                      : 'text-[var(--app-text-muted)]'
+                      ? 'text-app-primary dark:text-app-dark-primary'
+                      : 'text-app-text-muted dark:text-app-dark-text-muted'
                     }
                   `} />
                 </div>
 
                 {/* Label */}
-                <h4 className="text-sm font-semibold text-[var(--app-text)] mb-1 text-left">
+                <h4 className="text-sm font-semibold text-app-text dark:text-app-dark-text mb-1 text-left">
                   {action.label}
                 </h4>
 
                 {/* Description */}
-                <p className="text-xs text-[var(--app-text-muted)] text-left line-clamp-2">
+                <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted text-left line-clamp-2">
                   {action.description}
                 </p>
               </button>
@@ -116,14 +116,14 @@ export function QuickActions({ actions }: QuickActionsProps) {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="mt-4 p-3 rounded-lg bg-[var(--app-surface)] border border-[var(--app-border)]"
+        className="mt-4 p-3 rounded-lg bg-app-surface dark:bg-app-dark-surface border border-app-border dark:border-app-dark-border"
       >
         <div className="flex items-center gap-3">
-          <MessageSquare className="w-5 h-5 text-[var(--app-text-muted)] flex-shrink-0" />
+          <MessageSquare className="w-5 h-5 text-app-text-muted dark:text-app-dark-text-muted flex-shrink-0" />
           <div className="flex-1">
-            <p className="text-sm text-[var(--app-text-muted)]">
+            <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">
               Need something else?{' '}
-              <button className="text-[var(--app-primary)] hover:underline font-medium">
+              <button className="text-app-primary dark:text-app-dark-primary hover:underline font-medium">
                 Ask AI Copilot
               </button>
             </p>

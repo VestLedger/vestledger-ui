@@ -133,11 +133,11 @@ export function TransferSecondary({
 
   const getTypeBadge = (type: TransferType) => {
     const colors = {
-      'direct': 'bg-[var(--app-primary-bg)] text-[var(--app-primary)]',
-      'secondary-sale': 'bg-[var(--app-success-bg)] text-[var(--app-success)]',
-      'inheritance': 'bg-[var(--app-info-bg)] text-[var(--app-info)]',
-      'gift': 'bg-[var(--app-warning-bg)] text-[var(--app-warning)]',
-      'court-order': 'bg-[var(--app-danger-bg)] text-[var(--app-danger)]',
+      'direct': 'bg-app-primary-bg dark:bg-app-dark-primary-bg text-app-primary dark:text-app-dark-primary',
+      'secondary-sale': 'bg-app-success-bg dark:bg-app-dark-success-bg text-app-success dark:text-app-dark-success',
+      'inheritance': 'bg-app-info-bg dark:bg-app-dark-info-bg text-app-info dark:text-app-dark-info',
+      'gift': 'bg-app-warning-bg dark:bg-app-dark-warning-bg text-app-warning dark:text-app-dark-warning',
+      'court-order': 'bg-app-danger-bg dark:bg-app-dark-danger-bg text-app-danger dark:text-app-dark-danger',
     };
 
     return (
@@ -178,7 +178,7 @@ export function TransferSecondary({
       <Card padding="md">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <ArrowRightLeft className="w-5 h-5 text-[var(--app-primary)]" />
+            <ArrowRightLeft className="w-5 h-5 text-app-primary dark:text-app-dark-primary" />
             <h3 className="text-lg font-semibold">Transfers & Secondary Market</h3>
           </div>
           {onInitiateTransfer && (
@@ -195,29 +195,29 @@ export function TransferSecondary({
 
         {/* Summary Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-          <div className="p-3 rounded-lg bg-[var(--app-warning-bg)]">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Pending Review</p>
-            <p className="text-2xl font-bold text-[var(--app-warning)]">
+          <div className="p-3 rounded-lg bg-app-warning-bg dark:bg-app-dark-warning-bg">
+            <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Pending Review</p>
+            <p className="text-2xl font-bold text-app-warning dark:text-app-dark-warning">
               {transfers.filter(t =>
                 t.status === 'pending-gp-approval' ||
                 t.status === 'pending-legal-review'
               ).length}
             </p>
           </div>
-          <div className="p-3 rounded-lg bg-[var(--app-info-bg)]">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Approved</p>
-            <p className="text-2xl font-bold text-[var(--app-info)]">
+          <div className="p-3 rounded-lg bg-app-info-bg dark:bg-app-dark-info-bg">
+            <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Approved</p>
+            <p className="text-2xl font-bold text-app-info dark:text-app-dark-info">
               {transfers.filter(t => t.status === 'approved').length}
             </p>
           </div>
-          <div className="p-3 rounded-lg bg-[var(--app-success-bg)]">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Completed</p>
-            <p className="text-2xl font-bold text-[var(--app-success)]">
+          <div className="p-3 rounded-lg bg-app-success-bg dark:bg-app-dark-success-bg">
+            <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Completed</p>
+            <p className="text-2xl font-bold text-app-success dark:text-app-dark-success">
               {transfers.filter(t => t.status === 'completed').length}
             </p>
           </div>
-          <div className="p-3 rounded-lg bg-[var(--app-surface-hover)] border border-[var(--app-border)]">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Total Volume</p>
+          <div className="p-3 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover border border-app-border dark:border-app-dark-border">
+            <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Total Volume</p>
             <p className="text-lg font-bold">
               {formatCurrency(
                 transfers
@@ -226,8 +226,8 @@ export function TransferSecondary({
               )}
             </p>
           </div>
-          <div className="p-3 rounded-lg bg-[var(--app-surface-hover)] border border-[var(--app-border)]">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Avg Discount</p>
+          <div className="p-3 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover border border-app-border dark:border-app-dark-border">
+            <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Avg Discount</p>
             <p className="text-lg font-bold">
               {formatPercent(
                 transfers
@@ -248,7 +248,7 @@ export function TransferSecondary({
           rightActions={(
             <div className="flex flex-wrap items-center gap-2">
               <select
-                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+                className="px-3 py-2 text-sm rounded-lg border border-app-border dark:border-app-dark-border bg-app-surface dark:bg-app-dark-surface text-app-text dark:text-app-dark-text"
                 value={filterStatus}
                 onChange={(e) => patchUI({ filterStatus: e.target.value as TransferStatus | 'all' })}
               >
@@ -263,7 +263,7 @@ export function TransferSecondary({
                 <option value="cancelled">Cancelled</option>
               </select>
               <select
-                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+                className="px-3 py-2 text-sm rounded-lg border border-app-border dark:border-app-dark-border bg-app-surface dark:bg-app-dark-surface text-app-text dark:text-app-dark-text"
                 value={filterType}
                 onChange={(e) => patchUI({ filterType: e.target.value as TransferType | 'all' })}
               >
@@ -283,7 +283,7 @@ export function TransferSecondary({
       <Card padding="md">
         <div className="space-y-3">
           {filteredTransfers.length === 0 ? (
-            <div className="text-center py-8 text-sm text-[var(--app-text-muted)]">
+            <div className="text-center py-8 text-sm text-app-text-muted dark:text-app-dark-text-muted">
               <ArrowRightLeft className="w-8 h-8 mx-auto mb-2 opacity-50" />
               <p>No transfers found</p>
             </div>
@@ -297,7 +297,7 @@ export function TransferSecondary({
               return (
                 <div
                   key={transfer.id}
-                  className="p-4 rounded-lg bg-[var(--app-surface-hover)] hover:bg-[var(--app-surface)] border border-[var(--app-border)] transition-colors cursor-pointer"
+                  className="p-4 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover hover:bg-app-surface dark:hover:bg-app-dark-surface border border-app-border dark:border-app-dark-border transition-colors cursor-pointer"
                   onClick={() => patchUI({ selectedTransfer: transfer })}
                 >
                   {/* Header Row */}
@@ -308,16 +308,16 @@ export function TransferSecondary({
                         <StatusBadge status={transfer.status} domain="fund-admin" size="sm" showIcon />
                         {getTypeBadge(transfer.type)}
                         {transfer.subjectToROFR && rofrPending.length > 0 && (
-                          <Badge size="sm" variant="flat" className="bg-[var(--app-warning-bg)] text-[var(--app-warning)]">
+                          <Badge size="sm" variant="flat" className="bg-app-warning-bg dark:bg-app-dark-warning-bg text-app-warning dark:text-app-dark-warning">
                             <AlertCircle className="w-3 h-3 mr-1" />
                             ROFR Pending
                           </Badge>
                         )}
                       </div>
-                      <p className="text-sm text-[var(--app-text-muted)]">{transfer.fundName}</p>
+                      <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">{transfer.fundName}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs text-[var(--app-text-muted)]">Requested</p>
+                      <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">Requested</p>
                       <p className="text-sm font-medium">
                         {transfer.requestedDate.toLocaleDateString()}
                       </p>
@@ -328,50 +328,50 @@ export function TransferSecondary({
                   <div className="grid grid-cols-2 gap-3 mb-3">
                     <div>
                       <div className="flex items-center gap-2 mb-2">
-                        <Users className="w-4 h-4 text-[var(--app-text-muted)]" />
-                        <span className="text-xs font-medium text-[var(--app-text-muted)]">Transferor</span>
+                        <Users className="w-4 h-4 text-app-text-muted dark:text-app-dark-text-muted" />
+                        <span className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted">Transferor</span>
                       </div>
                       <p className="text-sm font-medium">{transfer.transferorName}</p>
-                      <p className="text-xs text-[var(--app-text-muted)]">{transfer.transferorEmail}</p>
+                      <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">{transfer.transferorEmail}</p>
                     </div>
                     <div>
                       <div className="flex items-center gap-2 mb-2">
-                        <Users className="w-4 h-4 text-[var(--app-text-muted)]" />
-                        <span className="text-xs font-medium text-[var(--app-text-muted)]">Transferee</span>
+                        <Users className="w-4 h-4 text-app-text-muted dark:text-app-dark-text-muted" />
+                        <span className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted">Transferee</span>
                       </div>
                       {transfer.transfereeName ? (
                         <>
                           <p className="text-sm font-medium">{transfer.transfereeName}</p>
-                          <p className="text-xs text-[var(--app-text-muted)]">{transfer.transfereeEmail}</p>
+                          <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">{transfer.transfereeEmail}</p>
                         </>
                       ) : (
-                        <p className="text-sm text-[var(--app-text-muted)] italic">Not yet assigned</p>
+                        <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted italic">Not yet assigned</p>
                       )}
                     </div>
                   </div>
 
                   {/* Financial Details */}
-                  <div className="grid grid-cols-4 gap-3 mb-3 p-3 rounded-lg bg-[var(--app-surface)]">
+                  <div className="grid grid-cols-4 gap-3 mb-3 p-3 rounded-lg bg-app-surface dark:bg-app-dark-surface">
                     <div>
-                      <p className="text-xs text-[var(--app-text-muted)] mb-1">Commitment</p>
+                      <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-1">Commitment</p>
                       <p className="text-sm font-bold">{formatCurrency(transfer.commitmentAmount)}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-[var(--app-text-muted)] mb-1">Funded</p>
+                      <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-1">Funded</p>
                       <p className="text-sm font-bold">{formatCurrency(transfer.fundedAmount)}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-[var(--app-text-muted)] mb-1">Unfunded</p>
+                      <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-1">Unfunded</p>
                       <p className="text-sm font-bold">{formatCurrency(transfer.unfundedCommitment)}</p>
                     </div>
                     {transfer.transferPrice && (
                       <div>
-                        <p className="text-xs text-[var(--app-text-muted)] mb-1">Transfer Price</p>
-                        <p className="text-sm font-bold text-[var(--app-success)]">
+                        <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-1">Transfer Price</p>
+                        <p className="text-sm font-bold text-app-success dark:text-app-dark-success">
                           {formatCurrency(transfer.transferPrice)}
                         </p>
                         {transfer.discount && (
-                          <p className="text-xs text-[var(--app-text-muted)]">
+                          <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">
                             {formatPercent(-transfer.discount)} to NAV
                           </p>
                         )}
@@ -382,28 +382,28 @@ export function TransferSecondary({
                   {/* Compliance Progress */}
                   <div className="mb-3">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-medium text-[var(--app-text-muted)]">Compliance Status</span>
+                      <span className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted">Compliance Status</span>
                       <span className="text-xs font-medium">
                         {compliance.completed}/{compliance.total} Complete
                       </span>
                     </div>
-                    <div className="h-2 bg-[var(--app-surface)] rounded-full overflow-hidden">
+                    <div className="h-2 bg-app-surface dark:bg-app-dark-surface rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-[var(--app-success)] transition-all"
+                        className="h-full bg-app-success dark:bg-app-dark-success transition-all"
                         style={{ width: `${compliance.percentage}%` }}
                       />
                     </div>
                     <div className="flex items-center gap-3 mt-2 text-xs">
-                      <span className={transfer.accreditationVerified ? 'text-[var(--app-success)]' : 'text-[var(--app-text-muted)]'}>
+                      <span className={transfer.accreditationVerified ? 'text-app-success dark:text-app-dark-success' : 'text-app-text-muted dark:text-app-dark-text-muted'}>
                         {transfer.accreditationVerified ? '✓' : '○'} Accreditation
                       </span>
-                      <span className={transfer.kycCompleted ? 'text-[var(--app-success)]' : 'text-[var(--app-text-muted)]'}>
+                      <span className={transfer.kycCompleted ? 'text-app-success dark:text-app-dark-success' : 'text-app-text-muted dark:text-app-dark-text-muted'}>
                         {transfer.kycCompleted ? '✓' : '○'} KYC
                       </span>
-                      <span className={transfer.amlCleared ? 'text-[var(--app-success)]' : 'text-[var(--app-text-muted)]'}>
+                      <span className={transfer.amlCleared ? 'text-app-success dark:text-app-dark-success' : 'text-app-text-muted dark:text-app-dark-text-muted'}>
                         {transfer.amlCleared ? '✓' : '○'} AML
                       </span>
-                      <span className={transfer.taxFormsReceived ? 'text-[var(--app-success)]' : 'text-[var(--app-text-muted)]'}>
+                      <span className={transfer.taxFormsReceived ? 'text-app-success dark:text-app-dark-success' : 'text-app-text-muted dark:text-app-dark-text-muted'}>
                         {transfer.taxFormsReceived ? '✓' : '○'} Tax Forms
                       </span>
                     </div>
@@ -412,8 +412,8 @@ export function TransferSecondary({
                   {/* Documents */}
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-[var(--app-text-muted)]" />
-                      <span className="text-xs font-medium text-[var(--app-text-muted)]">
+                      <FileText className="w-4 h-4 text-app-text-muted dark:text-app-dark-text-muted" />
+                      <span className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted">
                         {transfer.documents.length} Documents
                       </span>
                     </div>
@@ -429,7 +429,7 @@ export function TransferSecondary({
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2 pt-3 border-t border-[var(--app-border)]">
+                  <div className="flex items-center gap-2 pt-3 border-t border-app-border dark:border-app-dark-border">
                     {onReviewTransfer && (
                       <Button
                         size="sm"
@@ -461,14 +461,14 @@ export function TransferSecondary({
                       <Button
                         size="sm"
                         variant="flat"
-                        className="text-[var(--app-warning)]"
+                        className="text-app-warning dark:text-app-dark-warning"
                         onPress={() => onExerciseROFR(transfer.id)}
                       >
                         Exercise ROFR
                       </Button>
                     )}
                     {transfer.rejectionReason && (
-                      <div className="flex-1 text-xs text-[var(--app-danger)]">
+                      <div className="flex-1 text-xs text-app-danger dark:text-app-dark-danger">
                         Rejected: {transfer.rejectionReason}
                       </div>
                     )}

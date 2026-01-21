@@ -21,8 +21,8 @@ function TableRowComponent<T extends object>({
 }: TableRowProps<T>) {
   return (
     <tr
-      className={`border-b border-[var(--app-border)] ${
-        onRowClick ? 'cursor-pointer hover:bg-[var(--app-surface-hover)]' : ''
+      className={`border-b border-app-border dark:border-app-dark-border ${
+        onRowClick ? 'cursor-pointer hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover' : ''
       }`}
       onClick={() => onRowClick?.(item)}
     >

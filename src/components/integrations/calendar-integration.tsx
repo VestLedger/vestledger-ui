@@ -175,10 +175,10 @@ export function CalendarIntegration({
 
   const getProviderBadge = (provider: CalendarProvider) => {
     const colors = {
-      'google': 'bg-[var(--app-danger-bg)] text-[var(--app-danger)]',
-      'outlook': 'bg-[var(--app-info-bg)] text-[var(--app-info)]',
-      'apple': 'bg-[var(--app-text-muted)]/20 text-[var(--app-text)]',
-      'other': 'bg-[var(--app-text-muted)]/10 text-[var(--app-text-muted)]',
+      'google': 'bg-app-danger-bg dark:bg-app-dark-danger-bg text-app-danger dark:text-app-dark-danger',
+      'outlook': 'bg-app-info-bg dark:bg-app-dark-info-bg text-app-info dark:text-app-dark-info',
+      'apple': 'bg-app-text-muted/20 dark:bg-app-dark-text-muted/20 text-app-text dark:text-app-dark-text',
+      'other': 'bg-app-text-muted/10 dark:bg-app-dark-text-muted/10 text-app-text-muted dark:text-app-dark-text-muted',
     };
 
     return (
@@ -252,7 +252,7 @@ export function CalendarIntegration({
       <Card padding="md">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-[var(--app-primary)]" />
+            <Calendar className="w-5 h-5 text-app-primary dark:text-app-dark-primary" />
             <h3 className="text-lg font-semibold">Calendar Integration</h3>
           </div>
           <div className="flex items-center gap-2">
@@ -280,48 +280,48 @@ export function CalendarIntegration({
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-          <div className="p-3 rounded-lg bg-[var(--app-success-bg)]">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Connected</p>
-            <p className="text-2xl font-bold text-[var(--app-success)]">{totalConnected}</p>
+          <div className="p-3 rounded-lg bg-app-success-bg dark:bg-app-dark-success-bg">
+            <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Connected</p>
+            <p className="text-2xl font-bold text-app-success dark:text-app-dark-success">{totalConnected}</p>
           </div>
-          <div className="p-3 rounded-lg bg-[var(--app-primary-bg)]">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Auto-Capture On</p>
-            <p className="text-2xl font-bold text-[var(--app-primary)]">{autoCaptureEnabled}</p>
+          <div className="p-3 rounded-lg bg-app-primary-bg dark:bg-app-dark-primary-bg">
+            <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Auto-Capture On</p>
+            <p className="text-2xl font-bold text-app-primary dark:text-app-dark-primary">{autoCaptureEnabled}</p>
           </div>
-          <div className="p-3 rounded-lg bg-[var(--app-warning-bg)]">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Pending Capture</p>
-            <p className="text-2xl font-bold text-[var(--app-warning)]">{pendingCapture}</p>
+          <div className="p-3 rounded-lg bg-app-warning-bg dark:bg-app-dark-warning-bg">
+            <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Pending Capture</p>
+            <p className="text-2xl font-bold text-app-warning dark:text-app-dark-warning">{pendingCapture}</p>
           </div>
-          <div className="p-3 rounded-lg bg-[var(--app-info-bg)]">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Captured Today</p>
-            <p className="text-2xl font-bold text-[var(--app-info)]">{capturedToday}</p>
+          <div className="p-3 rounded-lg bg-app-info-bg dark:bg-app-dark-info-bg">
+            <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Captured Today</p>
+            <p className="text-2xl font-bold text-app-info dark:text-app-dark-info">{capturedToday}</p>
           </div>
-          <div className="p-3 rounded-lg bg-[var(--app-surface-hover)] border border-[var(--app-border)]">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Total Events</p>
+          <div className="p-3 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover border border-app-border dark:border-app-dark-border">
+            <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Total Events</p>
             <p className="text-2xl font-bold">{filteredEvents.length}</p>
           </div>
         </div>
 
         {/* Latest Sync Status */}
         {latestSync && (
-          <div className="mt-3 p-3 rounded-lg bg-[var(--app-surface-hover)]">
+          <div className="mt-3 p-3 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
             <div className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-2">
                 <RefreshCw className={`w-4 h-4 ${latestSync.status === 'running' ? 'animate-spin' : ''}`} />
                 <span className="font-medium">Last Sync</span>
               </div>
-              <div className="flex items-center gap-4 text-xs text-[var(--app-text-muted)]">
+              <div className="flex items-center gap-4 text-xs text-app-text-muted dark:text-app-dark-text-muted">
                 <span>Scanned: {latestSync.eventsScanned}</span>
                 <span>Captured: {latestSync.eventsCaptured}</span>
                 <span>Ignored: {latestSync.eventsIgnored}</span>
                 {latestSync.status === 'running' ? (
-                  <Badge size="sm" variant="flat" className="bg-[var(--app-warning-bg)] text-[var(--app-warning)]">
+                  <Badge size="sm" variant="flat" className="bg-app-warning-bg dark:bg-app-dark-warning-bg text-app-warning dark:text-app-dark-warning">
                     In Progress
                   </Badge>
                 ) : latestSync.status === 'completed' ? (
                   <span>{latestSync.endDate?.toLocaleString()}</span>
                 ) : (
-                  <Badge size="sm" variant="flat" className="bg-[var(--app-danger-bg)] text-[var(--app-danger)]">
+                  <Badge size="sm" variant="flat" className="bg-app-danger-bg dark:bg-app-dark-danger-bg text-app-danger dark:text-app-dark-danger">
                     Failed
                   </Badge>
                 )}
@@ -336,7 +336,7 @@ export function CalendarIntegration({
         <h4 className="text-sm font-semibold mb-3">Connected Calendars</h4>
         <div className="space-y-2">
           {accounts.length === 0 ? (
-            <div className="text-center py-6 text-sm text-[var(--app-text-muted)]">
+            <div className="text-center py-6 text-sm text-app-text-muted dark:text-app-dark-text-muted">
               <Calendar className="w-8 h-8 mx-auto mb-2 opacity-50" />
               <p>No calendars connected</p>
             </div>
@@ -344,7 +344,7 @@ export function CalendarIntegration({
             accounts.map(account => (
               <div
                 key={account.id}
-                className="p-3 rounded-lg bg-[var(--app-surface-hover)] border border-[var(--app-border)]"
+                className="p-3 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover border border-app-border dark:border-app-dark-border"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3 flex-1">
@@ -354,12 +354,12 @@ export function CalendarIntegration({
                         {getProviderBadge(account.provider)}
                         <StatusBadge status={account.status} domain="integrations" size="sm" showIcon />
                         {account.autoCapture && (
-                          <Badge size="sm" variant="flat" className="bg-[var(--app-success-bg)] text-[var(--app-success)]">
+                          <Badge size="sm" variant="flat" className="bg-app-success-bg dark:bg-app-dark-success-bg text-app-success dark:text-app-dark-success">
                             Auto-Capture ON
                           </Badge>
                         )}
                       </div>
-                      <div className="flex items-center gap-3 text-xs text-[var(--app-text-muted)]">
+                      <div className="flex items-center gap-3 text-xs text-app-text-muted dark:text-app-dark-text-muted">
                         {account.lastSync && (
                           <span>Last synced: {account.lastSync.toLocaleString()}</span>
                         )}
@@ -377,7 +377,7 @@ export function CalendarIntegration({
                         )}
                       </div>
                       {account.errorMessage && (
-                        <div className="mt-1 text-xs text-[var(--app-danger)]">
+                        <div className="mt-1 text-xs text-app-danger dark:text-app-dark-danger">
                           <AlertCircle className="w-3 h-3 inline mr-1" />
                           {account.errorMessage}
                         </div>
@@ -423,7 +423,7 @@ export function CalendarIntegration({
                       <Button
                         size="sm"
                         variant="light"
-                        className="text-[var(--app-danger)]"
+                        className="text-app-danger dark:text-app-dark-danger"
                         onPress={() => onDisconnectCalendar(account.id)}
                       >
                         Disconnect
@@ -446,7 +446,7 @@ export function CalendarIntegration({
           rightActions={(
             <div className="flex flex-wrap items-center gap-2">
               <select
-                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+                className="px-3 py-2 text-sm rounded-lg border border-app-border dark:border-app-dark-border bg-app-surface dark:bg-app-dark-surface text-app-text dark:text-app-dark-text"
                 value={dateRange}
                 onChange={(e) => patchUI({ dateRange: e.target.value as typeof dateRange })}
               >
@@ -456,7 +456,7 @@ export function CalendarIntegration({
                 <option value="all">All Time</option>
               </select>
               <select
-                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+                className="px-3 py-2 text-sm rounded-lg border border-app-border dark:border-app-dark-border bg-app-surface dark:bg-app-dark-surface text-app-text dark:text-app-dark-text"
                 value={filterStatus}
                 onChange={(e) => patchUI({ filterStatus: e.target.value as CaptureStatus | 'all' })}
               >
@@ -467,7 +467,7 @@ export function CalendarIntegration({
                 <option value="failed">Failed</option>
               </select>
               <select
-                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+                className="px-3 py-2 text-sm rounded-lg border border-app-border dark:border-app-dark-border bg-app-surface dark:bg-app-dark-surface text-app-text dark:text-app-dark-text"
                 value={filterType}
                 onChange={(e) => patchUI({ filterType: e.target.value as EventType | 'all' })}
               >
@@ -507,7 +507,7 @@ export function CalendarIntegration({
       <Card padding="md">
         <div className="space-y-2">
           {filteredEvents.length === 0 ? (
-            <div className="text-center py-8 text-sm text-[var(--app-text-muted)]">
+            <div className="text-center py-8 text-sm text-app-text-muted dark:text-app-dark-text-muted">
               <Calendar className="w-8 h-8 mx-auto mb-2 opacity-50" />
               <p>No events found</p>
             </div>
@@ -515,7 +515,7 @@ export function CalendarIntegration({
             filteredEvents.map(event => (
                 <div
                   key={event.id}
-                  className="p-3 rounded-lg bg-[var(--app-surface-hover)] hover:bg-[var(--app-surface)] border border-[var(--app-border)] transition-colors"
+                  className="p-3 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover hover:bg-app-surface dark:hover:bg-app-dark-surface border border-app-border dark:border-app-dark-border transition-colors"
                 >
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
@@ -523,18 +523,18 @@ export function CalendarIntegration({
                         <span className="font-medium">{event.title}</span>
                         <StatusBadge status={event.captureStatus} domain="integrations" size="sm" showIcon />
                         {event.isVirtual && (
-                          <Badge size="sm" variant="flat" className="bg-[var(--app-info-bg)] text-[var(--app-info)]">
+                          <Badge size="sm" variant="flat" className="bg-app-info-bg dark:bg-app-dark-info-bg text-app-info dark:text-app-dark-info">
                             <Video className="w-3 h-3 mr-1" />
                             Virtual
                           </Badge>
                         )}
                         {event.captureRuleName && (
-                          <Badge size="sm" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">
+                          <Badge size="sm" variant="flat" className="bg-app-primary-bg dark:bg-app-dark-primary-bg text-app-primary dark:text-app-dark-primary">
                             {event.captureRuleName}
                           </Badge>
                         )}
                       </div>
-                      <div className="flex items-center gap-3 text-xs text-[var(--app-text-muted)]">
+                      <div className="flex items-center gap-3 text-xs text-app-text-muted dark:text-app-dark-text-muted">
                         <div className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           <span>
@@ -576,7 +576,7 @@ export function CalendarIntegration({
                               key={`contact-${idx}`}
                               size="sm"
                               variant="flat"
-                              className="bg-[var(--app-success-bg)] text-[var(--app-success)]"
+                              className="bg-app-success-bg dark:bg-app-dark-success-bg text-app-success dark:text-app-dark-success"
                             >
                               {name}
                             </Badge>
@@ -586,7 +586,7 @@ export function CalendarIntegration({
                               key={`deal-${idx}`}
                               size="sm"
                               variant="flat"
-                              className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]"
+                              className="bg-app-primary-bg dark:bg-app-dark-primary-bg text-app-primary dark:text-app-dark-primary"
                             >
                               {name}
                             </Badge>

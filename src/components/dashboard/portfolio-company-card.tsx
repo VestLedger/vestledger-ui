@@ -19,6 +19,13 @@ const getHealthVariant = (health: number) => {
   return 'danger';
 };
 
+const getHealthColorClass = (health: number) => {
+  if (health >= 80) return 'text-app-success dark:text-app-dark-success';
+  if (health >= 60) return 'text-app-primary dark:text-app-dark-primary';
+  if (health >= 40) return 'text-app-warning dark:text-app-dark-warning';
+  return 'text-app-danger dark:text-app-dark-danger';
+};
+
 export const PortfolioCompanyCard = memo(function PortfolioCompanyCard({
   company,
   index,
@@ -31,26 +38,30 @@ export const PortfolioCompanyCard = memo(function PortfolioCompanyCard({
     () => company.prediction.nextQuarterHealth - company.health,
     [company.prediction.nextQuarterHealth, company.health]
   );
+  const healthColorClass = useMemo(
+    () => getHealthColorClass(company.health),
+    [company.health]
+  );
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, delay: index * 0.05 }}
-      className="p-4 rounded-lg border border-[var(--app-border)] hover:border-[var(--app-primary)]/30 transition-colors"
+      className="p-4 rounded-lg border border-app-border dark:border-app-dark-border hover:border-app-primary/30 dark:hover:border-app-dark-primary/30 transition-colors"
     >
       {/* Company Name + Health Score */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
-          <h4 className="text-sm font-semibold text-[var(--app-text)] mb-1">
+          <h4 className="text-sm font-semibold text-app-text dark:text-app-dark-text mb-1">
             {company.name}
           </h4>
           <div className="flex items-center gap-2 text-xs">
-            <span className="text-[var(--app-text-muted)]">
+            <span className="text-app-text-muted dark:text-app-dark-text-muted">
               Runway: {company.runway} months
             </span>
-            <span className="text-[var(--app-text-subtle)]">•</span>
-            <span className="text-[var(--app-text-muted)]">
+            <span className="text-app-text-subtle dark:text-app-dark-text-subtle">•</span>
+            <span className="text-app-text-muted dark:text-app-dark-text-muted">
               Burn: {formatCurrencyCompact(company.burnRate)}/mo
             </span>
           </div>
@@ -59,18 +70,13 @@ export const PortfolioCompanyCard = memo(function PortfolioCompanyCard({
         {/* Health Score Badge */}
         <div className="flex flex-col items-end gap-1">
           <div className="flex items-center gap-1">
-            <span className={`text-lg font-bold ${
-              company.health >= 80 ? 'text-[var(--app-success)]' :
-              company.health >= 60 ? 'text-[var(--app-primary)]' :
-              company.health >= 40 ? 'text-[var(--app-warning)]' :
-              'text-[var(--app-danger)]'
-            }`}>
+            <span className={`text-lg font-bold ${healthColorClass}`}>
               {company.health}
             </span>
-            <span className="text-xs text-[var(--app-text-subtle)]">/100</span>
+            <span className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle">/100</span>
           </div>
           <div className={`flex items-center gap-1 text-xs ${
-            healthTrend === 'up' ? 'text-[var(--app-success)]' : 'text-[var(--app-danger)]'
+            healthTrend === 'up' ? 'text-app-success dark:text-app-dark-success' : 'text-app-danger dark:text-app-dark-danger'
           }`}>
             {healthTrend === 'up' ? (
               <TrendingUp className="w-3 h-3" />
@@ -94,17 +100,17 @@ export const PortfolioCompanyCard = memo(function PortfolioCompanyCard({
 
       {/* Anomalies */}
       {company.anomalies && company.anomalies.length > 0 && (
-        <div className="mb-3 p-2 rounded-lg bg-[var(--app-warning-bg)] border border-[var(--app-border)]">
+        <div className="mb-3 p-2 rounded-lg bg-app-warning-bg dark:bg-app-dark-warning-bg border border-app-border dark:border-app-dark-border">
           <div className="flex items-start gap-2">
-            <AlertTriangle className="w-4 h-4 text-[var(--app-warning)] mt-0.5 flex-shrink-0" />
+            <AlertTriangle className="w-4 h-4 text-app-warning dark:text-app-dark-warning mt-0.5 flex-shrink-0" />
             <div className="flex-1">
-              <p className="text-xs font-semibold text-[var(--app-text)] mb-1">
+              <p className="text-xs font-semibold text-app-text dark:text-app-dark-text mb-1">
                 Anomalies Detected
               </p>
               <div className="space-y-1">
                 {company.anomalies.map((anomaly, i) => (
                   <div key={i} className="flex items-center gap-2">
-                    <span className="text-xs text-[var(--app-text-muted)]">
+                    <span className="text-xs text-app-text-muted dark:text-app-dark-text-muted">
                       <span className="font-semibold">{anomaly.metric}:</span> {anomaly.change}
                     </span>
                     <Badge
@@ -122,27 +128,27 @@ export const PortfolioCompanyCard = memo(function PortfolioCompanyCard({
       )}
 
       {/* AI Prediction */}
-      <div className="p-3 rounded-lg bg-[var(--app-primary)]/5 border border-[var(--app-border)]">
+      <div className="p-3 rounded-lg bg-app-primary/5 dark:bg-app-dark-primary/5 border border-app-border dark:border-app-dark-border">
         <div className="flex items-start gap-2">
-          <Sparkles className="w-4 h-4 text-[var(--app-primary)] mt-0.5 flex-shrink-0" />
+          <Sparkles className="w-4 h-4 text-app-primary dark:text-app-dark-primary mt-0.5 flex-shrink-0" />
           <div className="flex-1">
-            <p className="text-xs font-semibold text-[var(--app-text)] mb-1">
+            <p className="text-xs font-semibold text-app-text dark:text-app-dark-text mb-1">
               AI Forecast: Next Quarter
             </p>
 
             {/* Predicted Health */}
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-[var(--app-text-muted)]">
+              <span className="text-xs text-app-text-muted dark:text-app-dark-text-muted">
                 Predicted Health
               </span>
               <div className="flex items-center gap-2">
                 <span className={`text-sm font-bold ${
-                  predictedChange >= 0 ? 'text-[var(--app-success)]' : 'text-[var(--app-danger)]'
+                  predictedChange >= 0 ? 'text-app-success dark:text-app-dark-success' : 'text-app-danger dark:text-app-dark-danger'
                 }`}>
                   {company.prediction.nextQuarterHealth}
                 </span>
                 <span className={`text-xs ${
-                  predictedChange >= 0 ? 'text-[var(--app-success)]' : 'text-[var(--app-danger)]'
+                  predictedChange >= 0 ? 'text-app-success dark:text-app-dark-success' : 'text-app-danger dark:text-app-dark-danger'
                 }`}>
                   ({predictedChange >= 0 ? '+' : ''}{predictedChange})
                 </span>
@@ -151,7 +157,7 @@ export const PortfolioCompanyCard = memo(function PortfolioCompanyCard({
 
             {/* Confidence Bar */}
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs text-[var(--app-text-subtle)] flex-shrink-0">
+              <span className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle flex-shrink-0">
                 Confidence
               </span>
               <ProgressBar
@@ -160,15 +166,15 @@ export const PortfolioCompanyCard = memo(function PortfolioCompanyCard({
                 size="sm"
                 className="flex-1"
               />
-              <span className="text-xs font-bold text-[var(--app-primary)] flex-shrink-0">
+              <span className="text-xs font-bold text-app-primary dark:text-app-dark-primary flex-shrink-0">
                 {Math.round(company.prediction.confidence * 100)}%
               </span>
             </div>
 
             {/* Reasoning */}
-            <div className="flex items-start gap-2 p-2 rounded bg-[var(--app-surface)]/50">
-              <Info className="w-3 h-3 text-[var(--app-text-subtle)] mt-0.5 flex-shrink-0" />
-              <p className="text-xs text-[var(--app-text-subtle)]">
+            <div className="flex items-start gap-2 p-2 rounded bg-app-surface/50 dark:bg-app-dark-surface/50">
+              <Info className="w-3 h-3 text-app-text-subtle dark:text-app-dark-text-subtle mt-0.5 flex-shrink-0" />
+              <p className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle">
                 {company.prediction.reasoning}
               </p>
             </div>

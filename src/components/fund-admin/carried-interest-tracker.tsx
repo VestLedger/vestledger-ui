@@ -114,7 +114,7 @@ export function CarriedInterestTracker({
           <div className="flex items-start justify-between mb-4">
             <div>
               <h3 className="text-lg font-semibold mb-1">Carry Terms - {activeTerm.fundName}</h3>
-              <p className="text-xs text-[var(--app-text-muted)]">
+              <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">
                 Effective {activeTerm.effectiveDate.toLocaleDateString()}
               </p>
             </div>
@@ -130,37 +130,37 @@ export function CarriedInterestTracker({
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-            <div className="p-3 rounded-lg bg-[var(--app-primary-bg)]">
-              <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">GP Carry</p>
-              <p className="text-xl font-bold text-[var(--app-primary)]">
+            <div className="p-3 rounded-lg bg-app-primary-bg dark:bg-app-dark-primary-bg">
+              <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">GP Carry</p>
+              <p className="text-xl font-bold text-app-primary dark:text-app-dark-primary">
                 {formatPercent(activeTerm.gpCarryPercentage)}
               </p>
             </div>
-            <div className="p-3 rounded-lg bg-[var(--app-info-bg)]">
-              <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Hurdle Rate</p>
-              <p className="text-xl font-bold text-[var(--app-info)]">
+            <div className="p-3 rounded-lg bg-app-info-bg dark:bg-app-dark-info-bg">
+              <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Hurdle Rate</p>
+              <p className="text-xl font-bold text-app-info dark:text-app-dark-info">
                 {formatPercent(activeTerm.hurdleRate)}
               </p>
             </div>
-            <div className="p-3 rounded-lg bg-[var(--app-warning-bg)]">
-              <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Pref Return</p>
-              <p className="text-xl font-bold text-[var(--app-warning)]">
+            <div className="p-3 rounded-lg bg-app-warning-bg dark:bg-app-dark-warning-bg">
+              <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Pref Return</p>
+              <p className="text-xl font-bold text-app-warning dark:text-app-dark-warning">
                 {formatPercent(activeTerm.preferredReturn)}
               </p>
             </div>
-            <div className="p-3 rounded-lg bg-[var(--app-success-bg)]">
-              <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Catchup</p>
-              <p className="text-xl font-bold text-[var(--app-success)]">
+            <div className="p-3 rounded-lg bg-app-success-bg dark:bg-app-dark-success-bg">
+              <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Catchup</p>
+              <p className="text-xl font-bold text-app-success dark:text-app-dark-success">
                 {formatPercent(activeTerm.catchupPercentage)}
               </p>
             </div>
-            <div className="p-3 rounded-lg bg-[var(--app-surface-hover)] border border-[var(--app-border)]">
-              <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Vesting</p>
+            <div className="p-3 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover border border-app-border dark:border-app-dark-border">
+              <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Vesting</p>
               <p className="text-lg font-bold capitalize">
                 {activeTerm.vestingSchedule.type}
               </p>
               {activeTerm.vestingSchedule.cliffMonths && (
-                <p className="text-xs text-[var(--app-text-muted)]">
+                <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">
                   {activeTerm.vestingSchedule.cliffMonths}mo cliff
                 </p>
               )}
@@ -176,7 +176,7 @@ export function CarriedInterestTracker({
             <div className="space-y-3">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-[var(--app-primary)]" />
+                  <TrendingUp className="w-5 h-5 text-app-primary dark:text-app-dark-primary" />
                   <h3 className="text-lg font-semibold">Carry History</h3>
                 </div>
                 {onCalculateAccrual && activeTerm && (
@@ -198,13 +198,13 @@ export function CarriedInterestTracker({
                     onClick={() => patchUI({ selectedAccrualId: accrual.id })}
                     className={`w-full p-3 rounded-lg text-left transition-colors border ${
                       selectedAccrual?.id === accrual.id
-                        ? 'bg-[var(--app-primary-bg)] border-[var(--app-primary)]'
-                        : 'bg-[var(--app-surface-hover)] border-transparent hover:border-[var(--app-border)]'
+                        ? 'bg-app-primary-bg dark:bg-app-dark-primary-bg border-app-primary dark:border-app-dark-primary'
+                        : 'bg-app-surface-hover dark:bg-app-dark-surface-hover border-transparent hover:border-app-border dark:hover:border-app-dark-border'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <Calendar className="w-3 h-3 text-[var(--app-text-muted)]" />
+                        <Calendar className="w-3 h-3 text-app-text-muted dark:text-app-dark-text-muted" />
                         <span className="text-sm font-medium">
                           {accrual.asOfDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
                         </span>
@@ -212,15 +212,15 @@ export function CarriedInterestTracker({
                       <StatusBadge status={accrual.status} domain="fund-admin" size="sm" />
                     </div>
 
-                    <div className="text-lg font-bold mb-1 text-[var(--app-success)]">
+                    <div className="text-lg font-bold mb-1 text-app-success dark:text-app-dark-success">
                       {formatCurrency(accrual.accruedCarry)}
                     </div>
 
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-[var(--app-text-muted)]">
+                      <span className="text-app-text-muted dark:text-app-dark-text-muted">
                         IRR: {formatPercent(accrual.irr)}
                       </span>
-                      <span className="text-[var(--app-text-muted)]">
+                      <span className="text-app-text-muted dark:text-app-dark-text-muted">
                         {accrual.moic.toFixed(2)}x MOIC
                       </span>
                     </div>
@@ -243,14 +243,14 @@ export function CarriedInterestTracker({
                       <h3 className="text-xl font-bold">Carry Accrual</h3>
                       <StatusBadge status={selectedAccrual.status} domain="fund-admin" size="sm" />
                     </div>
-                    <p className="text-sm text-[var(--app-text-muted)]">
+                    <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">
                       As of {selectedAccrual.asOfDate.toLocaleDateString('en-US', {
                         month: 'long',
                         day: 'numeric',
                         year: 'numeric'
                       })}
                     </p>
-                    <p className="text-xs text-[var(--app-text-subtle)]">
+                    <p className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle">
                       Calculated on {selectedAccrual.calculationDate.toLocaleDateString()}
                     </p>
                   </div>
@@ -299,15 +299,15 @@ export function CarriedInterestTracker({
 
                 {/* Performance Metrics */}
                 <div className="grid grid-cols-2 gap-3 mb-4">
-                  <div className="p-3 rounded-lg bg-[var(--app-info-bg)]">
-                    <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">IRR</p>
-                    <p className="text-2xl font-bold text-[var(--app-info)]">
+                  <div className="p-3 rounded-lg bg-app-info-bg dark:bg-app-dark-info-bg">
+                    <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">IRR</p>
+                    <p className="text-2xl font-bold text-app-info dark:text-app-dark-info">
                       {formatPercent(selectedAccrual.irr)}
                     </p>
                   </div>
-                  <div className="p-3 rounded-lg bg-[var(--app-primary-bg)]">
-                    <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">MOIC</p>
-                    <p className="text-2xl font-bold text-[var(--app-primary)]">
+                  <div className="p-3 rounded-lg bg-app-primary-bg dark:bg-app-dark-primary-bg">
+                    <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">MOIC</p>
+                    <p className="text-2xl font-bold text-app-primary dark:text-app-dark-primary">
                       {selectedAccrual.moic.toFixed(2)}x
                     </p>
                   </div>
@@ -315,27 +315,27 @@ export function CarriedInterestTracker({
 
                 {/* Fund Position */}
                 <div className="grid grid-cols-4 gap-3">
-                  <div className="p-3 rounded-lg bg-[var(--app-surface-hover)]">
-                    <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Contributions</p>
+                  <div className="p-3 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
+                    <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Contributions</p>
                     <p className="text-lg font-bold">
                       {formatCurrency(selectedAccrual.totalContributions)}
                     </p>
                   </div>
-                  <div className="p-3 rounded-lg bg-[var(--app-surface-hover)]">
-                    <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Distributions</p>
+                  <div className="p-3 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
+                    <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Distributions</p>
                     <p className="text-lg font-bold">
                       {formatCurrency(selectedAccrual.totalDistributions)}
                     </p>
                   </div>
-                  <div className="p-3 rounded-lg bg-[var(--app-surface-hover)]">
-                    <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Unrealized</p>
+                  <div className="p-3 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
+                    <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Unrealized</p>
                     <p className="text-lg font-bold">
                       {formatCurrency(selectedAccrual.unrealizedValue)}
                     </p>
                   </div>
-                  <div className="p-3 rounded-lg bg-[var(--app-success-bg)]">
-                    <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Total Value</p>
-                    <p className="text-lg font-bold text-[var(--app-success)]">
+                  <div className="p-3 rounded-lg bg-app-success-bg dark:bg-app-dark-success-bg">
+                    <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Total Value</p>
+                    <p className="text-lg font-bold text-app-success dark:text-app-dark-success">
                       {formatCurrency(selectedAccrual.totalValue)}
                     </p>
                   </div>
@@ -348,12 +348,12 @@ export function CarriedInterestTracker({
 
                 <div className="space-y-3">
                   {/* LP Preferred Return */}
-                  <div className="p-3 rounded-lg bg-[var(--app-surface-hover)]">
+                  <div className="p-3 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-medium">LP Preferred Return</span>
                         {selectedAccrual.lpPreferredReturnPaid && (
-                          <Badge size="sm" variant="flat" className="bg-[var(--app-success-bg)] text-[var(--app-success)]">
+                          <Badge size="sm" variant="flat" className="bg-app-success-bg dark:bg-app-dark-success-bg text-app-success dark:text-app-dark-success">
                             Paid
                           </Badge>
                         )}
@@ -362,52 +362,52 @@ export function CarriedInterestTracker({
                         {formatCurrency(selectedAccrual.lpPreferredReturn)}
                       </span>
                     </div>
-                    <div className="text-xs text-[var(--app-text-muted)]">
+                    <div className="text-xs text-app-text-muted dark:text-app-dark-text-muted">
                       100% to LPs until preferred return met
                     </div>
                   </div>
 
                   {/* Catchup */}
-                  <div className="p-3 rounded-lg bg-[var(--app-warning-bg)]">
+                  <div className="p-3 rounded-lg bg-app-warning-bg dark:bg-app-dark-warning-bg">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-[var(--app-warning)]">GP Catchup</span>
+                      <span className="text-sm font-medium text-app-warning dark:text-app-dark-warning">GP Catchup</span>
                       <div className="text-right">
-                        <div className="text-lg font-bold text-[var(--app-warning)]">
+                        <div className="text-lg font-bold text-app-warning dark:text-app-dark-warning">
                           {formatCurrency(selectedAccrual.catchupAmount)}
                         </div>
-                        <div className="text-xs text-[var(--app-text-muted)]">
+                        <div className="text-xs text-app-text-muted dark:text-app-dark-text-muted">
                           Paid: {formatCurrency(selectedAccrual.catchupPaid)}
                         </div>
                       </div>
                     </div>
-                    <div className="text-xs text-[var(--app-text-muted)]">
+                    <div className="text-xs text-app-text-muted dark:text-app-dark-text-muted">
                       {activeTerm?.catchupPercentage}% to GP until catch-up achieved
                     </div>
                   </div>
 
                   {/* Accrued Carry */}
-                  <div className="p-3 rounded-lg bg-[var(--app-success-bg)]">
+                  <div className="p-3 rounded-lg bg-app-success-bg dark:bg-app-dark-success-bg">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-[var(--app-success)]">Total Accrued Carry</span>
-                      <span className="text-2xl font-bold text-[var(--app-success)]">
+                      <span className="text-sm font-medium text-app-success dark:text-app-dark-success">Total Accrued Carry</span>
+                      <span className="text-2xl font-bold text-app-success dark:text-app-dark-success">
                         {formatCurrency(selectedAccrual.accruedCarry)}
                       </span>
                     </div>
-                    <div className="grid grid-cols-3 gap-2 mt-2 pt-2 border-t border-[var(--app-success)]/20">
+                    <div className="grid grid-cols-3 gap-2 mt-2 pt-2 border-t border-app-success/20 dark:border-app-dark-success/20">
                       <div>
-                        <p className="text-xs text-[var(--app-text-muted)]">Vested</p>
-                        <p className="text-sm font-bold text-[var(--app-success)]">
+                        <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">Vested</p>
+                        <p className="text-sm font-bold text-app-success dark:text-app-dark-success">
                           {formatCurrency(selectedAccrual.vestedCarry)}
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-[var(--app-text-muted)]">Unvested</p>
+                        <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">Unvested</p>
                         <p className="text-sm font-bold">
                           {formatCurrency(selectedAccrual.unvestedCarry)}
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-[var(--app-text-muted)]">Distributed</p>
+                        <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">Distributed</p>
                         <p className="text-sm font-bold">
                           {formatCurrency(selectedAccrual.distributedCarry)}
                         </p>
@@ -416,11 +416,11 @@ export function CarriedInterestTracker({
                   </div>
 
                   {/* Remaining Carry */}
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-[var(--app-primary-bg)]">
-                    <span className="text-sm font-medium text-[var(--app-primary)]">
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-app-primary-bg dark:bg-app-dark-primary-bg">
+                    <span className="text-sm font-medium text-app-primary dark:text-app-dark-primary">
                       Remaining Carry (Vested & Undistributed)
                     </span>
-                    <span className="text-xl font-bold text-[var(--app-primary)]">
+                    <span className="text-xl font-bold text-app-primary dark:text-app-dark-primary">
                       {formatCurrency(selectedAccrual.remainingCarry)}
                     </span>
                   </div>
@@ -435,7 +435,7 @@ export function CarriedInterestTracker({
                 >
                   <div className="flex items-center gap-2">
                     <h4 className="text-sm font-semibold">Distribution Waterfall</h4>
-                    <Badge size="sm" variant="flat" className="bg-[var(--app-info-bg)] text-[var(--app-info)]">
+                    <Badge size="sm" variant="flat" className="bg-app-info-bg dark:bg-app-dark-info-bg text-app-info dark:text-app-dark-info">
                       {selectedAccrual.waterfall.length} Tiers
                     </Badge>
                   </div>
@@ -453,8 +453,8 @@ export function CarriedInterestTracker({
                         key={tier.tier}
                         className={`p-3 rounded-lg border ${
                           tier.isActive
-                            ? 'bg-[var(--app-primary-bg)] border-[var(--app-primary)]'
-                            : 'bg-[var(--app-surface-hover)] border-[var(--app-border)]'
+                            ? 'bg-app-primary-bg dark:bg-app-dark-primary-bg border-app-primary dark:border-app-dark-primary'
+                            : 'bg-app-surface-hover dark:bg-app-dark-surface-hover border-app-border dark:border-app-dark-border'
                         }`}
                       >
                         <div className="flex items-start justify-between mb-2">
@@ -462,36 +462,36 @@ export function CarriedInterestTracker({
                             <div className="flex items-center gap-2 mb-1">
                               <span className="text-sm font-bold">Tier {tier.tier}: {tier.name}</span>
                               {tier.isActive && (
-                                <Badge size="sm" variant="flat" className="bg-[var(--app-success-bg)] text-[var(--app-success)]">
+                                <Badge size="sm" variant="flat" className="bg-app-success-bg dark:bg-app-dark-success-bg text-app-success dark:text-app-dark-success">
                                   Active
                                 </Badge>
                               )}
                             </div>
-                            <p className="text-xs text-[var(--app-text-muted)] mb-2">{tier.description}</p>
+                            <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-2">{tier.description}</p>
                             <div className="flex items-center gap-4 text-xs">
-                              <span className="text-[var(--app-text-muted)]">
+                              <span className="text-app-text-muted dark:text-app-dark-text-muted">
                                 LP: {formatPercent(tier.lpAllocation * 100)}
                               </span>
-                              <span className="text-[var(--app-text-muted)]">
+                              <span className="text-app-text-muted dark:text-app-dark-text-muted">
                                 GP: {formatPercent(tier.gpAllocation * 100)}
                               </span>
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="text-xs text-[var(--app-text-muted)] mb-1">Total in Tier</div>
+                            <div className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-1">Total in Tier</div>
                             <div className="text-sm font-bold">
                               {formatCurrency(tier.lpAmount + tier.gpAmount)}
                             </div>
                           </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[var(--app-border)]">
+                        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-app-border dark:border-app-dark-border">
                           <div>
-                            <p className="text-xs text-[var(--app-text-muted)]">LP Amount</p>
+                            <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">LP Amount</p>
                             <p className="text-sm font-medium">{formatCurrency(tier.lpAmount)}</p>
                           </div>
                           <div>
-                            <p className="text-xs text-[var(--app-text-muted)]">GP Amount</p>
-                            <p className="text-sm font-medium text-[var(--app-success)]">
+                            <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">GP Amount</p>
+                            <p className="text-sm font-medium text-app-success dark:text-app-dark-success">
                               {formatCurrency(tier.gpAmount)}
                             </p>
                           </div>
@@ -506,15 +506,15 @@ export function CarriedInterestTracker({
               {selectedAccrual.notes && (
                 <Card padding="md">
                   <h4 className="text-sm font-semibold mb-2">Notes</h4>
-                  <p className="text-sm text-[var(--app-text-muted)]">{selectedAccrual.notes}</p>
+                  <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">{selectedAccrual.notes}</p>
                 </Card>
               )}
             </div>
           ) : (
             <Card padding="md">
               <div className="text-center py-12">
-                <TrendingUp className="w-12 h-12 mx-auto mb-3 text-[var(--app-text-muted)] opacity-50" />
-                <p className="text-[var(--app-text-muted)]">Select a carry accrual to view details</p>
+                <TrendingUp className="w-12 h-12 mx-auto mb-3 text-app-text-muted dark:text-app-dark-text-muted opacity-50" />
+                <p className="text-app-text-muted dark:text-app-dark-text-muted">Select a carry accrual to view details</p>
               </div>
             </Card>
           )}

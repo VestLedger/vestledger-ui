@@ -156,38 +156,38 @@ export function AICopilotSidebar() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between gap-2 px-4 h-[69px] border-b border-[var(--app-border)] bg-gradient-to-r from-[var(--app-primary-bg)] to-transparent">
+      <div className="flex items-center justify-between gap-2 px-4 h-[69px] border-b border-app-border dark:border-app-dark-border bg-gradient-to-r from-app-primary/10 dark:from-app-dark-primary/15 to-transparent">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-secondary)] flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-app-primary dark:from-app-dark-primary to-app-secondary dark:to-app-dark-secondary flex items-center justify-center">
             <Bot className="w-4 h-4 text-white" />
           </div>
-          <h2 className="text-sm font-semibold text-[var(--app-text)]">Vesta AI Copilot</h2>
+          <h2 className="text-sm font-semibold text-app-text dark:text-app-dark-text">Vesta AI Copilot</h2>
         </div>
         {/* Minimize button */}
         <button
           onClick={toggleRightSidebar}
-          className="p-1.5 rounded-lg hover:bg-[var(--app-surface-hover)] transition-colors"
+          className="p-1.5 rounded-lg hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover transition-colors"
           aria-label="Minimize AI Copilot"
         >
-          <ChevronRight className="w-4 h-4 text-[var(--app-text-muted)]" />
+          <ChevronRight className="w-4 h-4 text-app-text-muted dark:text-app-dark-text-muted" />
         </button>
       </div>
 
       {/* Suggestions Section */}
       {suggestions.length > 0 && (
-        <div className="p-4 border-b border-[var(--app-border)] space-y-2">
+        <div className="p-4 border-b border-app-border dark:border-app-dark-border space-y-2">
           <div className="flex items-center justify-between gap-2 mb-2">
             <div className="flex items-center gap-2">
-              <Lightbulb className="w-4 h-4 text-[var(--app-warning)]" />
-              <span className="text-xs font-semibold text-[var(--app-text-muted)]">SUGGESTIONS</span>
+              <Lightbulb className="w-4 h-4 text-app-warning dark:text-app-dark-warning" />
+              <span className="text-xs font-semibold text-app-text-muted dark:text-app-dark-text-muted">SUGGESTIONS</span>
             </div>
             <button
               onClick={() => dispatch(setShowSuggestions(!showSuggestions))}
-              className="p-1 rounded-lg hover:bg-[var(--app-surface-hover)] transition-colors"
+              className="p-1 rounded-lg hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover transition-colors"
               aria-label="Toggle suggestions visibility"
             >
               <ChevronDown
-                className={`w-4 h-4 text-[var(--app-text-muted)] transition-transform ${showSuggestions ? '' : '-rotate-90'}`}
+                className={`w-4 h-4 text-app-text-muted dark:text-app-dark-text-muted transition-transform ${showSuggestions ? '' : '-rotate-90'}`}
               />
             </button>
           </div>
@@ -196,11 +196,11 @@ export function AICopilotSidebar() {
               <button
                 key={suggestion.id}
                 onClick={() => handleSuggestionClick(suggestion)}
-                className="w-full text-left p-2 rounded-lg bg-[var(--app-surface-hover)] hover:bg-[var(--app-border)] transition-colors"
+                className="w-full text-left p-2 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover hover:bg-app-border dark:hover:bg-app-dark-border transition-colors"
               >
-                <p className="text-sm text-[var(--app-text)] mb-1">{suggestion.text}</p>
+                <p className="text-sm text-app-text dark:text-app-dark-text mb-1">{suggestion.text}</p>
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-[var(--app-text-subtle)]">{suggestion.reasoning}</p>
+                  <p className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle">{suggestion.reasoning}</p>
                   <span
                     className={`
                       text-xs font-semibold
@@ -216,10 +216,10 @@ export function AICopilotSidebar() {
       )}
 
       {/* Quick Actions */}
-      <div className="p-4 border-b border-[var(--app-border)]">
+      <div className="p-4 border-b border-app-border dark:border-app-dark-border">
         <div className="flex items-center gap-2 mb-2">
-          <Zap className="w-4 h-4 text-[var(--app-primary)]" />
-          <span className="text-xs font-semibold text-[var(--app-text-muted)]">QUICK ACTIONS</span>
+          <Zap className="w-4 h-4 text-app-primary dark:text-app-dark-primary" />
+          <span className="text-xs font-semibold text-app-text-muted dark:text-app-dark-text-muted">QUICK ACTIONS</span>
         </div>
         <div className="flex flex-wrap gap-2">
           {quickActions.map((action) => (
@@ -229,7 +229,7 @@ export function AICopilotSidebar() {
               variant="flat"
               onClick={() => handleQuickAction(action)}
               title={action.description || action.action}
-              className={`text-xs ${action.aiSuggested ? 'bg-[var(--app-primary-bg)]' : ''}`}
+              className={`text-xs ${action.aiSuggested ? 'bg-app-primary/10 dark:bg-app-dark-primary/15' : ''}`}
             >
               <action.icon className="w-3 h-3 mr-1" />
               {action.label}
@@ -251,7 +251,7 @@ export function AICopilotSidebar() {
             <div
               className={`
                 max-w-[85%] px-3 py-2 rounded-lg
-                ${message.type === 'user' ? 'bg-[var(--app-primary)] text-white' : 'bg-[var(--app-surface-hover)] text-[var(--app-text)]'}
+                ${message.type === 'user' ? 'bg-app-primary dark:bg-app-dark-primary text-white' : 'bg-app-surface-hover dark:bg-app-dark-surface-hover text-app-text dark:text-app-dark-text'}
               `}
             >
               <p className="text-sm">{message.content}</p>
@@ -268,22 +268,22 @@ export function AICopilotSidebar() {
             animate={{ opacity: 1, y: 0 }}
             className="flex justify-start"
           >
-            <div className="bg-[var(--app-surface-hover)] px-3 py-2 rounded-lg">
+            <div className="bg-app-surface-hover dark:bg-app-dark-surface-hover px-3 py-2 rounded-lg">
               <div className="flex gap-1">
                 <motion.div
                   animate={{ opacity: [0.3, 1, 0.3] }}
                   transition={{ duration: 1.5, repeat: Infinity, delay: 0 }}
-                  className="w-2 h-2 bg-[var(--app-text-muted)] rounded-full"
+                  className="w-2 h-2 bg-app-text-muted dark:bg-app-dark-text-muted rounded-full"
                 />
                 <motion.div
                   animate={{ opacity: [0.3, 1, 0.3] }}
                   transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }}
-                  className="w-2 h-2 bg-[var(--app-text-muted)] rounded-full"
+                  className="w-2 h-2 bg-app-text-muted dark:bg-app-dark-text-muted rounded-full"
                 />
                 <motion.div
                   animate={{ opacity: [0.3, 1, 0.3] }}
                   transition={{ duration: 1.5, repeat: Infinity, delay: 0.4 }}
-                  className="w-2 h-2 bg-[var(--app-text-muted)] rounded-full"
+                  className="w-2 h-2 bg-app-text-muted dark:bg-app-dark-text-muted rounded-full"
                 />
               </div>
             </div>

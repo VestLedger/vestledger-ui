@@ -71,21 +71,21 @@ export function ExpenseTracker({
   const getExpenseTypeConfig = (type: ExpenseType) => {
     switch (type) {
       case 'management-fee':
-        return { label: 'Management Fee', color: 'text-[var(--app-primary)]', bgColor: 'bg-[var(--app-primary-bg)]' };
+        return { label: 'Management Fee', color: 'text-app-primary dark:text-app-dark-primary', bgColor: 'bg-app-primary-bg dark:bg-app-dark-primary-bg' };
       case 'monitoring-fee':
-        return { label: 'Monitoring Fee', color: 'text-[var(--app-info)]', bgColor: 'bg-[var(--app-info-bg)]' };
+        return { label: 'Monitoring Fee', color: 'text-app-info dark:text-app-dark-info', bgColor: 'bg-app-info-bg dark:bg-app-dark-info-bg' };
       case 'transaction-fee':
-        return { label: 'Transaction Fee', color: 'text-[var(--app-success)]', bgColor: 'bg-[var(--app-success-bg)]' };
+        return { label: 'Transaction Fee', color: 'text-app-success dark:text-app-dark-success', bgColor: 'bg-app-success-bg dark:bg-app-dark-success-bg' };
       case 'legal':
-        return { label: 'Legal', color: 'text-[var(--app-warning)]', bgColor: 'bg-[var(--app-warning-bg)]' };
+        return { label: 'Legal', color: 'text-app-warning dark:text-app-dark-warning', bgColor: 'bg-app-warning-bg dark:bg-app-dark-warning-bg' };
       case 'audit':
-        return { label: 'Audit', color: 'text-[var(--app-danger)]', bgColor: 'bg-[var(--app-danger-bg)]' };
+        return { label: 'Audit', color: 'text-app-danger dark:text-app-dark-danger', bgColor: 'bg-app-danger-bg dark:bg-app-dark-danger-bg' };
       case 'administrative':
-        return { label: 'Administrative', color: 'text-[var(--app-text-muted)]', bgColor: 'bg-[var(--app-surface-hover)]' };
+        return { label: 'Administrative', color: 'text-app-text-muted dark:text-app-dark-text-muted', bgColor: 'bg-app-surface-hover dark:bg-app-dark-surface-hover' };
       case 'marketing':
-        return { label: 'Marketing', color: 'text-[var(--app-secondary)]', bgColor: 'bg-[var(--app-secondary)]/10' };
+        return { label: 'Marketing', color: 'text-app-secondary dark:text-app-dark-secondary', bgColor: 'bg-app-secondary/10 dark:bg-app-dark-secondary/10' };
       case 'other':
-        return { label: 'Other', color: 'text-[var(--app-text-subtle)]', bgColor: 'bg-[var(--app-surface-hover)]' };
+        return { label: 'Other', color: 'text-app-text-subtle dark:text-app-dark-text-subtle', bgColor: 'bg-app-surface-hover dark:bg-app-dark-surface-hover' };
     }
   };
 
@@ -153,10 +153,10 @@ export function ExpenseTracker({
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-[var(--app-primary)]" />
+            <DollarSign className="w-5 h-5 text-app-primary dark:text-app-dark-primary" />
             <div>
               <h3 className="text-lg font-semibold">Fund Expense Tracking</h3>
-              <p className="text-xs text-[var(--app-text-muted)]">
+              <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">
                 {filteredExpenses.length} expenses • {formatCurrency(totals.total, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} total
               </p>
             </div>
@@ -187,46 +187,46 @@ export function ExpenseTracker({
 
         {/* Summary Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <div className="p-3 rounded-lg bg-[var(--app-surface-hover)]">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Total Expenses</p>
+          <div className="p-3 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
+            <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Total Expenses</p>
             <p className="text-lg font-bold">{formatCurrency(totals.total, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-            <p className="text-xs text-[var(--app-text-subtle)] mt-1">
+            <p className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle mt-1">
               {filteredExpenses.length} transactions
             </p>
           </div>
-          <div className="p-3 rounded-lg bg-[var(--app-warning-bg)]">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Pending</p>
-            <p className="text-lg font-bold text-[var(--app-warning)]">
+          <div className="p-3 rounded-lg bg-app-warning-bg dark:bg-app-dark-warning-bg">
+            <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Pending</p>
+            <p className="text-lg font-bold text-app-warning dark:text-app-dark-warning">
               {formatCurrency(totals.byStatus['pending'] || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
-            <p className="text-xs text-[var(--app-text-subtle)] mt-1">
+            <p className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle mt-1">
               {filteredExpenses.filter(e => e.status === 'pending').length} items
             </p>
           </div>
-          <div className="p-3 rounded-lg bg-[var(--app-info-bg)]">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Approved</p>
-            <p className="text-lg font-bold text-[var(--app-info)]">
+          <div className="p-3 rounded-lg bg-app-info-bg dark:bg-app-dark-info-bg">
+            <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Approved</p>
+            <p className="text-lg font-bold text-app-info dark:text-app-dark-info">
               {formatCurrency(totals.byStatus['approved'] || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
-            <p className="text-xs text-[var(--app-text-subtle)] mt-1">
+            <p className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle mt-1">
               {filteredExpenses.filter(e => e.status === 'approved').length} items
             </p>
           </div>
-          <div className="p-3 rounded-lg bg-[var(--app-success-bg)]">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Paid</p>
-            <p className="text-lg font-bold text-[var(--app-success)]">
+          <div className="p-3 rounded-lg bg-app-success-bg dark:bg-app-dark-success-bg">
+            <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Paid</p>
+            <p className="text-lg font-bold text-app-success dark:text-app-dark-success">
               {formatCurrency(totals.byStatus['paid'] || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
-            <p className="text-xs text-[var(--app-text-subtle)] mt-1">
+            <p className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle mt-1">
               {filteredExpenses.filter(e => e.status === 'paid').length} items
             </p>
           </div>
         </div>
 
         {/* Expense Breakdown by Type */}
-        <Card padding="sm" className="bg-[var(--app-surface-hover)]">
+        <Card padding="sm" className="bg-app-surface-hover dark:bg-app-dark-surface-hover">
           <div className="flex items-center gap-2 mb-3">
-            <PieChart className="w-4 h-4 text-[var(--app-primary)]" />
+            <PieChart className="w-4 h-4 text-app-primary dark:text-app-dark-primary" />
             <h4 className="text-sm font-semibold">Expense Breakdown</h4>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
@@ -237,10 +237,10 @@ export function ExpenseTracker({
 
               return (
                 <div key={type} className={`p-2 rounded-lg ${config.bgColor}`}>
-                  <p className="text-xs text-[var(--app-text-muted)]">{config.label}</p>
+                  <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">{config.label}</p>
                   <p className={`text-sm font-bold ${config.color}`}>{formatCurrency(amount, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                   {percentage > 0 && (
-                    <p className="text-xs text-[var(--app-text-subtle)]">{percentage.toFixed(1)}%</p>
+                    <p className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle">{percentage.toFixed(1)}%</p>
                   )}
                 </div>
               );
@@ -256,7 +256,7 @@ export function ExpenseTracker({
           rightActions={(
             <div className="flex flex-wrap items-center gap-2">
               <select
-                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+                className="px-3 py-2 text-sm rounded-lg border border-app-border dark:border-app-dark-border bg-app-surface dark:bg-app-dark-surface text-app-text dark:text-app-dark-text"
                 value={filterType}
                 onChange={(e) => patchUI({ filterType: e.target.value as ExpenseType | 'all' })}
               >
@@ -268,7 +268,7 @@ export function ExpenseTracker({
                 ))}
               </select>
               <select
-                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+                className="px-3 py-2 text-sm rounded-lg border border-app-border dark:border-app-dark-border bg-app-surface dark:bg-app-dark-surface text-app-text dark:text-app-dark-text"
                 value={filterStatus}
                 onChange={(e) => patchUI({ filterStatus: e.target.value })}
               >
@@ -279,7 +279,7 @@ export function ExpenseTracker({
                 <option value="rejected">Rejected</option>
               </select>
               <select
-                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+                className="px-3 py-2 text-sm rounded-lg border border-app-border dark:border-app-dark-border bg-app-surface dark:bg-app-dark-surface text-app-text dark:text-app-dark-text"
                 value={dateRange}
                 onChange={(e) => patchUI({ dateRange: e.target.value as typeof dateRange })}
               >
@@ -292,10 +292,10 @@ export function ExpenseTracker({
         />
 
         {/* Expense List */}
-        <div className="border border-[var(--app-border)] rounded-lg overflow-hidden">
+        <div className="border border-app-border dark:border-app-dark-border rounded-lg overflow-hidden">
           {/* Header */}
-          <div className="bg-[var(--app-surface-hover)] border-b border-[var(--app-border)] p-3">
-            <div className="grid grid-cols-12 gap-2 text-xs font-medium text-[var(--app-text-muted)]">
+          <div className="bg-app-surface-hover dark:bg-app-dark-surface-hover border-b border-app-border dark:border-app-dark-border p-3">
+            <div className="grid grid-cols-12 gap-2 text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted">
               <div className="col-span-2">Date</div>
               <div className="col-span-3">Description</div>
               <div className="col-span-2">Type</div>
@@ -308,7 +308,7 @@ export function ExpenseTracker({
           {/* Rows */}
           <div className="max-h-[500px] overflow-y-auto">
             {filteredExpenses.length === 0 ? (
-              <div className="text-center py-8 text-sm text-[var(--app-text-muted)]">
+              <div className="text-center py-8 text-sm text-app-text-muted dark:text-app-dark-text-muted">
                 <DollarSign className="w-8 h-8 mx-auto mb-2 opacity-50" />
                 <p>No expenses found</p>
               </div>
@@ -319,14 +319,14 @@ export function ExpenseTracker({
                 return (
                   <div
                     key={expense.id}
-                    className="grid grid-cols-12 gap-2 p-3 border-b border-[var(--app-border)] last:border-0 hover:bg-[var(--app-surface-hover)] transition-colors text-sm"
+                    className="grid grid-cols-12 gap-2 p-3 border-b border-app-border dark:border-app-dark-border last:border-0 hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover transition-colors text-sm"
                   >
                     <div className="col-span-2">
-                      <div className="text-[var(--app-text-muted)]">
+                      <div className="text-app-text-muted dark:text-app-dark-text-muted">
                         {expense.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                       </div>
                       {expense.isRecurring && (
-                        <Badge size="sm" variant="flat" className="bg-[var(--app-info-bg)] text-[var(--app-info)] mt-1">
+                        <Badge size="sm" variant="flat" className="bg-app-info-bg dark:bg-app-dark-info-bg text-app-info dark:text-app-dark-info mt-1">
                           Recurring
                         </Badge>
                       )}
@@ -334,9 +334,9 @@ export function ExpenseTracker({
 
                     <div className="col-span-3">
                       <div className="font-medium">{expense.description}</div>
-                      <div className="text-xs text-[var(--app-text-muted)]">{expense.payee}</div>
+                      <div className="text-xs text-app-text-muted dark:text-app-dark-text-muted">{expense.payee}</div>
                       {expense.invoiceNumber && (
-                        <div className="text-xs text-[var(--app-text-subtle)] mt-1">
+                        <div className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle mt-1">
                           Invoice: {expense.invoiceNumber}
                         </div>
                       )}
@@ -347,7 +347,7 @@ export function ExpenseTracker({
                         {typeConfig.label}
                       </Badge>
                       {expense.allocatedToLPs && (
-                        <div className="text-xs text-[var(--app-text-subtle)] mt-1">LP Allocated</div>
+                        <div className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle mt-1">LP Allocated</div>
                       )}
                     </div>
 
@@ -365,7 +365,7 @@ export function ExpenseTracker({
                           size="sm"
                           variant="flat"
                           onPress={() => onApproveExpense(expense.id)}
-                          className="text-[var(--app-success)]"
+                          className="text-app-success dark:text-app-dark-success"
                         >
                           Approve
                         </Button>
@@ -375,7 +375,7 @@ export function ExpenseTracker({
                           size="sm"
                           variant="light"
                           onPress={() => onRejectExpense(expense.id)}
-                          className="text-[var(--app-danger)]"
+                          className="text-app-danger dark:text-app-dark-danger"
                         >
                           Reject
                         </Button>
@@ -385,7 +385,7 @@ export function ExpenseTracker({
                           size="sm"
                           variant="flat"
                           onPress={() => onMarkPaid(expense.id)}
-                          className="text-[var(--app-primary)]"
+                          className="text-app-primary dark:text-app-dark-primary"
                         >
                           Mark Paid
                         </Button>

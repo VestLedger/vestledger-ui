@@ -17,7 +17,7 @@ export function AICopilotBubble({ onClick, unreadCount }: AICopilotBubbleProps) 
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.95 }}
       className="fixed bottom-6 right-6 w-14 h-14 rounded-full
-                 bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-secondary)]
+                 bg-gradient-to-br from-app-primary dark:from-app-dark-primary to-app-secondary dark:to-app-dark-secondary
                  shadow-2xl flex items-center justify-center z-50
                  hover:shadow-[0_0_30px_rgba(4,120,87,0.4)]
                  transition-shadow cursor-pointer"
@@ -25,7 +25,7 @@ export function AICopilotBubble({ onClick, unreadCount }: AICopilotBubbleProps) 
     >
       {/* Pulse ring animation */}
       <motion.div
-        className="absolute inset-0 rounded-full border-2 border-[var(--app-primary)]"
+        className="absolute inset-0 rounded-full border-2 border-app-primary dark:border-app-dark-primary"
         animate={{
           scale: [1, 1.3, 1],
           opacity: [0.5, 0, 0.5],
@@ -41,7 +41,7 @@ export function AICopilotBubble({ onClick, unreadCount }: AICopilotBubbleProps) 
 
       {/* Badge for unread messages */}
       {unreadCount && unreadCount > 0 && (
-        <div className="absolute -top-1 -right-1 bg-[var(--app-danger)]
+        <div className="absolute -top-1 -right-1 bg-app-danger dark:bg-app-dark-danger
                        text-white min-w-[20px] h-5 rounded-full flex items-center
                        justify-center text-xs font-bold px-1.5">
           {unreadCount > 9 ? '9+' : unreadCount}

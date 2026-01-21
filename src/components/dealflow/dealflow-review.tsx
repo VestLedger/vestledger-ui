@@ -68,7 +68,7 @@ export function DealflowReview() {
         }}
       >
         <Card padding="lg" className="mt-6">
-          <div className="text-sm text-[var(--app-text-muted)]">Add deals via the backend integration when ready.</div>
+          <div className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Add deals via the backend integration when ready.</div>
         </Card>
       </PageScaffold>
     );
@@ -115,26 +115,26 @@ export function DealflowReview() {
         return (
           <div className="space-y-6">
             <div className="text-center">
-              <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-[var(--app-primary)] to-[var(--app-accent)] bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-app-primary to-app-accent dark:from-app-dark-primary dark:to-app-dark-accent bg-clip-text text-transparent">
                 {currentSlide.content.companyName}
               </h1>
-              <p className="text-xl text-[var(--app-text-muted)] mb-6">{currentSlide.content.oneLiner}</p>
+              <p className="text-xl text-app-text-muted dark:text-app-dark-text-muted mb-6">{currentSlide.content.oneLiner}</p>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
-                <p className="text-sm text-[var(--app-text-muted)] mb-1">Founder</p>
+              <div className="p-4 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
+                <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted mb-1">Founder</p>
                 <p className="text-lg font-semibold">{currentSlide.content.founder}</p>
               </div>
-              <div className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
-                <p className="text-sm text-[var(--app-text-muted)] mb-1">Location</p>
+              <div className="p-4 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
+                <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted mb-1">Location</p>
                 <p className="text-lg font-semibold">{currentSlide.content.location}</p>
               </div>
-              <div className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
-                <p className="text-sm text-[var(--app-text-muted)] mb-1">Sector</p>
+              <div className="p-4 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
+                <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted mb-1">Sector</p>
                 <p className="text-lg font-semibold">{currentSlide.content.sector}</p>
               </div>
-              <div className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
-                <p className="text-sm text-[var(--app-text-muted)] mb-1">Stage</p>
+              <div className="p-4 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
+                <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted mb-1">Stage</p>
                 <p className="text-lg font-semibold">{currentSlide.content.stage}</p>
               </div>
             </div>
@@ -145,28 +145,28 @@ export function DealflowReview() {
         return (
           <div className="space-y-6">
             <div className="grid grid-cols-3 gap-4">
-              <div className="p-6 rounded-lg bg-[var(--app-primary-bg)] text-center">
-                <p className="text-sm text-[var(--app-text-muted)] mb-2">TAM</p>
-                <p className="text-3xl font-bold text-[var(--app-primary)]">{currentSlide.content.tam}</p>
+              <div className="p-6 rounded-lg bg-app-primary-bg dark:bg-app-dark-primary-bg text-center">
+                <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted mb-2">TAM</p>
+                <p className="text-3xl font-bold text-app-primary dark:text-app-dark-primary">{currentSlide.content.tam}</p>
               </div>
-              <div className="p-6 rounded-lg bg-[var(--app-secondary)] bg-opacity-10 text-center">
-                <p className="text-sm text-[var(--app-text-muted)] mb-2">SAM</p>
-                <p className="text-3xl font-bold text-[var(--app-secondary)]">{currentSlide.content.sam}</p>
+              <div className="p-6 rounded-lg bg-app-secondary/10 dark:bg-app-dark-secondary/10 text-center">
+                <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted mb-2">SAM</p>
+                <p className="text-3xl font-bold text-app-secondary dark:text-app-dark-secondary">{currentSlide.content.sam}</p>
               </div>
-              <div className="p-6 rounded-lg bg-[var(--app-success-bg)] text-center">
-                <p className="text-sm text-[var(--app-text-muted)] mb-2">SOM</p>
-                <p className="text-3xl font-bold text-[var(--app-success)]">{currentSlide.content.som}</p>
+              <div className="p-6 rounded-lg bg-app-success-bg dark:bg-app-dark-success-bg text-center">
+                <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted mb-2">SOM</p>
+                <p className="text-3xl font-bold text-app-success dark:text-app-dark-success">{currentSlide.content.som}</p>
               </div>
             </div>
-            <div className="p-6 rounded-lg bg-[var(--app-surface-hover)]">
-              <p className="text-sm text-[var(--app-text-muted)] mb-2">Market Growth</p>
+            <div className="p-6 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
+              <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted mb-2">Market Growth</p>
               <p className="text-2xl font-bold">{currentSlide.content.growth}</p>
             </div>
             <div>
               <p className="font-semibold mb-3">Key Competitors</p>
               <div className="flex flex-wrap gap-2">
                 {currentSlide.content.competitors.map((comp: string, idx: number) => (
-                  <Badge key={idx} size="lg" variant="flat" className="bg-[var(--app-surface-hover)]">
+                  <Badge key={idx} size="lg" variant="flat" className="bg-app-surface-hover dark:bg-app-dark-surface-hover">
                     {comp}
                   </Badge>
                 ))}
@@ -178,18 +178,18 @@ export function DealflowReview() {
       case 'product':
         return (
           <div className="space-y-6">
-            <div className="p-6 rounded-lg bg-[var(--app-surface-hover)]">
+            <div className="p-6 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
               <p className="text-lg mb-4">{currentSlide.content.description}</p>
             </div>
             <div>
               <p className="font-semibold mb-3 flex items-center gap-2">
-                <Target className="w-5 h-5 text-[var(--app-primary)]" />
+                <Target className="w-5 h-5 text-app-primary dark:text-app-dark-primary" />
                 Key Differentiators
               </p>
               <div className="space-y-2">
                 {currentSlide.content.differentiators.map((diff: string, idx: number) => (
-                  <div key={idx} className="flex items-center gap-2 p-3 rounded-lg bg-[var(--app-primary-bg)]">
-                    <div className="w-6 h-6 rounded-full bg-[var(--app-primary)] text-white flex items-center justify-center text-sm font-semibold">
+                  <div key={idx} className="flex items-center gap-2 p-3 rounded-lg bg-app-primary-bg dark:bg-app-dark-primary-bg">
+                    <div className="w-6 h-6 rounded-full bg-app-primary dark:bg-app-dark-primary text-white flex items-center justify-center text-sm font-semibold">
                       {idx + 1}
                     </div>
                     <span>{diff}</span>
@@ -204,35 +204,35 @@ export function DealflowReview() {
         return (
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-6 rounded-lg bg-[var(--app-success-bg)] text-center">
-                <p className="text-sm text-[var(--app-text-muted)] mb-2">ARR</p>
-                <p className="text-3xl font-bold text-[var(--app-success)]">{formatCurrencyCompact(currentSlide.content.arr)}</p>
+              <div className="p-6 rounded-lg bg-app-success-bg dark:bg-app-dark-success-bg text-center">
+                <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted mb-2">ARR</p>
+                <p className="text-3xl font-bold text-app-success dark:text-app-dark-success">{formatCurrencyCompact(currentSlide.content.arr)}</p>
               </div>
-              <div className="p-6 rounded-lg bg-[var(--app-primary-bg)] text-center">
-                <p className="text-sm text-[var(--app-text-muted)] mb-2">YoY Growth</p>
-                <p className="text-3xl font-bold text-[var(--app-primary)]">{currentSlide.content.growth}%</p>
+              <div className="p-6 rounded-lg bg-app-primary-bg dark:bg-app-dark-primary-bg text-center">
+                <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted mb-2">YoY Growth</p>
+                <p className="text-3xl font-bold text-app-primary dark:text-app-dark-primary">{currentSlide.content.growth}%</p>
               </div>
-              <div className="p-6 rounded-lg bg-[var(--app-warning-bg)] text-center">
-                <p className="text-sm text-[var(--app-text-muted)] mb-2">Monthly Burn</p>
-                <p className="text-3xl font-bold text-[var(--app-warning)]">{formatCurrencyCompact(currentSlide.content.burn)}</p>
+              <div className="p-6 rounded-lg bg-app-warning-bg dark:bg-app-dark-warning-bg text-center">
+                <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted mb-2">Monthly Burn</p>
+                <p className="text-3xl font-bold text-app-warning dark:text-app-dark-warning">{formatCurrencyCompact(currentSlide.content.burn)}</p>
               </div>
-              <div className="p-6 rounded-lg bg-[var(--app-info-bg)] text-center">
-                <p className="text-sm text-[var(--app-text-muted)] mb-2">Runway</p>
-                <p className="text-3xl font-bold text-[var(--app-info)]">{currentSlide.content.runway}mo</p>
+              <div className="p-6 rounded-lg bg-app-info-bg dark:bg-app-dark-info-bg text-center">
+                <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted mb-2">Runway</p>
+                <p className="text-3xl font-bold text-app-info dark:text-app-dark-info">{currentSlide.content.runway}mo</p>
               </div>
             </div>
             <div className="grid grid-cols-3 gap-4">
-              <div className="p-4 rounded-lg bg-[var(--app-surface-hover)] text-center">
-                <p className="text-sm text-[var(--app-text-muted)] mb-1">LTV</p>
+              <div className="p-4 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover text-center">
+                <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted mb-1">LTV</p>
                 <p className="text-xl font-bold">{formatCurrencyCompact(currentSlide.content.ltv)}</p>
               </div>
-              <div className="p-4 rounded-lg bg-[var(--app-surface-hover)] text-center">
-                <p className="text-sm text-[var(--app-text-muted)] mb-1">CAC</p>
+              <div className="p-4 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover text-center">
+                <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted mb-1">CAC</p>
                 <p className="text-xl font-bold">{formatCurrencyCompact(currentSlide.content.cac)}</p>
               </div>
-              <div className="p-4 rounded-lg bg-[var(--app-surface-hover)] text-center">
-                <p className="text-sm text-[var(--app-text-muted)] mb-1">LTV:CAC</p>
-                <p className="text-xl font-bold text-[var(--app-success)]">
+              <div className="p-4 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover text-center">
+                <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted mb-1">LTV:CAC</p>
+                <p className="text-xl font-bold text-app-success dark:text-app-dark-success">
                   {(currentSlide.content.ltv / currentSlide.content.cac).toFixed(1)}x
                 </p>
               </div>
@@ -247,14 +247,14 @@ export function DealflowReview() {
               <p className="font-semibold mb-3">Leadership Team</p>
               <div className="space-y-3">
                 {currentSlide.content.team.map((member, idx) => (
-                  <div key={idx} className="flex items-start gap-3 p-4 rounded-lg bg-[var(--app-surface-hover)]">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-accent)] flex items-center justify-center text-white font-semibold">
+                  <div key={idx} className="flex items-start gap-3 p-4 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-app-primary to-app-accent dark:from-app-dark-primary dark:to-app-dark-accent flex items-center justify-center text-white font-semibold">
                       {member.name.split(' ').map((n: string) => n[0]).join('')}
                     </div>
                     <div>
                       <p className="font-semibold">{member.name}</p>
-                      <p className="text-sm text-[var(--app-primary)]">{member.role}</p>
-                      <p className="text-sm text-[var(--app-text-muted)]">{member.background}</p>
+                      <p className="text-sm text-app-primary dark:text-app-dark-primary">{member.role}</p>
+                      <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">{member.background}</p>
                     </div>
                   </div>
                 ))}
@@ -264,7 +264,7 @@ export function DealflowReview() {
               <p className="font-semibold mb-3">Advisors</p>
               <div className="flex flex-wrap gap-2">
                 {currentSlide.content.advisors.map((advisor: string, idx: number) => (
-                  <Badge key={idx} size="lg" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">
+                  <Badge key={idx} size="lg" variant="flat" className="bg-app-primary-bg dark:bg-app-dark-primary-bg text-app-primary dark:text-app-dark-primary">
                     {advisor}
                   </Badge>
                 ))}
@@ -276,12 +276,12 @@ export function DealflowReview() {
       case 'ask':
         return (
           <div className="space-y-6">
-            <div className="text-center p-8 rounded-lg bg-gradient-to-br from-[var(--app-primary-bg)] to-[var(--app-secondary)] bg-opacity-10">
-              <p className="text-sm text-[var(--app-text-muted)] mb-2">Raising</p>
-              <p className="text-5xl font-bold mb-4 bg-gradient-to-r from-[var(--app-primary)] to-[var(--app-secondary)] bg-clip-text text-transparent">
+            <div className="text-center p-8 rounded-lg bg-gradient-to-br from-app-primary-bg to-app-secondary/10 dark:from-app-dark-primary-bg dark:to-app-dark-secondary/10">
+              <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted mb-2">Raising</p>
+              <p className="text-5xl font-bold mb-4 bg-gradient-to-r from-app-primary to-app-secondary dark:from-app-dark-primary dark:to-app-dark-secondary bg-clip-text text-transparent">
                 {formatCurrencyCompact(currentSlide.content.amount)}
               </p>
-              <p className="text-sm text-[var(--app-text-muted)]">
+              <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">
                 at {formatCurrencyCompact(currentSlide.content.valuation)} pre-money valuation
               </p>
             </div>
@@ -292,7 +292,7 @@ export function DealflowReview() {
                   <div key={idx}>
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-sm font-medium">{item.category}</span>
-                      <span className="text-sm text-[var(--app-text-muted)]">{item.percentage}%</span>
+                      <span className="text-sm text-app-text-muted dark:text-app-dark-text-muted">{item.percentage}%</span>
                     </div>
                     <Progress value={item.percentage} maxValue={100} className="h-2" aria-label={`${item.category} ${item.percentage}%`} />
                   </div>
@@ -342,7 +342,7 @@ export function DealflowReview() {
         <div className="lg:col-span-1">
           <Card padding="md">
             <h3 className="font-semibold mb-3 flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-[var(--app-primary)]" />
+              <Building2 className="w-4 h-4 text-app-primary dark:text-app-dark-primary" />
               Slides
             </h3>
             <div className="space-y-2">
@@ -352,8 +352,8 @@ export function DealflowReview() {
                   onClick={() => patchUI({ currentSlideIndex: idx })}
                   className={`w-full text-left p-3 rounded-lg transition-colors ${
                     idx === currentSlideIndex
-                      ? 'bg-[var(--app-primary)] text-white'
-                      : 'bg-[var(--app-surface-hover)] hover:bg-[var(--app-primary-bg)]'
+                      ? 'bg-app-primary dark:bg-app-dark-primary text-white'
+                      : 'bg-app-surface-hover dark:bg-app-dark-surface-hover hover:bg-app-primary-bg dark:hover:bg-app-dark-primary-bg'
                   }`}
                   aria-label={`Navigate to slide ${idx + 1}: ${slide.title}`}
                   aria-current={idx === currentSlideIndex ? 'true' : 'false'}
@@ -377,7 +377,7 @@ export function DealflowReview() {
           {/* Voting Panel */}
           <Card padding="md" className="mt-4">
             <h3 className="font-semibold mb-3 flex items-center gap-2">
-              <Users className="w-4 h-4 text-[var(--app-primary)]" />
+              <Users className="w-4 h-4 text-app-primary dark:text-app-dark-primary" />
               Vote
             </h3>
             <div className="space-y-2">
@@ -411,8 +411,8 @@ export function DealflowReview() {
             </div>
 
             {votes.length > 0 && (
-              <div className="mt-4 pt-4 border-t border-[var(--app-border)]">
-                <p className="text-xs text-[var(--app-text-muted)] mb-2">Votes Cast</p>
+              <div className="mt-4 pt-4 border-t border-app-border dark:border-app-dark-border">
+                <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-2">Votes Cast</p>
                 <div className="space-y-1">
                   {votes.map((vote, idx) => (
                     <div key={idx} className="flex items-center justify-between text-sm">
@@ -421,10 +421,10 @@ export function DealflowReview() {
                         size="sm"
                         className={
                           vote.vote === 'yes'
-                            ? 'bg-[var(--app-success-bg)] text-[var(--app-success)]'
+                            ? 'bg-app-success-bg dark:bg-app-dark-success-bg text-app-success dark:text-app-dark-success'
                             : vote.vote === 'no'
-                            ? 'bg-[var(--app-danger-bg)] text-[var(--app-danger)]'
-                            : 'bg-[var(--app-warning-bg)] text-[var(--app-warning)]'
+                            ? 'bg-app-danger-bg dark:bg-app-dark-danger-bg text-app-danger dark:text-app-dark-danger'
+                            : 'bg-app-warning-bg dark:bg-app-dark-warning-bg text-app-warning dark:text-app-dark-warning'
                         }
                       >
                         {vote.vote}
@@ -441,7 +441,7 @@ export function DealflowReview() {
         <div className="lg:col-span-3">
           <Card padding="lg" className="min-h-[600px]">
             {/* Slide Header */}
-            <div className="flex items-center justify-between mb-6 pb-4 border-b border-[var(--app-border)]">
+            <div className="flex items-center justify-between mb-6 pb-4 border-b border-app-border dark:border-app-dark-border">
               <div>
                 <Badge size="sm" variant="flat" className="mb-2">
                   Slide {currentSlideIndex + 1} of {slides.length}
@@ -457,7 +457,7 @@ export function DealflowReview() {
             <div className="mb-6">{renderSlideContent()}</div>
 
             {/* Navigation Controls */}
-            <div className="flex items-center justify-between pt-4 border-t border-[var(--app-border)]">
+            <div className="flex items-center justify-between pt-4 border-t border-app-border dark:border-app-dark-border">
               <Button
                 variant="flat"
                 startContent={<SkipBack className="w-4 h-4" />}
@@ -473,7 +473,7 @@ export function DealflowReview() {
                     key={idx}
                     onClick={() => patchUI({ currentSlideIndex: idx })}
                     className={`w-2 h-2 rounded-full transition-colors ${
-                      idx === currentSlideIndex ? 'bg-[var(--app-primary)]' : 'bg-[var(--app-border)]'
+                      idx === currentSlideIndex ? 'bg-app-primary dark:bg-app-dark-primary' : 'bg-app-border dark:bg-app-dark-border'
                     }`}
                     aria-label={`Go to slide ${idx + 1}: ${slide.title}`}
                     aria-current={idx === currentSlideIndex ? 'true' : 'false'}
@@ -495,11 +495,11 @@ export function DealflowReview() {
           {/* Comments Section */}
           <Card padding="md" className="mt-4">
             <div className="flex items-center gap-2 mb-3">
-              <MessageSquare className="w-4 h-4 text-[var(--app-primary)]" />
+              <MessageSquare className="w-4 h-4 text-app-primary dark:text-app-dark-primary" />
               <h4 className="font-semibold">Discussion</h4>
             </div>
             <textarea
-              className="w-full px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] min-h-[80px]"
+              className="w-full px-3 py-2 rounded-lg border border-app-border bg-app-surface text-app-text dark:border-app-dark-border dark:bg-app-dark-surface dark:text-app-dark-text min-h-[80px]"
               placeholder="Add your thoughts, questions, or concerns..."
               value={voteComment}
               onChange={(e) => patchVoteComment(e.target.value)}
@@ -509,7 +509,7 @@ export function DealflowReview() {
 
           <Card padding="lg" className="mt-4">
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Target className="w-4 h-4 text-[var(--app-primary)]" />
+              <Target className="w-4 h-4 text-app-primary dark:text-app-dark-primary" />
               Partner Scoring
             </h3>
             <CompanyScoring companyId={Number(selectedDeal.id)} companyName={selectedDeal.companyName} />

@@ -44,26 +44,26 @@ export function AIInsightsBanner({ insight }: AIInsightsBannerProps) {
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case 'urgent':
-        return <AlertTriangle className="w-4 h-4 text-[var(--app-danger)]" />;
+        return <AlertTriangle className="w-4 h-4 text-app-danger dark:text-app-dark-danger" />;
       case 'warning':
-        return <AlertTriangle className="w-4 h-4 text-[var(--app-warning)]" />;
+        return <AlertTriangle className="w-4 h-4 text-app-warning dark:text-app-dark-warning" />;
       case 'success':
-        return <CheckCircle className="w-4 h-4 text-[var(--app-success)]" />;
+        return <CheckCircle className="w-4 h-4 text-app-success dark:text-app-dark-success" />;
       default:
-        return <Info className="w-4 h-4 text-[var(--app-info)]" />;
+        return <Info className="w-4 h-4 text-app-info dark:text-app-dark-info" />;
     }
   };
 
   const getCategoryBg = (category: string) => {
     switch (category) {
       case 'urgent':
-        return 'bg-[var(--app-danger-bg)]';
+        return 'bg-app-danger-bg dark:bg-app-dark-danger-bg';
       case 'warning':
-        return 'bg-[var(--app-warning-bg)]';
+        return 'bg-app-warning-bg dark:bg-app-dark-warning-bg';
       case 'success':
-        return 'bg-[var(--app-success-bg)]';
+        return 'bg-app-success-bg dark:bg-app-dark-success-bg';
       default:
-        return 'bg-[var(--app-info-bg)]';
+        return 'bg-app-info-bg dark:bg-app-dark-info-bg';
     }
   };
 
@@ -74,18 +74,18 @@ export function AIInsightsBanner({ insight }: AIInsightsBannerProps) {
       transition={{ duration: 0.3 }}
       className="sticky top-0 z-10 mb-6"
     >
-      <div className="bg-gradient-to-r from-[var(--app-primary)]/8 to-[var(--app-accent)]/8 border border-[var(--app-border)] rounded-xl p-6 backdrop-blur-sm">
+      <div className="bg-gradient-to-r from-app-primary/[0.08] to-app-accent/[0.08] dark:from-app-dark-primary/[0.08] dark:to-app-dark-accent/[0.08] border border-app-border dark:border-app-dark-border rounded-xl p-6 backdrop-blur-sm">
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3 flex-1">
-            <div className="p-2 rounded-lg bg-[var(--app-primary)]/20">
-              <Sparkles className="w-6 h-6 text-[var(--app-primary)]" />
+            <div className="p-2 rounded-lg bg-app-primary/20 dark:bg-app-dark-primary/20">
+              <Sparkles className="w-6 h-6 text-app-primary dark:text-app-dark-primary" />
             </div>
             <div className="flex-1">
-              <h2 className="text-lg font-semibold text-[var(--app-text)] mb-1">
+              <h2 className="text-lg font-semibold text-app-text dark:text-app-dark-text mb-1">
                 AI Daily Briefing
               </h2>
-              <p className="text-[var(--app-text-muted)] text-sm leading-relaxed">
+              <p className="text-app-text-muted dark:text-app-dark-text-muted text-sm leading-relaxed">
                 {insight.summary}
               </p>
             </div>
@@ -130,26 +130,26 @@ export function AIInsightsBanner({ insight }: AIInsightsBannerProps) {
               transition={{ duration: 0.3, ease: 'easeInOut' }}
               style={{ overflow: 'hidden' }}
             >
-              <div className="pt-4 border-t border-[var(--app-border)] mt-4 space-y-3">
+              <div className="pt-4 border-t border-app-border dark:border-app-dark-border mt-4 space-y-3">
                 {insight.details.map((detail) => (
                   <div
                     key={detail.id}
-                    className={`p-4 rounded-lg border border-[var(--app-border)] ${getCategoryBg(detail.category)}`}
+                    className={`p-4 rounded-lg border border-app-border dark:border-app-dark-border ${getCategoryBg(detail.category)}`}
                   >
                     <div className="flex items-start gap-3">
                       {getCategoryIcon(detail.category)}
                       <div className="flex-1">
-                        <h3 className="text-sm font-semibold text-[var(--app-text)] mb-1">
+                        <h3 className="text-sm font-semibold text-app-text dark:text-app-dark-text mb-1">
                           {detail.title}
                         </h3>
-                        <p className="text-sm text-[var(--app-text-muted)] mb-2">
+                        <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted mb-2">
                           {detail.description}
                         </p>
 
                         {/* AI Reasoning */}
-                        <div className="flex items-start gap-2 p-2 rounded bg-[var(--app-surface)]/50 mt-2">
-                          <Info className="w-3 h-3 text-[var(--app-text-subtle)] mt-0.5 flex-shrink-0" />
-                          <p className="text-xs text-[var(--app-text-subtle)]">
+                        <div className="flex items-start gap-2 p-2 rounded bg-app-surface/50 dark:bg-app-dark-surface/50 mt-2">
+                          <Info className="w-3 h-3 text-app-text-subtle dark:text-app-dark-text-subtle mt-0.5 flex-shrink-0" />
+                          <p className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle">
                             <span className="font-semibold">AI Analysis: </span>
                             {detail.reasoning}
                           </p>
@@ -158,7 +158,7 @@ export function AIInsightsBanner({ insight }: AIInsightsBannerProps) {
                         {/* Actionable Tag */}
                         {detail.actionable && (
                           <div className="mt-2">
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[var(--app-primary)]/10 text-[var(--app-primary)] text-xs font-medium">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-app-primary/10 dark:bg-app-dark-primary/10 text-app-primary dark:text-app-dark-primary text-xs font-medium">
                               <Sparkles className="w-3 h-3" />
                               Action Required
                             </span>
@@ -170,9 +170,9 @@ export function AIInsightsBanner({ insight }: AIInsightsBannerProps) {
                 ))}
 
                 {/* Confidence Explanation */}
-                <div className="p-3 rounded-lg bg-[var(--app-surface)]/50 border border-[var(--app-border)]">
-                  <p className="text-xs text-[var(--app-text-subtle)]">
-                    <span className="font-semibold text-[var(--app-text-muted)]">Confidence Score: </span>
+                <div className="p-3 rounded-lg bg-app-surface/50 dark:bg-app-dark-surface/50 border border-app-border dark:border-app-dark-border">
+                  <p className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle">
+                    <span className="font-semibold text-app-text-muted dark:text-app-dark-text-muted">Confidence Score: </span>
                     This {Math.round(insight.confidence * 100)}% confidence is based on current fund data quality,
                     historical pattern analysis, and the completeness of available information.
                     Higher scores indicate greater certainty in AI predictions.

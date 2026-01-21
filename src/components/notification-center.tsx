@@ -35,15 +35,15 @@ export interface NotificationCenterProps {
 const getNotificationIcon = (type: NotificationType) => {
   switch (type) {
     case 'success':
-      return <CheckCircle className="w-5 h-5 text-[var(--app-success)]" />;
+      return <CheckCircle className="w-5 h-5 text-app-success dark:text-app-dark-success" />;
     case 'warning':
-      return <AlertTriangle className="w-5 h-5 text-[var(--app-warning)]" />;
+      return <AlertTriangle className="w-5 h-5 text-app-warning dark:text-app-dark-warning" />;
     case 'error':
-      return <AlertCircle className="w-5 h-5 text-[var(--app-danger)]" />;
+      return <AlertCircle className="w-5 h-5 text-app-danger dark:text-app-dark-danger" />;
     case 'info':
-      return <Info className="w-5 h-5 text-[var(--app-info)]" />;
+      return <Info className="w-5 h-5 text-app-info dark:text-app-dark-info" />;
     default:
-      return <Bell className="w-5 h-5 text-[var(--app-text-muted)]" />;
+      return <Bell className="w-5 h-5 text-app-text-muted dark:text-app-dark-text-muted" />;
   }
 };
 
@@ -128,14 +128,14 @@ export function NotificationCenter({
       {/* Notification Bell Button */}
       <button
         onClick={() => patchUI({ isOpen: !isOpen })}
-        className="relative p-2 rounded-lg hover:bg-[var(--app-surface-hover)] transition-colors"
+        className="relative p-2 rounded-lg hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover transition-colors"
         aria-label="Notifications"
       >
-        <Bell className="w-5 h-5 text-[var(--app-text-muted)]" />
+        <Bell className="w-5 h-5 text-app-text-muted dark:text-app-dark-text-muted" />
         {unreadCount > 0 && (
           <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--app-danger)] opacity-75" />
-            <span className="relative inline-flex h-4 w-4 items-center justify-center rounded-full bg-[var(--app-danger)] text-[10px] font-bold text-white">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-app-danger dark:bg-app-dark-danger opacity-75" />
+            <span className="relative inline-flex h-4 w-4 items-center justify-center rounded-full bg-app-danger dark:bg-app-dark-danger text-[10px] font-bold text-white">
               {unreadCount > 9 ? '9+' : unreadCount}
             </span>
           </span>
@@ -150,14 +150,14 @@ export function NotificationCenter({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -10 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 top-full mt-2 w-96 bg-[var(--app-surface)] border border-[var(--app-border)] rounded-lg shadow-2xl z-50 overflow-hidden"
+            className="absolute right-0 top-full mt-2 w-96 bg-app-surface dark:bg-app-dark-surface border border-app-border dark:border-app-dark-border rounded-lg shadow-2xl z-50 overflow-hidden"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-[var(--app-border)]">
+            <div className="flex items-center justify-between p-4 border-b border-app-border dark:border-app-dark-border">
               <div className="flex items-center gap-2">
                 <h3 className="text-sm font-semibold">Notifications</h3>
                 {unreadCount > 0 && (
-                  <Badge size="sm" variant="solid" className="bg-[var(--app-danger)] text-white">
+                  <Badge size="sm" variant="solid" className="bg-app-danger dark:bg-app-dark-danger text-white">
                     {unreadCount}
                   </Badge>
                 )}
@@ -197,8 +197,8 @@ export function NotificationCenter({
             >
               {notifications.length === 0 ? (
                 <div className="p-8 text-center">
-                  <Bell className="w-12 h-12 text-[var(--app-text-subtle)] mx-auto mb-3 opacity-50" />
-                  <p className="text-sm text-[var(--app-text-muted)]">
+                  <Bell className="w-12 h-12 text-app-text-subtle dark:text-app-dark-text-subtle mx-auto mb-3 opacity-50" />
+                  <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">
                     No notifications
                   </p>
                 </div>
@@ -206,8 +206,8 @@ export function NotificationCenter({
                 notifications.map((notification) => (
                   <div
                     key={notification.id}
-                    className={`relative p-4 border-b border-[var(--app-border)] hover:bg-[var(--app-surface-hover)] transition-colors cursor-pointer ${
-                      !notification.read ? 'bg-[var(--app-primary-bg)]/30' : ''
+                    className={`relative p-4 border-b border-app-border dark:border-app-dark-border hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover transition-colors cursor-pointer ${
+                      !notification.read ? 'bg-app-primary/5 dark:bg-app-dark-primary/10' : ''
                     }`}
                     onClick={() => handleNotificationClick(notification)}
                   >
@@ -220,29 +220,29 @@ export function NotificationCenter({
                       {/* Content */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2 mb-1">
-                          <h4 className="text-sm font-medium text-[var(--app-text)]">
+                          <h4 className="text-sm font-medium text-app-text dark:text-app-dark-text">
                             {notification.title}
                           </h4>
                           {!notification.read && (
-                            <div className="w-2 h-2 rounded-full bg-[var(--app-primary)] flex-shrink-0 mt-1" />
+                            <div className="w-2 h-2 rounded-full bg-app-primary dark:bg-app-dark-primary flex-shrink-0 mt-1" />
                           )}
                         </div>
-                        <p className="text-xs text-[var(--app-text-muted)] line-clamp-2 mb-2">
+                        <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted line-clamp-2 mb-2">
                           {notification.message}
                         </p>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <span className="text-xs text-[var(--app-text-subtle)]">
+                            <span className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle">
                               {getRelativeTime(notification.timestamp)}
                             </span>
-                            <span className="text-xs text-[var(--app-text-subtle)]">•</span>
-                            <div className="flex items-center gap-1 text-xs text-[var(--app-text-subtle)]">
+                            <span className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle">•</span>
+                            <div className="flex items-center gap-1 text-xs text-app-text-subtle dark:text-app-dark-text-subtle">
                               {getCategoryIcon(notification.category)}
                               <span className="capitalize">{notification.category}</span>
                             </div>
                           </div>
                           {notification.actionLabel && (
-                            <span className="text-xs font-medium text-[var(--app-primary)]">
+                            <span className="text-xs font-medium text-app-primary dark:text-app-dark-primary">
                               {notification.actionLabel} →
                             </span>
                           )}
@@ -257,7 +257,7 @@ export function NotificationCenter({
                               e.stopPropagation();
                               onMarkAsRead(notification.id);
                             }}
-                            className="p-1 hover:bg-[var(--app-surface-hover)] rounded"
+                            className="p-1 hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover rounded"
                             title="Mark as read"
                           >
                             <Check className="w-3 h-3" />
@@ -269,7 +269,7 @@ export function NotificationCenter({
                               e.stopPropagation();
                               onDelete(notification.id);
                             }}
-                            className="p-1 hover:bg-[var(--app-surface-hover)] rounded"
+                            className="p-1 hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover rounded"
                             title="Delete"
                           >
                             <X className="w-3 h-3" />
@@ -284,13 +284,13 @@ export function NotificationCenter({
 
             {/* Footer */}
             {notifications.length > 0 && (
-              <div className="p-3 border-t border-[var(--app-border)] bg-[var(--app-surface-hover)]">
+              <div className="p-3 border-t border-app-border dark:border-app-dark-border bg-app-surface-hover dark:bg-app-dark-surface-hover">
                 <button
                   onClick={() => {
                     patchUI({ isOpen: false });
                     router.push('/notifications');
                   }}
-                  className="w-full text-center text-sm font-medium text-[var(--app-primary)] hover:underline"
+                  className="w-full text-center text-sm font-medium text-app-primary dark:text-app-dark-primary hover:underline"
                 >
                   View all notifications
                 </button>

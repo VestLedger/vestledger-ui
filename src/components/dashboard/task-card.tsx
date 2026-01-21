@@ -13,15 +13,15 @@ interface TaskCardProps {
 }
 
 const getPriorityColor = (score: number) => {
-  if (score >= 80) return 'text-[var(--app-danger)]';
-  if (score >= 50) return 'text-[var(--app-warning)]';
-  return 'text-[var(--app-info)]';
+  if (score >= 80) return 'text-app-danger dark:text-app-dark-danger';
+  if (score >= 50) return 'text-app-warning dark:text-app-dark-warning';
+  return 'text-app-info dark:text-app-dark-info';
 };
 
 const getPriorityBg = (score: number) => {
-  if (score >= 80) return 'bg-[var(--app-danger-bg)] border-[var(--app-border)]';
-  if (score >= 50) return 'bg-[var(--app-warning-bg)] border-[var(--app-border)]';
-  return 'bg-[var(--app-info-bg)] border-[var(--app-border)]';
+  if (score >= 80) return 'bg-app-danger-bg dark:bg-app-dark-danger-bg border-app-border dark:border-app-dark-border';
+  if (score >= 50) return 'bg-app-warning-bg dark:bg-app-dark-warning-bg border-app-border dark:border-app-dark-border';
+  return 'bg-app-info-bg dark:bg-app-dark-info-bg border-app-border dark:border-app-dark-border';
 };
 
 export const TaskCard = memo(function TaskCard({ task, index, onTaskClick }: TaskCardProps) {
@@ -46,7 +46,7 @@ export const TaskCard = memo(function TaskCard({ task, index, onTaskClick }: Tas
       className={`
         p-3 rounded-lg border cursor-pointer transition-all
         ${priorityBg}
-        hover:border-[var(--app-primary)]/40 hover:shadow-md
+        hover:border-app-primary/40 dark:hover:border-app-dark-primary/40 hover:shadow-md
       `}
     >
       <div className="flex items-start gap-3">
@@ -54,17 +54,17 @@ export const TaskCard = memo(function TaskCard({ task, index, onTaskClick }: Tas
         <div className="flex-shrink-0 mt-1">
           {task.status === 'in_progress' ? (
             <div className="relative">
-              <Circle className="w-5 h-5 text-[var(--app-primary)]" />
+              <Circle className="w-5 h-5 text-app-primary dark:text-app-dark-primary" />
               <motion.div
                 animate={{ scale: [1, 1.2, 1] }}
                 transition={{ duration: 2, repeat: Infinity }}
                 className="absolute inset-0"
               >
-                <Circle className="w-5 h-5 text-[var(--app-primary)] fill-[var(--app-primary)]/20" />
+                <Circle className="w-5 h-5 text-app-primary dark:text-app-dark-primary fill-app-primary/20 dark:fill-app-dark-primary/20" />
               </motion.div>
             </div>
           ) : (
-            <Circle className="w-5 h-5 text-[var(--app-text-muted)]" />
+            <Circle className="w-5 h-5 text-app-text-muted dark:text-app-dark-text-muted" />
           )}
         </div>
 
@@ -72,7 +72,7 @@ export const TaskCard = memo(function TaskCard({ task, index, onTaskClick }: Tas
         <div className="flex-1 min-w-0">
           {/* Title + Priority Score */}
           <div className="flex items-start justify-between mb-2">
-            <h4 className="text-sm font-semibold text-[var(--app-text)] flex-1">
+            <h4 className="text-sm font-semibold text-app-text dark:text-app-dark-text flex-1">
               {task.title}
             </h4>
             <div className={`flex items-center gap-1 ml-2 flex-shrink-0 ${priorityColor}`}>
@@ -84,29 +84,29 @@ export const TaskCard = memo(function TaskCard({ task, index, onTaskClick }: Tas
           </div>
 
           {/* Description */}
-          <p className="text-xs text-[var(--app-text-muted)] mb-2 line-clamp-2">
+          <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-2 line-clamp-2">
             {task.description}
           </p>
 
           {/* Metadata */}
           <div className="flex items-center gap-3 text-xs mb-2">
             <div className="flex items-center gap-1">
-              <span className="text-[var(--app-text-subtle)]">Urgency:</span>
-              <span className="font-semibold text-[var(--app-text-muted)]">
+              <span className="text-app-text-subtle dark:text-app-dark-text-subtle">Urgency:</span>
+              <span className="font-semibold text-app-text-muted dark:text-app-dark-text-muted">
                 {task.urgency}/10
               </span>
             </div>
-            <span className="text-[var(--app-text-subtle)]">•</span>
+            <span className="text-app-text-subtle dark:text-app-dark-text-subtle">•</span>
             <div className="flex items-center gap-1">
-              <span className="text-[var(--app-text-subtle)]">Impact:</span>
-              <span className="font-semibold text-[var(--app-text-muted)]">
+              <span className="text-app-text-subtle dark:text-app-dark-text-subtle">Impact:</span>
+              <span className="font-semibold text-app-text-muted dark:text-app-dark-text-muted">
                 {task.impact}/10
               </span>
             </div>
-            <span className="text-[var(--app-text-subtle)]">•</span>
+            <span className="text-app-text-subtle dark:text-app-dark-text-subtle">•</span>
             <div className="flex items-center gap-1">
-              <Clock className="w-3 h-3 text-[var(--app-text-muted)]" />
-              <span className="text-[var(--app-text-muted)]">
+              <Clock className="w-3 h-3 text-app-text-muted dark:text-app-dark-text-muted" />
+              <span className="text-app-text-muted dark:text-app-dark-text-muted">
                 {task.estimatedTime}
               </span>
             </div>
@@ -114,14 +114,14 @@ export const TaskCard = memo(function TaskCard({ task, index, onTaskClick }: Tas
 
           {/* Delegation Suggestion */}
           {task.delegationSuggestion && (
-            <div className="flex items-start gap-2 p-2 rounded bg-[var(--app-primary)]/5 border border-[var(--app-border)]">
-              <User className="w-3 h-3 text-[var(--app-primary)] mt-0.5 flex-shrink-0" />
+            <div className="flex items-start gap-2 p-2 rounded bg-app-primary/5 dark:bg-app-dark-primary/5 border border-app-border dark:border-app-dark-border">
+              <User className="w-3 h-3 text-app-primary dark:text-app-dark-primary mt-0.5 flex-shrink-0" />
               <div className="flex-1">
-                <p className="text-xs text-[var(--app-text)] mb-0.5">
+                <p className="text-xs text-app-text dark:text-app-dark-text mb-0.5">
                   <span className="font-semibold">AI Suggestion: </span>
                   Delegate to {task.delegationSuggestion.person}
                 </p>
-                <p className="text-xs text-[var(--app-text-subtle)]">
+                <p className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle">
                   {task.delegationSuggestion.reasoning}
                 </p>
               </div>

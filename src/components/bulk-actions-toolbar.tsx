@@ -70,7 +70,7 @@ export function BulkActionsToolbar({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.2 }}
-          className="sticky top-0 z-30 bg-[var(--app-primary-bg)] border border-[var(--app-primary)] rounded-lg p-4 mb-4 shadow-lg"
+          className="sticky top-0 z-30 bg-app-primary-bg dark:bg-app-dark-primary-bg border border-app-primary dark:border-app-dark-primary rounded-lg p-4 mb-4 shadow-lg"
         >
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             {/* Left side - Selection info */}
@@ -90,21 +90,21 @@ export function BulkActionsToolbar({
                 <Badge
                   size="lg"
                   variant="solid"
-                  className="bg-[var(--app-primary)] text-white font-semibold"
+                  className="bg-app-primary dark:bg-app-dark-primary text-white font-semibold"
                 >
                   {selectedCount}
                 </Badge>
-                <span className="text-sm font-medium text-[var(--app-primary)]">
+                <span className="text-sm font-medium text-app-primary dark:text-app-dark-primary">
                   {selectedCount === 1 ? 'item selected' : 'items selected'}
                 </span>
               </div>
 
               {onSelectAll && !isAllSelected && (
                 <>
-                  <span className="text-sm text-[var(--app-primary)]/70">•</span>
+                  <span className="text-sm text-app-primary/70 dark:text-app-dark-primary/70">•</span>
                   <button
                     onClick={onSelectAll}
-                    className="text-sm font-medium text-[var(--app-primary)] hover:underline"
+                    className="text-sm font-medium text-app-primary dark:text-app-dark-primary hover:underline"
                   >
                     Select all {totalCount}
                   </button>

@@ -30,39 +30,39 @@ function CohortRow({ cohort, bestMOIC, bestIRR }: CohortRowProps) {
   const isTopIRR = cohort.irr === bestIRR;
 
   return (
-    <div className="grid grid-cols-12 gap-4 items-center p-4 rounded-lg border border-[var(--app-border)] hover:bg-[var(--app-surface-hover)] transition-all">
+    <div className="grid grid-cols-12 gap-4 items-center p-4 rounded-lg border border-app-border dark:border-app-dark-border hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover transition-all">
       {/* Cohort Name */}
       <div className="col-span-12 sm:col-span-3">
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-accent)] flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-app-primary to-app-accent dark:from-app-dark-primary dark:to-app-dark-accent flex items-center justify-center flex-shrink-0">
             <span className="text-white font-semibold text-sm">{cohort.count}</span>
           </div>
           <div>
             <p className="font-semibold">{cohort.cohort}</p>
-            <p className="text-xs text-[var(--app-text-muted)]">{cohort.count} companies</p>
+            <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">{cohort.count} companies</p>
           </div>
         </div>
       </div>
 
       {/* Investment */}
       <div className="col-span-6 sm:col-span-2 text-center sm:text-left">
-        <p className="text-xs text-[var(--app-text-muted)] mb-1">Invested</p>
+        <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-1">Invested</p>
         <p className="font-semibold">{formatCurrency(cohort.totalInvested)}</p>
       </div>
 
       {/* Current Value */}
       <div className="col-span-6 sm:col-span-2 text-center sm:text-left">
-        <p className="text-xs text-[var(--app-text-muted)] mb-1">Current Value</p>
+        <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-1">Current Value</p>
         <p className="font-semibold">{formatCurrency(cohort.currentValue)}</p>
       </div>
 
       {/* MOIC */}
       <div className="col-span-4 sm:col-span-1 text-center sm:text-left">
-        <p className="text-xs text-[var(--app-text-muted)] mb-1">MOIC</p>
+        <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-1">MOIC</p>
         <div className="flex items-center gap-1">
           <p className="font-semibold">{cohort.moic.toFixed(2)}x</p>
           {isTopMOIC && (
-            <Badge size="sm" className="bg-[var(--app-success-bg)] text-[var(--app-success)]">
+            <Badge size="sm" className="bg-app-success-bg dark:bg-app-dark-success-bg text-app-success dark:text-app-dark-success">
               Top
             </Badge>
           )}
@@ -71,11 +71,11 @@ function CohortRow({ cohort, bestMOIC, bestIRR }: CohortRowProps) {
 
       {/* IRR */}
       <div className="col-span-4 sm:col-span-1 text-center sm:text-left">
-        <p className="text-xs text-[var(--app-text-muted)] mb-1">IRR</p>
+        <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-1">IRR</p>
         <div className="flex items-center gap-1">
-          <p className="font-semibold text-[var(--app-success)]">{cohort.irr.toFixed(1)}%</p>
+          <p className="font-semibold text-app-success dark:text-app-dark-success">{cohort.irr.toFixed(1)}%</p>
           {isTopIRR && (
-            <Badge size="sm" className="bg-[var(--app-success-bg)] text-[var(--app-success)]">
+            <Badge size="sm" className="bg-app-success-bg dark:bg-app-dark-success-bg text-app-success dark:text-app-dark-success">
               Top
             </Badge>
           )}
@@ -84,19 +84,19 @@ function CohortRow({ cohort, bestMOIC, bestIRR }: CohortRowProps) {
 
       {/* TVPI */}
       <div className="col-span-4 sm:col-span-1 text-center sm:text-left">
-        <p className="text-xs text-[var(--app-text-muted)] mb-1">TVPI</p>
+        <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-1">TVPI</p>
         <p className="font-semibold">{cohort.tvpi.toFixed(2)}x</p>
       </div>
 
       {/* DPI */}
       <div className="col-span-6 sm:col-span-1 text-center sm:text-left">
-        <p className="text-xs text-[var(--app-text-muted)] mb-1">DPI</p>
+        <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-1">DPI</p>
         <p className="font-semibold">{cohort.dpi.toFixed(2)}x</p>
       </div>
 
       {/* Exit % */}
       <div className="col-span-6 sm:col-span-1 text-center sm:text-left">
-        <p className="text-xs text-[var(--app-text-muted)] mb-1">Exited</p>
+        <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-1">Exited</p>
         <p className="font-semibold">{cohort.percentageExited.toFixed(0)}%</p>
       </div>
     </div>
@@ -143,7 +143,7 @@ export function CohortAnalysis() {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Layers className="w-5 h-5 text-[var(--app-primary)]" />
+            <Layers className="w-5 h-5 text-app-primary dark:text-app-dark-primary" />
             <h3 className="text-lg font-semibold">Cohort Performance Analysis</h3>
           </div>
           <div className="flex gap-2">
@@ -151,7 +151,7 @@ export function CohortAnalysis() {
               variant={selectedType === 'vintage' ? 'solid' : 'flat'}
               size="sm"
               onPress={() => patchUI({ selectedType: 'vintage' })}
-              className={selectedType === 'vintage' ? 'bg-[var(--app-primary)] text-white' : ''}
+              className={selectedType === 'vintage' ? 'bg-app-primary dark:bg-app-dark-primary text-white' : ''}
             >
               By Vintage
             </Button>
@@ -159,7 +159,7 @@ export function CohortAnalysis() {
               variant={selectedType === 'sector' ? 'solid' : 'flat'}
               size="sm"
               onPress={() => patchUI({ selectedType: 'sector' })}
-              className={selectedType === 'sector' ? 'bg-[var(--app-primary)] text-white' : ''}
+              className={selectedType === 'sector' ? 'bg-app-primary dark:bg-app-dark-primary text-white' : ''}
             >
               By Sector
             </Button>
@@ -167,7 +167,7 @@ export function CohortAnalysis() {
               variant={selectedType === 'stage' ? 'solid' : 'flat'}
               size="sm"
               onPress={() => patchUI({ selectedType: 'stage' })}
-              className={selectedType === 'stage' ? 'bg-[var(--app-primary)] text-white' : ''}
+              className={selectedType === 'stage' ? 'bg-app-primary dark:bg-app-dark-primary text-white' : ''}
             >
               By Stage
             </Button>
@@ -176,21 +176,21 @@ export function CohortAnalysis() {
 
         {/* Aggregated Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
-            <p className="text-xs text-[var(--app-text-muted)] mb-1">Total Invested</p>
+          <div className="p-4 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
+            <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-1">Total Invested</p>
             <p className="text-xl font-bold">{formatCurrency(totalInvested)}</p>
           </div>
-          <div className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
-            <p className="text-xs text-[var(--app-text-muted)] mb-1">Current Value</p>
+          <div className="p-4 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
+            <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-1">Current Value</p>
             <p className="text-xl font-bold">{formatCurrency(totalCurrentValue)}</p>
           </div>
-          <div className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
-            <p className="text-xs text-[var(--app-text-muted)] mb-1">Avg MOIC</p>
+          <div className="p-4 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
+            <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-1">Avg MOIC</p>
             <p className="text-xl font-bold">{avgMOIC.toFixed(2)}x</p>
           </div>
-          <div className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
-            <p className="text-xs text-[var(--app-text-muted)] mb-1">Avg IRR</p>
-            <p className="text-xl font-bold text-[var(--app-success)]">{avgIRR.toFixed(1)}%</p>
+          <div className="p-4 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
+            <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-1">Avg IRR</p>
+            <p className="text-xl font-bold text-app-success dark:text-app-dark-success">{avgIRR.toFixed(1)}%</p>
           </div>
         </div>
       </div>
@@ -198,30 +198,30 @@ export function CohortAnalysis() {
       {/* Cohort List */}
       <div className="space-y-3">
         {/* Header */}
-        <div className="grid grid-cols-12 gap-4 px-4 pb-2 border-b border-[var(--app-border)]">
+        <div className="grid grid-cols-12 gap-4 px-4 pb-2 border-b border-app-border dark:border-app-dark-border">
           <div className="col-span-12 sm:col-span-3">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] uppercase">Cohort</p>
+            <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted uppercase">Cohort</p>
           </div>
           <div className="hidden sm:block sm:col-span-2">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] uppercase">Invested</p>
+            <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted uppercase">Invested</p>
           </div>
           <div className="hidden sm:block sm:col-span-2">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] uppercase">Current Value</p>
+            <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted uppercase">Current Value</p>
           </div>
           <div className="hidden sm:block sm:col-span-1">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] uppercase">MOIC</p>
+            <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted uppercase">MOIC</p>
           </div>
           <div className="hidden sm:block sm:col-span-1">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] uppercase">IRR</p>
+            <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted uppercase">IRR</p>
           </div>
           <div className="hidden sm:block sm:col-span-1">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] uppercase">TVPI</p>
+            <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted uppercase">TVPI</p>
           </div>
           <div className="hidden sm:block sm:col-span-1">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] uppercase">DPI</p>
+            <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted uppercase">DPI</p>
           </div>
           <div className="hidden sm:block sm:col-span-1">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] uppercase">Exited</p>
+            <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted uppercase">Exited</p>
           </div>
         </div>
 
@@ -237,26 +237,26 @@ export function CohortAnalysis() {
       </div>
 
       {/* Insights */}
-      <div className="mt-6 pt-6 border-t border-[var(--app-border)]">
+      <div className="mt-6 pt-6 border-t border-app-border dark:border-app-dark-border">
         <h4 className="text-sm font-semibold mb-3">Key Insights</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div className="p-3 rounded-lg border border-[var(--app-success)]/20 bg-[var(--app-success-bg)]">
+          <div className="p-3 rounded-lg border border-app-success/20 dark:border-app-dark-success/20 bg-app-success-bg dark:bg-app-dark-success-bg">
             <div className="flex items-start gap-2">
-              <ArrowUpRight className="w-4 h-4 text-[var(--app-success)] mt-0.5 flex-shrink-0" />
+              <ArrowUpRight className="w-4 h-4 text-app-success dark:text-app-dark-success mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-sm font-medium text-[var(--app-success)]">Best Performing Cohort (MOIC)</p>
-                <p className="text-xs text-[var(--app-text-muted)] mt-1">
+                <p className="text-sm font-medium text-app-success dark:text-app-dark-success">Best Performing Cohort (MOIC)</p>
+                <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mt-1">
                   {cohortData.find(c => c.moic === bestMOIC)?.cohort} - {bestMOIC.toFixed(2)}x MOIC
                 </p>
               </div>
             </div>
           </div>
-          <div className="p-3 rounded-lg border border-[var(--app-success)]/20 bg-[var(--app-success-bg)]">
+          <div className="p-3 rounded-lg border border-app-success/20 dark:border-app-dark-success/20 bg-app-success-bg dark:bg-app-dark-success-bg">
             <div className="flex items-start gap-2">
-              <TrendingUp className="w-4 h-4 text-[var(--app-success)] mt-0.5 flex-shrink-0" />
+              <TrendingUp className="w-4 h-4 text-app-success dark:text-app-dark-success mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-sm font-medium text-[var(--app-success)]">Best Performing Cohort (IRR)</p>
-                <p className="text-xs text-[var(--app-text-muted)] mt-1">
+                <p className="text-sm font-medium text-app-success dark:text-app-dark-success">Best Performing Cohort (IRR)</p>
+                <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mt-1">
                   {cohortData.find(c => c.irr === bestIRR)?.cohort} - {bestIRR.toFixed(1)}% IRR
                 </p>
               </div>

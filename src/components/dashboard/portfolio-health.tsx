@@ -43,14 +43,14 @@ export function PortfolioHealth({ companies }: PortfolioHealthProps) {
       header={
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-[var(--app-primary)]/10">
-              <Activity className="w-5 h-5 text-[var(--app-primary)]" />
+            <div className="p-2 rounded-lg bg-app-primary/10 dark:bg-app-dark-primary/10">
+              <Activity className="w-5 h-5 text-app-primary dark:text-app-dark-primary" />
             </div>
             <div>
-              <h3 className="text-base font-semibold text-[var(--app-text)]">
+              <h3 className="text-base font-semibold text-app-text dark:text-app-dark-text">
                 Portfolio Health
               </h3>
-              <p className="text-xs text-[var(--app-text-muted)]">
+              <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">
                 AI-powered forecasting
               </p>
             </div>
@@ -71,7 +71,7 @@ export function PortfolioHealth({ companies }: PortfolioHealthProps) {
       <div className="space-y-4">
         {companies.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-sm text-[var(--app-text-muted)]">
+            <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">
               No portfolio companies
             </p>
           </div>

@@ -224,10 +224,10 @@ export function AMLKYCWorkflow({
 
   const getRiskBadge = (level: RiskLevel) => {
     const colors = {
-      'low': 'bg-[var(--app-success-bg)] text-[var(--app-success)]',
-      'medium': 'bg-[var(--app-warning-bg)] text-[var(--app-warning)]',
-      'high': 'bg-[var(--app-danger-bg)] text-[var(--app-danger)]',
-      'severe': 'bg-[var(--app-danger)] text-white',
+      'low': 'bg-app-success-bg dark:bg-app-dark-success-bg text-app-success dark:text-app-dark-success',
+      'medium': 'bg-app-warning-bg dark:bg-app-dark-warning-bg text-app-warning dark:text-app-dark-warning',
+      'high': 'bg-app-danger-bg dark:bg-app-dark-danger-bg text-app-danger dark:text-app-dark-danger',
+      'severe': 'bg-app-danger dark:bg-app-dark-danger text-white',
     };
 
     return (
@@ -266,7 +266,7 @@ export function AMLKYCWorkflow({
       <Card padding="md">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-[var(--app-primary)]" />
+            <Shield className="w-5 h-5 text-app-primary dark:text-app-dark-primary" />
             <h3 className="text-lg font-semibold">AML/KYC Compliance</h3>
           </div>
           {onInitiateWorkflow && (
@@ -282,24 +282,24 @@ export function AMLKYCWorkflow({
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-          <div className="p-3 rounded-lg bg-[var(--app-primary-bg)]">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Total Workflows</p>
-            <p className="text-2xl font-bold text-[var(--app-primary)]">{statusCounts.total}</p>
+          <div className="p-3 rounded-lg bg-app-primary-bg dark:bg-app-dark-primary-bg">
+            <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Total Workflows</p>
+            <p className="text-2xl font-bold text-app-primary dark:text-app-dark-primary">{statusCounts.total}</p>
           </div>
-          <div className="p-3 rounded-lg bg-[var(--app-warning-bg)]">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Pending Review</p>
-            <p className="text-2xl font-bold text-[var(--app-warning)]">{statusCounts.pending}</p>
+          <div className="p-3 rounded-lg bg-app-warning-bg dark:bg-app-dark-warning-bg">
+            <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Pending Review</p>
+            <p className="text-2xl font-bold text-app-warning dark:text-app-dark-warning">{statusCounts.pending}</p>
           </div>
-          <div className="p-3 rounded-lg bg-[var(--app-success-bg)]">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Approved</p>
-            <p className="text-2xl font-bold text-[var(--app-success)]">{statusCounts.approved}</p>
+          <div className="p-3 rounded-lg bg-app-success-bg dark:bg-app-dark-success-bg">
+            <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Approved</p>
+            <p className="text-2xl font-bold text-app-success dark:text-app-dark-success">{statusCounts.approved}</p>
           </div>
-          <div className="p-3 rounded-lg bg-[var(--app-danger-bg)]">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">High Risk</p>
-            <p className="text-2xl font-bold text-[var(--app-danger)]">{statusCounts.highRisk}</p>
+          <div className="p-3 rounded-lg bg-app-danger-bg dark:bg-app-dark-danger-bg">
+            <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">High Risk</p>
+            <p className="text-2xl font-bold text-app-danger dark:text-app-dark-danger">{statusCounts.highRisk}</p>
           </div>
-          <div className="p-3 rounded-lg bg-[var(--app-surface-hover)] border border-[var(--app-border)]">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Expiring Soon</p>
+          <div className="p-3 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover border border-app-border dark:border-app-dark-border">
+            <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-1">Expiring Soon</p>
             <p className="text-2xl font-bold">{statusCounts.expiring}</p>
           </div>
         </div>
@@ -314,7 +314,7 @@ export function AMLKYCWorkflow({
           rightActions={(
             <div className="flex flex-wrap items-center gap-2">
               <select
-                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+                className="px-3 py-2 text-sm rounded-lg border border-app-border dark:border-app-dark-border bg-app-surface dark:bg-app-dark-surface text-app-text dark:text-app-dark-text"
                 value={filterStatus}
                 onChange={(e) => patchUI({ filterStatus: e.target.value as WorkflowStatus | 'all' })}
               >
@@ -329,7 +329,7 @@ export function AMLKYCWorkflow({
                 <option value="expired">Expired</option>
               </select>
               <select
-                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+                className="px-3 py-2 text-sm rounded-lg border border-app-border dark:border-app-dark-border bg-app-surface dark:bg-app-dark-surface text-app-text dark:text-app-dark-text"
                 value={filterRisk}
                 onChange={(e) => patchUI({ filterRisk: e.target.value as RiskLevel | 'all' })}
               >
@@ -348,7 +348,7 @@ export function AMLKYCWorkflow({
       <Card padding="md">
         <div className="space-y-3">
           {filteredWorkflows.length === 0 ? (
-            <div className="text-center py-8 text-sm text-[var(--app-text-muted)]">
+            <div className="text-center py-8 text-sm text-app-text-muted dark:text-app-dark-text-muted">
               <Shield className="w-8 h-8 mx-auto mb-2 opacity-50" />
               <p>No workflows found</p>
             </div>
@@ -365,7 +365,7 @@ export function AMLKYCWorkflow({
               return (
                 <div
                   key={workflow.id}
-                  className="p-4 rounded-lg bg-[var(--app-surface-hover)] hover:bg-[var(--app-surface)] border border-[var(--app-border)] transition-colors cursor-pointer"
+                  className="p-4 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover hover:bg-app-surface dark:hover:bg-app-dark-surface border border-app-border dark:border-app-dark-border transition-colors cursor-pointer"
                   onClick={() => patchUI({ selectedWorkflow: workflow })}
                 >
                   {/* Header */}
@@ -373,32 +373,32 @@ export function AMLKYCWorkflow({
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         {workflow.entityType === 'individual' ? (
-                          <User className="w-4 h-4 text-[var(--app-text-muted)]" />
+                          <User className="w-4 h-4 text-app-text-muted dark:text-app-dark-text-muted" />
                         ) : (
-                          <Building className="w-4 h-4 text-[var(--app-text-muted)]" />
+                          <Building className="w-4 h-4 text-app-text-muted dark:text-app-dark-text-muted" />
                         )}
                         <span className="font-medium">{workflow.entityName}</span>
                         <StatusBadge status={workflow.status} domain="aml-kyc" size="sm" showIcon />
                         {getRiskBadge(workflow.riskLevel)}
                         {workflow.isPEP && (
-                          <Badge size="sm" variant="flat" className="bg-[var(--app-warning-bg)] text-[var(--app-warning)]">
+                          <Badge size="sm" variant="flat" className="bg-app-warning-bg dark:bg-app-dark-warning-bg text-app-warning dark:text-app-dark-warning">
                             <Flag className="w-3 h-3 mr-1" />
                             PEP
                           </Badge>
                         )}
                         {workflow.isSanctioned && (
-                          <Badge size="sm" variant="flat" className="bg-[var(--app-danger-bg)] text-[var(--app-danger)]">
+                          <Badge size="sm" variant="flat" className="bg-app-danger-bg dark:bg-app-dark-danger-bg text-app-danger dark:text-app-dark-danger">
                             <AlertCircle className="w-3 h-3 mr-1" />
                             Sanctioned
                           </Badge>
                         )}
                         {workflow.requiresEDD && !workflow.eddCompleted && (
-                          <Badge size="sm" variant="flat" className="bg-[var(--app-info-bg)] text-[var(--app-info)]">
+                          <Badge size="sm" variant="flat" className="bg-app-info-bg dark:bg-app-dark-info-bg text-app-info dark:text-app-dark-info">
                             EDD Required
                           </Badge>
                         )}
                       </div>
-                      <div className="flex items-center gap-3 text-xs text-[var(--app-text-muted)]">
+                      <div className="flex items-center gap-3 text-xs text-app-text-muted dark:text-app-dark-text-muted">
                         <span>Assigned to: {workflow.assignedTo}</span>
                         <span>•</span>
                         <span>Initiated {workflow.initiatedDate.toLocaleDateString()}</span>
@@ -413,7 +413,7 @@ export function AMLKYCWorkflow({
                     <div className="text-right">
                       <p className="text-sm font-medium mb-1">Risk Score: {workflow.overallRiskScore}/100</p>
                       {workflow.nextReviewDate && (
-                        <p className="text-xs text-[var(--app-text-muted)]">
+                        <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">
                           Next review: {workflow.nextReviewDate.toLocaleDateString()}
                         </p>
                       )}
@@ -423,53 +423,53 @@ export function AMLKYCWorkflow({
                   {/* Progress */}
                   <div className="mb-3">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-medium text-[var(--app-text-muted)]">
+                      <span className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted">
                         Workflow Progress
                       </span>
                       <span className="text-xs font-medium">
                         {completedSteps}/{totalSteps} Steps
                       </span>
                     </div>
-                    <div className="h-2 bg-[var(--app-surface)] rounded-full overflow-hidden">
+                    <div className="h-2 bg-app-surface dark:bg-app-dark-surface rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-[var(--app-success)] transition-all"
+                        className="h-full bg-app-success dark:bg-app-dark-success transition-all"
                         style={{ width: `${progress}%` }}
                       />
                     </div>
                   </div>
 
                   {/* Identity Verification */}
-                  <div className="grid grid-cols-3 gap-3 mb-3 p-3 rounded-lg bg-[var(--app-surface)]">
+                  <div className="grid grid-cols-3 gap-3 mb-3 p-3 rounded-lg bg-app-surface dark:bg-app-dark-surface">
                     <div>
-                      <p className="text-xs text-[var(--app-text-muted)] mb-1">Identity</p>
+                      <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-1">Identity</p>
                       <Badge
                         size="sm"
                         variant="flat"
                         className={
                           workflow.identityVerification.status === 'verified'
-                            ? 'bg-[var(--app-success-bg)] text-[var(--app-success)]'
+                            ? 'bg-app-success-bg dark:bg-app-dark-success-bg text-app-success dark:text-app-dark-success'
                             : workflow.identityVerification.status === 'failed'
-                            ? 'bg-[var(--app-danger-bg)] text-[var(--app-danger)]'
-                            : 'bg-[var(--app-warning-bg)] text-[var(--app-warning)]'
+                            ? 'bg-app-danger-bg dark:bg-app-dark-danger-bg text-app-danger dark:text-app-dark-danger'
+                            : 'bg-app-warning-bg dark:bg-app-dark-warning-bg text-app-warning dark:text-app-dark-warning'
                         }
                       >
                         {workflow.identityVerification.status}
                       </Badge>
                     </div>
                     <div>
-                      <p className="text-xs text-[var(--app-text-muted)] mb-1">Documents</p>
+                      <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-1">Documents</p>
                       <p className="text-sm font-medium">
                         {workflow.documents.filter(d => d.status === 'verified').length}/{workflow.documents.length}
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-[var(--app-text-muted)] mb-1">Screening</p>
+                      <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-1">Screening</p>
                       {pendingMatches > 0 ? (
-                        <Badge size="sm" variant="flat" className="bg-[var(--app-warning-bg)] text-[var(--app-warning)]">
+                        <Badge size="sm" variant="flat" className="bg-app-warning-bg dark:bg-app-dark-warning-bg text-app-warning dark:text-app-dark-warning">
                           {pendingMatches} Pending
                         </Badge>
                       ) : (
-                        <Badge size="sm" variant="flat" className="bg-[var(--app-success-bg)] text-[var(--app-success)]">
+                        <Badge size="sm" variant="flat" className="bg-app-success-bg dark:bg-app-dark-success-bg text-app-success dark:text-app-dark-success">
                           Clear
                         </Badge>
                       )}
@@ -479,7 +479,7 @@ export function AMLKYCWorkflow({
                   {/* Risk Factors */}
                   {workflow.riskFactors.length > 0 && (
                     <div className="mb-3">
-                      <p className="text-xs font-medium text-[var(--app-text-muted)] mb-2">
+                      <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-2">
                         Risk Factors ({workflow.riskFactors.length})
                       </p>
                       <div className="flex flex-wrap gap-2">
@@ -490,17 +490,17 @@ export function AMLKYCWorkflow({
                             variant="flat"
                             className={
                               factor.severity === 'high'
-                                ? 'bg-[var(--app-danger-bg)] text-[var(--app-danger)]'
+                                ? 'bg-app-danger-bg dark:bg-app-dark-danger-bg text-app-danger dark:text-app-dark-danger'
                                 : factor.severity === 'medium'
-                                ? 'bg-[var(--app-warning-bg)] text-[var(--app-warning)]'
-                                : 'bg-[var(--app-info-bg)] text-[var(--app-info)]'
+                                ? 'bg-app-warning-bg dark:bg-app-dark-warning-bg text-app-warning dark:text-app-dark-warning'
+                                : 'bg-app-info-bg dark:bg-app-dark-info-bg text-app-info dark:text-app-dark-info'
                             }
                           >
                             {factor.description}
                           </Badge>
                         ))}
                         {workflow.riskFactors.length > 3 && (
-                          <Badge size="sm" variant="flat" className="bg-[var(--app-text-muted)]/10">
+                          <Badge size="sm" variant="flat" className="bg-app-text-muted/10 dark:bg-app-dark-text-muted/10">
                             +{workflow.riskFactors.length - 3} more
                           </Badge>
                         )}
@@ -509,7 +509,7 @@ export function AMLKYCWorkflow({
                   )}
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2 pt-3 border-t border-[var(--app-border)]">
+                  <div className="flex items-center gap-2 pt-3 border-t border-app-border dark:border-app-dark-border">
                     {onExportReport && (
                       <Button
                         size="sm"
@@ -534,14 +534,14 @@ export function AMLKYCWorkflow({
                       <Button
                         size="sm"
                         variant="flat"
-                        className="text-[var(--app-warning)]"
+                        className="text-app-warning dark:text-app-dark-warning"
                         onPress={() => onRequestEDD(workflow.id)}
                       >
                         Request EDD
                       </Button>
                     )}
                     {pendingMatches > 0 && (
-                      <Badge size="sm" variant="flat" className="bg-[var(--app-warning-bg)] text-[var(--app-warning)]">
+                      <Badge size="sm" variant="flat" className="bg-app-warning-bg dark:bg-app-dark-warning-bg text-app-warning dark:text-app-dark-warning">
                         <Eye className="w-3 h-3 mr-1" />
                         {pendingMatches} Matches to Review
                       </Badge>

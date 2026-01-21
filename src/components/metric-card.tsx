@@ -24,18 +24,18 @@ export interface MetricCardProps {
   iconClassName?: string;
 }
 
-const getBenchmarkColor = (position: MetricBenchmark['position']) => {
+const getBenchmarkStyles = (position: MetricBenchmark['position']) => {
   switch (position) {
     case 'top':
-      return 'var(--app-success)';
+      return 'bg-app-success/20 dark:bg-app-dark-success/20 text-app-success dark:text-app-dark-success';
     case 'above-median':
-      return 'var(--app-info)';
+      return 'bg-app-info/20 dark:bg-app-dark-info/20 text-app-info dark:text-app-dark-info';
     case 'below-median':
-      return 'var(--app-warning)';
+      return 'bg-app-warning/20 dark:bg-app-dark-warning/20 text-app-warning dark:text-app-dark-warning';
     case 'bottom':
-      return 'var(--app-danger)';
+      return 'bg-app-danger/20 dark:bg-app-dark-danger/20 text-app-danger dark:text-app-dark-danger';
     default:
-      return 'var(--app-text-muted)';
+      return 'bg-app-surface-hover dark:bg-app-dark-surface-hover text-app-text-muted dark:text-app-dark-text-muted';
   }
 };
 
@@ -66,9 +66,9 @@ export const MetricCard = memo(function MetricCard({
   iconContainerClassName,
   iconClassName,
 }: MetricCardProps) {
-  const cardClassName = className ?? 'hover:border-[var(--app-border-subtle)] transition-colors';
-  const containerClassName = iconContainerClassName ?? 'p-2 bg-[var(--app-primary-bg)] rounded-lg';
-  const resolvedIconClassName = iconClassName ?? 'w-5 h-5 text-[var(--app-primary)]';
+  const cardClassName = className ?? 'hover:border-app-border-subtle dark:hover:border-app-dark-border-subtle transition-colors';
+  const containerClassName = iconContainerClassName ?? 'p-2 bg-app-primary/10 dark:bg-app-dark-primary/15 rounded-lg';
+  const resolvedIconClassName = iconClassName ?? 'w-5 h-5 text-app-primary dark:text-app-dark-primary';
 
   const iconContent = isValidElement(icon)
     ? icon
@@ -80,10 +80,10 @@ export const MetricCard = memo(function MetricCard({
     : icon;
 
   const trendClasses = trend === 'up'
-    ? 'text-[var(--app-success)] border-[var(--app-success)]'
+    ? 'text-app-success dark:text-app-dark-success border-app-success dark:border-app-dark-success'
     : trend === 'down'
-    ? 'text-[var(--app-danger)] border-[var(--app-danger)]'
-    : 'text-[var(--app-text-muted)] border-[var(--app-border)]';
+    ? 'text-app-danger dark:text-app-dark-danger border-app-danger dark:border-app-dark-danger'
+    : 'text-app-text-muted dark:text-app-dark-text-muted border-app-border dark:border-app-dark-border';
 
   const showChange = change !== undefined && change !== null && `${change}`.length > 0;
   const changeText = showChange ? String(change) : '';
@@ -100,13 +100,7 @@ export const MetricCard = memo(function MetricCard({
       {changeText}
     </Badge>
   ) : benchmark ? (
-    <div
-      className="text-xs font-medium px-2 py-1 rounded-md"
-      style={{
-        backgroundColor: `${getBenchmarkColor(benchmark.position)}20`,
-        color: getBenchmarkColor(benchmark.position),
-      }}
-    >
+    <div className={`text-xs font-medium px-2 py-1 rounded-md ${getBenchmarkStyles(benchmark.position)}`}>
       {getBenchmarkLabel(benchmark.position)}
     </div>
   ) : null;
@@ -118,18 +112,18 @@ export const MetricCard = memo(function MetricCard({
         {headerMeta}
       </div>
       <div className="text-3xl mb-1">{value}</div>
-      <div className="text-sm text-[var(--app-text-muted)]">{label}</div>
+      <div className="text-sm text-app-text-muted dark:text-app-dark-text-muted">{label}</div>
       {subtitle && (
-        <div className="text-xs text-[var(--app-text-subtle)] mt-1">{subtitle}</div>
+        <div className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle mt-1">{subtitle}</div>
       )}
       {benchmark && (
-        <div className="mt-3 pt-3 border-t border-[var(--app-border)]">
+        <div className="mt-3 pt-3 border-t border-app-border dark:border-app-dark-border">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-[var(--app-text-muted)]">Industry Median</span>
+            <span className="text-app-text-muted dark:text-app-dark-text-muted">Industry Median</span>
             <span className="font-medium">{benchmark.industryMedian.toFixed(2)}</span>
           </div>
           <div className="flex items-center justify-between text-xs mt-1">
-            <span className="text-[var(--app-text-muted)]">Top Quartile</span>
+            <span className="text-app-text-muted dark:text-app-dark-text-muted">Top Quartile</span>
             <span className="font-medium">{benchmark.topQuartile.toFixed(2)}</span>
           </div>
         </div>

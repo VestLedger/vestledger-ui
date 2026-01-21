@@ -159,9 +159,9 @@ export function AdvancedTable<T extends object>({
   };
 
   const getSortIcon = (key: string) => {
-    if (sortKey !== key) return <ChevronsUpDown className="w-3 h-3 text-[var(--app-text-subtle)]" />;
-    if (sortDirection === 'asc') return <ChevronUp className="w-3 h-3 text-[var(--app-primary)]" />;
-    return <ChevronDown className="w-3 h-3 text-[var(--app-primary)]" />;
+    if (sortKey !== key) return <ChevronsUpDown className="w-3 h-3 text-app-text-subtle dark:text-app-dark-text-subtle" />;
+    if (sortDirection === 'asc') return <ChevronUp className="w-3 h-3 text-app-primary dark:text-app-dark-primary" />;
+    return <ChevronDown className="w-3 h-3 text-app-primary dark:text-app-dark-primary" />;
   };
 
   const handleExport = () => {
@@ -213,7 +213,7 @@ export function AdvancedTable<T extends object>({
                     onChange={(e) => {
                       patchTableUI({ searchQuery: e.target.value, currentPage: 1 });
                     }}
-                    startContent={<Search className="w-4 h-4 text-[var(--app-text-subtle)]" />}
+                    startContent={<Search className="w-4 h-4 text-app-text-subtle dark:text-app-dark-text-subtle" />}
                   />
               </div>
             )}
@@ -222,7 +222,7 @@ export function AdvancedTable<T extends object>({
 
           <div className="flex items-center gap-2">
             {showResultsCount && (
-              <Badge size="sm" variant="flat" className="bg-[var(--app-surface-hover)] text-[var(--app-text-muted)]">
+              <Badge size="sm" variant="flat" className="bg-app-surface-hover dark:bg-app-dark-surface-hover text-app-text-muted dark:text-app-dark-text-muted">
                 {sortedData.length} results
               </Badge>
             )}
@@ -250,18 +250,18 @@ export function AdvancedTable<T extends object>({
                 >
                   <Settings2 className="w-3 h-3" />
                 </Button>
-                <div className="absolute right-0 top-full mt-2 w-48 bg-[var(--app-surface)] border border-[var(--app-border)] rounded-lg shadow-lg p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
-                  <p className="text-xs font-medium text-[var(--app-text-muted)] mb-2 px-2">Show Columns</p>
+                <div className="absolute right-0 top-full mt-2 w-48 bg-app-surface dark:bg-app-dark-surface border border-app-border dark:border-app-dark-border rounded-lg shadow-lg p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
+                  <p className="text-xs font-medium text-app-text-muted dark:text-app-dark-text-muted mb-2 px-2">Show Columns</p>
                   {initialColumns.map(col => (
                     <label
                       key={col.key}
-                      className="flex items-center gap-2 px-2 py-1.5 hover:bg-[var(--app-surface-hover)] rounded cursor-pointer"
+                      className="flex items-center gap-2 px-2 py-1.5 hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover rounded cursor-pointer"
                     >
                       <input
                         type="checkbox"
                         checked={visibleColumns.includes(col.key)}
                         onChange={() => toggleColumn(col.key)}
-                        className="rounded border-[var(--app-border)]"
+                        className="rounded border-app-border dark:border-app-dark-border"
                       />
                       <span className="text-sm">{col.label}</span>
                     </label>
@@ -278,15 +278,15 @@ export function AdvancedTable<T extends object>({
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-[var(--app-border)] bg-[var(--app-surface-hover)]">
+              <tr className="border-b border-app-border dark:border-app-dark-border bg-app-surface-hover dark:bg-app-dark-surface-hover">
                 {columns.map((column) => (
                   <th
                     key={column.key}
-                    className={`py-3 px-4 text-sm font-medium text-[var(--app-text-muted)] ${
+                    className={`py-3 px-4 text-sm font-medium text-app-text-muted dark:text-app-dark-text-muted ${
                       column.align === 'right' ? 'text-right' :
                       column.align === 'center' ? 'text-center' :
                       'text-left'
-                    } ${column.sortable ? 'cursor-pointer hover:bg-[var(--app-surface-hover)] select-none' : ''}`}
+                    } ${column.sortable ? 'cursor-pointer hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover select-none' : ''}`}
                     style={{ width: column.width }}
                     title={column.headerTitle}
                     onClick={() => column.sortable && handleSort(column.key)}
@@ -306,7 +306,7 @@ export function AdvancedTable<T extends object>({
             <tbody>
               {paginatedData.length === 0 ? (
                 <tr>
-                  <td colSpan={columns.length} className="py-12 text-center text-[var(--app-text-muted)]">
+                  <td colSpan={columns.length} className="py-12 text-center text-app-text-muted dark:text-app-dark-text-muted">
                     {searchQuery ? 'No results found' : emptyMessage}
                   </td>
                 </tr>
@@ -329,13 +329,13 @@ export function AdvancedTable<T extends object>({
       {totalPages > 1 && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-[var(--app-text-muted)]">Rows per page:</span>
+            <span className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Rows per page:</span>
             <select
               value={pageSize}
               onChange={(e) => {
                 patchTableUI({ pageSize: Number(e.target.value), currentPage: 1 });
               }}
-              className="px-2 py-1 text-sm rounded border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+              className="px-2 py-1 text-sm rounded border border-app-border dark:border-app-dark-border bg-app-surface dark:bg-app-dark-surface text-app-text dark:text-app-dark-text"
             >
               <option value={5}>5</option>
               <option value={10}>10</option>
@@ -346,7 +346,7 @@ export function AdvancedTable<T extends object>({
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-sm text-[var(--app-text-muted)]">
+            <span className="text-sm text-app-text-muted dark:text-app-dark-text-muted">
               Page {safeCurrentPage} of {totalPages}
             </span>
             <div className="flex items-center gap-1">

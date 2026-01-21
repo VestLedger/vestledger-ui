@@ -182,10 +182,10 @@ export function Contacts() {
 
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
-      case 'founder': return 'bg-[var(--app-primary-bg)] text-[var(--app-primary)]';
-      case 'ceo': return 'bg-[var(--app-secondary)] text-white';
-      case 'investor': return 'bg-[var(--app-info-bg)] text-[var(--app-info)]';
-      default: return 'bg-[var(--app-surface-hover)] text-[var(--app-text-muted)]';
+      case 'founder': return 'bg-app-primary-bg dark:bg-app-dark-primary-bg text-app-primary dark:text-app-dark-primary';
+      case 'ceo': return 'bg-app-secondary dark:bg-app-dark-secondary text-white';
+      case 'investor': return 'bg-app-info-bg dark:bg-app-dark-info-bg text-app-info dark:text-app-dark-info';
+      default: return 'bg-app-surface-hover dark:bg-app-dark-surface-hover text-app-text-muted dark:text-app-dark-text-muted';
     }
   };
 
@@ -272,11 +272,11 @@ export function Contacts() {
         {/* Contact List */}
         <div className="lg:col-span-3">
           <Card padding="none">
-            <div className="p-4 border-b border-[var(--app-border)]">
+            <div className="p-4 border-b border-app-border dark:border-app-dark-border">
               {activeSmartList && (
-                <div className="mb-3 p-3 rounded-lg bg-[var(--app-primary-bg)] border border-[var(--app-primary)] flex items-center justify-between">
+                <div className="mb-3 p-3 rounded-lg bg-app-primary-bg dark:bg-app-dark-primary-bg border border-app-primary dark:border-app-dark-primary flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Badge size="sm" variant="flat" className="bg-[var(--app-primary)] text-white">
+                    <Badge size="sm" variant="flat" className="bg-app-primary dark:bg-app-dark-primary text-white">
                       Active Filter
                     </Badge>
                     <span className="text-sm font-medium">{activeSmartList.name}</span>
@@ -316,21 +316,21 @@ export function Contacts() {
                   onClick={() => {
                     patchUI({ selectedContact: contact, isDrawerOpen: true });
                   }}
-                  className={`p-4 border-b border-[var(--app-border)] cursor-pointer transition-colors hover:bg-[var(--app-surface-hover)] ${
-                    selectedContact?.id === contact.id ? 'bg-[var(--app-primary-bg)]' : ''
+                  className={`p-4 border-b border-app-border dark:border-app-dark-border cursor-pointer transition-colors hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover ${
+                    selectedContact?.id === contact.id ? 'bg-app-primary-bg dark:bg-app-dark-primary-bg' : ''
                   }`}
                 >
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-accent)] flex items-center justify-center text-white font-semibold">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-app-primary to-app-accent dark:from-app-dark-primary dark:to-app-dark-accent flex items-center justify-center text-white font-semibold">
                         {contact.name.split(' ').map((n: string) => n[0]).join('')}
                       </div>
                       <div>
                         <p className="font-medium flex items-center gap-1">
                           {contact.name}
-                          {contact.starred && <Star className="w-3 h-3 fill-[var(--app-warning)] text-[var(--app-warning)]" />}
+                          {contact.starred && <Star className="w-3 h-3 fill-app-warning dark:fill-app-dark-warning text-app-warning dark:text-app-dark-warning" />}
                         </p>
-                        <p className="text-xs text-[var(--app-text-muted)]">{contact.company}</p>
+                        <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">{contact.company}</p>
                       </div>
                     </div>
                   </div>
@@ -339,14 +339,14 @@ export function Contacts() {
                       {contact.role}
                     </Badge>
                     {contact.location && (
-                      <span className="text-xs text-[var(--app-text-muted)] flex items-center gap-1">
+                      <span className="text-xs text-app-text-muted dark:text-app-dark-text-muted flex items-center gap-1">
                         <MapPin className="w-3 h-3" />
                         {contact.location.split(',')[0]}
                       </span>
                     )}
                   </div>
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-[var(--app-text-subtle)]">{contact.interactions} interactions</span>
+                    <span className="text-app-text-subtle dark:text-app-dark-text-subtle">{contact.interactions} interactions</span>
                     <RelationshipScore metrics={getRelationshipMetrics(contact)} compact />
                   </div>
                 </div>
@@ -367,13 +367,13 @@ export function Contacts() {
         {selectedContact && (
           <div>
               {/* Tabs */}
-              <div className="flex gap-2 mb-6 border-b border-[var(--app-border)]">
+              <div className="flex gap-2 mb-6 border-b border-app-border dark:border-app-dark-border">
                 <button
                   onClick={() => patchUI({ activeTab: 'overview' })}
                   className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
                     activeTab === 'overview'
-                      ? 'border-[var(--app-primary)] text-[var(--app-primary)]'
-                      : 'border-transparent text-[var(--app-text-muted)] hover:text-[var(--app-text)]'
+                      ? 'border-app-primary dark:border-app-dark-primary text-app-primary dark:text-app-dark-primary'
+                      : 'border-transparent text-app-text-muted dark:text-app-dark-text-muted hover:text-app-text dark:hover:text-app-dark-text'
                   }`}
                 >
                   Overview
@@ -382,8 +382,8 @@ export function Contacts() {
                   onClick={() => patchUI({ activeTab: 'timeline' })}
                   className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
                     activeTab === 'timeline'
-                      ? 'border-[var(--app-primary)] text-[var(--app-primary)]'
-                      : 'border-transparent text-[var(--app-text-muted)] hover:text-[var(--app-text)]'
+                      ? 'border-app-primary dark:border-app-dark-primary text-app-primary dark:text-app-dark-primary'
+                      : 'border-transparent text-app-text-muted dark:text-app-dark-text-muted hover:text-app-text dark:hover:text-app-dark-text'
                   }`}
                 >
                   Timeline
@@ -392,8 +392,8 @@ export function Contacts() {
                   onClick={() => patchUI({ activeTab: 'email' })}
                   className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
                     activeTab === 'email'
-                      ? 'border-[var(--app-primary)] text-[var(--app-primary)]'
-                      : 'border-transparent text-[var(--app-text-muted)] hover:text-[var(--app-text)]'
+                      ? 'border-app-primary dark:border-app-dark-primary text-app-primary dark:text-app-dark-primary'
+                      : 'border-transparent text-app-text-muted dark:text-app-dark-text-muted hover:text-app-text dark:hover:text-app-dark-text'
                   }`}
                 >
                   Email Settings
@@ -406,7 +406,7 @@ export function Contacts() {
                 {/* Header */}
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-accent)] flex items-center justify-center text-white text-2xl font-semibold">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-app-primary to-app-accent dark:from-app-dark-primary dark:to-app-dark-accent flex items-center justify-center text-white text-2xl font-semibold">
                       {selectedContact.name.split(' ').map(n => n[0]).join('')}
                     </div>
                     <div>
@@ -416,7 +416,7 @@ export function Contacts() {
                           {selectedContact.role}
                         </Badge>
                         {selectedContact.company && (
-                          <span className="text-sm text-[var(--app-text-muted)]">
+                          <span className="text-sm text-app-text-muted dark:text-app-dark-text-muted">
                             at {selectedContact.company}
                           </span>
                         )}
@@ -431,7 +431,7 @@ export function Contacts() {
                       onPress={() => toggleStar(selectedContact.id)}
                       aria-label={selectedContact.starred ? 'Unstar contact' : 'Star contact'}
                     >
-                      <Star className={`w-4 h-4 ${selectedContact.starred ? 'fill-[var(--app-warning)] text-[var(--app-warning)]' : ''}`} />
+                      <Star className={`w-4 h-4 ${selectedContact.starred ? 'fill-app-warning dark:fill-app-dark-warning text-app-warning dark:text-app-dark-warning' : ''}`} />
                     </Button>
                     <Button size="sm" variant="flat" isIconOnly aria-label="Edit contact">
                       <Edit3 className="w-4 h-4" />
@@ -447,41 +447,41 @@ export function Contacts() {
 
                 {/* Contact Info */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-[var(--app-surface-hover)]">
-                    <Mail className="w-4 h-4 text-[var(--app-primary)]" />
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
+                    <Mail className="w-4 h-4 text-app-primary dark:text-app-dark-primary" />
                     <div>
-                      <p className="text-xs text-[var(--app-text-muted)]">Email</p>
-                      <a href={`mailto:${selectedContact.email}`} className="text-sm hover:text-[var(--app-primary)]">
+                      <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">Email</p>
+                      <a href={`mailto:${selectedContact.email}`} className="text-sm hover:text-app-primary dark:hover:text-app-dark-primary">
                         {selectedContact.email}
                       </a>
                     </div>
                   </div>
                   {selectedContact.phone && (
-                    <div className="flex items-center gap-3 p-3 rounded-lg bg-[var(--app-surface-hover)]">
-                      <Phone className="w-4 h-4 text-[var(--app-primary)]" />
+                    <div className="flex items-center gap-3 p-3 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
+                      <Phone className="w-4 h-4 text-app-primary dark:text-app-dark-primary" />
                       <div>
-                        <p className="text-xs text-[var(--app-text-muted)]">Phone</p>
-                        <a href={`tel:${selectedContact.phone}`} className="text-sm hover:text-[var(--app-primary)]">
+                        <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">Phone</p>
+                        <a href={`tel:${selectedContact.phone}`} className="text-sm hover:text-app-primary dark:hover:text-app-dark-primary">
                           {selectedContact.phone}
                         </a>
                       </div>
                     </div>
                   )}
                   {selectedContact.location && (
-                    <div className="flex items-center gap-3 p-3 rounded-lg bg-[var(--app-surface-hover)]">
-                      <MapPin className="w-4 h-4 text-[var(--app-primary)]" />
+                    <div className="flex items-center gap-3 p-3 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
+                      <MapPin className="w-4 h-4 text-app-primary dark:text-app-dark-primary" />
                       <div>
-                        <p className="text-xs text-[var(--app-text-muted)]">Location</p>
+                        <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">Location</p>
                         <p className="text-sm">{selectedContact.location}</p>
                       </div>
                     </div>
                   )}
                   {selectedContact.linkedin && (
-                    <div className="flex items-center gap-3 p-3 rounded-lg bg-[var(--app-surface-hover)]">
-                      <ExternalLink className="w-4 h-4 text-[var(--app-primary)]" />
+                    <div className="flex items-center gap-3 p-3 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
+                      <ExternalLink className="w-4 h-4 text-app-primary dark:text-app-dark-primary" />
                       <div>
-                        <p className="text-xs text-[var(--app-text-muted)]">LinkedIn</p>
-                        <a href={selectedContact.linkedin} target="_blank" rel="noopener noreferrer" className="text-sm hover:text-[var(--app-primary)]">
+                        <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">LinkedIn</p>
+                        <a href={selectedContact.linkedin} target="_blank" rel="noopener noreferrer" className="text-sm hover:text-app-primary dark:hover:text-app-dark-primary">
                           View Profile
                         </a>
                       </div>
@@ -511,7 +511,7 @@ export function Contacts() {
                     <p className="text-sm font-medium mb-2">Tags</p>
                     <div className="flex flex-wrap gap-2">
                       {selectedContact.tags.map((tag, idx) => (
-                        <Badge key={idx} size="sm" variant="flat" className="bg-[var(--app-surface-hover)]">
+                        <Badge key={idx} size="sm" variant="flat" className="bg-app-surface-hover dark:bg-app-dark-surface-hover">
                           <Tag className="w-3 h-3 mr-1" />
                           {tag}
                         </Badge>
@@ -526,8 +526,8 @@ export function Contacts() {
                     <p className="text-sm font-medium mb-2">Associated Deals</p>
                     <div className="space-y-2">
                       {selectedContact.deals.map((deal, idx) => (
-                        <div key={idx} className="flex items-center gap-2 p-2 rounded-lg bg-[var(--app-surface-hover)]">
-                          <Briefcase className="w-4 h-4 text-[var(--app-primary)]" />
+                        <div key={idx} className="flex items-center gap-2 p-2 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
+                          <Briefcase className="w-4 h-4 text-app-primary dark:text-app-dark-primary" />
                           <span className="text-sm">{deal}</span>
                         </div>
                       ))}
@@ -539,7 +539,7 @@ export function Contacts() {
                 {selectedContact.notes && (
                   <div>
                     <p className="text-sm font-medium mb-2">Notes</p>
-                    <div className="p-3 rounded-lg bg-[var(--app-surface-hover)] text-sm">
+                    <div className="p-3 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover text-sm">
                       {selectedContact.notes}
                     </div>
                   </div>
@@ -547,10 +547,10 @@ export function Contacts() {
 
                 {/* Follow-up */}
                 {selectedContact.nextFollowUp && (
-                  <div className="p-4 rounded-lg bg-[var(--app-warning-bg)] border border-[var(--app-warning)]">
+                  <div className="p-4 rounded-lg bg-app-warning-bg dark:bg-app-dark-warning-bg border border-app-warning dark:border-app-dark-warning">
                     <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-[var(--app-warning)]" />
-                      <span className="text-sm font-medium text-[var(--app-warning)]">
+                      <Calendar className="w-4 h-4 text-app-warning dark:text-app-dark-warning" />
+                      <span className="text-sm font-medium text-app-warning dark:text-app-dark-warning">
                         Follow-up scheduled: {new Date(selectedContact.nextFollowUp).toLocaleDateString()}
                       </span>
                     </div>
@@ -564,20 +564,20 @@ export function Contacts() {
                     {mockInteractions
                       .filter(i => i.contactId === selectedContact.id)
                       .map((interaction) => (
-                        <div key={interaction.id} className="p-3 rounded-lg bg-[var(--app-surface-hover)]">
+                        <div key={interaction.id} className="p-3 rounded-lg bg-app-surface-hover dark:bg-app-dark-surface-hover">
                           <div className="flex items-start justify-between mb-1">
                             <div className="flex items-center gap-2">
-                              {interaction.type === 'email' && <Mail className="w-4 h-4 text-[var(--app-primary)]" />}
-                              {interaction.type === 'call' && <Phone className="w-4 h-4 text-[var(--app-success)]" />}
-                              {interaction.type === 'meeting' && <Video className="w-4 h-4 text-[var(--app-info)]" />}
+                              {interaction.type === 'email' && <Mail className="w-4 h-4 text-app-primary dark:text-app-dark-primary" />}
+                              {interaction.type === 'call' && <Phone className="w-4 h-4 text-app-success dark:text-app-dark-success" />}
+                              {interaction.type === 'meeting' && <Video className="w-4 h-4 text-app-info dark:text-app-dark-info" />}
                               <span className="text-sm font-medium">{interaction.subject}</span>
                             </div>
-                            <span className="text-xs text-[var(--app-text-subtle)]">
+                            <span className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle">
                               {new Date(interaction.date).toLocaleDateString()}
                             </span>
                           </div>
                           {interaction.notes && (
-                            <p className="text-xs text-[var(--app-text-muted)] mt-1">{interaction.notes}</p>
+                            <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mt-1">{interaction.notes}</p>
                           )}
                         </div>
                       ))}
@@ -619,8 +619,8 @@ export function Contacts() {
       {/* Network Graph Modal */}
       {showNetworkGraph && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-[var(--app-background)] rounded-lg w-full max-w-6xl max-h-[90vh] overflow-hidden shadow-xl">
-            <div className="flex items-center justify-between p-4 border-b border-[var(--app-border)]">
+          <div className="bg-app-background dark:bg-app-dark-background rounded-lg w-full max-w-6xl max-h-[90vh] overflow-hidden shadow-xl">
+            <div className="flex items-center justify-between p-4 border-b border-app-border dark:border-app-dark-border">
               <h2 className="text-xl font-semibold">Network Graph</h2>
               <Button
                 variant="flat"

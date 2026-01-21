@@ -42,31 +42,31 @@ export function WorkflowStepper({
       case 'blocked':
         return <AlertTriangle className="w-5 h-5 text-white" />;
       default:
-        return <Circle className="w-5 h-5 text-[var(--app-text-subtle)]" />;
+        return <Circle className="w-5 h-5 text-app-text-subtle dark:text-app-dark-text-subtle" />;
     }
   };
 
   const getStepColor = (step: WorkflowStep) => {
     switch (step.status) {
       case 'completed':
-        return 'bg-[var(--app-success)]';
+        return 'bg-app-success dark:bg-app-dark-success';
       case 'current':
-        return 'bg-[var(--app-primary)]';
+        return 'bg-app-primary dark:bg-app-dark-primary';
       case 'blocked':
-        return 'bg-[var(--app-danger)]';
+        return 'bg-app-danger dark:bg-app-dark-danger';
       default:
-        return 'bg-[var(--app-surface-hover)]';
+        return 'bg-app-surface-hover dark:bg-app-dark-surface-hover';
     }
   };
 
   const getBottleneckColor = (risk: 'high' | 'medium' | 'low') => {
     switch (risk) {
       case 'high':
-        return 'text-[var(--app-danger)]';
+        return 'text-app-danger dark:text-app-dark-danger';
       case 'medium':
-        return 'text-[var(--app-warning)]';
+        return 'text-app-warning dark:text-app-dark-warning';
       default:
-        return 'text-[var(--app-info)]';
+        return 'text-app-info dark:text-app-dark-info';
     }
   };
 
@@ -87,42 +87,42 @@ export function WorkflowStepper({
               </div>
               {index < steps.length - 1 && (
                 <div className={`w-0.5 h-12 mt-2 ${
-                  step.status === 'completed' ? 'bg-[var(--app-success)]' : 'bg-[var(--app-border)]'
+                  step.status === 'completed' ? 'bg-app-success dark:bg-app-dark-success' : 'bg-app-border dark:bg-app-dark-border'
                 }`} />
               )}
             </div>
 
             {/* Content */}
             <div className="flex-1 pb-8">
-              <h4 className="text-sm font-semibold text-[var(--app-text)] mb-1">
+              <h4 className="text-sm font-semibold text-app-text dark:text-app-dark-text mb-1">
                 {step.label}
               </h4>
               {step.description && (
-                <p className="text-xs text-[var(--app-text-muted)] mb-2">
+                <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-2">
                   {step.description}
                 </p>
               )}
 
               {/* AI Prediction */}
               {showPredictions && step.aiPrediction && step.status !== 'completed' && (
-                <div className="flex items-center gap-2 p-2 rounded-lg bg-[var(--app-primary)]/5 border border-[var(--app-primary)]/10">
-                  <Sparkles className="w-3 h-3 text-[var(--app-primary)] flex-shrink-0" />
+                <div className="flex items-center gap-2 p-2 rounded-lg bg-app-primary/5 dark:bg-app-dark-primary/5 border border-app-primary/10 dark:border-app-dark-primary/10">
+                  <Sparkles className="w-3 h-3 text-app-primary dark:text-app-dark-primary flex-shrink-0" />
                   <div className="flex-1">
                     <div className="flex items-center gap-2 text-xs">
-                      <Clock className="w-3 h-3 text-[var(--app-text-muted)]" />
-                      <span className="text-[var(--app-text-muted)]">
+                      <Clock className="w-3 h-3 text-app-text-muted dark:text-app-dark-text-muted" />
+                      <span className="text-app-text-muted dark:text-app-dark-text-muted">
                         Est. {step.aiPrediction.estimatedTime}
                       </span>
                       {step.aiPrediction.bottleneckRisk && (
                         <>
-                          <span className="text-[var(--app-text-subtle)]">•</span>
+                          <span className="text-app-text-subtle dark:text-app-dark-text-subtle">•</span>
                           <span className={`font-semibold ${getBottleneckColor(step.aiPrediction.bottleneckRisk)}`}>
                             {step.aiPrediction.bottleneckRisk} risk
                           </span>
                         </>
                       )}
-                      <span className="text-[var(--app-text-subtle)]">•</span>
-                      <span className="text-[var(--app-primary)] font-semibold">
+                      <span className="text-app-text-subtle dark:text-app-dark-text-subtle">•</span>
+                      <span className="text-app-primary dark:text-app-dark-primary font-semibold">
                         {Math.round(step.aiPrediction.confidence * 100)}%
                       </span>
                     </div>
@@ -157,7 +157,7 @@ export function WorkflowStepper({
                 </div>
                 <div className="mt-2 text-center">
                   <p className={`text-sm font-medium ${
-                    step.status === 'current' ? 'text-[var(--app-text)]' : 'text-[var(--app-text-muted)]'
+                    step.status === 'current' ? 'text-app-text dark:text-app-dark-text' : 'text-app-text-muted dark:text-app-dark-text-muted'
                   }`}>
                     {step.label}
                   </p>
@@ -165,8 +165,8 @@ export function WorkflowStepper({
                   {/* AI Prediction */}
                   {showPredictions && step.aiPrediction && step.status !== 'completed' && (
                     <div className="mt-1 flex items-center gap-1 text-xs">
-                      <Clock className="w-3 h-3 text-[var(--app-text-muted)]" />
-                      <span className="text-[var(--app-text-muted)]">
+                      <Clock className="w-3 h-3 text-app-text-muted dark:text-app-dark-text-muted" />
+                      <span className="text-app-text-muted dark:text-app-dark-text-muted">
                         {step.aiPrediction.estimatedTime}
                       </span>
                     </div>
@@ -177,13 +177,13 @@ export function WorkflowStepper({
               {/* Connector Line */}
               {!isLast && (
                 <div className="flex-1 h-0.5 mx-4 relative">
-                  <div className="absolute inset-0 bg-[var(--app-border)]" />
+                  <div className="absolute inset-0 bg-app-border dark:bg-app-dark-border" />
                   {step.status === 'completed' && (
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: '100%' }}
                       transition={{ duration: 0.5 }}
-                      className="absolute inset-0 bg-[var(--app-success)]"
+                      className="absolute inset-0 bg-app-success dark:bg-app-dark-success"
                     />
                   )}
                 </div>
@@ -195,14 +195,14 @@ export function WorkflowStepper({
 
       {/* Overall Progress Forecast */}
       {showPredictions && (
-        <div className="mt-6 p-3 rounded-lg bg-[var(--app-surface)] border border-[var(--app-border)]">
+        <div className="mt-6 p-3 rounded-lg bg-app-surface dark:bg-app-dark-surface border border-app-border dark:border-app-dark-border">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-[var(--app-primary)]" />
-            <p className="text-xs font-semibold text-[var(--app-text)]">
+            <Sparkles className="w-4 h-4 text-app-primary dark:text-app-dark-primary" />
+            <p className="text-xs font-semibold text-app-text dark:text-app-dark-text">
               AI Workflow Forecast
             </p>
           </div>
-          <p className="text-xs text-[var(--app-text-muted)] mt-1">
+          <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mt-1">
             {steps.filter(s => s.status === 'completed').length} of {steps.length} steps completed.
             Estimated time to completion: {steps
               .filter(s => s.status !== 'completed' && s.aiPrediction)

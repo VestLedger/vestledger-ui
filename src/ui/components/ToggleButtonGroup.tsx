@@ -120,7 +120,7 @@ export function ToggleButtonGroup({
     <div
       role="group"
       aria-label={ariaLabel}
-      className={`inline-flex rounded-lg border border-[var(--app-border)] p-1 gap-1 bg-[var(--app-surface)] ${
+      className={`inline-flex rounded-lg border border-app-border dark:border-app-dark-border p-1 gap-1 bg-app-surface dark:bg-app-dark-surface ${
         fullWidth ? 'w-full' : ''
       } ${className}`}
     >

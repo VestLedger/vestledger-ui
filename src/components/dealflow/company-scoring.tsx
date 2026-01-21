@@ -75,7 +75,7 @@ export function CompanyScoring({ companyId, companyName }: { companyId: number; 
 
   // Return early if no data
   if (!scoreData) {
-    return <div className="text-sm text-[var(--app-text-muted)]">Loading scoring data...</div>;
+    return <div className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Loading scoring data...</div>;
   }
 
   const calculateWeightedScore = (scores: { [key: string]: number }) => {
@@ -105,19 +105,19 @@ export function CompanyScoring({ companyId, companyName }: { companyId: number; 
 
   const getConsensusColor = (consensus: string) => {
     switch (consensus) {
-      case 'strong-yes': return 'bg-[var(--app-success-bg)] text-[var(--app-success)] border-[var(--app-success)]';
-      case 'yes': return 'bg-[var(--app-success-bg)] text-[var(--app-success)] border-[var(--app-success)]';
-      case 'maybe': return 'bg-[var(--app-warning-bg)] text-[var(--app-warning)] border-[var(--app-warning)]';
-      case 'no': return 'bg-[var(--app-danger-bg)] text-[var(--app-danger)] border-[var(--app-danger)]';
-      case 'strong-no': return 'bg-[var(--app-danger-bg)] text-[var(--app-danger)] border-[var(--app-danger)]';
-      default: return 'bg-[var(--app-surface-hover)] text-[var(--app-text-muted)]';
+      case 'strong-yes': return 'bg-app-success-bg dark:bg-app-dark-success-bg text-app-success dark:text-app-dark-success border-app-success dark:border-app-dark-success';
+      case 'yes': return 'bg-app-success-bg dark:bg-app-dark-success-bg text-app-success dark:text-app-dark-success border-app-success dark:border-app-dark-success';
+      case 'maybe': return 'bg-app-warning-bg dark:bg-app-dark-warning-bg text-app-warning dark:text-app-dark-warning border-app-warning dark:border-app-dark-warning';
+      case 'no': return 'bg-app-danger-bg dark:bg-app-dark-danger-bg text-app-danger dark:text-app-dark-danger border-app-danger dark:border-app-dark-danger';
+      case 'strong-no': return 'bg-app-danger-bg dark:bg-app-dark-danger-bg text-app-danger dark:text-app-dark-danger border-app-danger dark:border-app-dark-danger';
+      default: return 'bg-app-surface-hover dark:bg-app-dark-surface-hover text-app-text-muted dark:text-app-dark-text-muted';
     }
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 8) return 'text-[var(--app-success)]';
-    if (score >= 6) return 'text-[var(--app-warning)]';
-    return 'text-[var(--app-danger)]';
+    if (score >= 8) return 'text-app-success dark:text-app-dark-success';
+    if (score >= 6) return 'text-app-warning dark:text-app-dark-warning';
+    return 'text-app-danger dark:text-app-dark-danger';
   };
 
   return (
@@ -126,7 +126,7 @@ export function CompanyScoring({ companyId, companyName }: { companyId: number; 
       <div className="flex items-start justify-between">
         <div>
           <h3 className="text-xl font-semibold mb-2">Company Scoring: {companyName}</h3>
-          <p className="text-sm text-[var(--app-text-muted)]">
+          <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">
             Collaborative evaluation with weighted criteria
           </p>
         </div>
@@ -149,13 +149,13 @@ export function CompanyScoring({ companyId, companyName }: { companyId: number; 
       </div>
 
       {/* Overall Score */}
-      <Card padding="lg" className="border-[var(--app-primary)]">
+      <Card padding="lg" className="border-app-primary dark:border-app-dark-primary">
         <div className="text-center">
-          <p className="text-sm text-[var(--app-text-muted)] mb-2">Weighted Average Score</p>
+          <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted mb-2">Weighted Average Score</p>
           <div className={`text-5xl font-bold mb-2 ${getScoreColor(scoreData.weightedAverageScore)}`}>
             {scoreData.weightedAverageScore.toFixed(2)}
           </div>
-          <p className="text-xs text-[var(--app-text-subtle)]">
+          <p className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle">
             Based on {scoreData.individualScores.length} partner evaluations
           </p>
           <div className="mt-4">
@@ -181,16 +181,16 @@ export function CompanyScoring({ companyId, companyName }: { companyId: number; 
               <div key={criteria.id}>
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <div className="p-1.5 rounded-md bg-[var(--app-primary-bg)]">
+                    <div className="p-1.5 rounded-md bg-app-primary-bg dark:bg-app-dark-primary-bg">
                       {criteria.icon}
                     </div>
                     <div>
                       <p className="font-medium text-sm">{criteria.name}</p>
-                      <p className="text-xs text-[var(--app-text-muted)]">{criteria.description}</p>
+                      <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">{criteria.description}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <Badge size="sm" variant="flat" className="bg-[var(--app-surface-hover)]">
+                    <Badge size="sm" variant="flat" className="bg-app-surface-hover dark:bg-app-dark-surface-hover">
                       {criteria.weight}% weight
                     </Badge>
                     <div className={`text-2xl font-bold ${getScoreColor(avgScore)}`}>
@@ -204,10 +204,10 @@ export function CompanyScoring({ companyId, companyName }: { companyId: number; 
                       key={value}
                       className={`h-2 rounded-sm ${
                         value <= avgScore
-                          ? avgScore >= 8 ? 'bg-[var(--app-success)]' :
-                            avgScore >= 6 ? 'bg-[var(--app-warning)]' :
-                            'bg-[var(--app-danger)]'
-                          : 'bg-[var(--app-surface-hover)]'
+                          ? avgScore >= 8 ? 'bg-app-success dark:bg-app-dark-success' :
+                            avgScore >= 6 ? 'bg-app-warning dark:bg-app-dark-warning' :
+                            'bg-app-danger dark:bg-app-dark-danger'
+                          : 'bg-app-surface-hover dark:bg-app-dark-surface-hover'
                       }`}
                     />
                   ))}
@@ -226,12 +226,12 @@ export function CompanyScoring({ companyId, companyName }: { companyId: number; 
             <Card key={partnerScore.partnerId} padding="md">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-accent)] flex items-center justify-center text-white font-semibold">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-app-primary to-app-accent dark:from-app-dark-primary dark:to-app-dark-accent flex items-center justify-center text-white font-semibold">
                     {partnerScore.partnerInitials}
                   </div>
                   <div>
                     <p className="font-medium">{partnerScore.partnerName}</p>
-                    <p className="text-xs text-[var(--app-text-muted)]">
+                    <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">
                       {new Date(partnerScore.submittedAt).toLocaleDateString()}
                     </p>
                   </div>
@@ -244,10 +244,10 @@ export function CompanyScoring({ companyId, companyName }: { companyId: number; 
               <div className="space-y-2 mb-4">
                 {defaultCriteria.map(criteria => (
                   <div key={criteria.id} className="flex items-center justify-between text-sm">
-                    <span className="text-[var(--app-text-muted)]">{criteria.name}</span>
+                    <span className="text-app-text-muted dark:text-app-dark-text-muted">{criteria.name}</span>
                     <div className="flex items-center gap-1">
                       {[...Array(partnerScore.scores[criteria.id] || 0)].map((_, i) => (
-                        <Star key={i} className="w-3 h-3 fill-[var(--app-warning)] text-[var(--app-warning)]" />
+                        <Star key={i} className="w-3 h-3 fill-app-warning text-app-warning dark:fill-app-dark-warning dark:text-app-dark-warning" />
                       ))}
                       <span className="ml-1 font-medium">{partnerScore.scores[criteria.id]}</span>
                     </div>
@@ -256,8 +256,8 @@ export function CompanyScoring({ companyId, companyName }: { companyId: number; 
               </div>
 
               {partnerScore.comments && (
-                <div className="pt-3 border-t border-[var(--app-border)]">
-                  <p className="text-xs text-[var(--app-text-muted)] italic">
+                <div className="pt-3 border-t border-app-border dark:border-app-dark-border">
+                  <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted italic">
                     &quot;{partnerScore.comments}&quot;
                   </p>
                 </div>
@@ -269,7 +269,7 @@ export function CompanyScoring({ companyId, companyName }: { companyId: number; 
 
       {/* Edit My Score Form */}
       {isEditingScores && (
-        <Card padding="lg" className="border-[var(--app-primary)]">
+        <Card padding="lg" className="border-app-primary dark:border-app-dark-primary">
           <h4 className="font-semibold mb-4">Submit Your Score</h4>
           <div className="space-y-4">
             {defaultCriteria.map(criteria => (
@@ -279,10 +279,10 @@ export function CompanyScoring({ companyId, companyName }: { companyId: number; 
                     {criteria.icon}
                     <div>
                       <p className="font-medium text-sm">{criteria.name}</p>
-                      <p className="text-xs text-[var(--app-text-muted)]">{criteria.description}</p>
+                      <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">{criteria.description}</p>
                     </div>
                   </div>
-                  <Badge size="sm" variant="flat" className="bg-[var(--app-surface-hover)]">
+                  <Badge size="sm" variant="flat" className="bg-app-surface-hover dark:bg-app-dark-surface-hover">
                     {criteria.weight}% weight
                   </Badge>
                 </div>
@@ -297,8 +297,8 @@ export function CompanyScoring({ companyId, companyName }: { companyId: number; 
                       }
                       className={`flex-1 h-10 rounded-lg border-2 transition-all ${
                         currentUserScore[criteria.id] === value
-                          ? 'border-[var(--app-primary)] bg-[var(--app-primary)] text-white font-semibold'
-                          : 'border-[var(--app-border)] hover:border-[var(--app-primary)] hover:bg-[var(--app-primary-bg)]'
+                          ? 'border-app-primary bg-app-primary text-white font-semibold dark:border-app-dark-primary dark:bg-app-dark-primary'
+                          : 'border-app-border hover:border-app-primary hover:bg-app-primary-bg dark:border-app-dark-border dark:hover:border-app-dark-primary dark:hover:bg-app-dark-primary-bg'
                       }`}
                     >
                       {value}
@@ -311,14 +311,14 @@ export function CompanyScoring({ companyId, companyName }: { companyId: number; 
             <div>
               <label className="text-sm font-medium mb-2 block">Comments (Optional)</label>
               <textarea
-                className="w-full px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] min-h-[80px]"
+                className="w-full px-3 py-2 rounded-lg border border-app-border bg-app-surface text-app-text dark:border-app-dark-border dark:bg-app-dark-surface dark:text-app-dark-text min-h-[80px]"
                 placeholder="Share your thoughts on this investment opportunity..."
               />
             </div>
 
             <div className="flex items-center justify-between pt-4">
               <div className="text-sm">
-                <span className="text-[var(--app-text-muted)]">Your weighted score: </span>
+                <span className="text-app-text-muted dark:text-app-dark-text-muted">Your weighted score: </span>
                 <span className={`text-2xl font-bold ${getScoreColor(calculateWeightedScore(currentUserScore))}`}>
                   {calculateWeightedScore(currentUserScore).toFixed(2)}
                 </span>
@@ -336,12 +336,12 @@ export function CompanyScoring({ companyId, companyName }: { companyId: number; 
       )}
 
       {/* Scoring Methodology */}
-      <Card padding="md" className="bg-[var(--app-info-bg)] border-[var(--app-info)]/20">
+      <Card padding="md" className="bg-app-info-bg dark:bg-app-dark-info-bg border-app-info/20 dark:border-app-dark-info/20">
         <div className="flex items-start gap-2">
-          <Lightbulb className="w-4 h-4 text-[var(--app-info)] mt-0.5 flex-shrink-0" />
+          <Lightbulb className="w-4 h-4 text-app-info dark:text-app-dark-info mt-0.5 flex-shrink-0" />
           <div>
-            <p className="text-sm font-medium text-[var(--app-info)] mb-1">Weighted Scoring Methodology</p>
-            <p className="text-xs text-[var(--app-text-muted)]">
+            <p className="text-sm font-medium text-app-info dark:text-app-dark-info mb-1">Weighted Scoring Methodology</p>
+            <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">
               Each criterion is rated 1-10, then weighted according to importance. Final score is the weighted average across all partner evaluations.
               Consensus recommendations appear once all partners submit scores.
             </p>

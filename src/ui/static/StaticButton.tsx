@@ -19,7 +19,7 @@ export interface StaticButtonProps {
  * Pure server-side button component
  * Supports both link and button variants
  * Zero client-side JavaScript (unless onClick provided)
- * Uses CSS variables for theming (same as NextUI components)
+ * Uses Tailwind classes for theming (same as NextUI components)
  */
 export function StaticButton({
   children,
@@ -45,37 +45,37 @@ export function StaticButton({
 
   const variantColorClasses = {
     solid: {
-      primary: 'bg-[var(--app-primary)] text-white hover:opacity-90',
-      secondary: 'bg-[var(--app-secondary)] text-white hover:opacity-90',
-      default: 'bg-[var(--app-surface-hover)] text-[var(--app-text)] hover:opacity-90',
-      success: 'bg-[var(--app-success)] text-white hover:opacity-90',
-      danger: 'bg-[var(--app-danger)] text-white hover:opacity-90',
+      primary: 'bg-app-primary dark:bg-app-dark-primary text-white hover:opacity-90',
+      secondary: 'bg-app-secondary dark:bg-app-dark-secondary text-white hover:opacity-90',
+      default: 'bg-app-surface-hover dark:bg-app-dark-surface-hover text-app-text dark:text-app-dark-text hover:opacity-90',
+      success: 'bg-app-success dark:bg-app-dark-success text-white hover:opacity-90',
+      danger: 'bg-app-danger dark:bg-app-dark-danger text-white hover:opacity-90',
     },
     bordered: {
       primary:
-        'border-2 border-[var(--app-primary)] text-[var(--app-primary)] hover:bg-[var(--app-primary-bg)]',
+        'border-2 border-app-primary dark:border-app-dark-primary text-app-primary dark:text-app-dark-primary hover:bg-app-primary-bg dark:hover:bg-app-dark-primary-bg',
       secondary:
-        'border-2 border-[var(--app-secondary)] text-[var(--app-secondary)] hover:bg-[var(--app-surface-hover)]',
+        'border-2 border-app-secondary dark:border-app-dark-secondary text-app-secondary dark:text-app-dark-secondary hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover',
       default:
-        'border-2 border-[var(--app-border)] text-[var(--app-text)] hover:bg-[var(--app-surface-hover)]',
+        'border-2 border-app-border dark:border-app-dark-border text-app-text dark:text-app-dark-text hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover',
       success:
-        'border-2 border-[var(--app-success)] text-[var(--app-success)] hover:bg-[var(--app-success-bg)]',
+        'border-2 border-app-success dark:border-app-dark-success text-app-success dark:text-app-dark-success hover:bg-app-success-bg dark:hover:bg-app-dark-success-bg',
       danger:
-        'border-2 border-[var(--app-danger)] text-[var(--app-danger)] hover:bg-[var(--app-danger-bg)]',
+        'border-2 border-app-danger dark:border-app-dark-danger text-app-danger dark:text-app-dark-danger hover:bg-app-danger-bg dark:hover:bg-app-dark-danger-bg',
     },
     light: {
-      primary: 'text-[var(--app-primary)] hover:bg-[var(--app-primary-bg)]',
-      secondary: 'text-[var(--app-secondary)] hover:bg-[var(--app-surface-hover)]',
-      default: 'text-[var(--app-text)] hover:bg-[var(--app-surface-hover)]',
-      success: 'text-[var(--app-success)] hover:bg-[var(--app-success-bg)]',
-      danger: 'text-[var(--app-danger)] hover:bg-[var(--app-danger-bg)]',
+      primary: 'text-app-primary dark:text-app-dark-primary hover:bg-app-primary-bg dark:hover:bg-app-dark-primary-bg',
+      secondary: 'text-app-secondary dark:text-app-dark-secondary hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover',
+      default: 'text-app-text dark:text-app-dark-text hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover',
+      success: 'text-app-success dark:text-app-dark-success hover:bg-app-success-bg dark:hover:bg-app-dark-success-bg',
+      danger: 'text-app-danger dark:text-app-dark-danger hover:bg-app-danger-bg dark:hover:bg-app-dark-danger-bg',
     },
     flat: {
-      primary: 'bg-[var(--app-primary-bg)] text-[var(--app-primary)] hover:opacity-80',
-      secondary: 'bg-[var(--app-surface-hover)] text-[var(--app-secondary)] hover:opacity-80',
-      default: 'bg-[var(--app-surface-hover)] text-[var(--app-text)] hover:opacity-80',
-      success: 'bg-[var(--app-success-bg)] text-[var(--app-success)] hover:opacity-80',
-      danger: 'bg-[var(--app-danger-bg)] text-[var(--app-danger)] hover:opacity-80',
+      primary: 'bg-app-primary-bg dark:bg-app-dark-primary-bg text-app-primary dark:text-app-dark-primary hover:opacity-80',
+      secondary: 'bg-app-surface-hover dark:bg-app-dark-surface-hover text-app-secondary dark:text-app-dark-secondary hover:opacity-80',
+      default: 'bg-app-surface-hover dark:bg-app-dark-surface-hover text-app-text dark:text-app-dark-text hover:opacity-80',
+      success: 'bg-app-success-bg dark:bg-app-dark-success-bg text-app-success dark:text-app-dark-success hover:opacity-80',
+      danger: 'bg-app-danger-bg dark:bg-app-dark-danger-bg text-app-danger dark:text-app-dark-danger hover:opacity-80',
     },
   };
 
