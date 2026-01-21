@@ -13,21 +13,25 @@ export function HomepageStatic() {
       icon: Brain,
       title: 'Decision Intelligence',
       description: 'Vesta analyzes deals, supports investment memos, evaluates scenarios, and surfaces patterns you might miss.',
+      variant: 'primary' as const,
     },
     {
       icon: Clock,
       title: 'Temporal Memory',
       description: 'Vesta remembers every deadline, covenant, and obligation. Your calendar becomes a system of proactive nudges.',
+      variant: 'gold' as const,
     },
     {
       icon: Zap,
       title: 'Operational Autonomy',
       description: 'Capital calls, LP updates, compliance checks—Vesta executes routine operations without you orchestrating every step.',
+      variant: 'primary' as const,
     },
     {
       icon: Users,
       title: 'Relationship Intelligence',
       description: 'Vesta maintains institutional memory across LPs, founders, and co-investors. Every interaction builds on context.',
+      variant: 'gold' as const,
     },
   ];
 
@@ -63,10 +67,10 @@ export function HomepageStatic() {
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
               Meet <span className="text-vesta">Vesta.</span>
             </h1>
-            <p className="text-xl sm:text-2xl md:text-3xl text-[var(--app-text-muted)] mb-4">
+            <p className="text-xl sm:text-2xl md:text-3xl text-app-text-muted dark:text-app-dark-text-muted mb-4">
               Your personal AI for fund management.
             </p>
-            <p className="text-base sm:text-lg text-[var(--app-text-muted)] mb-8 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg text-app-text-muted dark:text-app-dark-text-muted mb-8 max-w-2xl mx-auto leading-relaxed">
               VestLedger gives every fund professional an intelligent assistant—to analyze faster, remember everything, act proactively, and influence outcomes across the fund lifecycle.
             </p>
 
@@ -103,23 +107,26 @@ export function HomepageStatic() {
       {/* Capabilities Section */}
       <section id="capabilities" className="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
         <div className="text-center mb-12 sm:mb-16">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">What Vesta Does For You</h2>
-          <p className="text-lg text-[var(--app-text-muted)] max-w-2xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">What <span className="text-gold">Vesta</span> Does For You</h2>
+          <p className="text-lg text-app-text-muted dark:text-app-dark-text-muted max-w-2xl mx-auto">
             Vesta is not a chatbot. She is a persistent, role-aware fund agent who thinks alongside you.
           </p>
         </div>
         <div className="grid sm:grid-cols-2 gap-6 sm:gap-8">
           {capabilities.map((capability, index) => {
             const Icon = capability.icon;
+            const iconStyles = capability.variant === 'gold'
+              ? 'icon-gold'
+              : 'bg-gradient-to-br from-app-primary to-app-accent dark:from-app-dark-primary dark:to-app-dark-accent';
             return (
               <div key={index} className="card-vesta p-6 sm:p-8 hover:transform hover:-translate-y-1 transition-all">
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#047857] to-[#10b981] flex items-center justify-center mb-5 shadow-lg">
+                <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-5 shadow-lg ${iconStyles}`}>
                   <Icon className="w-7 h-7 text-white" />
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold text-[var(--app-text)] mb-3">
+                <h3 className="text-xl sm:text-2xl font-bold text-app-text dark:text-app-dark-text mb-3">
                   {capability.title}
                 </h3>
-                <p className="text-[var(--app-text-muted)] leading-relaxed">
+                <p className="text-app-text-muted dark:text-app-dark-text-muted leading-relaxed">
                   {capability.description}
                 </p>
               </div>
@@ -134,43 +141,43 @@ export function HomepageStatic() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl sm:text-4xl font-bold mb-6">
-                Your Vesta. Your Fund. Your Intelligence.
+                Your <span className="text-vesta">Vesta</span>. Your Fund. Your <span className="text-gold">Intelligence</span>.
               </h2>
-              <p className="text-lg text-[var(--app-text-muted)] mb-6 leading-relaxed">
+              <p className="text-lg text-app-text-muted dark:text-app-dark-text-muted mb-6 leading-relaxed">
                 Every Vesta is unique to your fund. She learns your investment thesis, understands your LP relationships, knows your operational rhythm. The longer you work together, the smarter she becomes.
               </p>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-[var(--app-primary)] flex-shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-6 h-6 text-app-primary dark:text-app-dark-primary flex-shrink-0 mt-0.5" />
                   <div>
                     <div className="font-medium mb-1">Contextual</div>
-                    <p className="text-sm text-[var(--app-text-muted)]">Vesta knows your fund's history, not just today's data</p>
+                    <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Vesta knows your fund's history, not just today's data</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-[var(--app-primary)] flex-shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-6 h-6 text-app-primary dark:text-app-dark-primary flex-shrink-0 mt-0.5" />
                   <div>
                     <div className="font-medium mb-1">Proactive</div>
-                    <p className="text-sm text-[var(--app-text-muted)]">She surfaces what matters before you ask</p>
+                    <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">She surfaces what matters before you ask</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-[var(--app-primary)] flex-shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-6 h-6 text-app-secondary dark:text-app-dark-secondary flex-shrink-0 mt-0.5" />
                   <div>
-                    <div className="font-medium mb-1">Sovereign</div>
-                    <p className="text-sm text-[var(--app-text-muted)]">Your Vesta's intelligence stays with you—never shared, never averaged</p>
+                    <div className="font-medium mb-1 text-app-secondary dark:text-app-dark-secondary">Sovereign</div>
+                    <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Your Vesta's intelligence stays with you—never shared, never averaged</p>
                   </div>
                 </div>
               </div>
             </div>
             <div className="card-vesta p-8 sm:p-12 flex items-center justify-center order-first md:order-last">
               <div className="text-center">
-                <div className="relative w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br from-[#047857] via-[#0d9488] to-[#10b981] flex items-center justify-center shadow-[0_0_80px_rgba(16,185,129,0.4)]">
+                <div className="relative w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br from-app-primary via-app-accent to-app-primary dark:from-app-dark-primary dark:via-app-dark-accent dark:to-app-dark-primary flex items-center justify-center shadow-[0_0_80px_rgba(16,185,129,0.4)]">
                   <div className="absolute inset-3 rounded-full bg-gradient-to-br from-white/20 to-transparent" />
                   <Bot className="w-16 h-16 text-white relative z-10" />
                 </div>
-                <p className="text-xl font-medium text-[var(--app-text)]">Vesta</p>
-                <p className="text-sm text-[var(--app-text-muted)]">Your AI Fund Partner</p>
+                <p className="text-xl font-medium text-app-text dark:text-app-dark-text">Vesta</p>
+                <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Your <span className="text-app-secondary dark:text-app-dark-secondary">AI</span> Fund Partner</p>
               </div>
             </div>
           </div>
@@ -179,10 +186,10 @@ export function HomepageStatic() {
 
       {/* CTA Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
-        <div className="card-elevated rounded-2xl p-8 sm:p-12">
+        <div className="card-premium rounded-2xl p-8 sm:p-12">
           <div className="text-center">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">Ready to Meet Your Vesta?</h2>
-            <p className="text-lg text-[var(--app-text-muted)] mb-8 max-w-2xl mx-auto">
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4">Ready to Meet Your <span className="text-gold">Vesta</span>?</h2>
+            <p className="text-lg text-app-text-muted dark:text-app-dark-text-muted mb-8 max-w-2xl mx-auto">
               Join funds who have moved from managing tools to working with intelligence.
             </p>
             <LoginButton className="btn-primary btn-lg">

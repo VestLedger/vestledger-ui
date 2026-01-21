@@ -40,15 +40,15 @@ export function PublicFooter() {
             </div>
           </div>
           <div>
-            <h5 className="mb-3 sm:mb-4 text-sm sm:text-base font-semibold">Legal</h5>
+            <h5 className="mb-3 sm:mb-4 text-sm sm:text-base font-semibold text-app-secondary dark:text-app-dark-secondary">Legal</h5>
             <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-app-text-muted dark:text-app-dark-text-muted">
-              <div><Link href="#" className="hover:text-app-text dark:hover:text-app-dark-text transition-colors">Privacy</Link></div>
-              <div><Link href="#" className="hover:text-app-text dark:hover:text-app-dark-text transition-colors">Terms</Link></div>
-              <div><Link href="#" className="hover:text-app-text dark:hover:text-app-dark-text transition-colors">Compliance</Link></div>
+              <div><Link href="#" className="hover:text-app-secondary dark:hover:text-app-dark-secondary transition-colors">Privacy</Link></div>
+              <div><Link href="#" className="hover:text-app-secondary dark:hover:text-app-dark-secondary transition-colors">Terms</Link></div>
+              <div><Link href="#" className="hover:text-app-secondary dark:hover:text-app-dark-secondary transition-colors">Compliance</Link></div>
             </div>
           </div>
         </div>
-        <div className="pt-6 sm:pt-8 border-t border-app-border dark:border-app-dark-border text-xs sm:text-sm text-app-text-muted dark:text-app-dark-text-muted text-center">
+        <div className="pt-6 sm:pt-8 border-t border-app-border dark:border-app-dark-border relative text-xs sm:text-sm text-app-text-muted dark:text-app-dark-text-muted text-center before:absolute before:top-0 before:left-1/2 before:-translate-x-1/2 before:w-24 before:h-0.5 before:bg-gradient-to-r before:from-transparent before:via-app-secondary/50 dark:before:via-app-dark-secondary/50 before:to-transparent">
           © {new Date().getFullYear()} vestledger. All rights reserved.
         </div>
       </div>

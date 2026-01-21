@@ -60,10 +60,10 @@ export function PublicHeader() {
               </span>
             </Link>
             <div className="hidden md:flex items-center gap-6">
-              <Link href="/features" className="text-sm text-app-text-muted dark:text-app-dark-text-muted hover:text-app-text dark:hover:text-app-dark-text transition-colors">Features</Link>
-              <Link href="/how-it-works" className="text-sm text-app-text-muted dark:text-app-dark-text-muted hover:text-app-text dark:hover:text-app-dark-text transition-colors">How It Works</Link>
-              <Link href="/security" className="text-sm text-app-text-muted dark:text-app-dark-text-muted hover:text-app-text dark:hover:text-app-dark-text transition-colors">Security</Link>
-              <Link href="/eoi" className="text-sm text-app-text-muted dark:text-app-dark-text-muted hover:text-app-text dark:hover:text-app-dark-text transition-colors">Get Early Access</Link>
+              <Link href="/features" className="text-sm text-app-text-muted dark:text-app-dark-text-muted hover:text-app-text dark:hover:text-app-dark-text transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-app-secondary dark:after:bg-app-dark-secondary after:transition-all hover:after:w-full">Features</Link>
+              <Link href="/how-it-works" className="text-sm text-app-text-muted dark:text-app-dark-text-muted hover:text-app-text dark:hover:text-app-dark-text transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-app-secondary dark:after:bg-app-dark-secondary after:transition-all hover:after:w-full">How It Works</Link>
+              <Link href="/security" className="text-sm text-app-text-muted dark:text-app-dark-text-muted hover:text-app-text dark:hover:text-app-dark-text transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-app-secondary dark:after:bg-app-dark-secondary after:transition-all hover:after:w-full">Security</Link>
+              <Link href="/eoi" className="text-sm font-medium text-app-secondary dark:text-app-dark-secondary hover:text-app-secondary-hover dark:hover:text-app-dark-secondary-hover transition-colors">Get Early Access</Link>
             </div>
           </div>
           <div className="flex items-center gap-4">
