@@ -189,38 +189,51 @@ import {
 ## Color System
 
 ### Semantic Colors (Use These!)
-- `primary` - Deep Emerald (main actions)
+- `primary` - Deep Blue (main actions)
 - `secondary` - Rich Gold (luxury accents)
 - `success` - Green (positive/complete)
 - `warning` - Amber (caution/pending)
 - `danger` - Red (destructive/error)
-- `default` - Neutral gray
+- `info` - Cyan (informational)
+- `neutral` - Gray (mixed/pending states)
+- `default` - Neutral stone
 
-### CSS Variables
+### Background Variants
+Each status color has a `-light` variant for backgrounds:
+- `bg-app-success-light` / `dark:bg-app-dark-success-light`
+- `bg-app-warning-light` / `dark:bg-app-dark-warning-light`
+- etc.
+
+### CSS Variables (for third-party libs only)
 ```css
 /* Backgrounds */
 --app-bg              /* Page background */
 --app-surface         /* Card/component background */
 --app-surface-hover   /* Hover state */
-
-/* Borders */
---app-border          /* Primary borders */
---app-border-subtle   /* Subtle borders */
+--app-primary-bg      /* Primary with opacity */
+--app-secondary-bg    /* Secondary with opacity */
 
 /* Text */
 --app-text            /* Primary text */
 --app-text-muted      /* Secondary text */
 --app-text-subtle     /* Tertiary text */
 
-/* Semantic */
---app-primary         /* Primary brand color */
---app-primary-hover   /* Primary hover state */
---app-secondary       /* Secondary brand color */
---app-success         /* Success state */
---app-warning         /* Warning state */
---app-danger          /* Danger state */
---app-accent          /* Accent color (cyan) */
---app-info            /* Info color (blue) */
+/* Status with backgrounds */
+--app-success / --app-success-bg
+--app-warning / --app-warning-bg
+--app-danger / --app-danger-bg
+--app-info / --app-info-bg
+--app-neutral / --app-neutral-bg
+```
+
+### Tailwind Classes (Preferred)
+```tsx
+// Use semantic classes, NOT hardcoded colors
+<div className="bg-app-danger-light dark:bg-app-dark-danger-light text-app-danger dark:text-app-dark-danger">
+  Error message
+</div>
+
+// NOT: bg-red-500/10 text-red-500
 ```
 
 ## Common Patterns

@@ -38,7 +38,7 @@ function ConcentrationRow({ item, maxPercentage, isHighRisk }: ConcentrationRowP
     <div className="p-4 rounded-lg border border-[var(--app-border)] hover:bg-[var(--app-surface-hover)] transition-all">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-3 flex-1">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-accent)] flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[var(--app-primary)] to-transparent flex items-center justify-center flex-shrink-0">
             <span className="text-white font-semibold text-xs">{item.percentage.toFixed(0)}%</span>
           </div>
           <div className="min-w-0 flex-1">

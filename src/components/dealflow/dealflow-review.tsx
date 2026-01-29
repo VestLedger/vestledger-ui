@@ -117,7 +117,7 @@ export function DealflowReview() {
         return (
           <div className="space-y-6">
             <div className="text-center">
-              <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-[var(--app-primary)] to-[var(--app-accent)] bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-[var(--app-primary)] to-transparent bg-clip-text text-transparent">
                 {currentSlide.content.companyName}
               </h1>
               <p className="text-xl text-[var(--app-text-muted)] mb-6">{currentSlide.content.oneLiner}</p>
@@ -250,7 +250,7 @@ export function DealflowReview() {
               <div className="space-y-3">
                 {currentSlide.content.team.map((member, idx) => (
                   <div key={idx} className="flex items-start gap-3 p-4 rounded-lg bg-[var(--app-surface-hover)]">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-accent)] flex items-center justify-center text-white font-semibold">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--app-primary)] to-transparent flex items-center justify-center text-white font-semibold">
                       {member.name.split(' ').map((n: string) => n[0]).join('')}
                     </div>
                     <div>
@@ -278,9 +278,9 @@ export function DealflowReview() {
       case 'ask':
         return (
           <div className="space-y-6">
-            <div className="text-center p-8 rounded-lg bg-gradient-to-br from-[var(--app-primary-bg)] to-[var(--app-secondary)] bg-opacity-10">
+            <div className="text-center p-8 rounded-lg bg-gradient-to-br from-[var(--app-primary-bg)] to-transparent bg-opacity-10">
               <p className="text-sm text-[var(--app-text-muted)] mb-2">Raising</p>
-              <p className="text-5xl font-bold mb-4 bg-gradient-to-r from-[var(--app-primary)] to-[var(--app-secondary)] bg-clip-text text-transparent">
+              <p className="text-5xl font-bold mb-4 bg-gradient-to-r from-[var(--app-primary)] to-transparent bg-clip-text text-transparent">
                 {formatCurrencyCompact(currentSlide.content.amount)}
               </p>
               <p className="text-sm text-[var(--app-text-muted)]">

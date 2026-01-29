@@ -54,7 +54,7 @@ export default function HowItWorksPage() {
         <div className="max-w-4xl mx-auto">
           {/* Vesta Presence */}
           <div className="flex justify-center mb-8">
-            <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-[#047857] via-[#0d9488] to-[#10b981] flex items-center justify-center shadow-[0_0_60px_rgba(16,185,129,0.3)]">
+            <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-[var(--app-primary)] via-[var(--app-accent)] to-[var(--app-primary-hover)] flex items-center justify-center shadow-[var(--brand-glow)]">
               <div className="absolute inset-2 rounded-full bg-gradient-to-br from-white/20 to-transparent" />
               <Bot className="w-10 h-10 text-white relative z-10" />
             </div>
@@ -79,7 +79,7 @@ export default function HowItWorksPage() {
                   <div className="flex flex-col md:flex-row md:items-start gap-6">
                     {/* Phase indicator */}
                     <div className="flex-shrink-0">
-                      <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#047857] to-[#10b981] flex items-center justify-center shadow-lg">
+                      <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-accent)] flex items-center justify-center shadow-lg">
                         <PhaseIcon className="w-8 h-8 text-white" />
                       </div>
                     </div>
@@ -124,7 +124,7 @@ export default function HowItWorksPage() {
       <section className="py-20 sm:py-24 text-center px-4">
         <div className="max-w-3xl mx-auto">
           <div className="flex justify-center mb-6">
-            <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-[#047857] via-[#0d9488] to-[#10b981] flex items-center justify-center shadow-[0_0_40px_rgba(16,185,129,0.3)]">
+            <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-[var(--app-primary)] via-[var(--app-accent)] to-[var(--app-primary-hover)] flex items-center justify-center shadow-[var(--brand-glow)]">
               <Bot className="w-8 h-8 text-white" />
             </div>
           </div>

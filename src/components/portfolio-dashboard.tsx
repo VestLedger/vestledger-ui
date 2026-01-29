@@ -63,7 +63,7 @@ export function PortfolioDashboard() {
   };
 
   const metricCardClassName = 'hover:border-[var(--app-primary)] transition-all';
-  const metricCardIconContainerClassName = 'p-2 rounded-lg bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-secondary)]';
+  const metricCardIconContainerClassName = 'p-2 rounded-lg bg-gradient-to-br from-[var(--app-primary)] to-transparent';
   const metricCardIconClassName = 'w-5 h-5 text-white';
   const metricCardBaseProps = {
     className: metricCardClassName,
@@ -125,7 +125,7 @@ export function PortfolioDashboard() {
       sortable: true,
       render: (company: PortfolioCompanyRow) => (
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-accent)] flex items-center justify-center flex-shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--app-primary)] to-transparent flex items-center justify-center flex-shrink-0">
             <span className="text-white text-xs font-semibold">{company.companyName.charAt(0)}</span>
           </div>
           <span className="font-medium">{company.companyName}</span>

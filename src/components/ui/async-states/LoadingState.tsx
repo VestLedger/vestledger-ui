@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { BrandLogo } from '../../brand-logo';
 
 interface LoadingStateProps {
   message?: string;
@@ -15,12 +15,10 @@ export function LoadingState({
     <div className={`flex items-center justify-center ${fullHeight ? 'min-h-[400px]' : 'py-8'}`}>
       <div className="text-center">
         <div className="flex items-center justify-center mb-4">
-          <Image
-            src="/logo/Print_Transparent.svg"
-            alt="VestLedger logo"
+          <BrandLogo
             width={logoSize}
             height={logoSize}
-            className="animate-spin"
+            className="animate-spin text-[var(--app-primary)]"
           />
         </div>
         <p className="text-[var(--app-text-muted)]">{message}</p>

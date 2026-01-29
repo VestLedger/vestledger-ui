@@ -56,7 +56,7 @@ export function HomepageStatic() {
             {/* Vesta Presence */}
             <div className="flex justify-center mb-8">
               <div
-                className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-[#047857] via-[#0d9488] to-[#10b981] flex items-center justify-center shadow-[0_0_60px_rgba(16,185,129,0.3)]"
+                className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-app-primary via-app-accent to-app-primary-hover dark:from-app-dark-primary dark:via-app-dark-accent dark:to-app-dark-primary-hover flex items-center justify-center shadow-[0_0_60px_rgba(59,130,246,0.3)]"
               >
                 <div className="absolute inset-2 rounded-full bg-gradient-to-br from-white/20 to-transparent" />
                 <Bot className="w-10 h-10 sm:w-12 sm:h-12 text-white relative z-10" />
@@ -172,7 +172,7 @@ export function HomepageStatic() {
             </div>
             <div className="card-vesta p-8 sm:p-12 flex items-center justify-center order-first md:order-last">
               <div className="text-center">
-                <div className="relative w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br from-app-primary via-app-accent to-app-primary dark:from-app-dark-primary dark:via-app-dark-accent dark:to-app-dark-primary flex items-center justify-center shadow-[0_0_80px_rgba(16,185,129,0.4)]">
+                <div className="relative w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br from-app-primary via-app-accent to-app-primary-hover dark:from-app-dark-primary dark:via-app-dark-accent dark:to-app-dark-primary-hover flex items-center justify-center shadow-[0_0_80px_rgba(59,130,246,0.4)]">
                   <div className="absolute inset-3 rounded-full bg-gradient-to-br from-white/20 to-transparent" />
                   <Bot className="w-16 h-16 text-white relative z-10" />
                 </div>

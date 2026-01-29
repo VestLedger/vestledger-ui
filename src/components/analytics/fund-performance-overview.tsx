@@ -12,7 +12,7 @@ export function FundPerformanceOverview() {
   const currentFund = getCurrentFundMetrics(selectedFund?.id);
   const benchmarkData = getBenchmarkData(selectedFund?.id);
   const metricCardClassName = 'hover:border-[var(--app-primary)] transition-all';
-  const metricCardIconContainerClassName = 'p-2 rounded-lg bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-secondary)]';
+  const metricCardIconContainerClassName = 'p-2 rounded-lg bg-gradient-to-br from-[var(--app-primary)] to-transparent';
   const metricCardIconClassName = 'w-5 h-5 text-white';
 
   const formatCurrency = (value: number) => {

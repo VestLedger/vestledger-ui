@@ -7,6 +7,8 @@
  *
  * CSS variables below are ONLY for third-party libraries (FullCalendar)
  * and special CSS features (shadows, focus rings) that can't use Tailwind.
+ *
+ * PALETTE: Blue & Gold
  */
 
 /* ============================================
@@ -14,31 +16,57 @@
    Keep in sync with src/styles/colors.js
    ============================================ */
 :root {
-  /* Colors for FullCalendar and other libraries */
-  --app-bg: #fafaf8;
+  /* Foundation colors */
+  --app-bg: #fafaf9;
   --app-surface: #ffffff;
-  --app-surface-hover: #eceae4;
-  --app-border: #d9d6cf;
-  --app-border-strong: #c5c1b8;
-  --app-text: #1a1f1e;
-  --app-text-muted: #4a5250;
-  --app-primary: #047857;
-  --app-primary-bg: rgba(4, 120, 87, 0.10);
+  --app-surface-2: #f5f5f4;
+  --app-surface-hover: #e7e5e4;
 
-  /* Shadows */
-  --app-shadow-1: 0 1px 3px rgba(26, 31, 30, 0.10), 0 4px 12px rgba(26, 31, 30, 0.08);
-  --app-shadow-2: 0 4px 8px rgba(26, 31, 30, 0.12), 0 12px 32px rgba(26, 31, 30, 0.10);
+  /* Border colors */
+  --app-border: #d6d3d1;
+  --app-border-subtle: #e7e5e4;
+  --app-border-strong: #a8a29e;
 
-  /* Focus ring */
-  --app-focus-ring: 0 0 0 2px #fafaf8, 0 0 0 4px rgba(4, 120, 87, 0.40);
+  /* Text colors */
+  --app-text: #1c1917;
+  --app-text-muted: #57534e;
+  --app-text-subtle: #78716c;
 
-  /* Vesta Identity */
-  --vesta-glow: 0 0 60px rgba(16, 185, 129, 0.3);
-  --vesta-glow-subtle: 0 0 30px rgba(16, 185, 129, 0.15);
-
-  /* Gold Accent (trust, premium, achievements) */
+  /* Brand - Blue & Gold */
+  --app-primary: #1e40af;
+  --app-primary-hover: #1d4ed8;
+  --app-primary-bg: rgba(30, 64, 175, 0.10);
   --app-secondary: #d4a332;
   --app-secondary-bg: rgba(212, 163, 50, 0.10);
+
+  /* Status colors */
+  --app-success: #16a34a;
+  --app-success-bg: rgba(22, 163, 74, 0.10);
+  --app-warning: #d97706;
+  --app-warning-bg: rgba(217, 119, 6, 0.10);
+  --app-danger: #dc2626;
+  --app-danger-bg: rgba(220, 38, 38, 0.10);
+  --app-info: #0891b2;
+  --app-info-bg: rgba(8, 145, 178, 0.10);
+  --app-neutral: #6b7280;
+  --app-neutral-bg: rgba(107, 114, 128, 0.10);
+
+  /* Accent */
+  --app-accent: #2563eb;
+  --app-accent-bg: rgba(37, 99, 235, 0.10);
+
+  /* Shadows */
+  --app-shadow-1: 0 1px 3px rgba(28, 25, 23, 0.10), 0 4px 12px rgba(28, 25, 23, 0.08);
+  --app-shadow-2: 0 4px 8px rgba(28, 25, 23, 0.12), 0 12px 32px rgba(28, 25, 23, 0.10);
+
+  /* Focus ring */
+  --app-focus-ring: 0 0 0 2px #fafaf9, 0 0 0 4px rgba(30, 64, 175, 0.40);
+
+  /* Brand Identity Glows */
+  --brand-glow: 0 0 60px rgba(59, 130, 246, 0.3);
+  --brand-glow-subtle: 0 0 30px rgba(59, 130, 246, 0.15);
+
+  /* Gold Accent (trust, premium, achievements) */
   --gold-glow: 0 0 40px rgba(212, 163, 50, 0.25);
   --gold-glow-subtle: 0 0 20px rgba(212, 163, 50, 0.12);
 
@@ -47,34 +75,61 @@
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --shadow-glow: 0 0 40px rgba(4, 120, 87, 0.15);
+  --shadow-glow: 0 0 40px rgba(30, 64, 175, 0.15);
 }
 
 .dark {
-  --app-bg: #0f1412;
-  --app-surface: #161c1a;
-  --app-surface-hover: #242d2a;
-  --app-border: #2d3835;
-  --app-border-strong: #3a4743;
-  --app-text: #f7f7f6;
-  --app-text-muted: #c4cac8;
-  --app-primary: #10b981;
-  --app-primary-bg: rgba(16, 185, 129, 0.15);
+  /* Foundation colors */
+  --app-bg: #0c0a09;
+  --app-surface: #1c1917;
+  --app-surface-2: #292524;
+  --app-surface-hover: #44403c;
+
+  /* Border colors */
+  --app-border: #44403c;
+  --app-border-subtle: #292524;
+  --app-border-strong: #57534e;
+
+  /* Text colors */
+  --app-text: #fafaf9;
+  --app-text-muted: #a8a29e;
+  --app-text-subtle: #78716c;
+
+  /* Brand - Blue & Gold */
+  --app-primary: #3b82f6;
+  --app-primary-hover: #60a5fa;
+  --app-primary-bg: rgba(59, 130, 246, 0.15);
+  --app-secondary: #fbbf24;
+  --app-secondary-bg: rgba(251, 191, 36, 0.15);
+
+  /* Status colors */
+  --app-success: #22c55e;
+  --app-success-bg: rgba(34, 197, 94, 0.15);
+  --app-warning: #f59e0b;
+  --app-warning-bg: rgba(245, 158, 11, 0.15);
+  --app-danger: #ef4444;
+  --app-danger-bg: rgba(239, 68, 68, 0.15);
+  --app-info: #06b6d4;
+  --app-info-bg: rgba(6, 182, 212, 0.15);
+  --app-neutral: #9ca3af;
+  --app-neutral-bg: rgba(156, 163, 175, 0.15);
+
+  /* Accent */
+  --app-accent: #60a5fa;
+  --app-accent-bg: rgba(96, 165, 250, 0.15);
 
   /* Shadows */
   --app-shadow-1: 0 1px 3px rgba(0, 0, 0, 0.35), 0 6px 16px rgba(0, 0, 0, 0.30);
   --app-shadow-2: 0 4px 8px rgba(0, 0, 0, 0.40), 0 16px 40px rgba(0, 0, 0, 0.35);
 
   /* Focus ring */
-  --app-focus-ring: 0 0 0 2px #0f1412, 0 0 0 4px rgba(16, 185, 129, 0.50);
+  --app-focus-ring: 0 0 0 2px #0c0a09, 0 0 0 4px rgba(59, 130, 246, 0.50);
 
-  /* Vesta Identity (dark mode) */
-  --vesta-glow: 0 0 80px rgba(16, 185, 129, 0.4);
-  --vesta-glow-subtle: 0 0 40px rgba(16, 185, 129, 0.2);
+  /* Brand Identity Glows (dark mode) */
+  --brand-glow: 0 0 80px rgba(59, 130, 246, 0.4);
+  --brand-glow-subtle: 0 0 40px rgba(59, 130, 246, 0.2);
 
   /* Gold Accent (dark mode - brighter amber) */
-  --app-secondary: #fbbf24;
-  --app-secondary-bg: rgba(251, 191, 36, 0.15);
   --gold-glow: 0 0 50px rgba(251, 191, 36, 0.3);
   --gold-glow-subtle: 0 0 25px rgba(251, 191, 36, 0.15);
 
@@ -83,7 +138,7 @@
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
-  --shadow-glow: 0 0 50px rgba(16, 185, 129, 0.2);
+  --shadow-glow: 0 0 50px rgba(59, 130, 246, 0.2);
 }
 
 /* ============================================
@@ -112,14 +167,14 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(74, 82, 80, 0.30);
+  background-color: rgba(87, 83, 78, 0.30);
   border-radius: 9999px;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background-color: rgba(196, 202, 200, 0.25);
+  background-color: rgba(168, 162, 158, 0.25);
 }
 
 /* ============================================
@@ -156,7 +211,7 @@ html {
 
 .dark .fc .fc-button-primary:not(:disabled).fc-button-active,
 .dark .fc .fc-button-primary:not(:disabled):active {
-  color: #0f1412;
+  color: #0c0a09;
 }
 
 .fc .fc-toolbar-title {
@@ -190,7 +245,7 @@ html {
 }
 
 /* ============================================
-   Vesta Animations
+   Animations
    ============================================ */
 @keyframes float {
   0%, 100% { transform: translateY(0); }
@@ -198,8 +253,8 @@ html {
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: var(--vesta-glow-subtle); }
-  50% { box-shadow: var(--vesta-glow); }
+  0%, 100% { box-shadow: var(--brand-glow-subtle); }
+  50% { box-shadow: var(--brand-glow); }
 }
 
 @keyframes fade-in-up {
@@ -214,12 +269,19 @@ html {
 }
 
 /* ============================================
-   Vesta Utility Classes
+   Brand Utility Classes
    ============================================ */
 
-/* Gradient text for "Vesta" branding */
-.text-vesta {
-  background: linear-gradient(135deg, #047857 0%, #0d9488 50%, #10b981 100%);
+/* Gradient text for branding */
+.text-brand {
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .text-brand {
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 50%, #93c5fd 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -240,16 +302,16 @@ html {
   background-clip: text;
 }
 
-/* Emerald to Gold gradient text (premium Vesta) */
-.text-vesta-gold {
-  background: linear-gradient(135deg, #047857 0%, #0d9488 40%, #d4a332 100%);
+/* Blue to Gold gradient text (premium brand) */
+.text-brand-gold {
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 40%, #d4a332 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-.dark .text-vesta-gold {
-  background: linear-gradient(135deg, #10b981 0%, #14b8a6 40%, #fbbf24 100%);
+.dark .text-brand-gold {
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 40%, #fbbf24 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -288,13 +350,13 @@ html {
    Button System
    ============================================ */
 
-/* Primary button - Vesta gradient */
+/* Primary button - Brand gradient */
 .btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background: linear-gradient(135deg, #047857 0%, #0d9488 50%, #10b981 100%);
+  background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%);
   background-size: 200% 200%;
   color: white;
   border: 1px solid transparent;
@@ -302,14 +364,14 @@ html {
   padding: 12px 24px;
   font-weight: 600;
   font-size: 0.875rem;
-  box-shadow: var(--shadow-md), 0 0 20px rgba(16, 185, 129, 0.2);
+  box-shadow: var(--shadow-md), 0 0 20px rgba(59, 130, 246, 0.2);
   transition: all 0.3s ease;
   cursor: pointer;
 }
 
 .btn-primary:hover {
   background-position: 100% 50%;
-  box-shadow: var(--shadow-lg), 0 0 30px rgba(16, 185, 129, 0.3);
+  box-shadow: var(--shadow-lg), 0 0 30px rgba(59, 130, 246, 0.3);
   transform: translateY(-1px);
 }
 
@@ -406,37 +468,37 @@ html {
   border-color: var(--app-primary);
 }
 
-/* Vesta glow card */
-.card-vesta {
-  background: linear-gradient(180deg, rgba(4, 120, 87, 0.03) 0%, transparent 100%);
-  border: 1px solid rgba(4, 120, 87, 0.2);
+/* Brand glow card */
+.card-brand {
+  background: linear-gradient(180deg, rgba(30, 64, 175, 0.03) 0%, transparent 100%);
+  border: 1px solid rgba(30, 64, 175, 0.2);
   border-radius: 16px;
-  box-shadow: var(--vesta-glow-subtle);
+  box-shadow: var(--brand-glow-subtle);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.card-vesta:hover {
-  box-shadow: var(--vesta-glow);
+.card-brand:hover {
+  box-shadow: var(--brand-glow);
   border-color: var(--app-primary);
 }
 
-.dark .card-vesta {
-  background: linear-gradient(180deg, rgba(16, 185, 129, 0.05) 0%, transparent 100%);
-  border-color: rgba(16, 185, 129, 0.2);
+.dark .card-brand {
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.05) 0%, transparent 100%);
+  border-color: rgba(59, 130, 246, 0.2);
 }
 
 /* Hero background with gradient mesh */
 .hero-bg {
   background:
-    radial-gradient(ellipse at 20% 50%, rgba(4, 120, 87, 0.1) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 50%, rgba(13, 148, 136, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 50%, rgba(30, 64, 175, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 50%, rgba(37, 99, 235, 0.08) 0%, transparent 50%),
     var(--app-bg);
 }
 
 .dark .hero-bg {
   background:
-    radial-gradient(ellipse at 20% 50%, rgba(16, 185, 129, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 50%, rgba(13, 148, 136, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 50%, rgba(96, 165, 250, 0.1) 0%, transparent 50%),
     var(--app-bg);
 }
 
@@ -456,4 +518,54 @@ html {
 .animate-gradient-shift {
   animation: gradient-shift 3s ease infinite;
   background-size: 200% 200%;
+}
+
+/* ============================================
+   Legacy class aliases (for backward compat)
+   These map old emerald classes to new blue ones
+   ============================================ */
+.text-vesta {
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .text-vesta {
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 50%, #93c5fd 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-vesta-gold {
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 40%, #d4a332 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .text-vesta-gold {
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 40%, #fbbf24 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.card-vesta {
+  background: linear-gradient(180deg, rgba(30, 64, 175, 0.03) 0%, transparent 100%);
+  border: 1px solid rgba(30, 64, 175, 0.2);
+  border-radius: 16px;
+  box-shadow: var(--brand-glow-subtle);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-vesta:hover {
+  box-shadow: var(--brand-glow);
+  border-color: var(--app-primary);
+}
+
+.dark .card-vesta {
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.05) 0%, transparent 100%);
+  border-color: rgba(59, 130, 246, 0.2);
 }

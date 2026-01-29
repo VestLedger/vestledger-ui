@@ -1,6 +1,6 @@
 import { Link as LinkIcon, RefreshCw, Sparkles, Shield, CheckCircle2, Layers } from 'lucide-react';
 import { Card } from '@/ui';
-import Image from 'next/image';
+import { BrandLogo } from './brand-logo';
 import {
   HomepageCTAButton,
   HomepageHeroActions,
@@ -55,16 +55,7 @@ export function Homepage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-20 md:py-32">
         <div className="max-w-4xl mx-auto text-center">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <Image
-              src="/logo/Print_Transparent.svg"
-              alt="VestLedger logo"
-              width={48}
-              height={48}
-              className="h-10 w-10"
-              priority
-              fetchPriority="high"
-              loading="eager"
-            />
+            <BrandLogo className="h-10 w-10 text-[var(--app-primary)]" />
             <span className="text-xs uppercase tracking-[0.35em] text-[var(--app-text-muted)]">VestLedger</span>
           </div>
           <div className="inline-block px-3 sm:px-4 py-1.5 sm:py-2 bg-[var(--app-primary-bg)] text-[var(--app-primary)] rounded-full text-xs sm:text-sm mb-4 sm:mb-6">
@@ -152,7 +143,7 @@ export function Homepage() {
                 </div>
               </div>
             </div>
-            <div className="rounded-2xl p-8 sm:p-12 flex items-center justify-center order-first md:order-last shadow-lg" aria-label="Triad OS Stack visualization" style={{ background: 'linear-gradient(135deg, var(--app-primary) 0%, var(--app-secondary) 100%)' }}>
+            <div className="rounded-2xl p-8 sm:p-12 flex items-center justify-center order-first md:order-last shadow-lg" aria-label="Triad OS Stack visualization" style={{ background: 'linear-gradient(135deg, var(--app-primary) 0%, transparent 100%)' }}>
               <div className="text-white text-center">
                 <Layers className="w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-4 sm:mb-6 opacity-90" aria-hidden="true" />
                 <p className="text-xl sm:text-2xl font-medium">The Triad OS Stack</p>

@@ -20,19 +20,20 @@ export function VestaPresence({ size = 'md', animate = true, className = '' }: V
     <div
       className={`
         relative ${sizes.container} rounded-full
-        bg-gradient-to-br from-[#047857] via-[#0d9488] to-[#10b981]
+        bg-gradient-to-br from-app-primary via-app-accent to-app-primary-hover
+        dark:from-app-dark-primary dark:via-app-dark-accent dark:to-app-dark-primary-hover
         flex items-center justify-center
         ${animate ? 'animate-float' : ''}
         ${className}
       `}
       style={{
-        boxShadow: 'var(--vesta-glow)',
+        boxShadow: 'var(--brand-glow)',
       }}
     >
       {/* Pulse ring */}
       {animate && (
         <div
-          className="absolute inset-0 rounded-full border-2 border-[#10b981] animate-pulse-glow"
+          className="absolute inset-0 rounded-full border-2 border-app-primary dark:border-app-dark-primary animate-pulse-glow"
           style={{ animationDelay: '0.5s' }}
         />
       )}
@@ -56,9 +57,10 @@ export function VestaPresenceStatic({ size = 'md', className = '' }: Omit<VestaP
     <div
       className={`
         relative ${sizes.container} rounded-full
-        bg-gradient-to-br from-[#047857] via-[#0d9488] to-[#10b981]
+        bg-gradient-to-br from-app-primary via-app-accent to-app-primary-hover
+        dark:from-app-dark-primary dark:via-app-dark-accent dark:to-app-dark-primary-hover
         flex items-center justify-center
-        shadow-[0_0_60px_rgba(16,185,129,0.3)]
+        shadow-[0_0_60px_rgba(59,130,246,0.3)]
         ${className}
       `}
     >

@@ -82,7 +82,7 @@ export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealNam
             <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
               message.role === 'user'
                 ? 'bg-[var(--app-primary)]'
-                : 'bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-secondary)]'
+              : 'bg-gradient-to-br from-[var(--app-primary)] to-transparent'
             }`}>
               {message.role === 'user' ? (
                 <User className="w-4 h-4 text-white" />
@@ -183,7 +183,7 @@ export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealNam
 
         {isTyping && (
           <div className="flex gap-3">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-secondary)] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--app-primary)] to-transparent flex items-center justify-center">
               <Bot className="w-4 h-4 text-white" />
             </div>
             <div className="flex-1">

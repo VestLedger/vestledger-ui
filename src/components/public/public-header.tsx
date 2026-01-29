@@ -9,7 +9,7 @@ import { useAuth, PERSONA_CONFIG, UserRole } from '@/contexts/auth-context';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useUIKey } from '@/store/ui';
-import Image from 'next/image';
+import { BrandLogo } from '../brand-logo';
 
 export function PublicHeader() {
   const { theme, setTheme } = useTheme();
@@ -47,14 +47,7 @@ export function PublicHeader() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4 sm:gap-8">
             <Link href="/" className="flex items-center gap-3">
-              <Image
-                src="/logo/Print_Transparent.svg"
-                alt="VestLedger logo"
-                width={32}
-                height={32}
-                className="h-8 w-8"
-                priority
-              />
+              <BrandLogo className="h-8 w-8 text-[var(--app-primary)]" />
               <span className="text-xl sm:text-2xl tracking-tight text-app-primary dark:text-app-dark-primary font-bold">
                 VestLedger
               </span>
