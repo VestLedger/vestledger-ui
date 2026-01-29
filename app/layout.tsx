@@ -8,8 +8,8 @@ export const metadata: Metadata = {
   description: 'The next-generation workflow management system designed for venture capitalists.',
   manifest: '/manifest.webmanifest',
   icons: {
-    icon: '/icons/icon-192.png',
-    apple: '/icons/icon-192.png',
+    icon: '/logo/FullLogo_Transparent_NoBuffer.png',
+    apple: '/logo/FullLogo_Transparent_NoBuffer.png',
   },
 }
 
