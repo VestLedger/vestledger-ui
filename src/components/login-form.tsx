@@ -149,7 +149,7 @@ export function LoginForm() {
         <div className="text-center text-sm text-app-text-muted dark:text-app-dark-text-muted">
           Don&apos;t have an account?{' '}
           <a
-            href={`${process.env.NEXT_PUBLIC_PUBLIC_DOMAIN ? `https://${process.env.NEXT_PUBLIC_PUBLIC_DOMAIN}` : 'http://vestledger.local:3000'}/eoi`}
+            href="/eoi"
             className="text-app-primary dark:text-app-dark-primary hover:underline"
           >
             Request Access
