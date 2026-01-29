@@ -5,10 +5,12 @@ import { TrendingUp, DollarSign, PieChart, Target, Calendar, Activity } from 'lu
 import { MetricsGrid } from '@/components/ui';
 import type { MetricsGridItem } from '@/components/ui';
 import { getBenchmarkData, getCurrentFundMetrics } from '@/services/analytics/fundAnalyticsService';
+import { useFund } from '@/contexts/fund-context';
 
 export function FundPerformanceOverview() {
-  const currentFund = getCurrentFundMetrics();
-  const benchmarkData = getBenchmarkData();
+  const { selectedFund } = useFund();
+  const currentFund = getCurrentFundMetrics(selectedFund?.id);
+  const benchmarkData = getBenchmarkData(selectedFund?.id);
   const metricCardClassName = 'hover:border-[var(--app-primary)] transition-all';
   const metricCardIconContainerClassName = 'p-2 rounded-lg bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-secondary)]';
   const metricCardIconClassName = 'w-5 h-5 text-white';

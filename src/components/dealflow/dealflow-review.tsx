@@ -34,6 +34,7 @@ export function DealflowReview() {
   const { value: votes, patch: patchVotes } = useUIKey<Vote[]>('dealflow-review-votes', []);
   const { value: myVote, patch: patchMyVote } = useUIKey<'yes' | 'no' | 'maybe' | null>('dealflow-review-my-vote', null);
   const { value: voteComment, patch: patchVoteComment } = useUIKey<string>('dealflow-review-vote-comment', '');
+  const { value: currentDealIndex, patch: patchCurrentDealIndex } = useUIKey<number>('dealflow-review-deal-index', 0);
 
   const { currentSlideIndex } = ui;
 
@@ -54,7 +55,8 @@ export function DealflowReview() {
   }
 
   const deals = data?.deals || [];
-  const selectedDeal = deals[0];
+  const safeDealIndex = Math.min(Math.max(currentDealIndex, 0), deals.length - 1);
+  const selectedDeal = deals[safeDealIndex];
   const slides = selectedDeal ? getDealflowReviewSlides(selectedDeal) : [];
 
   if (!selectedDeal) {
@@ -307,12 +309,37 @@ export function DealflowReview() {
     }
   };
 
+  const nextDeal = () => {
+    if (safeDealIndex < deals.length - 1) {
+      patchCurrentDealIndex(safeDealIndex + 1);
+      patchUI({ currentSlideIndex: 0 }); // Reset to first slide
+      patchMyVote(null); // Reset vote
+      patchVoteComment(''); // Reset comment
+    }
+  };
+
+  const prevDeal = () => {
+    if (safeDealIndex > 0) {
+      patchCurrentDealIndex(safeDealIndex - 1);
+      patchUI({ currentSlideIndex: 0 }); // Reset to first slide
+      patchMyVote(null); // Reset vote
+      patchVoteComment(''); // Reset comment
+    }
+  };
+
+  const selectDeal = (index: number) => {
+    patchCurrentDealIndex(index);
+    patchUI({ currentSlideIndex: 0 });
+    patchMyVote(null);
+    patchVoteComment('');
+  };
+
   return (
     <PageScaffold
       routePath="/dealflow-review"
       header={{
         title: 'Dealflow Review',
-        description: 'Collaborative deal review with slide presentation and team voting',
+        description: `Collaborative deal review with slide presentation and team voting`,
         icon: FileSearch,
         aiSummary: {
           text: totalVotes > 0
@@ -337,6 +364,59 @@ export function DealflowReview() {
         ],
       }}
     >
+      {/* Deal Selector */}
+      <div className="mt-6 mb-4">
+        <Card padding="md">
+          <div className="flex items-center justify-between gap-4">
+            <Button
+              variant="flat"
+              size="sm"
+              startContent={<SkipBack className="w-4 h-4" />}
+              onPress={prevDeal}
+              isDisabled={safeDealIndex === 0}
+            >
+              Previous
+            </Button>
+
+            <div className="flex-1 flex items-center gap-2 overflow-x-auto">
+              {deals.map((deal, idx) => (
+                <button
+                  key={deal.id}
+                  onClick={() => selectDeal(idx)}
+                  className={`flex-shrink-0 px-4 py-2 rounded-lg transition-all border-2 ${idx === safeDealIndex
+                      ? 'bg-[var(--app-primary)] text-white border-[var(--app-primary)] shadow-md scale-105'
+                      : 'bg-[var(--app-surface-hover)] hover:bg-[var(--app-border)] text-[var(--app-text)] border-transparent hover:border-[var(--app-border)]'
+                    }`}
+                >
+                  <div className="text-left">
+                    <p className="text-sm font-semibold whitespace-nowrap">{deal.companyName}</p>
+                    <p className="text-xs opacity-75 whitespace-nowrap">{deal.sector} • {deal.stage}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <Button
+              variant="flat"
+              size="sm"
+              endContent={<SkipForward className="w-4 h-4" />}
+              onPress={nextDeal}
+              isDisabled={safeDealIndex === deals.length - 1}
+            >
+              Next
+            </Button>
+          </div>
+          <div className="mt-3 text-center">
+            <span className="text-xs text-[var(--app-text-muted)]">
+              Reviewing deal {safeDealIndex + 1} of {deals.length}
+            </span>
+            <span className="mx-2 text-[var(--app-text-subtle)]">•</span>
+            <span className="text-xs font-semibold text-[var(--app-primary)]">
+              {selectedDeal.companyName}
+            </span>
+          </div>
+        </Card>
+      </div>
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Slide Navigation */}
         <div className="lg:col-span-1">

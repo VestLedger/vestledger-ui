@@ -10,10 +10,15 @@ import { ConcentrationRisk } from './analytics/concentration-risk';
 import { FundSelector } from './fund-selector';
 import { useUIKey } from '@/store/ui';
 import { PageScaffold } from '@/components/ui';
+import { useFund } from '@/contexts/fund-context';
 
 export function Analytics() {
   const { value: ui, patch: patchUI } = useUIKey('analytics', { selected: 'performance' });
   const { selected } = ui;
+  const { selectedFund } = useFund();
+
+  // Use fund ID as key to force re-render when fund changes
+  const fundKey = selectedFund?.id || 'all';
 
   return (
     <PageScaffold
@@ -43,41 +48,41 @@ export function Analytics() {
         ),
       }}
     >
-      <div className="mt-6">
+      <div className="mt-6" key={fundKey}>
         {selected === 'performance' && (
           <div className="space-y-8">
-            <FundPerformanceOverview />
-            <JCurveChart />
+            <FundPerformanceOverview key={`perf-${fundKey}`} />
+            <JCurveChart key={`jcurve-${fundKey}`} />
           </div>
         )}
 
         {selected === 'j-curve' && (
           <div>
-            <JCurveChart />
+            <JCurveChart key={`jcurve-${fundKey}`} />
           </div>
         )}
 
         {selected === 'cohort' && (
           <div>
-            <CohortAnalysis />
+            <CohortAnalysis key={`cohort-${fundKey}`} />
           </div>
         )}
 
         {selected === 'valuation' && (
           <div>
-            <ValuationTrends />
+            <ValuationTrends key={`valuation-${fundKey}`} />
           </div>
         )}
 
         {selected === 'deployment' && (
           <div>
-            <DeploymentPacing />
+            <DeploymentPacing key={`deployment-${fundKey}`} />
           </div>
         )}
 
         {selected === 'risk' && (
           <div>
-            <ConcentrationRisk />
+            <ConcentrationRisk key={`risk-${fundKey}`} />
           </div>
         )}
       </div>
