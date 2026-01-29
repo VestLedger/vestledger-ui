@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
+import { BrandLogo } from '../brand-logo';
 
 export function PublicFooter() {
   return (
@@ -10,13 +10,7 @@ export function PublicFooter() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-6 sm:mb-8">
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-3 sm:mb-4">
-              <Image
-                src="/logo/Print_Transparent.svg"
-                alt="VestLedger logo"
-                width={24}
-                height={24}
-                className="h-6 w-6"
-              />
+              <BrandLogo className="h-6 w-6 text-[var(--app-primary)]" />
               <h4 className="text-base sm:text-lg text-app-primary dark:text-app-dark-primary font-bold">VestLedger</h4>
             </Link>
             <p className="text-xs sm:text-sm text-app-text-muted dark:text-app-dark-text-muted">

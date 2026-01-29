@@ -158,7 +158,7 @@ export function AICopilotSidebar() {
       {/* Header */}
       <div className="flex items-center justify-between gap-2 px-4 h-[69px] border-b border-[var(--app-border)] bg-gradient-to-r from-[var(--app-primary-bg)] to-transparent">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-secondary)] flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--app-primary)] to-transparent flex items-center justify-center">
             <Bot className="w-4 h-4 text-white" />
           </div>
           <h2 className="text-sm font-semibold text-[var(--app-text)]">Vesta AI Copilot</h2>
@@ -204,7 +204,7 @@ export function AICopilotSidebar() {
                   <span
                     className={`
                       text-xs font-semibold
-                      ${suggestion.confidence >= 0.8 ? 'text-green-500' : suggestion.confidence >= 0.6 ? 'text-yellow-500' : 'text-red-500'}
+                      ${suggestion.confidence >= 0.8 ? 'text-[var(--app-success)]' : suggestion.confidence >= 0.6 ? 'text-[var(--app-warning)]' : 'text-[var(--app-danger)]'}
                     `}
                   >
                     {Math.round(suggestion.confidence * 100)}%

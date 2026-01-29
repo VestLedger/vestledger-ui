@@ -9,8 +9,10 @@ const { colors } = require("./src/styles/colors");
  *
  * Usage in components:
  * - Tailwind classes: bg-app-primary, text-app-muted, border-app-border
- * - Dark mode: dark:bg-app-primary (automatically uses dark palette)
+ * - Dark mode: dark:bg-app-dark-primary (automatically uses dark palette)
  * - NextUI props: color="primary", color="danger"
+ *
+ * PALETTE: Blue & Gold
  */
 
 /** @type {import('tailwindcss').Config} */
@@ -37,14 +39,23 @@ module.exports = {
           "text-subtle": colors.light["text-subtle"],
           primary: colors.light.primary,
           "primary-hover": colors.light["primary-hover"],
+          "primary-light": colors.light["primary-light"],
           secondary: colors.light.secondary,
           "secondary-hover": colors.light["secondary-hover"],
+          "secondary-light": colors.light["secondary-light"],
           success: colors.light.success,
+          "success-light": colors.light["success-light"],
           warning: colors.light.warning,
+          "warning-light": colors.light["warning-light"],
           danger: colors.light.danger,
+          "danger-light": colors.light["danger-light"],
           info: colors.light.info,
+          "info-light": colors.light["info-light"],
+          neutral: colors.light.neutral,
+          "neutral-light": colors.light["neutral-light"],
           accent: colors.light.accent,
           "accent-hover": colors.light["accent-hover"],
+          "accent-light": colors.light["accent-light"],
           link: colors.light.link,
           "link-hover": colors.light["link-hover"],
         },
@@ -62,14 +73,23 @@ module.exports = {
           "text-subtle": colors.dark["text-subtle"],
           primary: colors.dark.primary,
           "primary-hover": colors.dark["primary-hover"],
+          "primary-light": colors.dark["primary-light"],
           secondary: colors.dark.secondary,
           "secondary-hover": colors.dark["secondary-hover"],
+          "secondary-light": colors.dark["secondary-light"],
           success: colors.dark.success,
+          "success-light": colors.dark["success-light"],
           warning: colors.dark.warning,
+          "warning-light": colors.dark["warning-light"],
           danger: colors.dark.danger,
+          "danger-light": colors.dark["danger-light"],
           info: colors.dark.info,
+          "info-light": colors.dark["info-light"],
+          neutral: colors.dark.neutral,
+          "neutral-light": colors.dark["neutral-light"],
           accent: colors.dark.accent,
           "accent-hover": colors.dark["accent-hover"],
+          "accent-light": colors.dark["accent-light"],
           link: colors.dark.link,
           "link-hover": colors.dark["link-hover"],
         },

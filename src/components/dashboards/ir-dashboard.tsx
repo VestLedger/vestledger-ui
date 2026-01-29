@@ -86,7 +86,7 @@ export function IRDashboard() {
 
         <Card padding="md">
           <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-blue-500" />
+            <Calendar className="w-5 h-5 text-[var(--app-info)]" />
             Upcoming Tasks
           </h3>
           <div className="space-y-3">
@@ -96,7 +96,7 @@ export function IRDashboard() {
                    <div className="text-sm font-medium">{item.task}</div>
                    <div className="text-xs text-[var(--app-text-muted)]">Due: {item.due}</div>
                  </div>
-                 <span className={`text-[10px] px-1.5 py-0.5 rounded ${item.priority === 'High' ? 'bg-red-500/10 text-red-500' : 'bg-yellow-500/10 text-yellow-500'}`}>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded ${item.priority === 'High' ? 'bg-[var(--app-danger-bg)] text-[var(--app-danger)]' : 'bg-[var(--app-warning-bg)] text-[var(--app-warning)]'}`}>
                    {item.priority}
                  </span>
               </div>

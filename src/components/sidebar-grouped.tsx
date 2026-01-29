@@ -10,7 +10,7 @@ import { useNavigation } from '@/contexts/navigation-context';
 import { useAIBadges } from '@/hooks/use-ai-badges';
 import { useAuth, UserRole } from '@/contexts/auth-context';
 import { useUIKey } from '@/store/ui';
-import Image from 'next/image';
+import { BrandLogo } from './brand-logo';
 
 // Define navigation structure
 const navigationStructure = {
@@ -147,25 +147,13 @@ export function SidebarGrouped() {
         {effectivelyCollapsed ? (
           <div className="flex items-center justify-center w-full">
             <div className="w-9 h-9 rounded-lg bg-app-surface/80 dark:bg-app-dark-surface/80 border border-app-border dark:border-app-dark-border flex items-center justify-center">
-              <Image
-                src="/logo/Print_Transparent.svg"
-                alt="VestLedger logo"
-                width={24}
-                height={24}
-                className="h-6 w-6"
-              />
+              <BrandLogo className="h-6 w-6 text-[var(--app-primary)]" />
             </div>
           </div>
         ) : (
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-app-surface/80 dark:bg-app-dark-surface/80 border border-app-border dark:border-app-dark-border flex items-center justify-center">
-              <Image
-                src="/logo/Print_Transparent.svg"
-                alt="VestLedger logo"
-                width={24}
-                height={24}
-                className="h-6 w-6"
-              />
+                <BrandLogo className="h-6 w-6 text-[var(--app-primary)]" />
             </div>
             <div>
               <h1 className="text-sm font-bold text-app-text dark:text-app-dark-text">VestLedger</h1>

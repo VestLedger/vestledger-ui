@@ -96,7 +96,7 @@ export function AnalystDashboard() {
                      <span className="text-xs text-[var(--app-text-muted)] flex items-center gap-1">
                        <Clock className="w-3 h-3" /> {item.due}
                      </span>
-                     <span className={`text-[10px] px-1.5 py-0.5 rounded ${item.priority === 'High' ? 'bg-red-500/10 text-red-500' : 'bg-yellow-500/10 text-yellow-500'}`}>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded ${item.priority === 'High' ? 'bg-[var(--app-danger-bg)] text-[var(--app-danger)]' : 'bg-[var(--app-warning-bg)] text-[var(--app-warning)]'}`}>
                        {item.priority}
                      </span>
                    </div>

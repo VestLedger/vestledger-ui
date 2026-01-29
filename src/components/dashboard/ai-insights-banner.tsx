@@ -30,15 +30,15 @@ export function AIInsightsBanner({ insight }: AIInsightsBannerProps) {
   const { isExpanded } = ui;
 
   const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 0.9) return 'text-green-500';
-    if (confidence >= 0.75) return 'text-yellow-500';
-    return 'text-orange-500';
+    if (confidence >= 0.9) return 'text-[var(--app-success)]';
+    if (confidence >= 0.75) return 'text-[var(--app-warning)]';
+    return 'text-[var(--app-danger)]';
   };
 
   const getConfidenceBg = (confidence: number) => {
-    if (confidence >= 0.9) return 'bg-green-500/10 border-green-500/20';
-    if (confidence >= 0.75) return 'bg-yellow-500/10 border-yellow-500/20';
-    return 'bg-orange-500/10 border-orange-500/20';
+    if (confidence >= 0.9) return 'bg-[var(--app-success-bg)] border-[var(--app-success)]/20';
+    if (confidence >= 0.75) return 'bg-[var(--app-warning-bg)] border-[var(--app-warning)]/20';
+    return 'bg-[var(--app-danger-bg)] border-[var(--app-danger)]/20';
   };
 
   const getCategoryIcon = (category: string) => {

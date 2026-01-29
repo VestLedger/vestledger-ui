@@ -97,15 +97,15 @@ export function ResearcherDashboard() {
                  <div>
                    <div className="text-sm font-medium">{item.topic}</div>
                    <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                     item.sentiment === 'Hot' ? 'bg-red-500/10 text-red-500' : 
-                     item.sentiment === 'Rising' ? 'bg-green-500/10 text-green-500' : 
-                     item.sentiment === 'Mixed' ? 'bg-yellow-500/10 text-yellow-500' :
-                     'bg-gray-500/10 text-gray-500'
+                    item.sentiment === 'Hot' ? 'bg-[var(--app-danger-bg)] text-[var(--app-danger)]' :
+                      item.sentiment === 'Rising' ? 'bg-[var(--app-success-bg)] text-[var(--app-success)]' :
+                        item.sentiment === 'Mixed' ? 'bg-[var(--app-warning-bg)] text-[var(--app-warning)]' :
+                          'bg-[var(--app-neutral-bg)] text-[var(--app-neutral)]'
                    }`}>
                      {item.sentiment}
                    </span>
                  </div>
-                 <span className={`text-sm font-medium ${item.change.startsWith('+') ? 'text-green-500' : 'text-red-500'}`}>
+                <span className={`text-sm font-medium ${item.change.startsWith('+') ? 'text-[var(--app-success)]' : 'text-[var(--app-danger)]'}`}>
                    {item.change}
                  </span>
               </div>

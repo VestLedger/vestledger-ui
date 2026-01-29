@@ -35,7 +35,7 @@ function CohortRow({ cohort, bestMOIC, bestIRR }: CohortRowProps) {
       {/* Cohort Name */}
       <div className="col-span-12 sm:col-span-3">
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-accent)] flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[var(--app-primary)] to-transparent flex items-center justify-center flex-shrink-0">
             <span className="text-white font-semibold text-sm">{cohort.count}</span>
           </div>
           <div>

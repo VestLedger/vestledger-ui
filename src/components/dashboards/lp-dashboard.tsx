@@ -249,7 +249,7 @@ export function LPDashboard() {
 
         <Card padding="md">
           <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-green-500" />
+            <DollarSign className="w-5 h-5 text-[var(--app-success)]" />
             Capital Activity
           </h3>
           <div className="space-y-3">
@@ -260,7 +260,7 @@ export function LPDashboard() {
                    <div className="text-xs text-[var(--app-text-muted)]">{item.date}</div>
                  </div>
                  <div className="text-right">
-                   <div className={`font-medium ${item.type === 'Distribution' ? 'text-green-500' : ''}`}>{item.amount}</div>
+                  <div className={`font-medium ${item.type === 'Distribution' ? 'text-[var(--app-success)]' : ''}`}>{item.amount}</div>
                    <Badge size="sm" variant="flat" color={item.status === 'Paid' || item.status === 'Received' ? 'success' : 'warning'}>
                      {item.status}
                    </Badge>

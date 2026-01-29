@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Button, Input, Card } from '@/ui';
 import { Select, SelectItem } from '@nextui-org/react';
 import { useAuth, PERSONA_CONFIG, UserRole } from '@/contexts/auth-context';
-import Image from 'next/image';
+import { BrandLogo } from './brand-logo';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
@@ -70,14 +70,7 @@ export function LoginForm() {
     <Card padding="lg">
       <div className="text-center mb-8">
         <div className="flex items-center justify-center gap-3 mb-4">
-          <Image
-            src="/logo/Print_Transparent.svg"
-            alt="VestLedger logo"
-            width={48}
-            height={48}
-            className="h-12 w-12"
-            priority
-          />
+          <BrandLogo className="h-12 w-12 text-[var(--app-primary)]" />
           <span className="text-2xl font-bold text-app-primary dark:text-app-dark-primary">VestLedger</span>
         </div>
         <h1 className="text-2xl font-semibold mb-2">Welcome back</h1>
@@ -131,7 +124,7 @@ export function LoginForm() {
         />
 
         {error && (
-          <div className="p-3 rounded-md bg-red-500/10 border border-red-500/20 text-red-500 text-sm">
+          <div className="p-3 rounded-md bg-[var(--app-danger-bg)] border border-[var(--app-danger-bg)] text-[var(--app-danger)] text-sm">
             {error.message || 'Login failed. Please check your credentials.'}
           </div>
         )}

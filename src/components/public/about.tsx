@@ -166,7 +166,7 @@ export default function AboutPage() {
               const Icon = value.icon;
               return (
                 <Card key={idx} padding="lg" className="text-center card-elevated">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#047857] to-[#10b981] flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-app-primary to-app-accent dark:from-app-dark-primary dark:to-app-dark-accent flex items-center justify-center mx-auto mb-4 shadow-lg">
                     <Icon className="w-6 h-6 text-white" />
                   </div>
                   <h3 className="text-lg font-bold mb-2">{value.title}</h3>
@@ -227,7 +227,7 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {team.map((member, idx) => (
               <Card key={idx} padding="lg" className="text-center hover:border-[var(--app-primary)] transition-colors">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-secondary)] flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4" role="img" aria-label={`${member.name} profile picture`}>
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[var(--app-primary)] to-transparent flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4" role="img" aria-label={`${member.name} profile picture`}>
                   {member.image}
                 </div>
                 <h3 className="text-lg font-bold mb-1">{member.name}</h3>
