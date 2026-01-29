@@ -3,9 +3,11 @@
 import { Card } from '@/ui';
 import { getJCurveData } from '@/services/analytics/fundAnalyticsService';
 import { TrendingUp, Info } from 'lucide-react';
+import { useFund } from '@/contexts/fund-context';
 
 export function JCurveChart() {
-  const jCurveData = getJCurveData();
+  const { selectedFund } = useFund();
+  const jCurveData = getJCurveData(selectedFund?.id);
   // Calculate dimensions for the chart
   const maxIRR = Math.max(...jCurveData.map(d => d.cumulativeIRR));
   const minIRR = Math.min(...jCurveData.map(d => d.cumulativeIRR));

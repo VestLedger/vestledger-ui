@@ -3,9 +3,11 @@
 import { Card } from '@/ui';
 import { getValuationTrends } from '@/services/analytics/fundAnalyticsService';
 import { DollarSign } from 'lucide-react';
+import { useFund } from '@/contexts/fund-context';
 
 export function ValuationTrends() {
-  const valuationTrends = getValuationTrends();
+  const { selectedFund } = useFund();
+  const valuationTrends = getValuationTrends(selectedFund?.id);
   // Calculate dimensions for the chart
   const maxValue = Math.max(...valuationTrends.map(d => d.portfolioValue));
   const maxTVPI = Math.max(...valuationTrends.map(d => d.tvpi));

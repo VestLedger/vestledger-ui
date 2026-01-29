@@ -67,7 +67,7 @@ export function FundSelector() {
         <div className="absolute top-full right-0 mt-2 z-50 w-80 min-w-[260px] max-w-[calc(100vw-1rem)]">
           <Card padding="sm" className="shadow-lg">
             <div className="space-y-1">
-              {/* Consolidated View Option */}
+              {/* All Funds Option */}
               <button
                 className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
                   viewMode === 'consolidated'
@@ -89,8 +89,6 @@ export function FundSelector() {
                   {viewMode === 'consolidated' && <Check className="w-4 h-4" />}
                 </div>
               </button>
-
-              <div className="my-2 border-t border-[var(--app-border)]" />
 
               {/* Individual Funds */}
               {funds.map((fund) => (

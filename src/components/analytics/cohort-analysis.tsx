@@ -9,6 +9,7 @@ import {
   type CohortPerformance,
 } from '@/services/analytics/fundAnalyticsService';
 import { useUIKey } from '@/store/ui';
+import { useFund } from '@/contexts/fund-context';
 
 type CohortType = 'vintage' | 'sector' | 'stage';
 
@@ -104,9 +105,10 @@ function CohortRow({ cohort, bestMOIC, bestIRR }: CohortRowProps) {
 }
 
 export function CohortAnalysis() {
-  const cohortsByVintage = getCohortsByVintage();
-  const cohortsBySector = getCohortsBySector();
-  const cohortsByStage = getCohortsByStage();
+  const { selectedFund } = useFund();
+  const cohortsByVintage = getCohortsByVintage(selectedFund?.id);
+  const cohortsBySector = getCohortsBySector(selectedFund?.id);
+  const cohortsByStage = getCohortsByStage(selectedFund?.id);
   const { value: ui, patch: patchUI } = useUIKey<{ selectedType: CohortType }>('cohort-analysis', {
     selectedType: 'vintage',
   });

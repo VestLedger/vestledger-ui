@@ -4,18 +4,28 @@ import {
   cohortsBySector,
   cohortsByStage,
   cohortsByVintage,
+  cohortsBySectorByFund,
+  cohortsByStageByFund,
+  cohortsByVintageByFund,
   concentrationByCompany,
   concentrationBySector,
   concentrationByStage,
+  concentrationByCompanyByFund,
+  concentrationBySectorByFund,
+  concentrationByStageByFund,
   currentFund,
+  fundMetricsData,
   deploymentPacing,
+  deploymentPacingByFund,
   jCurveData,
+  jCurveDataByFund,
   valuationTrends,
+  valuationTrendsByFund,
   type CohortPerformance,
   type ConcentrationMetric,
   type FundMetrics,
   type JCurveDataPoint,
-} from '@/data/mocks/mock-fund-analytics-data';
+} from "@/data/mocks/mock-fund-analytics-data";
 
 export type {
   CohortPerformance,
@@ -24,53 +34,97 @@ export type {
   JCurveDataPoint,
 };
 
-export function getJCurveData(): JCurveDataPoint[] {
-  if (isMockMode()) return jCurveData;
-  throw new Error('Fund analytics API not implemented yet');
-}
-
-export function getValuationTrends() {
-  if (isMockMode()) return valuationTrends;
-  throw new Error('Fund analytics API not implemented yet');
-}
-
-export function getCurrentFundMetrics(): FundMetrics {
-  if (isMockMode()) return currentFund;
-  throw new Error('Fund analytics API not implemented yet');
-}
-
-export function getBenchmarkData() {
-  if (isMockMode()) return benchmarkData;
-  throw new Error('Fund analytics API not implemented yet');
-}
-
-export function getDeploymentPacing() {
-  if (isMockMode()) return deploymentPacing;
-  throw new Error('Fund analytics API not implemented yet');
-}
-
-export function getConcentrationRiskMetrics() {
+export function getJCurveData(fundId?: string): JCurveDataPoint[] {
   if (isMockMode()) {
+    const key = fundId || "all";
+    if (jCurveDataByFund[key]) {
+      return jCurveDataByFund[key];
+    }
+    return jCurveData;
+  }
+  throw new Error("Fund analytics API not implemented yet");
+}
+
+export function getValuationTrends(fundId?: string) {
+  if (isMockMode()) {
+    const key = fundId || "all";
+    if (valuationTrendsByFund[key]) {
+      return valuationTrendsByFund[key];
+    }
+    return valuationTrends;
+  }
+  throw new Error("Fund analytics API not implemented yet");
+}
+
+export function getCurrentFundMetrics(fundId?: string): FundMetrics {
+  if (isMockMode()) {
+    const key = fundId || "all";
+    if (fundMetricsData[key]) {
+      return fundMetricsData[key];
+    }
+    return currentFund;
+  }
+  throw new Error("Fund analytics API not implemented yet");
+}
+
+export function getBenchmarkData(_fundId?: string) {
+  if (isMockMode()) return benchmarkData;
+  throw new Error("Fund analytics API not implemented yet");
+}
+
+export function getDeploymentPacing(fundId?: string) {
+  if (isMockMode()) {
+    const key = fundId || "all";
+    if (deploymentPacingByFund[key]) {
+      return deploymentPacingByFund[key];
+    }
+    return deploymentPacing;
+  }
+  throw new Error("Fund analytics API not implemented yet");
+}
+
+export function getConcentrationRiskMetrics(fundId?: string) {
+  if (isMockMode()) {
+    const key = fundId || "all";
     return {
-      byCompany: concentrationByCompany,
-      bySector: concentrationBySector,
-      byStage: concentrationByStage,
+      byCompany:
+        concentrationByCompanyByFund[key] || concentrationByCompany,
+      bySector: concentrationBySectorByFund[key] || concentrationBySector,
+      byStage: concentrationByStageByFund[key] || concentrationByStage,
     };
   }
-  throw new Error('Fund analytics API not implemented yet');
+  throw new Error("Fund analytics API not implemented yet");
 }
 
-export function getCohortsByVintage(): CohortPerformance[] {
-  if (isMockMode()) return cohortsByVintage;
-  throw new Error('Fund analytics API not implemented yet');
+export function getCohortsByVintage(fundId?: string): CohortPerformance[] {
+  if (isMockMode()) {
+    const key = fundId || "all";
+    if (cohortsByVintageByFund[key]) {
+      return cohortsByVintageByFund[key];
+    }
+    return cohortsByVintage;
+  }
+  throw new Error("Fund analytics API not implemented yet");
 }
 
-export function getCohortsBySector(): CohortPerformance[] {
-  if (isMockMode()) return cohortsBySector;
-  throw new Error('Fund analytics API not implemented yet');
+export function getCohortsBySector(fundId?: string): CohortPerformance[] {
+  if (isMockMode()) {
+    const key = fundId || "all";
+    if (cohortsBySectorByFund[key]) {
+      return cohortsBySectorByFund[key];
+    }
+    return cohortsBySector;
+  }
+  throw new Error("Fund analytics API not implemented yet");
 }
 
-export function getCohortsByStage(): CohortPerformance[] {
-  if (isMockMode()) return cohortsByStage;
-  throw new Error('Fund analytics API not implemented yet');
+export function getCohortsByStage(fundId?: string): CohortPerformance[] {
+  if (isMockMode()) {
+    const key = fundId || "all";
+    if (cohortsByStageByFund[key]) {
+      return cohortsByStageByFund[key];
+    }
+    return cohortsByStage;
+  }
+  throw new Error("Fund analytics API not implemented yet");
 }

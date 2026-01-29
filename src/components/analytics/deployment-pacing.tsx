@@ -3,10 +3,12 @@
 import { Card, Progress } from '@/ui';
 import { getCurrentFundMetrics, getDeploymentPacing } from '@/services/analytics/fundAnalyticsService';
 import { Activity, TrendingUp } from 'lucide-react';
+import { useFund } from '@/contexts/fund-context';
 
 export function DeploymentPacing() {
-  const deploymentPacing = getDeploymentPacing();
-  const currentFund = getCurrentFundMetrics();
+  const { selectedFund } = useFund();
+  const deploymentPacing = getDeploymentPacing(selectedFund?.id);
+  const currentFund = getCurrentFundMetrics(selectedFund?.id);
   // Calculate dimensions for the chart
   const maxDeployed = Math.max(...deploymentPacing.map(d => d.deployed));
   const maxCumulative = Math.max(...deploymentPacing.map(d => d.cumulativeDeployed));
