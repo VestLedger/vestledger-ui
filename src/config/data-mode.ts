@@ -24,8 +24,8 @@ export type FeatureName =
  * If not specified, falls back to global DATA_MODE.
  */
 const featureFlags: Partial<Record<FeatureName, boolean>> = {
-  // Auth is backed by the API; keep other features in mock mode for now.
-  auth: true,
+  // Auth uses mock mode for demo (allows demo@vestledger.com to work in production)
+  auth: false,
   // funds: true,       // Use real funds API
   // dashboards: false, // Force mock mode for dashboards
 };
