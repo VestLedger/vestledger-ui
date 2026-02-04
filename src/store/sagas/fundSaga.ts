@@ -3,6 +3,7 @@ import type { SagaIterator } from 'redux-saga';
 import type { RootState } from '@/store/rootReducer';
 import type { Fund, FundViewMode } from '@/types/fund';
 import { fundHydrated, fundsLoaded, fundsFailed, fundsRequested, setSelectedFundId, setViewMode } from '@/store/slices/fundSlice';
+import { authSelectors, loginSucceeded } from '@/store/slices/authSlice';
 import { clientMounted } from '@/store/slices/uiEffectsSlice';
 import { fetchFunds } from '@/services/fundsService';
 import { safeLocalStorage } from '@/lib/storage/safeLocalStorage';
@@ -69,7 +70,17 @@ export function* fundSaga(): SagaIterator {
   yield takeLatest(setSelectedFundId.type, persistSelectedFundIdWorker);
   yield takeLatest(setViewMode.type, persistViewModeWorker);
 
-  // Then dispatch initial load and hydration
+  // Hydrate fund UI state from localStorage
   yield call(hydrateFundWorker);
-  yield put(fundsRequested({}));
+
+  // Only load funds if already authenticated (e.g., page refresh with saved session)
+  const isAuthenticated: boolean = yield select(authSelectors.selectIsAuthenticated);
+  if (isAuthenticated) {
+    yield put(fundsRequested({}));
+  }
+
+  // Also load funds when user logs in
+  yield takeLatest(loginSucceeded.type, function* () {
+    yield put(fundsRequested({}));
+  });
 }

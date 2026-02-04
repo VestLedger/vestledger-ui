@@ -25,9 +25,13 @@ export type FeatureName =
  */
 const featureFlags: Partial<Record<FeatureName, boolean>> = {
   // Auth uses mock mode for demo (allows demo@vestledger.com to work in production)
-  auth: false,
-  // funds: true,       // Use real funds API
-  // dashboards: false, // Force mock mode for dashboards
+  auth: true,
+  // Enable real API for integrated features
+  funds: true,
+  portfolio: true,
+  dashboards: true,
+  backOffice: true,
+  alerts: true,
 };
 
 export function getDataMode(): DataMode {
