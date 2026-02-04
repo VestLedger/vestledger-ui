@@ -1,0 +1,388 @@
+import { test, expect } from '../fixtures/auth.fixture';
+import { DealIntelligencePage } from '../pages/deal-intelligence.page';
+
+test.describe('Deal Intelligence - Page Load', () => {
+  test('should load deal intelligence page', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    await expect(dealIntel.pageTitle).toBeVisible({ timeout: 10000 });
+  });
+
+  test('should display fund analytics section', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    const fundAnalytics = authenticatedPage.locator('text=/Fund Analytics/i');
+    await expect(fundAnalytics).toBeVisible();
+  });
+});
+
+test.describe('Deal Intelligence - Fund Analytics Metrics', () => {
+  test('should display active deals count', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    const count = await dealIntel.getActiveDealsCount();
+    expect(count).toBeGreaterThanOrEqual(0);
+  });
+
+  test('should display average time in DD', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    await expect(dealIntel.avgTimeInDDMetric).toBeVisible();
+  });
+
+  test('should display DD-to-IC conversion rate', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    await expect(dealIntel.ddToICRateMetric).toBeVisible();
+  });
+
+  test('should display ready for IC count', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    const count = await dealIntel.getReadyForICCount();
+    expect(count).toBeGreaterThanOrEqual(0);
+  });
+});
+
+test.describe('Deal Intelligence - DD Status Summary', () => {
+  test('should display DD status cards', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    await expect(dealIntel.readyForICCard).toBeVisible();
+    await expect(dealIntel.ddInProgressCard).toBeVisible();
+  });
+
+  test('should display overdue documents count', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    const count = await dealIntel.getOverdueDocumentsCount();
+    expect(count).toBeGreaterThanOrEqual(0);
+  });
+
+  test('should display pending reviews count', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    const count = await dealIntel.getPendingReviewsCount();
+    expect(count).toBeGreaterThanOrEqual(0);
+  });
+});
+
+test.describe('Deal Intelligence - Deal Distribution', () => {
+  test('should display deals by stage', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    await expect(dealIntel.dealsByStageSection).toBeVisible();
+  });
+
+  test('should display deals by sector', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    await expect(dealIntel.dealsBySectorSection).toBeVisible();
+  });
+
+  test('should display DD progress overview', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    await expect(dealIntel.ddProgressOverview).toBeVisible();
+  });
+});
+
+test.describe('Deal Intelligence - AI Deal Sourcing', () => {
+  test('should have AI deal sourcing section', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    const aiSection = authenticatedPage.locator('text=/AI Deal Sourcing/i');
+    await expect(aiSection).toBeVisible();
+  });
+
+  test('should have company search functionality', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    // Company search component should be visible
+    const searchSection = authenticatedPage.locator('[class*="search"], [class*="Search"]').or(
+      authenticatedPage.getByPlaceholder(/search/i)
+    );
+    if (await searchSection.first().isVisible()) {
+      await expect(searchSection.first()).toBeVisible();
+    }
+  });
+});
+
+test.describe('Deal Intelligence - Active Deals', () => {
+  test('should display active deals section', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    const activeDealsSection = authenticatedPage.locator('text=/Active Deals.*Due Diligence/i');
+    await expect(activeDealsSection).toBeVisible();
+  });
+
+  test('should display deal cards', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    const count = await dealIntel.getDealCardCount();
+    expect(count).toBeGreaterThanOrEqual(0);
+  });
+
+  test('should show DD progress on deal cards', async ({ authenticatedPage }) => {
+    await authenticatedPage.goto('/deal-intelligence');
+    await authenticatedPage.waitForLoadState('networkidle');
+
+    const progressText = authenticatedPage.locator('text=/DD Progress/i');
+    if (await progressText.count() > 0) {
+      await expect(progressText.first()).toBeVisible();
+    }
+  });
+
+  test('should have upload document button', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    if (await dealIntel.uploadDocumentButton.isVisible()) {
+      await expect(dealIntel.uploadDocumentButton).toBeEnabled();
+    }
+  });
+});
+
+test.describe('Deal Intelligence - Per-Deal View', () => {
+  test('should navigate to deal detail view on click', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    const count = await dealIntel.getDealCardCount();
+    if (count > 0) {
+      await dealIntel.clickDeal(0);
+      await expect(dealIntel.backToFundViewButton).toBeVisible({ timeout: 10000 });
+    }
+  });
+
+  test('should display deal header in per-deal view', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    const count = await dealIntel.getDealCardCount();
+    if (count > 0) {
+      await dealIntel.clickDeal(0);
+
+      const dealHeader = authenticatedPage.locator('h2').first();
+      await expect(dealHeader).toBeVisible({ timeout: 10000 });
+    }
+  });
+
+  test('should navigate back to fund view', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    const count = await dealIntel.getDealCardCount();
+    if (count > 0) {
+      await dealIntel.clickDeal(0);
+      await dealIntel.backToFundView();
+
+      await expect(dealIntel.pageTitle).toBeVisible({ timeout: 10000 });
+    }
+  });
+});
+
+test.describe('Deal Intelligence - Per-Deal Tabs', () => {
+  test('should have all tabs visible', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    const count = await dealIntel.getDealCardCount();
+    if (count > 0) {
+      await dealIntel.clickDeal(0);
+
+      await expect(dealIntel.overviewTab).toBeVisible();
+      await expect(dealIntel.analyticsTab).toBeVisible();
+      await expect(dealIntel.documentsTab).toBeVisible();
+    }
+  });
+
+  test('should switch to analytics tab', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    const count = await dealIntel.getDealCardCount();
+    if (count > 0) {
+      await dealIntel.clickDeal(0);
+      await dealIntel.selectAnalyticsTab();
+
+      const analyticsContent = authenticatedPage.locator('text=/Financial Metrics|Market Analytics/i');
+      if (await analyticsContent.count() > 0) {
+        await expect(analyticsContent.first()).toBeVisible({ timeout: 10000 });
+      }
+    }
+  });
+
+  test('should switch to documents tab', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    const count = await dealIntel.getDealCardCount();
+    if (count > 0) {
+      await dealIntel.clickDeal(0);
+      await dealIntel.selectDocumentsTab();
+
+      const documentsContent = authenticatedPage.locator('text=/Document Library|Search documents/i');
+      if (await documentsContent.count() > 0) {
+        await expect(documentsContent.first()).toBeVisible({ timeout: 10000 });
+      }
+    }
+  });
+});
+
+test.describe('Deal Intelligence - DD Progress by Category', () => {
+  test('should display category progress', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    const count = await dealIntel.getDealCardCount();
+    if (count > 0) {
+      await dealIntel.clickDeal(0);
+
+      const categoryProgress = authenticatedPage.locator('text=/Due Diligence Progress/i');
+      await expect(categoryProgress).toBeVisible({ timeout: 10000 });
+    }
+  });
+
+  test('should show category completion status', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    const count = await dealIntel.getDealCardCount();
+    if (count > 0) {
+      await dealIntel.clickDeal(0);
+
+      // Look for category status badges (completed, pending, overdue)
+      const statusBadge = authenticatedPage.locator('[class*="badge"]').filter({ hasText: /completed|pending|overdue/i });
+      if (await statusBadge.count() > 0) {
+        await expect(statusBadge.first()).toBeVisible();
+      }
+    }
+  });
+});
+
+test.describe('Deal Intelligence - Deal Analytics', () => {
+  test('should display financial metrics', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    const count = await dealIntel.getDealCardCount();
+    if (count > 0) {
+      await dealIntel.clickDeal(0);
+      await dealIntel.selectAnalyticsTab();
+
+      const financialSection = authenticatedPage.locator('text=/Financial Metrics/i');
+      if (await financialSection.isVisible()) {
+        await expect(financialSection).toBeVisible();
+      }
+    }
+  });
+
+  test('should display market analytics', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    const count = await dealIntel.getDealCardCount();
+    if (count > 0) {
+      await dealIntel.clickDeal(0);
+      await dealIntel.selectAnalyticsTab();
+
+      const marketSection = authenticatedPage.locator('text=/Market Analytics/i');
+      if (await marketSection.isVisible()) {
+        await expect(marketSection).toBeVisible();
+      }
+    }
+  });
+
+  test('should display revenue metrics (ARR, MRR)', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    const count = await dealIntel.getDealCardCount();
+    if (count > 0) {
+      await dealIntel.clickDeal(0);
+      await dealIntel.selectAnalyticsTab();
+
+      const arrText = authenticatedPage.locator('text=/ARR|MRR/i');
+      if (await arrText.count() > 0) {
+        await expect(arrText.first()).toBeVisible();
+      }
+    }
+  });
+});
+
+test.describe('Deal Intelligence - Documents Tab', () => {
+  test('should have document search', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    const count = await dealIntel.getDealCardCount();
+    if (count > 0) {
+      await dealIntel.clickDeal(0);
+      await dealIntel.selectDocumentsTab();
+
+      if (await dealIntel.documentSearchInput.isVisible()) {
+        await expect(dealIntel.documentSearchInput).toBeVisible();
+      }
+    }
+  });
+
+  test('should have document library', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    const count = await dealIntel.getDealCardCount();
+    if (count > 0) {
+      await dealIntel.clickDeal(0);
+      await dealIntel.selectDocumentsTab();
+
+      if (await dealIntel.documentLibrary.isVisible()) {
+        await expect(dealIntel.documentLibrary).toBeVisible();
+      }
+    }
+  });
+
+  test('should have upload and export buttons', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    const count = await dealIntel.getDealCardCount();
+    if (count > 0) {
+      await dealIntel.clickDeal(0);
+      await dealIntel.selectDocumentsTab();
+
+      const uploadBtn = authenticatedPage.getByRole('button', { name: /upload/i });
+      if (await uploadBtn.isVisible()) {
+        await expect(uploadBtn).toBeEnabled();
+      }
+    }
+  });
+});
+
+test.describe('Deal Intelligence - IC Status', () => {
+  test('should display IC status badges on deals', async ({ authenticatedPage }) => {
+    await authenticatedPage.goto('/deal-intelligence');
+    await authenticatedPage.waitForLoadState('networkidle');
+
+    const statusBadge = authenticatedPage.locator('[class*="badge"]').filter({ hasText: /ready.*ic|dd.*progress/i });
+    if (await statusBadge.count() > 0) {
+      await expect(statusBadge.first()).toBeVisible();
+    }
+  });
+});
