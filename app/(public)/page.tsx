@@ -2,11 +2,11 @@ import { HomepageStatic } from '@/components/homepage-static';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'VestLedger - The Triad OS for Private Markets',
-  description: 'Institutional operating system for venture capital, private equity, and crypto funds. Tokenized ownership, automated operations, and AI-powered intelligence—unified on one platform.',
+  title: 'VestLedger - AI powered Capital',
+  description: 'Institutional operating system for venture capital and private equity. AI-powered intelligence, Tokenized ownership and automated operations unified on one platform.',
   openGraph: {
-    title: 'VestLedger - The Triad OS for Private Markets',
-    description: 'Institutional operating system for venture capital, private equity, and crypto funds.',
+    title: 'VestLedger - AI powered Capital',
+    description: 'Institutional operating system for venture capital and private equity. AI-powered intelligence, Tokenized ownership and automated operations unified on one platform.',
     type: 'website',
   },
 };
