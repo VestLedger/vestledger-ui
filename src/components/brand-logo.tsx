@@ -1,9 +1,5 @@
 import React from 'react';
 
-interface BrandLogoProps {
-  className?: string; // For sizing and text color (fill)
-}
-
 /**
  * Dynamic Brand Logo Component
  * 

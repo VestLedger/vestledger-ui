@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Button, Input, Card } from '@/ui';
 import { useAuth } from '@/contexts/auth-context';
 import { BrandLogo } from './brand-logo';
+import { getAuthErrorMessage } from '@/utils/auth-error-message';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
@@ -100,7 +101,7 @@ export function LoginForm() {
 
         {error && (
           <div className="p-3 rounded-md bg-[var(--app-danger-bg)] border border-[var(--app-danger-bg)] text-[var(--app-danger)] text-sm">
-            {error.message || 'Login failed. Please check your credentials.'}
+            {getAuthErrorMessage(error)}
           </div>
         )}
 

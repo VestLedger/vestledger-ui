@@ -6,11 +6,13 @@ import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { DashboardProviders } from '../providers-dashboard'
 import { useAuth } from '@/contexts/auth-context'
+import { useRouteSagas } from '@/hooks/use-route-sagas'
 import { NavigationProvider, useNavigation } from '@/contexts/navigation-context'
 import { SidebarGrouped } from '@/components/sidebar-grouped'
 import { Topbar } from '@/components/topbar'
 import { CommandPalette } from '@/components/command-palette'
 import { useKeyboardShortcut } from '@/hooks/use-keyboard-shortcut'
+import { LoadingState } from '@/components/ui/async-states'
 
 const AICopilotSidebar = dynamic(
   () => import('@/components/ai-copilot-sidebar').then((mod) => mod.AICopilotSidebar),
@@ -90,6 +92,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
   // Always call hooks (rules of hooks) - but only use auth for protected pages
   const { hydrated, isAuthenticated } = useAuth()
+  const sagasReady = useRouteSagas({ enabled: !isLoginPage })
 
   useEffect(() => {
     // Check if logout is in progress
@@ -117,9 +120,15 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     return null
   }
 
+  const resolvedChildren = sagasReady ? children : (
+    <div className="p-6">
+      <LoadingState message="Loading modules…" fullHeight={false} />
+    </div>
+  )
+
   return (
     <NavigationProvider>
-      <DashboardLayoutInner>{children}</DashboardLayoutInner>
+      <DashboardLayoutInner>{resolvedChildren}</DashboardLayoutInner>
     </NavigationProvider>
   )
 }

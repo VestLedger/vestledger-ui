@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Button } from '@/ui';
+import { Button } from '@/ui';
 import { Bot, ArrowRight, CheckCircle2, Sparkles, BookOpen, Zap } from 'lucide-react';
 import Link from 'next/link';
 

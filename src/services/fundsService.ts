@@ -14,7 +14,7 @@ export async function fetchFunds(_params: GetFundsParams): Promise<Fund[]> {
     return mockFunds;
   }
 
-  // API mode: Still throws (GraphQL not implemented)
+  // API mode: Return empty until backend is available.
   // Future: Replace with graphqlClient.query({ query: GET_FUNDS, variables: params })
-  throw new Error('Funds API not implemented yet');
+  return [];
 }

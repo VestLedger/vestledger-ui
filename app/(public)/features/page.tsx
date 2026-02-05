@@ -217,7 +217,7 @@ export default function FeaturesPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
           <h2 className="text-2xl sm:text-3xl font-bold mb-4">What Powers <span className="text-vesta-gold">Vesta</span></h2>
           <p className="text-lg text-app-text-muted dark:text-app-dark-text-muted max-w-2xl mx-auto">
-            Behind Vesta is VestLedger's institutional infrastructure—immutable records, automated operations, and unified data. You never touch it. Vesta does.
+            Behind Vesta is VestLedger&apos;s institutional infrastructure—immutable records, automated operations, and unified data. You never touch it. Vesta does.
           </p>
         </div>
       </section>

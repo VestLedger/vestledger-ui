@@ -1,5 +1,16 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { DATA_MODE_OVERRIDE_KEY } from '@/config/data-mode';
+
+function nextWithDataMode(request: NextRequest) {
+  const override = request.cookies.get(DATA_MODE_OVERRIDE_KEY)?.value;
+  if (override === 'mock' || override === 'api') {
+    const headers = new Headers(request.headers);
+    headers.set('x-vestledger-data-mode', override);
+    return NextResponse.next({ request: { headers } });
+  }
+  return NextResponse.next();
+}
 
 export function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
@@ -56,7 +67,7 @@ export function middleware(request: NextRequest) {
     pathname.includes('/manifest') ||
     pathname.match(/\.(ico|png|jpg|jpeg|svg|webp|gif|css|js)$/)
   ) {
-    return NextResponse.next();
+    return nextWithDataMode(request);
   }
 
   // For localhost Lighthouse testing: check if this is dashboard route (app domain) or public route
@@ -83,7 +94,7 @@ export function middleware(request: NextRequest) {
     }
 
     // Allow all other localhost requests through
-    return NextResponse.next();
+    return nextWithDataMode(request);
   }
 
   // Rule 1: Public domain should ONLY serve public pages
@@ -163,7 +174,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  return NextResponse.next();
+  return nextWithDataMode(request);
 }
 
 export const config = {

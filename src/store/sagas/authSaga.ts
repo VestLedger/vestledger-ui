@@ -13,6 +13,7 @@ import { clientMounted } from '@/store/slices/uiEffectsSlice';
 import { safeLocalStorage } from '@/lib/storage/safeLocalStorage';
 import { normalizeError } from '@/store/utils/normalizeError';
 import { logger } from '@/lib/logger';
+import { DATA_MODE_OVERRIDE_KEY, type DataMode } from '@/config/data-mode';
 
 const STORAGE_AUTH_KEY = 'isAuthenticated';
 const STORAGE_USER_KEY = 'user';
@@ -35,6 +36,13 @@ function setAuthCookies(user: User) {
   document.cookie = `user=${encodeURIComponent(JSON.stringify(user))}; path=/${domainAttribute}; max-age=86400; SameSite=Lax`;
 }
 
+function setDataModeCookie(mode: DataMode) {
+  if (typeof document === 'undefined') return;
+  const domain = getAuthCookieDomain(window.location.hostname);
+  const domainAttribute = domain ? `; domain=${domain}` : '';
+  document.cookie = `${DATA_MODE_OVERRIDE_KEY}=${mode}; path=/${domainAttribute}; max-age=86400; SameSite=Lax`;
+}
+
 function clearAuthCookies() {
   if (typeof document === 'undefined') return;
   const domain = getAuthCookieDomain(window.location.hostname);
@@ -43,10 +51,18 @@ function clearAuthCookies() {
   document.cookie = `user=; path=/${domainAttribute}; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
 }
 
+function clearDataModeCookie() {
+  if (typeof document === 'undefined') return;
+  const domain = getAuthCookieDomain(window.location.hostname);
+  const domainAttribute = domain ? `; domain=${domain}` : '';
+  document.cookie = `${DATA_MODE_OVERRIDE_KEY}=; path=/${domainAttribute}; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+}
+
 function* hydrateAuthWorker() {
   const savedAuth = safeLocalStorage.getItem(STORAGE_AUTH_KEY);
   const savedUser = safeLocalStorage.getJSON<Partial<User>>(STORAGE_USER_KEY);
   const savedToken = safeLocalStorage.getItem(STORAGE_TOKEN_KEY);
+  const savedDataMode = safeLocalStorage.getItem(DATA_MODE_OVERRIDE_KEY);
 
   // Require all fields including role - no defaults
   if (savedAuth === 'true' && savedUser?.email && savedUser?.name && savedUser?.role) {
@@ -59,6 +75,11 @@ function* hydrateAuthWorker() {
 
     // Sync to cookies for middleware access
     setAuthCookies(normalizedUser);
+    if (savedDataMode === 'mock' || savedDataMode === 'api') {
+      setDataModeCookie(savedDataMode);
+    } else {
+      clearDataModeCookie();
+    }
 
     yield put(authHydrated({ isAuthenticated: true, user: normalizedUser, accessToken: savedToken }));
     return;
@@ -68,7 +89,9 @@ function* hydrateAuthWorker() {
   safeLocalStorage.removeItem(STORAGE_AUTH_KEY);
   safeLocalStorage.removeItem(STORAGE_USER_KEY);
   safeLocalStorage.removeItem(STORAGE_TOKEN_KEY);
+  safeLocalStorage.removeItem(DATA_MODE_OVERRIDE_KEY);
   clearAuthCookies();
+  clearDataModeCookie();
 
   yield put(authHydrated({ isAuthenticated: false, user: null, accessToken: null }));
 }
@@ -84,6 +107,13 @@ export function* loginWorker(action: ReturnType<typeof loginRequested>) {
     safeLocalStorage.setItem(STORAGE_AUTH_KEY, 'true');
     safeLocalStorage.setJSON(STORAGE_USER_KEY, result.user);
     safeLocalStorage.setItem(STORAGE_TOKEN_KEY, result.accessToken);
+    if (result.dataModeOverride) {
+      safeLocalStorage.setItem(DATA_MODE_OVERRIDE_KEY, result.dataModeOverride);
+      setDataModeCookie(result.dataModeOverride);
+    } else {
+      safeLocalStorage.removeItem(DATA_MODE_OVERRIDE_KEY);
+      clearDataModeCookie();
+    }
 
     // Sync to cookies for middleware access
     setAuthCookies(result.user);
@@ -97,9 +127,11 @@ export function* logoutWorker() {
   safeLocalStorage.removeItem(STORAGE_AUTH_KEY);
   safeLocalStorage.removeItem(STORAGE_USER_KEY);
   safeLocalStorage.removeItem(STORAGE_TOKEN_KEY);
+  safeLocalStorage.removeItem(DATA_MODE_OVERRIDE_KEY);
 
   // Clear cookies
   clearAuthCookies();
+  clearDataModeCookie();
 
   yield put(loggedOut());
 }

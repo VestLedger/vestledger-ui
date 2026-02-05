@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react';
 import { Card, Button, Input } from '@/ui';
 import { Sparkles, Send, Copy, Download, ThumbsDown, AlertCircle, Check, FileText, Edit3, RefreshCw, Wand2, MessageSquare } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
@@ -14,7 +15,14 @@ import {
   type RejectionReason,
 } from '@/services/ai/decisionWriterService';
 
-const defaultDecisionWriterState: {
+const emptyDealInfo: DealInfo = {
+  companyName: '',
+  founderName: '',
+  sector: '',
+  stage: '',
+};
+
+const buildDefaultDecisionWriterState = (): {
   dealInfo: DealInfo;
   reasons: RejectionReason[];
   customReason: string;
@@ -22,19 +30,37 @@ const defaultDecisionWriterState: {
   generatedLetter: string;
   isGenerating: boolean;
   letterCopied: boolean;
-} = {
-  dealInfo: getDecisionWriterSeedDealInfo(),
-  reasons: getDecisionWriterRejectionReasons(),
-  customReason: '',
-  tone: 'warm',
-  generatedLetter: '',
-  isGenerating: false,
-  letterCopied: false,
+} => {
+  let dealInfo = emptyDealInfo;
+  let reasons: RejectionReason[] = [];
+
+  try {
+    dealInfo = getDecisionWriterSeedDealInfo();
+  } catch {
+    dealInfo = emptyDealInfo;
+  }
+
+  try {
+    reasons = getDecisionWriterRejectionReasons();
+  } catch {
+    reasons = [];
+  }
+
+  return {
+    dealInfo,
+    reasons,
+    customReason: '',
+    tone: 'warm',
+    generatedLetter: '',
+    isGenerating: false,
+    letterCopied: false,
+  };
 };
 
 export function DecisionWriter() {
   const dispatch = useAppDispatch();
-  const { value: ui, patch: patchUI } = useUIKey('decision-writer', defaultDecisionWriterState);
+  const defaultState = useMemo(buildDefaultDecisionWriterState, []);
+  const { value: ui, patch: patchUI } = useUIKey('decision-writer', defaultState);
   const { dealInfo, reasons, customReason, tone, generatedLetter, isGenerating, letterCopied } = ui;
   const toneOptions = getDecisionWriterToneOptions();
 

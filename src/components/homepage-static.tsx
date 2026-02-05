@@ -1,5 +1,4 @@
 import { Brain, Clock, Zap, Users, CheckCircle2, Bot } from 'lucide-react';
-import { StaticCard } from '@/ui/static';
 import { LoginButton } from './public/login-button';
 
 /**
@@ -151,7 +150,7 @@ export function HomepageStatic() {
                   <CheckCircle2 className="w-6 h-6 text-app-primary dark:text-app-dark-primary flex-shrink-0 mt-0.5" />
                   <div>
                     <div className="font-medium mb-1">Contextual</div>
-                    <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Vesta knows your fund's history, not just today's data</p>
+                    <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Vesta knows your fund&apos;s history, not just today&apos;s data</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -165,7 +164,7 @@ export function HomepageStatic() {
                   <CheckCircle2 className="w-6 h-6 text-app-secondary dark:text-app-dark-secondary flex-shrink-0 mt-0.5" />
                   <div>
                     <div className="font-medium mb-1 text-app-secondary dark:text-app-dark-secondary">Sovereign</div>
-                    <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Your Vesta's intelligence stays with you—never shared, never averaged</p>
+                    <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Your Vesta&apos;s intelligence stays with you—never shared, never averaged</p>
                   </div>
                 </div>
               </div>
