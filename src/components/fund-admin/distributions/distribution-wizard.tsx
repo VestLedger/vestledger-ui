@@ -1184,7 +1184,7 @@ export function DistributionWizard() {
             {formatCurrencyCompact(totalDistributed)} distributed
           </Badge>
         </div>
-        <Progress value={progressValue} maxValue={100} />
+        <Progress value={progressValue} maxValue={100} aria-label="Distribution workflow progress" />
         <WorkflowStepper steps={workflowSteps} showPredictions={false} />
       </Card>
 

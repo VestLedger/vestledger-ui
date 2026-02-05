@@ -1,7 +1,6 @@
-import { call, delay, put, race, select, take, takeLatest } from 'redux-saga/effects';
+import { call, delay, put, race, take, takeLatest } from 'redux-saga/effects';
 import { authenticateUser, type AuthResult } from '@/services/authService';
-import type { RootState } from '@/store/rootReducer';
-import type { User, UserRole } from '@/types/auth';
+import type { User } from '@/types/auth';
 import {
   authHydrated,
   loggedOut,
@@ -9,12 +8,11 @@ import {
   loginRequested,
   loginSucceeded,
   logoutRequested,
-  switchRoleRequested,
-  userUpdated,
 } from '@/store/slices/authSlice';
 import { clientMounted } from '@/store/slices/uiEffectsSlice';
 import { safeLocalStorage } from '@/lib/storage/safeLocalStorage';
 import { normalizeError } from '@/store/utils/normalizeError';
+import { logger } from '@/lib/logger';
 
 const STORAGE_AUTH_KEY = 'isAuthenticated';
 const STORAGE_USER_KEY = 'user';
@@ -50,11 +48,12 @@ function* hydrateAuthWorker() {
   const savedUser = safeLocalStorage.getJSON<Partial<User>>(STORAGE_USER_KEY);
   const savedToken = safeLocalStorage.getItem(STORAGE_TOKEN_KEY);
 
-  if (savedAuth === 'true' && savedUser?.email && savedUser?.name) {
+  // Require all fields including role - no defaults
+  if (savedAuth === 'true' && savedUser?.email && savedUser?.name && savedUser?.role) {
     const normalizedUser: User = {
       name: savedUser.name,
       email: savedUser.email,
-      role: savedUser.role ?? 'gp',
+      role: savedUser.role,
       avatar: savedUser.avatar,
     };
 
@@ -65,27 +64,31 @@ function* hydrateAuthWorker() {
     return;
   }
 
+  // Invalid or missing session - clear any stale data and redirect to login
+  safeLocalStorage.removeItem(STORAGE_AUTH_KEY);
+  safeLocalStorage.removeItem(STORAGE_USER_KEY);
+  safeLocalStorage.removeItem(STORAGE_TOKEN_KEY);
+  clearAuthCookies();
+
   yield put(authHydrated({ isAuthenticated: false, user: null, accessToken: null }));
 }
 
 export function* loginWorker(action: ReturnType<typeof loginRequested>) {
   try {
-    const { email, password, role } = action.payload;
-    const result: AuthResult = yield call(authenticateUser, email, password, role);
+    const { email, password } = action.payload;
+    const result: AuthResult = yield call(authenticateUser, email, password);
 
     yield put(loginSucceeded({ user: result.user, accessToken: result.accessToken }));
 
     // Persist to localStorage
     safeLocalStorage.setItem(STORAGE_AUTH_KEY, 'true');
     safeLocalStorage.setJSON(STORAGE_USER_KEY, result.user);
-    if (result.accessToken) {
-      safeLocalStorage.setItem(STORAGE_TOKEN_KEY, result.accessToken);
-    }
+    safeLocalStorage.setItem(STORAGE_TOKEN_KEY, result.accessToken);
 
     // Sync to cookies for middleware access
     setAuthCookies(result.user);
   } catch (error: unknown) {
-    console.error('Login failed', error);
+    logger.error('Login failed', error);
     yield put(loginFailed(normalizeError(error)));
   }
 }
@@ -101,17 +104,6 @@ export function* logoutWorker() {
   yield put(loggedOut());
 }
 
-function* switchRoleWorker(action: ReturnType<typeof switchRoleRequested>) {
-  const nextRole: UserRole = action.payload;
-  const user: User | null = yield select((state: RootState) => state.auth.user);
-  if (!user) return;
-
-  const updatedUser: User = { ...user, role: nextRole };
-  yield put(userUpdated(updatedUser));
-
-  safeLocalStorage.setJSON(STORAGE_USER_KEY, updatedUser);
-}
-
 export function* authSaga() {
   if (typeof window !== 'undefined') {
     // Wait for clientMounted with a 5 second timeout fallback
@@ -123,5 +115,4 @@ export function* authSaga() {
   yield call(hydrateAuthWorker);
   yield takeLatest(loginRequested.type, loginWorker);
   yield takeLatest(logoutRequested.type, logoutWorker);
-  yield takeLatest(switchRoleRequested.type, switchRoleWorker);
 }

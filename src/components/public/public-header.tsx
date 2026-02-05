@@ -2,10 +2,9 @@
 
 import { useEffect } from 'react';
 import { Button, Modal, Input } from '@/ui';
-import { Select, SelectItem } from "@nextui-org/react";
 import { useTheme } from 'next-themes';
 import { Sun, Moon } from 'lucide-react';
-import { useAuth, PERSONA_CONFIG, UserRole } from '@/contexts/auth-context';
+import { useAuth } from '@/contexts/auth-context';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useUIKey } from '@/store/ui';
@@ -19,13 +18,11 @@ export function PublicHeader() {
     showLoginModal: false,
     email: '',
     password: '',
-    role: 'gp' as UserRole,
   });
   const mounted = headerUI.mounted;
   const showLoginModal = headerUI.showLoginModal;
   const email = headerUI.email;
   const password = headerUI.password;
-  const role = headerUI.role;
   const router = useRouter();
 
   useEffect(() => {
@@ -34,7 +31,7 @@ export function PublicHeader() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    login(email, password, role);
+    login(email, password);
     patchHeaderUI({ showLoginModal: false, password: '' });
     router.push('/dashboard');
   };
@@ -97,26 +94,6 @@ export function PublicHeader() {
             placeholder="you@company.com"
             isRequired
           />
-          <Select
-            label="Select Role (Demo)"
-            placeholder="Select a persona"
-            selectedKeys={[role]}
-            onChange={(e) => patchHeaderUI({ role: e.target.value as UserRole })}
-            disallowEmptySelection
-            variant="bordered"
-            classNames={{
-               trigger: "bg-app-surface-hover dark:bg-app-dark-surface-hover border border-app-border-subtle dark:border-app-dark-border-subtle",
-            }}
-          >
-            {Object.values(PERSONA_CONFIG).map((persona) => (
-              <SelectItem key={persona.id} value={persona.id} textValue={persona.label}>
-                <div className="flex flex-col">
-                  <span className="text-small">{persona.label}</span>
-                  <span className="text-tiny text-app-text-muted dark:text-app-dark-text-muted">{persona.description}</span>
-                </div>
-              </SelectItem>
-            ))}
-          </Select>
           <Input
             label="Password"
             type="password"

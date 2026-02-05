@@ -4,38 +4,38 @@ import { isMockMode } from '@/config/data-mode';
 import { createMockUser } from '@/data/mocks/auth';
 import type { User, UserRole } from '@/types/auth';
 
-type ApiUser = {
-  email: string;
-  name: string;
-  username?: string;
-};
-
 type AuthResponse = {
-  user: ApiUser;
-  access_token?: string;
+  access_token: string;
 };
 
 export type AuthResult = {
   user: User;
-  accessToken: string | null;
+  accessToken: string;
 };
 
-function normalizeName(email: string): string {
-  const local = email.split('@')[0] ?? '';
-  if (!local) return 'VestLedger User';
-  const words = local.replace(/[._-]+/g, ' ').trim();
-  if (!words) return 'VestLedger User';
-  return words
-    .split(' ')
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ');
+type JwtPayload = {
+  sub: string;
+  email: string;
+  username: string;
+  role: UserRole;
+};
+
+function decodeJwt(token: string): JwtPayload {
+  const parts = token.split('.');
+  if (parts.length !== 3) {
+    throw new Error('Invalid JWT format');
+  }
+  const payload = parts[1];
+  const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+  return JSON.parse(decoded) as JwtPayload;
 }
 
-function mapUser(apiUser: ApiUser, role: UserRole): User {
+function userFromJwt(token: string): User {
+  const payload = decodeJwt(token);
   return {
-    name: apiUser.name || normalizeName(apiUser.email),
-    email: apiUser.email,
-    role,
+    name: payload.username,
+    email: payload.email,
+    role: payload.role,
   };
 }
 
@@ -62,35 +62,34 @@ async function postAuth(path: string, body: Record<string, unknown>): Promise<Au
     });
   }
 
+  if (!payload.access_token) {
+    throw new ApiError({
+      message: 'No access token in response',
+      status: 500,
+      details: payload,
+    });
+  }
+
   return payload as AuthResponse;
 }
 
 export async function authenticateUser(
   email: string,
-  password: string,
-  role: UserRole
+  password: string
 ): Promise<AuthResult> {
   if (isMockMode('auth')) {
+    // Mock mode: create user with default 'gp' role
     return {
-      user: createMockUser(email, role),
-      accessToken: null,
+      user: createMockUser(email, 'gp'),
+      accessToken: 'mock-token',
     };
   }
 
   // Login-only flow: users must be pre-created by a superuser
+  // Role comes from JWT, not from client
   const response = await postAuth('/auth/login', { email, password });
   return {
-    user: mapUser(response.user, role),
-    accessToken: response.access_token ?? null,
+    user: userFromJwt(response.access_token),
+    accessToken: response.access_token,
   };
-}
-
-/** @deprecated Use authenticateUser instead */
-export async function createUser(
-  email: string,
-  password: string,
-  role: UserRole
-): Promise<User> {
-  const result = await authenticateUser(email, password, role);
-  return result.user;
 }

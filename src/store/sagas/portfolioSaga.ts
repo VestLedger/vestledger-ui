@@ -7,6 +7,7 @@ import {
 } from '@/store/slices/portfolioSlice';
 import { getPortfolioUpdates } from '@/services/portfolio/portfolioDataService';
 import { normalizeError } from '@/store/utils/normalizeError';
+import { logger } from '@/lib/logger';
 
 /**
  * Worker saga: Load portfolio updates
@@ -18,7 +19,7 @@ export function* loadPortfolioUpdatesWorker(
     const updates = yield call(getPortfolioUpdates);
     yield put(portfolioUpdatesLoaded({ updates }));
   } catch (error: unknown) {
-    console.error('Failed to load portfolio updates', error);
+    logger.error('Failed to load portfolio updates', error);
     yield put(portfolioUpdatesFailed(normalizeError(error)));
   }
 }

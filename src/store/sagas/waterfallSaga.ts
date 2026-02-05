@@ -50,6 +50,7 @@ import {
   toggleScenarioFavorite,
 } from '@/services/analytics/waterfallService';
 import { normalizeError } from '@/store/utils/normalizeError';
+import { logger } from '@/lib/logger';
 
 // ============================================================================
 // Scenarios Workers
@@ -63,7 +64,7 @@ export function* loadScenariosWorker(
     const scenarios: WaterfallScenario[] = yield call(fetchWaterfallScenarios, params);
     yield put(scenariosLoaded({ scenarios }));
   } catch (error: unknown) {
-    console.error('Failed to load waterfall scenarios', error);
+    logger.error('Failed to load waterfall scenarios', error);
     yield put(scenariosFailed(normalizeError(error)));
   }
 }
@@ -75,7 +76,7 @@ export function* createScenarioWorker(
     const scenario: WaterfallScenario = yield call(createWaterfallScenario, action.payload);
     yield put(createScenarioSucceeded(scenario));
   } catch (error: unknown) {
-    console.error('Failed to create waterfall scenario', error);
+    logger.error('Failed to create waterfall scenario', error);
     yield put(createScenarioFailed(normalizeError(error)));
   }
 }
@@ -88,7 +89,7 @@ export function* updateScenarioWorker(
     const scenario: WaterfallScenario = yield call(updateWaterfallScenario, id, data);
     yield put(updateScenarioSucceeded(scenario));
   } catch (error: unknown) {
-    console.error('Failed to update waterfall scenario', error);
+    logger.error('Failed to update waterfall scenario', error);
     yield put(updateScenarioFailed(normalizeError(error)));
   }
 }
@@ -99,7 +100,7 @@ export function* deleteScenarioWorker(action: PayloadAction<string>): SagaIterat
     yield call(deleteWaterfallScenario, id);
     yield put(deleteScenarioSucceeded(id));
   } catch (error: unknown) {
-    console.error('Failed to delete waterfall scenario', error);
+    logger.error('Failed to delete waterfall scenario', error);
     yield put(deleteScenarioFailed(normalizeError(error)));
   }
 }
@@ -112,7 +113,7 @@ export function* duplicateScenarioWorker(
     const scenario: WaterfallScenario = yield call(duplicateWaterfallScenario, id, newName);
     yield put(duplicateScenarioSucceeded(scenario));
   } catch (error: unknown) {
-    console.error('Failed to duplicate waterfall scenario', error);
+    logger.error('Failed to duplicate waterfall scenario', error);
     yield put(duplicateScenarioFailed(normalizeError(error)));
   }
 }
@@ -126,7 +127,7 @@ export function* loadTemplatesWorker(): SagaIterator {
     const templates = yield call(fetchWaterfallTemplates);
     yield put(templatesLoaded({ templates }));
   } catch (error: unknown) {
-    console.error('Failed to load waterfall templates', error);
+    logger.error('Failed to load waterfall templates', error);
     yield put(templatesFailed(normalizeError(error)));
   }
 }
@@ -142,7 +143,7 @@ export function* calculateWaterfallWorker(
     const results: WaterfallResults = yield call(performWaterfallCalculation, action.payload);
     yield put(calculateWaterfallSucceeded({ results }));
   } catch (error: unknown) {
-    console.error('Failed to calculate waterfall', error);
+    logger.error('Failed to calculate waterfall', error);
     yield put(calculateWaterfallFailed(normalizeError(error)));
   }
 }
@@ -166,7 +167,7 @@ export function* sensitivityAnalysisWorker(
     );
     yield put(sensitivityAnalysisSucceeded({ analysis }));
   } catch (error: unknown) {
-    console.error('Failed to perform sensitivity analysis', error);
+    logger.error('Failed to perform sensitivity analysis', error);
     yield put(sensitivityAnalysisFailed(normalizeError(error)));
   }
 }
@@ -181,7 +182,7 @@ export function* toggleFavoriteWorker(action: PayloadAction<string>): SagaIterat
     const scenario: WaterfallScenario = yield call(toggleScenarioFavorite, id);
     yield put(toggleFavoriteSucceeded(scenario));
   } catch (error: unknown) {
-    console.error('Failed to toggle favorite', error);
+    logger.error('Failed to toggle favorite', error);
     yield put(toggleFavoriteFailed(normalizeError(error)));
   }
 }

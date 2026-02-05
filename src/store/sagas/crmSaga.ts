@@ -12,6 +12,7 @@ import {
   getCRMTimelineInteractions,
 } from '@/services/crm/contactsService';
 import { normalizeError } from '@/store/utils/normalizeError';
+import { logger } from '@/lib/logger';
 
 /**
  * Worker saga: Load all CRM data
@@ -35,7 +36,7 @@ export function* loadCRMDataWorker(action: ReturnType<typeof crmDataRequested>):
       timelineInteractions,
     }));
   } catch (error: unknown) {
-    console.error('Failed to load CRM data', error);
+    logger.error('Failed to load CRM data', error);
     yield put(crmDataFailed(normalizeError(error)));
   }
 }

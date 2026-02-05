@@ -22,6 +22,14 @@ vi.mock('@/data/mocks/auth', () => ({
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
 
+// Helper to create a mock JWT token with the given payload
+function createMockJwt(payload: { sub: string; email: string; username: string; role: UserRole }): string {
+  const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+  const body = btoa(JSON.stringify(payload));
+  const signature = 'mock-signature';
+  return `${header}.${body}.${signature}`;
+}
+
 describe('authService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -29,33 +37,39 @@ describe('authService', () => {
   });
 
   describe('authenticateUser', () => {
-    it('should return user and null accessToken in mock mode', async () => {
+    it('should return user and mock accessToken in mock mode', async () => {
       const { isMockMode } = await import('@/config/data-mode');
       vi.mocked(isMockMode).mockReturnValue(true);
 
       const { authenticateUser } = await import('@/services/authService');
-      const result = await authenticateUser('test@example.com', 'password123', 'gp');
+      const result = await authenticateUser('test@example.com', 'password123');
 
       expect(result.user.email).toBe('test@example.com');
-      expect(result.user.role).toBe('gp');
-      expect(result.accessToken).toBeNull();
+      expect(result.user.role).toBe('gp'); // Default role in mock mode
+      expect(result.accessToken).toBe('mock-token');
     });
 
-    it('should call login endpoint and return user with accessToken', async () => {
+    it('should call login endpoint and return user with accessToken from JWT', async () => {
       const { isMockMode } = await import('@/config/data-mode');
       vi.mocked(isMockMode).mockReturnValue(false);
+
+      const mockJwt = createMockJwt({
+        sub: 'user-123',
+        email: 'test@example.com',
+        username: 'Test User',
+        role: 'analyst',
+      });
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: () =>
           Promise.resolve({
-            user: { email: 'test@example.com', name: 'Test User' },
-            access_token: 'jwt-token-123',
+            access_token: mockJwt,
           }),
       });
 
       const { authenticateUser } = await import('@/services/authService');
-      const result = await authenticateUser('test@example.com', 'password123', 'analyst');
+      const result = await authenticateUser('test@example.com', 'password123');
 
       expect(mockFetch).toHaveBeenCalledWith(
         'http://localhost:3001/auth/login',
@@ -67,11 +81,12 @@ describe('authService', () => {
       );
 
       expect(result.user.email).toBe('test@example.com');
+      expect(result.user.name).toBe('Test User');
       expect(result.user.role).toBe('analyst');
-      expect(result.accessToken).toBe('jwt-token-123');
+      expect(result.accessToken).toBe(mockJwt);
     });
 
-    it('should return null accessToken when API does not return one', async () => {
+    it('should throw error when API does not return access_token', async () => {
       const { isMockMode } = await import('@/config/data-mode');
       vi.mocked(isMockMode).mockReturnValue(false);
 
@@ -79,16 +94,15 @@ describe('authService', () => {
         ok: true,
         json: () =>
           Promise.resolve({
-            user: { email: 'test@example.com', name: 'Test' },
             // No access_token in response
           }),
       });
 
       const { authenticateUser } = await import('@/services/authService');
-      const result = await authenticateUser('test@example.com', 'password123', 'gp');
 
-      expect(result.user.email).toBe('test@example.com');
-      expect(result.accessToken).toBeNull();
+      await expect(authenticateUser('test@example.com', 'password123')).rejects.toThrow(
+        'No access token in response'
+      );
     });
 
     it('should throw error with message on 401 Unauthorized', async () => {
@@ -104,7 +118,7 @@ describe('authService', () => {
 
       const { authenticateUser } = await import('@/services/authService');
 
-      await expect(authenticateUser('test@example.com', 'wrongpassword', 'gp')).rejects.toThrow(
+      await expect(authenticateUser('test@example.com', 'wrongpassword')).rejects.toThrow(
         'Invalid credentials'
       );
     });
@@ -122,7 +136,7 @@ describe('authService', () => {
 
       const { authenticateUser } = await import('@/services/authService');
 
-      await expect(authenticateUser('unknown@example.com', 'password123', 'gp')).rejects.toThrow(
+      await expect(authenticateUser('unknown@example.com', 'password123')).rejects.toThrow(
         'User not found'
       );
     });
@@ -143,7 +157,7 @@ describe('authService', () => {
 
       const { authenticateUser } = await import('@/services/authService');
 
-      await expect(authenticateUser('', 'short', 'gp')).rejects.toThrow(
+      await expect(authenticateUser('', 'short')).rejects.toThrow(
         'Email is required, Password must be at least 8 characters'
       );
     });
@@ -161,31 +175,9 @@ describe('authService', () => {
 
       const { authenticateUser } = await import('@/services/authService');
 
-      await expect(authenticateUser('test@example.com', 'password123', 'gp')).rejects.toThrow(
+      await expect(authenticateUser('test@example.com', 'password123')).rejects.toThrow(
         'Service Unavailable'
       );
-    });
-
-    it('should normalize name from email when API does not return name', async () => {
-      const { isMockMode } = await import('@/config/data-mode');
-      vi.mocked(isMockMode).mockReturnValue(false);
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            user: {
-              email: 'jane_smith@example.com',
-              name: '', // Empty name from API
-            },
-          }),
-      });
-
-      const { authenticateUser } = await import('@/services/authService');
-      const result = await authenticateUser('jane_smith@example.com', 'password123', 'lp');
-
-      // Should normalize "jane_smith" to "Jane Smith"
-      expect(result.user.name).toBe('Jane Smith');
     });
 
     it('should handle JSON parse errors gracefully', async () => {
@@ -201,7 +193,7 @@ describe('authService', () => {
 
       const { authenticateUser } = await import('@/services/authService');
 
-      await expect(authenticateUser('test@example.com', 'password123', 'gp')).rejects.toThrow(
+      await expect(authenticateUser('test@example.com', 'password123')).rejects.toThrow(
         'Internal Server Error'
       );
     });
@@ -213,16 +205,23 @@ describe('authService', () => {
       const { isMockMode } = await import('@/config/data-mode');
       vi.mocked(isMockMode).mockReturnValue(false);
 
+      const mockJwt = createMockJwt({
+        sub: 'user-123',
+        email: 'test@example.com',
+        username: 'Test',
+        role: 'gp',
+      });
+
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: () =>
           Promise.resolve({
-            user: { email: 'test@example.com', name: 'Test' },
+            access_token: mockJwt,
           }),
       });
 
       const { authenticateUser } = await import('@/services/authService');
-      await authenticateUser('test@example.com', 'password123', 'gp');
+      await authenticateUser('test@example.com', 'password123');
 
       expect(mockFetch).toHaveBeenCalledWith(
         'http://localhost:3001/auth/login',
@@ -230,7 +229,7 @@ describe('authService', () => {
       );
     });
 
-    it('should work with all user roles', async () => {
+    it('should extract role from JWT for all user roles', async () => {
       const { isMockMode } = await import('@/config/data-mode');
       vi.mocked(isMockMode).mockReturnValue(false);
 
@@ -248,87 +247,26 @@ describe('authService', () => {
 
       for (const role of roles) {
         vi.clearAllMocks();
+        const mockJwt = createMockJwt({
+          sub: 'user-123',
+          email: 'test@example.com',
+          username: 'Test',
+          role,
+        });
+
         mockFetch.mockResolvedValueOnce({
           ok: true,
           json: () =>
             Promise.resolve({
-              user: { email: 'test@example.com', name: 'Test' },
+              access_token: mockJwt,
             }),
         });
 
         const { authenticateUser } = await import('@/services/authService');
-        const result = await authenticateUser('test@example.com', 'password123', role);
+        const result = await authenticateUser('test@example.com', 'password123');
 
         expect(result.user.role).toBe(role);
       }
-    });
-  });
-
-  describe('createUser (deprecated)', () => {
-    it('should return mock user when in mock mode', async () => {
-      const { isMockMode } = await import('@/config/data-mode');
-      vi.mocked(isMockMode).mockReturnValue(true);
-
-      const { createUser } = await import('@/services/authService');
-      const user = await createUser('test@example.com', 'password123', 'gp');
-
-      expect(user.email).toBe('test@example.com');
-      expect(user.role).toBe('gp');
-      expect(isMockMode).toHaveBeenCalledWith('auth');
-    });
-
-    it('should call login endpoint and return user on success', async () => {
-      const { isMockMode } = await import('@/config/data-mode');
-      vi.mocked(isMockMode).mockReturnValue(false);
-
-      const mockApiUser = {
-        user: {
-          email: 'test@example.com',
-          name: 'Test User',
-        },
-        access_token: 'mock-token',
-      };
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockApiUser),
-      });
-
-      const { createUser } = await import('@/services/authService');
-      const user = await createUser('test@example.com', 'password123', 'analyst');
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:3001/auth/login',
-        expect.objectContaining({
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: 'test@example.com', password: 'password123' }),
-        })
-      );
-
-      expect(user).toEqual({
-        name: 'Test User',
-        email: 'test@example.com',
-        role: 'analyst',
-      });
-    });
-
-    it('should throw error on 401 Unauthorized', async () => {
-      const { isMockMode } = await import('@/config/data-mode');
-      vi.mocked(isMockMode).mockReturnValue(false);
-
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 401,
-        statusText: 'Unauthorized',
-        json: () => Promise.resolve({ message: 'Invalid credentials' }),
-      });
-
-      const { createUser } = await import('@/services/authService');
-
-      await expect(createUser('test@example.com', 'wrongpassword', 'gp')).rejects.toThrow(
-        'Invalid credentials'
-      );
     });
   });
 });

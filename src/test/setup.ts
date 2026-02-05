@@ -22,13 +22,47 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 // Mock ResizeObserver
+type ResizeObserverCallback = (
+  entries: ResizeObserverEntry[],
+  observer: ResizeObserver
+) => void;
+
 class ResizeObserverMock {
-  observe() {}
+  private callback: ResizeObserverCallback;
+
+  constructor(callback: ResizeObserverCallback) {
+    this.callback = callback;
+  }
+
+  observe(target: Element) {
+    const rect = {
+      width: 800,
+      height: 600,
+      top: 0,
+      left: 0,
+      bottom: 600,
+      right: 800,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    } as DOMRectReadOnly;
+
+    this.callback(
+      [
+        {
+          target,
+          contentRect: rect,
+        } as ResizeObserverEntry,
+      ],
+      this as unknown as ResizeObserver
+    );
+  }
+
   unobserve() {}
   disconnect() {}
 }
 
-window.ResizeObserver = ResizeObserverMock;
+window.ResizeObserver = ResizeObserverMock as unknown as typeof ResizeObserver;
 
 // Mock IntersectionObserver
 class IntersectionObserverMock {
