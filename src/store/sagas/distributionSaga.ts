@@ -83,6 +83,7 @@ import {
   fetchApprovalRules,
 } from '@/services/backOffice/distributionService';
 import { normalizeError } from '@/store/utils/normalizeError';
+import { logger } from '@/lib/logger';
 
 // ============================================================================
 // Distribution Workers
@@ -123,7 +124,7 @@ export function* createDistributionWorker(
     const distribution: Distribution = yield call(createDistribution, action.payload.data);
     yield put(createDistributionSucceeded({ distribution, requestId: action.payload.requestId }));
   } catch (error: unknown) {
-    console.error('Failed to create distribution', error);
+    logger.error('Failed to create distribution', error);
     yield put(
       createDistributionFailed({
         error: normalizeError(error),
@@ -141,7 +142,7 @@ export function* updateDistributionWorker(
     const distribution: Distribution = yield call(updateDistribution, id, data);
     yield put(updateDistributionSucceeded({ distribution, requestId: action.payload.requestId }));
   } catch (error: unknown) {
-    console.error('Failed to update distribution', error);
+    logger.error('Failed to update distribution', error);
     yield put(
       updateDistributionFailed({
         error: normalizeError(error),
@@ -157,7 +158,7 @@ export function* deleteDistributionWorker(action: PayloadAction<string>): SagaIt
     yield call(deleteDistribution, id);
     yield put(deleteDistributionSucceeded(id));
   } catch (error: unknown) {
-    console.error('Failed to delete distribution', error);
+    logger.error('Failed to delete distribution', error);
     yield put(deleteDistributionFailed(normalizeError(error)));
   }
 }
@@ -173,7 +174,7 @@ export function* submitForApprovalWorker(
     const distribution: Distribution = yield call(submitForApproval, action.payload);
     yield put(submitForApprovalSucceeded(distribution));
   } catch (error: unknown) {
-    console.error('Failed to submit for approval', error);
+    logger.error('Failed to submit for approval', error);
     yield put(submitForApprovalFailed(normalizeError(error)));
   }
 }
@@ -185,7 +186,7 @@ export function* approveDistributionWorker(
     const distribution: Distribution = yield call(approveDistribution, action.payload);
     yield put(approveDistributionSucceeded(distribution));
   } catch (error: unknown) {
-    console.error('Failed to approve distribution', error);
+    logger.error('Failed to approve distribution', error);
     yield put(approveDistributionFailed(normalizeError(error)));
   }
 }
@@ -197,7 +198,7 @@ export function* rejectDistributionWorker(
     const distribution: Distribution = yield call(rejectDistribution, action.payload);
     yield put(rejectDistributionSucceeded(distribution));
   } catch (error: unknown) {
-    console.error('Failed to reject distribution', error);
+    logger.error('Failed to reject distribution', error);
     yield put(rejectDistributionFailed(normalizeError(error)));
   }
 }
@@ -209,7 +210,7 @@ export function* returnForRevisionWorker(
     const distribution: Distribution = yield call(returnForRevision, action.payload);
     yield put(returnForRevisionSucceeded(distribution));
   } catch (error: unknown) {
-    console.error('Failed to return distribution for revision', error);
+    logger.error('Failed to return distribution for revision', error);
     yield put(returnForRevisionFailed(normalizeError(error)));
   }
 }
@@ -223,7 +224,7 @@ export function* loadSummaryWorker(): SagaIterator {
     const summary: DistributionSummary = yield call(fetchDistributionSummary);
     yield put(summaryLoaded({ summary }));
   } catch (error: unknown) {
-    console.error('Failed to load distribution summary', error);
+    logger.error('Failed to load distribution summary', error);
     yield put(summaryFailed(normalizeError(error)));
   }
 }
@@ -240,7 +241,7 @@ export function* loadCalendarEventsWorker(
     );
     yield put(calendarEventsLoaded({ events }));
   } catch (error: unknown) {
-    console.error('Failed to load calendar events', error);
+    logger.error('Failed to load calendar events', error);
     yield put(calendarEventsFailed(normalizeError(error)));
   }
 }
@@ -251,7 +252,7 @@ export function* loadFeeTemplatesWorker(action: PayloadAction<string | undefined
     const templates: FeeTemplate[] = yield call(fetchFeeTemplates, fundId);
     yield put(feeTemplatesLoaded({ templates }));
   } catch (error: unknown) {
-    console.error('Failed to load fee templates', error);
+    logger.error('Failed to load fee templates', error);
     yield put(feeTemplatesFailed(normalizeError(error)));
   }
 }
@@ -261,7 +262,7 @@ export function* loadStatementTemplatesWorker(): SagaIterator {
     const templates: StatementTemplateConfig[] = yield call(fetchStatementTemplates);
     yield put(statementTemplatesLoaded({ templates }));
   } catch (error: unknown) {
-    console.error('Failed to load statement templates', error);
+    logger.error('Failed to load statement templates', error);
     yield put(statementTemplatesFailed(normalizeError(error)));
   }
 }
@@ -271,7 +272,7 @@ export function* loadLPProfilesWorker(): SagaIterator {
     const profiles: LPProfile[] = yield call(fetchLPProfiles);
     yield put(lpProfilesLoaded({ profiles }));
   } catch (error: unknown) {
-    console.error('Failed to load LP profiles', error);
+    logger.error('Failed to load LP profiles', error);
     yield put(lpProfilesFailed(normalizeError(error)));
   }
 }
@@ -281,7 +282,7 @@ export function* loadApprovalRulesWorker(): SagaIterator {
     const rules: ApprovalRule[] = yield call(fetchApprovalRules);
     yield put(approvalRulesLoaded({ rules }));
   } catch (error: unknown) {
-    console.error('Failed to load approval rules', error);
+    logger.error('Failed to load approval rules', error);
     yield put(approvalRulesFailed(normalizeError(error)));
   }
 }

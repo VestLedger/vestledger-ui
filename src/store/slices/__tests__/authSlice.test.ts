@@ -7,15 +7,13 @@ import {
   loginFailed,
   logoutRequested,
   loggedOut,
-  switchRoleRequested,
-  userUpdated,
   clearAuthError,
   authSelectors,
   type AuthStatus,
   type LoginParams,
 } from '../authSlice';
 import type { NormalizedError } from '@/store/types/AsyncState';
-import type { User, UserRole } from '@/types/auth';
+import type { User } from '@/types/auth';
 import type { RootState } from '@/store/rootReducer';
 
 describe('authSlice', () => {
@@ -79,7 +77,6 @@ describe('authSlice', () => {
       const params: LoginParams = {
         email: 'test@example.com',
         password: 'password123',
-        role: 'gp',
       };
       const state = authReducer(initialState, loginRequested(params));
       expect(state.status).toBe('loading');
@@ -95,7 +92,6 @@ describe('authSlice', () => {
       const params: LoginParams = {
         email: 'test@example.com',
         password: 'password123',
-        role: 'gp',
       };
       const state = authReducer(stateWithError, loginRequested(params));
       expect(state.error).toBeUndefined();
@@ -179,41 +175,6 @@ describe('authSlice', () => {
       expect(state.user).toBeNull();
       expect(state.accessToken).toBeNull();
       expect(state.status).toBe('idle');
-      expect(state.error).toBeUndefined();
-    });
-  });
-
-  describe('switchRoleRequested', () => {
-    it('should set status to loading', () => {
-      const authenticatedState = {
-        ...initialState,
-        isAuthenticated: true,
-        user: mockUser,
-        status: 'succeeded' as AuthStatus,
-      };
-      const newRole: UserRole = 'analyst';
-      const state = authReducer(authenticatedState, switchRoleRequested(newRole));
-      expect(state.status).toBe('loading');
-      expect(state.error).toBeUndefined();
-    });
-  });
-
-  describe('userUpdated', () => {
-    it('should update user data', () => {
-      const authenticatedState = {
-        ...initialState,
-        isAuthenticated: true,
-        user: mockUser,
-        status: 'loading' as AuthStatus,
-      };
-      const updatedUser: User = {
-        ...mockUser,
-        name: 'Updated Name',
-        role: 'analyst',
-      };
-      const state = authReducer(authenticatedState, userUpdated(updatedUser));
-      expect(state.user).toEqual(updatedUser);
-      expect(state.status).toBe('succeeded');
       expect(state.error).toBeUndefined();
     });
   });

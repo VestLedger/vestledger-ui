@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { NormalizedError } from '@/store/types/AsyncState';
-import type { User, UserRole } from '@/types/auth';
+import type { User } from '@/types/auth';
 import type { RootState } from '../rootReducer';
 
 /**
@@ -17,7 +17,6 @@ export type AuthStatus = 'idle' | 'loading' | 'succeeded' | 'failed';
 export interface LoginParams {
   email: string;
   password: string;
-  role: UserRole;
 }
 
 export interface LoginSuccessPayload {
@@ -94,17 +93,6 @@ const authSlice = createSlice({
       state.error = undefined;
     },
 
-    switchRoleRequested: (state, _action: PayloadAction<UserRole>) => {
-      state.status = 'loading';
-      state.error = undefined;
-    },
-
-    userUpdated: (state, action: PayloadAction<User>) => {
-      state.user = action.payload;
-      state.status = 'succeeded';
-      state.error = undefined;
-    },
-
     // Reset error state (for dismissing error messages)
     clearAuthError: (state) => {
       state.error = undefined;
@@ -122,8 +110,6 @@ export const {
   loginFailed,
   logoutRequested,
   loggedOut,
-  switchRoleRequested,
-  userUpdated,
   clearAuthError,
 } = authSlice.actions;
 

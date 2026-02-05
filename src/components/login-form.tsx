@@ -3,14 +3,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button, Input, Card } from '@/ui';
-import { Select, SelectItem } from '@nextui-org/react';
-import { useAuth, PERSONA_CONFIG, UserRole } from '@/contexts/auth-context';
+import { useAuth } from '@/contexts/auth-context';
 import { BrandLogo } from './brand-logo';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<UserRole>('gp');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { login, isAuthenticated, hydrated, status, error, clearError } = useAuth();
@@ -42,13 +40,13 @@ export function LoginForm() {
     }
     // Only clear on input changes, not when error changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [email, password, role]);
+  }, [email, password]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     hasAttemptedLogin.current = true;
-    login(email, password, role);
+    login(email, password);
   };
 
   const isLoading = isSubmitting && status === 'loading';
@@ -89,29 +87,6 @@ export function LoginForm() {
           isRequired
           autoComplete="email"
         />
-
-        <Select
-          label="Select Role (Demo)"
-          placeholder="Select a persona"
-          selectedKeys={[role]}
-          onChange={(e) => setRole(e.target.value as UserRole)}
-          disallowEmptySelection
-          variant="bordered"
-          classNames={{
-            trigger: 'bg-app-surface-hover dark:bg-app-dark-surface-hover border border-app-border-subtle dark:border-app-dark-border-subtle',
-          }}
-        >
-          {Object.values(PERSONA_CONFIG).map((persona) => (
-            <SelectItem key={persona.id} value={persona.id} textValue={persona.label}>
-              <div className="flex flex-col">
-                <span className="text-small">{persona.label}</span>
-                <span className="text-tiny text-app-text-muted dark:text-app-dark-text-muted">
-                  {persona.description}
-                </span>
-              </div>
-            </SelectItem>
-          ))}
-        </Select>
 
         <Input
           label="Password"

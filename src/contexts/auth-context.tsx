@@ -6,7 +6,6 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   loginRequested,
   logoutRequested,
-  switchRoleRequested,
   clearAuthError,
   type AuthStatus,
 } from '@/store/slices/authSlice';
@@ -23,9 +22,8 @@ interface AuthContextType {
   status: AuthStatus;
   error: NormalizedError | undefined;
   accessToken: string | null;
-  login: (email: string, password: string, role?: UserRole) => void;
+  login: (email: string, password: string) => void;
   logout: () => void;
-  switchRole: (role: UserRole) => void;
   clearError: () => void;
   user: User | null;
 }
@@ -44,8 +42,8 @@ export function useAuth() {
   const accessToken = useAppSelector((state) => state.auth.accessToken);
 
   const login = useCallback<AuthContextType['login']>(
-    (email, password, role = 'gp') => {
-      dispatch(loginRequested({ email, password, role }));
+    (email, password) => {
+      dispatch(loginRequested({ email, password }));
     },
     [dispatch]
   );
@@ -54,16 +52,9 @@ export function useAuth() {
     dispatch(logoutRequested());
   }, [dispatch]);
 
-  const switchRole = useCallback<AuthContextType['switchRole']>(
-    (role) => {
-      dispatch(switchRoleRequested(role));
-    },
-    [dispatch]
-  );
-
   const clearError = useCallback<AuthContextType['clearError']>(() => {
     dispatch(clearAuthError());
   }, [dispatch]);
 
-  return { hydrated, isAuthenticated, status, error, accessToken, login, logout, switchRole, clearError, user };
+  return { hydrated, isAuthenticated, status, error, accessToken, login, logout, clearError, user };
 }

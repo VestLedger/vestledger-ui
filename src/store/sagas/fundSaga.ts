@@ -7,6 +7,7 @@ import { clientMounted } from '@/store/slices/uiEffectsSlice';
 import { fetchFunds } from '@/services/fundsService';
 import { safeLocalStorage } from '@/lib/storage/safeLocalStorage';
 import { normalizeError } from '@/store/utils/normalizeError';
+import { logger } from '@/lib/logger';
 
 const STORAGE_SELECTED_FUND_ID = 'vestledger-selected-fund-id';
 const STORAGE_FUND_VIEW_MODE = 'vestledger-fund-view-mode';
@@ -50,7 +51,7 @@ export function* loadFundsWorker(action: ReturnType<typeof fundsRequested>): Sag
     const funds: Fund[] = yield call(fetchFunds, params);
     yield put(fundsLoaded({ funds }));
   } catch (error: unknown) {
-    console.error('Failed to load funds', error);
+    logger.error('Failed to load funds', error);
     yield put(fundsFailed(normalizeError(error)));
   }
 }

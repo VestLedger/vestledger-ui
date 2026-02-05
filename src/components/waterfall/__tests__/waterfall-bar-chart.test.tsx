@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { WaterfallBarChart } from "@/components/waterfall/charts/waterfall-bar-chart";
 import type { WaterfallScenario } from "@/types/waterfall";
 
@@ -53,9 +53,8 @@ describe("WaterfallBarChart", () => {
 
   it("renders accessible table when results exist", () => {
     render(<WaterfallBarChart scenario={scenarioWithResults} />);
-    expect(
-      screen.getByRole("table", { name: /waterfall tier breakdown/i })
-    ).toBeInTheDocument();
-    expect(screen.getByText("Return of Capital")).toBeInTheDocument();
+    const table = screen.getByRole("table", { name: /waterfall tier breakdown/i });
+    expect(table).toBeInTheDocument();
+    expect(within(table).getByText("Return of Capital")).toBeInTheDocument();
   });
 });

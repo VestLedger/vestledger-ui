@@ -42,6 +42,7 @@ const RESET_COLOR = '\x1b[0m';
 
 class Logger {
   private isDevelopment = process.env.NODE_ENV === 'development';
+  private isTest = process.env.NODE_ENV === 'test';
   private isServer = typeof window === 'undefined';
 
   /**
@@ -90,6 +91,9 @@ class Logger {
    * Output log to console with appropriate styling
    */
   private logToConsole(entry: LogEntry): void {
+    if (this.isTest) {
+      return;
+    }
     if (!this.isDevelopment && entry.level === 'debug') {
       return; // Skip debug logs in production
     }

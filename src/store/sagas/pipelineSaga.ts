@@ -7,6 +7,7 @@ import {
 } from '../slices/pipelineSlice';
 import { getPipelineData } from '@/services/pipelineService';
 import { normalizeError } from '@/store/utils/normalizeError';
+import { logger } from '@/lib/logger';
 
 /**
  * Worker saga: Load pipeline data (stages, deals, copilot suggestions)
@@ -17,7 +18,7 @@ export function* loadPipelineDataWorker(action: ReturnType<typeof pipelineDataRe
     const data = yield call(getPipelineData, params);
     yield put(pipelineDataLoaded(data));
   } catch (error: unknown) {
-    console.error('Failed to load pipeline data', error);
+    logger.error('Failed to load pipeline data', error);
     yield put(pipelineDataFailed(normalizeError(error)));
   }
 }

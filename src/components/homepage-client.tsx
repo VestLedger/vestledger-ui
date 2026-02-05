@@ -2,24 +2,21 @@
 
 import type { FormEvent } from 'react';
 import { Button, Input, Modal } from '@/ui';
-import { Select, SelectItem } from '@nextui-org/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAuth, PERSONA_CONFIG, UserRole } from '@/contexts/auth-context';
+import { useAuth } from '@/contexts/auth-context';
 import { useUIKey } from '@/store/ui';
 
 type HomepageUIState = {
   showLoginModal: boolean;
   email: string;
   password: string;
-  role: UserRole;
 };
 
 const homepageFallback: HomepageUIState = {
   showLoginModal: false,
   email: '',
   password: '',
-  role: 'gp',
 };
 
 function useHomepageUI() {
@@ -58,7 +55,7 @@ export function HomepageLoginModal() {
 
   const handleLogin = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    login(homepageUI.email, homepageUI.password, homepageUI.role);
+    login(homepageUI.email, homepageUI.password);
     patchHomepageUI({ showLoginModal: false, password: '' });
     router.push('/dashboard');
   };
@@ -84,26 +81,6 @@ export function HomepageLoginModal() {
           placeholder="you@company.com"
           isRequired
         />
-        <Select
-          label="Select Role (Demo)"
-          placeholder="Select a persona"
-          selectedKeys={[homepageUI.role]}
-          onChange={(e) => patchHomepageUI({ role: e.target.value as UserRole })}
-          disallowEmptySelection
-          variant="bordered"
-          classNames={{
-            trigger: 'bg-[var(--app-surface-hover)] border border-[var(--app-border-subtle)]',
-          }}
-        >
-          {Object.values(PERSONA_CONFIG).map((persona) => (
-            <SelectItem key={persona.id} value={persona.id} textValue={persona.label}>
-              <div className="flex flex-col">
-                <span className="text-small">{persona.label}</span>
-                <span className="text-tiny text-[var(--app-text-muted)]">{persona.description}</span>
-              </div>
-            </SelectItem>
-          ))}
-        </Select>
         <Input
           label="Password"
           type="password"
