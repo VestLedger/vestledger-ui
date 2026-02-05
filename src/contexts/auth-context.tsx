@@ -1,7 +1,7 @@
 'use client'
 
 import type { ReactNode } from 'react';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   loginRequested,
@@ -12,6 +12,8 @@ import {
 import type { NormalizedError } from '@/store/types/AsyncState';
 import type { User, UserRole } from '@/types/auth';
 import { PERSONA_CONFIG } from '@/types/auth';
+import { useToast } from '@/ui';
+import { getAuthErrorMessage } from '@/utils/auth-error-message';
 
 export type { User, UserRole };
 export { PERSONA_CONFIG };
@@ -29,7 +31,12 @@ interface AuthContextType {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  return children;
+  return (
+    <>
+      <AuthErrorToast />
+      {children}
+    </>
+  );
 }
 
 export function useAuth() {
@@ -57,4 +64,31 @@ export function useAuth() {
   }, [dispatch]);
 
   return { hydrated, isAuthenticated, status, error, accessToken, login, logout, clearError, user };
+}
+
+function AuthErrorToast() {
+  const toast = useToast();
+  const status = useAppSelector((state) => state.auth.status);
+  const error = useAppSelector((state) => state.auth.error);
+  const lastMessageRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!error || status !== 'failed') {
+      if (!error) {
+        lastMessageRef.current = null;
+      }
+      return;
+    }
+
+    const message = getAuthErrorMessage(error);
+
+    if (lastMessageRef.current === message) {
+      return;
+    }
+
+    toast.error(message, 'Sign-in failed');
+    lastMessageRef.current = message;
+  }, [error, status, toast]);
+
+  return null;
 }

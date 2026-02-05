@@ -8,6 +8,6 @@ export type { BadgeData };
 
 export function calculateBadges(): BadgeData {
   if (isMockMode()) return calculateAIBadges();
-  throw new Error('AI badges API not implemented yet');
+  // TODO: Replace with API-backed badges when available.
+  return {};
 }
-

@@ -5,6 +5,8 @@ import { loginRequested, loginSucceeded, loginFailed, loggedOut } from '@/store/
 import * as authService from '@/services/authService';
 import type { User } from '@/types/auth';
 import type { AuthResult } from '@/services/authService';
+import { safeLocalStorage } from '@/lib/storage/safeLocalStorage';
+import { DATA_MODE_OVERRIDE_KEY } from '@/config/data-mode';
 
 // Mock the authService
 vi.mock('@/services/authService', () => ({
@@ -60,6 +62,36 @@ describe('authSaga', () => {
 
       expect(dispatched).toContainEqual(
         loginSucceeded({ user: mockUser, accessToken: 'mock-jwt-token' })
+      );
+    });
+
+    it('should persist data mode override when provided', async () => {
+      const resultWithOverride: AuthResult = {
+        user: mockUser,
+        accessToken: 'mock-jwt-token',
+        dataModeOverride: 'mock',
+      };
+      vi.mocked(authService.authenticateUser).mockResolvedValue(resultWithOverride);
+
+      const dispatched: unknown[] = [];
+      const action = loginRequested({
+        email: 'demo@vestledger.com',
+        password: 'Pa$$w0rd',
+        role: 'gp',
+      });
+
+      await runSaga(
+        {
+          dispatch: (action: unknown) => dispatched.push(action),
+          getState: () => ({}),
+        },
+        loginWorker,
+        action
+      ).toPromise();
+
+      expect(vi.mocked(safeLocalStorage.setItem)).toHaveBeenCalledWith(
+        DATA_MODE_OVERRIDE_KEY,
+        'mock'
       );
     });
 
@@ -128,6 +160,7 @@ describe('authSaga', () => {
       ).toPromise();
 
       expect(dispatched).toContainEqual(loggedOut());
+      expect(vi.mocked(safeLocalStorage.removeItem)).toHaveBeenCalledWith(DATA_MODE_OVERRIDE_KEY);
     });
   });
 });

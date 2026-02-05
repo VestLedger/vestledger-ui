@@ -3,7 +3,8 @@ import { configureStore } from "@reduxjs/toolkit";
 import createSagaMiddleware from "redux-saga";
 import type { Store } from "@reduxjs/toolkit";
 import { rootReducer, type RootState } from "@/store/rootReducer";
-import { rootSaga } from "@/store/rootSaga";
+import { distributionSaga } from "@/store/sagas/distributionSaga";
+import { waterfallSaga } from "@/store/sagas/waterfallSaga";
 import { distributionsRequested } from "@/store/slices/distributionSlice";
 import { calculateWaterfallRequested } from "@/store/slices/waterfallSlice";
 import type { Distribution } from "@/types/distribution";
@@ -40,8 +41,11 @@ const setupStore = () => {
         sagaMiddleware
       ),
   });
-  const sagaTask = sagaMiddleware.run(rootSaga);
-  return { store, sagaTask };
+  const sagaTasks = [
+    sagaMiddleware.run(distributionSaga),
+    sagaMiddleware.run(waterfallSaga),
+  ];
+  return { store, sagaTasks };
 };
 
 const waitForState = (
@@ -67,7 +71,7 @@ describe("store + saga integration", () => {
   });
 
   it("loads distributions through saga and updates store", async () => {
-    const { store, sagaTask } = setupStore();
+    const { store, sagaTasks } = setupStore();
     const mockDistributions: Distribution[] = [
       {
         id: "dist-1",
@@ -111,11 +115,11 @@ describe("store + saga integration", () => {
     expect(store.getState().distribution.distributions.data?.distributions).toEqual(
       mockDistributions
     );
-    sagaTask.cancel();
+    sagaTasks.forEach((task) => task.cancel());
   });
 
   it("runs waterfall calculation through saga and stores results", async () => {
-    const { store, sagaTask } = setupStore();
+    const { store, sagaTasks } = setupStore();
     const mockScenario = mockWaterfallScenarios[0];
     const mockResults = mockScenario.results!;
 
@@ -128,6 +132,6 @@ describe("store + saga integration", () => {
     );
 
     expect(store.getState().waterfall.calculation.data?.results).toEqual(mockResults);
-    sagaTask.cancel();
+    sagaTasks.forEach((task) => task.cancel());
   });
 });

@@ -1,22 +1,16 @@
 'use client';
 
-import type { FormEvent } from 'react';
-import { Button, Input, Modal } from '@/ui';
+import { Button } from '@/ui';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/auth-context';
 import { useUIKey } from '@/store/ui';
+import { LoginModal } from '@/components/login-modal';
 
 type HomepageUIState = {
   showLoginModal: boolean;
-  email: string;
-  password: string;
 };
 
 const homepageFallback: HomepageUIState = {
   showLoginModal: false,
-  email: '',
-  password: '',
 };
 
 function useHomepageUI() {
@@ -50,55 +44,11 @@ export function HomepageCTAButton() {
 
 export function HomepageLoginModal() {
   const { value: homepageUI, patch: patchHomepageUI } = useHomepageUI();
-  const { login } = useAuth();
-  const router = useRouter();
-
-  const handleLogin = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    login(homepageUI.email, homepageUI.password);
-    patchHomepageUI({ showLoginModal: false, password: '' });
-    router.push('/dashboard');
-  };
 
   return (
-    <Modal
+    <LoginModal
       isOpen={homepageUI.showLoginModal}
       onOpenChange={(open) => patchHomepageUI({ showLoginModal: open })}
-      size="md"
-      title={
-        <div className="flex flex-col gap-1">
-          <h3 className="text-lg font-medium">Welcome back</h3>
-          <p className="text-sm text-[var(--app-text-muted)]">Sign in to your vestledger account</p>
-        </div>
-      }
-    >
-      <form onSubmit={handleLogin} className="space-y-4 pb-6">
-        <Input
-          label="Email"
-          type="email"
-          value={homepageUI.email}
-          onChange={(e) => patchHomepageUI({ email: e.target.value })}
-          placeholder="you@company.com"
-          isRequired
-        />
-        <Input
-          label="Password"
-          type="password"
-          value={homepageUI.password}
-          onChange={(e) => patchHomepageUI({ password: e.target.value })}
-          placeholder="••••••••"
-          isRequired
-        />
-        <Button type="submit" color="primary" className="w-full">
-          Sign In
-        </Button>
-        <div className="text-center text-xs sm:text-sm text-[var(--app-text-muted)]">
-          Don&apos;t have an account?{' '}
-          <Link href="/eoi" className="text-[var(--app-primary)] hover:underline">
-            Sign up
-          </Link>
-        </div>
-      </form>
-    </Modal>
+    />
   );
 }

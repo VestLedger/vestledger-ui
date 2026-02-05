@@ -1,40 +1,26 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Button, Modal, Input } from '@/ui';
+import { Button } from '@/ui';
 import { useTheme } from 'next-themes';
 import { Sun, Moon } from 'lucide-react';
-import { useAuth } from '@/contexts/auth-context';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useUIKey } from '@/store/ui';
 import { BrandLogo } from '../brand-logo';
+import { LoginModal } from '@/components/login-modal';
 
 export function PublicHeader() {
   const { theme, setTheme } = useTheme();
-  const { login } = useAuth();
   const { value: headerUI, patch: patchHeaderUI } = useUIKey('public-header', {
     mounted: false,
     showLoginModal: false,
-    email: '',
-    password: '',
   });
   const mounted = headerUI.mounted;
   const showLoginModal = headerUI.showLoginModal;
-  const email = headerUI.email;
-  const password = headerUI.password;
-  const router = useRouter();
 
   useEffect(() => {
     patchHeaderUI({ mounted: true });
   }, [patchHeaderUI]);
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    login(email, password);
-    patchHeaderUI({ showLoginModal: false, password: '' });
-    router.push('/dashboard');
-  };
 
   return (
     <>
@@ -74,43 +60,10 @@ export function PublicHeader() {
       </nav>
 
       {/* Login Modal */}
-      <Modal
+      <LoginModal
         isOpen={showLoginModal}
         onOpenChange={(open) => patchHeaderUI({ showLoginModal: open })}
-        size="md"
-        title={
-          <div className="flex flex-col gap-1">
-            <h3 className="text-lg font-medium">Welcome back</h3>
-            <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">Sign in to your vestledger account</p>
-          </div>
-        }
-      >
-        <form onSubmit={handleLogin} className="space-y-4 pb-6">
-          <Input
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(e) => patchHeaderUI({ email: e.target.value })}
-            placeholder="you@company.com"
-            isRequired
-          />
-          <Input
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => patchHeaderUI({ password: e.target.value })}
-            placeholder="••••••••"
-            isRequired
-          />
-          <Button type="submit" color="primary" className="w-full">
-            Sign In
-          </Button>
-          <div className="text-center text-xs sm:text-sm text-app-text-muted dark:text-app-dark-text-muted">
-            Don&apos;t have an account?{' '}
-            <Link href="/eoi" className="text-app-primary dark:text-app-dark-primary hover:underline">Sign up</Link>
-          </div>
-        </form>
-      </Modal>
+      />
     </>
   );
 }
