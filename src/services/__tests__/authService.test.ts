@@ -44,6 +44,20 @@ describe('authService', () => {
       expect(mockFetch).not.toHaveBeenCalled();
     });
 
+    it('should return demo user with mock data override when demo credentials are used', async () => {
+      const { isMockMode } = await import('@/config/data-mode');
+      vi.mocked(isMockMode).mockReturnValue(false);
+
+      const { authenticateUser } = await import('@/services/authService');
+      const result = await authenticateUser('demo@vestledger.com', 'Pa$$w0rd');
+
+      expect(result.user.email).toBe('demo@vestledger.com');
+      expect(result.user.role).toBe('gp');
+      expect(result.accessToken).toBe('mock-token');
+      expect(result.dataModeOverride).toBe('mock');
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
+
     it('should call login endpoint and return user with accessToken from JWT', async () => {
       const mockJwt = createMockJwt({
         sub: 'user-123',

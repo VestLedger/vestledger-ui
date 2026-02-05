@@ -89,7 +89,9 @@ function* hydrateAuthWorker() {
   safeLocalStorage.removeItem(STORAGE_AUTH_KEY);
   safeLocalStorage.removeItem(STORAGE_USER_KEY);
   safeLocalStorage.removeItem(STORAGE_TOKEN_KEY);
+  safeLocalStorage.removeItem(DATA_MODE_OVERRIDE_KEY);
   clearAuthCookies();
+  clearDataModeCookie();
 
   if (savedDataMode === 'mock' || savedDataMode === 'api') {
     setDataModeCookie(savedDataMode);
