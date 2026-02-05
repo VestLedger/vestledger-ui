@@ -1,5 +1,11 @@
 import { test, expect } from '../fixtures/auth.fixture';
 import { DocumentsPage } from '../pages/documents.page';
+import {
+  captureDataSnapshot,
+  verifyDataChanged,
+  selectDifferentOption,
+  searchAndVerifyChange,
+} from '../helpers/interaction-helpers';
 
 test.describe('Documents - Page Load', () => {
   test('should load documents page', async ({ authenticatedPage }) => {
@@ -379,6 +385,174 @@ test.describe('Documents - Recent Documents', () => {
     const recentSection = authenticatedPage.locator('text=/recent|recently/i');
     if (await recentSection.count() > 0) {
       await expect(recentSection.first()).toBeVisible();
+    }
+  });
+});
+
+test.describe('Documents - Interactions - Data Verification', () => {
+  test('category filter should update document list', async ({ authenticatedPage }) => {
+    await authenticatedPage.goto('/documents');
+    await authenticatedPage.waitForLoadState('networkidle');
+
+    const categoryFilter = authenticatedPage.getByRole('combobox', { name: /category/i })
+      .or(authenticatedPage.locator('select, [class*="dropdown"]').filter({ hasText: /category/i }));
+
+    const dataSelector = '[class*="card"], [data-testid="document-item"]';
+
+    if (await categoryFilter.first().isVisible()) {
+      const result = await selectDifferentOption(
+        authenticatedPage,
+        categoryFilter.first(),
+        dataSelector
+      );
+
+      // If multiple categories and documents exist, expect change
+      if (result.selectedOption && result.before.count > 0) {
+        expect(
+          result.changed,
+          `Category filter should update document list. Selected: ${result.selectedOption}`
+        ).toBe(true);
+      }
+    }
+  });
+
+  test('fund filter should update document list', async ({ authenticatedPage }) => {
+    await authenticatedPage.goto('/documents');
+    await authenticatedPage.waitForLoadState('networkidle');
+
+    const fundFilter = authenticatedPage.getByRole('combobox', { name: /fund/i })
+      .or(authenticatedPage.locator('select, [class*="dropdown"]').filter({ hasText: /fund/i }));
+
+    const dataSelector = '[class*="card"], [data-testid="document-item"]';
+
+    if (await fundFilter.first().isVisible()) {
+      const result = await selectDifferentOption(
+        authenticatedPage,
+        fundFilter.first(),
+        dataSelector
+      );
+
+      // If multiple funds and documents exist, expect change
+      if (result.selectedOption && result.before.count > 0) {
+        expect(
+          result.changed,
+          `Fund filter should update document list. Selected: ${result.selectedOption}`
+        ).toBe(true);
+      }
+    }
+  });
+
+  test('search should filter documents', async ({ authenticatedPage }) => {
+    const documents = new DocumentsPage(authenticatedPage);
+    await documents.goto();
+
+    const searchInput = authenticatedPage.getByPlaceholder(/search/i).first();
+    const dataSelector = '[class*="card"], [data-testid="document-item"]';
+
+    if (await searchInput.isVisible()) {
+      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      // Only test if there's data to filter
+      if (before.count > 0) {
+        const result = await searchAndVerifyChange(
+          authenticatedPage,
+          searchInput,
+          'xyz-nonexistent-document',
+          dataSelector
+        );
+
+        // Search for non-existent term should reduce or change results
+        expect(result.after.count).toBeLessThanOrEqual(before.count);
+      }
+    }
+  });
+
+  test('search should show matching documents', async ({ authenticatedPage }) => {
+    const documents = new DocumentsPage(authenticatedPage);
+    await documents.goto();
+
+    const searchInput = authenticatedPage.getByPlaceholder(/search/i).first();
+    const dataSelector = '[class*="card"], [data-testid="document-item"]';
+
+    if (await searchInput.isVisible()) {
+      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      if (before.count > 0) {
+        // Search for a common term like "K-1" or "pdf"
+        await searchInput.fill('K-1');
+        await authenticatedPage.waitForLoadState('networkidle');
+        await authenticatedPage.waitForTimeout(500);
+
+        const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+        const changed = verifyDataChanged(before, after);
+
+        // Search should change results (filter down to matching docs)
+        if (before.count > 1) {
+          expect(changed, 'Search should filter document list').toBe(true);
+        }
+      }
+    }
+  });
+
+  test('clearing search should restore full list', async ({ authenticatedPage }) => {
+    const documents = new DocumentsPage(authenticatedPage);
+    await documents.goto();
+
+    const searchInput = authenticatedPage.getByPlaceholder(/search/i).first();
+    const dataSelector = '[class*="card"], [data-testid="document-item"]';
+
+    if (await searchInput.isVisible()) {
+      const initialSnapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      if (initialSnapshot.count > 0) {
+        // Filter down
+        await searchInput.fill('K-1');
+        await authenticatedPage.waitForLoadState('networkidle');
+        await authenticatedPage.waitForTimeout(500);
+
+        const filteredSnapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+        // Clear search
+        await searchInput.clear();
+        await authenticatedPage.waitForLoadState('networkidle');
+        await authenticatedPage.waitForTimeout(500);
+
+        const restoredSnapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+        // After clearing, should restore to original count
+        expect(restoredSnapshot.count).toBeGreaterThanOrEqual(filteredSnapshot.count);
+      }
+    }
+  });
+
+  test('combined filters should work together', async ({ authenticatedPage }) => {
+    await authenticatedPage.goto('/documents');
+    await authenticatedPage.waitForLoadState('networkidle');
+
+    const categoryFilter = authenticatedPage.getByRole('combobox', { name: /category/i }).first();
+    const fundFilter = authenticatedPage.getByRole('combobox', { name: /fund/i }).first();
+    const dataSelector = '[class*="card"], [data-testid="document-item"]';
+
+    const initialSnapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+    // Apply category filter first
+    if (await categoryFilter.isVisible()) {
+      await selectDifferentOption(authenticatedPage, categoryFilter, dataSelector);
+    }
+
+    const afterCategoryFilter = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+    // Apply fund filter second
+    if (await fundFilter.isVisible()) {
+      await selectDifferentOption(authenticatedPage, fundFilter, dataSelector);
+    }
+
+    const afterBothFilters = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+    // Combined filters should produce different results than single filter
+    if (initialSnapshot.count > 2) {
+      const filtersApplied = verifyDataChanged(initialSnapshot, afterBothFilters);
+      expect(filtersApplied, 'Combined filters should affect document list').toBe(true);
     }
   });
 });

@@ -2,7 +2,7 @@ import { test as base, expect, Page } from '@playwright/test';
 
 // Test user credentials - configure these in your environment
 const TEST_USER = {
-  email: process.env.TEST_USER_EMAIL || 'test@vestledger.com',
+  email: process.env.TEST_USER_EMAIL || 'demo@vestledger.com',
   password: process.env.TEST_USER_PASSWORD || 'testpassword123',
   role: 'gp' as const,
 };
@@ -36,15 +36,17 @@ async function loginUser(page: Page, email: string, password: string, role: stri
   // Wait for the form to be ready
   await page.waitForSelector('form');
 
-  // Fill email
-  await page.getByLabel('Email').fill(email);
+  // Fill email - use CSS selector for NextUI inputs
+  await page.locator('input[type="email"], input[type="text"]').first().fill(email);
 
-  // Select role
-  await page.getByLabel('Select Role (Demo)').click();
+  // Select role - NextUI Select renders both a hidden <select> and a visible button trigger
+  await page.locator('button[data-slot="trigger"]').filter({ hasText: /select role/i }).click();
+  await page.waitForSelector('[role="listbox"]');
   await page.getByRole('option', { name: new RegExp(role, 'i') }).first().click();
+  await page.waitForSelector('[role="listbox"]', { state: 'hidden' });
 
-  // Fill password
-  await page.getByLabel('Password').fill(password);
+  // Fill password - use CSS selector for type="password"
+  await page.locator('input[type="password"]').fill(password);
 
   // Submit
   await page.getByRole('button', { name: /sign in/i }).click();

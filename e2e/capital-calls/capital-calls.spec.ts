@@ -1,5 +1,10 @@
 import { test, expect } from '../fixtures/auth.fixture';
 import { CapitalCallsPage } from '../pages/capital-calls.page';
+import {
+  captureDataSnapshot,
+  verifyDataChanged,
+  selectDifferentOption,
+} from '../helpers/interaction-helpers';
 
 test.describe('Capital Calls - Fund Admin Tab', () => {
   test('should load fund admin page with capital calls tab', async ({ authenticatedPage }) => {
@@ -368,5 +373,118 @@ test.describe('Capital Calls - Tab Navigation', () => {
     const tabBadges = authenticatedPage.locator('[role="tab"] [class*="badge"], [role="tab"] span').filter({ hasText: /\\d+/ });
     const hasBadges = await tabBadges.count() > 0;
     expect(hasBadges || true).toBeTruthy(); // Badges are optional
+  });
+});
+
+test.describe('Capital Calls - Interactions - Data Verification', () => {
+  test('fund selector should update capital call cards', async ({ authenticatedPage }) => {
+    await authenticatedPage.goto('/fund-admin');
+    await authenticatedPage.waitForLoadState('networkidle');
+
+    const fundSelector = authenticatedPage.getByRole('combobox', { name: /fund/i })
+      .or(authenticatedPage.locator('[data-testid="fund-selector"]'))
+      .or(authenticatedPage.locator('select').filter({ hasText: /fund/i }));
+
+    // Data selector for capital call cards
+    const dataSelector = '[class*="card"]:has-text("Capital Call"), [data-testid="capital-call-card"]';
+
+    if (await fundSelector.first().isVisible()) {
+      const result = await selectDifferentOption(
+        authenticatedPage,
+        fundSelector.first(),
+        dataSelector
+      );
+
+      // If multiple funds exist and there's data, expect changes
+      if (result.selectedOption && result.before.count > 0) {
+        expect(
+          result.changed,
+          `Fund selector should update capital call data. Selected: ${result.selectedOption}`
+        ).toBe(true);
+      }
+    }
+  });
+
+  test('status filter should update LP response list', async ({ authenticatedPage }) => {
+    const capitalCalls = new CapitalCallsPage(authenticatedPage);
+    await capitalCalls.goto();
+    await capitalCalls.selectLPResponsesTab();
+
+    const statusFilter = authenticatedPage.getByRole('combobox').or(authenticatedPage.locator('select')).first();
+    const dataSelector = '[class*="rounded-lg"]:has-text("commitment"), [data-testid="lp-response-card"]';
+
+    if (await statusFilter.isVisible()) {
+      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      // Only test if there's data
+      if (before.count > 0) {
+        await statusFilter.click();
+        await authenticatedPage.waitForTimeout(300);
+
+        // Try to select "Paid" filter
+        const paidOption = authenticatedPage.getByRole('option', { name: /paid/i });
+        if (await paidOption.isVisible()) {
+          await paidOption.click();
+          await authenticatedPage.waitForLoadState('networkidle');
+
+          const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+          const changed = verifyDataChanged(before, after);
+
+          expect(
+            changed,
+            'Status filter should update LP response list'
+          ).toBe(true);
+        }
+      }
+    }
+  });
+
+  test('tab switch should update displayed content', async ({ authenticatedPage }) => {
+    const capitalCalls = new CapitalCallsPage(authenticatedPage);
+    await capitalCalls.goto();
+
+    // Capture initial content
+    const contentSelector = '[class*="card"], [class*="rounded-lg"]';
+    const before = await captureDataSnapshot(authenticatedPage, contentSelector);
+
+    // Switch to Distributions tab
+    await capitalCalls.selectDistributionsTab();
+    await authenticatedPage.waitForLoadState('networkidle');
+
+    const after = await captureDataSnapshot(authenticatedPage, contentSelector);
+    const changed = verifyDataChanged(before, after);
+
+    expect(
+      changed,
+      'Tab switch should update displayed content'
+    ).toBe(true);
+  });
+
+  test('metrics cards should reflect filtered data', async ({ authenticatedPage }) => {
+    await authenticatedPage.goto('/fund-admin');
+    await authenticatedPage.waitForLoadState('networkidle');
+
+    const fundSelector = authenticatedPage.getByRole('combobox', { name: /fund/i })
+      .or(authenticatedPage.locator('[data-testid="fund-selector"]'));
+
+    // Metrics card selectors
+    const metricsSelector = '[class*="card"]:has-text("Active Calls"), [class*="card"]:has-text("Outstanding")';
+
+    if (await fundSelector.first().isVisible()) {
+      // Select different fund and verify metrics update
+      const result = await selectDifferentOption(
+        authenticatedPage,
+        fundSelector.first(),
+        metricsSelector
+      );
+
+      // Metrics should update when fund changes
+      if (result.selectedOption) {
+        expect(
+          result.changed,
+          'Metrics cards should update when fund changes'
+        ).toBe(true);
+      }
+    }
   });
 });

@@ -1,5 +1,10 @@
 import { test, expect } from '../fixtures/auth.fixture';
 import { AuditTrailPage } from '../pages/audit-trail.page';
+import {
+  captureDataSnapshot,
+  verifyDataChanged,
+  searchAndVerifyChange,
+} from '../helpers/interaction-helpers';
 
 test.describe('Audit Trail - Page Load', () => {
   test('should load audit trail page', async ({ authenticatedPage }) => {
@@ -256,5 +261,169 @@ test.describe('Audit Trail - Event Types', () => {
     const distributionEvents = await auditTrail.getEventsByType('distribution');
     const count = await distributionEvents.count();
     expect(count).toBeGreaterThanOrEqual(0);
+  });
+});
+
+test.describe('Audit Trail - Interactions - Data Verification', () => {
+  test('event type filter should update event list', async ({ authenticatedPage }) => {
+    const auditTrail = new AuditTrailPage(authenticatedPage);
+    await auditTrail.goto();
+
+    const dataSelector = '[class*="card"], [data-testid="audit-event"], table tbody tr';
+
+    if (await auditTrail.eventTypeFilter.isVisible()) {
+      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      if (before.count > 0) {
+        await auditTrail.filterByEventType('Distribution');
+        await authenticatedPage.waitForLoadState('networkidle');
+
+        const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+        const changed = verifyDataChanged(before, after);
+
+        expect(
+          changed,
+          'Event type filter should update event list'
+        ).toBe(true);
+      }
+    }
+  });
+
+  test('search should filter audit events', async ({ authenticatedPage }) => {
+    const auditTrail = new AuditTrailPage(authenticatedPage);
+    await auditTrail.goto();
+
+    const dataSelector = '[class*="card"], [data-testid="audit-event"], table tbody tr';
+    const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+    if (before.count > 0 && await auditTrail.searchInput.isVisible()) {
+      const result = await searchAndVerifyChange(
+        authenticatedPage,
+        auditTrail.searchInput,
+        'xyz-nonexistent-event',
+        dataSelector
+      );
+
+      // Search for non-existent term should reduce results
+      expect(result.after.count).toBeLessThanOrEqual(before.count);
+    }
+  });
+
+  test('search should show matching events', async ({ authenticatedPage }) => {
+    const auditTrail = new AuditTrailPage(authenticatedPage);
+    await auditTrail.goto();
+
+    const dataSelector = '[class*="card"], [data-testid="audit-event"], table tbody tr';
+    const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+    if (before.count > 0 && await auditTrail.searchInput.isVisible()) {
+      // Search for a common term
+      await auditTrail.searchEvents('distribution');
+      await authenticatedPage.waitForLoadState('networkidle');
+      await authenticatedPage.waitForTimeout(500);
+
+      const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+      const changed = verifyDataChanged(before, after);
+
+      // Search should filter results
+      if (before.count > 1) {
+        expect(changed, 'Search should filter audit events').toBe(true);
+      }
+    }
+  });
+
+  test('date filter should update event list', async ({ authenticatedPage }) => {
+    await authenticatedPage.goto('/audit-trail');
+    await authenticatedPage.waitForLoadState('networkidle');
+
+    const dateFilter = authenticatedPage.getByRole('combobox', { name: /date|period/i })
+      .or(authenticatedPage.locator('select').filter({ hasText: /date|period|today|week/i }));
+
+    const dataSelector = '[class*="card"], [data-testid="audit-event"], table tbody tr';
+
+    if (await dateFilter.first().isVisible()) {
+      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      if (before.count > 0) {
+        await dateFilter.first().click();
+        await authenticatedPage.waitForTimeout(300);
+
+        // Select a different date range option
+        const dateOption = authenticatedPage.getByRole('option', { name: /last week|today|this month/i });
+        if (await dateOption.first().isVisible()) {
+          await dateOption.first().click();
+          await authenticatedPage.waitForLoadState('networkidle');
+
+          const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+          const changed = verifyDataChanged(before, after);
+
+          expect(
+            changed,
+            'Date filter should update event list'
+          ).toBe(true);
+        }
+      }
+    }
+  });
+
+  test('entity filter should update events for specific fund', async ({ authenticatedPage }) => {
+    await authenticatedPage.goto('/audit-trail');
+    await authenticatedPage.waitForLoadState('networkidle');
+
+    const entityFilter = authenticatedPage.getByRole('combobox', { name: /entity|fund/i });
+    const dataSelector = '[class*="card"], [data-testid="audit-event"], table tbody tr';
+
+    if (await entityFilter.isVisible()) {
+      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      if (before.count > 0) {
+        await entityFilter.click();
+        await authenticatedPage.waitForTimeout(300);
+
+        // Select a specific fund
+        const fundOption = authenticatedPage.getByRole('option').nth(1);
+        if (await fundOption.isVisible()) {
+          await fundOption.click();
+          await authenticatedPage.waitForLoadState('networkidle');
+
+          const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+          const changed = verifyDataChanged(before, after);
+
+          expect(
+            changed,
+            'Entity filter should update event list'
+          ).toBe(true);
+        }
+      }
+    }
+  });
+
+  test('combined filters should work together', async ({ authenticatedPage }) => {
+    const auditTrail = new AuditTrailPage(authenticatedPage);
+    await auditTrail.goto();
+
+    const dataSelector = '[class*="card"], [data-testid="audit-event"], table tbody tr';
+    const initialSnapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+    // Apply event type filter
+    if (await auditTrail.eventTypeFilter.isVisible()) {
+      await auditTrail.filterByEventType('Distribution');
+      await authenticatedPage.waitForLoadState('networkidle');
+    }
+
+    // Apply search filter
+    if (await auditTrail.searchInput.isVisible()) {
+      await auditTrail.searchEvents('fund');
+      await authenticatedPage.waitForLoadState('networkidle');
+      await authenticatedPage.waitForTimeout(500);
+    }
+
+    const afterBothFilters = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+    // Combined filters should produce different results
+    if (initialSnapshot.count > 2) {
+      const filtersApplied = verifyDataChanged(initialSnapshot, afterBothFilters);
+      expect(filtersApplied, 'Combined filters should affect event list').toBe(true);
+    }
   });
 });

@@ -1,5 +1,10 @@
 import { test, expect } from '../fixtures/auth.fixture';
 import { TaxCenterPage } from '../pages/tax-center.page';
+import {
+  captureDataSnapshot,
+  verifyDataChanged,
+  selectDifferentOption,
+} from '../helpers/interaction-helpers';
 
 test.describe('Tax Center - Page Load', () => {
   test('should load tax center page', async ({ authenticatedPage }) => {
@@ -155,6 +160,143 @@ test.describe('Tax Center - Filtering', () => {
 
     if (await taxCenter.statusFilter.isVisible()) {
       await expect(taxCenter.statusFilter).toBeEnabled();
+    }
+  });
+});
+
+test.describe('Tax Center - Interactions - Data Verification', () => {
+  test('year filter should update K-1s list', async ({ authenticatedPage }) => {
+    const taxCenter = new TaxCenterPage(authenticatedPage);
+    await taxCenter.goto();
+
+    const dataSelector = '[class*="card"], [data-testid="k1-item"], table tbody tr';
+
+    if (await taxCenter.yearFilter.isVisible()) {
+      const result = await selectDifferentOption(
+        authenticatedPage,
+        taxCenter.yearFilter,
+        dataSelector
+      );
+
+      // If multiple years and data exist, expect change
+      if (result.selectedOption && result.before.count > 0) {
+        expect(
+          result.changed,
+          `Year filter should update K-1s list. Selected: ${result.selectedOption}`
+        ).toBe(true);
+      }
+    }
+  });
+
+  test('status filter should update document list', async ({ authenticatedPage }) => {
+    const taxCenter = new TaxCenterPage(authenticatedPage);
+    await taxCenter.goto();
+
+    const dataSelector = '[class*="card"], [data-testid="tax-document"], table tbody tr';
+
+    if (await taxCenter.statusFilter.isVisible()) {
+      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      if (before.count > 0) {
+        await taxCenter.statusFilter.click();
+        await authenticatedPage.waitForTimeout(300);
+
+        // Try to select a different status
+        const statusOption = authenticatedPage.getByRole('option', { name: /pending|completed|draft/i });
+        if (await statusOption.first().isVisible()) {
+          await statusOption.first().click();
+          await authenticatedPage.waitForLoadState('networkidle');
+
+          const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+          const changed = verifyDataChanged(before, after);
+
+          expect(
+            changed,
+            'Status filter should update document list'
+          ).toBe(true);
+        }
+      }
+    }
+  });
+
+  test('tab switch should update displayed content', async ({ authenticatedPage }) => {
+    const taxCenter = new TaxCenterPage(authenticatedPage);
+    await taxCenter.goto();
+
+    const contentSelector = '[class*="card"], table, [class*="rounded-lg"]';
+    const before = await captureDataSnapshot(authenticatedPage, contentSelector);
+
+    // Switch to K-1 Generator tab
+    await taxCenter.selectK1GeneratorTab();
+    await authenticatedPage.waitForLoadState('networkidle');
+
+    const after = await captureDataSnapshot(authenticatedPage, contentSelector);
+    const changed = verifyDataChanged(before, after);
+
+    expect(
+      changed,
+      'Tab switch should update displayed content'
+    ).toBe(true);
+  });
+
+  test('combined year and status filters should work together', async ({ authenticatedPage }) => {
+    const taxCenter = new TaxCenterPage(authenticatedPage);
+    await taxCenter.goto();
+
+    const dataSelector = '[class*="card"], [data-testid="tax-document"], table tbody tr';
+    const initialSnapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+    // Apply year filter first
+    if (await taxCenter.yearFilter.isVisible()) {
+      await selectDifferentOption(authenticatedPage, taxCenter.yearFilter, dataSelector);
+    }
+
+    const afterYearFilter = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+    // Apply status filter second
+    if (await taxCenter.statusFilter.isVisible()) {
+      await taxCenter.statusFilter.click();
+      await authenticatedPage.waitForTimeout(300);
+
+      const statusOption = authenticatedPage.getByRole('option').first();
+      if (await statusOption.isVisible()) {
+        await statusOption.click();
+        await authenticatedPage.waitForLoadState('networkidle');
+      }
+    }
+
+    const afterBothFilters = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+    // Combined filters should produce different results
+    if (initialSnapshot.count > 2) {
+      const filtersApplied = verifyDataChanged(initialSnapshot, afterBothFilters);
+      expect(filtersApplied, 'Combined filters should affect document list').toBe(true);
+    }
+  });
+
+  test('metrics should update when filters change', async ({ authenticatedPage }) => {
+    const taxCenter = new TaxCenterPage(authenticatedPage);
+    await taxCenter.goto();
+
+    // Get initial K-1s count
+    const initialK1Count = await taxCenter.getK1sIssuedCount();
+
+    // Apply year filter
+    if (await taxCenter.yearFilter.isVisible() && initialK1Count > 0) {
+      const metricsSelector = '[class*="card"]:has-text("K-1s Issued")';
+      const result = await selectDifferentOption(
+        authenticatedPage,
+        taxCenter.yearFilter,
+        metricsSelector
+      );
+
+      // Metrics should update when year changes
+      if (result.selectedOption) {
+        expect(
+          result.changed,
+          'Metrics should update when year filter changes'
+        ).toBe(true);
+      }
     }
   });
 });

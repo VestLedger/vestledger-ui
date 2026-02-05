@@ -1,5 +1,9 @@
 import { test, expect } from '../fixtures/auth.fixture';
 import { DealflowReviewPage } from '../pages/dealflow-review.page';
+import {
+  captureDataSnapshot,
+  verifyDataChanged,
+} from '../helpers/interaction-helpers';
 
 test.describe('Dealflow Review - Page Load', () => {
   test('should load dealflow review page', async ({ authenticatedPage }) => {
@@ -426,6 +430,197 @@ test.describe('Dealflow Review - Share and Export', () => {
 
     if (await dealflowReview.exportButton.isVisible()) {
       await expect(dealflowReview.exportButton).toBeEnabled();
+    }
+  });
+});
+
+test.describe('Dealflow Review - Interactions - Data Verification', () => {
+  test('deal navigation should update slide content', async ({ authenticatedPage }) => {
+    const dealflowReview = new DealflowReviewPage(authenticatedPage);
+    await dealflowReview.goto();
+
+    const totalDeals = await dealflowReview.getTotalDeals();
+    if (totalDeals > 1) {
+      const dataSelector = '[class*="card"], [class*="slide"], [class*="content"], h2, h3';
+      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      await dealflowReview.nextDeal();
+      await authenticatedPage.waitForLoadState('networkidle');
+
+      const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+      const changed = verifyDataChanged(before, after);
+
+      expect(
+        changed,
+        'Navigating to next deal should update slide content'
+      ).toBe(true);
+    }
+  });
+
+  test('slide navigation should update displayed slide', async ({ authenticatedPage }) => {
+    const dealflowReview = new DealflowReviewPage(authenticatedPage);
+    await dealflowReview.goto();
+
+    const totalDeals = await dealflowReview.getTotalDeals();
+    if (totalDeals > 0) {
+      const totalSlides = await dealflowReview.getTotalSlides();
+      if (totalSlides > 1) {
+        const dataSelector = '[class*="slide"], [class*="content"], h2, h3, [class*="card"]';
+        const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+        await dealflowReview.nextSlide();
+        await authenticatedPage.waitForLoadState('networkidle');
+
+        const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+        const changed = verifyDataChanged(before, after);
+
+        expect(
+          changed,
+          'Navigating to next slide should update content'
+        ).toBe(true);
+      }
+    }
+  });
+
+  test('selecting slide by button should update slide content', async ({ authenticatedPage }) => {
+    const dealflowReview = new DealflowReviewPage(authenticatedPage);
+    await dealflowReview.goto();
+
+    const totalDeals = await dealflowReview.getTotalDeals();
+    if (totalDeals > 0) {
+      const slideCount = await dealflowReview.getSlideCount();
+      if (slideCount > 2) {
+        const dataSelector = '[class*="slide"], [class*="content"], h2, h3';
+        const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+        await dealflowReview.selectSlide(2);
+        await authenticatedPage.waitForLoadState('networkidle');
+
+        const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+        const changed = verifyDataChanged(before, after);
+
+        expect(
+          changed,
+          'Clicking slide button should update displayed slide'
+        ).toBe(true);
+      }
+    }
+  });
+
+  test('voting should update vote display', async ({ authenticatedPage }) => {
+    const dealflowReview = new DealflowReviewPage(authenticatedPage);
+    await dealflowReview.goto();
+
+    const totalDeals = await dealflowReview.getTotalDeals();
+    if (totalDeals > 0) {
+      const dataSelector = '[class*="vote"], [class*="button"][class*="active"], [class*="selected"]';
+      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      await dealflowReview.voteYes();
+      await authenticatedPage.waitForTimeout(500);
+
+      const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+      const changed = verifyDataChanged(before, after);
+
+      expect(
+        changed,
+        'Casting vote should update vote display'
+      ).toBe(true);
+    }
+  });
+
+  test('changing vote should update button states', async ({ authenticatedPage }) => {
+    const dealflowReview = new DealflowReviewPage(authenticatedPage);
+    await dealflowReview.goto();
+
+    const totalDeals = await dealflowReview.getTotalDeals();
+    if (totalDeals > 0) {
+      // First vote yes
+      await dealflowReview.voteYes();
+      await authenticatedPage.waitForTimeout(300);
+
+      const dataSelector = '[class*="vote"], [class*="button"]';
+      const afterYes = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      // Then change to no
+      await dealflowReview.voteNo();
+      await authenticatedPage.waitForTimeout(300);
+
+      const afterNo = await captureDataSnapshot(authenticatedPage, dataSelector);
+      const changed = verifyDataChanged(afterYes, afterNo);
+
+      expect(
+        changed,
+        'Changing vote should update button states'
+      ).toBe(true);
+    }
+  });
+
+  test('presentation mode should change UI state', async ({ authenticatedPage }) => {
+    const dealflowReview = new DealflowReviewPage(authenticatedPage);
+    await dealflowReview.goto();
+
+    const totalDeals = await dealflowReview.getTotalDeals();
+    if (totalDeals > 0 && await dealflowReview.startPresentationButton.isVisible()) {
+      const dataSelector = 'button, [class*="present"], [class*="mode"]';
+      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      await dealflowReview.startPresentation();
+      await authenticatedPage.waitForTimeout(500);
+
+      const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+      const changed = verifyDataChanged(before, after);
+
+      expect(
+        changed,
+        'Starting presentation should change UI state'
+      ).toBe(true);
+
+      // Clean up - stop presentation
+      if (await dealflowReview.stopPresentationButton.isVisible()) {
+        await dealflowReview.stopPresentation();
+      }
+    }
+  });
+
+  test('adding comment should update discussion section', async ({ authenticatedPage }) => {
+    const dealflowReview = new DealflowReviewPage(authenticatedPage);
+    await dealflowReview.goto();
+
+    const totalDeals = await dealflowReview.getTotalDeals();
+    if (totalDeals > 0 && await dealflowReview.discussionTextarea.isVisible()) {
+      const textareaBefore = await dealflowReview.discussionTextarea.inputValue();
+
+      await dealflowReview.addComment('Test comment for interaction verification');
+
+      const textareaAfter = await dealflowReview.discussionTextarea.inputValue();
+
+      expect(
+        textareaAfter !== textareaBefore,
+        'Adding comment should update the discussion textarea'
+      ).toBe(true);
+    }
+  });
+
+  test('selecting different deal should update all content sections', async ({ authenticatedPage }) => {
+    const dealflowReview = new DealflowReviewPage(authenticatedPage);
+    await dealflowReview.goto();
+
+    const totalDeals = await dealflowReview.getTotalDeals();
+    if (totalDeals > 1) {
+      const dataSelector = '[class*="card"], [class*="slide"], [class*="content"], [class*="vote"], h2, h3';
+      const deal1Snapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      await dealflowReview.selectDeal(1);
+      await authenticatedPage.waitForLoadState('networkidle');
+
+      const deal2Snapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+      const changed = verifyDataChanged(deal1Snapshot, deal2Snapshot);
+
+      expect(
+        changed,
+        'Selecting different deal should update all content sections'
+      ).toBe(true);
     }
   });
 });

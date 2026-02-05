@@ -1,5 +1,9 @@
 import { test, expect } from '../fixtures/auth.fixture';
 import { LPPortalPage } from '../pages/lp-portal.page';
+import {
+  captureDataSnapshot,
+  verifyDataChanged,
+} from '../helpers/interaction-helpers';
 
 test.describe('LP Portal', () => {
   test('should load LP portal page', async ({ authenticatedPage }) => {
@@ -101,6 +105,112 @@ test.describe('LP Portal Interactions', () => {
     if (await investmentItem.isVisible()) {
       await investmentItem.click();
       await authenticatedPage.waitForLoadState('networkidle');
+    }
+  });
+});
+
+test.describe('LP Portal - Interactions - Data Verification', () => {
+  test('fund selector should update portfolio data', async ({ authenticatedPage }) => {
+    await authenticatedPage.goto('/lp-portal');
+    await authenticatedPage.waitForLoadState('networkidle');
+
+    const fundSelector = authenticatedPage.getByRole('combobox', { name: /fund/i })
+      .or(authenticatedPage.locator('[data-testid="fund-selector"]'))
+      .or(authenticatedPage.locator('select').filter({ hasText: /fund/i }));
+
+    const dataSelector = '[class*="card"], [data-testid="investment"], table tbody tr';
+
+    if (await fundSelector.first().isVisible()) {
+      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      await fundSelector.first().click();
+      await authenticatedPage.waitForTimeout(300);
+
+      const fundOption = authenticatedPage.getByRole('option').nth(1);
+      if (await fundOption.isVisible()) {
+        await fundOption.click();
+        await authenticatedPage.waitForLoadState('networkidle');
+
+        const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+        const changed = verifyDataChanged(before, after);
+
+        if (before.count > 0) {
+          expect(changed, 'Fund selector should update portfolio data').toBe(true);
+        }
+      }
+    }
+  });
+
+  test('tab navigation should update displayed content', async ({ authenticatedPage }) => {
+    await authenticatedPage.goto('/lp-portal');
+    await authenticatedPage.waitForLoadState('networkidle');
+
+    const tabs = authenticatedPage.getByRole('tab')
+      .or(authenticatedPage.locator('[role="tablist"] button'));
+
+    const dataSelector = '[class*="card"], table, [class*="content"]';
+
+    if (await tabs.count() > 1) {
+      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      await tabs.nth(1).click();
+      await authenticatedPage.waitForLoadState('networkidle');
+
+      const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+      const changed = verifyDataChanged(before, after);
+
+      expect(changed, 'Tab navigation should update displayed content').toBe(true);
+    }
+  });
+
+  test('period selector should update performance metrics', async ({ authenticatedPage }) => {
+    await authenticatedPage.goto('/lp-portal');
+    await authenticatedPage.waitForLoadState('networkidle');
+
+    const periodSelector = authenticatedPage.getByRole('combobox', { name: /period|time|range/i })
+      .or(authenticatedPage.locator('select').filter({ hasText: /YTD|1Y|3Y|all/i }));
+
+    const dataSelector = '[class*="metric"], [class*="value"], [data-testid="performance"]';
+
+    if (await periodSelector.first().isVisible()) {
+      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      await periodSelector.first().click();
+      await authenticatedPage.waitForTimeout(300);
+
+      const periodOption = authenticatedPage.getByRole('option').nth(1);
+      if (await periodOption.isVisible()) {
+        await periodOption.click();
+        await authenticatedPage.waitForLoadState('networkidle');
+
+        const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+        const changed = verifyDataChanged(before, after);
+
+        if (before.count > 0) {
+          expect(changed, 'Period selector should update performance metrics').toBe(true);
+        }
+      }
+    }
+  });
+
+  test('clicking investment should show details panel', async ({ authenticatedPage }) => {
+    await authenticatedPage.goto('/lp-portal');
+    await authenticatedPage.waitForLoadState('networkidle');
+
+    const investmentItems = authenticatedPage.locator('[data-testid="investment-item"], table tbody tr, [class*="investment-card"]');
+
+    if (await investmentItems.count() > 0) {
+      const detailsSelector = '[role="dialog"], [class*="drawer"], [class*="detail"], [class*="panel"]';
+      const before = await captureDataSnapshot(authenticatedPage, detailsSelector);
+
+      await investmentItems.first().click();
+      await authenticatedPage.waitForLoadState('networkidle');
+      await authenticatedPage.waitForTimeout(500);
+
+      const after = await captureDataSnapshot(authenticatedPage, detailsSelector);
+      const changed = verifyDataChanged(before, after);
+
+      expect(changed, 'Clicking investment should show details panel').toBe(true);
     }
   });
 });

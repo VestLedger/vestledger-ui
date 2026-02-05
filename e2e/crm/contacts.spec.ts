@@ -1,5 +1,10 @@
 import { test, expect } from '../fixtures/auth.fixture';
 import { ContactsPage } from '../pages/contacts.page';
+import {
+  captureDataSnapshot,
+  verifyDataChanged,
+  searchAndVerifyChange,
+} from '../helpers/interaction-helpers';
 
 test.describe('Contacts - Page Load', () => {
   test('should load contacts page', async ({ authenticatedPage }) => {
@@ -317,6 +322,143 @@ test.describe('Contacts - Tags', () => {
       const tagsSection = authenticatedPage.locator('text=/Tags/i');
       if (await tagsSection.isVisible()) {
         await expect(tagsSection).toBeVisible();
+      }
+    }
+  });
+});
+
+test.describe('Contacts - Interactions - Data Verification', () => {
+  test('role filter should update contact list', async ({ authenticatedPage }) => {
+    const contacts = new ContactsPage(authenticatedPage);
+    await contacts.goto();
+
+    const roleFilter = authenticatedPage.getByRole('combobox')
+      .or(authenticatedPage.locator('select'))
+      .or(authenticatedPage.locator('[class*="dropdown"]'));
+
+    const dataSelector = '[class*="card"], [data-testid="contact-card"], [class*="rounded-lg"]';
+
+    if (await roleFilter.first().isVisible()) {
+      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      // Only test if there's data
+      if (before.count > 0) {
+        await roleFilter.first().click();
+        await authenticatedPage.waitForTimeout(300);
+
+        const founderOption = authenticatedPage.getByRole('option', { name: /founder/i });
+        if (await founderOption.isVisible()) {
+          await founderOption.click();
+          await authenticatedPage.waitForLoadState('networkidle');
+
+          const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+          const changed = verifyDataChanged(before, after);
+
+          expect(
+            changed,
+            'Role filter should update contact list'
+          ).toBe(true);
+        }
+      }
+    }
+  });
+
+  test('search should filter contacts and update list', async ({ authenticatedPage }) => {
+    const contacts = new ContactsPage(authenticatedPage);
+    await contacts.goto();
+
+    const dataSelector = '[class*="card"], [data-testid="contact-card"], [class*="rounded-lg"]';
+    const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+    // Only test if there's data to filter
+    if (before.count > 0) {
+      const result = await searchAndVerifyChange(
+        authenticatedPage,
+        contacts.searchInput,
+        'xyz-nonexistent-contact',
+        dataSelector
+      );
+
+      // Search for non-existent term should reduce results
+      expect(result.after.count).toBeLessThanOrEqual(before.count);
+    }
+  });
+
+  test('search should show matching contacts', async ({ authenticatedPage }) => {
+    const contacts = new ContactsPage(authenticatedPage);
+    await contacts.goto();
+
+    const dataSelector = '[class*="card"], [data-testid="contact-card"], [class*="rounded-lg"]';
+    const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+    if (before.count > 0) {
+      // Search for a common name like "john"
+      await contacts.searchInput.fill('john');
+      await authenticatedPage.waitForLoadState('networkidle');
+      await authenticatedPage.waitForTimeout(500);
+
+      const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+      const changed = verifyDataChanged(before, after);
+
+      // Search should filter results
+      if (before.count > 1) {
+        expect(changed, 'Search should filter contact list').toBe(true);
+      }
+    }
+  });
+
+  test('smart list selection should filter contacts', async ({ authenticatedPage }) => {
+    const contacts = new ContactsPage(authenticatedPage);
+    await contacts.goto();
+
+    const smartListsSection = authenticatedPage.locator('text=/Smart Lists/i');
+    const dataSelector = '[class*="card"], [data-testid="contact-card"], [class*="rounded-lg"]';
+
+    if (await smartListsSection.isVisible()) {
+      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      // Click on a smart list option
+      const smartListItem = authenticatedPage.locator('[class*="cursor-pointer"]').filter({ hasText: /needs follow-up|starred|recent/i }).first();
+
+      if (await smartListItem.isVisible() && before.count > 0) {
+        await smartListItem.click();
+        await authenticatedPage.waitForLoadState('networkidle');
+
+        const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+        const changed = verifyDataChanged(before, after);
+
+        expect(
+          changed,
+          'Smart list selection should filter contacts'
+        ).toBe(true);
+      }
+    }
+  });
+
+  test('metrics should reflect current filter state', async ({ authenticatedPage }) => {
+    const contacts = new ContactsPage(authenticatedPage);
+    await contacts.goto();
+
+    // Get initial metrics
+    const initialTotalCount = await contacts.getTotalContactsCount();
+
+    // Apply a filter
+    const roleFilter = authenticatedPage.getByRole('combobox').or(authenticatedPage.locator('select')).first();
+
+    if (await roleFilter.isVisible() && initialTotalCount > 0) {
+      await roleFilter.click();
+      await authenticatedPage.waitForTimeout(300);
+
+      const founderOption = authenticatedPage.getByRole('option', { name: /founder/i });
+      if (await founderOption.isVisible()) {
+        await founderOption.click();
+        await authenticatedPage.waitForLoadState('networkidle');
+
+        // After filtering, the displayed count should be related to the filter
+        const filteredContactCount = await contacts.getContactCount();
+
+        // Filtered count should be <= total (unless showing all again)
+        expect(filteredContactCount).toBeLessThanOrEqual(initialTotalCount);
       }
     }
   });

@@ -1,5 +1,9 @@
 import { test, expect } from '../fixtures/auth.fixture';
 import { WaterfallPage } from '../pages/waterfall.page';
+import {
+  captureDataSnapshot,
+  verifyDataChanged,
+} from '../helpers/interaction-helpers';
 
 test.describe('Waterfall Modeling - Scenarios', () => {
   test('should load waterfall page with scenarios list', async ({ authenticatedPage }) => {
@@ -417,6 +421,179 @@ test.describe('Waterfall Modeling - Running Totals', () => {
     const totalInvested = authenticatedPage.locator('text=/total invested|invested/i');
     if (await totalInvested.first().isVisible()) {
       await expect(totalInvested.first()).toBeVisible();
+    }
+  });
+});
+
+test.describe('Waterfall Modeling - Interactions - Data Verification', () => {
+  test('scenario selector should update calculation results', async ({ authenticatedPage }) => {
+    await authenticatedPage.goto('/waterfall');
+    await authenticatedPage.waitForLoadState('networkidle');
+
+    const scenarioSelector = authenticatedPage.getByRole('combobox', { name: /scenario/i })
+      .or(authenticatedPage.locator('select').filter({ hasText: /scenario/i }))
+      .or(authenticatedPage.locator('[data-testid="scenario-selector"]'));
+
+    const dataSelector = '[class*="result"], [data-testid="calculation-result"], table tbody tr';
+
+    if (await scenarioSelector.first().isVisible()) {
+      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      await scenarioSelector.first().click();
+      await authenticatedPage.waitForTimeout(300);
+
+      const scenarioOption = authenticatedPage.getByRole('option').nth(1);
+      if (await scenarioOption.isVisible()) {
+        await scenarioOption.click();
+        await authenticatedPage.waitForLoadState('networkidle');
+
+        const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+        const changed = verifyDataChanged(before, after);
+
+        if (before.count > 0) {
+          expect(changed, 'Scenario selection should update calculation results').toBe(true);
+        }
+      }
+    }
+  });
+
+  test('model type selector should update tier calculations', async ({ authenticatedPage }) => {
+    await authenticatedPage.goto('/waterfall');
+    await authenticatedPage.waitForLoadState('networkidle');
+
+    const modelSelector = authenticatedPage.getByRole('combobox', { name: /model/i })
+      .or(authenticatedPage.locator('select').filter({ hasText: /european|american|blended/i }));
+
+    const dataSelector = 'table tbody tr, [class*="tier"], [data-testid="tier-row"]';
+
+    if (await modelSelector.first().isVisible()) {
+      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      await modelSelector.first().click();
+      await authenticatedPage.waitForTimeout(300);
+
+      const modelOption = authenticatedPage.getByRole('option', { name: /american|european|blended/i });
+      if (await modelOption.first().isVisible()) {
+        await modelOption.first().click();
+        await authenticatedPage.waitForLoadState('networkidle');
+
+        const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+        const changed = verifyDataChanged(before, after);
+
+        if (before.count > 0) {
+          expect(changed, 'Model type change should update tier calculations').toBe(true);
+        }
+      }
+    }
+  });
+
+  test('exit value input should update calculation results', async ({ authenticatedPage }) => {
+    await authenticatedPage.goto('/waterfall');
+    await authenticatedPage.waitForLoadState('networkidle');
+
+    const exitValueInput = authenticatedPage.getByLabel(/exit value/i)
+      .or(authenticatedPage.locator('input[type="number"]').first());
+
+    const dataSelector = '[class*="result"], text=/\$[\\d,]+/, [data-testid="gp-carry"], [data-testid="lp-return"]';
+
+    if (await exitValueInput.isVisible()) {
+      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      // Change exit value
+      await exitValueInput.fill('150000000');
+      await authenticatedPage.waitForTimeout(500);
+
+      // Look for calculate button and click if exists
+      const calculateButton = authenticatedPage.getByRole('button', { name: /calculate|run|compute/i });
+      if (await calculateButton.isVisible()) {
+        await calculateButton.click();
+        await authenticatedPage.waitForLoadState('networkidle');
+      }
+
+      const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+      const changed = verifyDataChanged(before, after);
+
+      if (before.count > 0) {
+        expect(changed, 'Exit value change should update calculation results').toBe(true);
+      }
+    }
+  });
+
+  test('chart type tabs should update displayed chart', async ({ authenticatedPage }) => {
+    await authenticatedPage.goto('/waterfall');
+    await authenticatedPage.waitForLoadState('networkidle');
+
+    const chartTabs = authenticatedPage.getByRole('tab')
+      .or(authenticatedPage.locator('[class*="chart-option"], [role="tablist"] button'));
+
+    const chartSelector = 'canvas, svg, [class*="chart"], [class*="recharts"]';
+
+    if (await chartTabs.count() > 1) {
+      const before = await captureDataSnapshot(authenticatedPage, chartSelector);
+
+      // Click second tab
+      await chartTabs.nth(1).click();
+      await authenticatedPage.waitForTimeout(500);
+
+      const after = await captureDataSnapshot(authenticatedPage, chartSelector);
+      const changed = verifyDataChanged(before, after);
+
+      expect(changed, 'Chart tab switch should update displayed chart').toBe(true);
+    }
+  });
+
+  test('sensitivity analysis should update with different parameters', async ({ authenticatedPage }) => {
+    await authenticatedPage.goto('/waterfall');
+    await authenticatedPage.waitForLoadState('networkidle');
+
+    const sensitivityInputs = authenticatedPage.locator('[class*="sensitivity"] input, [data-testid="sensitivity-input"]');
+    const dataSelector = '[class*="sensitivity"] table, [class*="sensitivity-results"]';
+
+    if (await sensitivityInputs.first().isVisible()) {
+      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      // Change sensitivity parameter
+      await sensitivityInputs.first().fill('200000000');
+      await authenticatedPage.waitForLoadState('networkidle');
+      await authenticatedPage.waitForTimeout(500);
+
+      const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+      const changed = verifyDataChanged(before, after);
+
+      if (before.count > 0) {
+        expect(changed, 'Sensitivity parameter change should update results').toBe(true);
+      }
+    }
+  });
+
+  test('investor class changes should recalculate distributions', async ({ authenticatedPage }) => {
+    await authenticatedPage.goto('/waterfall');
+    await authenticatedPage.waitForLoadState('networkidle');
+
+    const investorInput = authenticatedPage.locator('input').filter({ hasText: /LP|GP|ownership/i }).first()
+      .or(authenticatedPage.locator('[data-testid="investor-percentage"]'));
+
+    const dataSelector = '[class*="result"], [data-testid="distribution-result"]';
+
+    if (await investorInput.isVisible()) {
+      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      // Change investor percentage
+      await investorInput.fill('85');
+      await authenticatedPage.waitForTimeout(500);
+
+      const calculateButton = authenticatedPage.getByRole('button', { name: /calculate|run|recalculate/i });
+      if (await calculateButton.isVisible()) {
+        await calculateButton.click();
+        await authenticatedPage.waitForLoadState('networkidle');
+      }
+
+      const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+      const changed = verifyDataChanged(before, after);
+
+      if (before.count > 0) {
+        expect(changed, 'Investor class change should recalculate distributions').toBe(true);
+      }
     }
   });
 });

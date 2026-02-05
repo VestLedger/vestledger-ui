@@ -8,6 +8,8 @@ coverage
 pnpm-debug.log*
 npm-debug.log*
 .tmp
+playwright-report
+test-results
 
 # Env / tooling
 .env

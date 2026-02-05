@@ -1,5 +1,9 @@
 import { test, expect } from '../fixtures/auth.fixture';
 import { DealIntelligencePage } from '../pages/deal-intelligence.page';
+import {
+  captureDataSnapshot,
+  verifyDataChanged,
+} from '../helpers/interaction-helpers';
 
 test.describe('Deal Intelligence - Page Load', () => {
   test('should load deal intelligence page', async ({ authenticatedPage }) => {
@@ -383,6 +387,213 @@ test.describe('Deal Intelligence - IC Status', () => {
     const statusBadge = authenticatedPage.locator('[class*="badge"]').filter({ hasText: /ready.*ic|dd.*progress/i });
     if (await statusBadge.count() > 0) {
       await expect(statusBadge.first()).toBeVisible();
+    }
+  });
+});
+
+test.describe('Deal Intelligence - Interactions - Data Verification', () => {
+  test('clicking deal card should update view to show deal details', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    const dataSelector = '[class*="card"], [class*="content"], [class*="panel"], h2, h3';
+    const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+    const count = await dealIntel.getDealCardCount();
+    if (count > 0) {
+      await dealIntel.clickDeal(0);
+      await authenticatedPage.waitForLoadState('networkidle');
+
+      const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+      const changed = verifyDataChanged(before, after);
+
+      expect(
+        changed,
+        'Clicking deal card should update view to show details'
+      ).toBe(true);
+    }
+  });
+
+  test('tab navigation in deal view should update content', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    const count = await dealIntel.getDealCardCount();
+    if (count > 0) {
+      await dealIntel.clickDeal(0);
+      await authenticatedPage.waitForLoadState('networkidle');
+
+      const dataSelector = '[class*="card"], table, [class*="content"], [class*="panel"]';
+      const overviewSnapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      // Switch to Analytics tab
+      await dealIntel.selectAnalyticsTab();
+      await authenticatedPage.waitForLoadState('networkidle');
+      const analyticsSnapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      // Switch to Documents tab
+      await dealIntel.selectDocumentsTab();
+      await authenticatedPage.waitForLoadState('networkidle');
+      const documentsSnapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      const overviewToAnalytics = verifyDataChanged(overviewSnapshot, analyticsSnapshot);
+      const analyticsToDocuments = verifyDataChanged(analyticsSnapshot, documentsSnapshot);
+
+      expect(
+        overviewToAnalytics || analyticsToDocuments,
+        'Tab navigation should update displayed content'
+      ).toBe(true);
+    }
+  });
+
+  test('stage filter should update deal list', async ({ authenticatedPage }) => {
+    await authenticatedPage.goto('/deal-intelligence');
+    await authenticatedPage.waitForLoadState('networkidle');
+
+    const stageFilter = authenticatedPage.getByRole('combobox', { name: /stage/i })
+      .or(authenticatedPage.locator('[data-testid="stage-filter"]'))
+      .or(authenticatedPage.locator('select').filter({ hasText: /stage|all stages/i }));
+
+    const dataSelector = '[class*="card"], [data-testid="deal-card"], table tbody tr';
+
+    if (await stageFilter.first().isVisible()) {
+      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      if (before.count > 0) {
+        await stageFilter.first().click();
+        await authenticatedPage.waitForTimeout(300);
+
+        const option = authenticatedPage.getByRole('option').nth(1);
+        if (await option.isVisible()) {
+          await option.click();
+          await authenticatedPage.waitForLoadState('networkidle');
+
+          const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+          const changed = verifyDataChanged(before, after);
+
+          expect(
+            changed,
+            'Stage filter should update deal list'
+          ).toBe(true);
+        }
+      }
+    }
+  });
+
+  test('sector filter should update deal list', async ({ authenticatedPage }) => {
+    await authenticatedPage.goto('/deal-intelligence');
+    await authenticatedPage.waitForLoadState('networkidle');
+
+    const sectorFilter = authenticatedPage.getByRole('combobox', { name: /sector/i })
+      .or(authenticatedPage.locator('[data-testid="sector-filter"]'))
+      .or(authenticatedPage.locator('select').filter({ hasText: /sector|all sectors/i }));
+
+    const dataSelector = '[class*="card"], [data-testid="deal-card"], table tbody tr';
+
+    if (await sectorFilter.first().isVisible()) {
+      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      if (before.count > 0) {
+        await sectorFilter.first().click();
+        await authenticatedPage.waitForTimeout(300);
+
+        const option = authenticatedPage.getByRole('option').nth(1);
+        if (await option.isVisible()) {
+          await option.click();
+          await authenticatedPage.waitForLoadState('networkidle');
+
+          const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+          const changed = verifyDataChanged(before, after);
+
+          expect(
+            changed,
+            'Sector filter should update deal list'
+          ).toBe(true);
+        }
+      }
+    }
+  });
+
+  test('AI company search should show results', async ({ authenticatedPage }) => {
+    await authenticatedPage.goto('/deal-intelligence');
+    await authenticatedPage.waitForLoadState('networkidle');
+
+    const searchInput = authenticatedPage.getByPlaceholder(/search/i)
+      .or(authenticatedPage.getByRole('searchbox'));
+
+    const dataSelector = '[class*="card"], [class*="result"], [class*="suggestion"]';
+
+    if (await searchInput.first().isVisible()) {
+      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      await searchInput.first().fill('tech');
+      await authenticatedPage.waitForLoadState('networkidle');
+      await authenticatedPage.waitForTimeout(500);
+
+      const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+      const changed = verifyDataChanged(before, after);
+
+      // Search should either update results or show suggestions
+      expect(changed || after.count > 0, 'Search should produce results or suggestions').toBe(true);
+    }
+  });
+
+  test('document search in deal view should filter documents', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    const count = await dealIntel.getDealCardCount();
+    if (count > 0) {
+      await dealIntel.clickDeal(0);
+      await dealIntel.selectDocumentsTab();
+      await authenticatedPage.waitForLoadState('networkidle');
+
+      const dataSelector = '[class*="document"], [class*="file"], table tbody tr';
+
+      if (await dealIntel.documentSearchInput.isVisible()) {
+        const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+        if (before.count > 0) {
+          await dealIntel.documentSearchInput.fill('xyz-nonexistent');
+          await authenticatedPage.waitForLoadState('networkidle');
+          await authenticatedPage.waitForTimeout(500);
+
+          const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+          // Search for non-existent term should reduce results
+          expect(after.count).toBeLessThanOrEqual(before.count);
+        }
+      }
+    }
+  });
+
+  test('back to fund view should restore original content', async ({ authenticatedPage }) => {
+    const dealIntel = new DealIntelligencePage(authenticatedPage);
+    await dealIntel.goto();
+
+    const dataSelector = '[class*="card"], h1, h2, [class*="section"]';
+    const fundViewSnapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+    const count = await dealIntel.getDealCardCount();
+    if (count > 0) {
+      await dealIntel.clickDeal(0);
+      await authenticatedPage.waitForLoadState('networkidle');
+
+      const dealViewSnapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      await dealIntel.backToFundView();
+      await authenticatedPage.waitForLoadState('networkidle');
+
+      const afterBackSnapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      // View should have changed when entering deal, then restored when going back
+      const viewChanged = verifyDataChanged(fundViewSnapshot, dealViewSnapshot);
+      expect(viewChanged, 'Clicking deal should change view').toBe(true);
+
+      // Back to fund view should restore similar structure
+      const backToOriginal = !verifyDataChanged(fundViewSnapshot, afterBackSnapshot) ||
+        afterBackSnapshot.count >= fundViewSnapshot.count;
+      expect(backToOriginal, 'Back button should restore fund view').toBe(true);
     }
   });
 });

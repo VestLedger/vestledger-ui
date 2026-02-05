@@ -12,9 +12,11 @@ export class LoginPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.emailInput = page.getByLabel('Email');
-    this.passwordInput = page.getByLabel('Password');
-    this.roleSelect = page.getByLabel('Select Role (Demo)');
+    // Use CSS selectors for NextUI inputs which have complex accessible names
+    this.emailInput = page.locator('input[type="email"], input[type="text"]').first();
+    this.passwordInput = page.locator('input[type="password"]');
+    // NextUI Select renders both a hidden <select> and a visible button trigger
+    this.roleSelect = page.locator('button[data-slot="trigger"]').filter({ hasText: /select role/i });
     this.signInButton = page.getByRole('button', { name: /sign in/i });
     this.errorMessage = page.locator('[class*="danger"]');
     this.requestAccessLink = page.getByRole('link', { name: /request access/i });
@@ -35,7 +37,13 @@ export class LoginPage {
 
   async selectRole(role: string) {
     await this.roleSelect.click();
+    // Wait for dropdown to open
+    await this.page.waitForSelector('[role="listbox"]');
     await this.page.getByRole('option', { name: new RegExp(role, 'i') }).first().click();
+    // Press Escape to close dropdown if still open
+    await this.page.keyboard.press('Escape');
+    // Brief wait for animation
+    await this.page.waitForTimeout(100);
   }
 
   async getErrorMessage() {

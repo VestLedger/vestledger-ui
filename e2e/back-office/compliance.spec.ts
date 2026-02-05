@@ -1,5 +1,9 @@
 import { test, expect } from '../fixtures/auth.fixture';
 import { CompliancePage } from '../pages/compliance.page';
+import {
+  captureDataSnapshot,
+  verifyDataChanged,
+} from '../helpers/interaction-helpers';
 
 test.describe('Compliance - Page Load', () => {
   test('should load compliance page', async ({ authenticatedPage }) => {
@@ -214,6 +218,129 @@ test.describe('Compliance - Actions', () => {
 
     if (await compliance.exportReportButton.isVisible()) {
       await expect(compliance.exportReportButton).toBeEnabled();
+    }
+  });
+});
+
+test.describe('Compliance - Interactions - Data Verification', () => {
+  test('status filter should update compliance items list', async ({ authenticatedPage }) => {
+    const compliance = new CompliancePage(authenticatedPage);
+    await compliance.goto();
+
+    const dataSelector = '[class*="card"], [data-testid="compliance-item"], table tbody tr';
+
+    if (await compliance.statusFilter.isVisible()) {
+      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      if (before.count > 0) {
+        await compliance.filterByStatus('overdue');
+        await authenticatedPage.waitForLoadState('networkidle');
+
+        const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+        const changed = verifyDataChanged(before, after);
+
+        expect(
+          changed,
+          'Status filter should update compliance items list'
+        ).toBe(true);
+      }
+    }
+  });
+
+  test('priority filter should update compliance items list', async ({ authenticatedPage }) => {
+    const compliance = new CompliancePage(authenticatedPage);
+    await compliance.goto();
+
+    const dataSelector = '[class*="card"], [data-testid="compliance-item"], table tbody tr';
+
+    if (await compliance.priorityFilter.isVisible()) {
+      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+      if (before.count > 0) {
+        await compliance.filterByPriority('high');
+        await authenticatedPage.waitForLoadState('networkidle');
+
+        const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+        const changed = verifyDataChanged(before, after);
+
+        expect(
+          changed,
+          'Priority filter should update compliance items list'
+        ).toBe(true);
+      }
+    }
+  });
+
+  test('tab navigation should update displayed content', async ({ authenticatedPage }) => {
+    const compliance = new CompliancePage(authenticatedPage);
+    await compliance.goto();
+
+    const dataSelector = '[class*="card"], [class*="content"], table';
+    const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+    await compliance.selectRegulatoryFilingsTab();
+    await authenticatedPage.waitForLoadState('networkidle');
+
+    const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+    const changed = verifyDataChanged(before, after);
+
+    expect(changed, 'Tab navigation should update displayed content').toBe(true);
+  });
+
+  test('switching between tabs should show different content', async ({ authenticatedPage }) => {
+    const compliance = new CompliancePage(authenticatedPage);
+    await compliance.goto();
+
+    const dataSelector = '[class*="card"], [class*="content"], table, [class*="panel"]';
+
+    // Start on overview tab
+    const overviewSnapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+    // Switch to Audit Schedule tab
+    await compliance.selectAuditScheduleTab();
+    await authenticatedPage.waitForLoadState('networkidle');
+    const auditSnapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+    // Switch to AML/KYC tab
+    await compliance.selectAmlKycTab();
+    await authenticatedPage.waitForLoadState('networkidle');
+    const amlSnapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+    // Verify content changed between tabs
+    const overviewToAudit = verifyDataChanged(overviewSnapshot, auditSnapshot);
+    const auditToAml = verifyDataChanged(auditSnapshot, amlSnapshot);
+
+    expect(
+      overviewToAudit || auditToAml,
+      'Switching tabs should show different content'
+    ).toBe(true);
+  });
+
+  test('combined status and priority filters should work together', async ({ authenticatedPage }) => {
+    const compliance = new CompliancePage(authenticatedPage);
+    await compliance.goto();
+
+    const dataSelector = '[class*="card"], [data-testid="compliance-item"], table tbody tr';
+    const initialSnapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+    // Apply status filter
+    if (await compliance.statusFilter.isVisible()) {
+      await compliance.filterByStatus('in-progress');
+      await authenticatedPage.waitForLoadState('networkidle');
+    }
+
+    // Apply priority filter
+    if (await compliance.priorityFilter.isVisible()) {
+      await compliance.filterByPriority('high');
+      await authenticatedPage.waitForLoadState('networkidle');
+    }
+
+    const afterBothFilters = await captureDataSnapshot(authenticatedPage, dataSelector);
+
+    // Combined filters should produce different results
+    if (initialSnapshot.count > 2) {
+      const filtersApplied = verifyDataChanged(initialSnapshot, afterBothFilters);
+      expect(filtersApplied, 'Combined filters should affect compliance items').toBe(true);
     }
   });
 });
