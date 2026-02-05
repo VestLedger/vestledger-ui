@@ -4,33 +4,31 @@ import { test as base, expect, Page } from '@playwright/test';
 const TEST_USER = {
   email: process.env.TEST_USER_EMAIL || 'demo@vestledger.com',
   password: process.env.TEST_USER_PASSWORD || 'testpassword123',
-  role: 'gp' as const,
 };
 
 export type AuthFixture = {
   authenticatedPage: Page;
-  login: (email?: string, password?: string, role?: string) => Promise<void>;
+  login: (email?: string, password?: string) => Promise<void>;
 };
 
 export const test = base.extend<AuthFixture>({
   authenticatedPage: async ({ page }, use) => {
     // Login before test
-    await loginUser(page, TEST_USER.email, TEST_USER.password, TEST_USER.role);
+    await loginUser(page, TEST_USER.email, TEST_USER.password);
     await use(page);
   },
   login: async ({ page }, use) => {
     const loginFn = async (
       email: string = TEST_USER.email,
-      password: string = TEST_USER.password,
-      role: string = TEST_USER.role
+      password: string = TEST_USER.password
     ) => {
-      await loginUser(page, email, password, role);
+      await loginUser(page, email, password);
     };
     await use(loginFn);
   },
 });
 
-async function loginUser(page: Page, email: string, password: string, role: string) {
+async function loginUser(page: Page, email: string, password: string) {
   await page.goto('/login');
 
   // Wait for the form to be ready
@@ -38,12 +36,6 @@ async function loginUser(page: Page, email: string, password: string, role: stri
 
   // Fill email - use CSS selector for NextUI inputs
   await page.locator('input[type="email"], input[type="text"]').first().fill(email);
-
-  // Select role - NextUI Select renders both a hidden <select> and a visible button trigger
-  await page.locator('button[data-slot="trigger"]').filter({ hasText: /select role/i }).click();
-  await page.waitForSelector('[role="listbox"]');
-  await page.getByRole('option', { name: new RegExp(role, 'i') }).first().click();
-  await page.waitForSelector('[role="listbox"]', { state: 'hidden' });
 
   // Fill password - use CSS selector for type="password"
   await page.locator('input[type="password"]').fill(password);

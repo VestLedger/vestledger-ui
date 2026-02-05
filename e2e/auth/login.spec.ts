@@ -10,7 +10,6 @@ test.describe('Authentication', () => {
       await expect(loginPage.brandLogo).toBeVisible();
       await expect(loginPage.emailInput).toBeVisible();
       await expect(loginPage.passwordInput).toBeVisible();
-      await expect(loginPage.roleSelect).toBeVisible();
       await expect(loginPage.signInButton).toBeVisible();
       await expect(loginPage.requestAccessLink).toBeVisible();
     });
@@ -37,21 +36,10 @@ test.describe('Authentication', () => {
       const loginPage = new LoginPage(page);
       await loginPage.goto();
 
-      await loginPage.login('invalid@test.com', 'wrongpassword', 'gp');
+      await loginPage.login('invalid@test.com', 'wrongpassword');
 
       // Wait for error message
       await expect(loginPage.errorMessage).toBeVisible({ timeout: 10000 });
-    });
-
-    test('should allow role selection', async ({ page }) => {
-      const loginPage = new LoginPage(page);
-      await loginPage.goto();
-
-      // Test GP role selection
-      await loginPage.selectRole('GP');
-
-      // Test LP role selection
-      await loginPage.selectRole('LP');
     });
 
     test('should navigate to request access page', async ({ page }) => {
@@ -69,8 +57,7 @@ test.describe('Authentication', () => {
       // Use valid test credentials (these should be configured for your test environment)
       await loginPage.login(
         process.env.TEST_USER_EMAIL || 'test@vestledger.com',
-        process.env.TEST_USER_PASSWORD || 'testpassword123',
-        'gp'
+        process.env.TEST_USER_PASSWORD || 'testpassword123'
       );
 
       // Should redirect to dashboard
@@ -85,8 +72,7 @@ test.describe('Authentication', () => {
 
       await loginPage.login(
         process.env.TEST_USER_EMAIL || 'test@vestledger.com',
-        process.env.TEST_USER_PASSWORD || 'testpassword123',
-        'gp'
+        process.env.TEST_USER_PASSWORD || 'testpassword123'
       );
 
       // Should redirect to the specified URL
