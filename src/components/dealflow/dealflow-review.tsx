@@ -30,11 +30,11 @@ export function DealflowReview() {
   );
 
   // Extend with additional UI state not in defaults
-  const { value: isPresenting, patch: patchIsPresenting } = useUIKey<boolean>('dealflow-review-presenting', false);
-  const { value: votes, patch: patchVotes } = useUIKey<Vote[]>('dealflow-review-votes', []);
-  const { value: myVote, patch: patchMyVote } = useUIKey<'yes' | 'no' | 'maybe' | null>('dealflow-review-my-vote', null);
-  const { value: voteComment, patch: patchVoteComment } = useUIKey<string>('dealflow-review-vote-comment', '');
-  const { value: currentDealIndex, patch: patchCurrentDealIndex } = useUIKey<number>('dealflow-review-deal-index', 0);
+  const { value: isPresenting, set: setIsPresenting } = useUIKey<boolean>('dealflow-review-presenting', false);
+  const { value: votes, set: setVotes } = useUIKey<Vote[]>('dealflow-review-votes', []);
+  const { value: myVote, set: setMyVote } = useUIKey<'yes' | 'no' | 'maybe' | null>('dealflow-review-my-vote', null);
+  const { value: voteComment, set: setVoteComment } = useUIKey<string>('dealflow-review-vote-comment', '');
+  const { value: currentDealIndex, set: setCurrentDealIndex } = useUIKey<number>('dealflow-review-deal-index', 0);
 
   const { currentSlideIndex } = ui;
 
@@ -94,8 +94,8 @@ export function DealflowReview() {
       comments: voteComment,
       timestamp: new Date().toISOString()
     };
-    patchMyVote(vote);
-    patchVotes([...votes, newVote]);
+    setMyVote(vote);
+    setVotes([...votes, newVote]);
   };
 
   const nextSlide = () => {
@@ -171,6 +171,32 @@ export function DealflowReview() {
                   <Badge key={idx} size="lg" variant="flat" className="bg-[var(--app-surface-hover)]">
                     {comp}
                   </Badge>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'competition':
+        return (
+          <div className="space-y-6">
+            <div className="p-6 rounded-lg bg-[var(--app-surface-hover)]">
+              <p className="text-sm text-[var(--app-text-muted)] mb-2">Differentiation</p>
+              <p className="text-lg font-semibold">{currentSlide.content.differentiation}</p>
+            </div>
+            <div>
+              <p className="font-semibold mb-3 flex items-center gap-2">
+                <Target className="w-5 h-5 text-[var(--app-primary)]" />
+                Key Competitors
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {currentSlide.content.competitors.map((comp: string, idx: number) => (
+                  <div key={idx} className="flex items-center gap-3 p-4 rounded-lg bg-[var(--app-primary-bg)]">
+                    <div className="w-7 h-7 rounded-full bg-[var(--app-primary)] text-white flex items-center justify-center text-xs font-semibold">
+                      {idx + 1}
+                    </div>
+                    <span className="text-sm font-medium">{comp}</span>
+                  </div>
                 ))}
               </div>
             </div>
@@ -311,27 +337,27 @@ export function DealflowReview() {
 
   const nextDeal = () => {
     if (safeDealIndex < deals.length - 1) {
-      patchCurrentDealIndex(safeDealIndex + 1);
+      setCurrentDealIndex(safeDealIndex + 1);
       patchUI({ currentSlideIndex: 0 }); // Reset to first slide
-      patchMyVote(null); // Reset vote
-      patchVoteComment(''); // Reset comment
+      setMyVote(null); // Reset vote
+      setVoteComment(''); // Reset comment
     }
   };
 
   const prevDeal = () => {
     if (safeDealIndex > 0) {
-      patchCurrentDealIndex(safeDealIndex - 1);
+      setCurrentDealIndex(safeDealIndex - 1);
       patchUI({ currentSlideIndex: 0 }); // Reset to first slide
-      patchMyVote(null); // Reset vote
-      patchVoteComment(''); // Reset comment
+      setMyVote(null); // Reset vote
+      setVoteComment(''); // Reset comment
     }
   };
 
   const selectDeal = (index: number) => {
-    patchCurrentDealIndex(index);
+    setCurrentDealIndex(index);
     patchUI({ currentSlideIndex: 0 });
-    patchMyVote(null);
-    patchVoteComment('');
+    setMyVote(null);
+    setVoteComment('');
   };
 
   return (
@@ -349,7 +375,7 @@ export function DealflowReview() {
         },
         primaryAction: {
           label: isPresenting ? 'Stop Presenting' : 'Start Presentation',
-          onClick: () => patchIsPresenting(!isPresenting),
+          onClick: () => setIsPresenting(!isPresenting),
           aiSuggested: false,
         },
         secondaryActions: [
@@ -582,7 +608,7 @@ export function DealflowReview() {
               className="w-full px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] min-h-[80px]"
               placeholder="Add your thoughts, questions, or concerns..."
               value={voteComment}
-              onChange={(e) => patchVoteComment(e.target.value)}
+              onChange={(e) => setVoteComment(e.target.value)}
               aria-label="Discussion comments"
             />
           </Card>

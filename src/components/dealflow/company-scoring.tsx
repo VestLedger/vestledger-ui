@@ -56,7 +56,7 @@ const defaultCriteria: ScoringCriteria[] = [
 export function CompanyScoring({ companyId, companyName }: { companyId: number; companyName: string }) {
   // TODO: Restore company scoring Redux integration via separate scoring slice
   // For now calling service directly since dealflow slice was migrated to handle deals only
-  const scoreData = getCompanyScoreData();
+  const scoreData = getCompanyScoreData(companyId, companyName);
 
   const { value: ui, patch: patchUI } = useUIKey<{
     isEditingScores: boolean;
