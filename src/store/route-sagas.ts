@@ -26,6 +26,7 @@ const ROUTE_SAGAS: Array<{
   { match: (pathname) => pathname.startsWith('/tax-center'), sagas: ['backOffice'] },
   { match: (pathname) => pathname.startsWith('/409a-valuations'), sagas: ['backOffice'] },
   { match: (pathname) => pathname.startsWith('/lp-portal'), sagas: ['misc'] },
+  { match: (pathname) => pathname.startsWith('/lp-management'), sagas: ['misc'] },
   { match: (pathname) => pathname.startsWith('/integrations'), sagas: ['misc'] },
   { match: (pathname) => pathname.startsWith('/audit-trail'), sagas: ['misc'] },
   { match: (pathname) => pathname.startsWith('/contacts'), sagas: ['crm'] },
