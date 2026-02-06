@@ -22,6 +22,16 @@ const sectorCompetitors: Record<string, string[]> = {
   'SaaS': ['Salesforce', 'HubSpot', 'Zendesk'],
 };
 
+const sectorDifferentiation: Record<string, string> = {
+  'AI/ML': 'Proprietary quantum-accelerated models deliver 10x faster inference at lower compute cost.',
+  'HealthTech': 'Clinical-grade accuracy with seamless EMR integration and automated care workflows.',
+  'CleanTech': 'Grid-aware charging network optimized for renewable-heavy regions and peak demand reduction.',
+  'Cybersecurity': 'Zero-trust platform that reduces alert fatigue with AI-assisted threat triage.',
+  'FoodTech': 'Demand-driven fulfillment that cuts food waste while improving on-time delivery.',
+  'FinTech': 'Unified payments and treasury stack with instant settlement and global compliance coverage.',
+  'SaaS': 'No-code customization and enterprise SSO reduce deployment time from months to weeks.',
+};
+
 const sectorProductDescriptions: Record<string, { description: string; differentiators: string[]; techStack: string[] }> = {
   'AI/ML': {
     description: 'Next-generation AI platform with proprietary algorithms',
@@ -86,6 +96,8 @@ export function getMockDealflowReviewSlides(deal: Deal): DealflowReviewSlide[] {
     differentiators: ['API-first approach', 'Enterprise security', 'Easy integration'],
     techStack: ['Cloud infrastructure', 'Modern APIs', 'Scalable architecture'],
   };
+  const differentiation = sectorDifferentiation[deal.sector]
+    || `Differentiates via ${productData.differentiators.join(', ')} with a focus on ${deal.stage} teams.`;
   const team = getTeamForCompany(deal.companyName, deal.founderName);
   
   // Calculate financials based on deal data
@@ -123,6 +135,15 @@ export function getMockDealflowReviewSlides(deal: Deal): DealflowReviewSlide[] {
     },
     {
       id: '3',
+      type: 'competition',
+      title: 'Competitive Landscape',
+      content: {
+        competitors: competitors,
+        differentiation: differentiation,
+      },
+    },
+    {
+      id: '4',
       type: 'product',
       title: 'Product & Technology',
       content: {
@@ -132,7 +153,7 @@ export function getMockDealflowReviewSlides(deal: Deal): DealflowReviewSlide[] {
       },
     },
     {
-      id: '4',
+      id: '5',
       type: 'financials',
       title: 'Financial Metrics',
       content: {
@@ -146,7 +167,7 @@ export function getMockDealflowReviewSlides(deal: Deal): DealflowReviewSlide[] {
       },
     },
     {
-      id: '5',
+      id: '6',
       type: 'team',
       title: 'Team',
       content: {
@@ -159,7 +180,7 @@ export function getMockDealflowReviewSlides(deal: Deal): DealflowReviewSlide[] {
       },
     },
     {
-      id: '6',
+      id: '7',
       type: 'ask',
       title: 'Investment Ask',
       content: {
