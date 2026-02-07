@@ -34,14 +34,18 @@ describe('authService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.resetModules();
+    process.env.NEXT_PUBLIC_DEMO_EMAIL = 'demo@vestledger.com';
+    process.env.NEXT_PUBLIC_DEMO_PASSWORD = 'Pa$$w0rd';
   });
 
   describe('authenticateUser', () => {
     it('should return demo user with mock data override when demo credentials are used', async () => {
       const { authenticateUser } = await import('@/services/authService');
-      const result = await authenticateUser('demo@vestledger.com', 'Pa$$w0rd');
+      const demoEmail = process.env.NEXT_PUBLIC_DEMO_EMAIL!;
+      const demoPassword = process.env.NEXT_PUBLIC_DEMO_PASSWORD!;
+      const result = await authenticateUser(demoEmail, demoPassword);
 
-      expect(result.user.email).toBe('demo@vestledger.com');
+      expect(result.user.email).toBe(demoEmail);
       expect(result.user.role).toBe('gp');
       expect(result.accessToken).toBe('mock-token');
       expect(result.dataModeOverride).toBe('mock');

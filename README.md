@@ -50,11 +50,11 @@ pnpm --filter vestledger-ui dev -- --hostname 0.0.0.0 --port 3001
 
 1. Visit http://vestledger.local:3001
 2. Click "Login" → Should redirect to `app.vestledger.local:3001/login`
-3. Enter any email (e.g., `test@example.com`)
-4. Select a role (e.g., "Strategic Decision Maker")
-5. Enter any password
-6. Click "Sign In" → Should redirect to dashboard
-7. Click logout → Should redirect to public homepage
+3. Enter the demo credentials from env:
+   - `NEXT_PUBLIC_DEMO_EMAIL`
+   - `NEXT_PUBLIC_DEMO_PASSWORD`
+4. Click "Sign In" → Should redirect to dashboard
+5. Click logout → Should redirect to public homepage
 
 ### Common Troubleshooting
 
@@ -204,6 +204,10 @@ Click "Logout"
            ↓
 vestledger.com → Public homepage
 ```
+
+**Demo Login (local/dev):**
+- Set `NEXT_PUBLIC_DEMO_EMAIL` and `NEXT_PUBLIC_DEMO_PASSWORD` to enable the demo user.
+- If those are not set, login attempts are validated only via the API.
 
 ### Theme Persistence
 

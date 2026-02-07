@@ -21,10 +21,13 @@ type JwtPayload = {
   role: UserRole;
 };
 
-const DEMO_EMAIL = 'demo@vestledger.com';
-const DEMO_PASSWORD = 'Pa$$w0rd';
+const DEMO_EMAIL = process.env.NEXT_PUBLIC_DEMO_EMAIL?.trim().toLowerCase();
+const DEMO_PASSWORD = process.env.NEXT_PUBLIC_DEMO_PASSWORD;
 
 export function isDemoCredentials(email: string, password: string): boolean {
+  if (!DEMO_EMAIL || !DEMO_PASSWORD) {
+    return false;
+  }
   return email.trim().toLowerCase() === DEMO_EMAIL && password === DEMO_PASSWORD;
 }
 
@@ -87,7 +90,7 @@ export async function authenticateUser(
 ): Promise<AuthResult> {
   if (isDemoCredentials(email, password)) {
     return {
-      user: createMockUser(DEMO_EMAIL, 'gp'),
+      user: createMockUser(DEMO_EMAIL!, 'gp'),
       accessToken: 'mock-token',
       dataModeOverride: 'mock',
     };

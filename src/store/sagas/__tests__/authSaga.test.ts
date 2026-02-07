@@ -11,8 +11,14 @@ import { DATA_MODE_OVERRIDE_KEY } from '@/config/data-mode';
 // Mock the authService
 vi.mock('@/services/authService', () => ({
   authenticateUser: vi.fn(),
-  isDemoCredentials: (email: string, password: string) =>
-    email.trim().toLowerCase() === 'demo@vestledger.com' && password === 'Pa$$w0rd',
+  isDemoCredentials: (email: string, password: string) => {
+    const demoEmail = process.env.NEXT_PUBLIC_DEMO_EMAIL?.trim().toLowerCase();
+    const demoPassword = process.env.NEXT_PUBLIC_DEMO_PASSWORD;
+    if (!demoEmail || !demoPassword) {
+      return false;
+    }
+    return email.trim().toLowerCase() === demoEmail && password === demoPassword;
+  },
 }));
 
 // Mock safeLocalStorage
@@ -40,6 +46,8 @@ describe('authSaga', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    process.env.NEXT_PUBLIC_DEMO_EMAIL = 'demo@vestledger.com';
+    process.env.NEXT_PUBLIC_DEMO_PASSWORD = 'Pa$$w0rd';
   });
 
   describe('loginWorker', () => {
@@ -77,8 +85,8 @@ describe('authSaga', () => {
 
       const dispatched: unknown[] = [];
       const action = loginRequested({
-        email: 'demo@vestledger.com',
-        password: 'Pa$$w0rd',
+        email: process.env.NEXT_PUBLIC_DEMO_EMAIL!,
+        password: process.env.NEXT_PUBLIC_DEMO_PASSWORD!,
         role: 'gp',
       });
 
