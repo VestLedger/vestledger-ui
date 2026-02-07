@@ -11,6 +11,8 @@ import { DATA_MODE_OVERRIDE_KEY } from '@/config/data-mode';
 // Mock the authService
 vi.mock('@/services/authService', () => ({
   authenticateUser: vi.fn(),
+  isDemoCredentials: (email: string, password: string) =>
+    email.trim().toLowerCase() === 'demo@vestledger.com' && password === 'Pa$$w0rd',
 }));
 
 // Mock safeLocalStorage
@@ -116,6 +118,10 @@ describe('authSaga', () => {
 
       expect(dispatched).toHaveLength(1);
       expect(dispatched[0]).toHaveProperty('type', loginFailed.type);
+      expect(vi.mocked(safeLocalStorage.setItem)).toHaveBeenCalledWith(
+        DATA_MODE_OVERRIDE_KEY,
+        'api'
+      );
     });
 
     it('should handle null accessToken', async () => {

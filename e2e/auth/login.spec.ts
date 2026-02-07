@@ -56,8 +56,8 @@ test.describe('Authentication', () => {
 
       // Use valid test credentials (these should be configured for your test environment)
       await loginPage.login(
-        process.env.TEST_USER_EMAIL || 'test@vestledger.com',
-        process.env.TEST_USER_PASSWORD || 'testpassword123'
+        process.env.TEST_USER_EMAIL || 'demo@vestledger.com',
+        process.env.TEST_USER_PASSWORD || 'Pa$$w0rd'
       );
 
       // Should redirect to dashboard
@@ -71,8 +71,8 @@ test.describe('Authentication', () => {
       const loginPage = new LoginPage(page);
 
       await loginPage.login(
-        process.env.TEST_USER_EMAIL || 'test@vestledger.com',
-        process.env.TEST_USER_PASSWORD || 'testpassword123'
+        process.env.TEST_USER_EMAIL || 'demo@vestledger.com',
+        process.env.TEST_USER_PASSWORD || 'Pa$$w0rd'
       );
 
       // Should redirect to the specified URL

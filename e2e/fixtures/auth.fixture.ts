@@ -3,7 +3,7 @@ import { test as base, expect, Page } from '@playwright/test';
 // Test user credentials - configure these in your environment
 const TEST_USER = {
   email: process.env.TEST_USER_EMAIL || 'demo@vestledger.com',
-  password: process.env.TEST_USER_PASSWORD || 'testpassword123',
+  password: process.env.TEST_USER_PASSWORD || 'Pa$$w0rd',
 };
 
 export type AuthFixture = {

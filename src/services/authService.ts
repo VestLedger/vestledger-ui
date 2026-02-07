@@ -1,6 +1,6 @@
 import { getApiBaseUrl } from '@/api/config';
 import { ApiError } from '@/api/errors';
-import { type DataMode, isMockMode } from '@/config/data-mode';
+import type { DataMode } from '@/config/data-mode';
 import { createMockUser } from '@/data/mocks/auth';
 import type { User, UserRole } from '@/types/auth';
 
@@ -24,7 +24,7 @@ type JwtPayload = {
 const DEMO_EMAIL = 'demo@vestledger.com';
 const DEMO_PASSWORD = 'Pa$$w0rd';
 
-function isDemoCredentials(email: string, password: string): boolean {
+export function isDemoCredentials(email: string, password: string): boolean {
   return email.trim().toLowerCase() === DEMO_EMAIL && password === DEMO_PASSWORD;
 }
 
@@ -93,19 +93,12 @@ export async function authenticateUser(
     };
   }
 
-  if (isMockMode('auth')) {
-    // Mock mode: create user with default 'gp' role
-    return {
-      user: createMockUser(email, 'gp'),
-      accessToken: 'mock-token',
-    };
-  }
-
   // Login-only flow: users must be pre-created by a superuser
   // Role comes from JWT, not from client
   const response = await postAuth('/auth/login', { email, password });
   return {
     user: userFromJwt(response.access_token),
     accessToken: response.access_token,
+    dataModeOverride: 'api',
   };
 }

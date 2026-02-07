@@ -6,10 +6,6 @@ vi.mock('@/api/config', () => ({
   getApiBaseUrl: vi.fn(() => 'http://localhost:3001'),
 }));
 
-vi.mock('@/config/data-mode', () => ({
-  isMockMode: vi.fn(() => false),
-}));
-
 vi.mock('@/data/mocks/auth', () => ({
   createMockUser: vi.fn((email: string, role: UserRole): User => ({
     name: 'Mock User',
@@ -37,22 +33,7 @@ describe('authService', () => {
   });
 
   describe('authenticateUser', () => {
-    it('should return user and mock accessToken in mock mode', async () => {
-      const { isMockMode } = await import('@/config/data-mode');
-      vi.mocked(isMockMode).mockReturnValue(true);
-
-      const { authenticateUser } = await import('@/services/authService');
-      const result = await authenticateUser('test@example.com', 'password123');
-
-      expect(result.user.email).toBe('test@example.com');
-      expect(result.user.role).toBe('gp'); // Default role in mock mode
-      expect(result.accessToken).toBe('mock-token');
-    });
-
     it('should return demo user with mock data override when demo credentials are used', async () => {
-      const { isMockMode } = await import('@/config/data-mode');
-      vi.mocked(isMockMode).mockReturnValue(false);
-
       const { authenticateUser } = await import('@/services/authService');
       const result = await authenticateUser('demo@vestledger.com', 'Pa$$w0rd');
 
@@ -64,9 +45,6 @@ describe('authService', () => {
     });
 
     it('should call login endpoint and return user with accessToken from JWT', async () => {
-      const { isMockMode } = await import('@/config/data-mode');
-      vi.mocked(isMockMode).mockReturnValue(false);
-
       const mockJwt = createMockJwt({
         sub: 'user-123',
         email: 'test@example.com',
@@ -98,12 +76,10 @@ describe('authService', () => {
       expect(result.user.name).toBe('Test User');
       expect(result.user.role).toBe('analyst');
       expect(result.accessToken).toBe(mockJwt);
+      expect(result.dataModeOverride).toBe('api');
     });
 
     it('should throw error when API does not return access_token', async () => {
-      const { isMockMode } = await import('@/config/data-mode');
-      vi.mocked(isMockMode).mockReturnValue(false);
-
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: () =>
@@ -120,9 +96,6 @@ describe('authService', () => {
     });
 
     it('should throw error with message on 401 Unauthorized', async () => {
-      const { isMockMode } = await import('@/config/data-mode');
-      vi.mocked(isMockMode).mockReturnValue(false);
-
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 401,
@@ -138,9 +111,6 @@ describe('authService', () => {
     });
 
     it('should throw error on 404 when user does not exist', async () => {
-      const { isMockMode } = await import('@/config/data-mode');
-      vi.mocked(isMockMode).mockReturnValue(false);
-
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 404,
@@ -156,9 +126,6 @@ describe('authService', () => {
     });
 
     it('should handle array error messages', async () => {
-      const { isMockMode } = await import('@/config/data-mode');
-      vi.mocked(isMockMode).mockReturnValue(false);
-
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 400,
@@ -177,9 +144,6 @@ describe('authService', () => {
     });
 
     it('should use statusText when no message in response', async () => {
-      const { isMockMode } = await import('@/config/data-mode');
-      vi.mocked(isMockMode).mockReturnValue(false);
-
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 503,
@@ -195,9 +159,6 @@ describe('authService', () => {
     });
 
     it('should handle JSON parse errors gracefully', async () => {
-      const { isMockMode } = await import('@/config/data-mode');
-      vi.mocked(isMockMode).mockReturnValue(false);
-
       mockFetch.mockResolvedValueOnce({
         ok: false,
         status: 500,
@@ -215,9 +176,6 @@ describe('authService', () => {
     it('should strip trailing slash from base URL', async () => {
       const { getApiBaseUrl } = await import('@/api/config');
       vi.mocked(getApiBaseUrl).mockReturnValue('http://localhost:3001/');
-
-      const { isMockMode } = await import('@/config/data-mode');
-      vi.mocked(isMockMode).mockReturnValue(false);
 
       const mockJwt = createMockJwt({
         sub: 'user-123',
@@ -244,9 +202,6 @@ describe('authService', () => {
     });
 
     it('should extract role from JWT for all user roles', async () => {
-      const { isMockMode } = await import('@/config/data-mode');
-      vi.mocked(isMockMode).mockReturnValue(false);
-
       const roles: UserRole[] = [
         'gp',
         'analyst',
