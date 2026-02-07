@@ -104,6 +104,10 @@ function* hydrateAuthWorker() {
 export function* loginWorker(action: ReturnType<typeof loginRequested>) {
   try {
     const { email, password } = action.payload;
+    safeLocalStorage.removeItem(STORAGE_AUTH_KEY);
+    safeLocalStorage.removeItem(STORAGE_USER_KEY);
+    safeLocalStorage.removeItem(STORAGE_TOKEN_KEY);
+    clearAuthCookies();
     const modeOverride: DataMode = isDemoCredentials(email, password) ? 'mock' : 'api';
     safeLocalStorage.setItem(DATA_MODE_OVERRIDE_KEY, modeOverride);
     setDataModeCookie(modeOverride);
