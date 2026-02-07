@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button, Input, Card } from '@/ui';
+import { LoadingState } from '@/components/ui/async-states/LoadingState';
 import { useAuth } from '@/contexts/auth-context';
 import { BrandLogo } from './brand-logo';
 import { getAuthErrorMessage } from '@/utils/auth-error-message';
@@ -56,11 +57,7 @@ export function LoginForm() {
   if (!hydrated) {
     return (
       <Card padding="lg">
-        <div className="text-center py-12">
-          <div className="animate-pulse text-app-text-muted dark:text-app-dark-text-muted">
-            Loading...
-          </div>
-        </div>
+        <LoadingState fullHeight={false} message="Loading..." />
       </Card>
     );
   }

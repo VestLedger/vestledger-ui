@@ -1,6 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import { LoadingState } from '@/components/ui/async-states/LoadingState';
 
 // Dynamic import with ssr: false to prevent hydration mismatch
 const LoginForm = dynamic(
@@ -9,11 +10,7 @@ const LoginForm = dynamic(
     ssr: false,
     loading: () => (
       <div className="w-full max-w-md bg-[var(--app-surface)] rounded-lg p-8">
-        <div className="text-center py-12">
-          <div className="animate-pulse text-[var(--app-text-muted)]">
-            Loading...
-          </div>
-        </div>
+        <LoadingState fullHeight={false} message="Loading..." />
       </div>
     )
   }
