@@ -20,6 +20,8 @@ import {
   calculateWaterfall,
   calculateSensitivityAnalysis,
 } from '@/lib/calculations/waterfall';
+import { apiClient } from '@/api/client';
+import { unwrapApiResult } from '@/api/unwrap';
 
 const STORAGE_KEY = 'vestledger-waterfall-scenarios';
 let scenarioStoreCache: WaterfallScenario[] | null = null;
@@ -62,6 +64,7 @@ export interface GetWaterfallScenariosParams {
 export async function fetchWaterfallScenarios(
   params?: GetWaterfallScenariosParams
 ): Promise<WaterfallScenario[]> {
+  // Mock mode uses local storage
   if (isMockMode()) {
     let scenarios = [...loadScenarioStore()];
 
@@ -92,7 +95,21 @@ export async function fetchWaterfallScenarios(
     return scenarios;
   }
 
-  throw new Error('Waterfall API not implemented yet');
+  // API mode
+  const result = await unwrapApiResult(
+    apiClient.GET('/waterfall/scenarios', {
+      params: {
+        query: {
+          fundId: params?.fundId,
+          isFavorite: params?.isFavorite,
+        },
+      },
+    }),
+    { fallbackMessage: 'Failed to fetch waterfall scenarios' }
+  );
+
+  // Map API response to UI type (API should return compatible structure)
+  return (result as unknown as WaterfallScenario[]) ?? [];
 }
 
 /**
@@ -107,7 +124,15 @@ export async function fetchWaterfallScenario(id: string): Promise<WaterfallScena
     return scenario;
   }
 
-  throw new Error('Waterfall API not implemented yet');
+  // API mode
+  const result = await unwrapApiResult(
+    apiClient.GET('/waterfall/scenarios/{id}', {
+      params: { path: { id } },
+    }),
+    { fallbackMessage: `Failed to fetch waterfall scenario: ${id}` }
+  );
+
+  return result as unknown as WaterfallScenario;
 }
 
 /**
@@ -131,7 +156,46 @@ export async function createWaterfallScenario(
     return newScenario;
   }
 
-  throw new Error('Waterfall API not implemented yet');
+  // API mode - map UI data to API DTO format
+  const apiData = {
+    fundId: data.fundId ?? '',
+    name: data.name,
+    description: data.description,
+    model: data.model,
+    exitValue: data.exitValue,
+    isFavorite: data.isFavorite,
+    tags: data.tags,
+    tiers: data.tiers.map((tier) => ({
+      name: tier.name,
+      type: tier.type,
+      order: tier.order,
+      threshold: tier.threshold,
+      hurdleRate: tier.hurdleRate,
+      gpCarryPercentage: tier.gpCarryPercentage,
+      lpPercentage: tier.lpPercentage,
+      splitType: tier.splitType,
+      description: tier.description,
+      isCustom: tier.isCustom,
+    })),
+    investorClasses: data.investorClasses.map((ic) => ({
+      name: ic.name,
+      type: ic.type,
+      ownershipPercentage: ic.ownershipPercentage,
+      commitment: ic.commitment,
+      capitalCalled: ic.capitalCalled,
+      capitalReturned: ic.capitalReturned,
+      order: ic.order,
+    })),
+  };
+
+  const result = await unwrapApiResult(
+    apiClient.POST('/waterfall/scenarios', {
+      body: apiData,
+    }),
+    { fallbackMessage: 'Failed to create waterfall scenario' }
+  );
+
+  return result as unknown as WaterfallScenario;
 }
 
 /**
@@ -162,7 +226,44 @@ export async function updateWaterfallScenario(
     return updated;
   }
 
-  throw new Error('Waterfall API not implemented yet');
+  // API mode
+  const result = await unwrapApiResult(
+    apiClient.PUT('/waterfall/scenarios/{id}', {
+      params: { path: { id } },
+      body: {
+        name: data.name,
+        description: data.description,
+        model: data.model,
+        exitValue: data.exitValue,
+        isFavorite: data.isFavorite,
+        tags: data.tags,
+        tiers: data.tiers?.map((tier) => ({
+          name: tier.name,
+          type: tier.type,
+          order: tier.order,
+          threshold: tier.threshold,
+          hurdleRate: tier.hurdleRate,
+          gpCarryPercentage: tier.gpCarryPercentage,
+          lpPercentage: tier.lpPercentage,
+          splitType: tier.splitType,
+          description: tier.description,
+          isCustom: tier.isCustom,
+        })),
+        investorClasses: data.investorClasses?.map((ic) => ({
+          name: ic.name,
+          type: ic.type,
+          ownershipPercentage: ic.ownershipPercentage,
+          commitment: ic.commitment,
+          capitalCalled: ic.capitalCalled,
+          capitalReturned: ic.capitalReturned,
+          order: ic.order,
+        })),
+      },
+    }),
+    { fallbackMessage: 'Failed to update waterfall scenario' }
+  );
+
+  return result as unknown as WaterfallScenario;
 }
 
 /**
@@ -181,7 +282,13 @@ export async function deleteWaterfallScenario(id: string): Promise<void> {
     return;
   }
 
-  throw new Error('Waterfall API not implemented yet');
+  // API mode
+  await unwrapApiResult(
+    apiClient.DELETE('/waterfall/scenarios/{id}', {
+      params: { path: { id } },
+    }),
+    { fallbackMessage: 'Failed to delete waterfall scenario' }
+  );
 }
 
 /**
@@ -213,7 +320,22 @@ export async function duplicateWaterfallScenario(
     return duplicate;
   }
 
-  throw new Error('Waterfall API not implemented yet');
+  // API mode - duplicate then update name if needed
+  const result = await unwrapApiResult(
+    apiClient.POST('/waterfall/scenarios/{id}/duplicate', {
+      params: { path: { id } },
+    }),
+    { fallbackMessage: 'Failed to duplicate waterfall scenario' }
+  );
+
+  const duplicated = result as unknown as WaterfallScenario;
+
+  // If a new name was provided, update the duplicated scenario
+  if (newName && duplicated.id) {
+    return updateWaterfallScenario(duplicated.id, { name: newName });
+  }
+
+  return duplicated;
 }
 
 // ============================================================================
@@ -276,7 +398,13 @@ export async function fetchWaterfallTemplates(): Promise<WaterfallTemplate[]> {
     return mockWaterfallTemplates;
   }
 
-  throw new Error('Waterfall API not implemented yet');
+  // API mode
+  const result = await unwrapApiResult(
+    apiClient.GET('/waterfall/templates'),
+    { fallbackMessage: 'Failed to fetch waterfall templates' }
+  );
+
+  return (result as unknown as WaterfallTemplate[]) ?? [];
 }
 
 /**
@@ -360,5 +488,13 @@ export async function toggleScenarioFavorite(id: string): Promise<WaterfallScena
     return updated;
   }
 
-  throw new Error('Waterfall API not implemented yet');
+  // API mode
+  const result = await unwrapApiResult(
+    apiClient.POST('/waterfall/scenarios/{id}/favorite', {
+      params: { path: { id } },
+    }),
+    { fallbackMessage: 'Failed to toggle favorite status' }
+  );
+
+  return result as unknown as WaterfallScenario;
 }

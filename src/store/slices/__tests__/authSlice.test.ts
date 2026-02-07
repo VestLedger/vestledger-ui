@@ -96,6 +96,23 @@ describe('authSlice', () => {
       const state = authReducer(stateWithError, loginRequested(params));
       expect(state.error).toBeUndefined();
     });
+
+    it('should clear existing auth state', () => {
+      const authenticatedState = {
+        ...initialState,
+        isAuthenticated: true,
+        user: mockUser,
+        accessToken: mockAccessToken,
+      };
+      const params: LoginParams = {
+        email: 'test@example.com',
+        password: 'password123',
+      };
+      const state = authReducer(authenticatedState, loginRequested(params));
+      expect(state.isAuthenticated).toBe(false);
+      expect(state.user).toBeNull();
+      expect(state.accessToken).toBeNull();
+    });
   });
 
   describe('loginSucceeded', () => {
@@ -144,6 +161,24 @@ describe('authSlice', () => {
       expect(state.status).toBe('failed');
       expect(state.error).toEqual(error);
       expect(state.isAuthenticated).toBe(false);
+    });
+
+    it('should clear auth state on failure', () => {
+      const error: NormalizedError = {
+        message: 'Invalid credentials',
+        code: 'AUTH_ERROR',
+      };
+      const authenticatedState = {
+        ...initialState,
+        isAuthenticated: true,
+        user: mockUser,
+        accessToken: mockAccessToken,
+        status: 'loading' as AuthStatus,
+      };
+      const state = authReducer(authenticatedState, loginFailed(error));
+      expect(state.isAuthenticated).toBe(false);
+      expect(state.user).toBeNull();
+      expect(state.accessToken).toBeNull();
     });
   });
 

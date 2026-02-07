@@ -17,7 +17,7 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     include: ['**/*.{test,spec}.{js,jsx,ts,tsx}'],
-    exclude: ['node_modules', 'cypress'],
+    exclude: ['node_modules', 'cypress', 'e2e'],
     coverage: {
       provider: 'v8',
       include: ['src/**/*.{ts,tsx}'],

@@ -63,6 +63,9 @@ const authSlice = createSlice({
     },
 
     loginRequested: (state, _action: PayloadAction<LoginParams>) => {
+      state.isAuthenticated = false;
+      state.user = null;
+      state.accessToken = null;
       state.status = 'loading';
       state.error = undefined;
     },
@@ -76,6 +79,9 @@ const authSlice = createSlice({
     },
 
     loginFailed: (state, action: PayloadAction<NormalizedError>) => {
+      state.isAuthenticated = false;
+      state.user = null;
+      state.accessToken = null;
       state.status = 'failed';
       state.error = action.payload;
     },

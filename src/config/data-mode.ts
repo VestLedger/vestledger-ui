@@ -26,8 +26,23 @@ export type FeatureName =
  * If not specified, falls back to global DATA_MODE.
  */
 const featureFlags: Partial<Record<FeatureName, boolean>> = {
-  // funds: true,       // Use real funds API
-  // dashboards: false, // Force mock mode for dashboards
+  // All features set to mock mode (false = use mock data)
+  auth: false,
+  funds: false,
+  alerts: false,
+  documents: false,
+  portfolio: false,
+  pipeline: false,
+  dashboards: false,
+  dealflow: false,
+  backOffice: false,
+  ai: false,
+  dealIntelligence: false,
+  crm: false,
+  integrations: false,
+  lpPortal: false,
+  auditTrail: false,
+  companySearch: false,
 };
 
 export const DATA_MODE_OVERRIDE_KEY = 'dataModeOverride';

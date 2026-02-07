@@ -1,5 +1,5 @@
 import { call, delay, put, race, take, takeLatest } from 'redux-saga/effects';
-import { authenticateUser, type AuthResult } from '@/services/authService';
+import { authenticateUser, isDemoCredentials, type AuthResult } from '@/services/authService';
 import type { User } from '@/types/auth';
 import {
   authHydrated,
@@ -93,12 +93,26 @@ function* hydrateAuthWorker() {
   clearAuthCookies();
   clearDataModeCookie();
 
+  if (savedDataMode === 'mock' || savedDataMode === 'api') {
+    setDataModeCookie(savedDataMode);
+  } else {
+    safeLocalStorage.removeItem(DATA_MODE_OVERRIDE_KEY);
+    clearDataModeCookie();
+  }
+
   yield put(authHydrated({ isAuthenticated: false, user: null, accessToken: null }));
 }
 
 export function* loginWorker(action: ReturnType<typeof loginRequested>) {
   try {
     const { email, password } = action.payload;
+    safeLocalStorage.removeItem(STORAGE_AUTH_KEY);
+    safeLocalStorage.removeItem(STORAGE_USER_KEY);
+    safeLocalStorage.removeItem(STORAGE_TOKEN_KEY);
+    clearAuthCookies();
+    const modeOverride: DataMode = isDemoCredentials(email, password) ? 'mock' : 'api';
+    safeLocalStorage.setItem(DATA_MODE_OVERRIDE_KEY, modeOverride);
+    setDataModeCookie(modeOverride);
     const result: AuthResult = yield call(authenticateUser, email, password);
 
     yield put(loginSucceeded({ user: result.user, accessToken: result.accessToken }));
