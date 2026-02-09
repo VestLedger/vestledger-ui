@@ -1,4 +1,4 @@
-import { BrandLogo } from '../../brand-logo';
+import { BrandLogo } from '@/components/brand-logo';
 
 interface LoadingStateProps {
   message?: string;

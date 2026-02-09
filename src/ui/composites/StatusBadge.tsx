@@ -52,7 +52,7 @@ const SIZE_CONFIG: Record<StatusBadgeSize, { padding: string; text: string; icon
  *
  * @example
  * ```tsx
- * import { StatusBadge } from '@/components/ui/StatusBadge';
+ * import { StatusBadge } from '@/ui/composites';
  *
  * <StatusBadge status="completed" domain="compliance" showIcon />
  * ```
@@ -118,7 +118,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
  *
  * @example
  * ```tsx
- * import { StatusBadgeWithCustomColors } from '@/components/ui/StatusBadge';
+ * import { StatusBadgeWithCustomColors } from '@/ui/composites';
  * import { getStatusColorVars } from '@/utils/styling/statusColors';
  *
  * const colors = getStatusColorVars('completed', 'compliance');

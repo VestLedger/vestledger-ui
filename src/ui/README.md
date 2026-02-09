@@ -25,7 +25,7 @@ import { PageScaffold, RoleDashboardLayout, SectionHeader } from '@/ui/composite
 import { AsyncStateRenderer, AsyncArrayRenderer } from '@/ui/async-states';
 ```
 
-Do not add new imports from `@/components/ui`; that path is compatibility-only.
+Use only the canonical `@/ui*` import surfaces.
 
 ## 🧩 Component Categories
 
@@ -394,7 +394,7 @@ src/ui/
 │   ├── Slider.tsx
 │   ├── Select.tsx
 │   └── ...
-├── composites/       # Shared app-level composites (bridge to src/components/ui)
+├── composites/       # Shared app-level composites (canonical location)
 │   └── index.ts
 ├── async-states/     # Shared async renderers
 │   └── index.ts

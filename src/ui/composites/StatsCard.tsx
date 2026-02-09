@@ -40,7 +40,7 @@ export interface StatsCardProps {
  * @example
  * ```tsx
  * import { DollarSign } from 'lucide-react';
- * import { StatsCard } from '@/components/ui/StatsCard';
+ * import { StatsCard } from '@/ui/composites';
  * import { formatCurrency } from '@/utils/formatting';
  *
  * <StatsCard

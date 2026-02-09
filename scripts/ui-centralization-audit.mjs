@@ -101,10 +101,7 @@ for (const absoluteFilePath of sourceFiles) {
     }
   }
 
-  if (
-    legacyImportPattern.test(fileContent) &&
-    !relativePath.startsWith('src/components/ui/')
-  ) {
+  if (legacyImportPattern.test(fileContent)) {
     legacyComponentsUiImportFiles.push(relativePath);
   }
 }

@@ -11,7 +11,7 @@ Use only these import surfaces in feature code:
 3. `@/ui/async-states` for centralized loading/error/empty rendering
 
 Avoid:
-- `@/components/ui` in new code (legacy compatibility path only)
+- any legacy composite import path
 - `@nextui-org/react` in feature code (`src/components/**`)
 
 ## Quick Start
@@ -131,7 +131,6 @@ Look for:
 ```tsx
 // Old
 import { Button, Card, CardBody } from '@nextui-org/react';
-import { PageScaffold } from '@/components/ui';
 
 // New
 import { Button, Card } from '@/ui';
@@ -333,7 +332,7 @@ function MetricCard({ title, value, change }) {
 ## Completion Checklist
 
 1. No feature imports from `@nextui-org/react`
-2. No feature imports from `@/components/ui`
+2. No feature imports from removed legacy composite paths
 3. No raw `<input>`, `<select>`, or `<textarea>` in `src/components/**/*.tsx`
 4. Async loading/error/empty states use shared async renderers
 5. Repeated page-level shells and section headers use composites

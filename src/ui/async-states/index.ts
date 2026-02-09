@@ -1,5 +1,4 @@
-// Transitional bridge for async state primitives.
-// Canonical import namespace: "@/ui/*"
-// Legacy path "@/components/ui/async-states" should be migrated to "@/ui/async-states".
-
-export * from '../../components/ui/async-states';
+export { LoadingState } from './LoadingState';
+export { ErrorState } from './ErrorState';
+export { EmptyState } from './EmptyState';
+export { AsyncStateRenderer, AsyncArrayRenderer } from './AsyncStateRenderer';

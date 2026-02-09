@@ -77,7 +77,7 @@ const VARIANT_CONFIG: Record<IconCardVariant, { bg: string; color: string }> = {
  * @example
  * ```tsx
  * import { DollarSign } from 'lucide-react';
- * import { IconCard } from '@/components/ui/IconCard';
+ * import { IconCard } from '@/ui/composites';
  *
  * <IconCard icon={DollarSign} variant="success" size="md" />
  * ```
