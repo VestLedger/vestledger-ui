@@ -18,6 +18,7 @@ interface PublicNavLinksProps {
   orientation?: 'horizontal' | 'vertical';
   className?: string;
   onNavigate?: () => void;
+  includeHome?: boolean;
 }
 
 function joinClasses(...classes: Array<string | undefined>) {
@@ -28,8 +29,12 @@ export function PublicNavLinks({
   orientation = 'horizontal',
   className,
   onNavigate,
+  includeHome = false,
 }: PublicNavLinksProps) {
   const isHorizontal = orientation === 'horizontal';
+  const items = includeHome
+    ? [{ href: '/', label: 'Home' }, ...PUBLIC_NAV_ITEMS]
+    : PUBLIC_NAV_ITEMS;
 
   const containerClass = isHorizontal
     ? 'flex items-center gap-6'
@@ -41,7 +46,7 @@ export function PublicNavLinks({
 
   return (
     <div className={joinClasses(containerClass, className)}>
-      {PUBLIC_NAV_ITEMS.map((item) => (
+      {items.map((item) => (
         <Link
           key={item.href}
           href={item.href}

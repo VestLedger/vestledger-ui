@@ -3,9 +3,9 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { Menu, X } from 'lucide-react';
 import { PublicNavLinks } from './public-nav-links';
 import { LoginButton } from './login-button';
+import { BrandLogo } from '../brand-logo';
 
 export function PublicMobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,9 +22,14 @@ export function PublicMobileMenu() {
         onClick={() => setIsOpen((open) => !open)}
         aria-label={isOpen ? 'Close menu' : 'Open menu'}
         aria-expanded={isOpen}
-        className="inline-flex items-center justify-center w-10 h-10 rounded-lg text-[var(--app-text-muted)] hover:bg-[var(--app-surface-hover)] transition-colors"
+        className="inline-flex items-center gap-3 px-2 py-1 rounded-lg text-[var(--app-text-muted)] hover:bg-[var(--app-surface-hover)] transition-colors"
       >
-        {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        <BrandLogo
+          className={`h-8 w-8 text-[var(--app-primary)] transition-transform duration-200 ${isOpen ? 'rotate-90' : 'rotate-0'}`}
+        />
+        <span className="text-xl tracking-tight text-[var(--app-primary)] font-bold">
+          VestLedger
+        </span>
       </button>
 
       {isOpen && (
@@ -41,6 +46,7 @@ export function PublicMobileMenu() {
                 <div className="mx-auto w-full max-w-sm">
                   <PublicNavLinks
                     orientation="vertical"
+                    includeHome
                     onNavigate={() => setIsOpen(false)}
                   />
                   <LoginButton className="mt-3 w-full justify-center btn-secondary btn-sm" />
