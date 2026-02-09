@@ -23,6 +23,8 @@
     "playwright:headed": "playwright test --headed",
     "playwright:debug": "playwright test --debug",
     "playwright:report": "playwright show-report",
+    "audit:ui-centralization": "node scripts/ui-centralization-audit.mjs",
+    "audit:ui-centralization:enforce": "node scripts/ui-centralization-audit.mjs --enforce",
     "prepare": "husky",
     "gen:openapi": "node scripts/gen-openapi.mjs"
   },
