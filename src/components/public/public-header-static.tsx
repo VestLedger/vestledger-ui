@@ -25,7 +25,7 @@ export function PublicHeaderStatic() {
         </div>
         <div className="flex items-center gap-2 sm:gap-3">
           <ThemeToggle />
-          <LoginButton />
+          <LoginButton className="hidden sm:inline-flex btn-secondary btn-sm" />
           <Link
             href="/eoi"
             className="hidden sm:flex btn-primary btn-sm"
