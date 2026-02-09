@@ -1,0 +1,31 @@
+{
+  "generatedAt": "2026-02-09",
+  "scope": {
+    "include": [
+      "src/**/*.ts",
+      "src/**/*.tsx",
+      "app/**/*.ts",
+      "app/**/*.tsx"
+    ],
+    "exclude": [
+      "**/__tests__/**",
+      "**/*.test.*",
+      "**/*.spec.*",
+      "src/data/mocks/**",
+      "src/api/generated/**"
+    ]
+  },
+  "thresholds": {
+    "domain_api_fallback_literals_outside_config": 0,
+    "hardcoded_route_literals_in_features": 0,
+    "locale_currency_literals_outside_config": 0,
+    "magic_numeric_defaults_in_runtime_logic": 0
+  },
+  "exceptions": {
+    "domain_api_fallback_literals_outside_config": [],
+    "hardcoded_route_literals_in_features": [],
+    "locale_currency_literals_outside_config": [],
+    "magic_numeric_defaults_in_runtime_logic": []
+  },
+  "notes": "Thresholds are locked to zero for in-scope checks. Any non-zero result is a regression."
+}

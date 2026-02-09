@@ -1,5 +1,6 @@
 import { Card as NextUICard, CardBody, CardHeader, CardFooter, CardProps as NextUICardProps } from '@nextui-org/react';
 import { ReactNode } from 'react';
+import { useDashboardDensity } from '@/contexts/dashboard-density-context';
 
 export interface CardProps extends Omit<NextUICardProps, 'children'> {
   children?: ReactNode;
@@ -9,12 +10,8 @@ export interface CardProps extends Omit<NextUICardProps, 'children'> {
 }
 
 export function Card({ children, header, footer, padding = 'md', className = '', ...rest }: CardProps) {
-  const paddingClasses = {
-    none: 'p-0',
-    sm: 'p-4',
-    md: 'p-6',
-    lg: 'p-8',
-  };
+  const density = useDashboardDensity();
+  const paddingClasses = density.cardPadding;
 
   const cardClass = `bg-app-surface dark:bg-app-dark-surface border border-app-border dark:border-app-dark-border rounded-lg ${className}`;
 

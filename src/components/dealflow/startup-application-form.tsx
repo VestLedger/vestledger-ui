@@ -7,6 +7,7 @@ import { useAppDispatch } from '@/store/hooks';
 import { startupApplicationSubmitRequested } from '@/store/slices/uiEffectsSlice';
 import { writeToClipboard } from '@/utils/clipboard';
 import { SectionHeader } from '@/ui/composites';
+import { CANONICAL_PUBLIC_WEB_URL } from '@/config/env';
 
 interface FormData {
   companyName: string;
@@ -69,9 +70,9 @@ export function StartupApplicationForm({ embedded = false }: { embedded?: boolea
     dispatch(startupApplicationSubmitRequested());
   };
 
-  const embedCode = `<!-- VestLedger Startup Application Form -->
+const embedCode = `<!-- VestLedger Startup Application Form -->
 <iframe
-  src="https://vestledger.com/apply/${embedded ? 'your-fund-id' : 'demo'}"
+  src="${CANONICAL_PUBLIC_WEB_URL}/apply/${embedded ? 'your-fund-id' : 'demo'}"
   width="100%"
   height="1200px"
   frameborder="0"

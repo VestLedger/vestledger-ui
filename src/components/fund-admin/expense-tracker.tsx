@@ -3,7 +3,7 @@
 import { useUIKey } from '@/store/ui';
 import { Card, Button, Badge, Select } from '@/ui';
 import { DollarSign, Plus, PieChart, Download } from 'lucide-react';
-import { formatCurrency } from '@/utils/formatting';
+import { formatCurrency, formatDate } from '@/utils/formatting';
 import { SearchToolbar, SectionHeader, StatusBadge } from '@/ui/composites';
 
 export type ExpenseType =
@@ -332,7 +332,7 @@ export function ExpenseTracker({
                   >
                     <div className="col-span-2">
                       <div className="text-[var(--app-text-muted)]">
-                        {expense.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        {formatDate(expense.date, { month: 'short', day: 'numeric', year: 'numeric' })}
                       </div>
                       {expense.isRecurring && (
                         <Badge size="sm" variant="flat" className="bg-[var(--app-info-bg)] text-[var(--app-info)] mt-1">

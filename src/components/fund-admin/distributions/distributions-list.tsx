@@ -22,6 +22,7 @@ import type {
 import { formatCurrencyCompact, formatDate } from '@/utils/formatting';
 import { distributionEventTypeLabels, getLabelForType } from '@/utils/styling/typeMappers';
 import { CalendarDays, Files, Plus } from 'lucide-react';
+import { ROUTE_PATHS, withRouteParams } from '@/config/routes';
 
 type DistributionListUIState = {
   searchQuery: string;
@@ -171,7 +172,7 @@ export function DistributionsList() {
               size="sm"
               variant="bordered"
               startContent={<CalendarDays className="h-4 w-4" />}
-              onPress={() => router.push('/fund-admin/distributions/calendar')}
+              onPress={() => router.push(ROUTE_PATHS.fundAdminDistributionsCalendar)}
             >
               Calendar
             </Button>
@@ -179,7 +180,7 @@ export function DistributionsList() {
               size="sm"
               color="primary"
               startContent={<Plus className="h-4 w-4" />}
-              onPress={() => router.push('/fund-admin/distributions/new')}
+              onPress={() => router.push(ROUTE_PATHS.fundAdminDistributionsNew)}
             >
               New Distribution
             </Button>
@@ -213,7 +214,7 @@ export function DistributionsList() {
           emptyTitle="No distributions created"
           emptyAction={{
             label: "Create Distribution",
-            onClick: () => router.push("/fund-admin/distributions/new"),
+            onClick: () => router.push(ROUTE_PATHS.fundAdminDistributionsNew),
           }}
           isEmpty={(value) => !value?.distributions?.length}
         >
@@ -226,7 +227,11 @@ export function DistributionsList() {
               exportable={false}
               pageSize={8}
               searchKeys={['name', 'fundName', 'description', 'waterfallScenarioName']}
-              onRowClick={(item) => router.push(`/fund-admin/distributions/${item.id}`)}
+              onRowClick={(item) =>
+                router.push(
+                  withRouteParams(ROUTE_PATHS.fundAdminDistributionDetail, { id: item.id })
+                )
+              }
             />
           )}
         </AsyncStateRenderer>

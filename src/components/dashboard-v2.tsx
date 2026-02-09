@@ -15,17 +15,27 @@ import { MetricsGrid, PageScaffold } from '@/ui/composites';
 import type { MetricsGridItem } from '@/ui/composites';
 import { Card, Badge } from '@/ui';
 import { FundSelector } from '@/components/fund-selector';
-import { getRouteConfig } from '@/config/routes';
+import { getRouteConfig, ROUTE_PATHS } from '@/config/routes';
 import { Fund } from '@/types/fund';
 import { useAppDispatch } from '@/store/hooks';
 import { setQuickActionsOverride } from '@/store/slices/copilotSlice';
 import { useUIKey } from '@/store/ui';
+import { useDashboardDensity } from '@/contexts/dashboard-density-context';
+
+const DASHBOARD_PERCENT_SCALE = 100;
+const BILLION_VALUE = 1_000_000_000;
+const MILLION_VALUE = 1_000_000;
+const FUND_METRIC_CHANGE_DEFAULTS = {
+  activeDeals: '+12%',
+  portfolioValue: '+8.3%',
+  portfolioCompanies: '+3',
+} as const;
 
 const formatCurrency = (amount: number, showDecimals = false) => {
-  if (amount >= 1_000_000_000) {
-    return `$${(amount / 1_000_000_000).toFixed(showDecimals ? 1 : 0)}B`;
+  if (amount >= BILLION_VALUE) {
+    return `$${(amount / BILLION_VALUE).toFixed(showDecimals ? 1 : 0)}B`;
   }
-  return `$${(amount / 1_000_000).toFixed(showDecimals ? 1 : 0)}M`;
+  return `$${(amount / MILLION_VALUE).toFixed(showDecimals ? 1 : 0)}M`;
 };
 
 const DashboardLoading = () => (
@@ -68,6 +78,7 @@ const AuditorDashboard = dynamic(
 
 export function DashboardV2() {
   const { user } = useAuth();
+  const density = useDashboardDensity();
   const { selectedFund, viewMode, funds, getFundSummary, setSelectedFund, setViewMode } = useFund();
   const dispatch = useAppDispatch();
   const {
@@ -124,7 +135,7 @@ export function DashboardV2() {
   // CONSOLIDATED VIEW (No fund selected or consolidated mode)
   // ─────────────────────────────────────────────────────────────────────────────
   if (viewMode === 'consolidated' || !selectedFund) {
-    const routeConfig = getRouteConfig('/dashboard');
+    const routeConfig = getRouteConfig(ROUTE_PATHS.dashboard);
     const activeTab = consolidatedUI.activeTab ?? 'overview';
     const consolidatedTabs = [
       { id: 'overview', label: 'Overview' },
@@ -183,23 +194,23 @@ export function DashboardV2() {
       >
 
         {activeTab === 'overview' && (
-          <div className="mt-4 space-y-6">
+          <div className={`mt-4 ${density.page.sectionStackClass}`}>
             {/* AI Insights Banner */}
             <AIInsightsBanner insight={insight} />
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className={`grid grid-cols-1 lg:grid-cols-3 ${density.page.blockGapClass}`}>
               {/* Fund Summary Table */}
               <div className="lg:col-span-2">
                 <div className="overflow-x-auto rounded-lg border border-[var(--app-border)]" data-fund-selector-target>
                   <table className="min-w-full text-sm">
                     <thead className="bg-[var(--app-surface-hover)] text-[var(--app-text-muted)]">
                       <tr>
-                        <th className="py-3 px-4 text-left font-medium">Fund</th>
-                        <th className="py-3 px-4 text-left font-medium">Status</th>
-                        <th className="py-3 px-4 text-right font-medium">AUM</th>
-                        <th className="py-3 px-4 text-right font-medium">Portfolio</th>
-                        <th className="py-3 px-4 text-right font-medium">IRR</th>
-                        <th className="py-3 px-4 text-right font-medium">TVPI</th>
+                        <th className={`${density.table.headerCellClass} text-left font-medium`}>Fund</th>
+                        <th className={`${density.table.headerCellClass} text-left font-medium`}>Status</th>
+                        <th className={`${density.table.headerCellClass} text-right font-medium`}>AUM</th>
+                        <th className={`${density.table.headerCellClass} text-right font-medium`}>Portfolio</th>
+                        <th className={`${density.table.headerCellClass} text-right font-medium`}>IRR</th>
+                        <th className={`${density.table.headerCellClass} text-right font-medium`}>TVPI</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[var(--app-border)]">
@@ -209,11 +220,11 @@ export function DashboardV2() {
                           onClick={() => handleFundSelect(fund)}
                           className="cursor-pointer hover:bg-[var(--app-surface-hover)] transition-colors"
                         >
-                          <td className="py-3 px-4">
+                          <td className={density.table.bodyCellClass}>
                             <div className="font-medium text-[var(--app-text)]">{fund.displayName}</div>
                             <div className="text-xs text-[var(--app-text-subtle)]">Vintage {fund.vintage}</div>
                           </td>
-                          <td className="py-3 px-4">
+                          <td className={density.table.bodyCellClass}>
                             <Badge
                               size="sm"
                               variant="bordered"
@@ -222,10 +233,10 @@ export function DashboardV2() {
                               {fund.status}
                             </Badge>
                           </td>
-                          <td className="py-3 px-4 text-right text-[var(--app-text)]">{formatCurrency(fund.totalCommitment)}</td>
-                          <td className="py-3 px-4 text-right text-[var(--app-text)]">{fund.portfolioCount} companies</td>
-                          <td className="py-3 px-4 text-right text-[var(--app-success)]">{fund.irr.toFixed(1)}%</td>
-                          <td className="py-3 px-4 text-right text-[var(--app-success)]">{fund.tvpi.toFixed(2)}x</td>
+                          <td className={`${density.table.bodyCellClass} text-right text-[var(--app-text)]`}>{formatCurrency(fund.totalCommitment)}</td>
+                          <td className={`${density.table.bodyCellClass} text-right text-[var(--app-text)]`}>{fund.portfolioCount} companies</td>
+                          <td className={`${density.table.bodyCellClass} text-right text-[var(--app-success)]`}>{fund.irr.toFixed(1)}%</td>
+                          <td className={`${density.table.bodyCellClass} text-right text-[var(--app-success)]`}>{fund.tvpi.toFixed(2)}x</td>
                         </tr>
                       ))}
                     </tbody>
@@ -252,7 +263,7 @@ export function DashboardV2() {
           </div>
         )}
 
-        <div className="h-8" />
+        <div className={density.spacer.pageBottomClass} />
       </PageScaffold>
     );
   }
@@ -260,34 +271,34 @@ export function DashboardV2() {
   // ─────────────────────────────────────────────────────────────────────────────
   // INDIVIDUAL FUND VIEW (Fund is selected)
   // ─────────────────────────────────────────────────────────────────────────────
-  const routeConfig = getRouteConfig('/dashboard');
+  const routeConfig = getRouteConfig(ROUTE_PATHS.dashboard);
 
   const fundMetrics = [
     {
       label: 'Active Deals',
       value: selectedFund.activeDeals.toString(),
-      change: '+12%',
+      change: FUND_METRIC_CHANGE_DEFAULTS.activeDeals,
       trend: 'up' as const,
       icon: Target,
     },
     {
       label: 'Portfolio Value',
       value: formatCurrency(selectedFund.portfolioValue),
-      change: '+8.3%',
+      change: FUND_METRIC_CHANGE_DEFAULTS.portfolioValue,
       trend: 'up' as const,
       icon: DollarSign,
     },
     {
       label: 'Deployed Capital',
       value: formatCurrency(selectedFund.deployedCapital),
-      change: `${((selectedFund.deployedCapital / selectedFund.totalCommitment) * 100).toFixed(0)}%`,
+      change: `${((selectedFund.deployedCapital / selectedFund.totalCommitment) * DASHBOARD_PERCENT_SCALE).toFixed(0)}%`,
       trend: 'up' as const,
       icon: Clock,
     },
     {
       label: 'Portfolio Companies',
       value: selectedFund.portfolioCount.toString(),
-      change: '+3',
+      change: FUND_METRIC_CHANGE_DEFAULTS.portfolioCompanies,
       trend: 'up' as const,
       icon: Users,
     },
@@ -307,7 +318,7 @@ export function DashboardV2() {
         description: selectedFund.description || 'Fund performance and metrics',
         icon: LayoutDashboard,
         aiSummary: {
-          text: `${formatCurrency(selectedFund.totalCommitment)} fund with ${selectedFund.portfolioCount} portfolio companies. ${((selectedFund.deployedCapital / selectedFund.totalCommitment) * 100).toFixed(0)}% deployed. IRR: ${selectedFund.irr.toFixed(1)}%, TVPI: ${selectedFund.tvpi.toFixed(2)}x, DPI: ${selectedFund.dpi.toFixed(2)}x`,
+          text: `${formatCurrency(selectedFund.totalCommitment)} fund with ${selectedFund.portfolioCount} portfolio companies. ${((selectedFund.deployedCapital / selectedFund.totalCommitment) * DASHBOARD_PERCENT_SCALE).toFixed(0)}% deployed. IRR: ${selectedFund.irr.toFixed(1)}%, TVPI: ${selectedFund.tvpi.toFixed(2)}x, DPI: ${selectedFund.dpi.toFixed(2)}x`,
           confidence: 0.96,
         },
         actionContent: <FundSelector />,
@@ -357,7 +368,7 @@ export function DashboardV2() {
         className="mb-6"
       />
 
-      <div className="h-8" />
+      <div className={density.spacer.pageBottomClass} />
     </PageScaffold>
   );
 }

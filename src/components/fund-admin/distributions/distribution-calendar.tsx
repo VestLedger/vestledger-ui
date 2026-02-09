@@ -18,6 +18,7 @@ import type { Distribution, DistributionCalendarEvent } from "@/types/distributi
 import { formatCurrencyCompact, formatDate } from "@/utils/formatting";
 import { distributionEventTypeLabels, getLabelForType } from "@/utils/styling/typeMappers";
 import { getStatusColorVars } from "@/utils/styling/statusColors";
+import { ROUTE_PATHS, withRouteParams } from "@/config/routes";
 import {
   addDays,
   compareAsc,
@@ -320,7 +321,9 @@ export function DistributionCalendar() {
     (arg: EventClickArg) => {
       const distributionId = arg.event.extendedProps?.distributionId as string | undefined;
       if (distributionId) {
-        router.push(`/fund-admin/distributions/${distributionId}`);
+        router.push(
+          withRouteParams(ROUTE_PATHS.fundAdminDistributionDetail, { id: distributionId })
+        );
         return;
       }
 
@@ -362,7 +365,7 @@ export function DistributionCalendar() {
 
   return (
     <PageScaffold
-      routePath="/fund-admin/distributions/calendar"
+      routePath={ROUTE_PATHS.fundAdminDistributionsCalendar}
       header={{
         title: "Distribution Calendar",
         description: "Schedule upcoming distributions and track approval timelines.",
@@ -374,7 +377,7 @@ export function DistributionCalendar() {
         secondaryActions: [
           {
             label: "Back to Fund Admin",
-            onClick: () => router.push("/fund-admin"),
+            onClick: () => router.push(ROUTE_PATHS.fundAdmin),
           },
         ],
       }}
@@ -624,7 +627,11 @@ export function DistributionCalendar() {
                             variant="flat"
                             onPress={() => {
                               if (event.distributionId) {
-                                router.push(`/fund-admin/distributions/${event.distributionId}`);
+                                router.push(
+                                  withRouteParams(ROUTE_PATHS.fundAdminDistributionDetail, {
+                                    id: event.distributionId,
+                                  })
+                                );
                               } else {
                                 patchUI({ showScheduleForm: true });
                               }

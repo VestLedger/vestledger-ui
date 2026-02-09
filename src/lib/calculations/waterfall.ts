@@ -19,6 +19,7 @@ import type {
   BlendedWaterfallConfig,
   TierTimelineEntry,
 } from '@/types/waterfall';
+import { DEFAULT_CURRENCY, DEFAULT_LOCALE } from '@/config/i18n';
 
 type InvestedBasis = 'commitment' | 'capitalCalled';
 
@@ -921,9 +922,9 @@ export function calculateSensitivityAnalysis(
  * Format currency for display
  */
 export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat(DEFAULT_LOCALE, {
     style: 'currency',
-    currency: 'USD',
+    currency: DEFAULT_CURRENCY,
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);

@@ -48,7 +48,7 @@ export function OpsDashboard() {
             </>
           )}
         >
-          <div className="grid lg:grid-cols-2 gap-6">
+          <div className="grid lg:grid-cols-2 gap-4">
             <Card padding="md">
               <SectionHeader
                 title={(

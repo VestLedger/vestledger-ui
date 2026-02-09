@@ -4,6 +4,7 @@ import { isValidElement, memo, type ReactNode } from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Card, Badge } from '@/ui';
+import { useDashboardDensity } from '@/contexts/dashboard-density-context';
 
 export interface MetricBenchmark {
   industryMedian: number;
@@ -66,6 +67,7 @@ export const MetricCard = memo(function MetricCard({
   iconContainerClassName,
   iconClassName,
 }: MetricCardProps) {
+  const density = useDashboardDensity();
   const cardClassName = className ?? 'hover:border-[var(--app-border-subtle)] transition-colors';
   const containerClassName = iconContainerClassName ?? 'p-2 bg-[var(--app-primary-bg)] rounded-lg';
   const resolvedIconClassName = iconClassName ?? 'w-5 h-5 text-[var(--app-primary)]';
@@ -113,11 +115,11 @@ export const MetricCard = memo(function MetricCard({
 
   return (
     <Card className={cardClassName} padding="md">
-      <div className="flex items-start justify-between mb-4">
+      <div className={`flex items-start justify-between ${density.metrics.headerGapClass}`}>
         <div className={containerClassName}>{iconContent}</div>
         {headerMeta}
       </div>
-      <div className="text-3xl mb-1">{value}</div>
+      <div className={density.metrics.valueClass}>{value}</div>
       <div className="text-sm text-[var(--app-text-muted)]">{label}</div>
       {subtitle && (
         <div className="text-xs text-[var(--app-text-subtle)] mt-1">{subtitle}</div>

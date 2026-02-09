@@ -5,6 +5,7 @@ import { Sparkles } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Button, Badge, Tabs, Tab } from './';
 import type { BadgeProps } from './';
+import { useDashboardDensity } from '@/contexts/dashboard-density-context';
 
 export interface PageHeaderTab {
   id: string;
@@ -64,6 +65,8 @@ export function PageHeader({
   badgeContainerClassName,
   children,
 }: PageHeaderProps) {
+  const density = useDashboardDensity();
+
   const getTabPriorityColor = (priority?: 'high' | 'medium' | 'low') => {
     switch (priority) {
       case 'high':
@@ -77,22 +80,29 @@ export function PageHeader({
     }
   };
 
+  const tabListClassName = [
+    'w-full relative rounded-none p-0 border-b border-[var(--app-border)]',
+    density.header.tabsListGapClass,
+  ]
+    .filter(Boolean)
+    .join(' ');
+
   return (
-    <div className="mb-8">
+    <div className={density.header.wrapperMarginClass}>
       {/* Title Row */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-start gap-4 flex-1">
+      <div className={`flex items-start justify-between ${density.header.titleRowMarginClass}`}>
+        <div className={`flex items-start flex-1 ${density.header.titleRowGapClass}`}>
           {/* Icon */}
           {Icon && (
-            <div className="p-3 rounded-xl bg-gradient-to-br from-[var(--app-primary)]/10 to-[var(--app-accent)]/5 border border-[var(--app-primary)]/20">
-              <Icon className="w-6 h-6 text-[var(--app-primary)]" />
+            <div className={`${density.header.iconContainerClass} bg-gradient-to-br from-[var(--app-primary)]/10 to-[var(--app-accent)]/5 border border-[var(--app-primary)]/20`}>
+              <Icon className={`${density.header.iconSizeClass} text-[var(--app-primary)]`} />
             </div>
           )}
 
           {/* Title & Description */}
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-3xl font-bold text-[var(--app-text)]">
+              <h1 className={density.header.titleClass}>
                 {title}
               </h1>
 
@@ -132,7 +142,7 @@ export function PageHeader({
             </div>
 
             {description && (
-              <p className="text-[var(--app-text-muted)] text-base">
+              <p className={density.header.descriptionClass}>
                 {description}
               </p>
             )}
@@ -141,7 +151,7 @@ export function PageHeader({
 
         {/* Actions */}
         {(actionContent || primaryAction || secondaryActions) && (
-          <div className="flex items-center gap-3">
+          <div className={`flex items-center ${density.header.actionGapClass}`}>
             {actionContent}
 
             {!actionContent && secondaryActions?.map((action, index) => (
@@ -182,7 +192,7 @@ export function PageHeader({
       {badges && badges.length > 0 && (
         <div
           className={[
-            'flex flex-wrap items-center gap-3 mt-4',
+            density.header.badgesContainerClass,
             badgeContainerClassName,
           ]
             .filter(Boolean)
@@ -212,10 +222,10 @@ export function PageHeader({
             onSelectionChange={(key) => onTabChange?.(key as string)}
             classNames={{
               base: "w-full p-0",
-              tabList: "w-full relative rounded-none p-0 border-b border-[var(--app-border)] gap-6",
+              tabList: tabListClassName,
               cursor: "w-full bg-[var(--app-primary)]",
-              tab: "max-w-fit px-0 h-14",
-              tabContent: "group-data-[selected=true]:text-[var(--app-primary)] text-[var(--app-text-muted)] font-medium"
+              tab: `max-w-fit px-0 ${density.header.tabsHeightClass}`,
+              tabContent: density.header.tabsContentClass,
             }}
           >
             {tabs.map((tab) => (

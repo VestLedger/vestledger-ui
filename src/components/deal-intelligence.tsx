@@ -9,6 +9,7 @@ import { AsyncStateRenderer } from '@/ui/async-states';
 import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { KeyValueRow, ListItemCard, PageScaffold, SearchToolbar, SectionHeader, StatusBadge } from '@/ui/composites';
+import { ROUTE_PATHS } from '@/config/routes';
 import {
   type ActiveDeal,
   type Document,
@@ -72,7 +73,7 @@ export function DealIntelligence() {
         if (viewMode === 'fund-level') {
           return (
             <PageScaffold
-              routePath="/deal-intelligence"
+              routePath={ROUTE_PATHS.dealIntelligence}
               header={{
                 title: 'Deal Intelligence',
                 description: 'Track due diligence progress and documentation across your deal pipeline',

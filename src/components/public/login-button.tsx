@@ -1,5 +1,7 @@
 'use client';
 
+import { buildAppLoginUrl } from '@/config/env';
+
 interface LoginButtonProps {
   children?: React.ReactNode;
   className?: string;
@@ -11,24 +13,7 @@ interface LoginButtonProps {
  */
 export function LoginButton({ children = 'Login', className }: LoginButtonProps) {
   const handleLogin = () => {
-    const currentHostname = window.location.hostname;
-    const isProduction = process.env.NODE_ENV === 'production';
-    const protocol = isProduction ? 'https' : 'http';
-
-    let appDomain: string;
-    if (isProduction && currentHostname.includes('.')) {
-      // Add app. prefix to current domain
-      // vestledger.com → app.vestledger.com
-      // www.vestledger.com → app.vestledger.com (remove www, add app)
-      const baseDomain = currentHostname.replace(/^www\./, '');
-      appDomain = `app.${baseDomain}`;
-    } else {
-      // Use env var if available, otherwise fallback to localhost
-      appDomain = process.env.NEXT_PUBLIC_APP_DOMAIN || 'app.vestledger.local:3000';
-    }
-
-    const loginUrl = `${protocol}://${appDomain}/login`;
-    window.location.href = loginUrl;
+    window.location.href = buildAppLoginUrl(window.location.hostname);
   };
 
   // Uses btn-secondary from the design system (globals.css)

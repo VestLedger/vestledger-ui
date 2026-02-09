@@ -4,7 +4,7 @@ import { useUIKey } from '@/store/ui'
 import { Card, Button, Progress, Select } from '@/ui'
 import { DollarSign, Send, Download, Users, Mail, ArrowUpRight, ArrowDownRight } from 'lucide-react'
 import { FundSelector } from '../fund-selector'
-import { getRouteConfig } from '@/config/routes'
+import { getRouteConfig, ROUTE_PATHS } from '@/config/routes'
 import { CarriedInterestTracker } from '../fund-admin/carried-interest-tracker'
 import { ExpenseTracker } from '../fund-admin/expense-tracker'
 import { NAVCalculator } from '../fund-admin/nav-calculator'
@@ -24,7 +24,7 @@ export function FundAdmin() {
   const { selectedTab } = ui;
 
   // Get route config for breadcrumbs and AI suggestions
-  const routeConfig = getRouteConfig('/fund-admin');
+  const routeConfig = getRouteConfig(ROUTE_PATHS.fundAdmin);
 
   const capitalCalls = data?.capitalCalls || [];
   const distributions = data?.distributions || [];

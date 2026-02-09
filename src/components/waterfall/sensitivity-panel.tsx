@@ -25,6 +25,7 @@ import { formatCurrencyCompact } from '@/utils/formatting';
 import type { WaterfallScenario } from '@/types/waterfall';
 import { TrendingUp } from 'lucide-react';
 import { SectionHeader } from '@/ui/composites';
+import { WATERFALL_SENSITIVITY_DEFAULTS } from '@/config/calculation-defaults';
 
 type SensitivityUIState = {
   minExitValue: number;
@@ -50,15 +51,23 @@ type SensitivityTooltipProps = TooltipProps<number, string> & {
   showComparison: boolean;
 };
 
-const DEFAULT_STEPS = 20;
-const STEPS_OPTIONS = [10, 20, 30, 40];
+const DEFAULT_STEPS = WATERFALL_SENSITIVITY_DEFAULTS.defaultSteps;
+const STEPS_OPTIONS = WATERFALL_SENSITIVITY_DEFAULTS.stepOptions;
+const MIN_SENSITIVITY_STEPS = 5;
+const PERCENT_SCALE = 100;
 
 const getModelLabel = (model: WaterfallScenario['model']) =>
   model === 'european' ? 'European' : model === 'american' ? 'American' : 'Blended';
 
 const buildDefaultState = (exitValue: number): SensitivityUIState => {
-  const minExitValue = Math.max(0, Math.round(exitValue * 0.5));
-  const maxExitValue = Math.max(minExitValue + 10_000_000, Math.round(exitValue * 1.5));
+  const minExitValue = Math.max(
+    0,
+    Math.round(exitValue * WATERFALL_SENSITIVITY_DEFAULTS.defaultMinMultiplier)
+  );
+  const maxExitValue = Math.max(
+    minExitValue + WATERFALL_SENSITIVITY_DEFAULTS.minRangeSpan,
+    Math.round(exitValue * WATERFALL_SENSITIVITY_DEFAULTS.defaultMaxMultiplier)
+  );
   return {
     minExitValue,
     maxExitValue,
@@ -135,11 +144,21 @@ export function SensitivityPanel({
   comparisonScenario,
   printMode = false,
 }: SensitivityPanelProps) {
-  const baseExitValue = scenario.exitValue || 100_000_000;
+  const baseExitValue =
+    scenario.exitValue || WATERFALL_SENSITIVITY_DEFAULTS.baseExitValue;
   const rangeBounds = useMemo(() => {
-    const min = Math.max(0, Math.round(baseExitValue * 0.25));
-    const max = Math.max(min + 10_000_000, Math.round(baseExitValue * 2));
-    const step = Math.max(1_000_000, Math.round(baseExitValue * 0.05));
+    const min = Math.max(
+      0,
+      Math.round(baseExitValue * WATERFALL_SENSITIVITY_DEFAULTS.minRangeMultiplier)
+    );
+    const max = Math.max(
+      min + WATERFALL_SENSITIVITY_DEFAULTS.minRangeSpan,
+      Math.round(baseExitValue * WATERFALL_SENSITIVITY_DEFAULTS.maxRangeMultiplier)
+    );
+    const step = Math.max(
+      WATERFALL_SENSITIVITY_DEFAULTS.minStep,
+      Math.round(baseExitValue * WATERFALL_SENSITIVITY_DEFAULTS.stepMultiplier)
+    );
     return { min, max, step };
   }, [baseExitValue]);
 
@@ -183,7 +202,7 @@ export function SensitivityPanel({
         scenarioId: scenario.id,
         minExitValue: normalizedRange.minValue,
         maxExitValue: normalizedRange.maxValue,
-        steps: Math.max(5, steps),
+        steps: Math.max(MIN_SENSITIVITY_STEPS, steps),
       },
       dependencies: [
         scenario.id,
@@ -203,7 +222,7 @@ export function SensitivityPanel({
       comparisonScenario,
       normalizedRange.minValue,
       normalizedRange.maxValue,
-      Math.max(5, steps)
+      Math.max(MIN_SENSITIVITY_STEPS, steps)
     );
   }, [
     compareModels,
@@ -364,7 +383,9 @@ export function SensitivityPanel({
             </div>
             <div className="flex items-center justify-between gap-2">
               <span>Step Count</span>
-              <span className="font-medium text-[var(--app-text)]">{Math.max(5, steps)}</span>
+              <span className="font-medium text-[var(--app-text)]">
+                {Math.max(MIN_SENSITIVITY_STEPS, steps)}
+              </span>
             </div>
             {analysis && (
               <div className="flex items-center justify-between gap-2">
@@ -427,7 +448,7 @@ export function SensitivityPanel({
                       tickLine={false}
                       axisLine={false}
                       width={60}
-                      domain={[0, 100]}
+                      domain={[0, PERCENT_SCALE]}
                     />
                     <Tooltip
                       content={(

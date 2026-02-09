@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { PageContainer, Breadcrumb, PageHeader } from '@/ui';
 import type { BreadcrumbItem, AISuggestion, PageHeaderProps, PageContainerProps } from '@/ui';
 import { getRouteConfig } from '@/config/routes';
+import { useDashboardDensity } from '@/contexts/dashboard-density-context';
 
 export interface PageScaffoldProps {
   routePath?: string;
@@ -24,6 +25,7 @@ export function PageScaffold({
   containerProps,
   children,
 }: PageScaffoldProps) {
+  const density = useDashboardDensity();
   const routeConfig = routePath ? getRouteConfig(routePath) : undefined;
   const resolvedBreadcrumbs = breadcrumbs ?? routeConfig?.breadcrumbs;
   const resolvedSuggestion = aiSuggestion ?? routeConfig?.aiSuggestion;
@@ -49,7 +51,7 @@ export function PageScaffold({
       <PageHeader {...resolvedHeader} />
 
       {toolbar && (
-        <div className="mt-4">
+        <div className={density.mode === 'compact' ? 'mt-3' : 'mt-4'}>
           {toolbar}
         </div>
       )}

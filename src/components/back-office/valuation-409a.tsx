@@ -1,7 +1,7 @@
 'use client'
 
 import { Card, Button, Badge } from '@/ui';
-import { getRouteConfig } from '@/config/routes';
+import { getRouteConfig, ROUTE_PATHS } from '@/config/routes';
 import { Download, Calendar, DollarSign, AlertCircle, CheckCircle, Clock, Building2, ChevronRight, Calculator } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
 import { valuation409aRequested, valuation409aSelectors } from '@/store/slices/backOfficeSlice';
@@ -15,7 +15,7 @@ export function Valuation409A() {
   const { data, isLoading, error, refetch } = useAsyncData(valuation409aRequested, valuation409aSelectors.selectState);
   const { value: ui, patch: patchUI } = useUIKey('back-office-valuation-409a', { selectedTab: 'valuations' });
   const { selectedTab } = ui;
-  const routeConfig = getRouteConfig('/409a-valuations');
+  const routeConfig = getRouteConfig(ROUTE_PATHS.valuations409a);
 
   const valuations = data?.valuations || [];
   const strikePrices = data?.strikePrices || [];

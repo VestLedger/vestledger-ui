@@ -1,4 +1,5 @@
 import type { SagaKey } from '@/store/sagaManager';
+import { ROUTE_PATHS } from '@/config/routes';
 
 const CORE_SAGAS: SagaKey[] = [
   'alerts',
@@ -13,25 +14,25 @@ const ROUTE_SAGAS: Array<{
   match: (pathname: string) => boolean;
   sagas: SagaKey[];
 }> = [
-  { match: (pathname) => pathname === '/dashboard', sagas: ['dashboards'] },
-  { match: (pathname) => pathname.startsWith('/pipeline'), sagas: ['pipeline'] },
-  { match: (pathname) => pathname.startsWith('/portfolio'), sagas: ['portfolio'] },
-  { match: (pathname) => pathname.startsWith('/documents'), sagas: ['documents'] },
-  { match: (pathname) => pathname.startsWith('/deal-intelligence'), sagas: ['dealIntelligence', 'misc'] },
-  { match: (pathname) => pathname.startsWith('/dealflow-review'), sagas: ['dealflow'] },
-  { match: (pathname) => pathname.startsWith('/ai-tools'), sagas: ['ai'] },
-  { match: (pathname) => pathname.startsWith('/waterfall'), sagas: ['waterfall', 'distribution'] },
-  { match: (pathname) => pathname.startsWith('/fund-admin'), sagas: ['backOffice', 'distribution'] },
-  { match: (pathname) => pathname.startsWith('/compliance'), sagas: ['backOffice'] },
-  { match: (pathname) => pathname.startsWith('/tax-center'), sagas: ['backOffice'] },
-  { match: (pathname) => pathname.startsWith('/409a-valuations'), sagas: ['backOffice'] },
-  { match: (pathname) => pathname.startsWith('/lp-portal'), sagas: ['misc'] },
-  { match: (pathname) => pathname.startsWith('/lp-management'), sagas: ['misc'] },
-  { match: (pathname) => pathname.startsWith('/integrations'), sagas: ['misc'] },
-  { match: (pathname) => pathname.startsWith('/audit-trail'), sagas: ['misc'] },
-  { match: (pathname) => pathname.startsWith('/contacts'), sagas: ['crm'] },
-  { match: (pathname) => pathname.startsWith('/analytics'), sagas: ['portfolio'] },
-  { match: (pathname) => pathname.startsWith('/notifications'), sagas: ['alerts'] },
+  { match: (pathname) => pathname === ROUTE_PATHS.dashboard, sagas: ['dashboards'] },
+  { match: (pathname) => pathname.startsWith(ROUTE_PATHS.pipeline), sagas: ['pipeline'] },
+  { match: (pathname) => pathname.startsWith(ROUTE_PATHS.portfolio), sagas: ['portfolio'] },
+  { match: (pathname) => pathname.startsWith(ROUTE_PATHS.documents), sagas: ['documents'] },
+  { match: (pathname) => pathname.startsWith(ROUTE_PATHS.dealIntelligence), sagas: ['dealIntelligence', 'misc'] },
+  { match: (pathname) => pathname.startsWith(ROUTE_PATHS.dealflowReview), sagas: ['dealflow'] },
+  { match: (pathname) => pathname.startsWith(ROUTE_PATHS.aiTools), sagas: ['ai'] },
+  { match: (pathname) => pathname.startsWith(ROUTE_PATHS.waterfall), sagas: ['waterfall', 'distribution'] },
+  { match: (pathname) => pathname.startsWith(ROUTE_PATHS.fundAdmin), sagas: ['backOffice', 'distribution'] },
+  { match: (pathname) => pathname.startsWith(ROUTE_PATHS.compliance), sagas: ['backOffice'] },
+  { match: (pathname) => pathname.startsWith(ROUTE_PATHS.taxCenter), sagas: ['backOffice'] },
+  { match: (pathname) => pathname.startsWith(ROUTE_PATHS.valuations409a), sagas: ['backOffice'] },
+  { match: (pathname) => pathname.startsWith(ROUTE_PATHS.lpPortal), sagas: ['misc'] },
+  { match: (pathname) => pathname.startsWith(ROUTE_PATHS.lpManagement), sagas: ['misc'] },
+  { match: (pathname) => pathname.startsWith(ROUTE_PATHS.integrations), sagas: ['misc'] },
+  { match: (pathname) => pathname.startsWith(ROUTE_PATHS.auditTrail), sagas: ['misc'] },
+  { match: (pathname) => pathname.startsWith(ROUTE_PATHS.contacts), sagas: ['crm'] },
+  { match: (pathname) => pathname.startsWith(ROUTE_PATHS.analytics), sagas: ['portfolio'] },
+  { match: (pathname) => pathname.startsWith(ROUTE_PATHS.notifications), sagas: ['alerts'] },
 ];
 
 export function getSagaKeysForPath(pathname: string | null): SagaKey[] {

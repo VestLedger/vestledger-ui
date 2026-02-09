@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import './command-palette.css';
 import { useUIKey } from '@/store/ui';
+import { ROUTE_PATHS } from '@/config/routes';
 
 interface CommandItem {
   id: string;
@@ -69,7 +70,7 @@ export function CommandPalette() {
       subtitle: 'View fund overview and metrics',
       category: 'Pages',
       icon: BarChart3,
-      action: () => navigate('/dashboard'),
+      action: () => navigate(ROUTE_PATHS.dashboard),
       keywords: ['home', 'overview', 'metrics'],
     },
     {
@@ -78,7 +79,7 @@ export function CommandPalette() {
       subtitle: 'Manage deal flow',
       category: 'Pages',
       icon: GitBranch,
-      action: () => navigate('/pipeline'),
+      action: () => navigate(ROUTE_PATHS.pipeline),
       keywords: ['deals', 'kanban', 'opportunities'],
     },
     {
@@ -87,7 +88,7 @@ export function CommandPalette() {
       subtitle: 'Track portfolio companies',
       category: 'Pages',
       icon: Building2,
-      action: () => navigate('/portfolio'),
+      action: () => navigate(ROUTE_PATHS.portfolio),
       keywords: ['companies', 'investments'],
     },
     {
@@ -96,7 +97,7 @@ export function CommandPalette() {
       subtitle: 'CRM and relationships',
       category: 'Pages',
       icon: Users,
-      action: () => navigate('/contacts'),
+      action: () => navigate(ROUTE_PATHS.contacts),
       keywords: ['crm', 'people', 'founders'],
     },
     {
@@ -105,7 +106,7 @@ export function CommandPalette() {
       subtitle: 'Fund performance analysis',
       category: 'Pages',
       icon: BarChart3,
-      action: () => navigate('/analytics'),
+      action: () => navigate(ROUTE_PATHS.analytics),
       keywords: ['charts', 'performance', 'metrics'],
     },
     {
@@ -114,7 +115,7 @@ export function CommandPalette() {
       subtitle: 'Capital calls and distributions',
       category: 'Pages',
       icon: DollarSign,
-      action: () => navigate('/fund-admin'),
+      action: () => navigate(ROUTE_PATHS.fundAdmin),
       keywords: ['capital', 'calls', 'distributions', 'lp'],
     },
     {
@@ -123,7 +124,7 @@ export function CommandPalette() {
       subtitle: 'Regulatory tracking',
       category: 'Pages',
       icon: FileText,
-      action: () => navigate('/compliance'),
+      action: () => navigate(ROUTE_PATHS.compliance),
       keywords: ['regulatory', 'filing', 'audit'],
     },
     {
@@ -132,7 +133,7 @@ export function CommandPalette() {
       subtitle: 'Exit scenario modeling',
       category: 'Pages',
       icon: BarChart3,
-      action: () => navigate('/waterfall'),
+      action: () => navigate(ROUTE_PATHS.waterfall),
       keywords: ['exit', 'modeling', 'returns'],
     },
   ];
@@ -165,7 +166,7 @@ export function CommandPalette() {
       title: 'Create Capital Call',
       category: 'Actions',
       icon: DollarSign,
-      action: () => navigate('/fund-admin'),
+      action: () => navigate(ROUTE_PATHS.fundAdmin),
       keywords: ['create', 'lp', 'funding'],
     },
   ];

@@ -62,7 +62,12 @@ import {
   distributionsSelectors,
 } from '@/store/slices/distributionSlice';
 import { useAsyncData } from '@/hooks/useAsyncData';
+import {
+  WATERFALL_QUICK_SCENARIO_VALUES,
+  WATERFALL_STARTER_SCENARIO_DEFAULTS,
+} from '@/config/calculation-defaults';
 import { mockInvestorClasses, mockWaterfallTemplates } from '@/data/mocks/analytics/waterfall';
+import { ROUTE_PATHS } from '@/config/routes';
 
 const chartOptions = [
   { id: 'waterfall', label: 'Waterfall Flow', icon: BarChart3 },
@@ -71,6 +76,12 @@ const chartOptions = [
 ] as const;
 
 type ChartOptionId = typeof chartOptions[number]['id'];
+
+const BLENDED_MODEL_TEMPLATE_WEIGHTS = { europeanWeight: 60, americanWeight: 40 } as const;
+const BLENDED_MODEL_DEFAULT_WEIGHTS = { europeanWeight: 50, americanWeight: 50 } as const;
+const PERCENT_SCALE = 100;
+const INITIAL_SCENARIO_VERSION = 1;
+const PRINT_MODE_TRIGGER_DELAY_MS = 200;
 
 type WaterfallUIState = {
   exitValueInput: number;
@@ -116,9 +127,9 @@ const buildStarterScenario = (
     model: baseTemplate?.model ?? 'european',
     investorClasses,
     tiers,
-    exitValue: 200_000_000,
+    exitValue: WATERFALL_STARTER_SCENARIO_DEFAULTS.exitValue,
     totalInvested: computeTotalInvested(investorClasses),
-    managementFees: 5_000_000,
+    managementFees: WATERFALL_STARTER_SCENARIO_DEFAULTS.managementFees,
     isFavorite: false,
     isTemplate: false,
     createdBy: 'Ops Team',
@@ -363,7 +374,7 @@ export function WaterfallModeling() {
       templateTiers.length > 0 ? templateTiers.map((tier) => ({ ...tier })) : selectedScenario.tiers;
     const blendedConfig =
       model === 'blended'
-        ? selectedScenario.blendedConfig ?? { europeanWeight: 60, americanWeight: 40 }
+        ? selectedScenario.blendedConfig ?? BLENDED_MODEL_TEMPLATE_WEIGHTS
         : selectedScenario.blendedConfig;
 
     const updatedScenario: WaterfallScenario = {
@@ -392,7 +403,7 @@ export function WaterfallModeling() {
       totalInvested: computeTotalInvested(selectedScenario.investorClasses),
       createdAt: now,
       updatedAt: now,
-      version: 1,
+      version: INITIAL_SCENARIO_VERSION,
       isFavorite: false,
       isTemplate: false,
     };
@@ -417,7 +428,7 @@ export function WaterfallModeling() {
   const handlePrint = () => {
     patchUI({ printMode: true });
     if (typeof window !== 'undefined') {
-      window.setTimeout(() => window.print(), 200);
+      window.setTimeout(() => window.print(), PRINT_MODE_TRIGGER_DELAY_MS);
     }
   };
 
@@ -544,12 +555,12 @@ export function WaterfallModeling() {
         : 'Blended (hybrid EU/US)'
     : null;
 
-  const blendedConfig = selectedScenario?.blendedConfig ?? { europeanWeight: 50, americanWeight: 50 };
+  const blendedConfig = selectedScenario?.blendedConfig ?? BLENDED_MODEL_DEFAULT_WEIGHTS;
 
   const handleBlendWeightChange = (value: number) => {
     if (!selectedScenario) return;
-    const europeanWeight = Math.min(100, Math.max(0, value));
-    const americanWeight = Math.max(0, 100 - europeanWeight);
+    const europeanWeight = Math.min(PERCENT_SCALE, Math.max(0, value));
+    const americanWeight = Math.max(0, PERCENT_SCALE - europeanWeight);
     handleScenarioPatch({
       blendedConfig: {
         europeanWeight,
@@ -560,7 +571,7 @@ export function WaterfallModeling() {
 
   return (
     <PageScaffold
-      routePath="/waterfall"
+      routePath={ROUTE_PATHS.waterfall}
       header={{
         title: 'Waterfall Modeling',
         description: 'Model exit scenarios and visualize distribution waterfalls',
@@ -828,7 +839,7 @@ export function WaterfallModeling() {
                     <div>
                       <label className="text-sm font-medium mb-2 block">Quick Scenarios</label>
                       <div className="grid grid-cols-2 gap-2">
-                        {[50_000_000, 100_000_000, 250_000_000, 500_000_000].map((value) => (
+                        {WATERFALL_QUICK_SCENARIO_VALUES.map((value) => (
                           <Button
                             key={value}
                             size="sm"

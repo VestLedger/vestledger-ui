@@ -4,6 +4,7 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import { Button } from '@/ui';
 import { captureException, addBreadcrumb } from '@/lib/errorTracking';
+import { ROUTE_PATHS } from '@/config/routes';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -93,7 +94,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   };
 
   handleGoHome = (): void => {
-    window.location.href = '/dashboard';
+    window.location.href = ROUTE_PATHS.dashboard;
   };
 
   render(): ReactNode {

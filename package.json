@@ -25,6 +25,8 @@
     "playwright:report": "playwright show-report",
     "audit:ui-centralization": "node scripts/ui-centralization-audit.mjs",
     "audit:ui-centralization:enforce": "node scripts/ui-centralization-audit.mjs --enforce",
+    "audit:hardcoded-values": "node scripts/hardcoded-values-audit.mjs",
+    "audit:hardcoded-values:enforce": "node scripts/hardcoded-values-audit.mjs --enforce",
     "prepare": "husky",
     "gen:openapi": "node scripts/gen-openapi.mjs"
   },

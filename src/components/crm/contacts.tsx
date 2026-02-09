@@ -2,7 +2,7 @@
 
 import { Card, Button, Badge } from '@/ui';
 import { Mail, Phone, Building2, MapPin, Calendar, Tag, Edit3, Trash2, Star, MessageSquare, Video, Send, ExternalLink, Briefcase, Users } from 'lucide-react';
-import { getRouteConfig } from '@/config/routes';
+import { getRouteConfig, ROUTE_PATHS } from '@/config/routes';
 import { SideDrawer } from '@/components/side-drawer';
 import { RelationshipScore, calculateRelationshipScore, type RelationshipMetrics } from '@/components/crm/relationship-score';
 import { SmartLists, type SmartList } from '@/components/crm/smart-lists';
@@ -31,7 +31,7 @@ interface ContactsUIState {
 }
 
 export function Contacts() {
-  const routeConfig = getRouteConfig('/contacts');
+  const routeConfig = getRouteConfig(ROUTE_PATHS.contacts);
   const { data, isLoading, error, refetch } = useAsyncData(crmDataRequested, crmSelectors.selectState, { params: {} });
 
   const mockContacts = data?.contacts || [];

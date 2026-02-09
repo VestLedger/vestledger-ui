@@ -4,6 +4,7 @@ import { MetricCard } from '@/components/metric-card';
 import { StatsCard } from './StatsCard';
 import type { StatsCardProps } from './StatsCard';
 import type { MetricCardProps } from '@/components/metric-card';
+import { useDashboardDensity } from '@/contexts/dashboard-density-context';
 
 export type MetricsGridItem =
   | { type: 'stats'; props: StatsCardProps }
@@ -57,6 +58,7 @@ const lgCols = {
 } as const;
 
 export function MetricsGrid({ items, columns, className }: MetricsGridProps) {
+  const density = useDashboardDensity();
   const hasColumns = !!columns;
   const base = columns?.base ?? 1;
   const sm = columns?.sm;
@@ -64,7 +66,7 @@ export function MetricsGrid({ items, columns, className }: MetricsGridProps) {
   const lg = columns?.lg ?? (hasColumns ? undefined : 4);
 
   const classes = [
-    'grid gap-4',
+    density.metrics.gridGapClass,
     baseCols[base],
     sm ? smCols[sm] : null,
     md ? mdCols[md] : null,

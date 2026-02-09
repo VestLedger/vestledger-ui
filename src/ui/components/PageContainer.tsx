@@ -1,6 +1,7 @@
 'use client';
 
 import { motion, HTMLMotionProps } from 'framer-motion';
+import { useDashboardDensity } from '@/contexts/dashboard-density-context';
 
 // Simple className merger
 function cn(...classes: (string | undefined | null | false)[]) {
@@ -15,7 +16,7 @@ export interface PageContainerProps extends Omit<HTMLMotionProps<'div'>, 'initia
   /** Maximum width variant */
   maxWidth?: 'default' | 'narrow' | 'wide' | 'full';
   /** Padding variant */
-  padding?: 'none' | 'sm' | 'default' | 'lg';
+  padding?: 'none' | 'sm' | 'default' | 'lg' | 'dashboard';
 }
 
 const maxWidthClasses = {
@@ -37,11 +38,16 @@ export function PageContainer({
   className,
   noAnimation = false,
   maxWidth = 'default',
-  padding = 'default',
+  padding = 'dashboard',
   ...props
 }: PageContainerProps) {
+  const density = useDashboardDensity();
+  const resolvedPaddingClass = padding === 'dashboard'
+    ? density.page.containerPaddingClass
+    : paddingClasses[padding];
+
   const baseClasses = cn(
-    paddingClasses[padding],
+    resolvedPaddingClass,
     maxWidthClasses[maxWidth],
     'mx-auto',
     className

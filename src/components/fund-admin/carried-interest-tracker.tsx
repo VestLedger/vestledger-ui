@@ -3,7 +3,7 @@
 import { Card, Button, Badge } from '@/ui';
 import { TrendingUp, Calendar, ChevronRight, ChevronDown, Download, RefreshCw } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
-import { formatCurrency, formatPercent } from '@/utils/formatting';
+import { formatCurrency, formatDate, formatPercent } from '@/utils/formatting';
 import { SectionHeader, StatusBadge } from '@/ui/composites';
 
 export interface CarriedInterestTerm {
@@ -211,7 +211,7 @@ export function CarriedInterestTracker({
                       <div className="flex items-center gap-2">
                         <Calendar className="w-3 h-3 text-[var(--app-text-muted)]" />
                         <span className="text-sm font-medium">
-                          {accrual.asOfDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                          {formatDate(accrual.asOfDate, { month: 'short', year: 'numeric' })}
                         </span>
                       </div>
                       <StatusBadge status={accrual.status} domain="fund-admin" size="sm" />
@@ -249,7 +249,7 @@ export function CarriedInterestTracker({
                       <StatusBadge status={selectedAccrual.status} domain="fund-admin" size="sm" />
                     </div>
                     <p className="text-sm text-[var(--app-text-muted)]">
-                      As of {selectedAccrual.asOfDate.toLocaleDateString('en-US', {
+                      As of {formatDate(selectedAccrual.asOfDate, {
                         month: 'long',
                         day: 'numeric',
                         year: 'numeric'

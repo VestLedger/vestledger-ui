@@ -13,6 +13,11 @@ import { Topbar } from '@/components/topbar'
 import { CommandPalette } from '@/components/command-palette'
 import { useKeyboardShortcut } from '@/hooks/use-keyboard-shortcut'
 import { LoadingState } from '@/ui/async-states'
+import { useUIKey } from '@/store/ui'
+import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys'
+import { DashboardDensityProvider } from '@/contexts/dashboard-density-context'
+import { DASHBOARD_DENSITY, resolveDashboardDensityMode } from '@/config/dashboard-density'
+import { buildAppLoginUrl } from '@/config/env'
 
 const AICopilotSidebar = dynamic(
   () => import('@/components/ai-copilot-sidebar').then((mod) => mod.AICopilotSidebar),
@@ -24,8 +29,14 @@ const AICopilotSidebar = dynamic(
 
 function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
   const { sidebarState, toggleLeftSidebar, toggleRightSidebar } = useNavigation()
+  const { value: dashboardDensityUI } = useUIKey(
+    UI_STATE_KEYS.DASHBOARD_DENSITY,
+    UI_STATE_DEFAULTS.dashboardDensity
+  )
   const [copilotReady, setCopilotReady] = useState(false)
   const [enableSidebarMotion, setEnableSidebarMotion] = useState(false)
+  const densityMode = resolveDashboardDensityMode(dashboardDensityUI.mode)
+  const density = DASHBOARD_DENSITY[densityMode]
 
   // Keyboard shortcuts
   // Cmd+B for left sidebar
@@ -54,32 +65,34 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
   const shouldRenderCopilot = sidebarState.rightCollapsed || copilotReady
 
   return (
-    <div className="flex h-screen bg-[var(--app-bg)] text-[var(--app-text)]">
-      <SidebarGrouped />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Topbar />
-        <main className="flex-1 overflow-auto">
-          {children}
-        </main>
+    <DashboardDensityProvider mode={densityMode}>
+      <div className="flex h-screen bg-[var(--app-bg)] text-[var(--app-text)]" data-dashboard-density={densityMode}>
+        <SidebarGrouped />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <Topbar />
+          <main className="flex-1 overflow-auto">
+            {children}
+          </main>
+        </div>
+        {/* AI Copilot Sidebar - Animated right panel */}
+        <motion.div
+          initial={false}
+          animate={{
+            width: sidebarState.rightCollapsed ? '0px' : `${density.shell.rightSidebarWidthPx}px`,
+          }}
+          transition={enableSidebarMotion ? { duration: 0.2, ease: 'easeInOut' } : { duration: 0 }}
+          className="border-l border-[var(--app-border)] bg-[var(--app-surface)] flex flex-col overflow-hidden"
+          style={{ willChange: 'width' }}
+        >
+          {shouldRenderCopilot ? (
+            <AICopilotSidebar />
+          ) : (
+            <div className="flex-1" aria-hidden="true" />
+          )}
+        </motion.div>
+        <CommandPalette />
       </div>
-      {/* AI Copilot Sidebar - Animated right panel */}
-      <motion.div
-        initial={false}
-        animate={{
-          width: sidebarState.rightCollapsed ? '0px' : '384px',
-        }}
-        transition={enableSidebarMotion ? { duration: 0.2, ease: 'easeInOut' } : { duration: 0 }}
-        className="border-l border-[var(--app-border)] bg-[var(--app-surface)] flex flex-col overflow-hidden"
-        style={{ willChange: 'width' }}
-      >
-        {shouldRenderCopilot ? (
-          <AICopilotSidebar />
-        ) : (
-          <div className="flex-1" aria-hidden="true" />
-        )}
-      </motion.div>
-      <CommandPalette />
-    </div>
+    </DashboardDensityProvider>
   )
 }
 
@@ -104,9 +117,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
       setIsRedirecting(true)
 
       // Redirect to app subdomain login page (cross-domain requires full page navigation)
-      const appDomain = process.env.NEXT_PUBLIC_APP_DOMAIN || 'app.vestledger.local:3000';
-      const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-      window.location.href = `${protocol}://${appDomain}/login`;
+      window.location.href = buildAppLoginUrl(window.location.hostname);
     }
   }, [isLoginPage, hydrated, isAuthenticated])
 
@@ -121,7 +132,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   }
 
   const resolvedChildren = sagasReady ? children : (
-    <div className="p-6">
+    <div className="p-4">
       <LoadingState message="Loading modules…" fullHeight={false} />
     </div>
   )

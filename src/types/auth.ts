@@ -1,3 +1,5 @@
+import { ROUTE_PATHS } from '@/config/routes';
+
 export type UserRole =
   | 'gp'
   | 'analyst'
@@ -23,35 +25,35 @@ export const PERSONA_CONFIG: Record<UserRole, PersonaConfig> = {
     id: 'gp',
     label: 'Strategic Decision Maker (GP)',
     description: 'High-level portfolio performance, deal flow summary, fundraising status.',
-    defaultPath: '/dashboard',
+    defaultPath: ROUTE_PATHS.dashboard,
     category: 'primary',
   },
   analyst: {
     id: 'analyst',
     label: 'Investment Intelligence Analyst',
     description: 'Deal screening, due diligence data, market research.',
-    defaultPath: '/pipeline',
+    defaultPath: ROUTE_PATHS.pipeline,
     category: 'primary',
   },
   ops: {
     id: 'ops',
     label: 'Operational Excellence Manager',
     description: 'Fund administration, compliance, back-office tasks.',
-    defaultPath: '/fund-admin',
+    defaultPath: ROUTE_PATHS.fundAdmin,
     category: 'primary',
   },
   ir: {
     id: 'ir',
     label: 'Relationship Navigator',
     description: 'LP communications, CRM, contacts.',
-    defaultPath: '/lp-management',
+    defaultPath: ROUTE_PATHS.lpManagement,
     category: 'primary',
   },
   researcher: {
     id: 'researcher',
     label: 'Data-Driven Researcher',
     description: 'Deep dive analytics, market trends, benchmarking.',
-    defaultPath: '/reports',
+    defaultPath: ROUTE_PATHS.reports,
     category: 'primary',
   },
   // Secondary Personas (External Stakeholders)
@@ -59,28 +61,28 @@ export const PERSONA_CONFIG: Record<UserRole, PersonaConfig> = {
     id: 'lp',
     label: 'Limited Partner Investor',
     description: 'View fund performance, documents, and capital account.',
-    defaultPath: '/lp-portal',
+    defaultPath: ROUTE_PATHS.lpPortal,
     category: 'secondary',
   },
   auditor: {
     id: 'auditor',
     label: 'Independent Auditor',
     description: 'Access audit trails, compliance records, and reports.',
-    defaultPath: '/compliance',
+    defaultPath: ROUTE_PATHS.compliance,
     category: 'secondary',
   },
   service_provider: {
     id: 'service_provider',
     label: 'Service Provider Professional',
     description: 'View assigned tasks, documents, and workflows.',
-    defaultPath: '/dashboard',
+    defaultPath: ROUTE_PATHS.dashboard,
     category: 'secondary',
   },
   strategic_partner: {
     id: 'strategic_partner',
     label: 'Strategic Partner',
     description: 'Access shared deal flow and co-investment opportunities.',
-    defaultPath: '/dealflow-review',
+    defaultPath: ROUTE_PATHS.dealflowReview,
     category: 'secondary',
   },
 };
@@ -91,4 +93,3 @@ export interface User {
   role: UserRole;
   avatar?: string;
 }
-

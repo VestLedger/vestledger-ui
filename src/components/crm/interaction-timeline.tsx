@@ -4,6 +4,7 @@ import { Card, Button, Badge, Select } from '@/ui';
 import { Mail, Phone, Video, MessageSquare, Calendar, Paperclip, Clock, Plus, Edit3, Trash2 } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
 import { SearchToolbar, SectionHeader } from '@/ui/composites';
+import { formatDate, formatTime } from '@/utils/formatting';
 
 export interface TimelineInteraction {
   id: string;
@@ -136,7 +137,7 @@ export function InteractionTimeline({
 
       if (date.toDateString() === today.toDateString()) return 'Today';
       if (date.toDateString() === yesterday.toDateString()) return 'Yesterday';
-      return date.toLocaleDateString('en-US', {
+      return formatDate(date, {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
@@ -339,7 +340,7 @@ export function InteractionTimeline({
                                 )}
                               </div>
                               <div className="flex items-center gap-3 text-xs text-[var(--app-text-muted)]">
-                                <span>{interaction.date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+                                <span>{formatTime(interaction.date, { hour: '2-digit', minute: '2-digit' })}</span>
                                 {interaction.duration && (
                                   <span className="flex items-center gap-1">
                                     <Clock className="w-3 h-3" />

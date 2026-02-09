@@ -11,6 +11,8 @@ import { useAIBadges } from '@/hooks/use-ai-badges';
 import { useAuth, UserRole } from '@/contexts/auth-context';
 import { useUIKey } from '@/store/ui';
 import { BrandLogo } from './brand-logo';
+import { useDashboardDensity } from '@/contexts/dashboard-density-context';
+import { ROUTE_PATHS } from '@/config/routes';
 
 // Define navigation structure
 const navigationStructure = {
@@ -21,9 +23,9 @@ const navigationStructure = {
     alwaysExpanded: true,
     // All roles can access core operations
     items: [
-      { id: 'dashboard', href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-      { id: 'pipeline', href: '/pipeline', label: 'Pipeline', icon: GitBranch },
-      { id: 'portfolio', href: '/portfolio', label: 'Portfolio', icon: Briefcase },
+      { id: 'dashboard', href: ROUTE_PATHS.dashboard, label: 'Dashboard', icon: LayoutDashboard },
+      { id: 'pipeline', href: ROUTE_PATHS.pipeline, label: 'Pipeline', icon: GitBranch },
+      { id: 'portfolio', href: ROUTE_PATHS.portfolio, label: 'Portfolio', icon: Briefcase },
     ],
   },
   dealManagement: {
@@ -32,8 +34,8 @@ const navigationStructure = {
     icon: BarChart3,
     allowedRoles: ['gp', 'analyst', 'strategic_partner'] as UserRole[],
     items: [
-      { id: 'deal-intelligence', href: '/deal-intelligence', label: 'Deal Intelligence', icon: Search },
-      { id: 'dealflow-review', href: '/dealflow-review', label: 'Dealflow Review', icon: Vote },
+      { id: 'deal-intelligence', href: ROUTE_PATHS.dealIntelligence, label: 'Deal Intelligence', icon: Search },
+      { id: 'dealflow-review', href: ROUTE_PATHS.dealflowReview, label: 'Dealflow Review', icon: Vote },
     ],
   },
   portfolioManagement: {
@@ -42,8 +44,8 @@ const navigationStructure = {
     icon: TrendingUp,
     allowedRoles: ['gp', 'analyst', 'researcher', 'lp'] as UserRole[],
     items: [
-      { id: 'waterfall', href: '/waterfall', label: 'Waterfall', icon: TrendingUp },
-      { id: 'analytics', href: '/analytics', label: 'Analytics', icon: TrendingUp },
+      { id: 'waterfall', href: ROUTE_PATHS.waterfall, label: 'Waterfall', icon: TrendingUp },
+      { id: 'analytics', href: ROUTE_PATHS.analytics, label: 'Analytics', icon: TrendingUp },
     ],
   },
   backOffice: {
@@ -52,12 +54,12 @@ const navigationStructure = {
     icon: DollarSign,
     allowedRoles: ['gp', 'ops', 'auditor', 'service_provider'] as UserRole[],
     items: [
-      { id: 'fund-admin', href: '/fund-admin', label: 'Fund Admin', icon: DollarSign },
-      { id: 'lp-management', href: '/lp-management', label: 'LP Management', icon: UserCheck },
-      { id: 'audit-trail', href: '/audit-trail', label: 'Audit Trail', icon: Shield },
-      { id: 'compliance', href: '/compliance', label: 'Compliance', icon: Shield },
-      { id: '409a-valuations', href: '/409a-valuations', label: '409A Valuations', icon: Receipt },
-      { id: 'tax-center', href: '/tax-center', label: 'Tax Center', icon: Scale },
+      { id: 'fund-admin', href: ROUTE_PATHS.fundAdmin, label: 'Fund Admin', icon: DollarSign },
+      { id: 'lp-management', href: ROUTE_PATHS.lpManagement, label: 'LP Management', icon: UserCheck },
+      { id: 'audit-trail', href: ROUTE_PATHS.auditTrail, label: 'Audit Trail', icon: Shield },
+      { id: 'compliance', href: ROUTE_PATHS.compliance, label: 'Compliance', icon: Shield },
+      { id: '409a-valuations', href: ROUTE_PATHS.valuations409a, label: '409A Valuations', icon: Receipt },
+      { id: 'tax-center', href: ROUTE_PATHS.taxCenter, label: 'Tax Center', icon: Scale },
     ],
   },
   lpPortal: {
@@ -66,9 +68,9 @@ const navigationStructure = {
     icon: Users,
     allowedRoles: ['lp'] as UserRole[],
     items: [
-      { id: 'lp-portal', href: '/lp-portal', label: 'LP Portal', icon: Users },
-      { id: 'portfolio', href: '/portfolio', label: 'My Investments', icon: Briefcase },
-      { id: 'reports', href: '/reports', label: 'Documents', icon: FileDown },
+      { id: 'lp-portal', href: ROUTE_PATHS.lpPortal, label: 'LP Portal', icon: Users },
+      { id: 'portfolio', href: ROUTE_PATHS.portfolio, label: 'My Investments', icon: Briefcase },
+      { id: 'reports', href: ROUTE_PATHS.reports, label: 'Documents', icon: FileDown },
     ],
   },
   utilities: {
@@ -77,11 +79,11 @@ const navigationStructure = {
     icon: Sparkles,
     allowedRoles: ['gp', 'analyst', 'ops', 'ir', 'researcher', 'auditor', 'service_provider'] as UserRole[],
     items: [
-      { id: 'contacts', href: '/contacts', label: 'Contacts', icon: Users },
-      { id: 'documents', href: '/documents', label: 'Documents', icon: FileText },
-      { id: 'reports', href: '/reports', label: 'Reports', icon: FileDown },
-      { id: 'integrations', href: '/integrations', label: 'Integrations', icon: Plug },
-      { id: 'ai-tools', href: '/ai-tools', label: 'AI Tools', icon: Sparkles },
+      { id: 'contacts', href: ROUTE_PATHS.contacts, label: 'Contacts', icon: Users },
+      { id: 'documents', href: ROUTE_PATHS.documents, label: 'Documents', icon: FileText },
+      { id: 'reports', href: ROUTE_PATHS.reports, label: 'Reports', icon: FileDown },
+      { id: 'integrations', href: ROUTE_PATHS.integrations, label: 'Integrations', icon: Plug },
+      { id: 'ai-tools', href: ROUTE_PATHS.aiTools, label: 'AI Tools', icon: Sparkles },
     ],
   },
 };
@@ -90,6 +92,7 @@ export function SidebarGrouped() {
   const { updateBadge, sidebarState, toggleLeftSidebar } = useNavigation();
   const aiBadges = useAIBadges();
   const { user } = useAuth();
+  const density = useDashboardDensity();
   const isCollapsed = sidebarState.leftCollapsed;
   const { value: sidebarUI, patch: patchSidebarUI } = useUIKey('sidebar-grouped', {
     isHovered: false,
@@ -116,7 +119,9 @@ export function SidebarGrouped() {
   return (
     <motion.aside
       animate={{
-        width: effectivelyCollapsed ? '64px' : '256px',
+        width: effectivelyCollapsed
+          ? `${density.shell.leftSidebarCollapsedWidthPx}px`
+          : `${density.shell.leftSidebarExpandedWidthPx}px`,
       }}
       transition={{ duration: 0.2, ease: 'easeInOut' }}
       className="relative flex flex-col h-full border-r border-app-border dark:border-app-dark-border bg-gradient-to-t from-app-primary/10 dark:from-app-dark-primary/15 to-app-surface dark:to-app-dark-surface"
@@ -140,9 +145,10 @@ export function SidebarGrouped() {
 
       {/* Header / Branding */}
       <div
-        className="px-4 h-[69px] border-b border-app-border dark:border-app-dark-border flex-shrink-0 flex items-center"
+        className={`${density.shell.sidebarHeaderPaddingClass} border-b border-app-border dark:border-app-dark-border flex-shrink-0 flex items-center`}
         onMouseEnter={() => isCollapsed && patchSidebarUI({ isHovered: true })}
         onMouseLeave={() => patchSidebarUI({ isHovered: false })}
+        style={{ height: `${density.shell.topBarHeightPx}px` }}
       >
         {effectivelyCollapsed ? (
           <div className="flex items-center justify-center w-full">
@@ -165,7 +171,7 @@ export function SidebarGrouped() {
 
       {/* Navigation Groups */}
       <nav
-        className="flex-1 p-4 space-y-4 overflow-y-auto"
+        className={`flex-1 overflow-y-auto ${density.shell.sidebarNavPaddingClass} ${density.shell.sidebarNavGapClass}`}
         onMouseEnter={() => isCollapsed && patchSidebarUI({ isHovered: true })}
         onMouseLeave={() => patchSidebarUI({ isHovered: false })}
       >
@@ -297,13 +303,13 @@ export function SidebarGrouped() {
 
       {/* Footer */}
       <div
-        className="p-4 border-t border-app-border dark:border-app-dark-border space-y-3 flex-shrink-0"
+        className={`${density.shell.sidebarNavPaddingClass} border-t border-app-border dark:border-app-dark-border space-y-3 flex-shrink-0`}
         onMouseEnter={() => isCollapsed && patchSidebarUI({ isHovered: true })}
         onMouseLeave={() => patchSidebarUI({ isHovered: false })}
       >
         <NavigationItem
           id="settings"
-          href="/settings"
+          href={ROUTE_PATHS.settings}
           label="Settings"
           icon={Settings}
           isCollapsed={effectivelyCollapsed}

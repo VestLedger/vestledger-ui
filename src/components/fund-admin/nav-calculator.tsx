@@ -3,7 +3,7 @@
 import { useUIKey } from '@/store/ui';
 import { Card, Button, Badge } from '@/ui';
 import { Calculator, TrendingUp, TrendingDown, Calendar, Download, RefreshCw, AlertCircle } from 'lucide-react';
-import { formatCurrency, formatPercent } from '@/utils/formatting';
+import { formatCurrency, formatDate, formatPercent } from '@/utils/formatting';
 import { SectionHeader, StatusBadge } from '@/ui/composites';
 
 export interface NAVCalculation {
@@ -136,7 +136,7 @@ export function NAVCalculator({
                     <div className="flex items-center gap-2">
                       <Calendar className="w-3 h-3 text-[var(--app-text-muted)]" />
                       <span className="text-sm font-medium">
-                        {calc.asOfDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                        {formatDate(calc.asOfDate, { month: 'short', year: 'numeric' })}
                       </span>
                     </div>
                     <StatusBadge status={calc.status} domain="fund-admin" size="sm" showIcon />
@@ -178,7 +178,7 @@ export function NAVCalculator({
                     <StatusBadge status={selectedCalculation.status} domain="fund-admin" size="sm" showIcon />
                   </div>
                   <p className="text-sm text-[var(--app-text-muted)]">
-                    As of {selectedCalculation.asOfDate.toLocaleDateString('en-US', {
+                    As of {formatDate(selectedCalculation.asOfDate, {
                       month: 'long',
                       day: 'numeric',
                       year: 'numeric'

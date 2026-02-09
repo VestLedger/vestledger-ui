@@ -22,6 +22,7 @@ import { formatCurrencyCompact, formatTimestamp, truncateHash } from '@/utils/fo
 import { writeToClipboard } from '@/utils/clipboard';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { PageScaffold, SearchToolbar, SectionHeader } from '@/ui/composites';
+import { ROUTE_PATHS } from '@/config/routes';
 
 export function BlockchainAuditTrail() {
   const { data, isLoading, error, refetch } = useAsyncData(auditTrailRequested, auditTrailSelectors.selectState);
@@ -103,7 +104,7 @@ export function BlockchainAuditTrail() {
 
         return (
           <PageScaffold
-            routePath="/audit-trail"
+            routePath={ROUTE_PATHS.auditTrail}
             header={{
               title: 'On-Chain Audit Trail',
               icon: Database,

@@ -15,11 +15,15 @@ import { useTheme } from 'next-themes';
 import type { TopbarSearchResult } from '@/services/topbarSearchService';
 import { useUIKey } from '@/store/ui';
 import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys';
+import { useDashboardDensity } from '@/contexts/dashboard-density-context';
+import { buildPublicWebUrl } from '@/config/env';
+import { ROUTE_PATHS } from '@/config/routes';
 
 export function Topbar() {
   const { user, logout } = useAuth();
   const router = useRouter();
   const { openWithQuery } = useAICopilot();
+  const density = useDashboardDensity();
   const dispatch = useAppDispatch();
   const alertsData = useAppSelector(alertsSelectors.selectData);
   const reduxNotifications = alertsData?.items || [];
@@ -44,28 +48,8 @@ export function Topbar() {
     // Clear auth state
     logout();
 
-    // Redirect to public domain
-    // In production, automatically detect domain from current URL
-    const currentHostname = window.location.hostname;
-    const isProduction = process.env.NODE_ENV === 'production';
-    const protocol = isProduction ? 'https' : 'http';
-
-    let publicDomain: string;
-    if (isProduction && currentHostname.includes('.')) {
-      // Extract base domain from app subdomain
-      // app.vestledger.com → vestledger.com
-      // app.example.com → example.com
-      if (currentHostname.startsWith('app.')) {
-        publicDomain = currentHostname.substring(4); // Remove 'app.' prefix
-      } else {
-        publicDomain = currentHostname;
-      }
-    } else {
-      // Use env var if available, otherwise fallback to localhost
-      publicDomain = process.env.NEXT_PUBLIC_PUBLIC_DOMAIN || 'vestledger.local:3000';
-    }
-
-    const redirectUrl = `${protocol}://${publicDomain}`;
+    // Redirect to public domain.
+    const redirectUrl = buildPublicWebUrl(window.location.hostname);
     console.log('Logging out, redirecting to:', redirectUrl);
     window.location.href = redirectUrl;
   };
@@ -132,9 +116,9 @@ export function Topbar() {
 
   return (
     <div
-      className="py-4 px-4 sm:px-6 border-b border-app-border dark:border-app-dark-border flex items-center justify-between sticky top-0 z-30 bg-gradient-to-r from-transparent via-app-primary/10 dark:via-app-dark-primary/15 to-app-primary/10 dark:to-app-dark-primary/15"
+      className={`${density.shell.topbarPaddingClass} border-b border-app-border dark:border-app-dark-border flex items-center justify-between sticky top-0 z-30 bg-gradient-to-r from-transparent via-app-primary/10 dark:via-app-dark-primary/15 to-app-primary/10 dark:to-app-dark-primary/15`}
       style={{
-        height: '69px',
+        height: `${density.shell.topBarHeightPx}px`,
       }}
     >
       {/* Left: AI-Powered Search */}
@@ -273,7 +257,7 @@ export function Topbar() {
                   {/* User Info */}
                   <button
                     onClick={() => {
-                      router.push('/settings');
+                      router.push(ROUTE_PATHS.settings);
                       patchTopbarUI({ isProfileOpen: false });
                     }}
                     className="w-full text-left px-3 py-3 border-b border-app-border dark:border-app-dark-border mb-2 hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover transition-colors rounded-lg"

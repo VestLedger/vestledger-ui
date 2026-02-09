@@ -11,6 +11,7 @@ import { FundSelector } from './fund-selector';
 import { useUIKey } from '@/store/ui';
 import { PageScaffold } from '@/ui/composites';
 import { useFund } from '@/contexts/fund-context';
+import { ROUTE_PATHS } from '@/config/routes';
 
 export function Analytics() {
   const { value: ui, patch: patchUI } = useUIKey('analytics', { selected: 'performance' });
@@ -22,7 +23,7 @@ export function Analytics() {
 
   return (
     <PageScaffold
-      routePath="/analytics"
+      routePath={ROUTE_PATHS.analytics}
       header={{
         title: 'Analytics',
         description: 'Fund performance and insights',

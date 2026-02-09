@@ -3,10 +3,15 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { buildPublicWebUrl, PUBLIC_WEB_URL } from '@/config/env';
 
 export default function NotFound() {
   const [countdown, setCountdown] = useState(5);
   const router = useRouter();
+  const publicHomepageUrl =
+    typeof window !== 'undefined'
+      ? buildPublicWebUrl(window.location.hostname)
+      : PUBLIC_WEB_URL;
 
   useEffect(() => {
     // Countdown timer
@@ -15,9 +20,7 @@ export default function NotFound() {
         if (prev <= 1) {
           clearInterval(timer);
           // Redirect to public homepage
-          window.location.href = process.env.NEXT_PUBLIC_PUBLIC_DOMAIN
-            ? `https://${process.env.NEXT_PUBLIC_PUBLIC_DOMAIN}`
-            : 'http://vestledger.local:3000';
+          window.location.href = publicHomepageUrl;
           return 0;
         }
         return prev - 1;
@@ -25,7 +28,7 @@ export default function NotFound() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [router]);
+  }, [publicHomepageUrl, router]);
 
   return (
     <div className="min-h-screen bg-[var(--app-bg)] flex items-center justify-center px-4">
@@ -50,11 +53,7 @@ export default function NotFound() {
 
         <div className="flex gap-4 justify-center">
           <Link
-            href={
-              process.env.NEXT_PUBLIC_PUBLIC_DOMAIN
-                ? `https://${process.env.NEXT_PUBLIC_PUBLIC_DOMAIN}`
-                : 'http://vestledger.local:3000'
-            }
+            href={publicHomepageUrl}
             className="px-6 py-3 bg-[var(--app-primary)] text-white rounded-lg hover:opacity-90 transition-opacity"
           >
             Go to Homepage

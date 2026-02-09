@@ -6,7 +6,7 @@ import { PortfolioDashboard } from './portfolio-dashboard';
 import { PortfolioDocuments } from './portfolio-documents';
 import { PortfolioUpdates } from './portfolio-updates';
 import { FundSelector } from './fund-selector';
-import { getRouteConfig } from '@/config/routes';
+import { getRouteConfig, ROUTE_PATHS } from '@/config/routes';
 import { useUIKey } from '@/store/ui';
 
 export function Portfolio() {
@@ -14,7 +14,7 @@ export function Portfolio() {
   const { selected } = ui;
 
   // Get route config for breadcrumbs and AI suggestions
-  const routeConfig = getRouteConfig('/portfolio');
+  const routeConfig = getRouteConfig(ROUTE_PATHS.portfolio);
 
   // TODO: Restore metrics loading via separate metrics slice
   // For now using placeholder values since we migrated portfolio slice to handle updates only

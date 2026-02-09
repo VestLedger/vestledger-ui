@@ -8,6 +8,7 @@ import { complianceRequested, complianceSelectors } from '@/store/slices/backOff
 import { AsyncStateRenderer } from '@/ui/async-states';
 import { PageScaffold, SectionHeader, StatusBadge, MetricsGrid } from '@/ui/composites';
 import { useAsyncData } from '@/hooks/useAsyncData';
+import { ROUTE_PATHS } from '@/config/routes';
 
 export function Compliance() {
   const { data, isLoading, error, refetch } = useAsyncData(complianceRequested, complianceSelectors.selectState);
@@ -94,7 +95,7 @@ export function Compliance() {
     >
       {() => (
         <PageScaffold
-          routePath="/compliance"
+          routePath={ROUTE_PATHS.compliance}
           header={{
             title: 'Compliance & Regulatory',
             description: 'Track regulatory filings, audits, and compliance requirements',

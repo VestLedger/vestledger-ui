@@ -4,7 +4,7 @@ import { memo, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, AlertCircle, Clock, Users, Sparkles } from 'lucide-react';
 import { ProgressBar } from '@/ui';
-import { formatCurrencyCompact } from '@/utils/formatting';
+import { formatCurrencyCompact, formatDate as formatDateValue } from '@/utils/formatting';
 import type { CapitalCall } from './active-capital-calls';
 
 interface CapitalCallCardProps {
@@ -13,10 +13,10 @@ interface CapitalCallCardProps {
 }
 
 const formatDate = (date: Date) => {
-  return new Intl.DateTimeFormat('en-US', {
+  return formatDateValue(date, {
     month: 'short',
     day: 'numeric',
-  }).format(date);
+  });
 };
 
 const getCollectionPercentage = (collected: number, amount: number) => {

@@ -4,7 +4,7 @@ import { DecisionWriter } from './decision-writer';
 import { DDChatAssistant } from './dd-chat-assistant';
 import { PitchDeckReader } from './pitch-deck-reader';
 import { PageScaffold } from '@/ui/composites';
-import { getBreadcrumbs, getAISuggestion } from '@/config/routes';
+import { getBreadcrumbs, getAISuggestion, ROUTE_PATHS } from '@/config/routes';
 import { Sparkles } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
 
@@ -17,8 +17,8 @@ export function AITools() {
   const { selected } = ui;
 
   // Get breadcrumbs and AI suggestions
-  const breadcrumbs = getBreadcrumbs('/ai-tools');
-  const aiSuggestion = getAISuggestion('/ai-tools');
+  const breadcrumbs = getBreadcrumbs(ROUTE_PATHS.aiTools);
+  const aiSuggestion = getAISuggestion(ROUTE_PATHS.aiTools);
 
   return (
     <PageScaffold

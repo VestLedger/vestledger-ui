@@ -13,6 +13,7 @@ import { ErrorState, LoadingState } from '@/ui/async-states';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { dealOutcomeClasses } from '@/utils/styling';
 import { PageScaffold } from '@/ui/composites';
+import { ROUTE_PATHS } from '@/config/routes';
 
 export function Pipeline() {
   const dispatch = useAppDispatch();
@@ -57,7 +58,7 @@ export function Pipeline() {
 
   return (
     <PageScaffold
-      routePath="/pipeline"
+      routePath={ROUTE_PATHS.pipeline}
       header={{
         title: 'Deal Pipeline',
         description: 'Track and manage your investment opportunities',

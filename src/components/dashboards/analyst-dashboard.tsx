@@ -43,7 +43,7 @@ export function AnalystDashboard() {
             </Button>
           )}
         >
-          <div className="grid lg:grid-cols-3 gap-6">
+          <div className="grid lg:grid-cols-3 gap-4">
             <Card className="lg:col-span-2" padding="md">
               <SectionHeader
                 title="Active Due Diligence"

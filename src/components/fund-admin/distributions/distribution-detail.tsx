@@ -35,6 +35,7 @@ import { ImpactPreviewPanel } from "./impact-preview-panel";
 import { StatementGenerator } from "./statement-generator";
 import { getStatementTemplateLabel } from "./statement-template-constants";
 import { CalendarDays, Download, Receipt, Users } from "lucide-react";
+import { ROUTE_PATHS } from "@/config/routes";
 
 const buildLifecycleEvents = (distribution: Distribution) => [
   { id: "draft", label: "Draft", timestamp: distribution.createdAt },
@@ -163,7 +164,7 @@ export function DistributionDetail() {
 
   return (
     <PageScaffold
-      routePath="/fund-admin/distributions/[id]"
+      routePath={ROUTE_PATHS.fundAdminDistributionDetail}
       header={{
         title: distribution?.name ?? "Distribution Detail",
         description: distribution
@@ -174,11 +175,11 @@ export function DistributionDetail() {
         secondaryActions: [
           {
             label: "Back to Fund Admin",
-            onClick: () => router.push("/fund-admin"),
+            onClick: () => router.push(ROUTE_PATHS.fundAdmin),
           },
           {
             label: "Calendar",
-            onClick: () => router.push("/fund-admin/distributions/calendar"),
+            onClick: () => router.push(ROUTE_PATHS.fundAdminDistributionsCalendar),
           },
         ],
       }}
@@ -191,7 +192,7 @@ export function DistributionDetail() {
         onRetry={refetch}
         emptyTitle="Distribution not found"
         emptyMessage="Choose a distribution from the list to review approvals and statements."
-        emptyAction={{ label: "Back to Distributions", onClick: () => router.push("/fund-admin") }}
+        emptyAction={{ label: "Back to Distributions", onClick: () => router.push(ROUTE_PATHS.fundAdmin) }}
       >
         {(record) => {
           const lifecycleEvents = buildLifecycleEvents(record);

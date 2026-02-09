@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Button, Input, Modal } from '@/ui';
 import { useAuth } from '@/contexts/auth-context';
 import { getAuthErrorMessage } from '@/utils/auth-error-message';
+import { ROUTE_PATHS } from '@/config/routes';
 
 type LoginModalProps = {
   isOpen: boolean;
@@ -20,7 +21,7 @@ type LoginModalProps = {
 export function LoginModal({
   isOpen,
   onOpenChange,
-  redirectTo = '/dashboard',
+  redirectTo = ROUTE_PATHS.dashboard,
   title = 'Welcome back',
   description = 'Sign in to your vestledger account',
   signUpHref = '/eoi',

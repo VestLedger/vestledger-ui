@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { type LucideIcon } from 'lucide-react';
 import { useNavigation } from '@/contexts/navigation-context';
 import { Badge } from '@/ui';
+import { useDashboardDensity } from '@/contexts/dashboard-density-context';
 
 interface NavigationItemProps {
   id: string;
@@ -18,9 +19,13 @@ interface NavigationItemProps {
 export function NavigationItem({ id, href, label, icon: Icon, isCollapsed = false }: NavigationItemProps) {
   const pathname = usePathname();
   const { badges } = useNavigation();
+  const density = useDashboardDensity();
   const badge = badges[id];
 
   const isActive = pathname === href || pathname.startsWith(`${href}/`);
+  const rowPaddingClass = density.mode === 'compact' ? 'px-2.5 py-2' : 'px-3 py-2.5';
+  const labelTextClass = density.mode === 'compact' ? 'text-[13px]' : 'text-sm';
+  const tooltipTextClass = density.mode === 'compact' ? 'text-xs' : 'text-sm';
 
   const getBadgeColor = (variant: 'danger' | 'warning' | 'info') => {
     switch (variant) {
@@ -41,7 +46,7 @@ export function NavigationItem({ id, href, label, icon: Icon, isCollapsed = fals
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         className={`
-          group relative flex items-center ${isCollapsed ? 'justify-center' : 'justify-between gap-3'} px-3 py-2.5 rounded-lg
+          group relative flex items-center ${isCollapsed ? 'justify-center' : 'justify-between gap-3'} ${rowPaddingClass} rounded-lg
           transition-all duration-150
           ${isActive
             ? 'bg-app-surface-hover dark:bg-app-dark-surface-hover border-l-2 border-app-primary dark:border-app-dark-primary shadow-[0_0_12px_rgba(4,120,87,0.3)] dark:shadow-[0_0_12px_rgba(16,185,129,0.3)]'
@@ -72,10 +77,10 @@ export function NavigationItem({ id, href, label, icon: Icon, isCollapsed = fals
             )}
             {/* Tooltip on hover */}
             <div className="absolute left-full ml-2 px-2 py-1 bg-app-surface dark:bg-app-dark-surface
-                            rounded shadow-lg text-sm opacity-0 group-hover:opacity-100
+                            rounded shadow-lg opacity-0 group-hover:opacity-100
                             pointer-events-none transition-opacity z-50 whitespace-nowrap
                             border border-app-border dark:border-app-dark-border">
-              {label}
+              <span className={tooltipTextClass}>{label}</span>
             </div>
           </div>
         ) : (
@@ -92,7 +97,7 @@ export function NavigationItem({ id, href, label, icon: Icon, isCollapsed = fals
                 `}
               />
               <span className={`
-                text-sm font-medium truncate transition-colors duration-150
+                ${labelTextClass} font-medium truncate transition-colors duration-150
                 ${isActive
                   ? 'text-app-text dark:text-app-dark-text'
                   : 'text-app-text-muted dark:text-app-dark-text-muted group-hover:text-app-text dark:group-hover:text-app-dark-text'

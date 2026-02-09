@@ -7,6 +7,7 @@ import { LoadingState } from '@/ui/async-states';
 import { useAuth } from '@/contexts/auth-context';
 import { BrandLogo } from './brand-logo';
 import { getAuthErrorMessage } from '@/utils/auth-error-message';
+import { ROUTE_PATHS } from '@/config/routes';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
@@ -19,7 +20,7 @@ export function LoginForm() {
   const hasAttemptedLogin = useRef(false);
 
   // Get redirect parameter from URL
-  const redirectTo = searchParams.get('redirect') || '/dashboard';
+  const redirectTo = searchParams.get('redirect') || ROUTE_PATHS.dashboard;
 
   // Handle successful authentication - redirect to intended page
   useEffect(() => {

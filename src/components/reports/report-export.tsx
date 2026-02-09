@@ -7,6 +7,7 @@ import { useUIKey } from '@/store/ui';
 import { useAppDispatch } from '@/store/hooks';
 import { reportExportRequested } from '@/store/slices/uiEffectsSlice';
 import { PageScaffold, SectionHeader, StatusBadge } from '@/ui/composites';
+import { ROUTE_PATHS } from '@/config/routes';
 
 const defaultReportExportState: {
   selectedTemplate: ReportTemplate | null;
@@ -64,7 +65,7 @@ export function ReportExport() {
 
   return (
     <PageScaffold
-      routePath="/reports"
+      routePath={ROUTE_PATHS.reports}
       header={{
         title: 'Reports',
         description: 'Manage and export fund reports',

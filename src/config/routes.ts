@@ -466,6 +466,23 @@ export const routes: Record<string, RouteConfig> = {
   },
 };
 
+export const ROUTE_PATHS = Object.freeze(
+  Object.fromEntries(
+    Object.entries(routes).map(([key, route]) => [key, route.path])
+  ) as { [K in keyof typeof routes]: (typeof routes)[K]['path'] }
+);
+
+export function withRouteParams(
+  path: string,
+  params: Record<string, string | number>
+): string {
+  return Object.entries(params).reduce(
+    (nextPath, [key, value]) =>
+      nextPath.replace(`[${key}]`, encodeURIComponent(String(value))),
+    path
+  );
+}
+
 /**
  * Get route configuration by path
  */

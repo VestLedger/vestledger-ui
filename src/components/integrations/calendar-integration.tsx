@@ -16,6 +16,7 @@ import {
   Plus,
 } from 'lucide-react';
 import { SearchToolbar, SectionHeader, StatusBadge } from '@/ui/composites';
+import { formatDateTime } from '@/utils/formatting';
 
 export type CalendarProvider = 'google' | 'outlook' | 'apple' | 'other';
 export type EventType = 'meeting' | 'call' | 'conference' | 'site-visit' | 'other';
@@ -552,7 +553,7 @@ export function CalendarIntegration({
                         <div className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           <span>
-                            {event.startTime.toLocaleString('en-US', {
+                            {formatDateTime(event.startTime, {
                               month: 'short',
                               day: 'numeric',
                               hour: 'numeric',

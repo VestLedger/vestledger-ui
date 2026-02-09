@@ -5,7 +5,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Badge, Button, Card, Modal, Progress, WorkflowStepper, useToast, type WorkflowStep } from "@/ui";
 import { PageScaffold } from '@/ui/composites';
 import { AsyncStateRenderer } from '@/ui/async-states';
-import { getRouteConfig } from "@/config/routes";
+import { getRouteConfig, ROUTE_PATHS } from "@/config/routes";
+import { DISTRIBUTION_IMPACT_DEFAULTS } from '@/config/calculation-defaults';
 import { useUIKey } from "@/store/ui";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useAsyncData } from "@/hooks/useAsyncData";
@@ -80,6 +81,15 @@ const STEP_IDS = [
 ];
 
 const DEFAULT_TEMPLATE: StatementTemplate = "standard";
+const PERCENT_SCALE = 100;
+const DISTRIBUTION_RECONCILIATION_TOLERANCE = 1;
+const PRO_RATA_PERCENT_TOLERANCE = 0.5;
+const TAX_WITHHOLDING_RATE_BOUNDS = { min: 0, max: PERCENT_SCALE } as const;
+const COVENANT_DEFAULTS = {
+  liquidityCoverageThreshold: 1.1,
+  currentLiquidityCoverage: 1.3,
+  projectedLiquidityCoverage: 1.05,
+} as const;
 
 const resolveStepIndex = (value?: string | null) => {
   if (!value) return null;
@@ -100,14 +110,23 @@ const resolveStepIndex = (value?: string | null) => {
 };
 
 const buildImpact = (totalDistributed: number): DistributionImpact => {
-  const navBefore = 320_000_000;
+  const navBefore = DISTRIBUTION_IMPACT_DEFAULTS.navBefore;
   const navAfter = Math.max(0, navBefore - totalDistributed);
-  const dpiBefore = 1.25;
-  const dpiAfter = Math.max(0, dpiBefore + totalDistributed / 200_000_000);
-  const tvpiBefore = 1.85;
-  const tvpiAfter = Math.max(0, tvpiBefore - totalDistributed / 300_000_000);
-  const undrawnBefore = 85_000_000;
-  const undrawnAfter = Math.max(0, undrawnBefore - totalDistributed * 0.2);
+  const dpiBefore = DISTRIBUTION_IMPACT_DEFAULTS.dpiBefore;
+  const dpiAfter = Math.max(
+    0,
+    dpiBefore + totalDistributed / DISTRIBUTION_IMPACT_DEFAULTS.dpiDenominator
+  );
+  const tvpiBefore = DISTRIBUTION_IMPACT_DEFAULTS.tvpiBefore;
+  const tvpiAfter = Math.max(
+    0,
+    tvpiBefore - totalDistributed / DISTRIBUTION_IMPACT_DEFAULTS.tvpiDenominator
+  );
+  const undrawnBefore = DISTRIBUTION_IMPACT_DEFAULTS.undrawnBefore;
+  const undrawnAfter = Math.max(
+    0,
+    undrawnBefore - totalDistributed * DISTRIBUTION_IMPACT_DEFAULTS.undrawnReductionRate
+  );
 
   return {
     navBefore,
@@ -125,9 +144,9 @@ const buildImpact = (totalDistributed: number): DistributionImpact => {
     covenantWarnings: [
       {
         covenantName: "Liquidity Coverage",
-        threshold: 1.1,
-        currentValue: 1.3,
-        projectedValue: 1.05,
+        threshold: COVENANT_DEFAULTS.liquidityCoverageThreshold,
+        currentValue: COVENANT_DEFAULTS.currentLiquidityCoverage,
+        projectedValue: COVENANT_DEFAULTS.projectedLiquidityCoverage,
         isViolation: false,
         severity: "warning",
       },
@@ -137,7 +156,7 @@ const buildImpact = (totalDistributed: number): DistributionImpact => {
 
 const getFeeAmount = (item: FeeLineItem, grossProceeds: number) => {
   if (item.amount > 0) return item.amount;
-  if (item.percentage) return (item.percentage / 100) * grossProceeds;
+  if (item.percentage) return (item.percentage / PERCENT_SCALE) * grossProceeds;
   return 0;
 };
 
@@ -256,7 +275,7 @@ const getPreviewFieldErrors = (
 });
 
 export function DistributionWizard() {
-  const routeConfig = getRouteConfig("/fund-admin/distributions/new");
+  const routeConfig = getRouteConfig(ROUTE_PATHS.fundAdminDistributionsNew);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -478,8 +497,11 @@ export function DistributionWizard() {
   const taxRateErrors = useMemo(
     () =>
       allocations.reduce<Record<string, string>>((acc, allocation) => {
-        if (allocation.taxWithholdingRate < 0 || allocation.taxWithholdingRate > 100) {
-          acc[allocation.id] = "Tax withholding rate must be between 0 and 100.";
+        if (
+          allocation.taxWithholdingRate < TAX_WITHHOLDING_RATE_BOUNDS.min ||
+          allocation.taxWithholdingRate > TAX_WITHHOLDING_RATE_BOUNDS.max
+        ) {
+          acc[allocation.id] = `Tax withholding rate must be between ${TAX_WITHHOLDING_RATE_BOUNDS.min} and ${TAX_WITHHOLDING_RATE_BOUNDS.max}.`;
         }
         return acc;
       }, {}),
@@ -590,10 +612,17 @@ export function DistributionWizard() {
     if (grossProceeds > 0 && totalFees + totalExpenses > grossProceeds) {
       entries.push("Fees and expenses exceed gross proceeds.");
     }
-    if (allocations.length > 0 && Math.abs(allocatedTotal - (netProceeds - totalTaxWithholding)) > 1) {
+    if (
+      allocations.length > 0 &&
+      Math.abs(allocatedTotal - (netProceeds - totalTaxWithholding)) >
+        DISTRIBUTION_RECONCILIATION_TOLERANCE
+    ) {
       entries.push("Allocated totals do not match net proceeds.");
     }
-    if (grossProceeds > 0 && totalOutflows - grossProceeds > 1) {
+    if (
+      grossProceeds > 0 &&
+      totalOutflows - grossProceeds > DISTRIBUTION_RECONCILIATION_TOLERANCE
+    ) {
       entries.push("Gross proceeds do not reconcile with fees, carry, taxes, and distributions.");
     }
     if (wizard.waterfallData?.scenarioId && !selectedScenario) {
@@ -602,13 +631,18 @@ export function DistributionWizard() {
     if (selectedScenario && !waterfallResults) {
       entries.push("Selected waterfall scenario has no calculation results.");
     }
-    if (waterfallExitValue > 0 && grossProceeds > 0 && Math.abs(waterfallExitValue - grossProceeds) > 1) {
+    if (
+      waterfallExitValue > 0 &&
+      grossProceeds > 0 &&
+      Math.abs(waterfallExitValue - grossProceeds) > DISTRIBUTION_RECONCILIATION_TOLERANCE
+    ) {
       entries.push("Gross proceeds do not match selected waterfall scenario exit value.");
     }
     if (
       waterfallResults &&
       allocations.length > 0 &&
-      Math.abs(allocatedGrossTotal - waterfallResults.lpTotalReturn) > 1
+      Math.abs(allocatedGrossTotal - waterfallResults.lpTotalReturn) >
+        DISTRIBUTION_RECONCILIATION_TOLERANCE
     ) {
       entries.push("LP allocations do not match waterfall LP total return.");
     }
@@ -654,7 +688,8 @@ export function DistributionWizard() {
     const next = lpProfiles.map((profile) => {
       const ratio = totalCommitment > 0 ? profile.totalCommitment / totalCommitment : 0;
       const grossAmount = netProceeds * ratio;
-      const taxWithholdingAmount = (grossAmount * profile.defaultTaxWithholdingRate) / 100;
+      const taxWithholdingAmount =
+        (grossAmount * profile.defaultTaxWithholdingRate) / PERCENT_SCALE;
       return {
         id: `alloc-${profile.id}-${Date.now()}`,
         lpId: profile.id,
@@ -662,8 +697,8 @@ export function DistributionWizard() {
         investorClassId: "ic-default",
         investorClassName: "Class A LPs",
         commitment: profile.totalCommitment,
-        ownershipPercentage: ratio * 100,
-        proRataPercentage: ratio * 100,
+        ownershipPercentage: ratio * PERCENT_SCALE,
+        proRataPercentage: ratio * PERCENT_SCALE,
         grossAmount,
         netAmount: Math.max(0, grossAmount - taxWithholdingAmount),
         taxJurisdiction: profile.taxJurisdiction,
@@ -682,7 +717,7 @@ export function DistributionWizard() {
 
   const currentStep = wizard.currentStep;
   const isLastStep = currentStep === STEP_LABELS.length - 1;
-  const progressValue = (currentStep / (STEP_LABELS.length - 1)) * 100;
+  const progressValue = (currentStep / (STEP_LABELS.length - 1)) * PERCENT_SCALE;
 
   useEffect(() => {
     if (resolvedStep === null) return;
@@ -743,12 +778,12 @@ export function DistributionWizard() {
       if (!profile) return allocation;
       const ratio = totalCommitment > 0 ? profile.totalCommitment / totalCommitment : 0;
       const grossAmount = netProceeds * ratio;
-      const taxWithholdingAmount = (grossAmount * allocation.taxWithholdingRate) / 100;
+      const taxWithholdingAmount = (grossAmount * allocation.taxWithholdingRate) / PERCENT_SCALE;
       return {
         ...allocation,
         commitment: profile.totalCommitment,
-        ownershipPercentage: ratio * 100,
-        proRataPercentage: ratio * 100,
+        ownershipPercentage: ratio * PERCENT_SCALE,
+        proRataPercentage: ratio * PERCENT_SCALE,
         grossAmount,
         netAmount: Math.max(0, grossAmount - taxWithholdingAmount),
         taxWithholdingAmount,
@@ -911,8 +946,11 @@ export function DistributionWizard() {
             (sum, allocation) => sum + allocation.proRataPercentage,
             0
           );
-          if (allocations.length > 0 && Math.abs(proRataTotal - 100) > 0.5) {
-            errors.push("Pro-rata percentages should total 100%.");
+          if (
+            allocations.length > 0 &&
+            Math.abs(proRataTotal - PERCENT_SCALE) > PRO_RATA_PERCENT_TOLERANCE
+          ) {
+            errors.push(`Pro-rata percentages should total ${PERCENT_SCALE}%.`);
           }
           return errors;
         }
@@ -921,10 +959,13 @@ export function DistributionWizard() {
         if (
           allocations.some(
             (allocation) =>
-              allocation.taxWithholdingRate < 0 || allocation.taxWithholdingRate > 100
+              allocation.taxWithholdingRate < TAX_WITHHOLDING_RATE_BOUNDS.min ||
+              allocation.taxWithholdingRate > TAX_WITHHOLDING_RATE_BOUNDS.max
           )
         ) {
-          errors.push("Tax withholding rates must be between 0 and 100.");
+          errors.push(
+            `Tax withholding rates must be between ${TAX_WITHHOLDING_RATE_BOUNDS.min} and ${TAX_WITHHOLDING_RATE_BOUNDS.max}.`
+          );
         }
         return errors;
       }
@@ -1184,7 +1225,11 @@ export function DistributionWizard() {
             {formatCurrencyCompact(totalDistributed)} distributed
           </Badge>
         </div>
-        <Progress value={progressValue} maxValue={100} aria-label="Distribution workflow progress" />
+        <Progress
+          value={progressValue}
+          maxValue={PERCENT_SCALE}
+          aria-label="Distribution workflow progress"
+        />
         <WorkflowStepper steps={workflowSteps} showPredictions={false} />
       </Card>
 

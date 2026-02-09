@@ -10,6 +10,7 @@ import type { IntegrationSummary } from '@/types/integrations';
 import { AsyncStateRenderer, EmptyState } from '@/ui/async-states';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { PageScaffold, StatusBadge } from '@/ui/composites';
+import { ROUTE_PATHS } from '@/config/routes';
 
 const integrationIconMap = {
   calendar: Calendar,
@@ -51,7 +52,7 @@ export function Integrations() {
 
         return (
           <PageScaffold
-            routePath="/integrations"
+            routePath={ROUTE_PATHS.integrations}
             header={{
               title: 'Integrations',
               description: 'Connect external tools and services to streamline your workflow',

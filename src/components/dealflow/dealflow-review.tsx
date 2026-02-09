@@ -11,6 +11,7 @@ import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys'
 import { formatCurrencyCompact } from '@/utils/formatting';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { PageScaffold, SectionHeader } from '@/ui/composites';
+import { ROUTE_PATHS } from '@/config/routes';
 
 interface Vote {
   partnerId: string;
@@ -341,7 +342,7 @@ export function DealflowReview() {
         if (!selectedDeal) {
           return (
             <PageScaffold
-              routePath="/dealflow-review"
+              routePath={ROUTE_PATHS.dealflowReview}
               header={{
                 title: 'Dealflow Review',
                 description: 'No deals available to review yet',
@@ -357,7 +358,7 @@ export function DealflowReview() {
 
         return (
           <PageScaffold
-            routePath="/dealflow-review"
+            routePath={ROUTE_PATHS.dealflowReview}
             header={{
               title: 'Dealflow Review',
               description: `Collaborative deal review with slide presentation and team voting`,

@@ -6,6 +6,7 @@ import type { LPBankDetails } from "@/data/mocks/lp-portal/lp-investor-portal";
 import { formatDate } from "@/utils/formatting";
 import { CheckCircle } from "lucide-react";
 import { SectionHeader } from "@/ui/composites";
+import { DEFAULT_CURRENCY, SUPPORTED_CURRENCIES } from "@/config/i18n";
 
 export interface BankDetailsFormProps {
   details: LPBankDetails;
@@ -19,7 +20,7 @@ type BankDetailsFormState = {
   swiftCode: string;
   iban: string;
   accountType: "checking" | "savings";
-  currency: "USD" | "EUR" | "GBP";
+  currency: (typeof SUPPORTED_CURRENCIES)[number];
   country: string;
   notes: string;
 };
@@ -33,7 +34,7 @@ export function BankDetailsForm({ details }: BankDetailsFormProps) {
     swiftCode: details.swiftCode || "",
     iban: details.iban || "",
     accountType: details.accountType,
-    currency: details.currency,
+    currency: details.currency || DEFAULT_CURRENCY,
     country: details.country,
     notes: "",
   });
@@ -128,11 +129,10 @@ export function BankDetailsForm({ details }: BankDetailsFormProps) {
           onChange={(event) =>
             setForm({ ...form, currency: event.target.value as BankDetailsFormState["currency"] })
           }
-          options={[
-            { value: "USD", label: "USD" },
-            { value: "EUR", label: "EUR" },
-            { value: "GBP", label: "GBP" },
-          ]}
+          options={SUPPORTED_CURRENCIES.map((currency) => ({
+            value: currency,
+            label: currency,
+          }))}
         />
         <Input
           label="Country"

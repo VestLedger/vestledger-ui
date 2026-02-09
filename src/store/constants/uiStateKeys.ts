@@ -20,6 +20,7 @@ export const UI_STATE_KEYS = {
 
   // Component-specific UI state
   TOPBAR: 'topbar',
+  DASHBOARD_DENSITY: 'dashboard-density',
   DEAL_INTELLIGENCE: 'deal-intelligence',
   PORTFOLIO_UPDATES: 'portfolio-updates',
   PIPELINE: 'pipeline',
@@ -35,6 +36,10 @@ export const UI_STATE_DEFAULTS = {
     isProfileOpen: false,
     searchQuery: '',
     isSearchFocused: false,
+  },
+
+  dashboardDensity: {
+    mode: 'compact' as 'compact' | 'comfortable',
   },
 
   dealIntelligence: {

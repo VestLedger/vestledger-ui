@@ -4,6 +4,7 @@ import { ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, type LucideIcon } from 'lucide-react';
 import { useNavigation } from '@/contexts/navigation-context';
+import { useDashboardDensity } from '@/contexts/dashboard-density-context';
 
 interface NavigationGroupProps {
   id: string;
@@ -24,7 +25,13 @@ export function NavigationGroup({
   isCollapsed = false,
 }: NavigationGroupProps) {
   const { expandedGroups, toggleGroup } = useNavigation();
+  const density = useDashboardDensity();
   const isExpanded = alwaysExpanded || expandedGroups.has(id);
+  const headerPaddingClass = density.mode === 'compact' ? 'px-2.5 py-1.5' : 'px-3 py-2';
+  const collapsedIconPaddingClass = density.mode === 'compact' ? 'p-1.5' : 'p-2';
+  const labelClass = density.mode === 'compact'
+    ? 'text-[11px] font-semibold uppercase tracking-wider'
+    : 'text-xs font-semibold uppercase tracking-wider';
 
   return (
     <div className="mb-2">
@@ -35,7 +42,7 @@ export function NavigationGroup({
           !isExpanded ? (
             <button
               onClick={() => toggleGroup(id)}
-              className="flex items-center justify-center p-2 w-full rounded-lg hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover transition-colors"
+              className={`flex items-center justify-center ${collapsedIconPaddingClass} w-full rounded-lg hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover transition-colors`}
               title={label}
               aria-label={label}
               aria-expanded={isExpanded}
@@ -54,7 +61,7 @@ export function NavigationGroup({
         <button
           onClick={() => toggleGroup(id)}
           className={`
-            w-full flex items-center justify-between px-3 py-2 rounded-lg
+            w-full flex items-center justify-between ${headerPaddingClass} rounded-lg
             transition-colors duration-150
             ${alwaysExpanded
               ? 'cursor-default'
@@ -75,7 +82,7 @@ export function NavigationGroup({
               `} />
             )}
             <span className={`
-              text-xs font-semibold uppercase tracking-wider
+              ${labelClass}
               ${alwaysExpanded
                 ? 'text-app-text dark:text-app-dark-text'
                 : 'text-app-text-muted dark:text-app-dark-text-muted'

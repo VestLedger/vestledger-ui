@@ -9,6 +9,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { alertsRequested, alertsSelectors, markAlertRead } from '@/store/slices/alertsSlice';
 import { EmptyState, ErrorState, LoadingState } from '@/ui/async-states';
 import { useUIKey } from '@/store/ui';
+import { ROUTE_PATHS } from '@/config/routes';
 
 type NotificationFilter = 'all' | 'unread' | 'alert' | 'deal' | 'report' | 'system';
 
@@ -129,7 +130,7 @@ export function Notifications() {
 
   return (
     <PageScaffold
-      routePath="/notifications"
+      routePath={ROUTE_PATHS.notifications}
       header={{
         title: 'Notifications',
         description: 'All alerts, reminders, and system updates in one place',

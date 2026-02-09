@@ -14,6 +14,7 @@ import {
 } from '@/store/slices/documentsSlice';
 import { useUIKey } from '@/store/ui';
 import { useAsyncData } from '@/hooks/useAsyncData';
+import { ROUTE_PATHS } from '@/config/routes';
 
 export function Documents() {
   const dispatch = useAppDispatch();
@@ -99,7 +100,7 @@ export function Documents() {
 
   return (
     <PageScaffold
-      routePath="/documents"
+      routePath={ROUTE_PATHS.documents}
       header={{
         title: 'Documents',
         description: 'Manage and organize all your fund documents in one secure location',

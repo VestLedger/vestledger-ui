@@ -15,6 +15,7 @@ import {
 } from '@/services/lpPortal/lpManagementService';
 import { formatCurrency, formatPercent } from '@/utils/formatting';
 import { PageScaffold, SearchToolbar, SectionHeader, StatusBadge } from '@/ui/composites';
+import { ROUTE_PATHS } from '@/config/routes';
 
 export function LPManagement() {
   const { value: ui, patch: patchUI } = useUIKey<{
@@ -177,7 +178,7 @@ export function LPManagement() {
 
   return (
     <PageScaffold
-      routePath="/lp-management"
+      routePath={ROUTE_PATHS.lpManagement}
       header={{
         title: 'LP Management',
         description: 'Manage Limited Partners, generate reports, and track capital activities',

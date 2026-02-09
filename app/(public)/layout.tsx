@@ -1,9 +1,10 @@
 import { PublicHeaderStatic } from '@/components/public/public-header-static';
 import { PublicFooter } from '@/components/public/public-footer';
 import type { Metadata, Viewport } from 'next';
+import { CANONICAL_PUBLIC_WEB_URL } from '@/config/env';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://vestledger.com'),
+  metadataBase: new URL(CANONICAL_PUBLIC_WEB_URL),
   title: {
     default: 'VestLedger - AI-Native Fund Intelligence',
     template: '%s | VestLedger',

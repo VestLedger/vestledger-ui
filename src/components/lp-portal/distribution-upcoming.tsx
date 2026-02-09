@@ -8,6 +8,7 @@ import { EmptyState } from '@/ui/async-states';
 import type { LPUpcomingDistribution } from "@/data/mocks/lp-portal/lp-investor-portal";
 import { buildMonthDays } from "@/utils/calendar";
 import { formatCurrency, formatDate } from "@/utils/formatting";
+import { ROUTE_PATHS } from "@/config/routes";
 import { CalendarDays, CalendarX, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   addMonths,
@@ -128,7 +129,7 @@ export function DistributionUpcoming({ distributions }: DistributionUpcomingProp
                 <Button
                   size="sm"
                   color="primary"
-                  onPress={() => router.push("/fund-admin/distributions/calendar")}
+                  onPress={() => router.push(ROUTE_PATHS.fundAdminDistributionsCalendar)}
                 >
                   Schedule Distribution
                 </Button>

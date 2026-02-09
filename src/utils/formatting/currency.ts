@@ -1,3 +1,5 @@
+import { DEFAULT_CURRENCY, DEFAULT_LOCALE } from '@/config/i18n';
+
 export interface CurrencyFormatOptions {
   locale?: string;
   currency?: string;
@@ -15,8 +17,8 @@ export function formatCurrency(
   options?: CurrencyFormatOptions
 ): string {
   const defaults: CurrencyFormatOptions = {
-    locale: 'en-US',
-    currency: 'USD',
+    locale: DEFAULT_LOCALE,
+    currency: DEFAULT_CURRENCY,
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   };

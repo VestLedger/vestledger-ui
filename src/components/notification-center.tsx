@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import type { Notification, NotificationCategory, NotificationType } from '@/types/notification';
 import { useUIKey } from '@/store/ui';
+import { ROUTE_PATHS } from '@/config/routes';
 
 export interface NotificationCenterProps {
   notifications?: Notification[];
@@ -288,7 +289,7 @@ export function NotificationCenter({
                 <button
                   onClick={() => {
                     patchUI({ isOpen: false });
-                    router.push('/notifications');
+                    router.push(ROUTE_PATHS.notifications);
                   }}
                   className="w-full text-center text-sm font-medium text-[var(--app-primary)] hover:underline"
                 >

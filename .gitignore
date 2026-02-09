@@ -25,6 +25,12 @@ tsconfig.tsbuildinfo
 .claude
 .lighthouseci
 
+# Keep hardcoded-value governance artifacts tracked
+!docs/
+docs/*
+!docs/hardcoded-values-remediation-plan.md
+!docs/hardcoded-values-baseline.json
+
 # Cypress output
 cypress/videos
 cypress/screenshots

@@ -19,6 +19,8 @@ import {
   copilotSuggestionsSelectors,
 } from '@/store/slices/copilotSlice';
 import type { QuickAction, Suggestion } from '@/services/ai/copilotService';
+import { useDashboardDensity } from '@/contexts/dashboard-density-context';
+import { ROUTE_PATHS } from '@/config/routes';
 
 type UITabState = {
   activeTab?: string;
@@ -49,6 +51,7 @@ export function AICopilotSidebar() {
   const dispatch = useAppDispatch();
   const pathname = usePathname();
   const { sidebarState, toggleRightSidebar } = useNavigation();
+  const density = useDashboardDensity();
   const isCollapsed = sidebarState.rightCollapsed;
 
   const messages = useAppSelector((state) => state.copilot.messages);
@@ -86,37 +89,37 @@ export function AICopilotSidebar() {
     };
 
     // Extract tab from page-specific UI state
-    if (pathname === '/contacts') {
+    if (pathname === ROUTE_PATHS.contacts) {
       return getTabValue('crm-contacts', 'activeTab');
     }
-    if (pathname === '/lp-portal') {
+    if (pathname === ROUTE_PATHS.lpPortal) {
       return getTabValue('lp-investor-portal', 'selectedTab');
     }
-    if (pathname === '/lp-management') {
+    if (pathname === ROUTE_PATHS.lpManagement) {
       return getTabValue('lp-management', 'selectedTab');
     }
-    if (pathname === '/deal-intelligence') {
+    if (pathname === ROUTE_PATHS.dealIntelligence) {
       return getTabValue('deal-intelligence', 'viewMode');
     }
-    if (pathname === '/fund-admin') {
+    if (pathname === ROUTE_PATHS.fundAdmin) {
       return getTabValue('back-office-fund-admin', 'selectedTab');
     }
-    if (pathname === '/compliance') {
+    if (pathname === ROUTE_PATHS.compliance) {
       return getTabValue('back-office-compliance', 'selectedTab');
     }
-    if (pathname === '/tax-center') {
+    if (pathname === ROUTE_PATHS.taxCenter) {
       return getTabValue('back-office-tax-center', 'selectedTab');
     }
-    if (pathname === '/409a-valuations') {
+    if (pathname === ROUTE_PATHS.valuations409a) {
       return getTabValue('back-office-valuation-409a', 'selectedTab');
     }
-    if (pathname === '/analytics') {
+    if (pathname === ROUTE_PATHS.analytics) {
       return getTabValue('analytics', 'selected');
     }
-    if (pathname === '/portfolio') {
+    if (pathname === ROUTE_PATHS.portfolio) {
       return getTabValue('portfolio', 'selected');
     }
-    if (pathname === '/ai-tools') {
+    if (pathname === ROUTE_PATHS.aiTools) {
       return getTabValue('ai-tools', 'selected');
     }
     return null;
@@ -148,6 +151,7 @@ export function AICopilotSidebar() {
     },
     [dispatch]
   );
+  const copilotHeaderPaddingClass = density.mode === 'compact' ? 'px-3' : 'px-4';
 
   if (isCollapsed) {
     return <AICopilotBubble onClick={toggleRightSidebar} />;
@@ -156,7 +160,10 @@ export function AICopilotSidebar() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between gap-2 px-4 h-[69px] border-b border-[var(--app-border)] bg-gradient-to-r from-[var(--app-primary-bg)] to-transparent">
+      <div
+        className={`flex items-center justify-between gap-2 ${copilotHeaderPaddingClass} border-b border-[var(--app-border)] bg-gradient-to-r from-[var(--app-primary-bg)] to-transparent`}
+        style={{ height: `${density.shell.topBarHeightPx}px` }}
+      >
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--app-primary)] to-transparent flex items-center justify-center">
             <Bot className="w-4 h-4 text-white" />
@@ -175,7 +182,7 @@ export function AICopilotSidebar() {
 
       {/* Suggestions Section */}
       {suggestions.length > 0 && (
-        <div className="p-4 border-b border-[var(--app-border)] space-y-2">
+        <div className={`${density.shell.copilotSectionPaddingClass} border-b border-[var(--app-border)] space-y-2`}>
           <div className="flex items-center justify-between gap-2 mb-2">
             <div className="flex items-center gap-2">
               <Lightbulb className="w-4 h-4 text-[var(--app-warning)]" />
@@ -216,7 +223,7 @@ export function AICopilotSidebar() {
       )}
 
       {/* Quick Actions */}
-      <div className="p-4 border-b border-[var(--app-border)]">
+      <div className={`${density.shell.copilotSectionPaddingClass} border-b border-[var(--app-border)]`}>
         <div className="flex items-center gap-2 mb-2">
           <Zap className="w-4 h-4 text-[var(--app-primary)]" />
           <span className="text-xs font-semibold text-[var(--app-text-muted)]">QUICK ACTIONS</span>
@@ -239,7 +246,7 @@ export function AICopilotSidebar() {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className={`flex-1 overflow-y-auto ${density.shell.copilotSectionPaddingClass} space-y-4`}>
         {messages.map((message) => (
           <motion.div
             key={message.id}
@@ -294,7 +301,7 @@ export function AICopilotSidebar() {
       </div>
 
       {/* Input */}
-      <div className="p-8">
+      <div className={density.shell.copilotInputPaddingClass}>
         <div className="flex gap-2">
           <Input
             value={inputValue}

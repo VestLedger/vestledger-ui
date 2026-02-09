@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, ChevronDown, Info, TrendingUp, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Button } from '@/ui';
 import { useUIKey } from '@/store/ui';
+import { useDashboardDensity } from '@/contexts/dashboard-density-context';
 
 export interface AIInsight {
   summary: string;
@@ -27,7 +28,9 @@ interface AIInsightsBannerProps {
 
 export function AIInsightsBanner({ insight }: AIInsightsBannerProps) {
   const { value: ui, patch: patchUI } = useUIKey('ai-insights-banner', { isExpanded: false });
+  const density = useDashboardDensity();
   const { isExpanded } = ui;
+  const compact = density.mode === 'compact';
 
   const getConfidenceColor = (confidence: number) => {
     if (confidence >= 0.9) return 'text-[var(--app-success)]';
@@ -72,17 +75,17 @@ export function AIInsightsBanner({ insight }: AIInsightsBannerProps) {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="sticky top-0 z-10 mb-6"
+      className={`sticky top-0 z-10 ${compact ? 'mb-4' : 'mb-6'}`}
     >
-      <div className="bg-gradient-to-r from-[var(--app-primary)]/8 to-[var(--app-accent)]/8 border border-[var(--app-border)] rounded-xl p-6 backdrop-blur-sm">
+      <div className={`bg-gradient-to-r from-[var(--app-primary)]/8 to-[var(--app-accent)]/8 border border-[var(--app-border)] rounded-xl backdrop-blur-sm ${compact ? 'p-4' : 'p-6'}`}>
         {/* Header */}
-        <div className="flex items-start justify-between mb-4">
+        <div className={`flex items-start justify-between ${compact ? 'mb-3' : 'mb-4'}`}>
           <div className="flex items-center gap-3 flex-1">
             <div className="p-2 rounded-lg bg-[var(--app-primary)]/20">
-              <Sparkles className="w-6 h-6 text-[var(--app-primary)]" />
+              <Sparkles className={`${compact ? 'w-5 h-5' : 'w-6 h-6'} text-[var(--app-primary)]`} />
             </div>
             <div className="flex-1">
-              <h2 className="text-lg font-semibold text-[var(--app-text)] mb-1">
+              <h2 className={`${compact ? 'text-base' : 'text-lg'} font-semibold text-[var(--app-text)] mb-1`}>
                 AI Daily Briefing
               </h2>
               <p className="text-[var(--app-text-muted)] text-sm leading-relaxed">

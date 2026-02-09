@@ -7,6 +7,7 @@ import { useUIKey } from "@/store/ui";
 import type { WaterfallScenario, WaterfallResults } from "@/types/waterfall";
 import { formatCurrencyCompact } from "@/utils/formatting";
 import { performWaterfallCalculation } from "@/services/analytics/waterfallService";
+import { ROUTE_PATHS } from "@/config/routes";
 import { ExternalLink } from "lucide-react";
 
 type WaterfallPreviewUIState = {
@@ -124,7 +125,7 @@ export function DistributionStepWaterfall({
             size="sm"
             variant="bordered"
             startContent={<ExternalLink className="h-4 w-4" />}
-            onPress={() => window.open("/waterfall", "_blank", "noopener")}
+            onPress={() => window.open(ROUTE_PATHS.waterfall, "_blank", "noopener")}
           >
             Open Waterfall Modeling
           </Button>

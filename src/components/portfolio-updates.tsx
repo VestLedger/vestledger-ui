@@ -19,6 +19,7 @@ import { AsyncStateRenderer } from '@/ui/async-states';
 import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { PortfolioTabHeader } from '@/components/portfolio-tab-header';
+import { formatDate as formatDateValue } from '@/utils/formatting';
 
 const updateIcons = {
   financial: <DollarSign className="w-5 h-5" />,
@@ -65,7 +66,7 @@ export function PortfolioUpdates() {
     return typeMatch && searchMatch;
   });
 
-  const formatDate = (dateString: string) => {
+  const formatRelativeDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
@@ -75,7 +76,7 @@ export function PortfolioUpdates() {
     if (diffDays === 1) return '1 day ago';
     if (diffDays < 7) return `${diffDays} days ago`;
     if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    return formatDateValue(date, { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
   return (
@@ -187,7 +188,7 @@ export function PortfolioUpdates() {
                 <span>•</span>
                 <div className="flex items-center gap-1">
                   <Calendar className="w-3 h-3" />
-                  <span>{formatDate(update.date)}</span>
+                  <span>{formatRelativeDate(update.date)}</span>
                 </div>
               </div>
             )}

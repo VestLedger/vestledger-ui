@@ -124,7 +124,7 @@ export function LPDashboard() {
         </div>
       </Card>
 
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid lg:grid-cols-2 gap-4">
         {/* Pending Capital Calls - Self Service */}
         <Card padding="md">
           <SectionHeader
@@ -229,7 +229,7 @@ export function LPDashboard() {
         </Card>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid lg:grid-cols-2 gap-4">
         <Card padding="md">
           <SectionHeader
             title="Recent Documents"

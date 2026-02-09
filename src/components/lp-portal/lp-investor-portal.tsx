@@ -28,6 +28,7 @@ import { DistributionPreferences } from './distribution-preferences';
 import { BankDetailsForm } from './bank-details-form';
 import { DistributionEmailPreview } from './distribution-email-preview';
 import { DistributionFAQ } from './distribution-faq';
+import { ROUTE_PATHS } from '@/config/routes';
 
 export function LPInvestorPortal() {
   const { data, isLoading, error, refetch } = useAsyncData(lpPortalRequested, lpPortalSelectors.selectState);
@@ -81,7 +82,7 @@ export function LPInvestorPortal() {
 
         return (
           <PageScaffold
-            routePath="/lp-portal"
+            routePath={ROUTE_PATHS.lpPortal}
             containerProps={{ className: "space-y-6" }}
             header={{
               title: investor.fundName,

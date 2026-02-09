@@ -3,6 +3,7 @@
 import { useUIKey } from '@/store/ui';
 import { Card, Button, Input, Badge, Checkbox, Select, RadioGroup } from '@/ui';
 import type { PageHeaderBadge } from '@/ui';
+import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys';
 import {
   User,
   Bell,
@@ -23,6 +24,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { PageScaffold, SectionHeader, StatusBadge } from '@/ui/composites';
+import { ROUTE_PATHS } from '@/config/routes';
 
 interface SettingsSection {
   id: string;
@@ -121,6 +123,10 @@ export function Settings() {
     dateFormat: 'mm-dd-yyyy',
     currency: 'usd',
   });
+  const { patch: patchDashboardDensity } = useUIKey(
+    UI_STATE_KEYS.DASHBOARD_DENSITY,
+    UI_STATE_DEFAULTS.dashboardDensity
+  );
   const activeSection = settingsUI.activeSection;
   const showPassword = settingsUI.showPassword;
   const twoFactorEnabled = settingsUI.twoFactorEnabled;
@@ -381,6 +387,7 @@ export function Settings() {
                 onValueChange={(value) => {
                   if (value === 'comfortable' || value === 'compact' || value === 'spacious') {
                     patchSettingsUI({ displayDensity: value });
+                    patchDashboardDensity({ mode: value === 'compact' ? 'compact' : 'comfortable' });
                   }
                 }}
               />
@@ -559,7 +566,7 @@ export function Settings() {
 
   return (
     <PageScaffold
-      routePath="/settings"
+      routePath={ROUTE_PATHS.settings}
       header={{
         title: 'Settings',
         description: 'Manage your account settings and preferences',

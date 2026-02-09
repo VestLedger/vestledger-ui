@@ -48,7 +48,7 @@ export function AuditorDashboard() {
             </>
           )}
         >
-          <div className="grid lg:grid-cols-3 gap-6">
+          <div className="grid lg:grid-cols-3 gap-4">
             <Card className="lg:col-span-2" padding="md">
               <SectionHeader
                 title="On-Chain Audit Trail"

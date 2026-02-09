@@ -1,3 +1,5 @@
+import { DEFAULT_LOCALE } from '@/config/i18n';
+
 /**
  * Format timestamp as relative time (e.g., "2h ago", "3d ago")
  * @example formatTimestamp(new Date(Date.now() - 2 * 60 * 60 * 1000)) => "2h ago"
@@ -12,7 +14,7 @@ export function formatTimestamp(date: Date): string {
   const diffDays = Math.floor(diffHours / 24);
   if (diffDays < 7) return `${diffDays}d ago`;
 
-  return date.toLocaleDateString();
+  return date.toLocaleDateString(DEFAULT_LOCALE);
 }
 
 /**
@@ -21,11 +23,12 @@ export function formatTimestamp(date: Date): string {
  */
 export function formatDate(
   value: Date | string | number,
-  options?: Intl.DateTimeFormatOptions
+  options?: Intl.DateTimeFormatOptions,
+  locale: string = DEFAULT_LOCALE
 ): string {
   const date = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(date.getTime())) return '';
-  return date.toLocaleDateString(undefined, options);
+  return date.toLocaleDateString(locale, options);
 }
 
 /**
@@ -34,9 +37,24 @@ export function formatDate(
  */
 export function formatDateTime(
   value: Date | string | number,
-  options?: Intl.DateTimeFormatOptions
+  options?: Intl.DateTimeFormatOptions,
+  locale: string = DEFAULT_LOCALE
 ): string {
   const date = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(date.getTime())) return '';
-  return date.toLocaleString(undefined, options);
+  return date.toLocaleString(locale, options);
+}
+
+/**
+ * Format a time value using locale-aware formatting.
+ * Returns an empty string if the value cannot be parsed.
+ */
+export function formatTime(
+  value: Date | string | number,
+  options?: Intl.DateTimeFormatOptions,
+  locale: string = DEFAULT_LOCALE
+): string {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleTimeString(locale, options);
 }

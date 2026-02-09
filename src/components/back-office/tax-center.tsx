@@ -2,12 +2,12 @@
 
 import { Card, Button, Badge, Progress } from '@/ui';
 import { Receipt, Download, Send, Calendar, DollarSign, Mail, FileText } from 'lucide-react';
-import { getRouteConfig } from '@/config/routes';
+import { getRouteConfig, ROUTE_PATHS } from '@/config/routes';
 import { K1Generator } from '../tax/k1-generator';
 import { useUIKey } from '@/store/ui';
 import { taxCenterRequested, taxCenterSelectors } from '@/store/slices/backOfficeSlice';
 import { AsyncStateRenderer } from '@/ui/async-states';
-import { formatCurrency } from '@/utils/formatting';
+import { formatCurrency, formatDate } from '@/utils/formatting';
 import { KeyValueRow, StatusBadge, MetricsGrid, PageScaffold, SectionHeader } from '@/ui/composites';
 import type { MetricsGridItem } from '@/ui/composites';
 import { useAsyncData } from '@/hooks/useAsyncData';
@@ -18,7 +18,7 @@ export function TaxCenter() {
   const { selectedTab } = ui;
 
   // Get route config for breadcrumbs and AI suggestions
-  const routeConfig = getRouteConfig('/tax-center');
+  const routeConfig = getRouteConfig(ROUTE_PATHS.taxCenter);
 
   const taxDocuments = data?.taxDocuments || [];
   const taxSummaries = data?.taxSummaries || [];
@@ -67,7 +67,7 @@ export function TaxCenter() {
       type: 'stats',
       props: {
         title: 'Filing Deadline',
-        value: filingDeadline.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        value: formatDate(filingDeadline, { month: 'short', day: 'numeric', year: 'numeric' }),
         icon: Calendar,
         variant: 'neutral',
         subtitle: `${Math.ceil((filingDeadline.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days remaining`,
@@ -94,7 +94,7 @@ export function TaxCenter() {
             description: 'Manage tax documents, K-1s, and reporting for LPs and portfolio companies',
             icon: Receipt,
             aiSummary: {
-              text: `${k1sIssued} K-1s issued out of ${k1sTotal}. ${form1099Issued} 1099s issued. ${readyDocuments} documents ready to send. Filing deadline: ${filingDeadline.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}. AI recommends prioritizing the ${readyDocuments} ready documents for immediate distribution.`,
+              text: `${k1sIssued} K-1s issued out of ${k1sTotal}. ${form1099Issued} 1099s issued. ${readyDocuments} documents ready to send. Filing deadline: ${formatDate(filingDeadline, { month: 'long', day: 'numeric', year: 'numeric' })}. AI recommends prioritizing the ${readyDocuments} ready documents for immediate distribution.`,
               confidence: 0.92,
             },
             primaryAction: {
