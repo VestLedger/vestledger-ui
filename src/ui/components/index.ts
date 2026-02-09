@@ -36,6 +36,12 @@ export type { CheckboxProps } from './Checkbox';
 export { Switch } from './Switch';
 export type { SwitchProps } from './Switch';
 
+export { Slider } from './Slider';
+export type { SliderProps } from './Slider';
+
+export { Radio, RadioGroup } from './RadioGroup';
+export type { RadioProps, RadioGroupProps, RadioOption } from './RadioGroup';
+
 export { Textarea } from './Textarea';
 export type { TextareaProps } from './Textarea';
 

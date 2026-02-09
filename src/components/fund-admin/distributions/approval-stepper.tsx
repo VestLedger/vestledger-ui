@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Badge, Button, Card, Textarea } from "@/ui";
-import { SectionHeader, StatusBadge, Timeline, type TimelineItem } from "@/components/ui";
+import { SectionHeader, StatusBadge, Timeline, type TimelineItem } from '@/ui/composites';
 import { getStatusColorVars } from "@/utils/styling/statusColors";
 import { formatDate } from "@/utils/formatting";
 import type { ApprovalStatus, ApprovalStep, Distribution } from "@/types/distribution";

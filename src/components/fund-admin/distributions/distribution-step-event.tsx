@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, Input, Select, Textarea } from "@/ui";
-import { SectionHeader } from "@/components/ui";
+import { SectionHeader } from '@/ui/composites';
 import type { Distribution, DistributionEventType } from "@/types/distribution";
 
 const EVENT_TYPE_OPTIONS: Array<{ value: DistributionEventType; label: string }> = [

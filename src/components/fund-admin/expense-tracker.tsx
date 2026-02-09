@@ -1,10 +1,10 @@
 'use client';
 
 import { useUIKey } from '@/store/ui';
-import { Card, Button, Badge } from '@/ui';
+import { Card, Button, Badge, Select } from '@/ui';
 import { DollarSign, Plus, PieChart, Download } from 'lucide-react';
 import { formatCurrency } from '@/utils/formatting';
-import { SearchToolbar, StatusBadge } from '@/components/ui';
+import { SearchToolbar, StatusBadge } from '@/ui/composites';
 
 export type ExpenseType =
   | 'management-fee'
@@ -255,38 +255,46 @@ export function ExpenseTracker({
           searchPlaceholder="Search expenses..."
           rightActions={(
             <div className="flex flex-wrap items-center gap-2">
-              <select
-                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-                value={filterType}
+              <Select
+                aria-label="Expense type filter"
+                size="sm"
+                className="min-w-[170px]"
+                selectedKeys={[filterType]}
                 onChange={(e) => patchUI({ filterType: e.target.value as ExpenseType | 'all' })}
-              >
-                <option value="all">All Types</option>
-                {expenseTypes.map(type => (
-                  <option key={type} value={type}>
-                    {getExpenseTypeConfig(type).label}
-                  </option>
-                ))}
-              </select>
-              <select
-                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-                value={filterStatus}
+                options={[
+                  { value: 'all', label: 'All Types' },
+                  ...expenseTypes.map((type) => ({
+                    value: type,
+                    label: getExpenseTypeConfig(type).label,
+                  })),
+                ]}
+              />
+              <Select
+                aria-label="Expense status filter"
+                size="sm"
+                className="min-w-[150px]"
+                selectedKeys={[filterStatus]}
                 onChange={(e) => patchUI({ filterStatus: e.target.value })}
-              >
-                <option value="all">All Status</option>
-                <option value="pending">Pending</option>
-                <option value="approved">Approved</option>
-                <option value="paid">Paid</option>
-                <option value="rejected">Rejected</option>
-              </select>
-              <select
-                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-                value={dateRange}
+                options={[
+                  { value: 'all', label: 'All Status' },
+                  { value: 'pending', label: 'Pending' },
+                  { value: 'approved', label: 'Approved' },
+                  { value: 'paid', label: 'Paid' },
+                  { value: 'rejected', label: 'Rejected' },
+                ]}
+              />
+              <Select
+                aria-label="Date range filter"
+                size="sm"
+                className="min-w-[140px]"
+                selectedKeys={[dateRange]}
                 onChange={(e) => patchUI({ dateRange: e.target.value as typeof dateRange })}
-              >
-                <option value="month">This Month</option>
-                <option value="quarter">This Quarter</option>
-                <option value="year">This Year</option>
-              </select>
+                options={[
+                  { value: 'month', label: 'This Month' },
+                  { value: 'quarter', label: 'This Quarter' },
+                  { value: 'year', label: 'This Year' },
+                ]}
+              />
             </div>
           )}
         />

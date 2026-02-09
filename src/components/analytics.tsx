@@ -9,7 +9,7 @@ import { DeploymentPacing } from './analytics/deployment-pacing';
 import { ConcentrationRisk } from './analytics/concentration-risk';
 import { FundSelector } from './fund-selector';
 import { useUIKey } from '@/store/ui';
-import { PageScaffold } from '@/components/ui';
+import { PageScaffold } from '@/ui/composites';
 import { useFund } from '@/contexts/fund-context';
 
 export function Analytics() {

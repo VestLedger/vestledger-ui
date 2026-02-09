@@ -12,9 +12,9 @@ import { NetworkGraph } from './network-graph';
 import { useUIKey } from '@/store/ui';
 import { crmDataRequested, crmSelectors } from '@/store/slices/crmSlice';
 import type { Contact } from '@/services/crm/contactsService';
-import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
-import { MetricsGrid, PageScaffold, SearchToolbar } from '@/components/ui';
-import type { MetricsGridItem } from '@/components/ui';
+import { AsyncStateRenderer, EmptyState } from '@/ui/async-states';
+import { MetricsGrid, PageScaffold, SearchToolbar } from '@/ui/composites';
+import type { MetricsGridItem } from '@/ui/composites';
 import { useAsyncData } from '@/hooks/useAsyncData';
 
 interface ContactsUIState {
@@ -65,34 +65,6 @@ export function Contacts() {
   // Use contacts directly from Redux, not from UI state
   const contacts = mockContacts;
   const emailAccounts = mockEmailAccounts;
-
-  if (isLoading) return <LoadingState message="Loading contacts…" />;
-  if (error) {
-    return (
-      <ErrorState
-        error={error}
-        title="Failed to load contacts"
-        onRetry={refetch}
-      />
-    );
-  }
-
-  if (mockContacts.length === 0) {
-    return (
-      <PageScaffold
-        breadcrumbs={routeConfig?.breadcrumbs}
-        aiSuggestion={routeConfig?.aiSuggestion}
-        containerProps={{ className: 'space-y-6' }}
-        header={{
-          title: 'Contacts & CRM',
-          description: 'Manage relationships and track communications',
-          icon: Users,
-        }}
-      >
-        <EmptyState icon={Users} title="No contacts yet" message="Create a contact to get started." />
-      </PageScaffold>
-    );
-  }
 
   // Helper to get relationship metrics for a contact
   const getRelationshipMetrics = (contact: Contact): RelationshipMetrics => {
@@ -229,30 +201,58 @@ export function Contacts() {
   ];
 
   return (
-    <PageScaffold
-      breadcrumbs={routeConfig?.breadcrumbs}
-      aiSuggestion={routeConfig?.aiSuggestion}
-      containerProps={{ className: 'space-y-6' }}
-      header={{
-        title: 'Contacts & CRM',
-        description: 'Manage relationships with founders, investors, and advisors',
-        icon: Users,
-        aiSummary: {
-          text: `${contacts.length} total contacts. ${contacts.filter(c => c.starred).length} starred. ${contacts.filter(c => c.nextFollowUp).length} pending follow-ups.`,
-          confidence: 0.91,
-        },
-        primaryAction: {
-          label: 'Add Contact',
-          onClick: () => console.log('Add contact clicked'),
-        },
-        secondaryActions: [
-          {
-            label: 'Network View',
-            onClick: () => patchUI({ showNetworkGraph: true }),
-          },
-        ],
-      }}
+    <AsyncStateRenderer
+      data={data}
+      isLoading={isLoading}
+      error={error}
+      onRetry={refetch}
+      loadingMessage="Loading contacts…"
+      errorTitle="Failed to load contacts"
+      isEmpty={() => false}
     >
+      {() => {
+        if (mockContacts.length === 0) {
+          return (
+            <PageScaffold
+              breadcrumbs={routeConfig?.breadcrumbs}
+              aiSuggestion={routeConfig?.aiSuggestion}
+              containerProps={{ className: 'space-y-6' }}
+              header={{
+                title: 'Contacts & CRM',
+                description: 'Manage relationships and track communications',
+                icon: Users,
+              }}
+            >
+              <EmptyState icon={Users} title="No contacts yet" message="Create a contact to get started." />
+            </PageScaffold>
+          );
+        }
+
+        return (
+          <PageScaffold
+            breadcrumbs={routeConfig?.breadcrumbs}
+            aiSuggestion={routeConfig?.aiSuggestion}
+            containerProps={{ className: 'space-y-6' }}
+            header={{
+              title: 'Contacts & CRM',
+              description: 'Manage relationships with founders, investors, and advisors',
+              icon: Users,
+              aiSummary: {
+                text: `${contacts.length} total contacts. ${contacts.filter(c => c.starred).length} starred. ${contacts.filter(c => c.nextFollowUp).length} pending follow-ups.`,
+                confidence: 0.91,
+              },
+              primaryAction: {
+                label: 'Add Contact',
+                onClick: () => console.log('Add contact clicked'),
+              },
+              secondaryActions: [
+                {
+                  label: 'Network View',
+                  onClick: () => patchUI({ showNetworkGraph: true }),
+                },
+              ],
+            }}
+          >
 
       {/* Stats Overview */}
       <MetricsGrid items={summaryCards} columns={{ base: 1, md: 2, lg: 4 }} />
@@ -641,6 +641,9 @@ export function Contacts() {
           </div>
         </div>
       )}
-    </PageScaffold>
+          </PageScaffold>
+        );
+      }}
+    </AsyncStateRenderer>
   );
 }

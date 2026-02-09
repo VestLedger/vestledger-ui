@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, Button, Input } from '@/ui';
+import { Card, Button, Input, Select, Textarea } from '@/ui';
 import { Building2, User, Mail, Globe, DollarSign, Users, TrendingUp, FileText, CheckCircle2, Copy, Code } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
 import { useAppDispatch } from '@/store/hooks';
@@ -228,38 +228,38 @@ export function StartupApplicationForm({ embedded = false }: { embedded?: boolea
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm text-[var(--app-text-muted)] mb-2 block">Sector *</label>
-                <select
-                  className="w-full px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-                  value={formData.sector}
+                <Select
+                  label="Sector *"
+                  placeholder="Select sector..."
+                  selectedKeys={formData.sector ? [formData.sector] : []}
                   onChange={(e) => handleChange('sector', e.target.value)}
                   required
-                >
-                  <option value="">Select sector...</option>
-                  <option value="AI/ML">AI/ML</option>
-                  <option value="SaaS">SaaS</option>
-                  <option value="FinTech">FinTech</option>
-                  <option value="Healthcare">Healthcare</option>
-                  <option value="CleanTech">CleanTech</option>
-                  <option value="Developer Tools">Developer Tools</option>
-                  <option value="Other">Other</option>
-                </select>
+                  options={[
+                    { value: 'AI/ML', label: 'AI/ML' },
+                    { value: 'SaaS', label: 'SaaS' },
+                    { value: 'FinTech', label: 'FinTech' },
+                    { value: 'Healthcare', label: 'Healthcare' },
+                    { value: 'CleanTech', label: 'CleanTech' },
+                    { value: 'Developer Tools', label: 'Developer Tools' },
+                    { value: 'Other', label: 'Other' },
+                  ]}
+                />
               </div>
               <div>
-                <label className="text-sm text-[var(--app-text-muted)] mb-2 block">Stage *</label>
-                <select
-                  className="w-full px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-                  value={formData.stage}
+                <Select
+                  label="Stage *"
+                  placeholder="Select stage..."
+                  selectedKeys={formData.stage ? [formData.stage] : []}
                   onChange={(e) => handleChange('stage', e.target.value)}
                   required
-                >
-                  <option value="">Select stage...</option>
-                  <option value="Pre-Seed">Pre-Seed</option>
-                  <option value="Seed">Seed</option>
-                  <option value="Series A">Series A</option>
-                  <option value="Series B">Series B</option>
-                  <option value="Series C+">Series C+</option>
-                </select>
+                  options={[
+                    { value: 'Pre-Seed', label: 'Pre-Seed' },
+                    { value: 'Seed', label: 'Seed' },
+                    { value: 'Series A', label: 'Series A' },
+                    { value: 'Series B', label: 'Series B' },
+                    { value: 'Series C+', label: 'Series C+' },
+                  ]}
+                />
               </div>
               <Input
                 label="Funding Amount Sought"
@@ -299,32 +299,32 @@ export function StartupApplicationForm({ embedded = false }: { embedded?: boolea
             </div>
             <div className="space-y-4">
               <div>
-                <label className="text-sm text-[var(--app-text-muted)] mb-2 block">Problem You&apos;re Solving *</label>
-                <textarea
-                  className="w-full px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] min-h-[80px]"
+                <Textarea
+                  label="Problem You&apos;re Solving *"
                   placeholder="Describe the problem your startup is addressing..."
                   value={formData.problem}
                   onChange={(e) => handleChange('problem', e.target.value)}
+                  minRows={4}
                   required
                 />
               </div>
               <div>
-                <label className="text-sm text-[var(--app-text-muted)] mb-2 block">Your Solution *</label>
-                <textarea
-                  className="w-full px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] min-h-[80px]"
+                <Textarea
+                  label="Your Solution *"
                   placeholder="Explain how your product/service solves this problem..."
                   value={formData.solution}
                   onChange={(e) => handleChange('solution', e.target.value)}
+                  minRows={4}
                   required
                 />
               </div>
               <div>
-                <label className="text-sm text-[var(--app-text-muted)] mb-2 block">Traction & Key Metrics</label>
-                <textarea
-                  className="w-full px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] min-h-[80px]"
+                <Textarea
+                  label="Traction & Key Metrics"
                   placeholder="Share any traction, metrics, or milestones (users, revenue, partnerships, etc.)"
                   value={formData.traction}
                   onChange={(e) => handleChange('traction', e.target.value)}
+                  minRows={4}
                 />
               </div>
               <Input

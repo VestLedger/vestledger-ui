@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import type { ReactNode } from 'react';
-import { Card, Button, Input, Badge } from '@/ui';
+import { Card, Button, Input, Badge, Checkbox, Select } from '@/ui';
 import { ChevronDown, ChevronUp, ChevronsUpDown, Search, Download, Settings2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
 import { TableRow } from './table-row';
@@ -257,11 +257,10 @@ export function AdvancedTable<T extends object>({
                       key={col.key}
                       className="flex items-center gap-2 px-2 py-1.5 hover:bg-[var(--app-surface-hover)] rounded cursor-pointer"
                     >
-                      <input
-                        type="checkbox"
-                        checked={visibleColumns.includes(col.key)}
-                        onChange={() => toggleColumn(col.key)}
-                        className="rounded border-[var(--app-border)]"
+                      <Checkbox
+                        size="sm"
+                        isSelected={visibleColumns.includes(col.key)}
+                        onValueChange={() => toggleColumn(col.key)}
                       />
                       <span className="text-sm">{col.label}</span>
                     </label>
@@ -330,19 +329,22 @@ export function AdvancedTable<T extends object>({
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="text-sm text-[var(--app-text-muted)]">Rows per page:</span>
-            <select
-              value={pageSize}
+            <Select
+              aria-label="Rows per page"
+              size="sm"
+              className="w-24"
+              selectedKeys={[pageSize.toString()]}
               onChange={(e) => {
                 patchTableUI({ pageSize: Number(e.target.value), currentPage: 1 });
               }}
-              className="px-2 py-1 text-sm rounded border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-            >
-              <option value={5}>5</option>
-              <option value={10}>10</option>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
-            </select>
+              options={[
+                { value: '5', label: '5' },
+                { value: '10', label: '10' },
+                { value: '25', label: '25' },
+                { value: '50', label: '50' },
+                { value: '100', label: '100' },
+              ]}
+            />
           </div>
 
           <div className="flex items-center gap-2">

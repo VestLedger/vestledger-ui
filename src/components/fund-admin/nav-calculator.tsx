@@ -4,7 +4,7 @@ import { useUIKey } from '@/store/ui';
 import { Card, Button, Badge } from '@/ui';
 import { Calculator, TrendingUp, TrendingDown, Calendar, Download, RefreshCw, AlertCircle } from 'lucide-react';
 import { formatCurrency, formatPercent } from '@/utils/formatting';
-import { StatusBadge } from '@/components/ui';
+import { StatusBadge } from '@/ui/composites';
 
 export interface NAVCalculation {
   id: string;

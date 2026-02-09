@@ -12,7 +12,7 @@ import { SidebarGrouped } from '@/components/sidebar-grouped'
 import { Topbar } from '@/components/topbar'
 import { CommandPalette } from '@/components/command-palette'
 import { useKeyboardShortcut } from '@/hooks/use-keyboard-shortcut'
-import { LoadingState } from '@/components/ui/async-states'
+import { LoadingState } from '@/ui/async-states'
 
 const AICopilotSidebar = dynamic(
   () => import('@/components/ai-copilot-sidebar').then((mod) => mod.AICopilotSidebar),

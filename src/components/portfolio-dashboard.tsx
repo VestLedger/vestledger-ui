@@ -13,8 +13,8 @@ import {
 import { AdvancedTable } from '@/components/data-table/advanced-table';
 import type { ColumnDef } from '@/components/data-table/advanced-table';
 import { PortfolioTabHeader } from '@/components/portfolio-tab-header';
-import { MetricsGrid } from '@/components/ui';
-import type { MetricsGridItem } from '@/components/ui';
+import { MetricsGrid } from '@/ui/composites';
+import type { MetricsGridItem } from '@/ui/composites';
 import {
   getPortfolioAssetAllocation,
   getPortfolioCompanies,

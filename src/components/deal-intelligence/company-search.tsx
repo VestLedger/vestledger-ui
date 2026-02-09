@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Button, Badge } from '@/ui';
+import { Card, Button, Badge, Select } from '@/ui';
 import {
   Sparkles,
   Building2,
@@ -13,10 +13,10 @@ import {
 } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
 import { companySearchRequested, companySearchSelectors } from '@/store/slices/miscSlice';
-import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
+import { AsyncStateRenderer, EmptyState } from '@/ui/async-states';
 import { formatCurrencyCompact } from '@/utils/formatting';
 import { useAsyncData } from '@/hooks/useAsyncData';
-import { SearchToolbar } from '@/components/ui';
+import { SearchToolbar } from '@/ui/composites';
 
 export function CompanySearch() {
   const { data, isLoading, error, refetch, status } = useAsyncData(companySearchRequested, companySearchSelectors.selectState);
@@ -29,17 +29,6 @@ export function CompanySearch() {
     showAIOnly: true,
   });
   const { searchQuery, selectedIndustry, selectedStage, showAIOnly } = ui;
-
-  if (isLoading) return <LoadingState message="Loading company search…" fullHeight={false} />;
-  if (error) {
-    return (
-      <ErrorState
-        error={error}
-        title="Failed to load company search"
-        onRetry={refetch}
-      />
-    );
-  }
 
   const industries = data?.industries || [];
   const stages = data?.stages || [];
@@ -60,12 +49,24 @@ export function CompanySearch() {
     return true;
   }).sort((a, b) => b.aiMatchScore - a.aiMatchScore);
 
-  if (status === 'succeeded' && companies.length === 0) {
-    return <EmptyState icon={Sparkles} title="No companies found" message="Try adjusting your filters." />;
-  }
-
   return (
-    <div className="space-y-6">
+    <AsyncStateRenderer
+      data={data}
+      isLoading={isLoading}
+      error={error}
+      onRetry={refetch}
+      loadingMessage="Loading company search…"
+      loadingFullHeight={false}
+      errorTitle="Failed to load company search"
+      isEmpty={() => false}
+    >
+      {() => {
+        if (status === 'succeeded' && companies.length === 0) {
+          return <EmptyState icon={Sparkles} title="No companies found" message="Try adjusting your filters." />;
+        }
+
+        return (
+          <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -93,24 +94,22 @@ export function CompanySearch() {
           searchPlaceholder="Search companies, industries, or keywords..."
           rightActions={(
             <div className="flex flex-wrap gap-2">
-              <select
-                value={selectedIndustry}
+              <Select
+                aria-label="Industry filter"
+                size="sm"
+                className="min-w-[170px]"
+                selectedKeys={[selectedIndustry]}
                 onChange={(e) => patchUI({ selectedIndustry: e.target.value })}
-                className="px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-sm"
-              >
-                {industries.map((ind) => (
-                  <option key={ind} value={ind}>{ind}</option>
-                ))}
-              </select>
-              <select
-                value={selectedStage}
+                options={industries.map((ind) => ({ value: ind, label: ind }))}
+              />
+              <Select
+                aria-label="Funding stage filter"
+                size="sm"
+                className="min-w-[150px]"
+                selectedKeys={[selectedStage]}
                 onChange={(e) => patchUI({ selectedStage: e.target.value })}
-                className="px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-sm"
-              >
-                {stages.map((stage) => (
-                  <option key={stage} value={stage}>{stage}</option>
-                ))}
-              </select>
+                options={stages.map((stage) => ({ value: stage, label: stage }))}
+              />
               <Button
                 variant={showAIOnly ? 'solid' : 'bordered'}
                 color={showAIOnly ? 'primary' : 'default'}
@@ -231,6 +230,9 @@ export function CompanySearch() {
           Load More Companies
         </Button>
       </div>
-    </div>
+          </div>
+        );
+      }}
+    </AsyncStateRenderer>
   );
 }

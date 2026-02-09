@@ -1,7 +1,7 @@
 "use client";
 
 import { Badge, Button, Card, Input, Switch } from "@/ui";
-import { SectionHeader, StatusBadge } from "@/components/ui";
+import { SectionHeader, StatusBadge } from '@/ui/composites';
 import {
   DocumentPreviewModal,
   getMockDocumentUrl,

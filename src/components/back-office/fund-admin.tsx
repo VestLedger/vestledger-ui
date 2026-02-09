@@ -11,10 +11,10 @@ import { NAVCalculator } from '../fund-admin/nav-calculator'
 import { TransferSecondary } from '../fund-admin/transfer-secondary'
 import { DistributionsList } from '../fund-admin/distributions/distributions-list'
 import { fundAdminRequested, fundAdminSelectors } from '@/store/slices/backOfficeSlice'
-import { ErrorState, LoadingState } from '@/components/ui/async-states'
+import { AsyncStateRenderer } from '@/ui/async-states'
 import { formatCurrency } from '@/utils/formatting'
-import { StatusBadge, MetricsGrid, PageScaffold } from '@/components/ui'
-import type { MetricsGridItem } from '@/components/ui'
+import { KeyValueRow, StatusBadge, MetricsGrid, PageScaffold, SectionHeader } from '@/ui/composites'
+import type { MetricsGridItem } from '@/ui/composites'
 import { useAsyncData } from '@/hooks/useAsyncData'
 
 export function FundAdmin() {
@@ -29,17 +29,6 @@ export function FundAdmin() {
   const capitalCalls = data?.capitalCalls || [];
   const distributions = data?.distributions || [];
   const lpResponses = data?.lpResponses || [];
-
-  if (isLoading) return <LoadingState message="Loading fund administration…" />;
-  if (error) {
-    return (
-      <ErrorState
-        error={error}
-        title="Failed to load fund administration"
-        onRetry={refetch}
-      />
-    );
-  }
 
   // Calculate AI insights
   const activeCallsCount = capitalCalls.filter(c => c.status === 'in-progress').length;
@@ -102,72 +91,82 @@ export function FundAdmin() {
   ];
 
   return (
-    <PageScaffold
-      breadcrumbs={routeConfig?.breadcrumbs}
-      aiSuggestion={routeConfig?.aiSuggestion}
-      containerProps={{ className: 'space-y-6' }}
-      header={{
-        title: 'Fund Administration',
-        description: 'Manage capital calls, distributions, and LP communications',
-        icon: DollarSign,
-        aiSummary: {
-          text: `${activeCallsCount} active capital calls with ${formatCurrency(totalOutstanding)} outstanding. ${pendingLPs} LPs require follow-up. AI recommends sending reminders to improve collection rate.`,
-          confidence: 0.91,
-        },
-        primaryAction: {
-          label: 'New Capital Call',
-          onClick: () => console.log('New capital call'),
-          aiSuggested: false,
-        },
-        secondaryActions: [
-          {
-            label: 'Export Activity',
-            onClick: () => console.log('Export activity'),
-          },
-        ],
-        tabs: [
-          {
-            id: 'capital-calls',
-            label: 'Capital Calls',
-            count: activeCallsCount,
-            priority: totalOutstanding > 0 ? 'high' : undefined,
-          },
-          {
-            id: 'distributions',
-            label: 'Distributions',
-          },
-          {
-            id: 'lp-responses',
-            label: 'LP Responses',
-            count: pendingLPs,
-            priority: pendingLPs > 2 ? 'medium' : undefined,
-          },
-          {
-            id: 'nav-calculator',
-            label: 'NAV Calculator',
-          },
-          {
-            id: 'carried-interest',
-            label: 'Carried Interest',
-          },
-          {
-            id: 'expenses',
-            label: 'Expenses',
-          },
-          {
-            id: 'secondary-transfers',
-            label: 'Secondary Transfers',
-          },
-        ],
-        activeTab: selectedTab,
-        onTabChange: (tabId) => patchUI({ selectedTab: tabId }),
-        children: (
-          <div className="w-full sm:w-64">
-            <FundSelector />
-          </div>
-        ),
-      }}
+    <AsyncStateRenderer
+      data={data}
+      isLoading={isLoading}
+      error={error}
+      onRetry={refetch}
+      loadingMessage="Loading fund administration…"
+      errorTitle="Failed to load fund administration"
+      isEmpty={() => false}
     >
+      {() => (
+        <PageScaffold
+          breadcrumbs={routeConfig?.breadcrumbs}
+          aiSuggestion={routeConfig?.aiSuggestion}
+          containerProps={{ className: 'space-y-6' }}
+          header={{
+            title: 'Fund Administration',
+            description: 'Manage capital calls, distributions, and LP communications',
+            icon: DollarSign,
+            aiSummary: {
+              text: `${activeCallsCount} active capital calls with ${formatCurrency(totalOutstanding)} outstanding. ${pendingLPs} LPs require follow-up. AI recommends sending reminders to improve collection rate.`,
+              confidence: 0.91,
+            },
+            primaryAction: {
+              label: 'New Capital Call',
+              onClick: () => console.log('New capital call'),
+              aiSuggested: false,
+            },
+            secondaryActions: [
+              {
+                label: 'Export Activity',
+                onClick: () => console.log('Export activity'),
+              },
+            ],
+            tabs: [
+              {
+                id: 'capital-calls',
+                label: 'Capital Calls',
+                count: activeCallsCount,
+                priority: totalOutstanding > 0 ? 'high' : undefined,
+              },
+              {
+                id: 'distributions',
+                label: 'Distributions',
+              },
+              {
+                id: 'lp-responses',
+                label: 'LP Responses',
+                count: pendingLPs,
+                priority: pendingLPs > 2 ? 'medium' : undefined,
+              },
+              {
+                id: 'nav-calculator',
+                label: 'NAV Calculator',
+              },
+              {
+                id: 'carried-interest',
+                label: 'Carried Interest',
+              },
+              {
+                id: 'expenses',
+                label: 'Expenses',
+              },
+              {
+                id: 'secondary-transfers',
+                label: 'Secondary Transfers',
+              },
+            ],
+            activeTab: selectedTab,
+            onTabChange: (tabId) => patchUI({ selectedTab: tabId }),
+            children: (
+              <div className="w-full sm:w-64">
+                <FundSelector />
+              </div>
+            ),
+          }}
+        >
 
       {/* Summary Cards */}
       <MetricsGrid
@@ -255,10 +254,13 @@ export function FundAdmin() {
                     {call.status !== 'draft' && (
                       <div className="space-y-3">
                         <div>
-                          <div className="flex items-center justify-between mb-2 text-sm">
-                            <span className="text-[var(--app-text-muted)]">Collection Progress</span>
-                            <span className="font-semibold">{collectionRate.toFixed(0)}%</span>
-                          </div>
+                          <KeyValueRow
+                            label="Collection Progress"
+                            value={`${collectionRate.toFixed(0)}%`}
+                            className="mb-2"
+                            paddingYClassName=""
+                            valueClassName="font-semibold"
+                          />
                           <Progress value={collectionRate} maxValue={100} className="h-2" aria-label={`Collection progress ${collectionRate.toFixed(0)}%`} />
                         </div>
 
@@ -287,21 +289,25 @@ export function FundAdmin() {
         {selectedTab === 'lp-responses' && (
           <div>
             <Card padding="lg">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold">Capital Call #8 - LP Responses</h3>
-                <Select
-                  placeholder="Filter by status"
-                  className="w-48"
-                  size="sm"
-                  options={[
-                    { value: 'all', label: 'All Statuses' },
-                    { value: 'paid', label: 'Paid' },
-                    { value: 'partial', label: 'Partial' },
-                    { value: 'pending', label: 'Pending' },
-                    { value: 'overdue', label: 'Overdue' },
-                  ]}
-                />
-              </div>
+              <SectionHeader
+                title="Capital Call #8 - LP Responses"
+                titleClassName="font-semibold"
+                className="mb-4"
+                action={(
+                  <Select
+                    placeholder="Filter by status"
+                    className="w-48"
+                    size="sm"
+                    options={[
+                      { value: 'all', label: 'All Statuses' },
+                      { value: 'paid', label: 'Paid' },
+                      { value: 'partial', label: 'Partial' },
+                      { value: 'pending', label: 'Pending' },
+                      { value: 'overdue', label: 'Overdue' },
+                    ]}
+                  />
+                )}
+              />
 
               <div className="space-y-3">
                 {lpResponses.map((response) => {
@@ -406,6 +412,8 @@ export function FundAdmin() {
           </div>
         )}
       </div>
-    </PageScaffold>
+        </PageScaffold>
+      )}
+    </AsyncStateRenderer>
   );
 }

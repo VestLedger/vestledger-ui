@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Badge, Button, Card, Input, Select, useToast } from "@/ui";
-import { SectionHeader } from "@/components/ui";
+import { SectionHeader } from '@/ui/composites';
 import { useUIKey } from "@/store/ui";
 import type { WaterfallScenario, WaterfallResults } from "@/types/waterfall";
 import { formatCurrencyCompact } from "@/utils/formatting";

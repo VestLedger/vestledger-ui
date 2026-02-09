@@ -1,12 +1,12 @@
 'use client'
 
-import { Card, Button, Badge, Progress } from '@/ui';
+import { Card, Button, Badge, Progress, Input, Select, Switch } from '@/ui';
 import { Download, FileText, File, Table, Image as ImageIcon, Calendar, Filter, Check, Mail, Clock, Repeat , FileDown} from 'lucide-react';
 import { getInitialExportJobs, getReportTemplates, type ExportJob, type ReportTemplate } from '@/services/reports/reportExportService';
 import { useUIKey } from '@/store/ui';
 import { useAppDispatch } from '@/store/hooks';
 import { reportExportRequested } from '@/store/slices/uiEffectsSlice';
-import { PageScaffold, StatusBadge } from '@/components/ui';
+import { PageScaffold, StatusBadge } from '@/ui/composites';
 
 const defaultReportExportState: {
   selectedTemplate: ReportTemplate | null;
@@ -15,6 +15,7 @@ const defaultReportExportState: {
   selectedSections: string[];
   exportJobs: ExportJob[];
   scheduleEnabled: boolean;
+  scheduleFrequency: 'weekly' | 'monthly' | 'quarterly';
 } = {
   selectedTemplate: null,
   exportFormat: 'pdf',
@@ -22,12 +23,19 @@ const defaultReportExportState: {
   selectedSections: [],
   exportJobs: getInitialExportJobs(),
   scheduleEnabled: false,
+  scheduleFrequency: 'weekly',
 };
+
+const scheduleFrequencyOptions = [
+  { value: 'weekly', label: 'Weekly' },
+  { value: 'monthly', label: 'Monthly' },
+  { value: 'quarterly', label: 'Quarterly' },
+];
 
 export function ReportExport() {
   const dispatch = useAppDispatch();
   const { value: ui, patch: patchUI } = useUIKey('report-export', defaultReportExportState);
-  const { selectedTemplate, exportFormat, dateRange, selectedSections, exportJobs, scheduleEnabled } = ui;
+  const { selectedTemplate, exportFormat, dateRange, selectedSections, exportJobs, scheduleEnabled, scheduleFrequency } = ui;
   const reportTemplates = getReportTemplates();
   const formatOptions: ReportTemplate['format'][] = ['pdf', 'excel', 'csv', 'ppt'];
 
@@ -208,20 +216,20 @@ export function ReportExport() {
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <label className="text-xs text-[var(--app-text-muted)] mb-1 block">From</label>
-                      <input
+                      <Input
                         type="date"
                         value={dateRange.start}
                         onChange={(e) => patchUI({ dateRange: { ...dateRange, start: e.target.value } })}
-                        className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+                        size="sm"
                       />
                     </div>
                     <div>
                       <label className="text-xs text-[var(--app-text-muted)] mb-1 block">To</label>
-                      <input
+                      <Input
                         type="date"
                         value={dateRange.end}
                         onChange={(e) => patchUI({ dateRange: { ...dateRange, end: e.target.value } })}
-                        className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
+                        size="sm"
                       />
                     </div>
                   </div>
@@ -262,24 +270,22 @@ export function ReportExport() {
                       <Repeat className="w-4 h-4" />
                       Schedule Report
                     </label>
-                    <button
-                      onClick={() => patchUI({ scheduleEnabled: !scheduleEnabled })}
-                      className={`w-12 h-6 rounded-full transition-colors ${
-                        scheduleEnabled ? 'bg-[var(--app-primary)]' : 'bg-[var(--app-border)]'
-                      }`}
-                    >
-                      <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
-                        scheduleEnabled ? 'translate-x-6' : 'translate-x-1'
-                      }`} />
-                    </button>
+                    <Switch
+                      aria-label="Schedule report"
+                      isSelected={scheduleEnabled}
+                      onValueChange={(value) => patchUI({ scheduleEnabled: value })}
+                      size="sm"
+                    />
                   </div>
                   {scheduleEnabled && (
                     <div className="space-y-2">
-                      <select className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]">
-                        <option>Weekly</option>
-                        <option>Monthly</option>
-                        <option>Quarterly</option>
-                      </select>
+                      <Select
+                        aria-label="Schedule frequency"
+                        options={scheduleFrequencyOptions}
+                        selectedKeys={[scheduleFrequency]}
+                        onChange={(event) => patchUI({ scheduleFrequency: event.target.value as 'weekly' | 'monthly' | 'quarterly' })}
+                        size="sm"
+                      />
                       <div className="p-2 rounded-lg bg-[var(--app-info-bg)] text-xs text-[var(--app-info)]">
                         Report will be automatically generated and emailed
                       </div>

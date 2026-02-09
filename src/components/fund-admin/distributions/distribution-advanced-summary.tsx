@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { Badge, Card } from "@/ui";
-import { ListItemCard, SectionHeader, StatusBadge } from "@/components/ui";
+import { ListItemCard, SectionHeader, StatusBadge } from '@/ui/composites';
 import type { Distribution } from "@/types/distribution";
 import { formatCurrencyCompact, formatDate, formatPercent } from "@/utils/formatting";
 

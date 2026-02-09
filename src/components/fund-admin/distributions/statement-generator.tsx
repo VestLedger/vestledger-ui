@@ -2,8 +2,8 @@
 
 import { useMemo } from "react";
 import { Badge, Button, Card, Checkbox, Input, Select } from "@/ui";
-import { AsyncStateRenderer } from "@/components/ui/async-states";
-import { ListItemCard, SectionHeader } from "@/components/ui";
+import { AsyncStateRenderer } from '@/ui/async-states';
+import { ListItemCard, SectionHeader } from '@/ui/composites';
 import { StatementPreviewModal } from "./statement-preview-modal";
 import { useUIKey } from "@/store/ui";
 import { useAsyncData } from "@/hooks/useAsyncData";

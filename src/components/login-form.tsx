@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button, Input, Card } from '@/ui';
-import { LoadingState } from '@/components/ui/async-states/LoadingState';
+import { LoadingState } from '@/ui/async-states';
 import { useAuth } from '@/contexts/auth-context';
 import { BrandLogo } from './brand-logo';
 import { getAuthErrorMessage } from '@/utils/auth-error-message';

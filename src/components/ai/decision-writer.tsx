@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo } from 'react';
-import { Card, Button, Input } from '@/ui';
+import { Card, Button, Input, Textarea } from '@/ui';
 import { Sparkles, Send, Copy, Download, ThumbsDown, AlertCircle, Check, FileText, Edit3, RefreshCw, Wand2, MessageSquare } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
 import { useAppDispatch } from '@/store/hooks';
@@ -175,11 +175,11 @@ export function DecisionWriter() {
 
               <div>
                 <label className="text-sm font-medium mb-2 block">Custom Reason (Optional)</label>
-                <textarea
-                  className="w-full px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] min-h-[80px]"
+                <Textarea
                   placeholder="Add a custom reason specific to this deal..."
                   value={customReason}
                   onChange={(e) => patchUI({ customReason: e.target.value })}
+                  minRows={4}
                 />
               </div>
             </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useUIKey } from '@/store/ui';
-import { Card, Button, Badge } from '@/ui';
+import { Card, Button, Badge, Select } from '@/ui';
 import {
   Folder,
   File,
@@ -21,7 +21,7 @@ import {
   FileSpreadsheet,
   Archive,
 } from 'lucide-react';
-import { SearchToolbar } from '@/components/ui';
+import { SearchToolbar } from '@/ui/composites';
 
 export type DocumentCategory =
   | 'legal'
@@ -358,43 +358,52 @@ export function DocumentManager({
             searchPlaceholder="Search documents..."
             rightActions={(
               <div className="flex flex-wrap items-center gap-2">
-                <select
-                  className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-                  value={filterCategory}
+                <Select
+                  aria-label="Document category filter"
+                  size="sm"
+                  className="min-w-[180px]"
+                  selectedKeys={[filterCategory]}
                   onChange={(e) => patchUI({ filterCategory: e.target.value as DocumentCategory | 'all' })}
-                >
-                  <option value="all">All Categories</option>
-                  <option value="legal">Legal</option>
-                  <option value="financial">Financial</option>
-                  <option value="tax">Tax</option>
-                  <option value="compliance">Compliance</option>
-                  <option value="investor-relations">Investor Relations</option>
-                  <option value="due-diligence">Due Diligence</option>
-                  <option value="portfolio">Portfolio</option>
-                  <option value="other">Other</option>
-                </select>
-                <select
-                  className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-                  value={filterAccessLevel}
+                  options={[
+                    { value: 'all', label: 'All Categories' },
+                    { value: 'legal', label: 'Legal' },
+                    { value: 'financial', label: 'Financial' },
+                    { value: 'tax', label: 'Tax' },
+                    { value: 'compliance', label: 'Compliance' },
+                    { value: 'investor-relations', label: 'Investor Relations' },
+                    { value: 'due-diligence', label: 'Due Diligence' },
+                    { value: 'portfolio', label: 'Portfolio' },
+                    { value: 'other', label: 'Other' },
+                  ]}
+                />
+                <Select
+                  aria-label="Access level filter"
+                  size="sm"
+                  className="min-w-[150px]"
+                  selectedKeys={[filterAccessLevel]}
                   onChange={(e) =>
                     patchUI({ filterAccessLevel: e.target.value as AccessLevel | 'all' })
                   }
-                >
-                  <option value="all">All Access</option>
-                  <option value="private">Private</option>
-                  <option value="internal">Internal</option>
-                  <option value="investor">Investor</option>
-                  <option value="public">Public</option>
-                </select>
-                <select
-                  className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-                  value={sortBy}
+                  options={[
+                    { value: 'all', label: 'All Access' },
+                    { value: 'private', label: 'Private' },
+                    { value: 'internal', label: 'Internal' },
+                    { value: 'investor', label: 'Investor' },
+                    { value: 'public', label: 'Public' },
+                  ]}
+                />
+                <Select
+                  aria-label="Sort documents by"
+                  size="sm"
+                  className="min-w-[150px]"
+                  selectedKeys={[sortBy]}
                   onChange={(e) => patchUI({ sortBy: e.target.value as 'name' | 'date' | 'size' })}
-                >
-                  <option value="date">Sort by Date</option>
-                  <option value="name">Sort by Name</option>
-                  <option value="size">Sort by Size</option>
-                </select>
+                  options={[
+                    { value: 'date', label: 'Sort by Date' },
+                    { value: 'name', label: 'Sort by Name' },
+                    { value: 'size', label: 'Sort by Size' },
+                  ]}
+                />
                 <div className="flex gap-1">
                   <Button
                     size="sm"

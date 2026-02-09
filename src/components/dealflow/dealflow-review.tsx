@@ -1,16 +1,16 @@
 'use client'
 
-import { Card, Button, Badge, Progress } from '@/ui';
+import { Card, Button, Badge, Progress, Textarea } from '@/ui';
 import { ThumbsUp, ThumbsDown, MinusCircle, MessageSquare, Users, Building2, Target, SkipForward, SkipBack, Plus, Edit3, FileSearch } from 'lucide-react';
 import { CompanyScoring } from './company-scoring';
 import { getDealflowReviewSlides, type DealflowReviewSlide } from '@/services/dealflow/dealflowReviewService';
 import { useUIKey } from '@/store/ui';
 import { dealflowDealsRequested, dealflowSelectors } from '@/store/slices/dealflowSlice';
-import { LoadingState, ErrorState } from '@/components/ui/async-states';
+import { AsyncStateRenderer } from '@/ui/async-states';
 import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys';
 import { formatCurrencyCompact } from '@/utils/formatting';
 import { useAsyncData } from '@/hooks/useAsyncData';
-import { PageScaffold } from '@/components/ui';
+import { PageScaffold } from '@/ui/composites';
 
 interface Vote {
   partnerId: string;
@@ -38,43 +38,10 @@ export function DealflowReview() {
 
   const { currentSlideIndex } = ui;
 
-  // Loading state
-  if (isLoading) {
-    return <LoadingState message="Loading dealflow deals..." />;
-  }
-
-  // Error state
-  if (error) {
-    return (
-      <ErrorState
-        error={error}
-        title="Failed to Load Dealflow Deals"
-        onRetry={refetch}
-      />
-    );
-  }
-
   const deals = data?.deals || [];
   const safeDealIndex = Math.min(Math.max(currentDealIndex, 0), deals.length - 1);
   const selectedDeal = deals[safeDealIndex];
   const slides = selectedDeal ? getDealflowReviewSlides(selectedDeal) : [];
-
-  if (!selectedDeal) {
-    return (
-      <PageScaffold
-        routePath="/dealflow-review"
-        header={{
-          title: 'Dealflow Review',
-          description: 'No deals available to review yet',
-          icon: FileSearch,
-        }}
-      >
-        <Card padding="lg" className="mt-6">
-          <div className="text-sm text-[var(--app-text-muted)]">Add deals via the backend integration when ready.</div>
-        </Card>
-      </PageScaffold>
-    );
-  }
 
   const safeSlideIndex =
     slides.length === 0 ? 0 : Math.min(Math.max(currentSlideIndex, 0), slides.length - 1);
@@ -361,35 +328,63 @@ export function DealflowReview() {
   };
 
   return (
-    <PageScaffold
-      routePath="/dealflow-review"
-      header={{
-        title: 'Dealflow Review',
-        description: `Collaborative deal review with slide presentation and team voting`,
-        icon: FileSearch,
-        aiSummary: {
-          text: totalVotes > 0
-            ? `${consensusPercentage}% consensus for proceeding (${yesVotes}/${totalVotes} votes in favor). ${maybeVotes} votes requiring more due diligence. Reviewing: ${selectedDeal.companyName}.`
-            : `Ready to review ${selectedDeal.companyName}. No votes cast yet. Waiting for team feedback on ${currentSlide?.title ?? 'the deck'}.`,
-          confidence: totalVotes > 0 ? 0.88 : 0.72,
-        },
-        primaryAction: {
-          label: isPresenting ? 'Stop Presenting' : 'Start Presentation',
-          onClick: () => setIsPresenting(!isPresenting),
-          aiSuggested: false,
-        },
-        secondaryActions: [
-          {
-            label: 'Share',
-            onClick: () => console.log('Share clicked'),
-          },
-          {
-            label: 'Export',
-            onClick: () => console.log('Export clicked'),
-          },
-        ],
-      }}
+    <AsyncStateRenderer
+      data={data}
+      isLoading={isLoading}
+      error={error}
+      onRetry={refetch}
+      loadingMessage="Loading dealflow deals..."
+      errorTitle="Failed to Load Dealflow Deals"
+      isEmpty={() => false}
     >
+      {() => {
+        if (!selectedDeal) {
+          return (
+            <PageScaffold
+              routePath="/dealflow-review"
+              header={{
+                title: 'Dealflow Review',
+                description: 'No deals available to review yet',
+                icon: FileSearch,
+              }}
+            >
+              <Card padding="lg" className="mt-6">
+                <div className="text-sm text-[var(--app-text-muted)]">Add deals via the backend integration when ready.</div>
+              </Card>
+            </PageScaffold>
+          );
+        }
+
+        return (
+          <PageScaffold
+            routePath="/dealflow-review"
+            header={{
+              title: 'Dealflow Review',
+              description: `Collaborative deal review with slide presentation and team voting`,
+              icon: FileSearch,
+              aiSummary: {
+                text: totalVotes > 0
+                  ? `${consensusPercentage}% consensus for proceeding (${yesVotes}/${totalVotes} votes in favor). ${maybeVotes} votes requiring more due diligence. Reviewing: ${selectedDeal.companyName}.`
+                  : `Ready to review ${selectedDeal.companyName}. No votes cast yet. Waiting for team feedback on ${currentSlide?.title ?? 'the deck'}.`,
+                confidence: totalVotes > 0 ? 0.88 : 0.72,
+              },
+              primaryAction: {
+                label: isPresenting ? 'Stop Presenting' : 'Start Presentation',
+                onClick: () => setIsPresenting(!isPresenting),
+                aiSuggested: false,
+              },
+              secondaryActions: [
+                {
+                  label: 'Share',
+                  onClick: () => console.log('Share clicked'),
+                },
+                {
+                  label: 'Export',
+                  onClick: () => console.log('Export clicked'),
+                },
+              ],
+            }}
+          >
       {/* Deal Selector */}
       <div className="mt-6 mb-4">
         <Card padding="md">
@@ -604,12 +599,12 @@ export function DealflowReview() {
               <MessageSquare className="w-4 h-4 text-[var(--app-primary)]" />
               <h4 className="font-semibold">Discussion</h4>
             </div>
-            <textarea
-              className="w-full px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] min-h-[80px]"
+            <Textarea
               placeholder="Add your thoughts, questions, or concerns..."
               value={voteComment}
               onChange={(e) => setVoteComment(e.target.value)}
               aria-label="Discussion comments"
+              minRows={4}
             />
           </Card>
 
@@ -622,6 +617,9 @@ export function DealflowReview() {
           </Card>
         </div>
       </div>
-    </PageScaffold>
+          </PageScaffold>
+        );
+      }}
+    </AsyncStateRenderer>
   );
 }

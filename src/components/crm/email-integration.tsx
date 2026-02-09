@@ -1,9 +1,9 @@
 'use client';
 
-import { Card, Button, Badge } from '@/ui';
+import { Card, Button, Badge, Select } from '@/ui';
 import { Mail, RefreshCw, X, AlertCircle, Calendar, Paperclip, ExternalLink, ChevronDown, ChevronUp, Users, Briefcase } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
-import { SearchToolbar, StatusBadge } from '@/components/ui';
+import { SearchToolbar, StatusBadge } from '@/ui/composites';
 
 export interface EmailAccount {
   id: string;
@@ -274,18 +274,17 @@ export function EmailThreadViewer({
           onSearchChange={(value) => patchUI({ searchQuery: value })}
           searchPlaceholder="Search emails..."
           rightActions={(
-            <select
-              className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-              value={filterLabel}
+            <Select
+              aria-label="Email label filter"
+              size="sm"
+              className="min-w-[160px]"
+              selectedKeys={[filterLabel]}
               onChange={(e) => patchUI({ filterLabel: e.target.value })}
-            >
-              <option value="all">All Labels</option>
-              {allLabels.map((label) => (
-                <option key={label} value={label}>
-                  {label}
-                </option>
-              ))}
-            </select>
+              options={[
+                { value: 'all', label: 'All Labels' },
+                ...allLabels.map((label) => ({ value: label, label })),
+              ]}
+            />
           )}
         />
 

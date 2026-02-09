@@ -6,7 +6,7 @@ import { ChevronRight, Users } from 'lucide-react';
 import type { WaterfallScenario } from '@/types/waterfall';
 import type { Distribution, LPAllocation } from '@/types/distribution';
 import type { NormalizedError } from '@/store/types/AsyncState';
-import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
+import { AsyncStateRenderer, EmptyState } from '@/ui/async-states';
 import { formatCurrencyCompact, formatDate } from '@/utils/formatting';
 
 export interface LPWaterfallDetailProps {
@@ -100,40 +100,6 @@ export function LPWaterfallDetail({
     });
   }, [classes, lpAllocations, results]);
 
-  if (error) {
-    return (
-      <ErrorState
-        error={error}
-        onRetry={onRetry}
-        title="Failed to load LP allocations"
-      />
-    );
-  }
-
-  if (isLoading) {
-    return <LoadingState message="Loading LP allocations…" fullHeight={false} />;
-  }
-
-  if (!scenario || !results) {
-    return (
-      <EmptyState
-        icon={Users}
-        title="No LP allocations yet"
-        message="Run a scenario to see LP drill-down results."
-      />
-    );
-  }
-
-  if (lpRows.length === 0) {
-    return (
-      <EmptyState
-        icon={Users}
-        title="No LP allocations"
-        message="Allocate LPs to this distribution to populate drill-down results."
-      />
-    );
-  }
-
   const selectedLP = selectedLpId
     ? lpRows.find((row) => row.id === selectedLpId) ?? null
     : null;
@@ -143,12 +109,37 @@ export function LPWaterfallDetail({
   const accessibleRows = selectedLP ? [selectedLP] : lpRows;
 
   return (
-    <div
-      className={[
-        'rounded-lg border border-[var(--app-border)] p-4',
-        printMode ? 'bg-white' : 'bg-[var(--app-surface)]',
-      ].join(' ')}
+    <AsyncStateRenderer
+      data={scenario}
+      isLoading={isLoading}
+      error={error}
+      onRetry={onRetry}
+      loadingMessage="Loading LP allocations…"
+      loadingFullHeight={false}
+      errorTitle="Failed to load LP allocations"
+      emptyIcon={Users}
+      emptyTitle="No LP allocations yet"
+      emptyMessage="Run a scenario to see LP drill-down results."
+      isEmpty={() => !scenario || !results}
     >
+      {() => {
+        if (lpRows.length === 0) {
+          return (
+            <EmptyState
+              icon={Users}
+              title="No LP allocations"
+              message="Allocate LPs to this distribution to populate drill-down results."
+            />
+          );
+        }
+
+        return (
+          <div
+            className={[
+              'rounded-lg border border-[var(--app-border)] p-4',
+              printMode ? 'bg-white' : 'bg-[var(--app-surface)]',
+            ].join(' ')}
+          >
       <div className="flex items-center gap-2 text-sm text-[var(--app-text-muted)]">
         <Button
           size="sm"
@@ -275,6 +266,9 @@ export function LPWaterfallDetail({
           ))}
         </tbody>
       </table>
-    </div>
+          </div>
+        );
+      }}
+    </AsyncStateRenderer>
   );
 }

@@ -2,7 +2,7 @@
 
 import { Filter, Upload, Download, Eye, FileText, AlertCircle } from 'lucide-react';
 import { Button, Card, Badge } from '@/ui';
-import { ListItemCard, SearchToolbar, StatusBadge } from '@/components/ui';
+import { ListItemCard, SearchToolbar, StatusBadge } from '@/ui/composites';
 import { DocumentPreviewModal, useDocumentPreview, getMockDocumentUrl, inferDocumentType } from './documents/preview';
 import { useUIKey } from '@/store/ui';
 import { PortfolioTabHeader } from '@/components/portfolio-tab-header';

@@ -12,8 +12,8 @@ import {
   Timeline,
   type MetricsGridItem,
   type TimelineItem,
-} from "@/components/ui";
-import { AsyncStateRenderer } from "@/components/ui/async-states";
+} from '@/ui/composites';
+import { AsyncStateRenderer } from '@/ui/async-states';
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { useAppDispatch } from "@/store/hooks";
 import {

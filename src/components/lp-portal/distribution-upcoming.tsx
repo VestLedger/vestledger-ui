@@ -3,8 +3,8 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Badge, Button, Card } from "@/ui";
-import { ListItemCard, StatusBadge } from "@/components/ui";
-import { EmptyState } from "@/components/ui/async-states";
+import { ListItemCard, StatusBadge } from '@/ui/composites';
+import { EmptyState } from '@/ui/async-states';
 import type { LPUpcomingDistribution } from "@/data/mocks/lp-portal/lp-investor-portal";
 import { buildMonthDays } from "@/utils/calendar";
 import { formatCurrency, formatDate } from "@/utils/formatting";

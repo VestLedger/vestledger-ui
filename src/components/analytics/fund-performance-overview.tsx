@@ -2,8 +2,8 @@
 
 import { Card, Progress } from '@/ui';
 import { TrendingUp, DollarSign, PieChart, Target, Calendar, Activity } from 'lucide-react';
-import { MetricsGrid } from '@/components/ui';
-import type { MetricsGridItem } from '@/components/ui';
+import { MetricsGrid } from '@/ui/composites';
+import type { MetricsGridItem } from '@/ui/composites';
 import { getBenchmarkData, getCurrentFundMetrics } from '@/services/analytics/fundAnalyticsService';
 import { useFund } from '@/contexts/fund-context';
 

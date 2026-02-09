@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Button, Input, Badge } from '@/ui';
+import { Card, Button, Input, Badge, Select } from '@/ui';
 import { Filter, Plus, Save, Trash2, Star, Users, TrendingDown, Calendar, Briefcase, X, ChevronDown } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
 
@@ -294,33 +294,27 @@ export function SmartLists({ lists, onListSelect, onListSave, onListDelete, sele
                         </Badge>
                       )}
 
-                      <select
-                        className="flex-1 px-2 py-1.5 text-xs rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-                        value={condition.field}
+                      <Select
+                        size="sm"
+                        className="flex-1"
+                        aria-label="Filter field"
+                        selectedKeys={[condition.field]}
                         onChange={(e) =>
                           updateCondition(condition.id, { field: e.target.value as FilterCondition['field'] })
                         }
-                      >
-                        {fieldOptions.map((opt) => (
-                          <option key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </option>
-                        ))}
-                      </select>
+                        options={fieldOptions.map((opt) => ({ value: opt.value, label: opt.label }))}
+                      />
 
-                      <select
-                        className="flex-1 px-2 py-1.5 text-xs rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-                        value={condition.operator}
+                      <Select
+                        size="sm"
+                        className="flex-1"
+                        aria-label="Filter operator"
+                        selectedKeys={[condition.operator]}
                         onChange={(e) =>
                           updateCondition(condition.id, { operator: e.target.value as FilterCondition['operator'] })
                         }
-                      >
-                        {operatorOptions[condition.field]?.map((opt) => (
-                          <option key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </option>
-                        ))}
-                      </select>
+                        options={(operatorOptions[condition.field] ?? []).map((opt) => ({ value: opt.value, label: opt.label }))}
+                      />
 
                       <Input
                         size="sm"

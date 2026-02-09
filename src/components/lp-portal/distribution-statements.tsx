@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { Badge, Button, Card } from "@/ui";
-import { ListItemCard, StatusBadge } from "@/components/ui";
+import { ListItemCard, StatusBadge } from '@/ui/composites';
 import type { LPDistributionStatement } from "@/data/mocks/lp-portal/lp-investor-portal";
 import { formatCurrency, formatDate } from "@/utils/formatting";
 import { getLabelForType, taxFormTypeLabels } from "@/utils/styling/typeMappers";

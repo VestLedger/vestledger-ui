@@ -1,10 +1,10 @@
 'use client';
 
-import { Card, Button, Badge } from '@/ui';
+import { Card, Button, Badge, Select } from '@/ui';
 import { FileText, Download, Settings, RefreshCw, Send, Eye, CheckCircle, AlertCircle } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
 import { formatCurrency as formatCurrencyBase } from '@/utils/formatting';
-import { SearchToolbar, StatusBadge } from '@/components/ui';
+import { SearchToolbar, StatusBadge } from '@/ui/composites';
 
 export type K1IncomeType =
   | 'ordinary-business-income'
@@ -289,15 +289,17 @@ export function K1Generator({
           </div>
 
           <div className="flex items-center gap-2">
-            <select
-              className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-              value={selectedTaxYear}
+            <Select
+              aria-label="Tax year"
+              size="sm"
+              className="min-w-[110px]"
+              selectedKeys={[selectedTaxYear.toString()]}
               onChange={(e) => patchUI({ selectedTaxYear: Number(e.target.value) })}
-            >
-              {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(year => (
-                <option key={year} value={year}>{year}</option>
-              ))}
-            </select>
+              options={Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map((year) => ({
+                value: year.toString(),
+                label: year.toString(),
+              }))}
+            />
             {onConfigureK1 && activeConfig && (
               <Button
                 size="sm"
@@ -388,18 +390,21 @@ export function K1Generator({
           searchPlaceholder="Search by partner name or SSN..."
           rightActions={(
             <div className="flex flex-wrap items-center gap-2">
-              <select
-                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-                value={filterStatus}
+              <Select
+                aria-label="K-1 status filter"
+                size="sm"
+                className="min-w-[150px]"
+                selectedKeys={[filterStatus]}
                 onChange={(e) => patchUI({ filterStatus: e.target.value as K1Document['status'] | 'all' })}
-              >
-                <option value="all">All Status</option>
-                <option value="draft">Draft</option>
-                <option value="review">In Review</option>
-                <option value="approved">Approved</option>
-                <option value="sent">Sent</option>
-                <option value="amended">Amended</option>
-              </select>
+                options={[
+                  { value: 'all', label: 'All Status' },
+                  { value: 'draft', label: 'Draft' },
+                  { value: 'review', label: 'In Review' },
+                  { value: 'approved', label: 'Approved' },
+                  { value: 'sent', label: 'Sent' },
+                  { value: 'amended', label: 'Amended' },
+                ]}
+              />
               {onExportAll && activeConfig && (
                 <>
                   <Button

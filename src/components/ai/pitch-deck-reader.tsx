@@ -8,8 +8,8 @@ import { useUIKey } from '@/store/ui';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { pitchDeckUploadRequested } from '@/store/slices/uiEffectsSlice';
 import { pitchDeckAnalysesRequested, pitchDeckSelectors } from '@/store/slices/aiSlice';
-import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
-import { StatusBadge } from '@/components/ui';
+import { EmptyState, ErrorState, LoadingState } from '@/ui/async-states';
+import { StatusBadge } from '@/ui/composites';
 
 const defaultPitchDeckReaderState = {
   selectedAnalysisId: null as string | null,

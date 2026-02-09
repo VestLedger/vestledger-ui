@@ -3,9 +3,9 @@
 import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Badge, Button, Card } from '@/ui';
-import { SearchToolbar, SectionHeader, StatusBadge } from '@/components/ui';
+import { SearchToolbar, SectionHeader, StatusBadge } from '@/ui/composites';
 import { AdvancedTable, type ColumnDef } from '@/components/data-table/advanced-table';
-import { AsyncStateRenderer } from '@/components/ui/async-states';
+import { AsyncStateRenderer } from '@/ui/async-states';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { useUIKey } from '@/store/ui';
 import {

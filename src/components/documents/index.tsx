@@ -1,6 +1,6 @@
 'use client';
 
-import { PageScaffold } from '@/components/ui';
+import { PageScaffold } from '@/ui/composites';
 import { DocumentManager, type AccessLevel } from './document-manager';
 import { DocumentPreviewModal, useDocumentPreview, getMockDocumentUrl, type PreviewDocument } from './preview';
 import { useAppDispatch } from '@/store/hooks';

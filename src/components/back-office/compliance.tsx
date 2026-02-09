@@ -5,25 +5,14 @@ import { Shield, FileText, AlertTriangle, CheckCircle, Clock, Download, Calendar
 import { AMLKYCWorkflow } from '../compliance/aml-kyc-workflow';
 import { useUIKey } from '@/store/ui';
 import { complianceRequested, complianceSelectors } from '@/store/slices/backOfficeSlice';
-import { ErrorState, LoadingState } from '@/components/ui/async-states';
-import { PageScaffold, StatusBadge, MetricsGrid } from '@/components/ui';
+import { AsyncStateRenderer } from '@/ui/async-states';
+import { PageScaffold, SectionHeader, StatusBadge, MetricsGrid } from '@/ui/composites';
 import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function Compliance() {
   const { data, isLoading, error, refetch } = useAsyncData(complianceRequested, complianceSelectors.selectState);
   const { value: ui, patch: patchUI } = useUIKey('back-office-compliance', { selectedTab: 'overview' });
   const { selectedTab } = ui;
-
-  if (isLoading) return <LoadingState message="Loading compliance…" />;
-  if (error) {
-    return (
-      <ErrorState
-        error={error}
-        title="Failed to load compliance"
-        onRetry={refetch}
-      />
-    );
-  }
 
   const complianceItems = data?.complianceItems || [];
   const regulatoryFilings = data?.regulatoryFilings || [];
@@ -94,56 +83,66 @@ export function Compliance() {
   ];
 
   return (
-    <PageScaffold
-      routePath="/compliance"
-      header={{
-        title: 'Compliance & Regulatory',
-        description: 'Track regulatory filings, audits, and compliance requirements',
-        icon: Shield,
-        aiSummary: {
-          text: `${overdueItems} overdue items require immediate attention. ${inProgressItems} items in progress. ${upcomingHighPriority} high-priority deadlines approaching. AI recommends prioritizing Form ADV and annual certification.`,
-          confidence: 0.94,
-        },
-        primaryAction: {
-          label: 'Upload Document',
-          onClick: () => console.log('Upload document'),
-          aiSuggested: false,
-        },
-        secondaryActions: [
-          {
-            label: 'Export Report',
-            onClick: () => console.log('Export report'),
-          },
-        ],
-        tabs: [
-          {
-            id: 'overview',
-            label: 'Overview',
-            count: overdueItems,
-            priority: overdueItems > 0 ? 'high' : undefined,
-          },
-          {
-            id: 'filings',
-            label: 'Regulatory Filings',
-          },
-          {
-            id: 'audits',
-            label: 'Audit Schedule',
-            count: auditSchedule.filter(a => a.status === 'in-progress').length,
-          },
-          {
-            id: 'aml-kyc',
-            label: 'AML/KYC',
-          },
-          {
-            id: 'resources',
-            label: 'Resources',
-          },
-        ],
-        activeTab: selectedTab,
-        onTabChange: (tabId) => patchUI({ selectedTab: tabId }),
-      }}
+    <AsyncStateRenderer
+      data={data}
+      isLoading={isLoading}
+      error={error}
+      onRetry={refetch}
+      loadingMessage="Loading compliance…"
+      errorTitle="Failed to load compliance"
+      isEmpty={() => false}
     >
+      {() => (
+        <PageScaffold
+          routePath="/compliance"
+          header={{
+            title: 'Compliance & Regulatory',
+            description: 'Track regulatory filings, audits, and compliance requirements',
+            icon: Shield,
+            aiSummary: {
+              text: `${overdueItems} overdue items require immediate attention. ${inProgressItems} items in progress. ${upcomingHighPriority} high-priority deadlines approaching. AI recommends prioritizing Form ADV and annual certification.`,
+              confidence: 0.94,
+            },
+            primaryAction: {
+              label: 'Upload Document',
+              onClick: () => console.log('Upload document'),
+              aiSuggested: false,
+            },
+            secondaryActions: [
+              {
+                label: 'Export Report',
+                onClick: () => console.log('Export report'),
+              },
+            ],
+            tabs: [
+              {
+                id: 'overview',
+                label: 'Overview',
+                count: overdueItems,
+                priority: overdueItems > 0 ? 'high' : undefined,
+              },
+              {
+                id: 'filings',
+                label: 'Regulatory Filings',
+              },
+              {
+                id: 'audits',
+                label: 'Audit Schedule',
+                count: auditSchedule.filter(a => a.status === 'in-progress').length,
+              },
+              {
+                id: 'aml-kyc',
+                label: 'AML/KYC',
+              },
+              {
+                id: 'resources',
+                label: 'Resources',
+              },
+            ],
+            activeTab: selectedTab,
+            onTabChange: (tabId) => patchUI({ selectedTab: tabId }),
+          }}
+        >
       {/* Summary Cards */}
       <MetricsGrid
         items={summaryCards}
@@ -246,7 +245,7 @@ export function Compliance() {
         {selectedTab === 'filings' && (
           <div>
             <Card padding="lg">
-              <h3 className="font-semibold mb-4">Required Filings</h3>
+              <SectionHeader title="Required Filings" titleClassName="font-semibold" className="mb-4" />
               <div className="space-y-3">
                 {regulatoryFilings.map((filing) => (
                   <div key={filing.id} className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
@@ -296,7 +295,7 @@ export function Compliance() {
         {selectedTab === 'audits' && (
           <div>
             <Card padding="lg">
-              <h3 className="font-semibold mb-4">Audit Schedule</h3>
+              <SectionHeader title="Audit Schedule" titleClassName="font-semibold" className="mb-4" />
               <div className="space-y-3">
                 {auditSchedule.map((audit) => (
                   <div key={audit.id} className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
@@ -361,7 +360,7 @@ export function Compliance() {
         {selectedTab === 'resources' && (
           <div className="space-y-4">
             <Card padding="lg">
-              <h3 className="font-semibold mb-4">Compliance Documents</h3>
+              <SectionHeader title="Compliance Documents" titleClassName="font-semibold" className="mb-4" />
               <div className="grid grid-cols-2 gap-3">
                 <Button variant="bordered" className="justify-start" startContent={<FileText className="w-4 h-4" />}>
                   Code of Ethics
@@ -398,6 +397,8 @@ export function Compliance() {
             </Card>
           </div>
         )}
-    </PageScaffold>
+        </PageScaffold>
+      )}
+    </AsyncStateRenderer>
   );
 }

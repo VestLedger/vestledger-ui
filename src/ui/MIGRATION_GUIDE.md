@@ -2,6 +2,18 @@
 
 This guide helps you migrate existing components to use the new centralized UI library.
 
+## Canonical Import Rules
+
+Use only these import surfaces in feature code:
+
+1. `@/ui` for primitives, layout, typography, and feedback
+2. `@/ui/composites` for app-level shared composites (`PageScaffold`, `RoleDashboardLayout`, `SectionHeader`, etc.)
+3. `@/ui/async-states` for centralized loading/error/empty rendering
+
+Avoid:
+- `@/components/ui` in new code (legacy compatibility path only)
+- `@nextui-org/react` in feature code (`src/components/**`)
+
 ## Quick Start
 
 ### Before (NextUI direct import)
@@ -52,9 +64,21 @@ import { Button, Card, Input } from '@/ui';
 | `Select + SelectItem` | `Select` | Accepts options array |
 | `Checkbox` | `Checkbox` | Same API |
 | `Switch` | `Switch` | Same API |
+| `RadioGroup + Radio` | `RadioGroup` | Use for semantic single-choice settings |
+| `Slider` | `Slider` | Use wrapper from `@/ui` |
 | `Modal + ModalContent + ModalHeader + ModalBody + ModalFooter` | `Modal` | Single component with props |
 | `Spinner` | `Spinner` | Same API |
 | `Progress` | `Progress` | Same API |
+
+### Composition Replacements
+
+| Legacy pattern | Shared replacement |
+|--------|-----------|
+| Repeated dashboard shell blocks | `RoleDashboardLayout` from `@/ui/composites` |
+| Repeated section heading row | `SectionHeader` from `@/ui/composites` |
+| Repeated list/timeline cards | `ListItemCard` from `@/ui/composites` |
+| Repeated label/value rows | `KeyValueRow` from `@/ui/composites` |
+| Manual loading/error/empty branches | `AsyncStateRenderer`/`AsyncArrayRenderer` from `@/ui/async-states` |
 
 ### New Layout Components
 
@@ -107,9 +131,11 @@ Look for:
 ```tsx
 // Old
 import { Button, Card, CardBody } from '@nextui-org/react';
+import { PageScaffold } from '@/components/ui';
 
 // New
 import { Button, Card } from '@/ui';
+import { PageScaffold } from '@/ui/composites';
 ```
 
 ### 3. Simplify JSX
@@ -140,6 +166,25 @@ import { Button, Card } from '@/ui';
 
 // New
 <Input />  // Styling is built-in
+```
+
+### 5. Replace Toggle Misuse for Radio Settings
+
+```tsx
+// Old (radio semantics done with toggle buttons)
+<ToggleButtonGroup
+  selectionMode="single"
+  selectedKeys={selected}
+  onSelectionChange={setSelected}
+  options={[...]}
+/>
+
+// New
+<RadioGroup
+  value={value}
+  onValueChange={setValue}
+  options={[...]}
+/>
 ```
 
 ## Common Patterns
@@ -273,6 +318,32 @@ function MetricCard({ title, value, change }) {
     </Card>
   );
 }
+```
+
+### 5. Use the Right Single-Select Primitive
+
+```tsx
+// Good: form/settings radios
+<RadioGroup value={mode} onValueChange={setMode} options={modeOptions} />
+
+// Good: mode/view toggle chips
+<ToggleButtonGroup selectionMode="single" selectedKeys={view} onSelectionChange={setView} options={viewOptions} />
+```
+
+## Completion Checklist
+
+1. No feature imports from `@nextui-org/react`
+2. No feature imports from `@/components/ui`
+3. No raw `<input>`, `<select>`, or `<textarea>` in `src/components/**/*.tsx`
+4. Async loading/error/empty states use shared async renderers
+5. Repeated page-level shells and section headers use composites
+
+## Validation Commands
+
+```bash
+pnpm run audit:ui-centralization
+pnpm run audit:ui-centralization:enforce
+pnpm run lint
 ```
 
 ## Troubleshooting

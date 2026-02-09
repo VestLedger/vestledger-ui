@@ -1,11 +1,11 @@
 'use client';
 
 import { FileText, DollarSign, Download, Calendar, CheckCircle2, AlertCircle, Clock, CreditCard, Pen, Shield, ChevronRight, Wallet } from 'lucide-react';
-import { Card, Button, Badge, Progress, PageContainer } from '@/ui';
-import { MetricsGrid } from '@/components/ui';
-import type { MetricsGridItem } from '@/components/ui';
+import { Card, Button, Badge, Progress } from '@/ui';
+import { KeyValueRow, ListItemCard, RoleDashboardLayout, SectionHeader } from '@/ui/composites';
+import type { MetricsGridItem } from '@/ui/composites';
 import { lpDashboardRequested, lpDashboardSelectors } from '@/store/slices/dashboardsSlice';
-import { ErrorState, LoadingState } from '@/components/ui/async-states';
+import { AsyncStateRenderer } from '@/ui/async-states';
 import { formatCurrencyCompact } from '@/utils/formatting';
 import { useAsyncData } from '@/hooks/useAsyncData';
 
@@ -19,17 +19,6 @@ export function LPDashboard() {
   const pendingCalls = data?.pendingCalls || [];
   const pendingSignatures = data?.pendingSignatures || [];
   const commitment = data?.commitment || { totalCommitment: 0, calledAmount: 0 };
-
-  if (isLoading) return <LoadingState message="Loading LP dashboard…" />;
-  if (error) {
-    return (
-      <ErrorState
-        error={error}
-        title="Failed to load LP dashboard"
-        onRetry={refetch}
-      />
-    );
-  }
 
   const getDaysUntilDue = (date: Date) => {
     const diff = Math.ceil((date.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
@@ -49,54 +38,67 @@ export function LPDashboard() {
   }));
 
   return (
-    <PageContainer className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-bold">LP Portal</h2>
-          <p className="text-sm text-[var(--app-text-muted)]">Your investment overview and documents</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="bordered" startContent={<Calendar className="w-4 h-4" />}>
-            Schedule Meeting
-          </Button>
-          <Button color="primary" startContent={<Download className="w-4 h-4" />}>
-            Download Statements
-          </Button>
-        </div>
-      </div>
-
-      {/* Pending Actions Alert */}
-      {(pendingCalls.length > 0 || pendingSignatures.length > 0) && (
-        <Card padding="md" className="border-[var(--app-warning)] bg-[var(--app-warning-bg)]">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-[var(--app-warning)] flex-shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <h3 className="font-medium text-[var(--app-warning)]">Action Required</h3>
-              <p className="text-sm text-[var(--app-text-muted)] mt-1">
-                You have {pendingCalls.length} pending capital call{pendingCalls.length !== 1 ? 's' : ''} and{' '}
-                {pendingSignatures.length} document{pendingSignatures.length !== 1 ? 's' : ''} awaiting signature.
-              </p>
-            </div>
-          </div>
-        </Card>
-      )}
-
-      <MetricsGrid
-        items={metricItems}
-        columns={{ base: 1, sm: 2, lg: 4 }}
-      />
+    <AsyncStateRenderer
+      data={data}
+      isLoading={isLoading}
+      error={error}
+      onRetry={refetch}
+      loadingMessage="Loading LP dashboard…"
+      errorTitle="Failed to load LP dashboard"
+      isEmpty={() => false}
+    >
+      {() => (
+        <RoleDashboardLayout
+          title="LP Portal"
+          description="Your investment overview and documents"
+          metrics={metricItems}
+          actions={(
+            <>
+              <Button variant="bordered" startContent={<Calendar className="w-4 h-4" />}>
+                Schedule Meeting
+              </Button>
+              <Button color="primary" startContent={<Download className="w-4 h-4" />}>
+                Download Statements
+              </Button>
+            </>
+          )}
+          beforeMetrics={(
+            <>
+              {(pendingCalls.length > 0 || pendingSignatures.length > 0) && (
+                <Card padding="md" className="border-[var(--app-warning)] bg-[var(--app-warning-bg)]">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-[var(--app-warning)] flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <h3 className="font-medium text-[var(--app-warning)]">Action Required</h3>
+                      <p className="text-sm text-[var(--app-text-muted)] mt-1">
+                        You have {pendingCalls.length} pending capital call{pendingCalls.length !== 1 ? 's' : ''} and{' '}
+                        {pendingSignatures.length} document{pendingSignatures.length !== 1 ? 's' : ''} awaiting signature.
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              )}
+            </>
+          )}
+        >
 
       {/* Commitment Tracking */}
       <Card padding="md">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-medium flex items-center gap-2">
-            <Wallet className="w-5 h-5 text-[var(--app-primary)]" />
-            Commitment Status
-          </h3>
-          <Badge variant="flat" className="bg-[var(--app-info-bg)] text-[var(--app-info)]">
-            Fund III
-          </Badge>
-        </div>
+        <SectionHeader
+          title={(
+            <span className="flex items-center gap-2">
+              <Wallet className="w-5 h-5 text-[var(--app-primary)]" />
+              Commitment Status
+            </span>
+          )}
+          titleClassName="font-medium"
+          action={
+            <Badge variant="flat" className="bg-[var(--app-info-bg)] text-[var(--app-info)]">
+              Fund III
+            </Badge>
+          }
+          className="mb-4"
+        />
         <div className="grid sm:grid-cols-3 gap-4 mb-4">
           <div>
             <div className="text-xs text-[var(--app-text-muted)] mb-1">Total Commitment</div>
@@ -112,10 +114,12 @@ export function LPDashboard() {
           </div>
         </div>
         <div>
-          <div className="flex justify-between text-sm mb-2">
-            <span>Capital Called</span>
-            <span className="font-medium">{((calledAmount / totalCommitment) * 100).toFixed(0)}%</span>
-          </div>
+          <KeyValueRow
+            label="Capital Called"
+            value={`${((calledAmount / totalCommitment) * 100).toFixed(0)}%`}
+            className="mb-2"
+            paddingYClassName=""
+          />
           <Progress value={(calledAmount / totalCommitment) * 100} maxValue={100} className="h-3" aria-label={`Capital called ${((calledAmount / totalCommitment) * 100).toFixed(0)}%`} />
         </div>
       </Card>
@@ -123,15 +127,17 @@ export function LPDashboard() {
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Pending Capital Calls - Self Service */}
         <Card padding="md">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-medium flex items-center gap-2">
-              <CreditCard className="w-5 h-5 text-[var(--app-warning)]" />
-              Pending Capital Calls
-            </h3>
-            {pendingCalls.length > 0 && (
-              <Badge color="warning">{pendingCalls.length}</Badge>
+          <SectionHeader
+            title={(
+              <span className="flex items-center gap-2">
+                <CreditCard className="w-5 h-5 text-[var(--app-warning)]" />
+                Pending Capital Calls
+              </span>
             )}
-          </div>
+            titleClassName="font-medium"
+            action={pendingCalls.length > 0 ? <Badge color="warning">{pendingCalls.length}</Badge> : undefined}
+            className="mb-4"
+          />
           {pendingCalls.length > 0 ? (
             <div className="space-y-3">
               {pendingCalls.map((call) => (
@@ -171,15 +177,17 @@ export function LPDashboard() {
 
         {/* Pending Signatures - E-Signature */}
         <Card padding="md">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-medium flex items-center gap-2">
-              <Pen className="w-5 h-5 text-[var(--app-primary)]" />
-              Documents Awaiting Signature
-            </h3>
-            {pendingSignatures.length > 0 && (
-              <Badge color="primary">{pendingSignatures.length}</Badge>
+          <SectionHeader
+            title={(
+              <span className="flex items-center gap-2">
+                <Pen className="w-5 h-5 text-[var(--app-primary)]" />
+                Documents Awaiting Signature
+              </span>
             )}
-          </div>
+            titleClassName="font-medium"
+            action={pendingSignatures.length > 0 ? <Badge color="primary">{pendingSignatures.length}</Badge> : undefined}
+            className="mb-4"
+          />
           {pendingSignatures.length > 0 ? (
             <div className="space-y-3">
               {pendingSignatures.map((sig) => (
@@ -223,35 +231,46 @@ export function LPDashboard() {
 
       <div className="grid lg:grid-cols-2 gap-6">
         <Card padding="md">
-           <div className="flex items-center justify-between mb-4">
-             <h3 className="text-lg font-medium">Recent Documents</h3>
-             <Button size="sm" variant="light">View All</Button>
-           </div>
+          <SectionHeader
+            title="Recent Documents"
+            titleClassName="font-medium"
+            action={<Button size="sm" variant="light">View All</Button>}
+            className="mb-4"
+          />
            <div className="space-y-3">
              {documents.map((doc, idx) => (
-               <div key={idx} className="flex items-center justify-between p-3 rounded-lg border border-[var(--app-border-subtle)] hover:bg-[var(--app-surface-hover)] transition-colors">
-                 <div className="flex items-center gap-3">
-                   <div className="w-10 h-10 rounded-lg bg-[var(--app-primary-bg)] flex items-center justify-center text-[var(--app-primary)]">
-                     <FileText className="w-5 h-5" />
-                   </div>
-                   <div>
-                     <div className="font-medium text-sm">{doc.name}</div>
-                     <div className="text-xs text-[var(--app-text-muted)]">{doc.type} • {doc.date}</div>
-                   </div>
-                 </div>
-                 <Button size="sm" variant="light" isIconOnly aria-label={`Download ${doc.name}`}>
-                   <Download className="w-4 h-4" />
-                 </Button>
-               </div>
+              <ListItemCard
+                key={idx}
+                padding="sm"
+                className="rounded-lg border border-[var(--app-border-subtle)]"
+                icon={(
+                  <div className="w-10 h-10 rounded-lg bg-[var(--app-primary-bg)] flex items-center justify-center text-[var(--app-primary)]">
+                    <FileText className="w-5 h-5" />
+                  </div>
+                )}
+                title={<span className="text-sm font-medium">{doc.name}</span>}
+                description={`${doc.type} • ${doc.date}`}
+                actions={
+                  <Button size="sm" variant="light" isIconOnly aria-label={`Download ${doc.name}`}>
+                    <Download className="w-4 h-4" />
+                  </Button>
+                }
+              />
              ))}
            </div>
         </Card>
 
         <Card padding="md">
-          <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-[var(--app-success)]" />
-            Capital Activity
-          </h3>
+          <SectionHeader
+            title={(
+              <span className="flex items-center gap-2">
+                <DollarSign className="w-5 h-5 text-[var(--app-success)]" />
+                Capital Activity
+              </span>
+            )}
+            titleClassName="font-medium"
+            className="mb-4"
+          />
           <div className="space-y-3">
             {capitalActivity.map((item, i) => (
               <div key={i} className="flex items-center justify-between p-3 rounded-lg border border-[var(--app-border-subtle)]">
@@ -288,6 +307,8 @@ export function LPDashboard() {
           </Button>
         </div>
       </Card>
-    </PageContainer>
+        </RoleDashboardLayout>
+      )}
+    </AsyncStateRenderer>
   );
 }

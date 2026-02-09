@@ -1,7 +1,7 @@
 'use client';
 
 import { useUIKey } from '@/store/ui';
-import { Card, Button, Badge } from '@/ui';
+import { Card, Button, Badge, Select } from '@/ui';
 import {
   Calendar,
   Clock,
@@ -15,7 +15,7 @@ import {
   Download,
   Plus,
 } from 'lucide-react';
-import { SearchToolbar, StatusBadge } from '@/components/ui';
+import { SearchToolbar, StatusBadge } from '@/ui/composites';
 
 export type CalendarProvider = 'google' | 'outlook' | 'apple' | 'other';
 export type EventType = 'meeting' | 'call' | 'conference' | 'site-visit' | 'other';
@@ -445,39 +445,48 @@ export function CalendarIntegration({
           searchPlaceholder="Search events..."
           rightActions={(
             <div className="flex flex-wrap items-center gap-2">
-              <select
-                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-                value={dateRange}
+              <Select
+                aria-label="Date range filter"
+                size="sm"
+                className="min-w-[150px]"
+                selectedKeys={[dateRange]}
                 onChange={(e) => patchUI({ dateRange: e.target.value as typeof dateRange })}
-              >
-                <option value="upcoming">Upcoming</option>
-                <option value="past-week">Past Week</option>
-                <option value="past-month">Past Month</option>
-                <option value="all">All Time</option>
-              </select>
-              <select
-                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-                value={filterStatus}
+                options={[
+                  { value: 'upcoming', label: 'Upcoming' },
+                  { value: 'past-week', label: 'Past Week' },
+                  { value: 'past-month', label: 'Past Month' },
+                  { value: 'all', label: 'All Time' },
+                ]}
+              />
+              <Select
+                aria-label="Status filter"
+                size="sm"
+                className="min-w-[150px]"
+                selectedKeys={[filterStatus]}
                 onChange={(e) => patchUI({ filterStatus: e.target.value as CaptureStatus | 'all' })}
-              >
-                <option value="all">All Status</option>
-                <option value="pending">Pending</option>
-                <option value="captured">Captured</option>
-                <option value="ignored">Ignored</option>
-                <option value="failed">Failed</option>
-              </select>
-              <select
-                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-                value={filterType}
+                options={[
+                  { value: 'all', label: 'All Status' },
+                  { value: 'pending', label: 'Pending' },
+                  { value: 'captured', label: 'Captured' },
+                  { value: 'ignored', label: 'Ignored' },
+                  { value: 'failed', label: 'Failed' },
+                ]}
+              />
+              <Select
+                aria-label="Event type filter"
+                size="sm"
+                className="min-w-[150px]"
+                selectedKeys={[filterType]}
                 onChange={(e) => patchUI({ filterType: e.target.value as EventType | 'all' })}
-              >
-                <option value="all">All Types</option>
-                <option value="meeting">Meeting</option>
-                <option value="call">Call</option>
-                <option value="conference">Conference</option>
-                <option value="site-visit">Site Visit</option>
-                <option value="other">Other</option>
-              </select>
+                options={[
+                  { value: 'all', label: 'All Types' },
+                  { value: 'meeting', label: 'Meeting' },
+                  { value: 'call', label: 'Call' },
+                  { value: 'conference', label: 'Conference' },
+                  { value: 'site-visit', label: 'Site Visit' },
+                  { value: 'other', label: 'Other' },
+                ]}
+              />
               {onExportEvents && (
                 <>
                   <Button

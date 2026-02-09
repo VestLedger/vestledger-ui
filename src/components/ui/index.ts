@@ -19,11 +19,17 @@ export type { PageScaffoldProps } from './PageScaffold';
 export { MetricsGrid } from './MetricsGrid';
 export type { MetricsGridProps, MetricsGridItem } from './MetricsGrid';
 
+export { RoleDashboardLayout } from './RoleDashboardLayout';
+export type { RoleDashboardLayoutProps } from './RoleDashboardLayout';
+
 export { SearchToolbar } from './SearchToolbar';
 export type { SearchToolbarProps, SearchToolbarFilter, SearchToolbarDropdown } from './SearchToolbar';
 
 export { ListItemCard } from './ListItemCard';
 export type { ListItemCardProps } from './ListItemCard';
+
+export { KeyValueRow } from './KeyValueRow';
+export type { KeyValueRowProps } from './KeyValueRow';
 
 export { SectionHeader } from './SectionHeader';
 export type { SectionHeaderProps } from './SectionHeader';

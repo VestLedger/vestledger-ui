@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, Button, Badge } from '@/ui';
+import { Card, Badge, RadioGroup } from '@/ui';
 import { Layers, TrendingUp, ArrowUpRight } from 'lucide-react';
 import {
   getCohortsBySector,
@@ -148,32 +148,22 @@ export function CohortAnalysis() {
             <Layers className="w-5 h-5 text-[var(--app-primary)]" />
             <h3 className="text-lg font-semibold">Cohort Performance Analysis</h3>
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant={selectedType === 'vintage' ? 'solid' : 'flat'}
-              size="sm"
-              onPress={() => patchUI({ selectedType: 'vintage' })}
-              className={selectedType === 'vintage' ? 'bg-[var(--app-primary)] text-white' : ''}
-            >
-              By Vintage
-            </Button>
-            <Button
-              variant={selectedType === 'sector' ? 'solid' : 'flat'}
-              size="sm"
-              onPress={() => patchUI({ selectedType: 'sector' })}
-              className={selectedType === 'sector' ? 'bg-[var(--app-primary)] text-white' : ''}
-            >
-              By Sector
-            </Button>
-            <Button
-              variant={selectedType === 'stage' ? 'solid' : 'flat'}
-              size="sm"
-              onPress={() => patchUI({ selectedType: 'stage' })}
-              className={selectedType === 'stage' ? 'bg-[var(--app-primary)] text-white' : ''}
-            >
-              By Stage
-            </Button>
-          </div>
+          <RadioGroup
+            aria-label="Cohort grouping"
+            orientation="horizontal"
+            classNames={{ wrapper: 'flex flex-wrap gap-3' }}
+            options={[
+              { value: 'vintage', label: 'By Vintage' },
+              { value: 'sector', label: 'By Sector' },
+              { value: 'stage', label: 'By Stage' },
+            ]}
+            value={selectedType}
+            onValueChange={(value) => {
+              if (value === 'vintage' || value === 'sector' || value === 'stage') {
+                patchUI({ selectedType: value });
+              }
+            }}
+          />
         </div>
 
         {/* Aggregated Stats */}

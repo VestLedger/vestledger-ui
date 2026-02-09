@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, Button, Badge, Progress } from '@/ui';
+import { Card, Badge, Progress, RadioGroup } from '@/ui';
 import { AlertTriangle, PieChart } from 'lucide-react';
 import { getConcentrationRiskMetrics, type ConcentrationMetric } from '@/services/analytics/fundAnalyticsService';
 import { useUIKey } from '@/store/ui';
@@ -131,32 +131,22 @@ export function ConcentrationRisk() {
             <AlertTriangle className="w-5 h-5 text-[var(--app-warning)]" />
             <h3 className="text-lg font-semibold">Concentration Risk Analysis</h3>
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant={selectedView === 'company' ? 'solid' : 'flat'}
-              size="sm"
-              onPress={() => patchUI({ selectedView: 'company' })}
-              className={selectedView === 'company' ? 'bg-[var(--app-primary)] text-white' : ''}
-            >
-              By Company
-            </Button>
-            <Button
-              variant={selectedView === 'sector' ? 'solid' : 'flat'}
-              size="sm"
-              onPress={() => patchUI({ selectedView: 'sector' })}
-              className={selectedView === 'sector' ? 'bg-[var(--app-primary)] text-white' : ''}
-            >
-              By Sector
-            </Button>
-            <Button
-              variant={selectedView === 'stage' ? 'solid' : 'flat'}
-              size="sm"
-              onPress={() => patchUI({ selectedView: 'stage' })}
-              className={selectedView === 'stage' ? 'bg-[var(--app-primary)] text-white' : ''}
-            >
-              By Stage
-            </Button>
-          </div>
+          <RadioGroup
+            aria-label="Concentration view"
+            orientation="horizontal"
+            classNames={{ wrapper: 'flex flex-wrap gap-3' }}
+            options={[
+              { value: 'company', label: 'By Company' },
+              { value: 'sector', label: 'By Sector' },
+              { value: 'stage', label: 'By Stage' },
+            ]}
+            value={selectedView}
+            onValueChange={(value) => {
+              if (value === 'company' || value === 'sector' || value === 'stage') {
+                patchUI({ selectedView: value });
+              }
+            }}
+          />
         </div>
 
         {/* Risk Summary Cards */}

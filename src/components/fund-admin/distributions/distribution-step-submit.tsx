@@ -1,7 +1,7 @@
 "use client";
 
 import { Badge, Card, Textarea } from "@/ui";
-import { SectionHeader } from "@/components/ui";
+import { SectionHeader } from '@/ui/composites';
 import type { ApprovalRule } from "@/types/distribution";
 import { formatCurrencyCompact } from "@/utils/formatting";
 

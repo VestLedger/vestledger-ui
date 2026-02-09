@@ -1,7 +1,7 @@
 'use client';
 
 import { useUIKey } from '@/store/ui';
-import { Card, Button, Badge } from '@/ui';
+import { Card, Button, Badge, Select } from '@/ui';
 import {
   Shield,
   CheckCircle,
@@ -12,7 +12,7 @@ import {
   Eye,
   Download,
 } from 'lucide-react';
-import { SearchToolbar, StatusBadge } from '@/components/ui';
+import { SearchToolbar, StatusBadge } from '@/ui/composites';
 
 export type EntityType = 'individual' | 'corporation' | 'partnership' | 'trust' | 'llc' | 'other';
 export type RiskLevel = 'low' | 'medium' | 'high' | 'severe';
@@ -313,32 +313,38 @@ export function AMLKYCWorkflow({
           searchPlaceholder="Search by entity name or ID..."
           rightActions={(
             <div className="flex flex-wrap items-center gap-2">
-              <select
-                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-                value={filterStatus}
+              <Select
+                aria-label="Workflow status filter"
+                size="sm"
+                className="min-w-[210px]"
+                selectedKeys={[filterStatus]}
                 onChange={(e) => patchUI({ filterStatus: e.target.value as WorkflowStatus | 'all' })}
-              >
-                <option value="all">All Status</option>
-                <option value="not-started">Not Started</option>
-                <option value="information-gathering">Information Gathering</option>
-                <option value="document-collection">Document Collection</option>
-                <option value="verification-in-progress">Verification In Progress</option>
-                <option value="review-required">Review Required</option>
-                <option value="approved">Approved</option>
-                <option value="rejected">Rejected</option>
-                <option value="expired">Expired</option>
-              </select>
-              <select
-                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-                value={filterRisk}
+                options={[
+                  { value: 'all', label: 'All Status' },
+                  { value: 'not-started', label: 'Not Started' },
+                  { value: 'information-gathering', label: 'Information Gathering' },
+                  { value: 'document-collection', label: 'Document Collection' },
+                  { value: 'verification-in-progress', label: 'Verification In Progress' },
+                  { value: 'review-required', label: 'Review Required' },
+                  { value: 'approved', label: 'Approved' },
+                  { value: 'rejected', label: 'Rejected' },
+                  { value: 'expired', label: 'Expired' },
+                ]}
+              />
+              <Select
+                aria-label="Risk level filter"
+                size="sm"
+                className="min-w-[170px]"
+                selectedKeys={[filterRisk]}
                 onChange={(e) => patchUI({ filterRisk: e.target.value as RiskLevel | 'all' })}
-              >
-                <option value="all">All Risk Levels</option>
-                <option value="low">Low Risk</option>
-                <option value="medium">Medium Risk</option>
-                <option value="high">High Risk</option>
-                <option value="severe">Severe Risk</option>
-              </select>
+                options={[
+                  { value: 'all', label: 'All Risk Levels' },
+                  { value: 'low', label: 'Low Risk' },
+                  { value: 'medium', label: 'Medium Risk' },
+                  { value: 'high', label: 'High Risk' },
+                  { value: 'severe', label: 'Severe Risk' },
+                ]}
+              />
             </div>
           )}
         />

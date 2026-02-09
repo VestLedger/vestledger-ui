@@ -1,15 +1,15 @@
 'use client';
 
-import { Card, Button } from '@/ui';
+import { Card, Button, RadioGroup } from '@/ui';
 import type { LucideIcon } from 'lucide-react';
 import { Plug, Calendar, Mail, Slack, Github, Settings } from 'lucide-react';
 import { CalendarIntegration } from './calendar-integration';
 import { useUIKey } from '@/store/ui';
 import { integrationsRequested, integrationsSelectors } from '@/store/slices/miscSlice';
 import type { IntegrationSummary } from '@/types/integrations';
-import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
+import { AsyncStateRenderer, EmptyState } from '@/ui/async-states';
 import { useAsyncData } from '@/hooks/useAsyncData';
-import { PageScaffold, StatusBadge } from '@/components/ui';
+import { PageScaffold, StatusBadge } from '@/ui/composites';
 
 const integrationIconMap = {
   calendar: Calendar,
@@ -25,22 +25,7 @@ export function Integrations() {
   const { value: ui, patch: patchUI } = useUIKey('integrations', { selectedCategory: 'all' });
   const { selectedCategory } = ui;
 
-  if (isLoading) return <LoadingState message="Loading integrations…" />;
-  if (error) {
-    return (
-      <ErrorState
-        error={error}
-        title="Failed to load integrations"
-        onRetry={refetch}
-      />
-    );
-  }
-
   const integrations = data?.integrations || [];
-  if (integrations.length === 0) {
-    return <EmptyState icon={Plug} title="No integrations configured" message="Connect a tool to get started." />;
-  }
-
   const calendarAccounts = data?.accounts || [];
   const calendarEvents = data?.events || [];
 
@@ -50,29 +35,42 @@ export function Integrations() {
     : integrations.filter((i) => i.category === selectedCategory);
 
   return (
-    <PageScaffold
-      routePath="/integrations"
-      header={{
-        title: 'Integrations',
-        description: 'Connect external tools and services to streamline your workflow',
-        icon: Plug,
-      }}
+    <AsyncStateRenderer
+      data={data}
+      isLoading={isLoading}
+      error={error}
+      onRetry={refetch}
+      loadingMessage="Loading integrations…"
+      errorTitle="Failed to load integrations"
+      isEmpty={() => false}
     >
+      {() => {
+        if (integrations.length === 0) {
+          return <EmptyState icon={Plug} title="No integrations configured" message="Connect a tool to get started." />;
+        }
+
+        return (
+          <PageScaffold
+            routePath="/integrations"
+            header={{
+              title: 'Integrations',
+              description: 'Connect external tools and services to streamline your workflow',
+              icon: Plug,
+            }}
+          >
       <div className="mt-6 space-y-8">
         {/* Category Filter */}
-        <div className="flex gap-2">
-          {categories.map((category) => (
-            <Button
-              key={category}
-              variant={selectedCategory === category ? 'solid' : 'bordered'}
-              color={selectedCategory === category ? 'primary' : 'default'}
-              size="sm"
-              onClick={() => patchUI({ selectedCategory: category })}
-            >
-              {category.charAt(0).toUpperCase() + category.slice(1)}
-            </Button>
-          ))}
-        </div>
+        <RadioGroup
+          aria-label="Integration category filter"
+          orientation="horizontal"
+          classNames={{ wrapper: 'flex flex-wrap gap-3' }}
+          options={categories.map((category) => ({
+            value: category,
+            label: category.charAt(0).toUpperCase() + category.slice(1),
+          }))}
+          value={selectedCategory}
+          onValueChange={(value) => patchUI({ selectedCategory: value })}
+        />
 
         {/* Integration Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -134,6 +132,9 @@ export function Integrations() {
           />
         </div>
       </div>
-    </PageScaffold>
+          </PageScaffold>
+        );
+      }}
+    </AsyncStateRenderer>
   );
 }

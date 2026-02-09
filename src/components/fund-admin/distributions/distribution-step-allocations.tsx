@@ -1,7 +1,7 @@
 "use client";
 
 import { Card } from "@/ui";
-import { SectionHeader } from "@/components/ui";
+import { SectionHeader } from '@/ui/composites';
 import type { LPAllocation } from "@/types/distribution";
 import { LPAllocationTable } from "./lp-allocation-table";
 import { formatCurrencyCompact } from "@/utils/formatting";

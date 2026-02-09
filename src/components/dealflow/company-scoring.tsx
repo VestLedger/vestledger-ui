@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, Button, Badge, Progress } from '@/ui';
+import { Card, Button, Badge, Progress, Textarea } from '@/ui';
 import { Star, TrendingUp, Target, Users, Lightbulb, CheckCircle2, Edit3 } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
 import { getCompanyScoreData } from '@/services/dealflow/companyScoringService';
@@ -310,9 +310,9 @@ export function CompanyScoring({ companyId, companyName }: { companyId: number; 
 
             <div>
               <label className="text-sm font-medium mb-2 block">Comments (Optional)</label>
-              <textarea
-                className="w-full px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)] min-h-[80px]"
+              <Textarea
                 placeholder="Share your thoughts on this investment opportunity..."
+                minRows={4}
               />
             </div>
 

@@ -18,8 +18,8 @@ import {
 import { useUIKey } from '@/store/ui';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { formatCurrencyCompact } from '@/utils/formatting';
-import { PageScaffold } from '@/components/ui';
-import { AsyncStateRenderer } from '@/components/ui/async-states';
+import { PageScaffold } from '@/ui/composites';
+import { AsyncStateRenderer } from '@/ui/async-states';
 import { InvestorClassManager } from '@/components/waterfall/investor-class-manager';
 import { WaterfallBarChart } from '@/components/waterfall/charts/waterfall-bar-chart';
 import { ScenarioStackedChart } from '@/components/waterfall/charts/scenario-stacked-chart';

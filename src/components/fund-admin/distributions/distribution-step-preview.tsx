@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { Badge, Button, Card, Input, Select, Textarea } from "@/ui";
-import { SectionHeader } from "@/components/ui";
+import { SectionHeader } from '@/ui/composites';
 import {
   getMockDocumentUrl,
 } from "@/components/documents/preview";

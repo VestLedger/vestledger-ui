@@ -3,7 +3,7 @@
 import { DecisionWriter } from './decision-writer';
 import { DDChatAssistant } from './dd-chat-assistant';
 import { PitchDeckReader } from './pitch-deck-reader';
-import { PageScaffold } from '@/components/ui';
+import { PageScaffold } from '@/ui/composites';
 import { getBreadcrumbs, getAISuggestion } from '@/config/routes';
 import { Sparkles } from 'lucide-react';
 import { useUIKey } from '@/store/ui';

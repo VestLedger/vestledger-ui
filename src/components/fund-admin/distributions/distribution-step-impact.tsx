@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { Button, Card, Input } from "@/ui";
-import { SectionHeader } from "@/components/ui";
+import { SectionHeader } from '@/ui/composites';
 import { useUIKey } from "@/store/ui";
 import type { DistributionImpact } from "@/types/distribution";
 import { formatCurrencyCompact } from "@/utils/formatting";

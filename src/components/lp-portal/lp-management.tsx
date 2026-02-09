@@ -1,7 +1,7 @@
 'use client'
 
 import { useUIKey } from '@/store/ui';
-import { Card, Button, Badge, Progress } from '@/ui';
+import { Card, Button, Badge, Progress, Checkbox } from '@/ui';
 import { TrendingUp, DollarSign, Download, Eye, Send, FileText, BarChart3, Users, ArrowUpRight, ArrowDownRight, UserCheck, Mail } from 'lucide-react';
 import { LPInvestorPortal } from './lp-investor-portal';
 import { AdvancedTable, ColumnDef } from '@/components/data-table/advanced-table';
@@ -14,7 +14,7 @@ import {
   getLPs,
 } from '@/services/lpPortal/lpManagementService';
 import { formatCurrency, formatPercent } from '@/utils/formatting';
-import { PageScaffold, SearchToolbar, StatusBadge } from '@/components/ui';
+import { PageScaffold, SearchToolbar, StatusBadge } from '@/ui/composites';
 
 export function LPManagement() {
   const { value: ui, patch: patchUI } = useUIKey<{
@@ -87,11 +87,10 @@ export function LPManagement() {
       label: '',
       width: '40px',
       render: (lp) => (
-        <input
-          type="checkbox"
-          checked={isSelected(lp.id)}
-          onChange={() => toggleSelection(lp.id)}
-          className="rounded border-[var(--app-border)]"
+        <Checkbox
+          isSelected={isSelected(lp.id)}
+          onValueChange={() => toggleSelection(lp.id)}
+          size="sm"
           onClick={(e) => e.stopPropagation()}
         />
       ),

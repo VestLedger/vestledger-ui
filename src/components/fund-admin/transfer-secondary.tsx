@@ -1,10 +1,10 @@
 'use client';
 
 import { useUIKey } from '@/store/ui';
-import { Card, Button, Badge } from '@/ui';
+import { Card, Button, Badge, Select } from '@/ui';
 import { ArrowRightLeft, Users, FileText, AlertCircle } from 'lucide-react';
 import { formatCurrency, formatPercent } from '@/utils/formatting';
-import { SearchToolbar, StatusBadge } from '@/components/ui';
+import { SearchToolbar, StatusBadge } from '@/ui/composites';
 
 export type TransferType = 'direct' | 'secondary-sale' | 'inheritance' | 'gift' | 'court-order';
 export type TransferStatus =
@@ -247,33 +247,39 @@ export function TransferSecondary({
           searchPlaceholder="Search transfers..."
           rightActions={(
             <div className="flex flex-wrap items-center gap-2">
-              <select
-                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-                value={filterStatus}
+              <Select
+                aria-label="Transfer status filter"
+                size="sm"
+                className="min-w-[210px]"
+                selectedKeys={[filterStatus]}
                 onChange={(e) => patchUI({ filterStatus: e.target.value as TransferStatus | 'all' })}
-              >
-                <option value="all">All Status</option>
-                <option value="draft">Draft</option>
-                <option value="pending-gp-approval">Pending GP Approval</option>
-                <option value="pending-legal-review">Pending Legal Review</option>
-                <option value="pending-buyer-funding">Pending Funding</option>
-                <option value="approved">Approved</option>
-                <option value="completed">Completed</option>
-                <option value="rejected">Rejected</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
-              <select
-                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-                value={filterType}
+                options={[
+                  { value: 'all', label: 'All Status' },
+                  { value: 'draft', label: 'Draft' },
+                  { value: 'pending-gp-approval', label: 'Pending GP Approval' },
+                  { value: 'pending-legal-review', label: 'Pending Legal Review' },
+                  { value: 'pending-buyer-funding', label: 'Pending Funding' },
+                  { value: 'approved', label: 'Approved' },
+                  { value: 'completed', label: 'Completed' },
+                  { value: 'rejected', label: 'Rejected' },
+                  { value: 'cancelled', label: 'Cancelled' },
+                ]}
+              />
+              <Select
+                aria-label="Transfer type filter"
+                size="sm"
+                className="min-w-[170px]"
+                selectedKeys={[filterType]}
                 onChange={(e) => patchUI({ filterType: e.target.value as TransferType | 'all' })}
-              >
-                <option value="all">All Types</option>
-                <option value="direct">Direct Transfer</option>
-                <option value="secondary-sale">Secondary Sale</option>
-                <option value="inheritance">Inheritance</option>
-                <option value="gift">Gift</option>
-                <option value="court-order">Court Order</option>
-              </select>
+                options={[
+                  { value: 'all', label: 'All Types' },
+                  { value: 'direct', label: 'Direct Transfer' },
+                  { value: 'secondary-sale', label: 'Secondary Sale' },
+                  { value: 'inheritance', label: 'Inheritance' },
+                  { value: 'gift', label: 'Gift' },
+                  { value: 'court-order', label: 'Court Order' },
+                ]}
+              />
             </div>
           )}
         />

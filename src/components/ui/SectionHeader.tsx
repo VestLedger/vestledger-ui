@@ -7,9 +7,20 @@ export interface SectionHeaderProps {
   description?: ReactNode;
   action?: ReactNode;
   className?: string;
+  titleClassName?: string;
+  descriptionClassName?: string;
+  actionClassName?: string;
 }
 
-export function SectionHeader({ title, description, action, className }: SectionHeaderProps) {
+export function SectionHeader({
+  title,
+  description,
+  action,
+  className,
+  titleClassName,
+  descriptionClassName,
+  actionClassName,
+}: SectionHeaderProps) {
   return (
     <div
       className={[
@@ -20,12 +31,41 @@ export function SectionHeader({ title, description, action, className }: Section
         .join(" ")}
     >
       <div>
-        <h3 className="text-lg font-semibold">{title}</h3>
+        <h3
+          className={[
+            "text-lg font-semibold",
+            titleClassName ?? "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        >
+          {title}
+        </h3>
         {description && (
-          <p className="text-sm text-[var(--app-text-muted)]">{description}</p>
+          <p
+            className={[
+              "text-sm text-[var(--app-text-muted)]",
+              descriptionClassName ?? "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+          >
+            {description}
+          </p>
         )}
       </div>
-      {action && <div className="flex items-center gap-2">{action}</div>}
+      {action && (
+        <div
+          className={[
+            "flex items-center gap-2",
+            actionClassName ?? "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        >
+          {action}
+        </div>
+      )}
     </div>
   );
 }

@@ -17,11 +17,11 @@ import {
 import type { AuditEvent } from '@/services/blockchain/auditTrailService';
 import { useUIKey } from '@/store/ui';
 import { auditTrailRequested, auditTrailSelectors } from '@/store/slices/miscSlice';
-import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
+import { AsyncStateRenderer, EmptyState } from '@/ui/async-states';
 import { formatCurrencyCompact, formatTimestamp, truncateHash } from '@/utils/formatting';
 import { writeToClipboard } from '@/utils/clipboard';
 import { useAsyncData } from '@/hooks/useAsyncData';
-import { PageScaffold, SearchToolbar } from '@/components/ui';
+import { PageScaffold, SearchToolbar, SectionHeader } from '@/ui/composites';
 
 export function BlockchainAuditTrail() {
   const { data, isLoading, error, refetch } = useAsyncData(auditTrailRequested, auditTrailSelectors.selectState);
@@ -37,21 +37,7 @@ export function BlockchainAuditTrail() {
   });
   const { searchQuery, selectedEvent, filter } = ui;
 
-  if (isLoading) return <LoadingState message="Loading audit trail…" />;
-  if (error) {
-    return (
-      <ErrorState
-        error={error}
-        title="Failed to load audit trail"
-        onRetry={refetch}
-      />
-    );
-  }
-
   const auditEvents = data?.events || [];
-  if (auditEvents.length === 0) {
-    return <EmptyState icon={Database} title="No audit events" message="Activity will appear here." />;
-  }
 
   const copyToClipboard = (text: string) => {
     void writeToClipboard(text);
@@ -101,17 +87,32 @@ export function BlockchainAuditTrail() {
   });
 
   return (
-    <PageScaffold
-      routePath="/audit-trail"
-      header={{
-        title: 'On-Chain Audit Trail',
-        icon: Database,
-        aiSummary: {
-          text: `${auditEvents.length} blockchain events recorded. ${auditEvents.filter(e => e.verificationStatus === 'verified').length} verified transactions across ${new Set(auditEvents.map(e => e.eventType)).size} event types. Latest block: ${Math.max(...auditEvents.map(e => e.blockNumber)).toLocaleString()}`,
-          confidence: 0.95,
-        },
-      }}
+    <AsyncStateRenderer
+      data={data}
+      isLoading={isLoading}
+      error={error}
+      onRetry={refetch}
+      loadingMessage="Loading audit trail…"
+      errorTitle="Failed to load audit trail"
+      isEmpty={() => false}
     >
+      {() => {
+        if (auditEvents.length === 0) {
+          return <EmptyState icon={Database} title="No audit events" message="Activity will appear here." />;
+        }
+
+        return (
+          <PageScaffold
+            routePath="/audit-trail"
+            header={{
+              title: 'On-Chain Audit Trail',
+              icon: Database,
+              aiSummary: {
+                text: `${auditEvents.length} blockchain events recorded. ${auditEvents.filter(e => e.verificationStatus === 'verified').length} verified transactions across ${new Set(auditEvents.map(e => e.eventType)).size} event types. Latest block: ${Math.max(...auditEvents.map(e => e.blockNumber)).toLocaleString()}`,
+                confidence: 0.95,
+              },
+            }}
+          >
       {/* Stats */}
       <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
         <Card padding="md">
@@ -250,15 +251,20 @@ export function BlockchainAuditTrail() {
       {/* Proof Verification Panel */}
       {selectedEvent && (
         <Card padding="lg" className="border-[var(--app-primary)]">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold flex items-center gap-2">
-              <Eye className="w-5 h-5 text-[var(--app-primary)]" />
-              Cryptographic Proof Details
-            </h3>
-            <Button size="sm" variant="flat" onPress={() => patchUI({ selectedEvent: null })}>
-              Close
-            </Button>
-          </div>
+          <SectionHeader
+            title={(
+              <span className="font-semibold flex items-center gap-2">
+                <Eye className="w-5 h-5 text-[var(--app-primary)]" />
+                Cryptographic Proof Details
+              </span>
+            )}
+            className="mb-4"
+            action={
+              <Button size="sm" variant="flat" onPress={() => patchUI({ selectedEvent: null })}>
+                Close
+              </Button>
+            }
+          />
 
           <div className="grid sm:grid-cols-2 gap-4">
             <div className="space-y-3">
@@ -303,6 +309,9 @@ export function BlockchainAuditTrail() {
           </div>
         </Card>
       )}
-    </PageScaffold>
+          </PageScaffold>
+        );
+      }}
+    </AsyncStateRenderer>
   );
 }

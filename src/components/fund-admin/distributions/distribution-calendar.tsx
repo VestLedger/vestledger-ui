@@ -3,8 +3,8 @@
 import { useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Badge, Button, Card, Checkbox, Input, Select, Switch, Tabs, Tab } from "@/ui";
-import { ListItemCard, PageScaffold, SectionHeader, StatusBadge } from "@/components/ui";
-import { AsyncStateRenderer } from "@/components/ui/async-states";
+import { ListItemCard, PageScaffold, SectionHeader, StatusBadge } from '@/ui/composites';
+import { AsyncStateRenderer } from '@/ui/async-states';
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { useUIKey } from "@/store/ui";
 import {

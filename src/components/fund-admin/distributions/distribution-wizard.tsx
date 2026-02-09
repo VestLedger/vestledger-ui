@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Badge, Button, Card, Modal, Progress, WorkflowStepper, useToast, type WorkflowStep } from "@/ui";
-import { PageScaffold } from "@/components/ui";
-import { AsyncStateRenderer } from "@/components/ui/async-states";
+import { PageScaffold } from '@/ui/composites';
+import { AsyncStateRenderer } from '@/ui/async-states';
 import { getRouteConfig } from "@/config/routes";
 import { useUIKey } from "@/store/ui";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";

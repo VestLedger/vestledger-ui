@@ -4,10 +4,10 @@ import { useEffect } from 'react';
 import { Bell, AlertCircle, AlertTriangle, CheckCircle, Info } from 'lucide-react';
 import { Badge, Select } from '@/ui';
 import type { PageHeaderBadge } from '@/ui';
-import { ListItemCard, PageScaffold } from '@/components/ui';
+import { ListItemCard, PageScaffold } from '@/ui/composites';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { alertsRequested, alertsSelectors, markAlertRead } from '@/store/slices/alertsSlice';
-import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
+import { EmptyState, ErrorState, LoadingState } from '@/ui/async-states';
 import { useUIKey } from '@/store/ui';
 
 type NotificationFilter = 'all' | 'unread' | 'alert' | 'deal' | 'report' | 'system';

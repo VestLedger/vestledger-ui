@@ -28,7 +28,6 @@ module.exports = {
       excludedFiles: [
         'src/ui/**/*',
         'app/providers-root.tsx',
-        'src/components/pipeline.tsx',
         '**/__tests__/**/*',
         '**/*.test.ts',
         '**/*.test.tsx',
@@ -59,7 +58,7 @@ module.exports = {
       ],
       rules: {
         'no-restricted-syntax': [
-          'warn',
+          'error',
           {
             selector: "JSXOpeningElement[name.name='input']",
             message: 'Prefer shared form primitives from "@/ui" over raw <input> controls in feature components.',

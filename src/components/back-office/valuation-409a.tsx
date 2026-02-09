@@ -5,10 +5,10 @@ import { getRouteConfig } from '@/config/routes';
 import { Download, Calendar, DollarSign, AlertCircle, CheckCircle, Clock, Building2, ChevronRight, Calculator } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
 import { valuation409aRequested, valuation409aSelectors } from '@/store/slices/backOfficeSlice';
-import { ErrorState, LoadingState } from '@/components/ui/async-states';
+import { AsyncStateRenderer } from '@/ui/async-states';
 import { formatCurrency } from '@/utils/formatting';
-import { MetricsGrid, PageScaffold, StatusBadge } from '@/components/ui';
-import type { MetricsGridItem } from '@/components/ui';
+import { MetricsGrid, PageScaffold, SectionHeader, StatusBadge } from '@/ui/composites';
+import type { MetricsGridItem } from '@/ui/composites';
 import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function Valuation409A() {
@@ -16,17 +16,6 @@ export function Valuation409A() {
   const { value: ui, patch: patchUI } = useUIKey('back-office-valuation-409a', { selectedTab: 'valuations' });
   const { selectedTab } = ui;
   const routeConfig = getRouteConfig('/409a-valuations');
-
-  if (isLoading) return <LoadingState message="Loading 409A valuations…" />;
-  if (error) {
-    return (
-      <ErrorState
-        error={error}
-        title="Failed to load 409A valuations"
-        onRetry={refetch}
-      />
-    );
-  }
 
   const valuations = data?.valuations || [];
   const strikePrices = data?.strikePrices || [];
@@ -82,45 +71,55 @@ export function Valuation409A() {
   ];
 
   return (
-    <PageScaffold
-      breadcrumbs={routeConfig?.breadcrumbs}
-      aiSuggestion={routeConfig?.aiSuggestion}
-      containerProps={{ className: 'space-y-6' }}
-      header={{
-        title: '409A Valuations',
-        description: 'Manage IRS-compliant fair market value determinations for stock options',
-        icon: Calculator,
-        aiSummary: {
-          text: `${valuations.length} portfolio companies tracked. ${valuations.filter(v => v.status === 'current').length} current valuations, ${valuations.filter(v => v.status === 'expiring-soon').length} expiring soon. ${strikePrices.filter(sp => sp.status === 'active').length} active option grants.`,
-          confidence: 0.92,
-        },
-        primaryAction: {
-          label: 'Request New Valuation',
-          onClick: () => {
-            // Handle new valuation request
-          },
-        },
-        tabs: [
-          {
-            id: 'valuations',
-            label: 'Valuations',
-            count: valuations.length,
-          },
-          {
-            id: 'strike-prices',
-            label: 'Strike Prices',
-            count: strikePrices.length,
-          },
-          {
-            id: 'history',
-            label: 'Valuation History',
-            count: history.length,
-          },
-        ],
-        activeTab: selectedTab,
-        onTabChange: (tabId) => patchUI({ selectedTab: tabId }),
-      }}
+    <AsyncStateRenderer
+      data={data}
+      isLoading={isLoading}
+      error={error}
+      onRetry={refetch}
+      loadingMessage="Loading 409A valuations…"
+      errorTitle="Failed to load 409A valuations"
+      isEmpty={() => false}
     >
+      {() => (
+        <PageScaffold
+          breadcrumbs={routeConfig?.breadcrumbs}
+          aiSuggestion={routeConfig?.aiSuggestion}
+          containerProps={{ className: 'space-y-6' }}
+          header={{
+            title: '409A Valuations',
+            description: 'Manage IRS-compliant fair market value determinations for stock options',
+            icon: Calculator,
+            aiSummary: {
+              text: `${valuations.length} portfolio companies tracked. ${valuations.filter(v => v.status === 'current').length} current valuations, ${valuations.filter(v => v.status === 'expiring-soon').length} expiring soon. ${strikePrices.filter(sp => sp.status === 'active').length} active option grants.`,
+              confidence: 0.92,
+            },
+            primaryAction: {
+              label: 'Request New Valuation',
+              onClick: () => {
+                // Handle new valuation request
+              },
+            },
+            tabs: [
+              {
+                id: 'valuations',
+                label: 'Valuations',
+                count: valuations.length,
+              },
+              {
+                id: 'strike-prices',
+                label: 'Strike Prices',
+                count: strikePrices.length,
+              },
+              {
+                id: 'history',
+                label: 'Valuation History',
+                count: history.length,
+              },
+            ],
+            activeTab: selectedTab,
+            onTabChange: (tabId) => patchUI({ selectedTab: tabId }),
+          }}
+        >
 
       {/* Summary Cards */}
       <MetricsGrid
@@ -210,7 +209,7 @@ export function Valuation409A() {
         {selectedTab === 'strike-prices' && (
           <div>
             <Card padding="lg">
-              <h3 className="font-semibold mb-4">Recent Option Grants</h3>
+              <SectionHeader title="Recent Option Grants" titleClassName="font-semibold" className="mb-4" />
               <div className="space-y-3">
                 {strikePrices.map((grant) => (
                   <div key={grant.id} className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
@@ -253,7 +252,7 @@ export function Valuation409A() {
         {selectedTab === 'history' && (
           <div>
             <Card padding="lg">
-              <h3 className="font-semibold mb-4">Fair Market Value Timeline</h3>
+              <SectionHeader title="Fair Market Value Timeline" titleClassName="font-semibold" className="mb-4" />
               <div className="space-y-4">
                 {history.map((item, index) => (
                   <div key={item.id} className="relative">
@@ -302,6 +301,8 @@ export function Valuation409A() {
           </div>
         </div>
       </Card>
-    </PageScaffold>
+        </PageScaffold>
+      )}
+    </AsyncStateRenderer>
   );
 }

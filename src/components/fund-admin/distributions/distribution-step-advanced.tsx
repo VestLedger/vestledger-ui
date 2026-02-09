@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { Badge, Button, Card, Input, Select, Textarea } from "@/ui";
-import { ListItemCard, SectionHeader, StatusBadge } from "@/components/ui";
+import { ListItemCard, SectionHeader, StatusBadge } from '@/ui/composites';
 import type {
   DistributionEventType,
   DistributionElection,

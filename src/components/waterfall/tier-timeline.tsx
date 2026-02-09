@@ -2,7 +2,7 @@
 
 import { Card } from "@/ui";
 import type { WaterfallScenario } from "@/types/waterfall";
-import { Timeline, type TimelineItem } from "@/components/ui";
+import { Timeline, type TimelineItem } from '@/ui/composites';
 import { formatCurrencyCompact, formatDate } from "@/utils/formatting";
 
 export interface TierTimelineProps {

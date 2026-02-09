@@ -9,13 +9,13 @@ import {
   Trophy,
   Calendar,
 } from 'lucide-react';
-import { ListItemCard, SearchToolbar } from '@/components/ui';
+import { ListItemCard, SearchToolbar } from '@/ui/composites';
 import { useUIKey } from '@/store/ui';
 import {
   portfolioUpdatesRequested,
   portfolioSelectors,
 } from '@/store/slices/portfolioSlice';
-import { LoadingState, ErrorState } from '@/components/ui/async-states';
+import { AsyncStateRenderer } from '@/ui/async-states';
 import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { PortfolioTabHeader } from '@/components/portfolio-tab-header';
@@ -54,22 +54,6 @@ export function PortfolioUpdates() {
   );
   const { selectedType, searchQuery } = ui;
 
-  // Loading state
-  if (isLoading) {
-    return <LoadingState message="Loading portfolio updates..." />;
-  }
-
-  // Error state
-  if (error) {
-    return (
-      <ErrorState
-        error={error}
-        title="Failed to Load Portfolio Updates"
-        onRetry={refetch}
-      />
-    );
-  }
-
   const portfolioUpdates = data?.updates || [];
 
   const filteredUpdates = portfolioUpdates.filter(update => {
@@ -95,12 +79,22 @@ export function PortfolioUpdates() {
   };
 
   return (
-    <div>
-      {/* Header */}
-      <PortfolioTabHeader
-        title="Portfolio Updates"
-        description="Latest communications and milestones from portfolio companies"
-      />
+    <AsyncStateRenderer
+      data={data}
+      isLoading={isLoading}
+      error={error}
+      onRetry={refetch}
+      loadingMessage="Loading portfolio updates..."
+      errorTitle="Failed to Load Portfolio Updates"
+      isEmpty={() => false}
+    >
+      {() => (
+        <div>
+          {/* Header */}
+          <PortfolioTabHeader
+            title="Portfolio Updates"
+            description="Latest communications and milestones from portfolio companies"
+          />
 
       {/* Filters */}
       <div className="mb-4">
@@ -216,6 +210,8 @@ export function PortfolioUpdates() {
           </Button>
         </div>
       )}
-    </div>
+        </div>
+      )}
+    </AsyncStateRenderer>
   );
 }

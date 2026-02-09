@@ -4,7 +4,7 @@ import { Card, Button, Badge } from '@/ui';
 import { TrendingUp, Calendar, ChevronRight, ChevronDown, Download, RefreshCw } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
 import { formatCurrency, formatPercent } from '@/utils/formatting';
-import { StatusBadge } from '@/components/ui';
+import { StatusBadge } from '@/ui/composites';
 
 export interface CarriedInterestTerm {
   id: string;

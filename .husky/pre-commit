@@ -1,3 +1,4 @@
 pnpm run build
 pnpm run lint
+pnpm run audit:ui-centralization:enforce
 pnpm test

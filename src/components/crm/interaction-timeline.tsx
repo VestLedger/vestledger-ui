@@ -1,9 +1,9 @@
 'use client';
 
-import { Card, Button, Badge } from '@/ui';
+import { Card, Button, Badge, Select } from '@/ui';
 import { Mail, Phone, Video, MessageSquare, Calendar, Paperclip, Clock, Plus, Edit3, Trash2 } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
-import { SearchToolbar } from '@/components/ui';
+import { SearchToolbar } from '@/ui/composites';
 
 export interface TimelineInteraction {
   id: string;
@@ -197,25 +197,31 @@ export function InteractionTimeline({
           searchPlaceholder="Search interactions..."
           rightActions={(
             <div className="flex flex-wrap items-center gap-2">
-              <select
-                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-                value={filterType}
+              <Select
+                aria-label="Interaction type filter"
+                size="sm"
+                className="min-w-[190px]"
+                selectedKeys={[filterType]}
                 onChange={(e) => patchUI({ filterType: e.target.value })}
-              >
-                <option value="all">All Types ({interactionCounts.all})</option>
-                <option value="email">Emails ({interactionCounts.email})</option>
-                <option value="call">Calls ({interactionCounts.call})</option>
-                <option value="meeting">Meetings ({interactionCounts.meeting})</option>
-                <option value="note">Notes ({interactionCounts.note})</option>
-              </select>
-              <select
-                className="px-3 py-2 text-sm rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-[var(--app-text)]"
-                value={groupBy}
+                options={[
+                  { value: 'all', label: `All Types (${interactionCounts.all})` },
+                  { value: 'email', label: `Emails (${interactionCounts.email})` },
+                  { value: 'call', label: `Calls (${interactionCounts.call})` },
+                  { value: 'meeting', label: `Meetings (${interactionCounts.meeting})` },
+                  { value: 'note', label: `Notes (${interactionCounts.note})` },
+                ]}
+              />
+              <Select
+                aria-label="Group interactions by"
+                size="sm"
+                className="min-w-[170px]"
+                selectedKeys={[groupBy]}
                 onChange={(e) => patchUI({ groupBy: e.target.value as 'date' | 'type' })}
-              >
-                <option value="date">Group by Date</option>
-                <option value="type">Group by Type</option>
-              </select>
+                options={[
+                  { value: 'date', label: 'Group by Date' },
+                  { value: 'type', label: 'Group by Type' },
+                ]}
+              />
             </div>
           )}
         />

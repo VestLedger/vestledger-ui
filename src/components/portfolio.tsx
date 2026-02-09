@@ -1,6 +1,6 @@
 'use client'
 
-import { PageScaffold } from '@/components/ui';
+import { PageScaffold } from '@/ui/composites';
 import { Briefcase } from 'lucide-react';
 import { PortfolioDashboard } from './portfolio-dashboard';
 import { PortfolioDocuments } from './portfolio-documents';

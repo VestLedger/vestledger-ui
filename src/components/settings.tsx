@@ -1,7 +1,7 @@
 'use client';
 
 import { useUIKey } from '@/store/ui';
-import { Card, Button, Input, Badge } from '@/ui';
+import { Card, Button, Input, Badge, Checkbox, Select, RadioGroup } from '@/ui';
 import type { PageHeaderBadge } from '@/ui';
 import {
   User,
@@ -22,7 +22,7 @@ import {
   Plus
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { PageScaffold, StatusBadge } from '@/components/ui';
+import { PageScaffold, StatusBadge } from '@/ui/composites';
 
 interface SettingsSection {
   id: string;
@@ -76,15 +76,60 @@ const settingsSections: SettingsSection[] = [
   }
 ];
 
+const languageOptions = [
+  { value: 'en-us', label: 'English (US)' },
+  { value: 'en-uk', label: 'English (UK)' },
+  { value: 'es', label: 'Spanish' },
+  { value: 'fr', label: 'French' },
+];
+
+const timezoneOptions = [
+  { value: 'pt', label: 'Pacific Time (PT)' },
+  { value: 'mt', label: 'Mountain Time (MT)' },
+  { value: 'ct', label: 'Central Time (CT)' },
+  { value: 'et', label: 'Eastern Time (ET)' },
+];
+
+const dateFormatOptions = [
+  { value: 'mm-dd-yyyy', label: 'MM/DD/YYYY' },
+  { value: 'dd-mm-yyyy', label: 'DD/MM/YYYY' },
+  { value: 'yyyy-mm-dd', label: 'YYYY-MM-DD' },
+];
+
+const currencyOptions = [
+  { value: 'usd', label: 'USD ($)' },
+  { value: 'eur', label: 'EUR (€)' },
+  { value: 'gbp', label: 'GBP (£)' },
+  { value: 'jpy', label: 'JPY (¥)' },
+];
+
+const teamRoleOptions = [
+  { value: 'owner', label: 'Owner' },
+  { value: 'admin', label: 'Admin' },
+  { value: 'member', label: 'Member' },
+];
+
 export function Settings() {
   const { value: settingsUI, patch: patchSettingsUI } = useUIKey('settings', {
     activeSection: 'profile',
     showPassword: false,
     twoFactorEnabled: false,
+    theme: 'dark' as 'light' | 'dark' | 'system',
+    displayDensity: 'comfortable' as 'comfortable' | 'compact' | 'spacious',
+    language: 'en-us',
+    timezone: 'pt',
+    dateFormat: 'mm-dd-yyyy',
+    currency: 'usd',
   });
   const activeSection = settingsUI.activeSection;
   const showPassword = settingsUI.showPassword;
   const twoFactorEnabled = settingsUI.twoFactorEnabled;
+  const theme = settingsUI.theme;
+  const displayDensity = settingsUI.displayDensity;
+  const language = settingsUI.language;
+  const timezone = settingsUI.timezone;
+  const dateFormat = settingsUI.dateFormat;
+  const currency = settingsUI.currency;
   const activeSectionConfig = settingsSections.find((section) => section.id === activeSection);
   const activeSectionLabel = activeSectionConfig?.title ?? 'Settings';
 
@@ -174,13 +219,14 @@ export function Settings() {
                   { label: 'Team mentions and comments', description: 'When someone mentions you or replies' },
                   { label: 'Weekly digest', description: 'Weekly summary of portfolio performance' }
                 ].map((item, idx) => (
-                  <label key={idx} className="flex items-start gap-3 p-3 rounded-lg hover:bg-[var(--app-surface-hover)] cursor-pointer">
-                    <input type="checkbox" defaultChecked={idx < 3} className="mt-1" />
+                  <div key={idx} className="p-3 rounded-lg hover:bg-[var(--app-surface-hover)]">
+                    <Checkbox defaultSelected={idx < 3}>
+                      <span className="font-medium">{item.label}</span>
+                    </Checkbox>
                     <div>
-                      <div className="font-medium">{item.label}</div>
-                      <div className="text-sm text-[var(--app-text-muted)]">{item.description}</div>
+                      <div className="text-sm text-[var(--app-text-muted)] pl-7">{item.description}</div>
                     </div>
-                  </label>
+                  </div>
                 ))}
               </div>
             </div>
@@ -191,13 +237,14 @@ export function Settings() {
                   { label: 'High priority alerts', description: 'Critical notifications that need immediate attention' },
                   { label: 'Message notifications', description: 'New messages from team members' }
                 ].map((item, idx) => (
-                  <label key={idx} className="flex items-start gap-3 p-3 rounded-lg hover:bg-[var(--app-surface-hover)] cursor-pointer">
-                    <input type="checkbox" defaultChecked className="mt-1" />
+                  <div key={idx} className="p-3 rounded-lg hover:bg-[var(--app-surface-hover)]">
+                    <Checkbox defaultSelected>
+                      <span className="font-medium">{item.label}</span>
+                    </Checkbox>
                     <div>
-                      <div className="font-medium">{item.label}</div>
-                      <div className="text-sm text-[var(--app-text-muted)]">{item.description}</div>
+                      <div className="text-sm text-[var(--app-text-muted)] pl-7">{item.description}</div>
                     </div>
-                  </label>
+                  </div>
                 ))}
               </div>
             </div>
@@ -299,32 +346,44 @@ export function Settings() {
           <div className="space-y-6">
             <div>
               <h3 className="text-lg font-semibold mb-4">Theme</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {['Light', 'Dark', 'System'].map((theme) => (
-                  <label key={theme} className="relative cursor-pointer">
-                    <input type="radio" name="theme" defaultChecked={theme === 'Dark'} className="peer sr-only" />
-                    <div className="p-4 rounded-lg border-2 border-[var(--app-border)] peer-checked:border-[var(--app-primary)] peer-checked:bg-[var(--app-primary-bg)] hover:border-[var(--app-border-hover)] transition-colors">
-                      <div className="font-medium mb-2">{theme}</div>
-                      <div className="text-sm text-[var(--app-text-muted)]">
-                        {theme === 'System' ? 'Match system preference' : `Use ${theme.toLowerCase()} theme`}
-                      </div>
-                    </div>
-                  </label>
-                ))}
-              </div>
+              <RadioGroup
+                aria-label="Theme selection"
+                orientation="horizontal"
+                classNames={{ wrapper: 'grid grid-cols-1 md:grid-cols-3 gap-3' }}
+                options={[
+                  { value: 'light', label: 'Light' },
+                  { value: 'dark', label: 'Dark' },
+                  { value: 'system', label: 'System' },
+                ]}
+                value={theme}
+                onValueChange={(value) => {
+                  if (value === 'light' || value === 'dark' || value === 'system') {
+                    patchSettingsUI({ theme: value });
+                  }
+                }}
+              />
+              <p className="mt-3 text-sm text-[var(--app-text-muted)]">
+                {theme === 'system' ? 'Match system preference' : `Use ${theme} theme`}
+              </p>
             </div>
             <div>
               <h3 className="text-lg font-semibold mb-4">Display Density</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {['Comfortable', 'Compact', 'Spacious'].map((density) => (
-                  <label key={density} className="relative cursor-pointer">
-                    <input type="radio" name="density" defaultChecked={density === 'Comfortable'} className="peer sr-only" />
-                    <div className="p-4 rounded-lg border-2 border-[var(--app-border)] peer-checked:border-[var(--app-primary)] peer-checked:bg-[var(--app-primary-bg)] hover:border-[var(--app-border-hover)] transition-colors">
-                      <div className="font-medium">{density}</div>
-                    </div>
-                  </label>
-                ))}
-              </div>
+              <RadioGroup
+                aria-label="Display density selection"
+                orientation="horizontal"
+                classNames={{ wrapper: 'grid grid-cols-1 md:grid-cols-3 gap-3' }}
+                options={[
+                  { value: 'comfortable', label: 'Comfortable' },
+                  { value: 'compact', label: 'Compact' },
+                  { value: 'spacious', label: 'Spacious' },
+                ]}
+                value={displayDensity}
+                onValueChange={(value) => {
+                  if (value === 'comfortable' || value === 'compact' || value === 'spacious') {
+                    patchSettingsUI({ displayDensity: value });
+                  }
+                }}
+              />
             </div>
             <div className="flex gap-3 pt-4">
               <Button color="primary">Save Preferences</Button>
@@ -340,38 +399,35 @@ export function Settings() {
               <div className="space-y-4 max-w-md">
                 <div>
                   <label className="block text-sm font-medium mb-2">Language</label>
-                  <select className="w-full px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)]">
-                    <option>English (US)</option>
-                    <option>English (UK)</option>
-                    <option>Spanish</option>
-                    <option>French</option>
-                  </select>
+                  <Select
+                    options={languageOptions}
+                    selectedKeys={[language]}
+                    onChange={(event) => patchSettingsUI({ language: event.target.value })}
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2">Timezone</label>
-                  <select className="w-full px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)]">
-                    <option>Pacific Time (PT)</option>
-                    <option>Mountain Time (MT)</option>
-                    <option>Central Time (CT)</option>
-                    <option>Eastern Time (ET)</option>
-                  </select>
+                  <Select
+                    options={timezoneOptions}
+                    selectedKeys={[timezone]}
+                    onChange={(event) => patchSettingsUI({ timezone: event.target.value })}
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2">Date Format</label>
-                  <select className="w-full px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)]">
-                    <option>MM/DD/YYYY</option>
-                    <option>DD/MM/YYYY</option>
-                    <option>YYYY-MM-DD</option>
-                  </select>
+                  <Select
+                    options={dateFormatOptions}
+                    selectedKeys={[dateFormat]}
+                    onChange={(event) => patchSettingsUI({ dateFormat: event.target.value })}
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2">Currency</label>
-                  <select className="w-full px-3 py-2 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)]">
-                    <option>USD ($)</option>
-                    <option>EUR (€)</option>
-                    <option>GBP (£)</option>
-                    <option>JPY (¥)</option>
-                  </select>
+                  <Select
+                    options={currencyOptions}
+                    selectedKeys={[currency]}
+                    onChange={(event) => patchSettingsUI({ currency: event.target.value })}
+                  />
                 </div>
               </div>
             </div>
@@ -479,11 +535,13 @@ export function Settings() {
                     </div>
                     <div className="flex items-center gap-4">
                       <StatusBadge status={member.status} domain="general" size="sm" />
-                      <select className="px-3 py-1 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] text-sm">
-                        <option selected={member.role === 'Owner'}>Owner</option>
-                        <option selected={member.role === 'Admin'}>Admin</option>
-                        <option selected={member.role === 'Member'}>Member</option>
-                      </select>
+                      <Select
+                        aria-label={`${member.name} role`}
+                        options={teamRoleOptions}
+                        defaultSelectedKeys={[member.role.toLowerCase()]}
+                        size="sm"
+                        className="min-w-[140px]"
+                      />
                       <Button variant="ghost" size="sm" color="danger">Remove</Button>
                     </div>
                   </div>

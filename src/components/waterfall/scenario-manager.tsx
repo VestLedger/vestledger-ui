@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Badge, Button } from '@/ui';
-import { ListItemCard, SearchToolbar } from '@/components/ui';
+import { ListItemCard, SearchToolbar } from '@/ui/composites';
 import { useUIKey } from '@/store/ui';
 import type { WaterfallScenario } from '@/types/waterfall';
 import { formatCurrencyCompact, formatDate, formatTimestamp } from '@/utils/formatting';

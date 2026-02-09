@@ -10,8 +10,8 @@ import {
   Tooltip,
 } from 'recharts';
 import { Card } from '@/ui';
-import { MetricsGrid } from '@/components/ui';
-import type { MetricsGridItem } from '@/components/ui';
+import { MetricsGrid } from '@/ui/composites';
+import type { MetricsGridItem } from '@/ui/composites';
 import type { DistributionImpact } from '@/types/distribution';
 import { formatCurrencyCompact } from '@/utils/formatting';
 import { Activity, BarChart3, Layers, PieChart } from 'lucide-react';

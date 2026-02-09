@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { LoadingState } from '@/components/ui/async-states/LoadingState';
+import { LoadingState } from '@/ui/async-states';
 
 // Dynamic import with ssr: false to prevent hydration mismatch
 const LoginForm = dynamic(

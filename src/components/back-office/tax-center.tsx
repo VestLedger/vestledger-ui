@@ -6,10 +6,10 @@ import { getRouteConfig } from '@/config/routes';
 import { K1Generator } from '../tax/k1-generator';
 import { useUIKey } from '@/store/ui';
 import { taxCenterRequested, taxCenterSelectors } from '@/store/slices/backOfficeSlice';
-import { ErrorState, LoadingState } from '@/components/ui/async-states';
+import { AsyncStateRenderer } from '@/ui/async-states';
 import { formatCurrency } from '@/utils/formatting';
-import { StatusBadge, MetricsGrid, PageScaffold } from '@/components/ui';
-import type { MetricsGridItem } from '@/components/ui';
+import { KeyValueRow, StatusBadge, MetricsGrid, PageScaffold, SectionHeader } from '@/ui/composites';
+import type { MetricsGridItem } from '@/ui/composites';
 import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function TaxCenter() {
@@ -24,17 +24,6 @@ export function TaxCenter() {
   const taxSummaries = data?.taxSummaries || [];
   const portfolioTax = data?.portfolioTax || [];
   const filingDeadline = data?.filingDeadline || new Date();
-
-  if (isLoading) return <LoadingState message="Loading tax center…" />;
-  if (error) {
-    return (
-      <ErrorState
-        error={error}
-        title="Failed to load tax center"
-        onRetry={refetch}
-      />
-    );
-  }
 
   // Calculate AI insights
   const k1sIssued = taxSummaries.reduce((sum, s) => sum + s.k1sIssued, 0);
@@ -87,58 +76,68 @@ export function TaxCenter() {
   ];
 
   return (
-    <PageScaffold
-      breadcrumbs={routeConfig?.breadcrumbs}
-      aiSuggestion={routeConfig?.aiSuggestion}
-      header={{
-        title: 'Tax Center',
-        description: 'Manage tax documents, K-1s, and reporting for LPs and portfolio companies',
-        icon: Receipt,
-        aiSummary: {
-          text: `${k1sIssued} K-1s issued out of ${k1sTotal}. ${form1099Issued} 1099s issued. ${readyDocuments} documents ready to send. Filing deadline: ${filingDeadline.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}. AI recommends prioritizing the ${readyDocuments} ready documents for immediate distribution.`,
-          confidence: 0.92,
-        },
-        primaryAction: {
-          label: 'Generate K-1s',
-          onClick: () => console.log('Generate K-1s'),
-          aiSuggested: readyDocuments > 0,
-        },
-        secondaryActions: [
-          {
-            label: 'Upload Documents',
-            onClick: () => console.log('Upload documents'),
-          },
-        ],
-        tabs: [
-          {
-            id: 'overview',
-            label: 'Tax Documents',
-            count: taxDocuments.length,
-          },
-          {
-            id: 'k1-generator',
-            label: 'K-1 Generator',
-          },
-          {
-            id: 'fund-summary',
-            label: 'Fund Summary',
-            count: taxSummaries.length,
-          },
-          {
-            id: 'portfolio',
-            label: 'Portfolio Companies',
-            count: portfolioTax.filter(c => c.k1Required && !c.k1Received).length,
-            priority: portfolioTax.filter(c => c.k1Required && !c.k1Received).length > 0 ? 'high' : undefined,
-          },
-          {
-            id: 'communications',
-            label: 'LP Communications',
-          },
-        ],
-        activeTab: selectedTab,
-        onTabChange: (tabId) => patchUI({ selectedTab: tabId }),
-      }}
+    <AsyncStateRenderer
+      data={data}
+      isLoading={isLoading}
+      error={error}
+      onRetry={refetch}
+      loadingMessage="Loading tax center…"
+      errorTitle="Failed to load tax center"
+      isEmpty={() => false}
     >
+      {() => (
+        <PageScaffold
+          breadcrumbs={routeConfig?.breadcrumbs}
+          aiSuggestion={routeConfig?.aiSuggestion}
+          header={{
+            title: 'Tax Center',
+            description: 'Manage tax documents, K-1s, and reporting for LPs and portfolio companies',
+            icon: Receipt,
+            aiSummary: {
+              text: `${k1sIssued} K-1s issued out of ${k1sTotal}. ${form1099Issued} 1099s issued. ${readyDocuments} documents ready to send. Filing deadline: ${filingDeadline.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}. AI recommends prioritizing the ${readyDocuments} ready documents for immediate distribution.`,
+              confidence: 0.92,
+            },
+            primaryAction: {
+              label: 'Generate K-1s',
+              onClick: () => console.log('Generate K-1s'),
+              aiSuggested: readyDocuments > 0,
+            },
+            secondaryActions: [
+              {
+                label: 'Upload Documents',
+                onClick: () => console.log('Upload documents'),
+              },
+            ],
+            tabs: [
+              {
+                id: 'overview',
+                label: 'Tax Documents',
+                count: taxDocuments.length,
+              },
+              {
+                id: 'k1-generator',
+                label: 'K-1 Generator',
+              },
+              {
+                id: 'fund-summary',
+                label: 'Fund Summary',
+                count: taxSummaries.length,
+              },
+              {
+                id: 'portfolio',
+                label: 'Portfolio Companies',
+                count: portfolioTax.filter(c => c.k1Required && !c.k1Received).length,
+                priority: portfolioTax.filter(c => c.k1Required && !c.k1Received).length > 0 ? 'high' : undefined,
+              },
+              {
+                id: 'communications',
+                label: 'LP Communications',
+              },
+            ],
+            activeTab: selectedTab,
+            onTabChange: (tabId) => patchUI({ selectedTab: tabId }),
+          }}
+        >
 
       {/* Summary Cards */}
       <MetricsGrid
@@ -298,22 +297,24 @@ export function TaxCenter() {
 
                     <div className="space-y-3">
                       <div>
-                        <div className="flex items-center justify-between mb-2 text-sm">
-                          <span className="text-[var(--app-text-muted)]">Schedule K-1s</span>
-                          <span className="font-semibold">
-                            {summary.k1sIssued} of {summary.k1sTotal} ({k1Progress.toFixed(0)}%)
-                          </span>
-                        </div>
+                        <KeyValueRow
+                          label="Schedule K-1s"
+                          value={`${summary.k1sIssued} of ${summary.k1sTotal} (${k1Progress.toFixed(0)}%)`}
+                          className="mb-2"
+                          paddingYClassName=""
+                          valueClassName="font-semibold"
+                        />
                         <Progress value={k1Progress} maxValue={100} className="h-2" aria-label={`Schedule K-1s progress ${k1Progress.toFixed(0)}%`} />
                       </div>
 
                       <div>
-                        <div className="flex items-center justify-between mb-2 text-sm">
-                          <span className="text-[var(--app-text-muted)]">Form 1099s</span>
-                          <span className="font-semibold">
-                            {summary.form1099Issued} of {summary.form1099Total} ({form1099Progress.toFixed(0)}%)
-                          </span>
-                        </div>
+                        <KeyValueRow
+                          label="Form 1099s"
+                          value={`${summary.form1099Issued} of ${summary.form1099Total} (${form1099Progress.toFixed(0)}%)`}
+                          className="mb-2"
+                          paddingYClassName=""
+                          valueClassName="font-semibold"
+                        />
                         <Progress value={form1099Progress} maxValue={100} className="h-2" aria-label={`Form 1099s progress ${form1099Progress.toFixed(0)}%`} />
                       </div>
                     </div>
@@ -328,7 +329,7 @@ export function TaxCenter() {
       {selectedTab === 'portfolio' && (
           <div className="mt-4">
             <Card padding="lg">
-              <h3 className="font-semibold mb-4">K-1 Collection Status</h3>
+              <SectionHeader title="K-1 Collection Status" titleClassName="font-semibold" className="mb-4" />
               <div className="space-y-3">
                 {portfolioTax.map((company) => (
                   <div key={company.id} className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
@@ -394,7 +395,7 @@ export function TaxCenter() {
       {selectedTab === 'communications' && (
           <div className="mt-4">
             <Card padding="lg">
-              <h3 className="font-semibold mb-4">Tax Document Distribution</h3>
+              <SectionHeader title="Tax Document Distribution" titleClassName="font-semibold" className="mb-4" />
 
               <div className="space-y-4">
                 <div className="p-4 rounded-lg bg-[var(--app-info-bg)] border border-[var(--app-info)]/20">
@@ -450,18 +451,9 @@ export function TaxCenter() {
                   <div className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
                     <h4 className="font-semibold mb-3">Distribution History</h4>
                     <div className="space-y-3 text-sm">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[var(--app-text-muted)]">2024 K-1s Sent</span>
-                        <span className="font-semibold">Dec 5, 2024</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-[var(--app-text-muted)]">2024 Q4 Estimates</span>
-                        <span className="font-semibold">Jan 10, 2024</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-[var(--app-text-muted)]">2023 K-1s Sent</span>
-                        <span className="font-semibold">Mar 1, 2024</span>
-                      </div>
+                      <KeyValueRow label="2024 K-1s Sent" value="Dec 5, 2024" paddingYClassName="" valueClassName="font-semibold" />
+                      <KeyValueRow label="2024 Q4 Estimates" value="Jan 10, 2024" paddingYClassName="" valueClassName="font-semibold" />
+                      <KeyValueRow label="2023 K-1s Sent" value="Mar 1, 2024" paddingYClassName="" valueClassName="font-semibold" />
                     </div>
                   </div>
                 </div>
@@ -484,6 +476,8 @@ export function TaxCenter() {
           </div>
         </div>
       </Card>
-    </PageScaffold>
+        </PageScaffold>
+      )}
+    </AsyncStateRenderer>
   );
 }

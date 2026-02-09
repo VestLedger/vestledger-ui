@@ -1,7 +1,7 @@
 "use client";
 
 import { Card } from "@/ui";
-import { SectionHeader } from "@/components/ui";
+import { SectionHeader } from '@/ui/composites';
 import type { FeeLineItem, FeeTemplate } from "@/types/distribution";
 import { FeeExpenseTable, type FeeLineItemErrors } from "./fee-expense-table";
 

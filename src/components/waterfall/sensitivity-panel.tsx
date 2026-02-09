@@ -12,10 +12,10 @@ import {
   ReferenceLine,
   type TooltipProps,
 } from 'recharts';
-import { Badge, Card, Input, Select, Switch } from '@/ui';
+import { Badge, Card, Input, Select, Slider, Switch } from '@/ui';
 import { useUIKey } from '@/store/ui';
 import { useAsyncData } from '@/hooks/useAsyncData';
-import { AsyncStateRenderer } from '@/components/ui/async-states';
+import { AsyncStateRenderer } from '@/ui/async-states';
 import {
   sensitivityAnalysisRequested,
   sensitivitySelectors,
@@ -242,6 +242,9 @@ export function SensitivityPanel({
     patchUI({ maxExitValue: maxValue });
   };
 
+  const formatSliderTooltipValue = (value: number | number[]) =>
+    formatCurrencyCompact(Array.isArray(value) ? value[0] ?? 0 : value);
+
   return (
     <Card padding="lg">
       <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
@@ -289,29 +292,35 @@ export function SensitivityPanel({
             <div id={rangeHelpId} className="sr-only">
               Use arrow keys to adjust the range. Values update the sensitivity chart.
             </div>
-            <input
-              type="range"
-              min={rangeBounds.min}
-              max={rangeBounds.max}
+            <Slider
+              minValue={rangeBounds.min}
+              maxValue={rangeBounds.max}
               step={rangeBounds.step}
               value={normalizedRange.minValue}
-              onChange={(event) => handleMinChange(Number(event.target.value))}
-              className="w-full accent-[var(--app-primary)]"
+              onChange={(value) =>
+                handleMinChange(Array.isArray(value) ? value[0] ?? rangeBounds.min : value)
+              }
               aria-label="Minimum exit value"
               aria-describedby={rangeHelpId}
-              aria-valuetext={formatCurrencyCompact(normalizedRange.minValue)}
+              className="w-full"
+              color="primary"
+              showTooltip
+              getValue={formatSliderTooltipValue}
             />
-            <input
-              type="range"
-              min={rangeBounds.min}
-              max={rangeBounds.max}
+            <Slider
+              minValue={rangeBounds.min}
+              maxValue={rangeBounds.max}
               step={rangeBounds.step}
               value={normalizedRange.maxValue}
-              onChange={(event) => handleMaxChange(Number(event.target.value))}
-              className="w-full accent-[var(--app-secondary)]"
+              onChange={(value) =>
+                handleMaxChange(Array.isArray(value) ? value[0] ?? rangeBounds.max : value)
+              }
               aria-label="Maximum exit value"
               aria-describedby={rangeHelpId}
-              aria-valuetext={formatCurrencyCompact(normalizedRange.maxValue)}
+              className="w-full"
+              color="secondary"
+              showTooltip
+              getValue={formatSliderTooltipValue}
             />
           </div>
           <div className="flex items-center gap-3">

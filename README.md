@@ -84,6 +84,33 @@ dscacheutil -flushcache
 
 ---
 
+## UI Centralization Status
+
+The component-library migration is locked with zero-regression guardrails.
+
+Canonical import surfaces:
+- `@/ui` for shared primitives, layout, typography, and feedback components
+- `@/ui/composites` for app-level composites (dashboard/page patterns)
+- `@/ui/async-states` for async loading/error/empty renderers
+
+Legacy import path:
+- `@/components/ui` is compatibility-only and should not be used in new code
+
+Guardrails:
+- Direct `@nextui-org/react` imports are limited to `src/ui/**`, `app/providers-root.tsx`, and tests.
+- Raw `<input>`, `<select>`, and `<textarea>` usage is blocked in `src/components/**/*.tsx`.
+- Pre-commit runs the centralization enforcement audit.
+
+Validation commands:
+
+```bash
+pnpm run audit:ui-centralization
+pnpm run audit:ui-centralization:enforce
+pnpm run lint
+```
+
+---
+
 ## Architecture Overview
 
 ### Subdomain Structure
@@ -255,10 +282,12 @@ apps/vestledger-ui/
 │   ├── components/                   # React components
 │   │   ├── public/                   # Public page components
 │   │   ├── dashboard/                # Dashboard components
-│   │   └── ui/                       # UI component library
-│   ├── ui/static/                    # Static server components
-│   │   ├── StaticButton.tsx          # Server-rendered button
-│   │   └── StaticCard.tsx            # Server-rendered card
+│   │   └── ui/                       # Legacy composites (compatibility path)
+│   ├── ui/                           # Canonical shared UI library surface
+│   │   ├── components/               # Primitives imported via "@/ui"
+│   │   ├── composites/               # App-level composites via "@/ui/composites"
+│   │   ├── async-states/             # Async renderers via "@/ui/async-states"
+│   │   └── static/                   # Static server components for public pages
 │   ├── store/                        # Redux store
 │   ├── contexts/                     # React contexts
 │   └── hooks/                        # Custom hooks

@@ -9,13 +9,23 @@ A centralized, type-safe UI component library for the VestLedger application. Bu
 - **Intuitive**: Clear semantic colors (green=success, red=danger, etc.)
 - **Consistent**: All components use CSS variables for automatic theme switching
 
-## 📦 Installation
+## Import Surfaces
 
-The UI library is already part of the frontend app. Simply import components:
+The UI library is already part of this app and has one canonical namespace with scoped surfaces:
+
+- `@/ui` for primitives, layout, typography, and feedback
+- `@/ui/composites` for app-level reusable composites
+- `@/ui/async-states` for shared loading/error/empty renderers
+
+Examples:
 
 ```tsx
-import { Button, Card, Heading } from '@/ui';
+import { Button, Card, Heading, RadioGroup, Slider } from '@/ui';
+import { PageScaffold, RoleDashboardLayout, SectionHeader } from '@/ui/composites';
+import { AsyncStateRenderer, AsyncArrayRenderer } from '@/ui/async-states';
 ```
+
+Do not add new imports from `@/components/ui`; that path is compatibility-only.
 
 ## 🧩 Component Categories
 
@@ -25,13 +35,27 @@ import { Button, Card, Heading } from '@/ui';
 - **Badge** - Status indicators and labels
 - **IconButton** - Icon-only buttons with required accessibility labels
 - **DropdownButton** - Button with dropdown menu for multiple actions
-- **ToggleButtonGroup** - Button group for single/multi-select choices (view switchers, filters)
+- **ToggleButtonGroup** - Segmented control for view/filter toggles
+- **RadioGroup** - Semantic single-choice settings and preference forms
 - **FloatingActionButton (FAB)** - Sticky circular button for primary screen action
 - **Input** - Text input fields
 - **Select** - Dropdown selection
 - **Checkbox** - Boolean selection
 - **Switch** - Toggle controls
+- **Slider** - Numeric range/threshold selection
 - **Textarea** - Multi-line text input
+- **Tabs** - Navigational tab surface
+
+### App Composites
+- **PageScaffold** - Shared shell with title/actions/content
+- **RoleDashboardLayout** - Standardized role dashboard frame
+- **SectionHeader** - Shared title/description/action row
+- **ListItemCard** - Reusable list/timeline card wrapper
+- **KeyValueRow** - Reusable label/value row primitive
+
+### Async States
+- **AsyncStateRenderer** - Standard loading/error/empty content branching
+- **AsyncArrayRenderer** - Array-aware async rendering helper
 
 ### Layout
 - **Container** - Max-width content wrapper
@@ -157,6 +181,22 @@ const [view, setView] = useState(new Set(['grid']));
 />
 ```
 
+Use `RadioGroup` for semantic single-select settings, not `ToggleButtonGroup`:
+
+```tsx
+import { RadioGroup } from '@/ui';
+
+<RadioGroup
+  label="Valuation Mode"
+  value={valuationMode}
+  onValueChange={setValuationMode}
+  options={[
+    { value: 'realized', label: 'Realized Only' },
+    { value: 'marked', label: 'Marked to Model' },
+  ]}
+/>
+```
+
 ### FloatingActionButton (FAB)
 
 ```tsx
@@ -264,7 +304,7 @@ import { Alert, Modal, Spinner } from '@/ui';
 ### Form Components
 
 ```tsx
-import { Input, Select, Checkbox, Switch } from '@/ui';
+import { Input, Select, Checkbox, Switch, RadioGroup, Slider } from '@/ui';
 
 <Input
   label="Email"
@@ -289,6 +329,26 @@ import { Input, Select, Checkbox, Switch } from '@/ui';
 <Switch color="primary">
   Enable notifications
 </Switch>
+
+<RadioGroup
+  label="Investor Update Frequency"
+  value={frequency}
+  onValueChange={setFrequency}
+  options={[
+    { value: 'weekly', label: 'Weekly' },
+    { value: 'monthly', label: 'Monthly' },
+    { value: 'quarterly', label: 'Quarterly' },
+  ]}
+/>
+
+<Slider
+  label="Risk Threshold"
+  minValue={0}
+  maxValue={100}
+  step={5}
+  value={riskThreshold}
+  onChange={setRiskThreshold}
+/>
 ```
 
 ## 🎨 Color System
@@ -330,8 +390,14 @@ src/ui/
 │   ├── Card.tsx
 │   ├── Badge.tsx
 │   ├── Input.tsx
+│   ├── RadioGroup.tsx
+│   ├── Slider.tsx
 │   ├── Select.tsx
 │   └── ...
+├── composites/       # Shared app-level composites (bridge to src/components/ui)
+│   └── index.ts
+├── async-states/     # Shared async renderers
+│   └── index.ts
 ├── layout/          # Layout components
 │   ├── Container.tsx
 │   ├── Grid.tsx
@@ -366,6 +432,18 @@ import { useTheme } from 'next-themes';
 
 const { theme, setTheme } = useTheme();
 ```
+
+## Guardrails
+
+Use these commands before pushing migration-heavy changes:
+
+```bash
+pnpm run audit:ui-centralization
+pnpm run audit:ui-centralization:enforce
+pnpm run lint
+```
+
+Pre-commit already runs the enforce command as a regression lock.
 
 ## 📚 Additional Resources
 

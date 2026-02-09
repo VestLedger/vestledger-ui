@@ -16,8 +16,8 @@ import {
 } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
 import { lpPortalRequested, lpPortalSelectors } from '@/store/slices/miscSlice';
-import { EmptyState, ErrorState, LoadingState } from '@/components/ui/async-states';
-import { PageScaffold } from '@/components/ui';
+import { AsyncStateRenderer, EmptyState } from '@/ui/async-states';
+import { PageScaffold } from '@/ui/composites';
 import { formatCurrency, formatDate, formatPercent } from '@/utils/formatting';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { DistributionUpcoming } from './distribution-upcoming';
@@ -34,21 +34,7 @@ export function LPInvestorPortal() {
   const { value: ui, patch: patchUI } = useUIKey('lp-investor-portal', { selectedTab: 'distributions' });
   const { selectedTab } = ui;
 
-  if (isLoading) return <LoadingState message="Loading LP portal…" />;
-  if (error) {
-    return (
-      <ErrorState
-        error={error}
-        title="Failed to load LP portal"
-        onRetry={refetch}
-      />
-    );
-  }
-
   const investor = data?.investor;
-  if (!investor) {
-    return <EmptyState icon={PieChart} title="No investor data available" message="Try again in a moment." />;
-  }
 
   const reports = data?.reports || [];
   const transactions = data?.transactions || [];
@@ -60,38 +46,54 @@ export function LPInvestorPortal() {
   const notificationPreferences = data?.notificationPreferences;
   const emailPreview = data?.emailPreview;
   const faqItems = data?.faqItems || [];
-  const deploymentPercent = investor.commitmentAmount > 0
-    ? (investor.calledCapital / investor.commitmentAmount) * 100
-    : 0;
-  const navChangePercent = investor.calledCapital > 0
-    ? (investor.navValue / investor.calledCapital - 1) * 100
-    : 0;
-
-  const aiSummaryText = `${investor.name} committed ${formatCurrency(investor.commitmentAmount)} with ${formatCurrency(investor.calledCapital)} called. DPI ${investor.dpi.toFixed(2)}x and TVPI ${investor.tvpi.toFixed(2)}x.`;
-  const headerBadges = [
-    {
-      label: `Last updated ${formatDate(investor.lastUpdate)}`,
-      size: "sm" as const,
-      variant: "flat" as const,
-      className: "bg-[var(--app-surface-hover)] text-[var(--app-text-muted)]",
-    },
-  ];
 
   return (
-    <PageScaffold
-      routePath="/lp-portal"
-      containerProps={{ className: "space-y-6" }}
-      header={{
-        title: investor.fundName,
-        description: investor.name,
-        icon: Users,
-        badges: headerBadges,
-        aiSummary: {
-          text: aiSummaryText,
-          confidence: 0.84,
-        },
-      }}
+    <AsyncStateRenderer
+      data={data}
+      isLoading={isLoading}
+      error={error}
+      onRetry={refetch}
+      loadingMessage="Loading LP portal…"
+      errorTitle="Failed to load LP portal"
+      isEmpty={() => false}
     >
+      {() => {
+        if (!investor) {
+          return <EmptyState icon={PieChart} title="No investor data available" message="Try again in a moment." />;
+        }
+
+        const deploymentPercent = investor.commitmentAmount > 0
+          ? (investor.calledCapital / investor.commitmentAmount) * 100
+          : 0;
+        const navChangePercent = investor.calledCapital > 0
+          ? (investor.navValue / investor.calledCapital - 1) * 100
+          : 0;
+
+        const aiSummaryText = `${investor.name} committed ${formatCurrency(investor.commitmentAmount)} with ${formatCurrency(investor.calledCapital)} called. DPI ${investor.dpi.toFixed(2)}x and TVPI ${investor.tvpi.toFixed(2)}x.`;
+        const headerBadges = [
+          {
+            label: `Last updated ${formatDate(investor.lastUpdate)}`,
+            size: "sm" as const,
+            variant: "flat" as const,
+            className: "bg-[var(--app-surface-hover)] text-[var(--app-text-muted)]",
+          },
+        ];
+
+        return (
+          <PageScaffold
+            routePath="/lp-portal"
+            containerProps={{ className: "space-y-6" }}
+            header={{
+              title: investor.fundName,
+              description: investor.name,
+              icon: Users,
+              badges: headerBadges,
+              aiSummary: {
+                text: aiSummaryText,
+                confidence: 0.84,
+              },
+            }}
+          >
       <div className="space-y-6">
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -396,6 +398,9 @@ export function LPInvestorPortal() {
           </Tab>
         </Tabs>
       </div>
-    </PageScaffold>
+          </PageScaffold>
+        );
+      }}
+    </AsyncStateRenderer>
   );
 }
