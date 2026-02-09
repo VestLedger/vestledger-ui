@@ -22,6 +22,7 @@ import { Badge, Button, Card, Input, Modal, Progress, Select } from '@/ui';
 import { GripVertical, Pencil, Plus, Trash2 } from 'lucide-react';
 import type { InvestorClass } from '@/types/waterfall';
 import { formatCurrencyCompact } from '@/utils/formatting';
+import { SectionHeader } from '@/ui/composites';
 
 const CLASS_COLORS = [
   'var(--app-primary)',
@@ -286,17 +287,16 @@ export function InvestorClassManager({ classes, onChange }: InvestorClassManager
 
   return (
     <Card padding="lg">
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-        <div>
-          <h3 className="text-lg font-semibold">Investor Classes</h3>
-          <p className="text-sm text-[var(--app-text-muted)]">
-            Reorder classes to control display order. Ownership is informational only.
-          </p>
-        </div>
-        <Button color="primary" onPress={openAddModal} startContent={<Plus className="h-4 w-4" />}>
-          Add Class
-        </Button>
-      </div>
+      <SectionHeader
+        className="mb-4"
+        title="Investor Classes"
+        description="Reorder classes to control display order. Ownership is informational only."
+        action={(
+          <Button color="primary" onPress={openAddModal} startContent={<Plus className="h-4 w-4" />}>
+            Add Class
+          </Button>
+        )}
+      />
 
       <div className="rounded-lg border border-[var(--app-border)] bg-[var(--app-surface-hover)] p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">

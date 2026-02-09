@@ -2,7 +2,7 @@
 
 import { Filter, Upload, Download, Eye, FileText, AlertCircle } from 'lucide-react';
 import { Button, Card, Badge } from '@/ui';
-import { ListItemCard, SearchToolbar, StatusBadge } from '@/ui/composites';
+import { ListItemCard, SearchToolbar, SectionHeader, StatusBadge } from '@/ui/composites';
 import { DocumentPreviewModal, useDocumentPreview, getMockDocumentUrl, inferDocumentType } from './documents/preview';
 import { useUIKey } from '@/store/ui';
 import { PortfolioTabHeader } from '@/components/portfolio-tab-header';
@@ -87,7 +87,7 @@ export function PortfolioDocuments() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
         {/* Company Directory */}
         <Card className="lg:col-span-1" padding="md">
-          <h3 className="text-lg font-medium mb-4">Companies</h3>
+          <SectionHeader title="Companies" className="mb-4" titleClassName="text-lg font-medium" />
           <div className="space-y-2">
             <Card
               isPressable
@@ -184,16 +184,16 @@ export function PortfolioDocuments() {
 
           {/* Document List */}
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium">
-                {selectedCompany ? `${selectedCompany.name} Documents` : 'All Documents'}
-              </h3>
-              <div className="flex gap-2">
+            <SectionHeader
+              className="mb-4"
+              title={selectedCompany ? `${selectedCompany.name} Documents` : 'All Documents'}
+              titleClassName="text-lg font-medium"
+              action={(
                 <Button variant="flat" size="sm" startContent={<Download className="w-4 h-4" />}>
                   Export
                 </Button>
-              </div>
-            </div>
+              )}
+            />
 
             {filteredDocuments.length === 0 ? (
               <div className="text-center py-12 text-[var(--app-text-muted)]">

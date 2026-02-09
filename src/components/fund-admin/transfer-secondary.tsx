@@ -4,7 +4,7 @@ import { useUIKey } from '@/store/ui';
 import { Card, Button, Badge, Select } from '@/ui';
 import { ArrowRightLeft, Users, FileText, AlertCircle } from 'lucide-react';
 import { formatCurrency, formatPercent } from '@/utils/formatting';
-import { SearchToolbar, StatusBadge } from '@/ui/composites';
+import { SearchToolbar, SectionHeader, StatusBadge } from '@/ui/composites';
 
 export type TransferType = 'direct' | 'secondary-sale' | 'inheritance' | 'gift' | 'court-order';
 export type TransferStatus =
@@ -176,22 +176,27 @@ export function TransferSecondary({
     <div className="space-y-4">
       {/* Header & Stats */}
       <Card padding="md">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <ArrowRightLeft className="w-5 h-5 text-[var(--app-primary)]" />
-            <h3 className="text-lg font-semibold">Transfers & Secondary Market</h3>
-          </div>
-          {onInitiateTransfer && (
-            <Button
-              size="sm"
-              color="primary"
-              startContent={<ArrowRightLeft className="w-4 h-4" />}
-              onPress={onInitiateTransfer}
-            >
-              Initiate Transfer
-            </Button>
-          )}
-        </div>
+        <SectionHeader
+          className="mb-4"
+          title={
+            <span className="flex items-center gap-2">
+              <ArrowRightLeft className="w-5 h-5 text-[var(--app-primary)]" />
+              <span>Transfers & Secondary Market</span>
+            </span>
+          }
+          action={
+            onInitiateTransfer ? (
+              <Button
+                size="sm"
+                color="primary"
+                startContent={<ArrowRightLeft className="w-4 h-4" />}
+                onPress={onInitiateTransfer}
+              >
+                Initiate Transfer
+              </Button>
+            ) : null
+          }
+        />
 
         {/* Summary Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">

@@ -10,6 +10,7 @@ import {
 } from '@/services/analytics/fundAnalyticsService';
 import { useUIKey } from '@/store/ui';
 import { useFund } from '@/contexts/fund-context';
+import { SectionHeader } from '@/ui/composites';
 
 type CohortType = 'vintage' | 'sector' | 'stage';
 
@@ -143,28 +144,33 @@ export function CohortAnalysis() {
   return (
     <Card padding="lg">
       <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Layers className="w-5 h-5 text-[var(--app-primary)]" />
-            <h3 className="text-lg font-semibold">Cohort Performance Analysis</h3>
-          </div>
-          <RadioGroup
-            aria-label="Cohort grouping"
-            orientation="horizontal"
-            classNames={{ wrapper: 'flex flex-wrap gap-3' }}
-            options={[
-              { value: 'vintage', label: 'By Vintage' },
-              { value: 'sector', label: 'By Sector' },
-              { value: 'stage', label: 'By Stage' },
-            ]}
-            value={selectedType}
-            onValueChange={(value) => {
-              if (value === 'vintage' || value === 'sector' || value === 'stage') {
-                patchUI({ selectedType: value });
-              }
-            }}
-          />
-        </div>
+        <SectionHeader
+          className="mb-4"
+          title={
+            <span className="flex items-center gap-2">
+              <Layers className="w-5 h-5 text-[var(--app-primary)]" />
+              <span>Cohort Performance Analysis</span>
+            </span>
+          }
+          action={
+            <RadioGroup
+              aria-label="Cohort grouping"
+              orientation="horizontal"
+              classNames={{ wrapper: 'flex flex-wrap gap-3' }}
+              options={[
+                { value: 'vintage', label: 'By Vintage' },
+                { value: 'sector', label: 'By Sector' },
+                { value: 'stage', label: 'By Stage' },
+              ]}
+              value={selectedType}
+              onValueChange={(value) => {
+                if (value === 'vintage' || value === 'sector' || value === 'stage') {
+                  patchUI({ selectedType: value });
+                }
+              }}
+            />
+          }
+        />
 
         {/* Aggregated Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">

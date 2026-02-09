@@ -2,7 +2,7 @@
 
 import { Card } from "@/ui";
 import type { WaterfallScenario } from "@/types/waterfall";
-import { Timeline, type TimelineItem } from '@/ui/composites';
+import { SectionHeader, Timeline, type TimelineItem } from '@/ui/composites';
 import { formatCurrencyCompact, formatDate } from "@/utils/formatting";
 
 export interface TierTimelineProps {
@@ -21,12 +21,10 @@ export function TierTimeline({ scenario }: TierTimelineProps) {
 
   return (
     <Card padding="lg" className="space-y-4">
-      <div>
-        <h3 className="text-lg font-semibold">Tier Timeline</h3>
-        <p className="text-sm text-[var(--app-text-muted)]">
-          Track when each tier clears as proceeds move through the waterfall.
-        </p>
-      </div>
+      <SectionHeader
+        title="Tier Timeline"
+        description="Track when each tier clears as proceeds move through the waterfall."
+      />
 
       {items.length === 0 ? (
         <div className="text-sm text-[var(--app-text-muted)]">

@@ -4,7 +4,7 @@ import { Card, Button, Badge } from '@/ui';
 import { TrendingUp, Calendar, ChevronRight, ChevronDown, Download, RefreshCw } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
 import { formatCurrency, formatPercent } from '@/utils/formatting';
-import { StatusBadge } from '@/ui/composites';
+import { SectionHeader, StatusBadge } from '@/ui/composites';
 
 export interface CarriedInterestTerm {
   id: string;
@@ -174,22 +174,27 @@ export function CarriedInterestTracker({
         <div className="lg:col-span-1">
           <Card padding="md">
             <div className="space-y-3">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-[var(--app-primary)]" />
-                  <h3 className="text-lg font-semibold">Carry History</h3>
-                </div>
-                {onCalculateAccrual && activeTerm && (
-                  <Button
-                    size="sm"
-                    color="primary"
-                    startContent={<RefreshCw className="w-3 h-3" />}
-                    onPress={() => onCalculateAccrual(activeTerm.fundId)}
-                  >
-                    Calculate
-                  </Button>
+              <SectionHeader
+                className="mb-4"
+                title={(
+                  <span className="flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-[var(--app-primary)]" />
+                    <span>Carry History</span>
+                  </span>
                 )}
-              </div>
+                action={
+                  onCalculateAccrual && activeTerm ? (
+                    <Button
+                      size="sm"
+                      color="primary"
+                      startContent={<RefreshCw className="w-3 h-3" />}
+                      onPress={() => onCalculateAccrual(activeTerm.fundId)}
+                    >
+                      Calculate
+                    </Button>
+                  ) : null
+                }
+              />
 
               <div className="space-y-2 max-h-[600px] overflow-y-auto">
                 {filteredAccruals.map(accrual => (

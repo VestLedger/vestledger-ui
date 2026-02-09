@@ -22,7 +22,7 @@ import {
   Plus
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { PageScaffold, StatusBadge } from '@/ui/composites';
+import { PageScaffold, SectionHeader, StatusBadge } from '@/ui/composites';
 
 interface SettingsSection {
   id: string;
@@ -173,7 +173,7 @@ export function Settings() {
         return (
           <div className="space-y-6">
             <div>
-              <h3 className="text-lg font-semibold mb-4">Personal Information</h3>
+              <SectionHeader title="Personal Information" className="mb-4" />
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -210,7 +210,7 @@ export function Settings() {
         return (
           <div className="space-y-6">
             <div>
-              <h3 className="text-lg font-semibold mb-4">Email Notifications</h3>
+              <SectionHeader title="Email Notifications" className="mb-4" />
               <div className="space-y-3">
                 {[
                   { label: 'Deal updates and activity', description: 'Get notified about new deals and changes' },
@@ -231,7 +231,7 @@ export function Settings() {
               </div>
             </div>
             <div>
-              <h3 className="text-lg font-semibold mb-4">Push Notifications</h3>
+              <SectionHeader title="Push Notifications" className="mb-4" />
               <div className="space-y-3">
                 {[
                   { label: 'High priority alerts', description: 'Critical notifications that need immediate attention' },
@@ -258,7 +258,7 @@ export function Settings() {
         return (
           <div className="space-y-6">
             <div>
-              <h3 className="text-lg font-semibold mb-4">Change Password</h3>
+              <SectionHeader title="Change Password" className="mb-4" />
               <div className="space-y-4 max-w-md">
                 <div>
                   <label className="block text-sm font-medium mb-2">Current Password</label>
@@ -285,7 +285,7 @@ export function Settings() {
             </div>
 
             <div className="border-t border-[var(--app-border)] pt-6">
-              <h3 className="text-lg font-semibold mb-4">Two-Factor Authentication</h3>
+              <SectionHeader title="Two-Factor Authentication" className="mb-4" />
               <div className="flex items-start gap-4 p-4 rounded-lg bg-[var(--app-surface)]">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
@@ -311,7 +311,7 @@ export function Settings() {
             </div>
 
             <div className="border-t border-[var(--app-border)] pt-6">
-              <h3 className="text-lg font-semibold mb-4">Active Sessions</h3>
+              <SectionHeader title="Active Sessions" className="mb-4" />
               <div className="space-y-3">
                 {[
                   { device: 'MacBook Pro', location: 'San Francisco, CA', lastActive: '2 minutes ago', current: true },
@@ -345,7 +345,7 @@ export function Settings() {
         return (
           <div className="space-y-6">
             <div>
-              <h3 className="text-lg font-semibold mb-4">Theme</h3>
+              <SectionHeader title="Theme" className="mb-4" />
               <RadioGroup
                 aria-label="Theme selection"
                 orientation="horizontal"
@@ -367,7 +367,7 @@ export function Settings() {
               </p>
             </div>
             <div>
-              <h3 className="text-lg font-semibold mb-4">Display Density</h3>
+              <SectionHeader title="Display Density" className="mb-4" />
               <RadioGroup
                 aria-label="Display density selection"
                 orientation="horizontal"
@@ -395,7 +395,7 @@ export function Settings() {
         return (
           <div className="space-y-6">
             <div>
-              <h3 className="text-lg font-semibold mb-4">Regional Settings</h3>
+              <SectionHeader title="Regional Settings" className="mb-4" />
               <div className="space-y-4 max-w-md">
                 <div>
                   <label className="block text-sm font-medium mb-2">Language</label>
@@ -441,7 +441,7 @@ export function Settings() {
         return (
           <div className="space-y-6">
             <div>
-              <h3 className="text-lg font-semibold mb-4">Current Plan</h3>
+              <SectionHeader title="Current Plan" className="mb-4" />
               <Card padding="lg" className="border-[var(--app-primary)]">
                 <div className="flex items-start justify-between">
                   <div>
@@ -460,7 +460,7 @@ export function Settings() {
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold mb-4">Payment Method</h3>
+              <SectionHeader title="Payment Method" className="mb-4" />
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-4 rounded-lg border border-[var(--app-border)]">
                   <div className="flex items-center gap-3">
@@ -484,7 +484,7 @@ export function Settings() {
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold mb-4">Billing History</h3>
+              <SectionHeader title="Billing History" className="mb-4" />
               <div className="space-y-2">
                 {[
                   { date: 'Dec 1, 2024', amount: '$299.00', status: 'Paid' },
@@ -512,10 +512,11 @@ export function Settings() {
         return (
           <div className="space-y-6">
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Team Members</h3>
-                <Button color="primary" startContent={<Plus className="w-4 h-4" />}>Invite Member</Button>
-              </div>
+              <SectionHeader
+                title="Team Members"
+                className="mb-4"
+                action={<Button color="primary" startContent={<Plus className="w-4 h-4" />}>Invite Member</Button>}
+              />
               <div className="space-y-2">
                 {[
                   { name: 'John Doe', email: 'john@vestledger.com', role: 'Owner', status: 'Active' },

@@ -4,6 +4,7 @@ import { Card } from '@/ui';
 import { getJCurveData } from '@/services/analytics/fundAnalyticsService';
 import { TrendingUp, Info } from 'lucide-react';
 import { useFund } from '@/contexts/fund-context';
+import { SectionHeader } from '@/ui/composites';
 
 export function JCurveChart() {
   const { selectedFund } = useFund();
@@ -64,23 +65,28 @@ export function JCurveChart() {
 
   return (
     <Card padding="lg">
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-[var(--app-primary)]" />
-            <h3 className="text-lg font-semibold">Fund J-Curve Analysis</h3>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-1 bg-[var(--app-primary)] rounded"></div>
-              <span className="text-sm text-[var(--app-text-muted)]">IRR</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-1 bg-[var(--app-secondary)] rounded"></div>
-              <span className="text-sm text-[var(--app-text-muted)]">MOIC</span>
-            </div>
-          </div>
-        </div>
+      <div className="mb-6 space-y-2">
+        <SectionHeader
+          title={(
+            <span className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-[var(--app-primary)]" />
+              <span>Fund J-Curve Analysis</span>
+            </span>
+          )}
+          action={(
+            <>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-1 bg-[var(--app-primary)] rounded"></div>
+                <span className="text-sm text-[var(--app-text-muted)]">IRR</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-1 bg-[var(--app-secondary)] rounded"></div>
+                <span className="text-sm text-[var(--app-text-muted)]">MOIC</span>
+              </div>
+            </>
+          )}
+          actionClassName="gap-4"
+        />
         <div className="flex items-start gap-2 p-3 rounded-lg bg-[var(--app-info-bg)] border border-[var(--app-info)]/20">
           <Info className="w-4 h-4 text-[var(--app-info)] mt-0.5 flex-shrink-0" />
           <p className="text-xs text-[var(--app-text-muted)]">

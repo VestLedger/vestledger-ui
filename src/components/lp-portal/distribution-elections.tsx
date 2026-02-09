@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Badge, Button, Card, Select } from "@/ui";
-import { ListItemCard, StatusBadge } from '@/ui/composites';
+import { ListItemCard, SectionHeader, StatusBadge } from '@/ui/composites';
 import type { LPDistributionElection } from "@/data/mocks/lp-portal/lp-investor-portal";
 import { formatCurrency, formatDate } from "@/utils/formatting";
 import { ClipboardList } from "lucide-react";
@@ -37,17 +37,15 @@ export function DistributionElections({ elections }: DistributionElectionsProps)
 
   return (
     <Card padding="lg">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h3 className="text-lg font-semibold">Distribution Elections</h3>
-          <p className="text-sm text-[var(--app-text-muted)]">
-            Choose cash or in-kind delivery for eligible distributions.
-          </p>
-        </div>
-        <Badge size="sm" variant="flat">
-          {pendingCount} pending
-        </Badge>
-      </div>
+      <SectionHeader
+        title="Distribution Elections"
+        description="Choose cash or in-kind delivery for eligible distributions."
+        action={(
+          <Badge size="sm" variant="flat">
+            {pendingCount} pending
+          </Badge>
+        )}
+      />
 
       <div className="mt-4 space-y-3">
         {elections.length === 0 ? (

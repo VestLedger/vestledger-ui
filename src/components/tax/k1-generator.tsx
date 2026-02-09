@@ -4,7 +4,7 @@ import { Card, Button, Badge, Select } from '@/ui';
 import { FileText, Download, Settings, RefreshCw, Send, Eye, CheckCircle, AlertCircle } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
 import { formatCurrency as formatCurrencyBase } from '@/utils/formatting';
-import { SearchToolbar, StatusBadge } from '@/ui/composites';
+import { SearchToolbar, SectionHeader, StatusBadge } from '@/ui/composites';
 
 export type K1IncomeType =
   | 'ordinary-business-income'
@@ -270,58 +270,55 @@ export function K1Generator({
     <div className="space-y-4">
       {/* Header & Configuration */}
       <Card padding="md">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
+        <SectionHeader
+          className="mb-4"
+          title={(
+            <span className="flex items-center gap-2">
               <FileText className="w-5 h-5 text-[var(--app-primary)]" />
-              <h3 className="text-lg font-semibold">K-1 Generation</h3>
-            </div>
-            {activeConfig && (
-              <div className="space-y-1 text-sm">
-                <p className="text-[var(--app-text-muted)]">
-                  {activeConfig.fundName} • Tax Year {activeConfig.taxYear}
-                </p>
-                <p className="text-xs text-[var(--app-text-subtle)]">
-                  EIN: {activeConfig.ein} • {activeConfig.entityType.toUpperCase()}
-                </p>
-              </div>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Select
-              aria-label="Tax year"
-              size="sm"
-              className="min-w-[110px]"
-              selectedKeys={[selectedTaxYear.toString()]}
-              onChange={(e) => patchUI({ selectedTaxYear: Number(e.target.value) })}
-              options={Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map((year) => ({
-                value: year.toString(),
-                label: year.toString(),
-              }))}
-            />
-            {onConfigureK1 && activeConfig && (
-              <Button
+              <span>K-1 Generation</span>
+            </span>
+          )}
+          description={activeConfig
+            ? `${activeConfig.fundName} • Tax Year ${activeConfig.taxYear} • EIN: ${activeConfig.ein} • ${activeConfig.entityType.toUpperCase()}`
+            : undefined}
+          action={(
+            <>
+              <Select
+                aria-label="Tax year"
                 size="sm"
-                variant="flat"
-                startContent={<Settings className="w-3 h-3" />}
-                onPress={() => onConfigureK1(activeConfig.fundId)}
-              >
-                Configure
-              </Button>
-            )}
-            {onGenerateK1s && activeConfig && (
-              <Button
-                size="sm"
-                color="primary"
-                startContent={<RefreshCw className="w-3 h-3" />}
-                onPress={() => onGenerateK1s(activeConfig.fundId, selectedTaxYear)}
-              >
-                Generate K-1s
-              </Button>
-            )}
-          </div>
-        </div>
+                className="min-w-[110px]"
+                selectedKeys={[selectedTaxYear.toString()]}
+                onChange={(e) => patchUI({ selectedTaxYear: Number(e.target.value) })}
+                options={Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map((year) => ({
+                  value: year.toString(),
+                  label: year.toString(),
+                }))}
+              />
+              {onConfigureK1 && activeConfig && (
+                <Button
+                  size="sm"
+                  variant="flat"
+                  startContent={<Settings className="w-3 h-3" />}
+                  onPress={() => onConfigureK1(activeConfig.fundId)}
+                >
+                  Configure
+                </Button>
+              )}
+              {onGenerateK1s && activeConfig && (
+                <Button
+                  size="sm"
+                  color="primary"
+                  startContent={<RefreshCw className="w-3 h-3" />}
+                  onPress={() => onGenerateK1s(activeConfig.fundId, selectedTaxYear)}
+                >
+                  Generate K-1s
+                </Button>
+              )}
+            </>
+          )}
+          actionClassName="flex-wrap justify-end"
+          descriptionClassName="text-sm text-[var(--app-text-muted)]"
+        />
 
         {/* Configuration Summary */}
         {activeConfig && (

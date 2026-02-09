@@ -7,6 +7,7 @@ import { writeToClipboard } from '@/utils/clipboard';
 import { formatCurrencyCompact } from '@/utils/formatting';
 import { useUIKey } from '@/store/ui';
 import { FileText, File, Table, Image as ImageIcon, Printer } from 'lucide-react';
+import { SectionHeader } from '@/ui/composites';
 
 type ExportMenuUIState = {
   format: ExportFormat;
@@ -97,20 +98,17 @@ export function ExportMenu({ scenario, onPrint }: ExportMenuProps) {
 
   return (
     <Card padding="lg">
-      <div className="flex items-start justify-between gap-3 mb-4">
-        <div>
-          <h3 className="text-lg font-semibold">Export Menu</h3>
-          <p className="text-sm text-[var(--app-text-muted)]">
-            Prepare export packages for stakeholders and LPs.
-          </p>
-        </div>
-        {formatBadge && (
+      <SectionHeader
+        className="mb-4"
+        title="Export Menu"
+        description="Prepare export packages for stakeholders and LPs."
+        action={formatBadge && (
           <Badge size="sm" variant="flat" className="flex items-center gap-1">
             {formatBadge.icon}
             {formatBadge.label}
           </Badge>
         )}
-      </div>
+      />
 
       <div className="space-y-4">
         <Select

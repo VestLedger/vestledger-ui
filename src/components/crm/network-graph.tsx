@@ -5,6 +5,7 @@ import { Card, Badge, Button } from '@/ui';
 import { Network, Users, Building2, TrendingUp, Zap, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
 import { NetworkNodeVisual } from './network-node';
+import { SectionHeader } from '@/ui/composites';
 
 export interface NetworkNode {
   id: string;
@@ -218,37 +219,42 @@ export function NetworkGraph({
   return (
     <div className="space-y-4">
       <Card padding="md">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Network className="w-5 h-5 text-[var(--app-primary)]" />
-            <h3 className="text-lg font-semibold">Network Map</h3>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              variant="flat"
-              isIconOnly
-              isDisabled={depth <= 1}
-              onPress={() => patchUI({ depth: Math.max(1, depth - 1) })}
-              aria-label="Decrease depth"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </Button>
-            <Badge size="sm" variant="flat" className="bg-[var(--app-surface-hover)]">
-              Depth: {depth}
-            </Badge>
-            <Button
-              size="sm"
-              variant="flat"
-              isIconOnly
-              isDisabled={depth >= maxDepth}
-              onPress={() => patchUI({ depth: Math.min(maxDepth, depth + 1) })}
-              aria-label="Increase depth"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
+        <SectionHeader
+          className="mb-4"
+          title={(
+            <span className="flex items-center gap-2">
+              <Network className="w-5 h-5 text-[var(--app-primary)]" />
+              <span>Network Map</span>
+            </span>
+          )}
+          action={(
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="flat"
+                isIconOnly
+                isDisabled={depth <= 1}
+                onPress={() => patchUI({ depth: Math.max(1, depth - 1) })}
+                aria-label="Decrease depth"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <Badge size="sm" variant="flat" className="bg-[var(--app-surface-hover)]">
+                Depth: {depth}
+              </Badge>
+              <Button
+                size="sm"
+                variant="flat"
+                isIconOnly
+                isDisabled={depth >= maxDepth}
+                onPress={() => patchUI({ depth: Math.min(maxDepth, depth + 1) })}
+                aria-label="Increase depth"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
+        />
 
         {/* SVG Graph */}
         <div className="relative bg-[var(--app-surface-hover)] rounded-lg overflow-hidden" style={{ height: '500px' }}>

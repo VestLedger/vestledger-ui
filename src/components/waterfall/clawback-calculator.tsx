@@ -4,6 +4,7 @@ import { Badge, Card } from "@/ui";
 import type { WaterfallScenario } from "@/types/waterfall";
 import { formatCurrencyCompact, formatPercent } from "@/utils/formatting";
 import { ShieldCheck, ShieldAlert } from "lucide-react";
+import { SectionHeader } from "@/ui/composites";
 
 export interface ClawbackCalculatorProps {
   scenario?: WaterfallScenario | null;
@@ -24,17 +25,15 @@ export function ClawbackCalculator({ scenario }: ClawbackCalculatorProps) {
 
   return (
     <Card padding="lg" className="space-y-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h3 className="text-lg font-semibold">Clawback Provision</h3>
-          <p className="text-sm text-[var(--app-text-muted)]">
-            Validate GP carry against fund-level return thresholds.
-          </p>
-        </div>
-        <Badge size="sm" variant="flat" className={statusClass}>
-          {statusLabel}
-        </Badge>
-      </div>
+      <SectionHeader
+        title="Clawback Provision"
+        description="Validate GP carry against fund-level return thresholds."
+        action={(
+          <Badge size="sm" variant="flat" className={statusClass}>
+            {statusLabel}
+          </Badge>
+        )}
+      />
 
       {!provision?.enabled || !clawback ? (
         <div className="rounded-lg border border-dashed border-[var(--app-border)] p-4 text-sm text-[var(--app-text-muted)]">

@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { Badge, Button, Card } from "@/ui";
-import { ListItemCard, StatusBadge } from '@/ui/composites';
+import { ListItemCard, SectionHeader, StatusBadge } from '@/ui/composites';
 import type { LPDistributionStatement } from "@/data/mocks/lp-portal/lp-investor-portal";
 import { formatCurrency, formatDate } from "@/utils/formatting";
 import { getLabelForType, taxFormTypeLabels } from "@/utils/styling/typeMappers";
@@ -50,25 +50,24 @@ export function DistributionStatements({ statements }: DistributionStatementsPro
 
   return (
     <Card padding="lg">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h3 className="text-lg font-semibold">Distribution Statements</h3>
-          <p className="text-sm text-[var(--app-text-muted)]">
-            Download statements and tax documents once generated.
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button size="sm" variant="bordered" startContent={<Download className="h-4 w-4" />}>
-            Download All
-          </Button>
-          <Button size="sm" variant="bordered" startContent={<Mail className="h-4 w-4" />}>
-            Email All
-          </Button>
-          <Button size="sm" variant="bordered" startContent={<Printer className="h-4 w-4" />}>
-            Print All
-          </Button>
-        </div>
-      </div>
+      <SectionHeader
+        title="Distribution Statements"
+        description="Download statements and tax documents once generated."
+        action={(
+          <>
+            <Button size="sm" variant="bordered" startContent={<Download className="h-4 w-4" />}>
+              Download All
+            </Button>
+            <Button size="sm" variant="bordered" startContent={<Mail className="h-4 w-4" />}>
+              Email All
+            </Button>
+            <Button size="sm" variant="bordered" startContent={<Printer className="h-4 w-4" />}>
+              Print All
+            </Button>
+          </>
+        )}
+        actionClassName="flex-wrap"
+      />
 
       <div className="mt-4 space-y-3">
         {statements.length === 0 ? (

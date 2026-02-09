@@ -17,7 +17,7 @@ import {
 import { useUIKey } from '@/store/ui';
 import { lpPortalRequested, lpPortalSelectors } from '@/store/slices/miscSlice';
 import { AsyncStateRenderer, EmptyState } from '@/ui/async-states';
-import { PageScaffold } from '@/ui/composites';
+import { PageScaffold, SectionHeader } from '@/ui/composites';
 import { formatCurrency, formatDate, formatPercent } from '@/utils/formatting';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { DistributionUpcoming } from './distribution-upcoming';
@@ -141,7 +141,7 @@ export function LPInvestorPortal() {
 
         {/* Performance Overview */}
         <Card padding="lg">
-          <h3 className="font-semibold mb-4">Performance Overview</h3>
+          <SectionHeader title="Performance Overview" className="mb-4" />
           <div className="grid grid-cols-3 gap-6">
             <div className="text-center p-4 rounded-lg bg-[var(--app-surface-hover)]">
               <p className="text-sm text-[var(--app-text-muted)] mb-2">Total Value to Paid-In</p>
@@ -304,11 +304,11 @@ export function LPInvestorPortal() {
           >
             <div className="mt-4">
               <Card padding="lg">
-                <h3 className="font-semibold mb-4">Portfolio Composition</h3>
-                <p className="text-sm text-[var(--app-text-muted)] mb-6">
-                  Detailed portfolio company information is available in the quarterly reports.
-                  Contact your fund manager for specific portfolio insights.
-                </p>
+                <SectionHeader
+                  title="Portfolio Composition"
+                  description="Detailed portfolio company information is available in the quarterly reports. Contact your fund manager for specific portfolio insights."
+                  className="mb-6"
+                />
 
                 <div className="space-y-4">
                   <div>
@@ -351,7 +351,7 @@ export function LPInvestorPortal() {
           >
             <div className="mt-4">
               <Card padding="lg">
-                <h3 className="font-semibold mb-4">Investment Details</h3>
+                <SectionHeader title="Investment Details" className="mb-4" />
                 <div className="grid grid-cols-2 gap-6">
                   <div>
                     <p className="text-sm text-[var(--app-text-muted)] mb-1">Investor</p>

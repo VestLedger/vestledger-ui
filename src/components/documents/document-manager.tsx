@@ -21,7 +21,7 @@ import {
   FileSpreadsheet,
   Archive,
 } from 'lucide-react';
-import { SearchToolbar } from '@/ui/composites';
+import { SearchToolbar, SectionHeader } from '@/ui/composites';
 
 export type DocumentCategory =
   | 'legal'
@@ -288,41 +288,41 @@ export function DocumentManager({
     <div className="space-y-4">
       {/* Header */}
       <Card padding="md">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Folder className="w-5 h-5 text-[var(--app-primary)]" />
-            <div>
-              <h3 className="text-lg font-semibold">
-                {currentFolder ? currentFolder.name : 'All Documents'}
-              </h3>
-              {currentFolder?.description && (
-                <p className="text-xs text-[var(--app-text-muted)]">{currentFolder.description}</p>
+        <SectionHeader
+          className="mb-4"
+          title={
+            <span className="flex items-center gap-2">
+              <Folder className="w-5 h-5 text-[var(--app-primary)]" />
+              <span>{currentFolder ? currentFolder.name : 'All Documents'}</span>
+            </span>
+          }
+          description={currentFolder?.description}
+          descriptionClassName={currentFolder?.description ? 'text-xs text-[var(--app-text-muted)]' : undefined}
+          action={
+            <div className="flex items-center gap-2">
+              {onCreateFolder && (
+                <Button
+                  size="sm"
+                  variant="flat"
+                  startContent={<Folder className="w-3 h-3" />}
+                  onPress={() => onCreateFolder(currentFolderId)}
+                >
+                  New Folder
+                </Button>
+              )}
+              {onUpload && (
+                <Button
+                  size="sm"
+                  color="primary"
+                  startContent={<Upload className="w-4 h-4" />}
+                  onPress={() => onUpload(currentFolderId)}
+                >
+                  Upload
+                </Button>
               )}
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            {onCreateFolder && (
-              <Button
-                size="sm"
-                variant="flat"
-                startContent={<Folder className="w-3 h-3" />}
-                onPress={() => onCreateFolder(currentFolderId)}
-              >
-                New Folder
-              </Button>
-            )}
-            {onUpload && (
-              <Button
-                size="sm"
-                color="primary"
-                startContent={<Upload className="w-4 h-4" />}
-                onPress={() => onUpload(currentFolderId)}
-              >
-                Upload
-              </Button>
-            )}
-          </div>
-        </div>
+          }
+        />
 
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">

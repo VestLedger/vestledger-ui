@@ -7,6 +7,7 @@ import { useUIKey } from '@/store/ui';
 import type { FeeLineItem, FeeTemplate, FeeType } from '@/types/distribution';
 import { formatCurrencyCompact, formatPercent } from '@/utils/formatting';
 import { Plus, Trash2 } from 'lucide-react';
+import { SectionHeader } from '@/ui/composites';
 
 type FeeExpenseTableUIState = {
   selectedTemplateId: string;
@@ -334,22 +335,22 @@ export function FeeExpenseTable({
       </div>
 
       <div className="rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] p-3 space-y-3">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <div className="text-sm font-semibold">Management Fee Calculator</div>
-            <div className="text-xs text-[var(--app-text-muted)]">
-              Calculate a management fee and apply it to the first matching line item.
-            </div>
-          </div>
-          <Button
-            size="sm"
-            color="primary"
-            onPress={handleApplyManagementFee}
-            isDisabled={managementFeeAmount <= 0}
-          >
-            Apply Management Fee
-          </Button>
-        </div>
+        <SectionHeader
+          title="Management Fee Calculator"
+          titleClassName="text-sm font-semibold"
+          description="Calculate a management fee and apply it to the first matching line item."
+          descriptionClassName="text-xs text-[var(--app-text-muted)]"
+          action={(
+            <Button
+              size="sm"
+              color="primary"
+              onPress={handleApplyManagementFee}
+              isDisabled={managementFeeAmount <= 0}
+            >
+              Apply Management Fee
+            </Button>
+          )}
+        />
         <div className="grid gap-3 md:grid-cols-3">
           <Input
             label="Base amount"

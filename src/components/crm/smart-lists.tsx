@@ -3,6 +3,7 @@
 import { Card, Button, Input, Badge, Select } from '@/ui';
 import { Filter, Plus, Save, Trash2, Star, Users, TrendingDown, Calendar, Briefcase, X, ChevronDown } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
+import { SectionHeader } from '@/ui/composites';
 
 export interface FilterCondition {
   id: string;
@@ -155,20 +156,24 @@ export function SmartLists({ lists, onListSelect, onListSave, onListDelete, sele
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Filter className="w-5 h-5 text-[var(--app-primary)]" />
-          <h3 className="text-lg font-semibold">Smart Lists</h3>
-        </div>
-        <Button
-          size="sm"
-          color="primary"
-          startContent={<Plus className="w-4 h-4" />}
-          onPress={handleCreateNew}
-        >
-          New List
-        </Button>
-      </div>
+      <SectionHeader
+        title={(
+          <span className="flex items-center gap-2">
+            <Filter className="w-5 h-5 text-[var(--app-primary)]" />
+            <span>Smart Lists</span>
+          </span>
+        )}
+        action={(
+          <Button
+            size="sm"
+            color="primary"
+            startContent={<Plus className="w-4 h-4" />}
+            onPress={handleCreateNew}
+          >
+            New List
+          </Button>
+        )}
+      />
 
       {/* Saved Lists */}
       <Card padding="sm">

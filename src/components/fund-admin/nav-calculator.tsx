@@ -4,7 +4,7 @@ import { useUIKey } from '@/store/ui';
 import { Card, Button, Badge } from '@/ui';
 import { Calculator, TrendingUp, TrendingDown, Calendar, Download, RefreshCw, AlertCircle } from 'lucide-react';
 import { formatCurrency, formatPercent } from '@/utils/formatting';
-import { StatusBadge } from '@/ui/composites';
+import { SectionHeader, StatusBadge } from '@/ui/composites';
 
 export interface NAVCalculation {
   id: string;
@@ -99,22 +99,27 @@ export function NAVCalculator({
       <div className="lg:col-span-1">
         <Card padding="md">
           <div className="space-y-3">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Calculator className="w-5 h-5 text-[var(--app-primary)]" />
-                <h3 className="text-lg font-semibold">NAV History</h3>
-              </div>
-              {onCalculate && (
-                <Button
-                  size="sm"
-                  color="primary"
-                  startContent={<RefreshCw className="w-3 h-3" />}
-                  onPress={onCalculate}
-                >
-                  Calculate
-                </Button>
-              )}
-            </div>
+            <SectionHeader
+              className="mb-4"
+              title={
+                <span className="flex items-center gap-2">
+                  <Calculator className="w-5 h-5 text-[var(--app-primary)]" />
+                  <span>NAV History</span>
+                </span>
+              }
+              action={
+                onCalculate ? (
+                  <Button
+                    size="sm"
+                    color="primary"
+                    startContent={<RefreshCw className="w-3 h-3" />}
+                    onPress={onCalculate}
+                  >
+                    Calculate
+                  </Button>
+                ) : null
+              }
+            />
 
             <div className="space-y-2 max-h-[600px] overflow-y-auto">
               {filteredCalculations.map(calc => (

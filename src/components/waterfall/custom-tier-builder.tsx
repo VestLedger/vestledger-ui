@@ -23,6 +23,7 @@ import { useUIKey } from '@/store/ui';
 import { formatCurrencyCompact } from '@/utils/formatting';
 import type { WaterfallScenario, WaterfallTier, WaterfallTemplate } from '@/types/waterfall';
 import { GripVertical, Pencil, Plus, Trash2 } from 'lucide-react';
+import { SectionHeader } from '@/ui/composites';
 
 type TierDraft = {
   name: string;
@@ -343,22 +344,21 @@ export function CustomTierBuilder({
 
   return (
     <Card padding="lg">
-      <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
-        <div>
-          <h3 className="text-lg font-semibold">Custom Tier Builder</h3>
-          <p className="text-sm text-[var(--app-text-muted)]">
-            Configure and reorder waterfall tiers for bespoke carry structures.
-          </p>
-        </div>
-        <Button
-          size="sm"
-          color="primary"
-          startContent={<Plus className="h-4 w-4" />}
-          onPress={openAddModal}
-        >
-          Add Tier
-        </Button>
-      </div>
+      <SectionHeader
+        className="mb-4"
+        title="Custom Tier Builder"
+        description="Configure and reorder waterfall tiers for bespoke carry structures."
+        action={(
+          <Button
+            size="sm"
+            color="primary"
+            startContent={<Plus className="h-4 w-4" />}
+            onPress={openAddModal}
+          >
+            Add Tier
+          </Button>
+        )}
+      />
 
       <div className="flex flex-wrap items-center gap-3 mb-4">
         <Select

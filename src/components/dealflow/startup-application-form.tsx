@@ -6,6 +6,7 @@ import { useUIKey } from '@/store/ui';
 import { useAppDispatch } from '@/store/hooks';
 import { startupApplicationSubmitRequested } from '@/store/slices/uiEffectsSlice';
 import { writeToClipboard } from '@/utils/clipboard';
+import { SectionHeader } from '@/ui/composites';
 
 interface FormData {
   companyName: string;
@@ -111,21 +112,22 @@ export function StartupApplicationForm({ embedded = false }: { embedded?: boolea
     <div className="max-w-4xl mx-auto">
       {!embedded && (
         <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-2xl font-bold mb-2">Startup Application Form</h2>
-              <p className="text-[var(--app-text-muted)]">
-                Embeddable form to capture startup applications directly into your dealflow
-              </p>
-            </div>
-            <Button
-              variant="flat"
-              startContent={showEmbedCode ? <Code className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              onPress={() => patchUI({ showEmbedCode: !showEmbedCode })}
-            >
-              {showEmbedCode ? 'Hide' : 'Get'} Embed Code
-            </Button>
-          </div>
+          <SectionHeader
+            className="mb-4"
+            title="Startup Application Form"
+            titleClassName="text-2xl font-bold"
+            description="Embeddable form to capture startup applications directly into your dealflow"
+            descriptionClassName="text-[var(--app-text-muted)]"
+            action={(
+              <Button
+                variant="flat"
+                startContent={showEmbedCode ? <Code className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                onPress={() => patchUI({ showEmbedCode: !showEmbedCode })}
+              >
+                {showEmbedCode ? 'Hide' : 'Get'} Embed Code
+              </Button>
+            )}
+          />
 
           {showEmbedCode && (
             <Card padding="md" className="mb-6 bg-[var(--app-surface-hover)]">

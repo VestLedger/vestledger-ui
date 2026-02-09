@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Badge, Button, Card, Checkbox, Input, Switch } from "@/ui";
 import type { LPNotificationPreferences } from "@/data/mocks/lp-portal/lp-investor-portal";
+import { SectionHeader } from "@/ui/composites";
 
 export interface DistributionPreferencesProps {
   preferences: LPNotificationPreferences;
@@ -29,17 +30,11 @@ export function DistributionPreferences({ preferences }: DistributionPreferences
 
   return (
     <Card padding="lg">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h3 className="text-lg font-semibold">Notification Preferences</h3>
-          <p className="text-sm text-[var(--app-text-muted)]">
-            Control distribution alerts and statement notifications.
-          </p>
-        </div>
-        <Badge size="sm" variant="flat">
-          Email only
-        </Badge>
-      </div>
+      <SectionHeader
+        title="Notification Preferences"
+        description="Control distribution alerts and statement notifications."
+        action={<Badge size="sm" variant="flat">Email only</Badge>}
+      />
 
       <div className="mt-4 space-y-4">
         <Input

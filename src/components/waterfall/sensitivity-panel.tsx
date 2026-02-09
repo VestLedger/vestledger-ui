@@ -24,6 +24,7 @@ import { calculateSensitivityAnalysis } from '@/lib/calculations/waterfall';
 import { formatCurrencyCompact } from '@/utils/formatting';
 import type { WaterfallScenario } from '@/types/waterfall';
 import { TrendingUp } from 'lucide-react';
+import { SectionHeader } from '@/ui/composites';
 
 type SensitivityUIState = {
   minExitValue: number;
@@ -247,29 +248,31 @@ export function SensitivityPanel({
 
   return (
     <Card padding="lg">
-      <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
-        <div>
-          <div className="flex items-center gap-2">
+      <SectionHeader
+        className="mb-4"
+        title={(
+          <span className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-[var(--app-primary)]" />
-            <h3 className="text-lg font-semibold">Sensitivity Analysis</h3>
-          </div>
-          <p className="text-sm text-[var(--app-text-muted)]">
-            Model GP carry percentage sensitivity across exit values.
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2 print:hidden">
-          <Badge size="sm" variant="flat">
-            {baseLabel} Base
-          </Badge>
-          <Switch
-            size="sm"
-            isSelected={compareModels}
-            onValueChange={(value) => patchUI({ compareModels: value })}
-          >
-            Compare Models
-          </Switch>
-        </div>
-      </div>
+            <span>Sensitivity Analysis</span>
+          </span>
+        )}
+        description="Model GP carry percentage sensitivity across exit values."
+        action={(
+          <>
+            <Badge size="sm" variant="flat">
+              {baseLabel} Base
+            </Badge>
+            <Switch
+              size="sm"
+              isSelected={compareModels}
+              onValueChange={(value) => patchUI({ compareModels: value })}
+            >
+              Compare Models
+            </Switch>
+          </>
+        )}
+        actionClassName="flex-wrap items-center print:hidden"
+      />
 
       <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr] print:hidden">
         <div className="space-y-3">

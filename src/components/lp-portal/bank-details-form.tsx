@@ -5,6 +5,7 @@ import { Badge, Button, Card, Input, Select, Textarea } from "@/ui";
 import type { LPBankDetails } from "@/data/mocks/lp-portal/lp-investor-portal";
 import { formatDate } from "@/utils/formatting";
 import { CheckCircle } from "lucide-react";
+import { SectionHeader } from "@/ui/composites";
 
 export interface BankDetailsFormProps {
   details: LPBankDetails;
@@ -53,25 +54,23 @@ export function BankDetailsForm({ details }: BankDetailsFormProps) {
 
   return (
     <Card padding="lg">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h3 className="text-lg font-semibold">Bank Details</h3>
-          <p className="text-sm text-[var(--app-text-muted)]">
-            Update wire instructions for future distributions.
-          </p>
-        </div>
-        <Badge
-          size="sm"
-          variant="flat"
-          className={
-            details.verified
-              ? "bg-[var(--app-success-bg)] text-[var(--app-success)]"
-              : "bg-[var(--app-warning-bg)] text-[var(--app-warning)]"
-          }
-        >
-          {details.verified ? "Verified" : "Pending verification"}
-        </Badge>
-      </div>
+      <SectionHeader
+        title="Bank Details"
+        description="Update wire instructions for future distributions."
+        action={(
+          <Badge
+            size="sm"
+            variant="flat"
+            className={
+              details.verified
+                ? "bg-[var(--app-success-bg)] text-[var(--app-success)]"
+                : "bg-[var(--app-warning-bg)] text-[var(--app-warning)]"
+            }
+          >
+            {details.verified ? "Verified" : "Pending verification"}
+          </Badge>
+        )}
+      />
 
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <Input

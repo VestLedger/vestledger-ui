@@ -6,7 +6,7 @@ import { getInitialExportJobs, getReportTemplates, type ExportJob, type ReportTe
 import { useUIKey } from '@/store/ui';
 import { useAppDispatch } from '@/store/hooks';
 import { reportExportRequested } from '@/store/slices/uiEffectsSlice';
-import { PageScaffold, StatusBadge } from '@/ui/composites';
+import { PageScaffold, SectionHeader, StatusBadge } from '@/ui/composites';
 
 const defaultReportExportState: {
   selectedTemplate: ReportTemplate | null;
@@ -84,7 +84,7 @@ export function ReportExport() {
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Report Templates */}
         <div className="lg:col-span-2 space-y-4">
-          <h3 className="font-semibold">Report Templates</h3>
+          <SectionHeader title="Report Templates" />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {reportTemplates.map((template) => (
@@ -136,7 +136,7 @@ export function ReportExport() {
 
           {/* Export History */}
           <div className="mt-6">
-            <h3 className="font-semibold mb-4">Recent Exports</h3>
+            <SectionHeader title="Recent Exports" className="mb-4" />
             <Card padding="none">
               <div className="divide-y divide-[var(--app-border)]">
                 {exportJobs.map((job) => (
@@ -180,7 +180,7 @@ export function ReportExport() {
         {/* Export Configuration */}
         <div className="space-y-4">
           <Card padding="lg" className="sticky top-6">
-            <h3 className="font-semibold mb-4">Export Configuration</h3>
+            <SectionHeader title="Export Configuration" className="mb-4" />
 
             {selectedTemplate ? (
               <div className="space-y-6">

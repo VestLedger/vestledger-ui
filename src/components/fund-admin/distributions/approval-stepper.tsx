@@ -251,39 +251,47 @@ export function ApprovalStepper({
                 isCurrent ? "border-[var(--app-primary)]" : "border-[var(--app-border)]"
               }`}
             >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="flex items-start gap-3">
-                  <div className="relative">
-                    <div
-                      className="flex h-10 w-10 items-center justify-center rounded-full text-xs font-semibold"
-                      style={{ backgroundColor: colors.bg, color: colors.text }}
-                    >
-                      {buildInitials(step.approverName)}
-                    </div>
-                    <span
-                      className="absolute -bottom-1 -right-1 h-3 w-3 rounded-full border-2 border-[var(--app-surface)]"
-                      style={{ backgroundColor: colors.text }}
-                    />
+              <div className="flex items-start gap-3">
+                <div className="relative">
+                  <div
+                    className="flex h-10 w-10 items-center justify-center rounded-full text-xs font-semibold"
+                    style={{ backgroundColor: colors.bg, color: colors.text }}
+                  >
+                    {buildInitials(step.approverName)}
                   </div>
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <div className="font-semibold">{step.approverRole}</div>
+                  <span
+                    className="absolute -bottom-1 -right-1 h-3 w-3 rounded-full border-2 border-[var(--app-surface)]"
+                    style={{ backgroundColor: colors.text }}
+                  />
+                </div>
+                <SectionHeader
+                  className="flex-1"
+                  title={(
+                    <span className="flex flex-wrap items-center gap-2">
+                      <span className="font-semibold">{step.approverRole}</span>
                       <StatusBadge status={step.status} domain="fund-admin" size="sm" showIcon />
                       {isCurrent && (
                         <Badge size="sm" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">
                           Current
                         </Badge>
                       )}
-                    </div>
-                    <div className="text-sm text-[var(--app-text-muted)]">
-                      {step.approverName} - {step.approverEmail}
-                    </div>
-                    <div className="text-xs text-[var(--app-text-subtle)]">
-                      Assigned {formatDate(step.assignedAt)}
-                      {step.dueDate ? ` - Due ${formatDate(step.dueDate)}` : ""}
-                    </div>
-                  </div>
-                </div>
+                    </span>
+                  )}
+                  description={(
+                    <>
+                      <span className="text-sm text-[var(--app-text-muted)]">
+                        {step.approverName} - {step.approverEmail}
+                      </span>
+                      <br />
+                      <span className="text-xs text-[var(--app-text-subtle)]">
+                        Assigned {formatDate(step.assignedAt)}
+                        {step.dueDate ? ` - Due ${formatDate(step.dueDate)}` : ""}
+                      </span>
+                    </>
+                  )}
+                  titleClassName="text-base leading-tight"
+                  descriptionClassName="leading-tight"
+                />
               </div>
 
               <div className="mt-3 space-y-2">

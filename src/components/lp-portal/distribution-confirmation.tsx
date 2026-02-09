@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { Badge, Button, Card } from "@/ui";
-import { ListItemCard, StatusBadge } from '@/ui/composites';
+import { ListItemCard, SectionHeader, StatusBadge } from '@/ui/composites';
 import type { LPDistributionConfirmation } from "@/data/mocks/lp-portal/lp-investor-portal";
 import { formatCurrency, formatDate } from "@/utils/formatting";
 import { CheckCircle } from "lucide-react";
@@ -41,17 +41,15 @@ export function DistributionConfirmation({ confirmations }: DistributionConfirma
 
   return (
     <Card padding="lg">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h3 className="text-lg font-semibold">Confirm Receipt</h3>
-          <p className="text-sm text-[var(--app-text-muted)]">
-            Acknowledge receipt of distribution statements.
-          </p>
-        </div>
-        <Badge size="sm" variant="flat">
-          {pendingItems.length} pending
-        </Badge>
-      </div>
+      <SectionHeader
+        title="Confirm Receipt"
+        description="Acknowledge receipt of distribution statements."
+        action={(
+          <Badge size="sm" variant="flat">
+            {pendingItems.length} pending
+          </Badge>
+        )}
+      />
 
       <div className="mt-4 space-y-3">
         {confirmations.length === 0 ? (

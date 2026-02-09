@@ -13,7 +13,7 @@ import {
 import { AdvancedTable } from '@/components/data-table/advanced-table';
 import type { ColumnDef } from '@/components/data-table/advanced-table';
 import { PortfolioTabHeader } from '@/components/portfolio-tab-header';
-import { MetricsGrid } from '@/ui/composites';
+import { MetricsGrid, SectionHeader } from '@/ui/composites';
 import type { MetricsGridItem } from '@/ui/composites';
 import {
   getPortfolioAssetAllocation,
@@ -271,7 +271,7 @@ export function PortfolioDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Unrealized Returns */}
         <Card padding="lg">
-          <h3 className="text-lg font-semibold mb-4">Unrealized Returns</h3>
+          <SectionHeader title="Unrealized Returns" className="mb-4" />
           <div className="space-y-4">
             <div>
               <div className="flex items-center justify-between mb-2">
@@ -308,7 +308,7 @@ export function PortfolioDashboard() {
 
         {/* Asset Allocation */}
         <Card padding="lg">
-          <h3 className="text-lg font-semibold mb-4">Asset Allocation by Sector</h3>
+          <SectionHeader title="Asset Allocation by Sector" className="mb-4" />
           <div className="space-y-3">
             {assetAllocation.map((allocation) => (
               <div key={allocation.sector}>
@@ -341,7 +341,7 @@ export function PortfolioDashboard() {
 
       {/* Portfolio Companies Table */}
       <div>
-        <h3 className="text-xl font-semibold mb-4">Portfolio Companies</h3>
+        <SectionHeader title="Portfolio Companies" className="mb-4" titleClassName="text-xl font-semibold" />
 
         <AdvancedTable
           stateKey="portfolio-dashboard:companies"

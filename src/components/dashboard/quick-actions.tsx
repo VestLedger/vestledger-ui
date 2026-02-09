@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { Sparkles, Send, FileText, Users, DollarSign, BarChart, MessageSquare } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { SectionHeader } from '@/ui/composites';
 
 export interface QuickAction {
   id: string;
@@ -31,15 +32,21 @@ export function QuickActions({ actions }: QuickActionsProps) {
 
   return (
     <div className="mb-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-[var(--app-text)] flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-[var(--app-primary)]" />
-          Quick Actions
-        </h3>
-        <span className="text-xs text-[var(--app-text-subtle)]">
-          AI-suggested actions appear first
-        </span>
-      </div>
+      <SectionHeader
+        className="mb-4"
+        title={
+          <span className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-[var(--app-primary)]" />
+            <span>Quick Actions</span>
+          </span>
+        }
+        titleClassName="text-sm font-semibold text-[var(--app-text)]"
+        action={
+          <span className="text-xs text-[var(--app-text-subtle)]">
+            AI-suggested actions appear first
+          </span>
+        }
+      />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {sortedActions.map((action, index) => {

@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Badge, Button, Card } from "@/ui";
-import { ListItemCard, StatusBadge } from '@/ui/composites';
+import { ListItemCard, SectionHeader, StatusBadge } from '@/ui/composites';
 import { EmptyState } from '@/ui/async-states';
 import type { LPUpcomingDistribution } from "@/data/mocks/lp-portal/lp-investor-portal";
 import { buildMonthDays } from "@/utils/calendar";
@@ -53,18 +53,16 @@ export function DistributionUpcoming({ distributions }: DistributionUpcomingProp
 
   return (
     <Card padding="lg">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h3 className="text-lg font-semibold">Upcoming Distributions</h3>
-          <p className="text-sm text-[var(--app-text-muted)]">
-            Track scheduled and in-progress payouts.
-          </p>
-        </div>
-        <div className="flex items-center gap-2 text-xs text-[var(--app-text-muted)]">
-          <CalendarDays className="h-4 w-4" />
-          {sorted.length} scheduled
-        </div>
-      </div>
+      <SectionHeader
+        title="Upcoming Distributions"
+        description="Track scheduled and in-progress payouts."
+        action={(
+          <div className="flex items-center gap-2 text-xs text-[var(--app-text-muted)]">
+            <CalendarDays className="h-4 w-4" />
+            {sorted.length} scheduled
+          </div>
+        )}
+      />
 
       <div className="mt-4 grid gap-4 lg:grid-cols-[280px_1fr]">
         <div className="rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] p-3">

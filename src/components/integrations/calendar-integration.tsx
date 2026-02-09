@@ -15,7 +15,7 @@ import {
   Download,
   Plus,
 } from 'lucide-react';
-import { SearchToolbar, StatusBadge } from '@/ui/composites';
+import { SearchToolbar, SectionHeader, StatusBadge } from '@/ui/composites';
 
 export type CalendarProvider = 'google' | 'outlook' | 'apple' | 'other';
 export type EventType = 'meeting' | 'call' | 'conference' | 'site-visit' | 'other';
@@ -250,34 +250,39 @@ export function CalendarIntegration({
     <div className="space-y-4">
       {/* Header & Stats */}
       <Card padding="md">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-[var(--app-primary)]" />
-            <h3 className="text-lg font-semibold">Calendar Integration</h3>
-          </div>
-          <div className="flex items-center gap-2">
-            {onCreateEvent && (
-              <Button
-                size="sm"
-                variant="flat"
-                startContent={<Plus className="w-3 h-3" />}
-                onPress={onCreateEvent}
-              >
-                New Event
-              </Button>
-            )}
-            {onConnectCalendar && (
-              <Button
-                size="sm"
-                color="primary"
-                startContent={<LinkIcon className="w-4 h-4" />}
-                onPress={() => onConnectCalendar('google')}
-              >
-                Connect Calendar
-              </Button>
-            )}
-          </div>
-        </div>
+        <SectionHeader
+          className="mb-4"
+          title={(
+            <span className="flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-[var(--app-primary)]" />
+              <span>Calendar Integration</span>
+            </span>
+          )}
+          action={(
+            <div className="flex items-center gap-2">
+              {onCreateEvent && (
+                <Button
+                  size="sm"
+                  variant="flat"
+                  startContent={<Plus className="w-3 h-3" />}
+                  onPress={onCreateEvent}
+                >
+                  New Event
+                </Button>
+              )}
+              {onConnectCalendar && (
+                <Button
+                  size="sm"
+                  color="primary"
+                  startContent={<LinkIcon className="w-4 h-4" />}
+                  onPress={() => onConnectCalendar('google')}
+                >
+                  Connect Calendar
+                </Button>
+              )}
+            </div>
+          )}
+        />
 
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
           <div className="p-3 rounded-lg bg-[var(--app-success-bg)]">

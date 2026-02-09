@@ -4,6 +4,7 @@ import { Card, Progress } from '@/ui';
 import { getCurrentFundMetrics, getDeploymentPacing } from '@/services/analytics/fundAnalyticsService';
 import { Activity, TrendingUp } from 'lucide-react';
 import { useFund } from '@/contexts/fund-context';
+import { SectionHeader } from '@/ui/composites';
 
 export function DeploymentPacing() {
   const { selectedFund } = useFund();
@@ -72,22 +73,27 @@ export function DeploymentPacing() {
   return (
     <Card padding="lg">
       <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Activity className="w-5 h-5 text-[var(--app-primary)]" />
-            <h3 className="text-lg font-semibold">Investment Pacing & Deployment</h3>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-3 bg-[var(--app-primary)] rounded"></div>
-              <span className="text-sm text-[var(--app-text-muted)]">Quarterly Deployment</span>
+        <SectionHeader
+          className="mb-4"
+          title={
+            <span className="flex items-center gap-2">
+              <Activity className="w-5 h-5 text-[var(--app-primary)]" />
+              <span>Investment Pacing & Deployment</span>
+            </span>
+          }
+          action={
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-3 bg-[var(--app-primary)] rounded"></div>
+                <span className="text-sm text-[var(--app-text-muted)]">Quarterly Deployment</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-1 bg-[var(--app-secondary)] rounded"></div>
+                <span className="text-sm text-[var(--app-text-muted)]">Cumulative</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-1 bg-[var(--app-secondary)] rounded"></div>
-              <span className="text-sm text-[var(--app-text-muted)]">Cumulative</span>
-            </div>
-          </div>
-        </div>
+          }
+        />
       </div>
 
       {/* Deployment Metrics */}

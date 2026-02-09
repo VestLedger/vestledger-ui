@@ -9,7 +9,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { pitchDeckUploadRequested } from '@/store/slices/uiEffectsSlice';
 import { pitchDeckAnalysesRequested, pitchDeckSelectors } from '@/store/slices/aiSlice';
 import { EmptyState, ErrorState, LoadingState } from '@/ui/async-states';
-import { StatusBadge } from '@/ui/composites';
+import { SectionHeader, StatusBadge } from '@/ui/composites';
 
 const defaultPitchDeckReaderState = {
   selectedAnalysisId: null as string | null,
@@ -285,20 +285,25 @@ export function PitchDeckReader() {
   return (
     <Card padding="lg">
       <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-[var(--app-primary)]" />
-            <h3 className="text-lg font-semibold">AI Pitch Deck Reader</h3>
-          </div>
-          <Button
-            color="primary"
-            startContent={<Upload className="w-4 h-4" />}
-            onPress={handleFileUpload}
-            isLoading={isUploading}
-          >
-            Upload Deck
-          </Button>
-        </div>
+        <SectionHeader
+          className="mb-4"
+          title={(
+            <span className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-[var(--app-primary)]" />
+              <span>AI Pitch Deck Reader</span>
+            </span>
+          )}
+          action={(
+            <Button
+              color="primary"
+              startContent={<Upload className="w-4 h-4" />}
+              onPress={handleFileUpload}
+              isLoading={isUploading}
+            >
+              Upload Deck
+            </Button>
+          )}
+        />
         <p className="text-sm text-[var(--app-text-muted)]">
           AI-powered analysis extracts key information, metrics, and insights from pitch decks
         </p>

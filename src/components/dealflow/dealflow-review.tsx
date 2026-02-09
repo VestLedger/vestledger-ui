@@ -10,7 +10,7 @@ import { AsyncStateRenderer } from '@/ui/async-states';
 import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys';
 import { formatCurrencyCompact } from '@/utils/formatting';
 import { useAsyncData } from '@/hooks/useAsyncData';
-import { PageScaffold } from '@/ui/composites';
+import { PageScaffold, SectionHeader } from '@/ui/composites';
 
 interface Vote {
   partnerId: string;
@@ -609,10 +609,15 @@ export function DealflowReview() {
           </Card>
 
           <Card padding="lg" className="mt-4">
-            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Target className="w-4 h-4 text-[var(--app-primary)]" />
-              Partner Scoring
-            </h3>
+            <SectionHeader
+              className="mb-4"
+              title={(
+                <span className="flex items-center gap-2">
+                  <Target className="w-4 h-4 text-[var(--app-primary)]" />
+                  <span>Partner Scoring</span>
+                </span>
+              )}
+            />
             <CompanyScoring companyId={Number(selectedDeal.id)} companyName={selectedDeal.companyName} />
           </Card>
         </div>

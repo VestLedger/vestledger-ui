@@ -12,7 +12,7 @@ import {
   Eye,
   Download,
 } from 'lucide-react';
-import { SearchToolbar, StatusBadge } from '@/ui/composites';
+import { SearchToolbar, SectionHeader, StatusBadge } from '@/ui/composites';
 
 export type EntityType = 'individual' | 'corporation' | 'partnership' | 'trust' | 'llc' | 'other';
 export type RiskLevel = 'low' | 'medium' | 'high' | 'severe';
@@ -264,22 +264,27 @@ export function AMLKYCWorkflow({
     <div className="space-y-4">
       {/* Header & Stats */}
       <Card padding="md">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-[var(--app-primary)]" />
-            <h3 className="text-lg font-semibold">AML/KYC Compliance</h3>
-          </div>
-          {onInitiateWorkflow && (
-            <Button
-              size="sm"
-              color="primary"
-              startContent={<Shield className="w-4 h-4" />}
-              onPress={() => onInitiateWorkflow('')}
-            >
-              New Workflow
-            </Button>
-          )}
-        </div>
+        <SectionHeader
+          className="mb-4"
+          title={
+            <span className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-[var(--app-primary)]" />
+              <span>AML/KYC Compliance</span>
+            </span>
+          }
+          action={
+            onInitiateWorkflow ? (
+              <Button
+                size="sm"
+                color="primary"
+                startContent={<Shield className="w-4 h-4" />}
+                onPress={() => onInitiateWorkflow('')}
+              >
+                New Workflow
+              </Button>
+            ) : null
+          }
+        />
 
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
           <div className="p-3 rounded-lg bg-[var(--app-primary-bg)]">

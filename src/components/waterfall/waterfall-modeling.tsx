@@ -18,7 +18,7 @@ import {
 import { useUIKey } from '@/store/ui';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { formatCurrencyCompact } from '@/utils/formatting';
-import { PageScaffold } from '@/ui/composites';
+import { PageScaffold, SectionHeader } from '@/ui/composites';
 import { AsyncStateRenderer } from '@/ui/async-states';
 import { InvestorClassManager } from '@/components/waterfall/investor-class-manager';
 import { WaterfallBarChart } from '@/components/waterfall/charts/waterfall-bar-chart';
@@ -600,23 +600,22 @@ export function WaterfallModeling() {
               )}
 
               <Card padding="lg">
-                <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-                  <div>
-                    <h3 className="text-lg font-semibold">Waterfall Visualizations</h3>
-                    <p className="text-sm text-[var(--app-text-muted)]">
-                      Switch between waterfall flow, scenario comparison, and LP drill-down views.
-                    </p>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant={printMode ? 'solid' : 'bordered'}
-                    className="print:hidden"
-                    onPress={() => patchUI({ printMode: !printMode })}
-                    startContent={<Printer className="h-4 w-4" />}
-                  >
-                    {printMode ? 'Print Mode' : 'Print View'}
-                  </Button>
-                </div>
+                <SectionHeader
+                  className="mb-4"
+                  title="Waterfall Visualizations"
+                  description="Switch between waterfall flow, scenario comparison, and LP drill-down views."
+                  action={(
+                    <Button
+                      size="sm"
+                      variant={printMode ? 'solid' : 'bordered'}
+                      className="print:hidden"
+                      onPress={() => patchUI({ printMode: !printMode })}
+                      startContent={<Printer className="h-4 w-4" />}
+                    >
+                      {printMode ? 'Print Mode' : 'Print View'}
+                    </Button>
+                  )}
+                />
 
                 <div className="flex flex-wrap gap-2 mb-4 print:hidden">
                   {chartOptions.map((option) => {
@@ -669,7 +668,7 @@ export function WaterfallModeling() {
 
               {!printMode && (
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">Tier Breakdown</h3>
+                  <SectionHeader title="Tier Breakdown" className="mb-3" />
                   <TierBreakdownTable scenario={activeScenario} />
                 </div>
               )}
@@ -707,14 +706,17 @@ export function WaterfallModeling() {
             {!printMode && (
               <div className="space-y-4">
                 <Card padding="lg">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold">Scenario Builder</h3>
-                    {selectedScenario && (
-                      <Badge size="sm" variant="flat">
-                        {getModelLabel(selectedScenario.model)}
-                      </Badge>
-                    )}
-                  </div>
+                  <SectionHeader
+                    className="mb-4"
+                    title="Scenario Builder"
+                    action={
+                      selectedScenario ? (
+                        <Badge size="sm" variant="flat">
+                          {getModelLabel(selectedScenario.model)}
+                        </Badge>
+                      ) : null
+                    }
+                  />
 
                   <div className="space-y-4">
                     <Select
@@ -853,7 +855,7 @@ export function WaterfallModeling() {
                 </Card>
 
                 <Card padding="lg">
-                  <h3 className="text-lg font-semibold mb-4">Scenario Summary</h3>
+                  <SectionHeader title="Scenario Summary" className="mb-4" />
                   {activeScenario && scenarioResults ? (
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
@@ -889,7 +891,7 @@ export function WaterfallModeling() {
                 </Card>
 
                 <Card padding="lg">
-                  <h3 className="text-lg font-semibold mb-4">Waterfall Steps</h3>
+                  <SectionHeader title="Waterfall Steps" className="mb-4" />
                   <div className="space-y-3 text-sm">
                     {waterfallSteps.map((step, index) => (
                       <div key={step.title} className="space-y-2">

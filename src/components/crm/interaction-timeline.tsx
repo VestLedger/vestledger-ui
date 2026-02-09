@@ -3,7 +3,7 @@
 import { Card, Button, Badge, Select } from '@/ui';
 import { Mail, Phone, Video, MessageSquare, Calendar, Paperclip, Clock, Plus, Edit3, Trash2 } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
-import { SearchToolbar } from '@/ui/composites';
+import { SearchToolbar, SectionHeader } from '@/ui/composites';
 
 export interface TimelineInteraction {
   id: string;
@@ -158,17 +158,19 @@ export function InteractionTimeline({
     <Card padding="md">
       <div className="space-y-4">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Clock className="w-5 h-5 text-[var(--app-primary)]" />
-            <h3 className="text-lg font-semibold">
-              Interaction Timeline {contactName && `with ${contactName}`}
-            </h3>
-          </div>
-          <Badge size="sm" variant="flat" className="bg-[var(--app-surface-hover)]">
-            {interactions.length} total
-          </Badge>
-        </div>
+        <SectionHeader
+          title={(
+            <span className="flex items-center gap-2">
+              <Clock className="w-5 h-5 text-[var(--app-primary)]" />
+              <span>Interaction Timeline {contactName && `with ${contactName}`}</span>
+            </span>
+          )}
+          action={(
+            <Badge size="sm" variant="flat" className="bg-[var(--app-surface-hover)]">
+              {interactions.length} total
+            </Badge>
+          )}
+        />
 
         {/* Quick Stats */}
         <div className="grid grid-cols-4 gap-2">

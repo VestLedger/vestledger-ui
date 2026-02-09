@@ -14,7 +14,7 @@ import {
   getLPs,
 } from '@/services/lpPortal/lpManagementService';
 import { formatCurrency, formatPercent } from '@/utils/formatting';
-import { PageScaffold, SearchToolbar, StatusBadge } from '@/ui/composites';
+import { PageScaffold, SearchToolbar, SectionHeader, StatusBadge } from '@/ui/composites';
 
 export function LPManagement() {
   const { value: ui, patch: patchUI } = useUIKey<{
@@ -281,15 +281,16 @@ export function LPManagement() {
       </div>
 
       <Card padding="lg" className="mt-6">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-4">
-          <div>
-            <h3 className="text-lg font-semibold">LP Portal Preview</h3>
-            <p className="text-sm text-[var(--app-text-muted)]">See the investor-facing experience your LPs will use.</p>
-          </div>
-          <Badge size="sm" variant="flat" className="bg-[var(--app-info-bg)] text-[var(--app-info)] w-fit">
-            Preview
-          </Badge>
-        </div>
+        <SectionHeader
+          className="mb-4"
+          title="LP Portal Preview"
+          description="See the investor-facing experience your LPs will use."
+          action={(
+            <Badge size="sm" variant="flat" className="bg-[var(--app-info-bg)] text-[var(--app-info)] w-fit">
+              Preview
+            </Badge>
+          )}
+        />
         <LPInvestorPortal />
       </Card>
 
@@ -381,10 +382,16 @@ export function LPManagement() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Capital Calls */}
             <div>
-              <h3 className="font-semibold mb-4 flex items-center gap-2">
-                <ArrowUpRight className="w-5 h-5 text-[var(--app-danger)]" />
-                Capital Calls
-              </h3>
+              <SectionHeader
+                className="mb-4"
+                title={(
+                  <span className="flex items-center gap-2">
+                    <ArrowUpRight className="w-5 h-5 text-[var(--app-danger)]" />
+                    <span>Capital Calls</span>
+                  </span>
+                )}
+                titleClassName="font-semibold text-base"
+              />
               <div className="space-y-3">
                 {capitalCalls.map((call) => (
                   <Card key={call.id} padding="md">
@@ -406,10 +413,16 @@ export function LPManagement() {
 
             {/* Distributions */}
             <div>
-              <h3 className="font-semibold mb-4 flex items-center gap-2">
-                <ArrowDownRight className="w-5 h-5 text-[var(--app-success)]" />
-                Distributions
-              </h3>
+              <SectionHeader
+                className="mb-4"
+                title={(
+                  <span className="flex items-center gap-2">
+                    <ArrowDownRight className="w-5 h-5 text-[var(--app-success)]" />
+                    <span>Distributions</span>
+                  </span>
+                )}
+                titleClassName="font-semibold text-base"
+              />
               <div className="space-y-3">
                 {distributions.map((dist) => (
                   <Card key={dist.id} padding="md">
@@ -439,7 +452,7 @@ export function LPManagement() {
         {selectedTab === 'performance' && (
           <div>
             <Card padding="lg">
-              <h3 className="font-semibold mb-4">Fund Performance Summary</h3>
+              <SectionHeader title="Fund Performance Summary" className="mb-4" titleClassName="font-semibold text-base" />
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div className="p-4 rounded-lg bg-[var(--app-success-bg)]">

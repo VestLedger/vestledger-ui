@@ -2,7 +2,7 @@
 
 import { Card, Progress } from '@/ui';
 import { TrendingUp, DollarSign, PieChart, Target, Calendar, Activity } from 'lucide-react';
-import { MetricsGrid } from '@/ui/composites';
+import { MetricsGrid, SectionHeader } from '@/ui/composites';
 import type { MetricsGridItem } from '@/ui/composites';
 import { getBenchmarkData, getCurrentFundMetrics } from '@/services/analytics/fundAnalyticsService';
 import { useFund } from '@/contexts/fund-context';
@@ -128,14 +128,12 @@ export function FundPerformanceOverview() {
     <div>
       {/* Fund Overview */}
       <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="text-xl font-semibold">{currentFund.fundName}</h3>
-            <p className="text-sm text-[var(--app-text-muted)]">
-              Vintage {currentFund.vintage} • {currentFund.fundStatus.charAt(0).toUpperCase() + currentFund.fundStatus.slice(1)} Stage • {currentFund.remainingLife} years remaining
-            </p>
-          </div>
-        </div>
+        <SectionHeader
+          title={currentFund.fundName}
+          description={`Vintage ${currentFund.vintage} • ${currentFund.fundStatus.charAt(0).toUpperCase() + currentFund.fundStatus.slice(1)} Stage • ${currentFund.remainingLife} years remaining`}
+          className="mb-4"
+          titleClassName="text-xl font-semibold"
+        />
 
         {/* Fund Size & Deployment */}
         <Card padding="lg" className="mb-6">
@@ -180,7 +178,7 @@ export function FundPerformanceOverview() {
       </div>
 
       {/* Performance Metrics */}
-      <h3 className="text-lg font-semibold mb-4">Fund Performance Metrics</h3>
+      <SectionHeader title="Fund Performance Metrics" className="mb-4" />
       <MetricsGrid
         items={metricItems}
         columns={{ base: 1, sm: 2, lg: 3 }}
@@ -189,7 +187,7 @@ export function FundPerformanceOverview() {
 
       {/* TVPI Breakdown */}
       <Card padding="lg">
-        <h4 className="text-md font-semibold mb-4">TVPI Composition</h4>
+        <SectionHeader title="TVPI Composition" className="mb-4" titleClassName="text-md font-semibold" />
         <div className="space-y-4">
           <div>
             <div className="flex items-center justify-between mb-2">

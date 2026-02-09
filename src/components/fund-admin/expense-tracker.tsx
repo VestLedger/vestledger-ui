@@ -4,7 +4,7 @@ import { useUIKey } from '@/store/ui';
 import { Card, Button, Badge, Select } from '@/ui';
 import { DollarSign, Plus, PieChart, Download } from 'lucide-react';
 import { formatCurrency } from '@/utils/formatting';
-import { SearchToolbar, StatusBadge } from '@/ui/composites';
+import { SearchToolbar, SectionHeader, StatusBadge } from '@/ui/composites';
 
 export type ExpenseType =
   | 'management-fee'
@@ -151,39 +151,40 @@ export function ExpenseTracker({
     <Card padding="md">
       <div className="space-y-4">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-[var(--app-primary)]" />
-            <div>
-              <h3 className="text-lg font-semibold">Fund Expense Tracking</h3>
-              <p className="text-xs text-[var(--app-text-muted)]">
-                {filteredExpenses.length} expenses • {formatCurrency(totals.total, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} total
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            {onExport && (
-              <Button
-                size="sm"
-                variant="flat"
-                startContent={<Download className="w-3 h-3" />}
-                onPress={() => onExport('csv')}
-              >
-                Export
-              </Button>
-            )}
-            {onAddExpense && (
-              <Button
-                size="sm"
-                color="primary"
-                startContent={<Plus className="w-4 h-4" />}
-                onPress={onAddExpense}
-              >
-                Add Expense
-              </Button>
-            )}
-          </div>
-        </div>
+        <SectionHeader
+          title={(
+            <span className="flex items-center gap-2">
+              <DollarSign className="w-5 h-5 text-[var(--app-primary)]" />
+              <span>Fund Expense Tracking</span>
+            </span>
+          )}
+          description={`${filteredExpenses.length} expenses • ${formatCurrency(totals.total, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} total`}
+          action={(
+            <>
+              {onExport && (
+                <Button
+                  size="sm"
+                  variant="flat"
+                  startContent={<Download className="w-3 h-3" />}
+                  onPress={() => onExport('csv')}
+                >
+                  Export
+                </Button>
+              )}
+              {onAddExpense && (
+                <Button
+                  size="sm"
+                  color="primary"
+                  startContent={<Plus className="w-4 h-4" />}
+                  onPress={onAddExpense}
+                >
+                  Add Expense
+                </Button>
+              )}
+            </>
+          )}
+          descriptionClassName="text-xs"
+        />
 
         {/* Summary Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">

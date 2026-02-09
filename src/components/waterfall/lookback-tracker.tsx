@@ -4,6 +4,7 @@ import { Badge, Card } from "@/ui";
 import type { WaterfallScenario } from "@/types/waterfall";
 import { formatCurrencyCompact } from "@/utils/formatting";
 import { TrendingDown, TrendingUp } from "lucide-react";
+import { SectionHeader } from "@/ui/composites";
 
 export interface LookbackTrackerProps {
   scenario?: WaterfallScenario | null;
@@ -25,17 +26,15 @@ export function LookbackTracker({ scenario }: LookbackTrackerProps) {
 
   return (
     <Card padding="lg" className="space-y-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h3 className="text-lg font-semibold">Lookback Tracking</h3>
-          <p className="text-sm text-[var(--app-text-muted)]">
-            Monitor carry exposure against historical loss recovery requirements.
-          </p>
-        </div>
-        <Badge size="sm" variant="flat" className={statusClass}>
-          {statusLabel}
-        </Badge>
-      </div>
+      <SectionHeader
+        title="Lookback Tracking"
+        description="Monitor carry exposure against historical loss recovery requirements."
+        action={(
+          <Badge size="sm" variant="flat" className={statusClass}>
+            {statusLabel}
+          </Badge>
+        )}
+      />
 
       {!provision?.enabled || !lookback ? (
         <div className="rounded-lg border border-dashed border-[var(--app-border)] p-4 text-sm text-[var(--app-text-muted)]">

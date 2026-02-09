@@ -4,6 +4,7 @@ import { Card, Button, Badge, Progress, Textarea } from '@/ui';
 import { Star, TrendingUp, Target, Users, Lightbulb, CheckCircle2, Edit3 } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
 import { getCompanyScoreData } from '@/services/dealflow/companyScoringService';
+import { SectionHeader } from '@/ui/composites';
 // import { useAppDispatch, useAppSelector } from '@/store/hooks';
 // import { companyScoringRequested } from '@/store/slices/dealflowSlice';
 
@@ -171,7 +172,7 @@ export function CompanyScoring({ companyId, companyName }: { companyId: number; 
 
       {/* Scoring Criteria with Breakdown */}
       <Card padding="lg">
-        <h4 className="font-semibold mb-4">Score Breakdown by Criteria</h4>
+        <SectionHeader title="Score Breakdown by Criteria" className="mb-4" titleClassName="font-semibold text-base" />
         <div className="space-y-4">
           {defaultCriteria.map(criteria => {
             const avgScore = scoreData.individualScores.reduce((sum: number, score) =>
@@ -220,7 +221,7 @@ export function CompanyScoring({ companyId, companyName }: { companyId: number; 
 
       {/* Individual Partner Scores */}
       <div>
-        <h4 className="font-semibold mb-4">Individual Partner Scores</h4>
+        <SectionHeader title="Individual Partner Scores" className="mb-4" titleClassName="font-semibold text-base" />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {scoreData.individualScores.map((partnerScore) => (
             <Card key={partnerScore.partnerId} padding="md">
@@ -270,7 +271,7 @@ export function CompanyScoring({ companyId, companyName }: { companyId: number; 
       {/* Edit My Score Form */}
       {isEditingScores && (
         <Card padding="lg" className="border-[var(--app-primary)]">
-          <h4 className="font-semibold mb-4">Submit Your Score</h4>
+          <SectionHeader title="Submit Your Score" className="mb-4" titleClassName="font-semibold text-base" />
           <div className="space-y-4">
             {defaultCriteria.map(criteria => (
               <div key={criteria.id}>

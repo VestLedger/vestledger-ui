@@ -3,7 +3,7 @@
 import { Card, Button, Badge, Select } from '@/ui';
 import { Mail, RefreshCw, X, AlertCircle, Calendar, Paperclip, ExternalLink, ChevronDown, ChevronUp, Users, Briefcase } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
-import { SearchToolbar, StatusBadge } from '@/ui/composites';
+import { SearchToolbar, SectionHeader, StatusBadge } from '@/ui/composites';
 
 export interface EmailAccount {
   id: string;
@@ -79,23 +79,27 @@ export function EmailIntegration({
     <Card padding="md">
       <div className="space-y-4">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <button
-            onClick={() => patchUI({ isExpanded: !isExpanded })}
-            className="flex items-center gap-2 hover:text-[var(--app-primary)] transition-colors"
-          >
-            <Mail className="w-5 h-5 text-[var(--app-primary)]" />
-            <h3 className="text-lg font-semibold">Email Integration</h3>
-            {isExpanded ? (
-              <ChevronUp className="w-4 h-4" />
-            ) : (
-              <ChevronDown className="w-4 h-4" />
-            )}
-          </button>
-          <Badge size="sm" variant="flat" className="bg-[var(--app-surface-hover)]">
-            {accounts.filter(a => a.status === 'connected').length} connected
-          </Badge>
-        </div>
+        <SectionHeader
+          title={(
+            <button
+              onClick={() => patchUI({ isExpanded: !isExpanded })}
+              className="flex items-center gap-2 hover:text-[var(--app-primary)] transition-colors"
+            >
+              <Mail className="w-5 h-5 text-[var(--app-primary)]" />
+              <span>Email Integration</span>
+              {isExpanded ? (
+                <ChevronUp className="w-4 h-4" />
+              ) : (
+                <ChevronDown className="w-4 h-4" />
+              )}
+            </button>
+          )}
+          action={(
+            <Badge size="sm" variant="flat" className="bg-[var(--app-surface-hover)]">
+              {accounts.filter(a => a.status === 'connected').length} connected
+            </Badge>
+          )}
+        />
 
         {isExpanded && (
           <>
@@ -256,17 +260,19 @@ export function EmailThreadViewer({
     <Card padding="md">
       <div className="space-y-4">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Mail className="w-5 h-5 text-[var(--app-primary)]" />
-            <h3 className="text-lg font-semibold">
-              Email History {contactName && `with ${contactName}`}
-            </h3>
-          </div>
-          <Badge size="sm" variant="flat" className="bg-[var(--app-surface-hover)]">
-            {threads.length} threads
-          </Badge>
-        </div>
+        <SectionHeader
+          title={(
+            <span className="flex items-center gap-2">
+              <Mail className="w-5 h-5 text-[var(--app-primary)]" />
+              <span>Email History {contactName && `with ${contactName}`}</span>
+            </span>
+          )}
+          action={(
+            <Badge size="sm" variant="flat" className="bg-[var(--app-surface-hover)]">
+              {threads.length} threads
+            </Badge>
+          )}
+        />
 
         {/* Search & Filter */}
         <SearchToolbar

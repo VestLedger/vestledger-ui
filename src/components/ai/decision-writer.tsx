@@ -6,6 +6,7 @@ import { Sparkles, Send, Copy, Download, ThumbsDown, AlertCircle, Check, FileTex
 import { useUIKey } from '@/store/ui';
 import { useAppDispatch } from '@/store/hooks';
 import { decisionWriterCopyRequested, decisionWriterGenerateRequested } from '@/store/slices/uiEffectsSlice';
+import { SectionHeader } from '@/ui/composites';
 import {
   getDecisionWriterRejectionReasons,
   getDecisionWriterSeedDealInfo,
@@ -87,10 +88,16 @@ export function DecisionWriter() {
         <div className="space-y-6">
           {/* Deal Information */}
           <Card padding="lg">
-            <h3 className="font-semibold mb-4 flex items-center gap-2">
-              <FileText className="w-4 h-4 text-[var(--app-primary)]" />
-              Deal Information
-            </h3>
+            <SectionHeader
+              className="mb-4"
+              title={(
+                <span className="flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-[var(--app-primary)]" />
+                  <span>Deal Information</span>
+                </span>
+              )}
+              titleClassName="font-semibold text-base"
+            />
 
             <div className="space-y-4">
               <div>
@@ -134,10 +141,16 @@ export function DecisionWriter() {
 
           {/* Rejection Reasons */}
           <Card padding="lg">
-            <h3 className="font-semibold mb-4 flex items-center gap-2">
-              <ThumbsDown className="w-4 h-4 text-[var(--app-primary)]" />
-              Rejection Reasons
-            </h3>
+            <SectionHeader
+              className="mb-4"
+              title={(
+                <span className="flex items-center gap-2">
+                  <ThumbsDown className="w-4 h-4 text-[var(--app-primary)]" />
+                  <span>Rejection Reasons</span>
+                </span>
+              )}
+              titleClassName="font-semibold text-base"
+            />
 
             <div className="space-y-4">
               {['market', 'team', 'product', 'financials', 'fit', 'timing', 'other'].map(category => {
@@ -187,10 +200,16 @@ export function DecisionWriter() {
 
           {/* Tone Selection */}
           <Card padding="lg">
-            <h3 className="font-semibold mb-4 flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 text-[var(--app-primary)]" />
-              Letter Tone
-            </h3>
+            <SectionHeader
+              className="mb-4"
+              title={(
+                <span className="flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4 text-[var(--app-primary)]" />
+                  <span>Letter Tone</span>
+                </span>
+              )}
+              titleClassName="font-semibold text-base"
+            />
 
             <div className="space-y-2">
               {toneOptions.map(option => (
@@ -234,46 +253,52 @@ export function DecisionWriter() {
         {/* Output Section */}
         <div>
           <Card padding="lg" className="sticky top-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[var(--app-primary)]" />
-                Generated Letter
-              </h3>
-              {generatedLetter && (
-                <div className="flex items-center gap-2">
-                  <Button
-                    size="sm"
-                    variant="flat"
-                    startContent={<RefreshCw className="w-3 h-3" />}
-                    onPress={generateLetter}
-                  >
-                    Regenerate
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="flat"
-                    startContent={<Edit3 className="w-3 h-3" />}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="flat"
-                    startContent={letterCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                    onPress={copyToClipboard}
-                  >
-                    {letterCopied ? 'Copied!' : 'Copy'}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="flat"
-                    startContent={<Download className="w-3 h-3" />}
-                  >
-                    Export
-                  </Button>
-                </div>
+            <SectionHeader
+              className="mb-4"
+              title={(
+                <span className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-[var(--app-primary)]" />
+                  <span>Generated Letter</span>
+                </span>
               )}
-            </div>
+              titleClassName="font-semibold text-base"
+              action={
+                generatedLetter ? (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="flat"
+                      startContent={<RefreshCw className="w-3 h-3" />}
+                      onPress={generateLetter}
+                    >
+                      Regenerate
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="flat"
+                      startContent={<Edit3 className="w-3 h-3" />}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="flat"
+                      startContent={letterCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                      onPress={copyToClipboard}
+                    >
+                      {letterCopied ? 'Copied!' : 'Copy'}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="flat"
+                      startContent={<Download className="w-3 h-3" />}
+                    >
+                      Export
+                    </Button>
+                  </div>
+                ) : null
+              }
+            />
 
             {generatedLetter ? (
               <div className="space-y-4">

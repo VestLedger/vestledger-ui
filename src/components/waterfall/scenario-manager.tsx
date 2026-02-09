@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Badge, Button } from '@/ui';
-import { ListItemCard, SearchToolbar } from '@/ui/composites';
+import { ListItemCard, SearchToolbar, SectionHeader } from '@/ui/composites';
 import { useUIKey } from '@/store/ui';
 import type { WaterfallScenario } from '@/types/waterfall';
 import { formatCurrencyCompact, formatDate, formatTimestamp } from '@/utils/formatting';
@@ -339,10 +339,10 @@ export function ScenarioManager({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Scenario Manager</h3>
-        <Badge size="sm" variant="flat">{activeScenarios.length} active</Badge>
-      </div>
+      <SectionHeader
+        title="Scenario Manager"
+        action={<Badge size="sm" variant="flat">{activeScenarios.length} active</Badge>}
+      />
 
       <SearchToolbar
         searchValue={ui.searchQuery}
