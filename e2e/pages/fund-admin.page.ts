@@ -1,4 +1,5 @@
 import { Page, Locator } from '@playwright/test';
+import { loginViaRedirect } from '../helpers/auth-helpers';
 
 export class FundAdminPage {
   readonly page: Page;
@@ -18,8 +19,7 @@ export class FundAdminPage {
   }
 
   async goto() {
-    await this.page.goto('/fund-admin');
-    await this.page.waitForLoadState('networkidle');
+    await loginViaRedirect(this.page, '/fund-admin');
   }
 
   async getFundRows() {

@@ -1,4 +1,5 @@
 import { Page, Locator } from '@playwright/test';
+import { loginViaRedirect } from '../helpers/auth-helpers';
 
 export class Valuation409APage {
   readonly page: Page;
@@ -44,8 +45,7 @@ export class Valuation409APage {
   }
 
   async goto() {
-    await this.page.goto('/409a-valuations');
-    await this.page.waitForLoadState('networkidle');
+    await loginViaRedirect(this.page, '/409a-valuations');
   }
 
   async selectValuationsTab() {

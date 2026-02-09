@@ -1,4 +1,5 @@
 import { Page, Locator } from '@playwright/test';
+import { loginViaRedirect } from '../helpers/auth-helpers';
 
 export class AuditTrailPage {
   readonly page: Page;
@@ -40,8 +41,7 @@ export class AuditTrailPage {
   }
 
   async goto() {
-    await this.page.goto('/audit-trail');
-    await this.page.waitForLoadState('networkidle');
+    await loginViaRedirect(this.page, '/audit-trail');
   }
 
   async getTotalEventsCount() {

@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 
+test.use({ storageState: { cookies: [], origins: [] } });
+
 test.describe('Public Pages', () => {
   test.describe('Home Page', () => {
     test('should load home page', async ({ page }) => {
@@ -20,7 +22,9 @@ test.describe('Public Pages', () => {
       await page.goto('/');
 
       const loginLink = page.getByRole('link', { name: /login|sign in/i });
-      await expect(loginLink).toBeVisible();
+      const loginButton = page.getByRole('button', { name: /login|sign in/i });
+      const loginCta = loginLink.or(loginButton);
+      await expect(loginCta.first()).toBeVisible();
     });
   });
 

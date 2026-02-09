@@ -17,6 +17,7 @@ export function PublicMobileMenu() {
 
   return (
     <div className="md:hidden">
+    <div className="md:hidden">
       <button
         type="button"
         onClick={() => setIsOpen((open) => !open)}
@@ -38,6 +39,7 @@ export function PublicMobileMenu() {
             type="button"
             aria-label="Close menu overlay"
             onClick={() => setIsOpen(false)}
+            className="fixed inset-0 z-40 bg-transparent"
             className="fixed inset-0 z-40 bg-transparent"
           />
           <div className="absolute left-0 right-0 top-full z-[60] mt-2">

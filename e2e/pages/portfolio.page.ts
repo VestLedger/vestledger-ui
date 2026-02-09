@@ -1,4 +1,5 @@
 import { Page, Locator } from '@playwright/test';
+import { loginViaRedirect } from '../helpers/auth-helpers';
 
 export class PortfolioPage {
   readonly page: Page;
@@ -20,8 +21,7 @@ export class PortfolioPage {
   }
 
   async goto() {
-    await this.page.goto('/portfolio');
-    await this.page.waitForLoadState('networkidle');
+    await loginViaRedirect(this.page, '/portfolio');
   }
 
   async getPortfolioRows() {

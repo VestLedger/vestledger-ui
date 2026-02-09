@@ -5,6 +5,14 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  allowedDevOrigins: [
+    'http://localhost:3001',
+    'http://127.0.0.1:3001',
+    'http://app.vestledger.local:3001',
+    'http://vestledger.local:3001',
+    'https://app.vestledger.local',
+    'https://vestledger.local',
+  ],
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production'
       ? { exclude: ['error', 'warn'] }

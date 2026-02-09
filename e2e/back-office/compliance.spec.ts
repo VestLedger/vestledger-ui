@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/auth.fixture';
+import { test, expect, loginViaRedirect } from '../fixtures/auth.fixture';
 import { CompliancePage } from '../pages/compliance.page';
 import {
   captureDataSnapshot,
@@ -6,15 +6,15 @@ import {
 } from '../helpers/interaction-helpers';
 
 test.describe('Compliance - Page Load', () => {
-  test('should load compliance page', async ({ authenticatedPage }) => {
-    const compliance = new CompliancePage(authenticatedPage);
+  test('should load compliance page', async ({ page }) => {
+    const compliance = new CompliancePage(page);
     await compliance.goto();
 
     await expect(compliance.pageTitle).toBeVisible({ timeout: 10000 });
   });
 
-  test('should display summary metrics', async ({ authenticatedPage }) => {
-    const compliance = new CompliancePage(authenticatedPage);
+  test('should display summary metrics', async ({ page }) => {
+    const compliance = new CompliancePage(page);
     await compliance.goto();
 
     await expect(compliance.overdueItemsMetric).toBeVisible();
@@ -25,32 +25,32 @@ test.describe('Compliance - Page Load', () => {
 });
 
 test.describe('Compliance - Status Badges', () => {
-  test('should display overdue items count', async ({ authenticatedPage }) => {
-    const compliance = new CompliancePage(authenticatedPage);
+  test('should display overdue items count', async ({ page }) => {
+    const compliance = new CompliancePage(page);
     await compliance.goto();
 
     const count = await compliance.getOverdueItemsCount();
     expect(count).toBeGreaterThanOrEqual(0);
   });
 
-  test('should display in-progress items count', async ({ authenticatedPage }) => {
-    const compliance = new CompliancePage(authenticatedPage);
+  test('should display in-progress items count', async ({ page }) => {
+    const compliance = new CompliancePage(page);
     await compliance.goto();
 
     const count = await compliance.getInProgressCount();
     expect(count).toBeGreaterThanOrEqual(0);
   });
 
-  test('should display due this month count', async ({ authenticatedPage }) => {
-    const compliance = new CompliancePage(authenticatedPage);
+  test('should display due this month count', async ({ page }) => {
+    const compliance = new CompliancePage(page);
     await compliance.goto();
 
     const count = await compliance.getDueThisMonthCount();
     expect(count).toBeGreaterThanOrEqual(0);
   });
 
-  test('should display completed items count', async ({ authenticatedPage }) => {
-    const compliance = new CompliancePage(authenticatedPage);
+  test('should display completed items count', async ({ page }) => {
+    const compliance = new CompliancePage(page);
     await compliance.goto();
 
     const count = await compliance.getCompletedCount();
@@ -59,8 +59,8 @@ test.describe('Compliance - Status Badges', () => {
 });
 
 test.describe('Compliance - Tabs Navigation', () => {
-  test('should have all tabs visible', async ({ authenticatedPage }) => {
-    const compliance = new CompliancePage(authenticatedPage);
+  test('should have all tabs visible', async ({ page }) => {
+    const compliance = new CompliancePage(page);
     await compliance.goto();
 
     await expect(compliance.overviewTab).toBeVisible();
@@ -69,37 +69,37 @@ test.describe('Compliance - Tabs Navigation', () => {
     await expect(compliance.amlKycTab).toBeVisible();
   });
 
-  test('should switch to Regulatory Filings tab', async ({ authenticatedPage }) => {
-    const compliance = new CompliancePage(authenticatedPage);
+  test('should switch to Regulatory Filings tab', async ({ page }) => {
+    const compliance = new CompliancePage(page);
     await compliance.goto();
     await compliance.selectRegulatoryFilingsTab();
 
-    const filingContent = authenticatedPage.locator('text=/filing|regulatory|form/i');
+    const filingContent = page.locator('text=/filing|regulatory|form/i');
     await expect(filingContent.first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('should switch to Audit Schedule tab', async ({ authenticatedPage }) => {
-    const compliance = new CompliancePage(authenticatedPage);
+  test('should switch to Audit Schedule tab', async ({ page }) => {
+    const compliance = new CompliancePage(page);
     await compliance.goto();
     await compliance.selectAuditScheduleTab();
 
-    const auditContent = authenticatedPage.locator('text=/audit|schedule/i');
+    const auditContent = page.locator('text=/audit|schedule/i');
     await expect(auditContent.first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('should switch to AML/KYC tab', async ({ authenticatedPage }) => {
-    const compliance = new CompliancePage(authenticatedPage);
+  test('should switch to AML/KYC tab', async ({ page }) => {
+    const compliance = new CompliancePage(page);
     await compliance.goto();
     await compliance.selectAmlKycTab();
 
-    const amlContent = authenticatedPage.locator('text=/AML|KYC|verification/i');
+    const amlContent = page.locator('text=/AML|KYC|verification/i');
     await expect(amlContent.first()).toBeVisible({ timeout: 10000 });
   });
 });
 
 test.describe('Compliance - Status Filtering', () => {
-  test('should filter by overdue status', async ({ authenticatedPage }) => {
-    const compliance = new CompliancePage(authenticatedPage);
+  test('should filter by overdue status', async ({ page }) => {
+    const compliance = new CompliancePage(page);
     await compliance.goto();
 
     if (await compliance.statusFilter.isVisible()) {
@@ -112,8 +112,8 @@ test.describe('Compliance - Status Filtering', () => {
     }
   });
 
-  test('should filter by in-progress status', async ({ authenticatedPage }) => {
-    const compliance = new CompliancePage(authenticatedPage);
+  test('should filter by in-progress status', async ({ page }) => {
+    const compliance = new CompliancePage(page);
     await compliance.goto();
 
     if (await compliance.statusFilter.isVisible()) {
@@ -125,8 +125,8 @@ test.describe('Compliance - Status Filtering', () => {
     }
   });
 
-  test('should filter by completed status', async ({ authenticatedPage }) => {
-    const compliance = new CompliancePage(authenticatedPage);
+  test('should filter by completed status', async ({ page }) => {
+    const compliance = new CompliancePage(page);
     await compliance.goto();
 
     if (await compliance.statusFilter.isVisible()) {
@@ -140,35 +140,35 @@ test.describe('Compliance - Status Filtering', () => {
 });
 
 test.describe('Compliance - Priority Filtering', () => {
-  test('should filter by high priority', async ({ authenticatedPage }) => {
-    const compliance = new CompliancePage(authenticatedPage);
+  test('should filter by high priority', async ({ page }) => {
+    const compliance = new CompliancePage(page);
     await compliance.goto();
 
     if (await compliance.priorityFilter.isVisible()) {
       await compliance.filterByPriority('high');
-      await authenticatedPage.waitForLoadState('networkidle');
+      await page.waitForLoadState('networkidle');
 
       // Verify filter applied (high priority items may or may not exist)
-      const highPriorityBadges = authenticatedPage.locator('[class*="danger"], [class*="high"]');
+      const highPriorityBadges = page.locator('[class*="danger"], [class*="high"]');
       const count = await highPriorityBadges.count();
       expect(count).toBeGreaterThanOrEqual(0);
     }
   });
 
-  test('should filter by medium priority', async ({ authenticatedPage }) => {
-    const compliance = new CompliancePage(authenticatedPage);
+  test('should filter by medium priority', async ({ page }) => {
+    const compliance = new CompliancePage(page);
     await compliance.goto();
 
     if (await compliance.priorityFilter.isVisible()) {
       await compliance.filterByPriority('medium');
-      await authenticatedPage.waitForLoadState('networkidle');
+      await page.waitForLoadState('networkidle');
     }
   });
 });
 
 test.describe('Compliance - Regulatory Filing Schedule', () => {
-  test('should display regulatory filing schedule', async ({ authenticatedPage }) => {
-    const compliance = new CompliancePage(authenticatedPage);
+  test('should display regulatory filing schedule', async ({ page }) => {
+    const compliance = new CompliancePage(page);
     await compliance.goto();
 
     const schedule = await compliance.viewFilingSchedule();
@@ -179,8 +179,8 @@ test.describe('Compliance - Regulatory Filing Schedule', () => {
 });
 
 test.describe('Compliance - Audit Schedule', () => {
-  test('should display audit schedule', async ({ authenticatedPage }) => {
-    const compliance = new CompliancePage(authenticatedPage);
+  test('should display audit schedule', async ({ page }) => {
+    const compliance = new CompliancePage(page);
     await compliance.goto();
 
     const schedule = await compliance.viewAuditSchedule();
@@ -191,11 +191,11 @@ test.describe('Compliance - Audit Schedule', () => {
 });
 
 test.describe('Compliance - Mark Complete', () => {
-  test('should have mark complete functionality', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/compliance');
-    await authenticatedPage.waitForLoadState('networkidle');
+  test('should have mark complete functionality', async ({ page }) => {
+    await loginViaRedirect(page, '/compliance');
+    await page.waitForLoadState('networkidle');
 
-    const completeButton = authenticatedPage.getByRole('button', { name: /complete|mark.*complete/i });
+    const completeButton = page.getByRole('button', { name: /complete|mark.*complete/i });
     if (await completeButton.first().isVisible()) {
       await expect(completeButton.first()).toBeEnabled();
     }
@@ -203,8 +203,8 @@ test.describe('Compliance - Mark Complete', () => {
 });
 
 test.describe('Compliance - Actions', () => {
-  test('should have Upload Document button', async ({ authenticatedPage }) => {
-    const compliance = new CompliancePage(authenticatedPage);
+  test('should have Upload Document button', async ({ page }) => {
+    const compliance = new CompliancePage(page);
     await compliance.goto();
 
     if (await compliance.uploadDocumentButton.isVisible()) {
@@ -212,8 +212,8 @@ test.describe('Compliance - Actions', () => {
     }
   });
 
-  test('should have Export Report button', async ({ authenticatedPage }) => {
-    const compliance = new CompliancePage(authenticatedPage);
+  test('should have Export Report button', async ({ page }) => {
+    const compliance = new CompliancePage(page);
     await compliance.goto();
 
     if (await compliance.exportReportButton.isVisible()) {
@@ -223,20 +223,20 @@ test.describe('Compliance - Actions', () => {
 });
 
 test.describe('Compliance - Interactions - Data Verification', () => {
-  test('status filter should update compliance items list', async ({ authenticatedPage }) => {
-    const compliance = new CompliancePage(authenticatedPage);
+  test('status filter should update compliance items list', async ({ page }) => {
+    const compliance = new CompliancePage(page);
     await compliance.goto();
 
     const dataSelector = '[class*="card"], [data-testid="compliance-item"], table tbody tr';
 
     if (await compliance.statusFilter.isVisible()) {
-      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+      const before = await captureDataSnapshot(page, dataSelector);
 
       if (before.count > 0) {
         await compliance.filterByStatus('overdue');
-        await authenticatedPage.waitForLoadState('networkidle');
+        await page.waitForLoadState('networkidle');
 
-        const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+        const after = await captureDataSnapshot(page, dataSelector);
         const changed = verifyDataChanged(before, after);
 
         expect(
@@ -247,20 +247,20 @@ test.describe('Compliance - Interactions - Data Verification', () => {
     }
   });
 
-  test('priority filter should update compliance items list', async ({ authenticatedPage }) => {
-    const compliance = new CompliancePage(authenticatedPage);
+  test('priority filter should update compliance items list', async ({ page }) => {
+    const compliance = new CompliancePage(page);
     await compliance.goto();
 
     const dataSelector = '[class*="card"], [data-testid="compliance-item"], table tbody tr';
 
     if (await compliance.priorityFilter.isVisible()) {
-      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+      const before = await captureDataSnapshot(page, dataSelector);
 
       if (before.count > 0) {
         await compliance.filterByPriority('high');
-        await authenticatedPage.waitForLoadState('networkidle');
+        await page.waitForLoadState('networkidle');
 
-        const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+        const after = await captureDataSnapshot(page, dataSelector);
         const changed = verifyDataChanged(before, after);
 
         expect(
@@ -271,40 +271,40 @@ test.describe('Compliance - Interactions - Data Verification', () => {
     }
   });
 
-  test('tab navigation should update displayed content', async ({ authenticatedPage }) => {
-    const compliance = new CompliancePage(authenticatedPage);
+  test('tab navigation should update displayed content', async ({ page }) => {
+    const compliance = new CompliancePage(page);
     await compliance.goto();
 
     const dataSelector = '[class*="card"], [class*="content"], table';
-    const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+    const before = await captureDataSnapshot(page, dataSelector);
 
     await compliance.selectRegulatoryFilingsTab();
-    await authenticatedPage.waitForLoadState('networkidle');
+    await page.waitForLoadState('networkidle');
 
-    const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+    const after = await captureDataSnapshot(page, dataSelector);
     const changed = verifyDataChanged(before, after);
 
     expect(changed, 'Tab navigation should update displayed content').toBe(true);
   });
 
-  test('switching between tabs should show different content', async ({ authenticatedPage }) => {
-    const compliance = new CompliancePage(authenticatedPage);
+  test('switching between tabs should show different content', async ({ page }) => {
+    const compliance = new CompliancePage(page);
     await compliance.goto();
 
     const dataSelector = '[class*="card"], [class*="content"], table, [class*="panel"]';
 
     // Start on overview tab
-    const overviewSnapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+    const overviewSnapshot = await captureDataSnapshot(page, dataSelector);
 
     // Switch to Audit Schedule tab
     await compliance.selectAuditScheduleTab();
-    await authenticatedPage.waitForLoadState('networkidle');
-    const auditSnapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+    await page.waitForLoadState('networkidle');
+    const auditSnapshot = await captureDataSnapshot(page, dataSelector);
 
     // Switch to AML/KYC tab
     await compliance.selectAmlKycTab();
-    await authenticatedPage.waitForLoadState('networkidle');
-    const amlSnapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+    await page.waitForLoadState('networkidle');
+    const amlSnapshot = await captureDataSnapshot(page, dataSelector);
 
     // Verify content changed between tabs
     const overviewToAudit = verifyDataChanged(overviewSnapshot, auditSnapshot);
@@ -316,26 +316,26 @@ test.describe('Compliance - Interactions - Data Verification', () => {
     ).toBe(true);
   });
 
-  test('combined status and priority filters should work together', async ({ authenticatedPage }) => {
-    const compliance = new CompliancePage(authenticatedPage);
+  test('combined status and priority filters should work together', async ({ page }) => {
+    const compliance = new CompliancePage(page);
     await compliance.goto();
 
     const dataSelector = '[class*="card"], [data-testid="compliance-item"], table tbody tr';
-    const initialSnapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+    const initialSnapshot = await captureDataSnapshot(page, dataSelector);
 
     // Apply status filter
     if (await compliance.statusFilter.isVisible()) {
       await compliance.filterByStatus('in-progress');
-      await authenticatedPage.waitForLoadState('networkidle');
+      await page.waitForLoadState('networkidle');
     }
 
     // Apply priority filter
     if (await compliance.priorityFilter.isVisible()) {
       await compliance.filterByPriority('high');
-      await authenticatedPage.waitForLoadState('networkidle');
+      await page.waitForLoadState('networkidle');
     }
 
-    const afterBothFilters = await captureDataSnapshot(authenticatedPage, dataSelector);
+    const afterBothFilters = await captureDataSnapshot(page, dataSelector);
 
     // Combined filters should produce different results
     if (initialSnapshot.count > 2) {

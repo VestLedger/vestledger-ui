@@ -1,4 +1,5 @@
 import { Page, Locator } from '@playwright/test';
+import { loginViaRedirect } from '../helpers/auth-helpers';
 
 export class DistributionsPage {
   readonly page: Page;
@@ -18,13 +19,11 @@ export class DistributionsPage {
   }
 
   async goto() {
-    await this.page.goto('/fund-admin/distributions/calendar');
-    await this.page.waitForLoadState('networkidle');
+    await loginViaRedirect(this.page, '/fund-admin/distributions/calendar');
   }
 
   async gotoNewDistribution() {
-    await this.page.goto('/fund-admin/distributions/new');
-    await this.page.waitForLoadState('networkidle');
+    await loginViaRedirect(this.page, '/fund-admin/distributions/new');
   }
 
   async clickCreateNew() {
@@ -54,8 +53,7 @@ export class DistributionWizardPage {
   }
 
   async goto() {
-    await this.page.goto('/fund-admin/distributions/new');
-    await this.page.waitForLoadState('networkidle');
+    await loginViaRedirect(this.page, '/fund-admin/distributions/new');
   }
 
   async getCurrentStep() {

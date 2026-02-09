@@ -1,4 +1,5 @@
 import { Page, Locator } from '@playwright/test';
+import { loginViaRedirect } from '../helpers/auth-helpers';
 
 export class TaxCenterPage {
   readonly page: Page;
@@ -62,8 +63,7 @@ export class TaxCenterPage {
   }
 
   async goto() {
-    await this.page.goto('/tax-center');
-    await this.page.waitForLoadState('networkidle');
+    await loginViaRedirect(this.page, '/tax-center');
   }
 
   async selectTaxDocumentsTab() {

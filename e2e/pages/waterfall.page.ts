@@ -1,4 +1,5 @@
 import { Page, Locator } from '@playwright/test';
+import { loginViaRedirect } from '../helpers/auth-helpers';
 
 export class WaterfallPage {
   readonly page: Page;
@@ -20,8 +21,7 @@ export class WaterfallPage {
   }
 
   async goto() {
-    await this.page.goto('/waterfall');
-    await this.page.waitForLoadState('networkidle');
+    await loginViaRedirect(this.page, '/waterfall');
   }
 
   async getTierCount() {

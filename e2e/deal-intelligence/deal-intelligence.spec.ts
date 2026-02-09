@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/auth.fixture';
+import { test, expect, loginViaRedirect } from '../fixtures/auth.fixture';
 import { DealIntelligencePage } from '../pages/deal-intelligence.page';
 import {
   captureDataSnapshot,
@@ -6,47 +6,47 @@ import {
 } from '../helpers/interaction-helpers';
 
 test.describe('Deal Intelligence - Page Load', () => {
-  test('should load deal intelligence page', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should load deal intelligence page', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     await expect(dealIntel.pageTitle).toBeVisible({ timeout: 10000 });
   });
 
-  test('should display fund analytics section', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should display fund analytics section', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
-    const fundAnalytics = authenticatedPage.locator('text=/Fund Analytics/i');
+    const fundAnalytics = page.locator('text=/Fund Analytics/i');
     await expect(fundAnalytics).toBeVisible();
   });
 });
 
 test.describe('Deal Intelligence - Fund Analytics Metrics', () => {
-  test('should display active deals count', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should display active deals count', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     const count = await dealIntel.getActiveDealsCount();
     expect(count).toBeGreaterThanOrEqual(0);
   });
 
-  test('should display average time in DD', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should display average time in DD', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     await expect(dealIntel.avgTimeInDDMetric).toBeVisible();
   });
 
-  test('should display DD-to-IC conversion rate', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should display DD-to-IC conversion rate', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     await expect(dealIntel.ddToICRateMetric).toBeVisible();
   });
 
-  test('should display ready for IC count', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should display ready for IC count', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     const count = await dealIntel.getReadyForICCount();
@@ -55,24 +55,24 @@ test.describe('Deal Intelligence - Fund Analytics Metrics', () => {
 });
 
 test.describe('Deal Intelligence - DD Status Summary', () => {
-  test('should display DD status cards', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should display DD status cards', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     await expect(dealIntel.readyForICCard).toBeVisible();
     await expect(dealIntel.ddInProgressCard).toBeVisible();
   });
 
-  test('should display overdue documents count', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should display overdue documents count', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     const count = await dealIntel.getOverdueDocumentsCount();
     expect(count).toBeGreaterThanOrEqual(0);
   });
 
-  test('should display pending reviews count', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should display pending reviews count', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     const count = await dealIntel.getPendingReviewsCount();
@@ -81,22 +81,22 @@ test.describe('Deal Intelligence - DD Status Summary', () => {
 });
 
 test.describe('Deal Intelligence - Deal Distribution', () => {
-  test('should display deals by stage', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should display deals by stage', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     await expect(dealIntel.dealsByStageSection).toBeVisible();
   });
 
-  test('should display deals by sector', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should display deals by sector', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     await expect(dealIntel.dealsBySectorSection).toBeVisible();
   });
 
-  test('should display DD progress overview', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should display DD progress overview', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     await expect(dealIntel.ddProgressOverview).toBeVisible();
@@ -104,21 +104,21 @@ test.describe('Deal Intelligence - Deal Distribution', () => {
 });
 
 test.describe('Deal Intelligence - AI Deal Sourcing', () => {
-  test('should have AI deal sourcing section', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should have AI deal sourcing section', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
-    const aiSection = authenticatedPage.locator('text=/AI Deal Sourcing/i');
+    const aiSection = page.locator('text=/AI Deal Sourcing/i');
     await expect(aiSection).toBeVisible();
   });
 
-  test('should have company search functionality', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should have company search functionality', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     // Company search component should be visible
-    const searchSection = authenticatedPage.locator('[class*="search"], [class*="Search"]').or(
-      authenticatedPage.getByPlaceholder(/search/i)
+    const searchSection = page.locator('[class*="search"], [class*="Search"]').or(
+      page.getByPlaceholder(/search/i)
     );
     if (await searchSection.first().isVisible()) {
       await expect(searchSection.first()).toBeVisible();
@@ -127,34 +127,34 @@ test.describe('Deal Intelligence - AI Deal Sourcing', () => {
 });
 
 test.describe('Deal Intelligence - Active Deals', () => {
-  test('should display active deals section', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should display active deals section', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
-    const activeDealsSection = authenticatedPage.locator('text=/Active Deals.*Due Diligence/i');
+    const activeDealsSection = page.locator('text=/Active Deals.*Due Diligence/i');
     await expect(activeDealsSection).toBeVisible();
   });
 
-  test('should display deal cards', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should display deal cards', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     const count = await dealIntel.getDealCardCount();
     expect(count).toBeGreaterThanOrEqual(0);
   });
 
-  test('should show DD progress on deal cards', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/deal-intelligence');
-    await authenticatedPage.waitForLoadState('networkidle');
+  test('should show DD progress on deal cards', async ({ page }) => {
+    await loginViaRedirect(page, '/deal-intelligence');
+    await page.waitForLoadState('networkidle');
 
-    const progressText = authenticatedPage.locator('text=/DD Progress/i');
+    const progressText = page.locator('text=/DD Progress/i');
     if (await progressText.count() > 0) {
       await expect(progressText.first()).toBeVisible();
     }
   });
 
-  test('should have upload document button', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should have upload document button', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     if (await dealIntel.uploadDocumentButton.isVisible()) {
@@ -164,8 +164,8 @@ test.describe('Deal Intelligence - Active Deals', () => {
 });
 
 test.describe('Deal Intelligence - Per-Deal View', () => {
-  test('should navigate to deal detail view on click', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should navigate to deal detail view on click', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     const count = await dealIntel.getDealCardCount();
@@ -175,21 +175,21 @@ test.describe('Deal Intelligence - Per-Deal View', () => {
     }
   });
 
-  test('should display deal header in per-deal view', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should display deal header in per-deal view', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     const count = await dealIntel.getDealCardCount();
     if (count > 0) {
       await dealIntel.clickDeal(0);
 
-      const dealHeader = authenticatedPage.locator('h2').first();
+      const dealHeader = page.locator('h2').first();
       await expect(dealHeader).toBeVisible({ timeout: 10000 });
     }
   });
 
-  test('should navigate back to fund view', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should navigate back to fund view', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     const count = await dealIntel.getDealCardCount();
@@ -203,8 +203,8 @@ test.describe('Deal Intelligence - Per-Deal View', () => {
 });
 
 test.describe('Deal Intelligence - Per-Deal Tabs', () => {
-  test('should have all tabs visible', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should have all tabs visible', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     const count = await dealIntel.getDealCardCount();
@@ -217,8 +217,8 @@ test.describe('Deal Intelligence - Per-Deal Tabs', () => {
     }
   });
 
-  test('should switch to analytics tab', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should switch to analytics tab', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     const count = await dealIntel.getDealCardCount();
@@ -226,15 +226,15 @@ test.describe('Deal Intelligence - Per-Deal Tabs', () => {
       await dealIntel.clickDeal(0);
       await dealIntel.selectAnalyticsTab();
 
-      const analyticsContent = authenticatedPage.locator('text=/Financial Metrics|Market Analytics/i');
+      const analyticsContent = page.locator('text=/Financial Metrics|Market Analytics/i');
       if (await analyticsContent.count() > 0) {
         await expect(analyticsContent.first()).toBeVisible({ timeout: 10000 });
       }
     }
   });
 
-  test('should switch to documents tab', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should switch to documents tab', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     const count = await dealIntel.getDealCardCount();
@@ -242,7 +242,7 @@ test.describe('Deal Intelligence - Per-Deal Tabs', () => {
       await dealIntel.clickDeal(0);
       await dealIntel.selectDocumentsTab();
 
-      const documentsContent = authenticatedPage.locator('text=/Document Library|Search documents/i');
+      const documentsContent = page.locator('text=/Document Library|Search documents/i');
       if (await documentsContent.count() > 0) {
         await expect(documentsContent.first()).toBeVisible({ timeout: 10000 });
       }
@@ -251,21 +251,21 @@ test.describe('Deal Intelligence - Per-Deal Tabs', () => {
 });
 
 test.describe('Deal Intelligence - DD Progress by Category', () => {
-  test('should display category progress', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should display category progress', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     const count = await dealIntel.getDealCardCount();
     if (count > 0) {
       await dealIntel.clickDeal(0);
 
-      const categoryProgress = authenticatedPage.locator('text=/Due Diligence Progress/i');
+      const categoryProgress = page.locator('text=/Due Diligence Progress/i');
       await expect(categoryProgress).toBeVisible({ timeout: 10000 });
     }
   });
 
-  test('should show category completion status', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should show category completion status', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     const count = await dealIntel.getDealCardCount();
@@ -273,7 +273,7 @@ test.describe('Deal Intelligence - DD Progress by Category', () => {
       await dealIntel.clickDeal(0);
 
       // Look for category status badges (completed, pending, overdue)
-      const statusBadge = authenticatedPage.locator('[class*="badge"]').filter({ hasText: /completed|pending|overdue/i });
+      const statusBadge = page.locator('[class*="badge"]').filter({ hasText: /completed|pending|overdue/i });
       if (await statusBadge.count() > 0) {
         await expect(statusBadge.first()).toBeVisible();
       }
@@ -282,8 +282,8 @@ test.describe('Deal Intelligence - DD Progress by Category', () => {
 });
 
 test.describe('Deal Intelligence - Deal Analytics', () => {
-  test('should display financial metrics', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should display financial metrics', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     const count = await dealIntel.getDealCardCount();
@@ -291,15 +291,15 @@ test.describe('Deal Intelligence - Deal Analytics', () => {
       await dealIntel.clickDeal(0);
       await dealIntel.selectAnalyticsTab();
 
-      const financialSection = authenticatedPage.locator('text=/Financial Metrics/i');
+      const financialSection = page.locator('text=/Financial Metrics/i');
       if (await financialSection.isVisible()) {
         await expect(financialSection).toBeVisible();
       }
     }
   });
 
-  test('should display market analytics', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should display market analytics', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     const count = await dealIntel.getDealCardCount();
@@ -307,15 +307,15 @@ test.describe('Deal Intelligence - Deal Analytics', () => {
       await dealIntel.clickDeal(0);
       await dealIntel.selectAnalyticsTab();
 
-      const marketSection = authenticatedPage.locator('text=/Market Analytics/i');
+      const marketSection = page.locator('text=/Market Analytics/i');
       if (await marketSection.isVisible()) {
         await expect(marketSection).toBeVisible();
       }
     }
   });
 
-  test('should display revenue metrics (ARR, MRR)', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should display revenue metrics (ARR, MRR)', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     const count = await dealIntel.getDealCardCount();
@@ -323,7 +323,7 @@ test.describe('Deal Intelligence - Deal Analytics', () => {
       await dealIntel.clickDeal(0);
       await dealIntel.selectAnalyticsTab();
 
-      const arrText = authenticatedPage.locator('text=/ARR|MRR/i');
+      const arrText = page.locator('text=/ARR|MRR/i');
       if (await arrText.count() > 0) {
         await expect(arrText.first()).toBeVisible();
       }
@@ -332,8 +332,8 @@ test.describe('Deal Intelligence - Deal Analytics', () => {
 });
 
 test.describe('Deal Intelligence - Documents Tab', () => {
-  test('should have document search', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should have document search', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     const count = await dealIntel.getDealCardCount();
@@ -347,8 +347,8 @@ test.describe('Deal Intelligence - Documents Tab', () => {
     }
   });
 
-  test('should have document library', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should have document library', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     const count = await dealIntel.getDealCardCount();
@@ -362,8 +362,8 @@ test.describe('Deal Intelligence - Documents Tab', () => {
     }
   });
 
-  test('should have upload and export buttons', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('should have upload and export buttons', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     const count = await dealIntel.getDealCardCount();
@@ -371,7 +371,7 @@ test.describe('Deal Intelligence - Documents Tab', () => {
       await dealIntel.clickDeal(0);
       await dealIntel.selectDocumentsTab();
 
-      const uploadBtn = authenticatedPage.getByRole('button', { name: /upload/i });
+      const uploadBtn = page.getByRole('button', { name: /upload/i });
       if (await uploadBtn.isVisible()) {
         await expect(uploadBtn).toBeEnabled();
       }
@@ -380,11 +380,11 @@ test.describe('Deal Intelligence - Documents Tab', () => {
 });
 
 test.describe('Deal Intelligence - IC Status', () => {
-  test('should display IC status badges on deals', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/deal-intelligence');
-    await authenticatedPage.waitForLoadState('networkidle');
+  test('should display IC status badges on deals', async ({ page }) => {
+    await loginViaRedirect(page, '/deal-intelligence');
+    await page.waitForLoadState('networkidle');
 
-    const statusBadge = authenticatedPage.locator('[class*="badge"]').filter({ hasText: /ready.*ic|dd.*progress/i });
+    const statusBadge = page.locator('[class*="badge"]').filter({ hasText: /ready.*ic|dd.*progress/i });
     if (await statusBadge.count() > 0) {
       await expect(statusBadge.first()).toBeVisible();
     }
@@ -392,19 +392,19 @@ test.describe('Deal Intelligence - IC Status', () => {
 });
 
 test.describe('Deal Intelligence - Interactions - Data Verification', () => {
-  test('clicking deal card should update view to show deal details', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('clicking deal card should update view to show deal details', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     const dataSelector = '[class*="card"], [class*="content"], [class*="panel"], h2, h3';
-    const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+    const before = await captureDataSnapshot(page, dataSelector);
 
     const count = await dealIntel.getDealCardCount();
     if (count > 0) {
       await dealIntel.clickDeal(0);
-      await authenticatedPage.waitForLoadState('networkidle');
+      await page.waitForLoadState('networkidle');
 
-      const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+      const after = await captureDataSnapshot(page, dataSelector);
       const changed = verifyDataChanged(before, after);
 
       expect(
@@ -414,27 +414,27 @@ test.describe('Deal Intelligence - Interactions - Data Verification', () => {
     }
   });
 
-  test('tab navigation in deal view should update content', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('tab navigation in deal view should update content', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     const count = await dealIntel.getDealCardCount();
     if (count > 0) {
       await dealIntel.clickDeal(0);
-      await authenticatedPage.waitForLoadState('networkidle');
+      await page.waitForLoadState('networkidle');
 
       const dataSelector = '[class*="card"], table, [class*="content"], [class*="panel"]';
-      const overviewSnapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+      const overviewSnapshot = await captureDataSnapshot(page, dataSelector);
 
       // Switch to Analytics tab
       await dealIntel.selectAnalyticsTab();
-      await authenticatedPage.waitForLoadState('networkidle');
-      const analyticsSnapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+      await page.waitForLoadState('networkidle');
+      const analyticsSnapshot = await captureDataSnapshot(page, dataSelector);
 
       // Switch to Documents tab
       await dealIntel.selectDocumentsTab();
-      await authenticatedPage.waitForLoadState('networkidle');
-      const documentsSnapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+      await page.waitForLoadState('networkidle');
+      const documentsSnapshot = await captureDataSnapshot(page, dataSelector);
 
       const overviewToAnalytics = verifyDataChanged(overviewSnapshot, analyticsSnapshot);
       const analyticsToDocuments = verifyDataChanged(analyticsSnapshot, documentsSnapshot);
@@ -446,29 +446,29 @@ test.describe('Deal Intelligence - Interactions - Data Verification', () => {
     }
   });
 
-  test('stage filter should update deal list', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/deal-intelligence');
-    await authenticatedPage.waitForLoadState('networkidle');
+  test('stage filter should update deal list', async ({ page }) => {
+    await loginViaRedirect(page, '/deal-intelligence');
+    await page.waitForLoadState('networkidle');
 
-    const stageFilter = authenticatedPage.getByRole('combobox', { name: /stage/i })
-      .or(authenticatedPage.locator('[data-testid="stage-filter"]'))
-      .or(authenticatedPage.locator('select').filter({ hasText: /stage|all stages/i }));
+    const stageFilter = page.getByRole('combobox', { name: /stage/i })
+      .or(page.locator('[data-testid="stage-filter"]'))
+      .or(page.locator('select').filter({ hasText: /stage|all stages/i }));
 
     const dataSelector = '[class*="card"], [data-testid="deal-card"], table tbody tr';
 
     if (await stageFilter.first().isVisible()) {
-      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+      const before = await captureDataSnapshot(page, dataSelector);
 
       if (before.count > 0) {
         await stageFilter.first().click();
-        await authenticatedPage.waitForTimeout(300);
+        await page.waitForTimeout(300);
 
-        const option = authenticatedPage.getByRole('option').nth(1);
+        const option = page.getByRole('option').nth(1);
         if (await option.isVisible()) {
           await option.click();
-          await authenticatedPage.waitForLoadState('networkidle');
+          await page.waitForLoadState('networkidle');
 
-          const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+          const after = await captureDataSnapshot(page, dataSelector);
           const changed = verifyDataChanged(before, after);
 
           expect(
@@ -480,29 +480,29 @@ test.describe('Deal Intelligence - Interactions - Data Verification', () => {
     }
   });
 
-  test('sector filter should update deal list', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/deal-intelligence');
-    await authenticatedPage.waitForLoadState('networkidle');
+  test('sector filter should update deal list', async ({ page }) => {
+    await loginViaRedirect(page, '/deal-intelligence');
+    await page.waitForLoadState('networkidle');
 
-    const sectorFilter = authenticatedPage.getByRole('combobox', { name: /sector/i })
-      .or(authenticatedPage.locator('[data-testid="sector-filter"]'))
-      .or(authenticatedPage.locator('select').filter({ hasText: /sector|all sectors/i }));
+    const sectorFilter = page.getByRole('combobox', { name: /sector/i })
+      .or(page.locator('[data-testid="sector-filter"]'))
+      .or(page.locator('select').filter({ hasText: /sector|all sectors/i }));
 
     const dataSelector = '[class*="card"], [data-testid="deal-card"], table tbody tr';
 
     if (await sectorFilter.first().isVisible()) {
-      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+      const before = await captureDataSnapshot(page, dataSelector);
 
       if (before.count > 0) {
         await sectorFilter.first().click();
-        await authenticatedPage.waitForTimeout(300);
+        await page.waitForTimeout(300);
 
-        const option = authenticatedPage.getByRole('option').nth(1);
+        const option = page.getByRole('option').nth(1);
         if (await option.isVisible()) {
           await option.click();
-          await authenticatedPage.waitForLoadState('networkidle');
+          await page.waitForLoadState('networkidle');
 
-          const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+          const after = await captureDataSnapshot(page, dataSelector);
           const changed = verifyDataChanged(before, after);
 
           expect(
@@ -514,23 +514,23 @@ test.describe('Deal Intelligence - Interactions - Data Verification', () => {
     }
   });
 
-  test('AI company search should show results', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/deal-intelligence');
-    await authenticatedPage.waitForLoadState('networkidle');
+  test('AI company search should show results', async ({ page }) => {
+    await loginViaRedirect(page, '/deal-intelligence');
+    await page.waitForLoadState('networkidle');
 
-    const searchInput = authenticatedPage.getByPlaceholder(/search/i)
-      .or(authenticatedPage.getByRole('searchbox'));
+    const searchInput = page.getByPlaceholder(/search/i)
+      .or(page.getByRole('searchbox'));
 
     const dataSelector = '[class*="card"], [class*="result"], [class*="suggestion"]';
 
     if (await searchInput.first().isVisible()) {
-      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+      const before = await captureDataSnapshot(page, dataSelector);
 
       await searchInput.first().fill('tech');
-      await authenticatedPage.waitForLoadState('networkidle');
-      await authenticatedPage.waitForTimeout(500);
+      await page.waitForLoadState('networkidle');
+      await page.waitForTimeout(500);
 
-      const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+      const after = await captureDataSnapshot(page, dataSelector);
       const changed = verifyDataChanged(before, after);
 
       // Search should either update results or show suggestions
@@ -538,27 +538,27 @@ test.describe('Deal Intelligence - Interactions - Data Verification', () => {
     }
   });
 
-  test('document search in deal view should filter documents', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('document search in deal view should filter documents', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     const count = await dealIntel.getDealCardCount();
     if (count > 0) {
       await dealIntel.clickDeal(0);
       await dealIntel.selectDocumentsTab();
-      await authenticatedPage.waitForLoadState('networkidle');
+      await page.waitForLoadState('networkidle');
 
       const dataSelector = '[class*="document"], [class*="file"], table tbody tr';
 
       if (await dealIntel.documentSearchInput.isVisible()) {
-        const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+        const before = await captureDataSnapshot(page, dataSelector);
 
         if (before.count > 0) {
           await dealIntel.documentSearchInput.fill('xyz-nonexistent');
-          await authenticatedPage.waitForLoadState('networkidle');
-          await authenticatedPage.waitForTimeout(500);
+          await page.waitForLoadState('networkidle');
+          await page.waitForTimeout(500);
 
-          const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+          const after = await captureDataSnapshot(page, dataSelector);
 
           // Search for non-existent term should reduce results
           expect(after.count).toBeLessThanOrEqual(before.count);
@@ -567,24 +567,24 @@ test.describe('Deal Intelligence - Interactions - Data Verification', () => {
     }
   });
 
-  test('back to fund view should restore original content', async ({ authenticatedPage }) => {
-    const dealIntel = new DealIntelligencePage(authenticatedPage);
+  test('back to fund view should restore original content', async ({ page }) => {
+    const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
     const dataSelector = '[class*="card"], h1, h2, [class*="section"]';
-    const fundViewSnapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+    const fundViewSnapshot = await captureDataSnapshot(page, dataSelector);
 
     const count = await dealIntel.getDealCardCount();
     if (count > 0) {
       await dealIntel.clickDeal(0);
-      await authenticatedPage.waitForLoadState('networkidle');
+      await page.waitForLoadState('networkidle');
 
-      const dealViewSnapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+      const dealViewSnapshot = await captureDataSnapshot(page, dataSelector);
 
       await dealIntel.backToFundView();
-      await authenticatedPage.waitForLoadState('networkidle');
+      await page.waitForLoadState('networkidle');
 
-      const afterBackSnapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+      const afterBackSnapshot = await captureDataSnapshot(page, dataSelector);
 
       // View should have changed when entering deal, then restored when going back
       const viewChanged = verifyDataChanged(fundViewSnapshot, dealViewSnapshot);

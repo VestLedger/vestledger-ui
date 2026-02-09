@@ -1,4 +1,5 @@
 import { Page, Locator } from '@playwright/test';
+import { loginViaRedirect } from '../helpers/auth-helpers';
 
 export class LPPortalPage {
   readonly page: Page;
@@ -18,8 +19,7 @@ export class LPPortalPage {
   }
 
   async goto() {
-    await this.page.goto('/lp-portal');
-    await this.page.waitForLoadState('networkidle');
+    await loginViaRedirect(this.page, '/lp-portal');
   }
 
   async getInvestments() {

@@ -1,23 +1,23 @@
-import { test, expect } from '../fixtures/auth.fixture';
+import { test, expect, loginViaRedirect } from '../fixtures/auth.fixture';
 import { DashboardPage } from '../pages/dashboard.page';
 
 test.describe('Dashboard', () => {
-  test('should load dashboard after login', async ({ authenticatedPage }) => {
-    const dashboard = new DashboardPage(authenticatedPage);
+  test('should load dashboard after login', async ({ page }) => {
+    const dashboard = new DashboardPage(page);
     await dashboard.goto();
 
     await expect(dashboard.mainContent).toBeVisible();
   });
 
-  test('should display sidebar navigation', async ({ authenticatedPage }) => {
-    const dashboard = new DashboardPage(authenticatedPage);
+  test('should display sidebar navigation', async ({ page }) => {
+    const dashboard = new DashboardPage(page);
     await dashboard.goto();
 
     await expect(dashboard.sidebar).toBeVisible();
   });
 
-  test('should have working navigation links', async ({ authenticatedPage }) => {
-    const dashboard = new DashboardPage(authenticatedPage);
+  test('should have working navigation links', async ({ page }) => {
+    const dashboard = new DashboardPage(page);
     await dashboard.goto();
 
     // Test navigation to different sections
@@ -29,23 +29,23 @@ test.describe('Dashboard', () => {
 
     for (const item of navItems) {
       await dashboard.sidebar.getByText(item.text, { exact: false }).first().click();
-      await expect(authenticatedPage).toHaveURL(item.url);
+      await expect(page).toHaveURL(item.url);
     }
   });
 
-  test('should display dashboard stats/metrics', async ({ authenticatedPage }) => {
-    const dashboard = new DashboardPage(authenticatedPage);
+  test('should display dashboard stats/metrics', async ({ page }) => {
+    const dashboard = new DashboardPage(page);
     await dashboard.goto();
 
     // Look for stat cards or metrics
-    const statsCards = authenticatedPage.locator('[data-testid="stats-card"], [class*="stat"], [class*="metric"]');
+    const statsCards = page.locator('[data-testid="stats-card"], [class*="stat"], [class*="metric"]');
     await expect(statsCards.first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('should be responsive on mobile viewport', async ({ authenticatedPage }) => {
-    await authenticatedPage.setViewportSize({ width: 375, height: 667 });
+  test('should be responsive on mobile viewport', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
 
-    const dashboard = new DashboardPage(authenticatedPage);
+    const dashboard = new DashboardPage(page);
     await dashboard.goto();
 
     await expect(dashboard.mainContent).toBeVisible();
@@ -53,7 +53,7 @@ test.describe('Dashboard', () => {
 });
 
 test.describe('Dashboard Navigation', () => {
-  test('should navigate to all main sections', async ({ authenticatedPage }) => {
+  test('should navigate to all main sections', async ({ page }) => {
     const routes = [
       '/dashboard',
       '/portfolio',
@@ -68,11 +68,11 @@ test.describe('Dashboard Navigation', () => {
     ];
 
     for (const route of routes) {
-      await authenticatedPage.goto(route);
-      await authenticatedPage.waitForLoadState('networkidle');
+      await loginViaRedirect(page, route);
+      await page.waitForLoadState('networkidle');
 
       // Each page should load without errors
-      const errorMessage = authenticatedPage.locator('text=/error|404|not found/i');
+      const errorMessage = page.locator('text=/error|404|not found/i');
       await expect(errorMessage).not.toBeVisible();
     }
   });

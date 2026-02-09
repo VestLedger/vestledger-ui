@@ -1,4 +1,5 @@
 import { Page, Locator } from '@playwright/test';
+import { loginViaRedirect } from '../helpers/auth-helpers';
 
 export class ContactsPage {
   readonly page: Page;
@@ -98,8 +99,7 @@ export class ContactsPage {
   }
 
   async goto() {
-    await this.page.goto('/contacts');
-    await this.page.waitForLoadState('networkidle');
+    await loginViaRedirect(this.page, '/contacts');
   }
 
   async getTotalContactsCount(): Promise<number> {

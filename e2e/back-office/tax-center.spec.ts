@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/auth.fixture';
+import { test, expect, loginViaRedirect } from '../fixtures/auth.fixture';
 import { TaxCenterPage } from '../pages/tax-center.page';
 import {
   captureDataSnapshot,
@@ -7,15 +7,15 @@ import {
 } from '../helpers/interaction-helpers';
 
 test.describe('Tax Center - Page Load', () => {
-  test('should load tax center page', async ({ authenticatedPage }) => {
-    const taxCenter = new TaxCenterPage(authenticatedPage);
+  test('should load tax center page', async ({ page }) => {
+    const taxCenter = new TaxCenterPage(page);
     await taxCenter.goto();
 
     await expect(taxCenter.pageTitle).toBeVisible({ timeout: 10000 });
   });
 
-  test('should display summary metrics', async ({ authenticatedPage }) => {
-    const taxCenter = new TaxCenterPage(authenticatedPage);
+  test('should display summary metrics', async ({ page }) => {
+    const taxCenter = new TaxCenterPage(page);
     await taxCenter.goto();
 
     await expect(taxCenter.k1sIssuedMetric).toBeVisible();
@@ -24,8 +24,8 @@ test.describe('Tax Center - Page Load', () => {
     await expect(taxCenter.filingDeadlineMetric).toBeVisible();
   });
 
-  test('should have Generate K-1s button', async ({ authenticatedPage }) => {
-    const taxCenter = new TaxCenterPage(authenticatedPage);
+  test('should have Generate K-1s button', async ({ page }) => {
+    const taxCenter = new TaxCenterPage(page);
     await taxCenter.goto();
 
     if (await taxCenter.generateK1sButton.isVisible()) {
@@ -35,19 +35,19 @@ test.describe('Tax Center - Page Load', () => {
 });
 
 test.describe('Tax Center - K-1 Metrics', () => {
-  test('should display K-1s issued count', async ({ authenticatedPage }) => {
-    const taxCenter = new TaxCenterPage(authenticatedPage);
+  test('should display K-1s issued count', async ({ page }) => {
+    const taxCenter = new TaxCenterPage(page);
     await taxCenter.goto();
 
     const count = await taxCenter.getK1sIssuedCount();
     expect(count).toBeGreaterThanOrEqual(0);
   });
 
-  test('should show K-1s total in subtitle', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/tax-center');
-    await authenticatedPage.waitForLoadState('networkidle');
+  test('should show K-1s total in subtitle', async ({ page }) => {
+    await loginViaRedirect(page, '/tax-center');
+    await page.waitForLoadState('networkidle');
 
-    const k1Card = authenticatedPage.locator('[class*="card"]').filter({ hasText: 'K-1s Issued' });
+    const k1Card = page.locator('[class*="card"]').filter({ hasText: 'K-1s Issued' });
     const subtitle = k1Card.locator('text=/of \\d+ total/i');
 
     if (await subtitle.isVisible()) {
@@ -57,16 +57,16 @@ test.describe('Tax Center - K-1 Metrics', () => {
 });
 
 test.describe('Tax Center - Filing Deadline', () => {
-  test('should display filing deadline date', async ({ authenticatedPage }) => {
-    const taxCenter = new TaxCenterPage(authenticatedPage);
+  test('should display filing deadline date', async ({ page }) => {
+    const taxCenter = new TaxCenterPage(page);
     await taxCenter.goto();
 
     const deadline = await taxCenter.getFilingDeadline();
     expect(deadline).toBeTruthy();
   });
 
-  test('should show days remaining countdown', async ({ authenticatedPage }) => {
-    const taxCenter = new TaxCenterPage(authenticatedPage);
+  test('should show days remaining countdown', async ({ page }) => {
+    const taxCenter = new TaxCenterPage(page);
     await taxCenter.goto();
 
     const daysRemaining = await taxCenter.getDeadlineDaysRemaining();
@@ -75,8 +75,8 @@ test.describe('Tax Center - Filing Deadline', () => {
 });
 
 test.describe('Tax Center - Tabs Navigation', () => {
-  test('should have all tabs visible', async ({ authenticatedPage }) => {
-    const taxCenter = new TaxCenterPage(authenticatedPage);
+  test('should have all tabs visible', async ({ page }) => {
+    const taxCenter = new TaxCenterPage(page);
     await taxCenter.goto();
 
     await expect(taxCenter.taxDocumentsTab).toBeVisible();
@@ -85,59 +85,59 @@ test.describe('Tax Center - Tabs Navigation', () => {
     await expect(taxCenter.portfolioCompaniesTab).toBeVisible();
   });
 
-  test('should switch to K-1 Generator tab', async ({ authenticatedPage }) => {
-    const taxCenter = new TaxCenterPage(authenticatedPage);
+  test('should switch to K-1 Generator tab', async ({ page }) => {
+    const taxCenter = new TaxCenterPage(page);
     await taxCenter.goto();
     await taxCenter.selectK1GeneratorTab();
 
-    const k1Content = authenticatedPage.locator('text=/K-1|generate/i');
+    const k1Content = page.locator('text=/K-1|generate/i');
     await expect(k1Content.first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('should switch to Fund Summary tab', async ({ authenticatedPage }) => {
-    const taxCenter = new TaxCenterPage(authenticatedPage);
+  test('should switch to Fund Summary tab', async ({ page }) => {
+    const taxCenter = new TaxCenterPage(page);
     await taxCenter.goto();
     await taxCenter.selectFundSummaryTab();
 
-    const summaryContent = authenticatedPage.locator('text=/fund|summary/i');
+    const summaryContent = page.locator('text=/fund|summary/i');
     await expect(summaryContent.first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('should switch to Portfolio Companies tab', async ({ authenticatedPage }) => {
-    const taxCenter = new TaxCenterPage(authenticatedPage);
+  test('should switch to Portfolio Companies tab', async ({ page }) => {
+    const taxCenter = new TaxCenterPage(page);
     await taxCenter.goto();
     await taxCenter.selectPortfolioCompaniesTab();
 
-    const portfolioContent = authenticatedPage.locator('text=/portfolio|company/i');
+    const portfolioContent = page.locator('text=/portfolio|company/i');
     await expect(portfolioContent.first()).toBeVisible({ timeout: 10000 });
   });
 });
 
 test.describe('Tax Center - Tax Documents', () => {
-  test('should display tax documents list', async ({ authenticatedPage }) => {
-    const taxCenter = new TaxCenterPage(authenticatedPage);
+  test('should display tax documents list', async ({ page }) => {
+    const taxCenter = new TaxCenterPage(page);
     await taxCenter.goto();
 
     // Tax documents should be visible in overview tab
-    const documentContent = authenticatedPage.locator('text=/K-1|1099|document/i');
+    const documentContent = page.locator('text=/K-1|1099|document/i');
     await expect(documentContent.first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('should have download button for documents', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/tax-center');
-    await authenticatedPage.waitForLoadState('networkidle');
+  test('should have download button for documents', async ({ page }) => {
+    await loginViaRedirect(page, '/tax-center');
+    await page.waitForLoadState('networkidle');
 
-    const downloadButton = authenticatedPage.getByRole('button', { name: /download/i });
+    const downloadButton = page.getByRole('button', { name: /download/i });
     if (await downloadButton.first().isVisible()) {
       await expect(downloadButton.first()).toBeEnabled();
     }
   });
 
-  test('should have send to LPs functionality', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/tax-center');
-    await authenticatedPage.waitForLoadState('networkidle');
+  test('should have send to LPs functionality', async ({ page }) => {
+    await loginViaRedirect(page, '/tax-center');
+    await page.waitForLoadState('networkidle');
 
-    const sendButton = authenticatedPage.getByRole('button', { name: /send/i });
+    const sendButton = page.getByRole('button', { name: /send/i });
     if (await sendButton.first().isVisible()) {
       await expect(sendButton.first()).toBeEnabled();
     }
@@ -145,8 +145,8 @@ test.describe('Tax Center - Tax Documents', () => {
 });
 
 test.describe('Tax Center - Filtering', () => {
-  test('should have year filter', async ({ authenticatedPage }) => {
-    const taxCenter = new TaxCenterPage(authenticatedPage);
+  test('should have year filter', async ({ page }) => {
+    const taxCenter = new TaxCenterPage(page);
     await taxCenter.goto();
 
     if (await taxCenter.yearFilter.isVisible()) {
@@ -154,8 +154,8 @@ test.describe('Tax Center - Filtering', () => {
     }
   });
 
-  test('should have status filter', async ({ authenticatedPage }) => {
-    const taxCenter = new TaxCenterPage(authenticatedPage);
+  test('should have status filter', async ({ page }) => {
+    const taxCenter = new TaxCenterPage(page);
     await taxCenter.goto();
 
     if (await taxCenter.statusFilter.isVisible()) {
@@ -165,15 +165,15 @@ test.describe('Tax Center - Filtering', () => {
 });
 
 test.describe('Tax Center - Interactions - Data Verification', () => {
-  test('year filter should update K-1s list', async ({ authenticatedPage }) => {
-    const taxCenter = new TaxCenterPage(authenticatedPage);
+  test('year filter should update K-1s list', async ({ page }) => {
+    const taxCenter = new TaxCenterPage(page);
     await taxCenter.goto();
 
     const dataSelector = '[class*="card"], [data-testid="k1-item"], table tbody tr';
 
     if (await taxCenter.yearFilter.isVisible()) {
       const result = await selectDifferentOption(
-        authenticatedPage,
+        page,
         taxCenter.yearFilter,
         dataSelector
       );
@@ -188,26 +188,26 @@ test.describe('Tax Center - Interactions - Data Verification', () => {
     }
   });
 
-  test('status filter should update document list', async ({ authenticatedPage }) => {
-    const taxCenter = new TaxCenterPage(authenticatedPage);
+  test('status filter should update document list', async ({ page }) => {
+    const taxCenter = new TaxCenterPage(page);
     await taxCenter.goto();
 
     const dataSelector = '[class*="card"], [data-testid="tax-document"], table tbody tr';
 
     if (await taxCenter.statusFilter.isVisible()) {
-      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+      const before = await captureDataSnapshot(page, dataSelector);
 
       if (before.count > 0) {
         await taxCenter.statusFilter.click();
-        await authenticatedPage.waitForTimeout(300);
+        await page.waitForTimeout(300);
 
         // Try to select a different status
-        const statusOption = authenticatedPage.getByRole('option', { name: /pending|completed|draft/i });
+        const statusOption = page.getByRole('option', { name: /pending|completed|draft/i });
         if (await statusOption.first().isVisible()) {
           await statusOption.first().click();
-          await authenticatedPage.waitForLoadState('networkidle');
+          await page.waitForLoadState('networkidle');
 
-          const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+          const after = await captureDataSnapshot(page, dataSelector);
           const changed = verifyDataChanged(before, after);
 
           expect(
@@ -219,18 +219,18 @@ test.describe('Tax Center - Interactions - Data Verification', () => {
     }
   });
 
-  test('tab switch should update displayed content', async ({ authenticatedPage }) => {
-    const taxCenter = new TaxCenterPage(authenticatedPage);
+  test('tab switch should update displayed content', async ({ page }) => {
+    const taxCenter = new TaxCenterPage(page);
     await taxCenter.goto();
 
     const contentSelector = '[class*="card"], table, [class*="rounded-lg"]';
-    const before = await captureDataSnapshot(authenticatedPage, contentSelector);
+    const before = await captureDataSnapshot(page, contentSelector);
 
     // Switch to K-1 Generator tab
     await taxCenter.selectK1GeneratorTab();
-    await authenticatedPage.waitForLoadState('networkidle');
+    await page.waitForLoadState('networkidle');
 
-    const after = await captureDataSnapshot(authenticatedPage, contentSelector);
+    const after = await captureDataSnapshot(page, contentSelector);
     const changed = verifyDataChanged(before, after);
 
     expect(
@@ -239,33 +239,33 @@ test.describe('Tax Center - Interactions - Data Verification', () => {
     ).toBe(true);
   });
 
-  test('combined year and status filters should work together', async ({ authenticatedPage }) => {
-    const taxCenter = new TaxCenterPage(authenticatedPage);
+  test('combined year and status filters should work together', async ({ page }) => {
+    const taxCenter = new TaxCenterPage(page);
     await taxCenter.goto();
 
     const dataSelector = '[class*="card"], [data-testid="tax-document"], table tbody tr';
-    const initialSnapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+    const initialSnapshot = await captureDataSnapshot(page, dataSelector);
 
     // Apply year filter first
     if (await taxCenter.yearFilter.isVisible()) {
-      await selectDifferentOption(authenticatedPage, taxCenter.yearFilter, dataSelector);
+      await selectDifferentOption(page, taxCenter.yearFilter, dataSelector);
     }
 
-    const afterYearFilter = await captureDataSnapshot(authenticatedPage, dataSelector);
+    const afterYearFilter = await captureDataSnapshot(page, dataSelector);
 
     // Apply status filter second
     if (await taxCenter.statusFilter.isVisible()) {
       await taxCenter.statusFilter.click();
-      await authenticatedPage.waitForTimeout(300);
+      await page.waitForTimeout(300);
 
-      const statusOption = authenticatedPage.getByRole('option').first();
+      const statusOption = page.getByRole('option').first();
       if (await statusOption.isVisible()) {
         await statusOption.click();
-        await authenticatedPage.waitForLoadState('networkidle');
+        await page.waitForLoadState('networkidle');
       }
     }
 
-    const afterBothFilters = await captureDataSnapshot(authenticatedPage, dataSelector);
+    const afterBothFilters = await captureDataSnapshot(page, dataSelector);
 
     // Combined filters should produce different results
     if (initialSnapshot.count > 2) {
@@ -274,8 +274,8 @@ test.describe('Tax Center - Interactions - Data Verification', () => {
     }
   });
 
-  test('metrics should update when filters change', async ({ authenticatedPage }) => {
-    const taxCenter = new TaxCenterPage(authenticatedPage);
+  test('metrics should update when filters change', async ({ page }) => {
+    const taxCenter = new TaxCenterPage(page);
     await taxCenter.goto();
 
     // Get initial K-1s count
@@ -285,7 +285,7 @@ test.describe('Tax Center - Interactions - Data Verification', () => {
     if (await taxCenter.yearFilter.isVisible() && initialK1Count > 0) {
       const metricsSelector = '[class*="card"]:has-text("K-1s Issued")';
       const result = await selectDifferentOption(
-        authenticatedPage,
+        page,
         taxCenter.yearFilter,
         metricsSelector
       );

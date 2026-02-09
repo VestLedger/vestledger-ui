@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/auth.fixture';
+import { test, expect, loginViaRedirect } from '../fixtures/auth.fixture';
 import { AuditTrailPage } from '../pages/audit-trail.page';
 import {
   captureDataSnapshot,
@@ -7,15 +7,15 @@ import {
 } from '../helpers/interaction-helpers';
 
 test.describe('Audit Trail - Page Load', () => {
-  test('should load audit trail page', async ({ authenticatedPage }) => {
-    const auditTrail = new AuditTrailPage(authenticatedPage);
+  test('should load audit trail page', async ({ page }) => {
+    const auditTrail = new AuditTrailPage(page);
     await auditTrail.goto();
 
     await expect(auditTrail.pageTitle).toBeVisible({ timeout: 10000 });
   });
 
-  test('should display summary stats', async ({ authenticatedPage }) => {
-    const auditTrail = new AuditTrailPage(authenticatedPage);
+  test('should display summary stats', async ({ page }) => {
+    const auditTrail = new AuditTrailPage(page);
     await auditTrail.goto();
 
     await expect(auditTrail.totalEventsCard).toBeVisible();
@@ -26,32 +26,32 @@ test.describe('Audit Trail - Page Load', () => {
 });
 
 test.describe('Audit Trail - Statistics', () => {
-  test('should display total events count', async ({ authenticatedPage }) => {
-    const auditTrail = new AuditTrailPage(authenticatedPage);
+  test('should display total events count', async ({ page }) => {
+    const auditTrail = new AuditTrailPage(page);
     await auditTrail.goto();
 
     const count = await auditTrail.getTotalEventsCount();
     expect(count).toBeGreaterThanOrEqual(0);
   });
 
-  test('should display verified events count', async ({ authenticatedPage }) => {
-    const auditTrail = new AuditTrailPage(authenticatedPage);
+  test('should display verified events count', async ({ page }) => {
+    const auditTrail = new AuditTrailPage(page);
     await auditTrail.goto();
 
     const count = await auditTrail.getVerifiedCount();
     expect(count).toBeGreaterThanOrEqual(0);
   });
 
-  test('should display latest block number', async ({ authenticatedPage }) => {
-    const auditTrail = new AuditTrailPage(authenticatedPage);
+  test('should display latest block number', async ({ page }) => {
+    const auditTrail = new AuditTrailPage(page);
     await auditTrail.goto();
 
     const block = await auditTrail.getLatestBlock();
     expect(block).toBeTruthy();
   });
 
-  test('should display integrity percentage', async ({ authenticatedPage }) => {
-    const auditTrail = new AuditTrailPage(authenticatedPage);
+  test('should display integrity percentage', async ({ page }) => {
+    const auditTrail = new AuditTrailPage(page);
     await auditTrail.goto();
 
     const integrity = await auditTrail.getIntegrityPercentage();
@@ -61,40 +61,40 @@ test.describe('Audit Trail - Statistics', () => {
 });
 
 test.describe('Audit Trail - Event List', () => {
-  test('should display audit events', async ({ authenticatedPage }) => {
-    const auditTrail = new AuditTrailPage(authenticatedPage);
+  test('should display audit events', async ({ page }) => {
+    const auditTrail = new AuditTrailPage(page);
     await auditTrail.goto();
 
     const count = await auditTrail.getEventCount();
     expect(count).toBeGreaterThanOrEqual(0);
   });
 
-  test('should show blockchain hash on events', async ({ authenticatedPage }) => {
-    const auditTrail = new AuditTrailPage(authenticatedPage);
+  test('should show blockchain hash on events', async ({ page }) => {
+    const auditTrail = new AuditTrailPage(page);
     await auditTrail.goto();
 
     // Look for blockchain hash pattern (0x followed by hex characters)
-    const hashElement = authenticatedPage.locator('text=/0x[a-fA-F0-9]+/');
+    const hashElement = page.locator('text=/0x[a-fA-F0-9]+/');
     if (await hashElement.count() > 0) {
       await expect(hashElement.first()).toBeVisible();
     }
   });
 
-  test('should show event type labels', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/audit-trail');
-    await authenticatedPage.waitForLoadState('networkidle');
+  test('should show event type labels', async ({ page }) => {
+    await loginViaRedirect(page, '/audit-trail');
+    await page.waitForLoadState('networkidle');
 
-    const eventTypes = authenticatedPage.locator('text=/Ownership Transfer|Capital Call|Distribution|Valuation Update|Document Hash|Compliance/i');
+    const eventTypes = page.locator('text=/Ownership Transfer|Capital Call|Distribution|Valuation Update|Document Hash|Compliance/i');
     if (await eventTypes.count() > 0) {
       await expect(eventTypes.first()).toBeVisible();
     }
   });
 
-  test('should show timestamp on events', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/audit-trail');
-    await authenticatedPage.waitForLoadState('networkidle');
+  test('should show timestamp on events', async ({ page }) => {
+    await loginViaRedirect(page, '/audit-trail');
+    await page.waitForLoadState('networkidle');
 
-    const timestamp = authenticatedPage.locator('text=/\\d{1,2}:\\d{2}|\\d{1,2}\\/\\d{1,2}\\/\\d{4}|ago/i');
+    const timestamp = page.locator('text=/\\d{1,2}:\\d{2}|\\d{1,2}\\/\\d{1,2}\\/\\d{4}|ago/i');
     if (await timestamp.count() > 0) {
       await expect(timestamp.first()).toBeVisible();
     }
@@ -102,25 +102,25 @@ test.describe('Audit Trail - Event List', () => {
 });
 
 test.describe('Audit Trail - Filtering', () => {
-  test('should filter by date range', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/audit-trail');
-    await authenticatedPage.waitForLoadState('networkidle');
+  test('should filter by date range', async ({ page }) => {
+    await loginViaRedirect(page, '/audit-trail');
+    await page.waitForLoadState('networkidle');
 
-    const dateFilter = authenticatedPage.getByRole('combobox', { name: /date|period/i })
-      .or(authenticatedPage.locator('input[type="date"]'));
+    const dateFilter = page.getByRole('combobox', { name: /date|period/i })
+      .or(page.locator('input[type="date"]'));
 
     if (await dateFilter.first().isVisible()) {
       await expect(dateFilter.first()).toBeEnabled();
     }
   });
 
-  test('should filter by event type', async ({ authenticatedPage }) => {
-    const auditTrail = new AuditTrailPage(authenticatedPage);
+  test('should filter by event type', async ({ page }) => {
+    const auditTrail = new AuditTrailPage(page);
     await auditTrail.goto();
 
     if (await auditTrail.eventTypeFilter.isVisible()) {
       await auditTrail.filterByEventType('Distribution');
-      await authenticatedPage.waitForLoadState('networkidle');
+      await page.waitForLoadState('networkidle');
 
       // Events should be filtered (may be empty if no distributions)
       const distributionEvents = await auditTrail.getEventsByType('distribution');
@@ -129,11 +129,11 @@ test.describe('Audit Trail - Filtering', () => {
     }
   });
 
-  test('should filter by entity type', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/audit-trail');
-    await authenticatedPage.waitForLoadState('networkidle');
+  test('should filter by entity type', async ({ page }) => {
+    await loginViaRedirect(page, '/audit-trail');
+    await page.waitForLoadState('networkidle');
 
-    const entityFilter = authenticatedPage.getByRole('combobox', { name: /entity|fund/i });
+    const entityFilter = page.getByRole('combobox', { name: /entity|fund/i });
     if (await entityFilter.isVisible()) {
       await expect(entityFilter).toBeEnabled();
     }
@@ -141,37 +141,37 @@ test.describe('Audit Trail - Filtering', () => {
 });
 
 test.describe('Audit Trail - Search', () => {
-  test('should have search functionality', async ({ authenticatedPage }) => {
-    const auditTrail = new AuditTrailPage(authenticatedPage);
+  test('should have search functionality', async ({ page }) => {
+    const auditTrail = new AuditTrailPage(page);
     await auditTrail.goto();
 
     await expect(auditTrail.searchInput).toBeVisible();
   });
 
-  test('should search by description', async ({ authenticatedPage }) => {
-    const auditTrail = new AuditTrailPage(authenticatedPage);
+  test('should search by description', async ({ page }) => {
+    const auditTrail = new AuditTrailPage(page);
     await auditTrail.goto();
 
     await auditTrail.searchEvents('distribution');
-    await authenticatedPage.waitForLoadState('networkidle');
+    await page.waitForLoadState('networkidle');
 
     // Results should be filtered
     const count = await auditTrail.getEventCount();
     expect(count).toBeGreaterThanOrEqual(0);
   });
 
-  test('should search by transaction hash', async ({ authenticatedPage }) => {
-    const auditTrail = new AuditTrailPage(authenticatedPage);
+  test('should search by transaction hash', async ({ page }) => {
+    const auditTrail = new AuditTrailPage(page);
     await auditTrail.goto();
 
     await auditTrail.searchEvents('0x');
-    await authenticatedPage.waitForLoadState('networkidle');
+    await page.waitForLoadState('networkidle');
   });
 });
 
 test.describe('Audit Trail - Blockchain Hash Verification', () => {
-  test('should display valid blockchain hash format', async ({ authenticatedPage }) => {
-    const auditTrail = new AuditTrailPage(authenticatedPage);
+  test('should display valid blockchain hash format', async ({ page }) => {
+    const auditTrail = new AuditTrailPage(page);
     await auditTrail.goto();
 
     if (await auditTrail.eventCards.count() > 0) {
@@ -183,12 +183,12 @@ test.describe('Audit Trail - Blockchain Hash Verification', () => {
     }
   });
 
-  test('should have copy hash functionality', async ({ authenticatedPage }) => {
-    const auditTrail = new AuditTrailPage(authenticatedPage);
+  test('should have copy hash functionality', async ({ page }) => {
+    const auditTrail = new AuditTrailPage(page);
     await auditTrail.goto();
 
-    const copyButton = authenticatedPage.getByRole('button', { name: /copy/i })
-      .or(authenticatedPage.locator('[class*="copy"]'));
+    const copyButton = page.getByRole('button', { name: /copy/i })
+      .or(page.locator('[class*="copy"]'));
 
     if (await copyButton.first().isVisible()) {
       await expect(copyButton.first()).toBeEnabled();
@@ -197,11 +197,11 @@ test.describe('Audit Trail - Blockchain Hash Verification', () => {
 });
 
 test.describe('Audit Trail - Export', () => {
-  test('should have export audit report functionality', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/audit-trail');
-    await authenticatedPage.waitForLoadState('networkidle');
+  test('should have export audit report functionality', async ({ page }) => {
+    await loginViaRedirect(page, '/audit-trail');
+    await page.waitForLoadState('networkidle');
 
-    const exportButton = authenticatedPage.getByRole('button', { name: /export|download.*report/i });
+    const exportButton = page.getByRole('button', { name: /export|download.*report/i });
     if (await exportButton.isVisible()) {
       await expect(exportButton).toBeEnabled();
     }
@@ -209,26 +209,26 @@ test.describe('Audit Trail - Export', () => {
 });
 
 test.describe('Audit Trail - Event Details', () => {
-  test('should show event details on click/expand', async ({ authenticatedPage }) => {
-    const auditTrail = new AuditTrailPage(authenticatedPage);
+  test('should show event details on click/expand', async ({ page }) => {
+    const auditTrail = new AuditTrailPage(page);
     await auditTrail.goto();
 
     if (await auditTrail.eventCards.count() > 0) {
       await auditTrail.viewEventDetails(0);
 
       // Details should be expanded (may show more info)
-      const detailsContent = authenticatedPage.locator('text=/block|hash|verified|timestamp/i');
+      const detailsContent = page.locator('text=/block|hash|verified|timestamp/i');
       if (await detailsContent.count() > 0) {
         await expect(detailsContent.first()).toBeVisible();
       }
     }
   });
 
-  test('should show verification status', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/audit-trail');
-    await authenticatedPage.waitForLoadState('networkidle');
+  test('should show verification status', async ({ page }) => {
+    await loginViaRedirect(page, '/audit-trail');
+    await page.waitForLoadState('networkidle');
 
-    const verificationStatus = authenticatedPage.locator('text=/verified|unverified|pending/i');
+    const verificationStatus = page.locator('text=/verified|unverified|pending/i');
     if (await verificationStatus.count() > 0) {
       await expect(verificationStatus.first()).toBeVisible();
     }
@@ -236,8 +236,8 @@ test.describe('Audit Trail - Event Details', () => {
 });
 
 test.describe('Audit Trail - Event Types', () => {
-  test('should display ownership transfer events', async ({ authenticatedPage }) => {
-    const auditTrail = new AuditTrailPage(authenticatedPage);
+  test('should display ownership transfer events', async ({ page }) => {
+    const auditTrail = new AuditTrailPage(page);
     await auditTrail.goto();
 
     const ownershipEvents = await auditTrail.getEventsByType('ownership_transfer');
@@ -245,8 +245,8 @@ test.describe('Audit Trail - Event Types', () => {
     expect(count).toBeGreaterThanOrEqual(0);
   });
 
-  test('should display capital call events', async ({ authenticatedPage }) => {
-    const auditTrail = new AuditTrailPage(authenticatedPage);
+  test('should display capital call events', async ({ page }) => {
+    const auditTrail = new AuditTrailPage(page);
     await auditTrail.goto();
 
     const capitalCallEvents = await auditTrail.getEventsByType('capital_call');
@@ -254,8 +254,8 @@ test.describe('Audit Trail - Event Types', () => {
     expect(count).toBeGreaterThanOrEqual(0);
   });
 
-  test('should display distribution events', async ({ authenticatedPage }) => {
-    const auditTrail = new AuditTrailPage(authenticatedPage);
+  test('should display distribution events', async ({ page }) => {
+    const auditTrail = new AuditTrailPage(page);
     await auditTrail.goto();
 
     const distributionEvents = await auditTrail.getEventsByType('distribution');
@@ -265,20 +265,20 @@ test.describe('Audit Trail - Event Types', () => {
 });
 
 test.describe('Audit Trail - Interactions - Data Verification', () => {
-  test('event type filter should update event list', async ({ authenticatedPage }) => {
-    const auditTrail = new AuditTrailPage(authenticatedPage);
+  test('event type filter should update event list', async ({ page }) => {
+    const auditTrail = new AuditTrailPage(page);
     await auditTrail.goto();
 
     const dataSelector = '[class*="card"], [data-testid="audit-event"], table tbody tr';
 
     if (await auditTrail.eventTypeFilter.isVisible()) {
-      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+      const before = await captureDataSnapshot(page, dataSelector);
 
       if (before.count > 0) {
         await auditTrail.filterByEventType('Distribution');
-        await authenticatedPage.waitForLoadState('networkidle');
+        await page.waitForLoadState('networkidle');
 
-        const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+        const after = await captureDataSnapshot(page, dataSelector);
         const changed = verifyDataChanged(before, after);
 
         expect(
@@ -289,16 +289,16 @@ test.describe('Audit Trail - Interactions - Data Verification', () => {
     }
   });
 
-  test('search should filter audit events', async ({ authenticatedPage }) => {
-    const auditTrail = new AuditTrailPage(authenticatedPage);
+  test('search should filter audit events', async ({ page }) => {
+    const auditTrail = new AuditTrailPage(page);
     await auditTrail.goto();
 
     const dataSelector = '[class*="card"], [data-testid="audit-event"], table tbody tr';
-    const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+    const before = await captureDataSnapshot(page, dataSelector);
 
     if (before.count > 0 && await auditTrail.searchInput.isVisible()) {
       const result = await searchAndVerifyChange(
-        authenticatedPage,
+        page,
         auditTrail.searchInput,
         'xyz-nonexistent-event',
         dataSelector
@@ -309,20 +309,20 @@ test.describe('Audit Trail - Interactions - Data Verification', () => {
     }
   });
 
-  test('search should show matching events', async ({ authenticatedPage }) => {
-    const auditTrail = new AuditTrailPage(authenticatedPage);
+  test('search should show matching events', async ({ page }) => {
+    const auditTrail = new AuditTrailPage(page);
     await auditTrail.goto();
 
     const dataSelector = '[class*="card"], [data-testid="audit-event"], table tbody tr';
-    const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+    const before = await captureDataSnapshot(page, dataSelector);
 
     if (before.count > 0 && await auditTrail.searchInput.isVisible()) {
       // Search for a common term
       await auditTrail.searchEvents('distribution');
-      await authenticatedPage.waitForLoadState('networkidle');
-      await authenticatedPage.waitForTimeout(500);
+      await page.waitForLoadState('networkidle');
+      await page.waitForTimeout(500);
 
-      const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+      const after = await captureDataSnapshot(page, dataSelector);
       const changed = verifyDataChanged(before, after);
 
       // Search should filter results
@@ -332,29 +332,29 @@ test.describe('Audit Trail - Interactions - Data Verification', () => {
     }
   });
 
-  test('date filter should update event list', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/audit-trail');
-    await authenticatedPage.waitForLoadState('networkidle');
+  test('date filter should update event list', async ({ page }) => {
+    await loginViaRedirect(page, '/audit-trail');
+    await page.waitForLoadState('networkidle');
 
-    const dateFilter = authenticatedPage.getByRole('combobox', { name: /date|period/i })
-      .or(authenticatedPage.locator('select').filter({ hasText: /date|period|today|week/i }));
+    const dateFilter = page.getByRole('combobox', { name: /date|period/i })
+      .or(page.locator('select').filter({ hasText: /date|period|today|week/i }));
 
     const dataSelector = '[class*="card"], [data-testid="audit-event"], table tbody tr';
 
     if (await dateFilter.first().isVisible()) {
-      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+      const before = await captureDataSnapshot(page, dataSelector);
 
       if (before.count > 0) {
         await dateFilter.first().click();
-        await authenticatedPage.waitForTimeout(300);
+        await page.waitForTimeout(300);
 
         // Select a different date range option
-        const dateOption = authenticatedPage.getByRole('option', { name: /last week|today|this month/i });
+        const dateOption = page.getByRole('option', { name: /last week|today|this month/i });
         if (await dateOption.first().isVisible()) {
           await dateOption.first().click();
-          await authenticatedPage.waitForLoadState('networkidle');
+          await page.waitForLoadState('networkidle');
 
-          const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+          const after = await captureDataSnapshot(page, dataSelector);
           const changed = verifyDataChanged(before, after);
 
           expect(
@@ -366,27 +366,27 @@ test.describe('Audit Trail - Interactions - Data Verification', () => {
     }
   });
 
-  test('entity filter should update events for specific fund', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/audit-trail');
-    await authenticatedPage.waitForLoadState('networkidle');
+  test('entity filter should update events for specific fund', async ({ page }) => {
+    await loginViaRedirect(page, '/audit-trail');
+    await page.waitForLoadState('networkidle');
 
-    const entityFilter = authenticatedPage.getByRole('combobox', { name: /entity|fund/i });
+    const entityFilter = page.getByRole('combobox', { name: /entity|fund/i });
     const dataSelector = '[class*="card"], [data-testid="audit-event"], table tbody tr';
 
     if (await entityFilter.isVisible()) {
-      const before = await captureDataSnapshot(authenticatedPage, dataSelector);
+      const before = await captureDataSnapshot(page, dataSelector);
 
       if (before.count > 0) {
         await entityFilter.click();
-        await authenticatedPage.waitForTimeout(300);
+        await page.waitForTimeout(300);
 
         // Select a specific fund
-        const fundOption = authenticatedPage.getByRole('option').nth(1);
+        const fundOption = page.getByRole('option').nth(1);
         if (await fundOption.isVisible()) {
           await fundOption.click();
-          await authenticatedPage.waitForLoadState('networkidle');
+          await page.waitForLoadState('networkidle');
 
-          const after = await captureDataSnapshot(authenticatedPage, dataSelector);
+          const after = await captureDataSnapshot(page, dataSelector);
           const changed = verifyDataChanged(before, after);
 
           expect(
@@ -398,27 +398,27 @@ test.describe('Audit Trail - Interactions - Data Verification', () => {
     }
   });
 
-  test('combined filters should work together', async ({ authenticatedPage }) => {
-    const auditTrail = new AuditTrailPage(authenticatedPage);
+  test('combined filters should work together', async ({ page }) => {
+    const auditTrail = new AuditTrailPage(page);
     await auditTrail.goto();
 
     const dataSelector = '[class*="card"], [data-testid="audit-event"], table tbody tr';
-    const initialSnapshot = await captureDataSnapshot(authenticatedPage, dataSelector);
+    const initialSnapshot = await captureDataSnapshot(page, dataSelector);
 
     // Apply event type filter
     if (await auditTrail.eventTypeFilter.isVisible()) {
       await auditTrail.filterByEventType('Distribution');
-      await authenticatedPage.waitForLoadState('networkidle');
+      await page.waitForLoadState('networkidle');
     }
 
     // Apply search filter
     if (await auditTrail.searchInput.isVisible()) {
       await auditTrail.searchEvents('fund');
-      await authenticatedPage.waitForLoadState('networkidle');
-      await authenticatedPage.waitForTimeout(500);
+      await page.waitForLoadState('networkidle');
+      await page.waitForTimeout(500);
     }
 
-    const afterBothFilters = await captureDataSnapshot(authenticatedPage, dataSelector);
+    const afterBothFilters = await captureDataSnapshot(page, dataSelector);
 
     // Combined filters should produce different results
     if (initialSnapshot.count > 2) {
