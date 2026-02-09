@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { BrandLogo } from '../brand-logo';
 import { ThemeToggle } from './theme-toggle';
 import { LoginButton } from './login-button';
+import { PublicNavLinks } from './public-nav-links';
+import { PublicMobileMenu } from './public-mobile-menu';
 
 /**
  * Pure server-side header for public pages
@@ -19,32 +21,7 @@ export function PublicHeaderStatic() {
               VestLedger
             </span>
           </Link>
-          <div className="hidden md:flex items-center gap-6">
-            <Link
-              href="/features"
-              className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-primary)] transition-colors"
-            >
-              Features
-            </Link>
-            <Link
-              href="/how-it-works"
-              className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-primary)] transition-colors"
-            >
-              How It Works
-            </Link>
-            <Link
-              href="/security"
-              className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-primary)] transition-colors"
-            >
-              Security
-            </Link>
-            <Link
-              href="/about"
-              className="text-sm text-[var(--app-text-muted)] hover:text-[var(--app-primary)] transition-colors"
-            >
-              About
-            </Link>
-          </div>
+          <PublicNavLinks className="hidden md:flex" />
         </div>
         <div className="flex items-center gap-2 sm:gap-3">
           <ThemeToggle />
@@ -55,6 +32,7 @@ export function PublicHeaderStatic() {
           >
             Meet Vesta
           </Link>
+          <PublicMobileMenu />
         </div>
       </div>
     </nav>
