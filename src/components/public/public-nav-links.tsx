@@ -33,11 +33,11 @@ export function PublicNavLinks({
 
   const containerClass = isHorizontal
     ? 'flex items-center gap-6'
-    : 'flex flex-col';
+    : 'flex flex-col gap-2';
 
   const linkClass = isHorizontal
     ? 'text-sm text-[var(--app-text-muted)] hover:text-[var(--app-primary)] transition-colors'
-    : 'px-3 py-2 rounded-md text-sm text-[var(--app-text)] hover:bg-[var(--app-surface-hover)] transition-colors';
+    : 'w-full px-3 py-3 rounded-md text-base font-medium text-center text-[var(--app-text)] hover:bg-[var(--app-surface-hover)] transition-colors';
 
   return (
     <div className={joinClasses(containerClass, className)}>
