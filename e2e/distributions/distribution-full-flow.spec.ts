@@ -1,92 +1,92 @@
-import { test, expect } from '../fixtures/auth.fixture';
+import { test, expect, loginViaRedirect } from '../fixtures/auth.fixture';
 import { DistributionsPage, DistributionWizardPage } from '../pages/distributions.page';
 import { DistributionDetailPage } from '../pages/distribution-detail.page';
 
 test.describe('Distribution Full Flow', () => {
   test.describe('Wizard Navigation', () => {
-    test('should load distribution wizard with all 9 steps visible', async ({ authenticatedPage }) => {
-      await authenticatedPage.goto('/fund-admin/distributions/new');
-      await authenticatedPage.waitForLoadState('networkidle');
+    test('should load distribution wizard with all 9 steps visible', async ({ page }) => {
+      await loginViaRedirect(page, '/fund-admin/distributions/new');
+      await page.waitForLoadState('networkidle');
 
       // Verify wizard header shows step info
-      const stepInfo = authenticatedPage.locator('text=/Step \\d+ of \\d+/');
+      const stepInfo = page.locator('text=/Step \\d+ of \\d+/');
       await expect(stepInfo).toBeVisible();
 
       // Verify we're on step 1 (Event)
-      const stepLabel = authenticatedPage.locator('text=Event').first();
+      const stepLabel = page.locator('text=Event').first();
       await expect(stepLabel).toBeVisible();
 
       // Verify progress indicator exists
-      const progress = authenticatedPage.locator('[role="progressbar"], [class*="progress"]');
+      const progress = page.locator('[role="progressbar"], [class*="progress"]');
       await expect(progress.first()).toBeVisible();
     });
 
-    test('should navigate forward through steps with valid data', async ({ authenticatedPage }) => {
-      await authenticatedPage.goto('/fund-admin/distributions/new');
-      await authenticatedPage.waitForLoadState('networkidle');
+    test('should navigate forward through steps with valid data', async ({ page }) => {
+      await loginViaRedirect(page, '/fund-admin/distributions/new');
+      await page.waitForLoadState('networkidle');
 
       // Step 1: Event - fill required fields
-      const nameInput = authenticatedPage.getByLabel(/name/i).or(authenticatedPage.locator('input[name*="name"]'));
+      const nameInput = page.getByLabel(/name/i).or(page.locator('input[name*="name"]'));
       if (await nameInput.isVisible()) {
         await nameInput.fill('Q4 2024 Distribution');
       }
 
-      const grossProceedsInput = authenticatedPage.getByLabel(/gross proceeds/i).or(authenticatedPage.locator('input[name*="gross"]'));
+      const grossProceedsInput = page.getByLabel(/gross proceeds/i).or(page.locator('input[name*="gross"]'));
       if (await grossProceedsInput.isVisible()) {
         await grossProceedsInput.fill('10000000');
       }
 
       // Click next/continue
-      const nextButton = authenticatedPage.getByRole('button', { name: /save.*continue|next|continue/i });
+      const nextButton = page.getByRole('button', { name: /save.*continue|next|continue/i });
       if (await nextButton.isVisible()) {
         await nextButton.click();
-        await authenticatedPage.waitForLoadState('networkidle');
+        await page.waitForLoadState('networkidle');
       }
 
       // Verify we moved to step 2 (Fees)
-      const feesLabel = authenticatedPage.locator('text=/Step 2|Fees/');
+      const feesLabel = page.locator('text=/Step 2|Fees/');
       await expect(feesLabel.first()).toBeVisible({ timeout: 5000 });
     });
 
-    test('should navigate backward using Back button', async ({ authenticatedPage }) => {
+    test('should navigate backward using Back button', async ({ page }) => {
       // Start at a step beyond the first
-      await authenticatedPage.goto('/fund-admin/distributions/new?step=fees');
-      await authenticatedPage.waitForLoadState('networkidle');
+      await loginViaRedirect(page, '/fund-admin/distributions/new?step=fees');
+      await page.waitForLoadState('networkidle');
 
-      const backButton = authenticatedPage.getByRole('button', { name: /back/i });
+      const backButton = page.getByRole('button', { name: /back/i });
       if (await backButton.isVisible() && await backButton.isEnabled()) {
         await backButton.click();
-        await authenticatedPage.waitForLoadState('networkidle');
+        await page.waitForLoadState('networkidle');
 
         // Verify we're back on step 1
-        const stepInfo = authenticatedPage.locator('text=/Step 1/');
+        const stepInfo = page.locator('text=/Step 1/');
         await expect(stepInfo).toBeVisible({ timeout: 5000 });
       }
     });
 
-    test('should preserve data when navigating between steps', async ({ authenticatedPage }) => {
-      await authenticatedPage.goto('/fund-admin/distributions/new');
-      await authenticatedPage.waitForLoadState('networkidle');
+    test('should preserve data when navigating between steps', async ({ page }) => {
+      await loginViaRedirect(page, '/fund-admin/distributions/new');
+      await page.waitForLoadState('networkidle');
 
       // Fill name on step 1
-      const nameInput = authenticatedPage.getByLabel(/name/i).or(authenticatedPage.locator('input[name*="name"]'));
+      const nameInput = page.getByLabel(/name/i).or(page.locator('input[name*="name"]'));
       const testName = 'Test Distribution ' + Date.now();
 
       if (await nameInput.isVisible()) {
         await nameInput.fill(testName);
 
         // Navigate forward
-        const nextButton = authenticatedPage.getByRole('button', { name: /save.*continue|next|continue/i });
+        const nextButton = page.getByRole('button', { name: /save.*continue|next|continue/i });
         if (await nextButton.isVisible()) {
           await nextButton.click();
-          await authenticatedPage.waitForLoadState('networkidle');
+          await page.waitForLoadState('networkidle');
         }
 
         // Navigate back
-        const backButton = authenticatedPage.getByRole('button', { name: /back/i });
+        const backButton = page.getByRole('button', { name: /back/i });
         if (await backButton.isVisible()) {
           await backButton.click();
-          await authenticatedPage.waitForLoadState('networkidle');
+          await page.waitForLoadState('networkidle');
         }
 
         // Verify data is preserved
@@ -96,47 +96,47 @@ test.describe('Distribution Full Flow', () => {
   });
 
   test.describe('Step 1: Event Details', () => {
-    test('should validate required fields on Event step', async ({ authenticatedPage }) => {
-      await authenticatedPage.goto('/fund-admin/distributions/new');
-      await authenticatedPage.waitForLoadState('networkidle');
+    test('should validate required fields on Event step', async ({ page }) => {
+      await loginViaRedirect(page, '/fund-admin/distributions/new');
+      await page.waitForLoadState('networkidle');
 
       // Try to proceed without filling required fields
-      const nextButton = authenticatedPage.getByRole('button', { name: /save.*continue|next|continue/i });
+      const nextButton = page.getByRole('button', { name: /save.*continue|next|continue/i });
       if (await nextButton.isVisible()) {
         await nextButton.click();
-        await authenticatedPage.waitForTimeout(500);
+        await page.waitForTimeout(500);
 
         // Should show validation errors
-        const errorMessages = authenticatedPage.locator('[class*="danger"], [class*="error"], [role="alert"]');
+        const errorMessages = page.locator('[class*="danger"], [class*="error"], [role="alert"]');
         const hasErrors = await errorMessages.count() > 0;
 
         // Either errors are shown OR we didn't advance (still on step 1)
-        const stillOnStep1 = await authenticatedPage.locator('text=/Step 1/').isVisible();
+        const stillOnStep1 = await page.locator('text=/Step 1/').isVisible();
         expect(hasErrors || stillOnStep1).toBeTruthy();
       }
     });
 
-    test('should display event type selector', async ({ authenticatedPage }) => {
-      await authenticatedPage.goto('/fund-admin/distributions/new');
-      await authenticatedPage.waitForLoadState('networkidle');
+    test('should display event type selector', async ({ page }) => {
+      await loginViaRedirect(page, '/fund-admin/distributions/new');
+      await page.waitForLoadState('networkidle');
 
-      const eventTypeSelect = authenticatedPage.getByLabel(/event type/i)
-        .or(authenticatedPage.locator('select').filter({ hasText: /exit|dividend|recapitalization/i }))
-        .or(authenticatedPage.getByRole('combobox', { name: /type/i }));
+      const eventTypeSelect = page.getByLabel(/event type/i)
+        .or(page.locator('select').filter({ hasText: /exit|dividend|recapitalization/i }))
+        .or(page.getByRole('combobox', { name: /type/i }));
 
       if (await eventTypeSelect.isVisible()) {
         await expect(eventTypeSelect).toBeEnabled();
       }
     });
 
-    test('should display date pickers for event and payment dates', async ({ authenticatedPage }) => {
-      await authenticatedPage.goto('/fund-admin/distributions/new');
-      await authenticatedPage.waitForLoadState('networkidle');
+    test('should display date pickers for event and payment dates', async ({ page }) => {
+      await loginViaRedirect(page, '/fund-admin/distributions/new');
+      await page.waitForLoadState('networkidle');
 
-      const eventDateInput = authenticatedPage.getByLabel(/event date/i)
-        .or(authenticatedPage.locator('input[type="date"]').first());
-      const paymentDateInput = authenticatedPage.getByLabel(/payment date/i)
-        .or(authenticatedPage.locator('input[type="date"]').nth(1));
+      const eventDateInput = page.getByLabel(/event date/i)
+        .or(page.locator('input[type="date"]').first());
+      const paymentDateInput = page.getByLabel(/payment date/i)
+        .or(page.locator('input[type="date"]').nth(1));
 
       if (await eventDateInput.isVisible()) {
         await expect(eventDateInput).toBeEnabled();
@@ -149,20 +149,20 @@ test.describe('Distribution Full Flow', () => {
   });
 
   test.describe('Step 2: Fees & Expenses', () => {
-    test('should load fees step with fee templates', async ({ authenticatedPage }) => {
-      await authenticatedPage.goto('/fund-admin/distributions/new?step=fees');
-      await authenticatedPage.waitForLoadState('networkidle');
+    test('should load fees step with fee templates', async ({ page }) => {
+      await loginViaRedirect(page, '/fund-admin/distributions/new?step=fees');
+      await page.waitForLoadState('networkidle');
 
       // Should show fees section
-      const feesSection = authenticatedPage.locator('text=/Fee|Expense/i').first();
+      const feesSection = page.locator('text=/Fee|Expense/i').first();
       await expect(feesSection).toBeVisible({ timeout: 10000 });
     });
 
-    test('should allow adding fee line items', async ({ authenticatedPage }) => {
-      await authenticatedPage.goto('/fund-admin/distributions/new?step=fees');
-      await authenticatedPage.waitForLoadState('networkidle');
+    test('should allow adding fee line items', async ({ page }) => {
+      await loginViaRedirect(page, '/fund-admin/distributions/new?step=fees');
+      await page.waitForLoadState('networkidle');
 
-      const addFeeButton = authenticatedPage.getByRole('button', { name: /add.*fee|add.*expense|add.*line/i });
+      const addFeeButton = page.getByRole('button', { name: /add.*fee|add.*expense|add.*line/i });
       if (await addFeeButton.isVisible()) {
         await expect(addFeeButton).toBeEnabled();
       }
@@ -170,29 +170,29 @@ test.describe('Distribution Full Flow', () => {
   });
 
   test.describe('Step 3: Waterfall Selection', () => {
-    test('should display available waterfall scenarios', async ({ authenticatedPage }) => {
-      await authenticatedPage.goto('/fund-admin/distributions/new?step=waterfall');
-      await authenticatedPage.waitForLoadState('networkidle');
+    test('should display available waterfall scenarios', async ({ page }) => {
+      await loginViaRedirect(page, '/fund-admin/distributions/new?step=waterfall');
+      await page.waitForLoadState('networkidle');
 
       // Should show waterfall selection UI
-      const waterfallSection = authenticatedPage.locator('text=/waterfall|scenario/i').first();
+      const waterfallSection = page.locator('text=/waterfall|scenario/i').first();
       await expect(waterfallSection).toBeVisible({ timeout: 10000 });
     });
 
-    test('should validate waterfall scenario selection', async ({ authenticatedPage }) => {
-      await authenticatedPage.goto('/fund-admin/distributions/new?step=waterfall');
-      await authenticatedPage.waitForLoadState('networkidle');
+    test('should validate waterfall scenario selection', async ({ page }) => {
+      await loginViaRedirect(page, '/fund-admin/distributions/new?step=waterfall');
+      await page.waitForLoadState('networkidle');
 
       // Try to proceed without selecting scenario
-      const nextButton = authenticatedPage.getByRole('button', { name: /save.*continue|next|continue/i });
+      const nextButton = page.getByRole('button', { name: /save.*continue|next|continue/i });
       if (await nextButton.isVisible()) {
         await nextButton.click();
-        await authenticatedPage.waitForTimeout(500);
+        await page.waitForTimeout(500);
 
         // Should show error or stay on same step
         const errorOrSameStep =
-          await authenticatedPage.locator('[class*="danger"], [class*="error"]').count() > 0 ||
-          await authenticatedPage.locator('text=/Step 3|waterfall/i').isVisible();
+          await page.locator('[class*="danger"], [class*="error"]').count() > 0 ||
+          await page.locator('text=/Step 3|waterfall/i').isVisible();
 
         expect(errorOrSameStep).toBeTruthy();
       }
@@ -200,19 +200,19 @@ test.describe('Distribution Full Flow', () => {
   });
 
   test.describe('Step 4: LP Allocations', () => {
-    test('should display LP allocations table', async ({ authenticatedPage }) => {
-      await authenticatedPage.goto('/fund-admin/distributions/new?step=allocations');
-      await authenticatedPage.waitForLoadState('networkidle');
+    test('should display LP allocations table', async ({ page }) => {
+      await loginViaRedirect(page, '/fund-admin/distributions/new?step=allocations');
+      await page.waitForLoadState('networkidle');
 
-      const allocationsTable = authenticatedPage.locator('table, [role="grid"]').filter({ hasText: /LP|allocation|gross|net/i });
+      const allocationsTable = page.locator('table, [role="grid"]').filter({ hasText: /LP|allocation|gross|net/i });
       await expect(allocationsTable.first()).toBeVisible({ timeout: 10000 });
     });
 
-    test('should have recalculate allocations button', async ({ authenticatedPage }) => {
-      await authenticatedPage.goto('/fund-admin/distributions/new?step=allocations');
-      await authenticatedPage.waitForLoadState('networkidle');
+    test('should have recalculate allocations button', async ({ page }) => {
+      await loginViaRedirect(page, '/fund-admin/distributions/new?step=allocations');
+      await page.waitForLoadState('networkidle');
 
-      const recalculateButton = authenticatedPage.getByRole('button', { name: /recalculate|refresh|update/i });
+      const recalculateButton = page.getByRole('button', { name: /recalculate|refresh|update/i });
       if (await recalculateButton.isVisible()) {
         await expect(recalculateButton).toBeEnabled();
       }
@@ -220,20 +220,20 @@ test.describe('Distribution Full Flow', () => {
   });
 
   test.describe('Step 5: Tax Withholding', () => {
-    test('should display tax withholding configuration', async ({ authenticatedPage }) => {
-      await authenticatedPage.goto('/fund-admin/distributions/new?step=tax');
-      await authenticatedPage.waitForLoadState('networkidle');
+    test('should display tax withholding configuration', async ({ page }) => {
+      await loginViaRedirect(page, '/fund-admin/distributions/new?step=tax');
+      await page.waitForLoadState('networkidle');
 
-      const taxSection = authenticatedPage.locator('text=/tax|withholding/i').first();
+      const taxSection = page.locator('text=/tax|withholding/i').first();
       await expect(taxSection).toBeVisible({ timeout: 10000 });
     });
 
-    test('should validate tax rates are within range', async ({ authenticatedPage }) => {
-      await authenticatedPage.goto('/fund-admin/distributions/new?step=tax');
-      await authenticatedPage.waitForLoadState('networkidle');
+    test('should validate tax rates are within range', async ({ page }) => {
+      await loginViaRedirect(page, '/fund-admin/distributions/new?step=tax');
+      await page.waitForLoadState('networkidle');
 
       // Look for tax rate inputs
-      const taxRateInputs = authenticatedPage.locator('input[type="number"]').filter({ hasText: /tax|rate|%/i });
+      const taxRateInputs = page.locator('input[type="number"]').filter({ hasText: /tax|rate|%/i });
       const count = await taxRateInputs.count();
 
       if (count > 0) {
@@ -244,22 +244,22 @@ test.describe('Distribution Full Flow', () => {
   });
 
   test.describe('Step 8: Preview', () => {
-    test('should display statement template selection', async ({ authenticatedPage }) => {
-      await authenticatedPage.goto('/fund-admin/distributions/new?step=preview');
-      await authenticatedPage.waitForLoadState('networkidle');
+    test('should display statement template selection', async ({ page }) => {
+      await loginViaRedirect(page, '/fund-admin/distributions/new?step=preview');
+      await page.waitForLoadState('networkidle');
 
-      const previewSection = authenticatedPage.locator('text=/preview|template|statement/i').first();
+      const previewSection = page.locator('text=/preview|template|statement/i').first();
       await expect(previewSection).toBeVisible({ timeout: 10000 });
     });
 
-    test('should have email subject and body fields', async ({ authenticatedPage }) => {
-      await authenticatedPage.goto('/fund-admin/distributions/new?step=preview');
-      await authenticatedPage.waitForLoadState('networkidle');
+    test('should have email subject and body fields', async ({ page }) => {
+      await loginViaRedirect(page, '/fund-admin/distributions/new?step=preview');
+      await page.waitForLoadState('networkidle');
 
-      const emailSubject = authenticatedPage.getByLabel(/email subject|subject/i)
-        .or(authenticatedPage.locator('input').filter({ hasText: /subject/i }));
-      const emailBody = authenticatedPage.getByLabel(/email body|message/i)
-        .or(authenticatedPage.locator('textarea'));
+      const emailSubject = page.getByLabel(/email subject|subject/i)
+        .or(page.locator('input').filter({ hasText: /subject/i }));
+      const emailBody = page.getByLabel(/email body|message/i)
+        .or(page.locator('textarea'));
 
       if (await emailSubject.isVisible()) {
         await expect(emailSubject).toBeEnabled();
@@ -272,28 +272,28 @@ test.describe('Distribution Full Flow', () => {
   });
 
   test.describe('Step 9: Submit for Approval', () => {
-    test('should display approval workflow information', async ({ authenticatedPage }) => {
-      await authenticatedPage.goto('/fund-admin/distributions/new?step=submit');
-      await authenticatedPage.waitForLoadState('networkidle');
+    test('should display approval workflow information', async ({ page }) => {
+      await loginViaRedirect(page, '/fund-admin/distributions/new?step=submit');
+      await page.waitForLoadState('networkidle');
 
-      const submitSection = authenticatedPage.locator('text=/submit|approval|approver/i').first();
+      const submitSection = page.locator('text=/submit|approval|approver/i').first();
       await expect(submitSection).toBeVisible({ timeout: 10000 });
     });
 
-    test('should have submit for approval button', async ({ authenticatedPage }) => {
-      await authenticatedPage.goto('/fund-admin/distributions/new?step=submit');
-      await authenticatedPage.waitForLoadState('networkidle');
+    test('should have submit for approval button', async ({ page }) => {
+      await loginViaRedirect(page, '/fund-admin/distributions/new?step=submit');
+      await page.waitForLoadState('networkidle');
 
-      const submitButton = authenticatedPage.getByRole('button', { name: /submit for approval/i });
+      const submitButton = page.getByRole('button', { name: /submit for approval/i });
       await expect(submitButton).toBeVisible();
     });
 
-    test('should allow adding approval comment', async ({ authenticatedPage }) => {
-      await authenticatedPage.goto('/fund-admin/distributions/new?step=submit');
-      await authenticatedPage.waitForLoadState('networkidle');
+    test('should allow adding approval comment', async ({ page }) => {
+      await loginViaRedirect(page, '/fund-admin/distributions/new?step=submit');
+      await page.waitForLoadState('networkidle');
 
-      const commentInput = authenticatedPage.getByLabel(/comment|note/i)
-        .or(authenticatedPage.locator('textarea'));
+      const commentInput = page.getByLabel(/comment|note/i)
+        .or(page.locator('textarea'));
 
       if (await commentInput.isVisible()) {
         await commentInput.fill('Submitting for Q4 review');
@@ -303,52 +303,52 @@ test.describe('Distribution Full Flow', () => {
   });
 
   test.describe('Draft Save/Restore', () => {
-    test('should have Save Draft button', async ({ authenticatedPage }) => {
-      await authenticatedPage.goto('/fund-admin/distributions/new');
-      await authenticatedPage.waitForLoadState('networkidle');
+    test('should have Save Draft button', async ({ page }) => {
+      await loginViaRedirect(page, '/fund-admin/distributions/new');
+      await page.waitForLoadState('networkidle');
 
-      const saveDraftButton = authenticatedPage.getByRole('button', { name: /save draft/i });
+      const saveDraftButton = page.getByRole('button', { name: /save draft/i });
       await expect(saveDraftButton).toBeVisible();
       await expect(saveDraftButton).toBeEnabled();
     });
 
-    test('should show draft status information', async ({ authenticatedPage }) => {
-      await authenticatedPage.goto('/fund-admin/distributions/new');
-      await authenticatedPage.waitForLoadState('networkidle');
+    test('should show draft status information', async ({ page }) => {
+      await loginViaRedirect(page, '/fund-admin/distributions/new');
+      await page.waitForLoadState('networkidle');
 
-      const draftStatus = authenticatedPage.locator('text=/draft|saved|last saved/i');
+      const draftStatus = page.locator('text=/draft|saved|last saved/i');
       await expect(draftStatus.first()).toBeVisible({ timeout: 5000 });
     });
   });
 
   test.describe('Running Totals Sidebar', () => {
-    test('should display running totals panel', async ({ authenticatedPage }) => {
-      await authenticatedPage.goto('/fund-admin/distributions/new');
-      await authenticatedPage.waitForLoadState('networkidle');
+    test('should display running totals panel', async ({ page }) => {
+      await loginViaRedirect(page, '/fund-admin/distributions/new');
+      await page.waitForLoadState('networkidle');
 
-      const runningTotals = authenticatedPage.locator('text=Running Totals');
+      const runningTotals = page.locator('text=Running Totals');
       await expect(runningTotals).toBeVisible({ timeout: 5000 });
     });
 
-    test('should show gross proceeds, fees, net proceeds', async ({ authenticatedPage }) => {
-      await authenticatedPage.goto('/fund-admin/distributions/new');
-      await authenticatedPage.waitForLoadState('networkidle');
+    test('should show gross proceeds, fees, net proceeds', async ({ page }) => {
+      await loginViaRedirect(page, '/fund-admin/distributions/new');
+      await page.waitForLoadState('networkidle');
 
-      const grossProceeds = authenticatedPage.locator('text=Gross Proceeds');
-      const fees = authenticatedPage.locator('text=Fees');
-      const netProceeds = authenticatedPage.locator('text=Net Proceeds');
+      const grossProceeds = page.locator('text=Gross Proceeds');
+      const fees = page.locator('text=Fees');
+      const netProceeds = page.locator('text=Net Proceeds');
 
       await expect(grossProceeds).toBeVisible({ timeout: 5000 });
       await expect(fees).toBeVisible({ timeout: 5000 });
       await expect(netProceeds).toBeVisible({ timeout: 5000 });
     });
 
-    test('should show warnings when data is inconsistent', async ({ authenticatedPage }) => {
-      await authenticatedPage.goto('/fund-admin/distributions/new');
-      await authenticatedPage.waitForLoadState('networkidle');
+    test('should show warnings when data is inconsistent', async ({ page }) => {
+      await loginViaRedirect(page, '/fund-admin/distributions/new');
+      await page.waitForLoadState('networkidle');
 
       // The warnings card should exist (may or may not have content initially)
-      const warningsSection = authenticatedPage.locator('[class*="card"]').filter({ hasText: /warning|reconcile|exceed/i });
+      const warningsSection = page.locator('[class*="card"]').filter({ hasText: /warning|reconcile|exceed/i });
       // May or may not be visible depending on data state
       const warningsCount = await warningsSection.count();
       expect(warningsCount).toBeGreaterThanOrEqual(0);
@@ -356,13 +356,13 @@ test.describe('Distribution Full Flow', () => {
   });
 
   test.describe('Cancel Flow', () => {
-    test('should have cancel option', async ({ authenticatedPage }) => {
-      const wizard = new DistributionWizardPage(authenticatedPage);
+    test('should have cancel option', async ({ page }) => {
+      const wizard = new DistributionWizardPage(page);
       await wizard.goto();
 
       // Cancel might be a button or link
-      const cancelButton = authenticatedPage.getByRole('button', { name: /cancel|close|back to/i })
-        .or(authenticatedPage.getByRole('link', { name: /cancel|back/i }));
+      const cancelButton = page.getByRole('button', { name: /cancel|close|back to/i })
+        .or(page.getByRole('link', { name: /cancel|back/i }));
 
       if (await cancelButton.first().isVisible()) {
         await expect(cancelButton.first()).toBeEnabled();
@@ -372,77 +372,77 @@ test.describe('Distribution Full Flow', () => {
 });
 
 test.describe('Distribution Detail View', () => {
-  test('should load distribution detail page', async ({ authenticatedPage }) => {
+  test('should load distribution detail page', async ({ page }) => {
     // First go to distributions list
-    await authenticatedPage.goto('/fund-admin');
-    await authenticatedPage.waitForLoadState('networkidle');
+    await loginViaRedirect(page, '/fund-admin');
+    await page.waitForLoadState('networkidle');
 
     // Click distributions tab
-    const distributionsTab = authenticatedPage.getByRole('tab', { name: /distributions/i });
+    const distributionsTab = page.getByRole('tab', { name: /distributions/i });
     if (await distributionsTab.isVisible()) {
       await distributionsTab.click();
-      await authenticatedPage.waitForLoadState('networkidle');
+      await page.waitForLoadState('networkidle');
     }
 
     // Look for a distribution item to click
-    const distributionItem = authenticatedPage.locator('table tbody tr, [class*="card"]').filter({ hasText: /distribution|Q\d/i }).first();
+    const distributionItem = page.locator('table tbody tr, [class*="card"]').filter({ hasText: /distribution|Q\d/i }).first();
 
     if (await distributionItem.isVisible()) {
       await distributionItem.click();
-      await authenticatedPage.waitForLoadState('networkidle');
+      await page.waitForLoadState('networkidle');
 
       // Should show detail view content
-      const detailContent = authenticatedPage.locator('text=/gross proceeds|net proceeds|allocation/i');
+      const detailContent = page.locator('text=/gross proceeds|net proceeds|allocation/i');
       await expect(detailContent.first()).toBeVisible({ timeout: 10000 });
     }
   });
 
-  test('should display approval workflow on detail page', async ({ authenticatedPage }) => {
+  test('should display approval workflow on detail page', async ({ page }) => {
     // Navigate to a specific distribution detail page (assuming one exists)
-    await authenticatedPage.goto('/fund-admin/distributions/dist-1');
-    await authenticatedPage.waitForLoadState('networkidle');
+    await loginViaRedirect(page, '/fund-admin/distributions/dist-1');
+    await page.waitForLoadState('networkidle');
 
     // Should show approval section or empty state
-    const approvalSection = authenticatedPage.locator('text=/approval|approver|pending/i');
-    const emptyState = authenticatedPage.locator('text=/not found|no distribution/i');
+    const approvalSection = page.locator('text=/approval|approver|pending/i');
+    const emptyState = page.locator('text=/not found|no distribution/i');
 
     const hasContent = await approvalSection.first().isVisible() || await emptyState.first().isVisible();
     expect(hasContent).toBeTruthy();
   });
 
-  test('should display LP allocation breakdown', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/fund-admin/distributions/dist-1');
-    await authenticatedPage.waitForLoadState('networkidle');
+  test('should display LP allocation breakdown', async ({ page }) => {
+    await loginViaRedirect(page, '/fund-admin/distributions/dist-1');
+    await page.waitForLoadState('networkidle');
 
-    const allocationsSection = authenticatedPage.locator('text=/LP Allocation|allocation breakdown/i');
+    const allocationsSection = page.locator('text=/LP Allocation|allocation breakdown/i');
 
     if (await allocationsSection.first().isVisible()) {
       await expect(allocationsSection.first()).toBeVisible();
 
       // Should have a table or list of allocations
-      const allocationsTable = authenticatedPage.locator('table').filter({ hasText: /LP|pro-rata|gross|net/i });
+      const allocationsTable = page.locator('table').filter({ hasText: /LP|pro-rata|gross|net/i });
       if (await allocationsTable.isVisible()) {
         await expect(allocationsTable).toBeVisible();
       }
     }
   });
 
-  test('should display lifecycle timeline', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/fund-admin/distributions/dist-1');
-    await authenticatedPage.waitForLoadState('networkidle');
+  test('should display lifecycle timeline', async ({ page }) => {
+    await loginViaRedirect(page, '/fund-admin/distributions/dist-1');
+    await page.waitForLoadState('networkidle');
 
-    const timeline = authenticatedPage.locator('text=/lifecycle|timeline|draft|submitted|approved/i');
+    const timeline = page.locator('text=/lifecycle|timeline|draft|submitted|approved/i');
 
     if (await timeline.first().isVisible()) {
       await expect(timeline.first()).toBeVisible();
     }
   });
 
-  test('should display statements section', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/fund-admin/distributions/dist-1');
-    await authenticatedPage.waitForLoadState('networkidle');
+  test('should display statements section', async ({ page }) => {
+    await loginViaRedirect(page, '/fund-admin/distributions/dist-1');
+    await page.waitForLoadState('networkidle');
 
-    const statementsSection = authenticatedPage.locator('text=/statement|document/i');
+    const statementsSection = page.locator('text=/statement|document/i');
 
     if (await statementsSection.first().isVisible()) {
       await expect(statementsSection.first()).toBeVisible();
@@ -451,12 +451,12 @@ test.describe('Distribution Detail View', () => {
 });
 
 test.describe('Distribution Approval Workflow', () => {
-  test('should show approve/reject buttons for pending approval', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/fund-admin/distributions/dist-1');
-    await authenticatedPage.waitForLoadState('networkidle');
+  test('should show approve/reject buttons for pending approval', async ({ page }) => {
+    await loginViaRedirect(page, '/fund-admin/distributions/dist-1');
+    await page.waitForLoadState('networkidle');
 
-    const approveButton = authenticatedPage.getByRole('button', { name: /approve/i });
-    const rejectButton = authenticatedPage.getByRole('button', { name: /reject/i });
+    const approveButton = page.getByRole('button', { name: /approve/i });
+    const rejectButton = page.getByRole('button', { name: /reject/i });
 
     // Buttons may or may not be visible depending on user role and distribution status
     const approveVisible = await approveButton.isVisible();
@@ -466,11 +466,11 @@ test.describe('Distribution Approval Workflow', () => {
     expect(true).toBeTruthy();
   });
 
-  test('should show approval stepper with approver order', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/fund-admin/distributions/dist-1');
-    await authenticatedPage.waitForLoadState('networkidle');
+  test('should show approval stepper with approver order', async ({ page }) => {
+    await loginViaRedirect(page, '/fund-admin/distributions/dist-1');
+    await page.waitForLoadState('networkidle');
 
-    const approvalStepper = authenticatedPage.locator('[class*="stepper"], [class*="approval"]').filter({ hasText: /step|order|pending|approved/i });
+    const approvalStepper = page.locator('[class*="stepper"], [class*="approval"]').filter({ hasText: /step|order|pending|approved/i });
 
     // Stepper may exist if distribution has approval workflow
     const stepperCount = await approvalStepper.count();

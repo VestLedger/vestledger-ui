@@ -1,4 +1,5 @@
 import { Page, Locator } from '@playwright/test';
+import { loginViaRedirect } from '../helpers/auth-helpers';
 
 export class DistributionDetailPage {
   readonly page: Page;
@@ -102,8 +103,7 @@ export class DistributionDetailPage {
   }
 
   async goto(distributionId: string) {
-    await this.page.goto(`/fund-admin/distributions/${distributionId}`);
-    await this.page.waitForLoadState('networkidle');
+    await loginViaRedirect(this.page, `/fund-admin/distributions/${distributionId}`);
   }
 
   async getDistributionStatus() {

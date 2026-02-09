@@ -1,4 +1,5 @@
 import { Page, Locator } from '@playwright/test';
+import { loginViaRedirect } from '../helpers/auth-helpers';
 
 export class DocumentsPage {
   readonly page: Page;
@@ -84,8 +85,7 @@ export class DocumentsPage {
   }
 
   async goto() {
-    await this.page.goto('/documents');
-    await this.page.waitForLoadState('networkidle');
+    await loginViaRedirect(this.page, '/documents');
   }
 
   async getDocumentCount(): Promise<number> {

@@ -15,7 +15,9 @@ export class LoginPage {
     this.emailInput = page.locator('input[type="email"], input[type="text"]').first();
     this.passwordInput = page.locator('input[type="password"]');
     this.signInButton = page.getByRole('button', { name: /sign in/i });
-    this.errorMessage = page.locator('[class*="danger"]');
+    const errorContainers = page.locator('[role="alert"], [class*="danger"], [class*="error"]');
+    const errorText = page.getByText(/sign-in failed|failed to fetch|invalid|incorrect|unauthorized/i);
+    this.errorMessage = errorContainers.or(errorText);
     this.requestAccessLink = page.getByRole('link', { name: /request access/i });
     this.brandLogo = page.locator('.text-2xl').filter({ hasText: 'VestLedger' });
   }

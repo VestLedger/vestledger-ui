@@ -1,4 +1,5 @@
 import { Page, Locator } from '@playwright/test';
+import { loginViaRedirect } from '../helpers/auth-helpers';
 
 export class DashboardPage {
   readonly page: Page;
@@ -18,7 +19,7 @@ export class DashboardPage {
   }
 
   async goto() {
-    await this.page.goto('/dashboard');
+    await loginViaRedirect(this.page, '/dashboard');
   }
 
   async navigateTo(menuItem: string) {

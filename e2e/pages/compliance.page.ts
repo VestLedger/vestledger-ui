@@ -1,4 +1,5 @@
 import { Page, Locator } from '@playwright/test';
+import { loginViaRedirect } from '../helpers/auth-helpers';
 
 export class CompliancePage {
   readonly page: Page;
@@ -60,8 +61,7 @@ export class CompliancePage {
   }
 
   async goto() {
-    await this.page.goto('/compliance');
-    await this.page.waitForLoadState('networkidle');
+    await loginViaRedirect(this.page, '/compliance');
   }
 
   async selectOverviewTab() {

@@ -1,4 +1,5 @@
 import { Page, Locator } from '@playwright/test';
+import { loginViaRedirect } from '../helpers/auth-helpers';
 
 export class DealIntelligencePage {
   readonly page: Page;
@@ -96,8 +97,7 @@ export class DealIntelligencePage {
   }
 
   async goto() {
-    await this.page.goto('/deal-intelligence');
-    await this.page.waitForLoadState('networkidle');
+    await loginViaRedirect(this.page, '/deal-intelligence');
   }
 
   async getActiveDealsCount(): Promise<number> {

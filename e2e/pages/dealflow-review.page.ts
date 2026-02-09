@@ -1,4 +1,5 @@
 import { Page, Locator } from '@playwright/test';
+import { loginViaRedirect } from '../helpers/auth-helpers';
 
 export class DealflowReviewPage {
   readonly page: Page;
@@ -102,8 +103,7 @@ export class DealflowReviewPage {
   }
 
   async goto() {
-    await this.page.goto('/dealflow-review');
-    await this.page.waitForLoadState('networkidle');
+    await loginViaRedirect(this.page, '/dealflow-review');
   }
 
   async getSlideCount(): Promise<number> {
