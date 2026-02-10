@@ -34,7 +34,7 @@ export function middleware(request: NextRequest) {
   const publicRoutes = ['/', '/features', '/how-it-works', '/security', '/about', '/eoi'];
   const authRoutes = ['/login'];
   const isDashboardRoute = (path: string) =>
-    path.startsWith('/dashboard') ||
+    path.startsWith('/home') ||
     path.startsWith('/portfolio') ||
     path.startsWith('/analytics') ||
     path.startsWith('/pipeline') ||
@@ -72,24 +72,24 @@ export function middleware(request: NextRequest) {
 
   // For localhost Lighthouse testing: check if this is dashboard route (app domain) or public route
   if (isLocalhost) {
-    const isDashboard = isDashboardRoute(pathname) || pathname === '/login';
+    const isAppRoute = isDashboardRoute(pathname) || pathname === '/login' || pathname === '/';
     // If it's a dashboard route on localhost, treat as app domain
     // If it's a public route on localhost, treat as public domain
     // This allows Lighthouse to test both domains via localhost
-    if (isDashboard && !isAuthenticated && pathname !== '/login') {
+    if (isAppRoute && !isAuthenticated && pathname !== '/login' && pathname !== '/') {
       // Redirect to login for unauthenticated dashboard access
       url.pathname = '/login';
       url.searchParams.set('redirect', pathname);
       return NextResponse.redirect(url);
     }
 
-    if (isDashboard && pathname === '/' && !isAuthenticated) {
+    if (pathname === '/' && !isAuthenticated) {
       url.pathname = '/login';
       return NextResponse.redirect(url);
     }
 
-    if (isDashboard && pathname === '/' && isAuthenticated) {
-      url.pathname = '/dashboard';
+    if (pathname === '/' && isAuthenticated) {
+      url.pathname = '/home';
       return NextResponse.redirect(url);
     }
 
@@ -156,7 +156,7 @@ export function middleware(request: NextRequest) {
   // Rule 4: Authenticated access to login page → let client-side handle redirect
   // (LoginForm component will handle this to avoid redirect loops)
   // if (isApp && pathname === '/login' && isAuthenticated) {
-  //   const redirectTo = url.searchParams.get('redirect') || '/dashboard';
+  //   const redirectTo = url.searchParams.get('redirect') || '/home';
   //   url.pathname = redirectTo;
   //   url.searchParams.delete('redirect');
   //   return NextResponse.redirect(url);
@@ -168,9 +168,9 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Rule 6: Root of app subdomain with auth → redirect to dashboard
+  // Rule 6: Root of app subdomain with auth → redirect to home
   if (isApp && pathname === '/' && isAuthenticated) {
-    url.pathname = '/dashboard';
+    url.pathname = '/home';
     return NextResponse.redirect(url);
   }
 

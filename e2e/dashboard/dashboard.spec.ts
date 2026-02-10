@@ -55,7 +55,7 @@ test.describe('Dashboard', () => {
 test.describe('Dashboard Navigation', () => {
   test('should navigate to all main sections', async ({ page }) => {
     const routes = [
-      '/dashboard',
+      '/home',
       '/portfolio',
       '/fund-admin',
       '/waterfall',

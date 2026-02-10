@@ -19,7 +19,7 @@ export class DashboardPage {
   }
 
   async goto() {
-    await loginViaRedirect(this.page, '/dashboard');
+    await loginViaRedirect(this.page, '/home');
   }
 
   async navigateTo(menuItem: string) {

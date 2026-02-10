@@ -114,7 +114,7 @@ export const getMockTopbarSearchResults = (searchQuery: string): TopbarSearchRes
       description: 'Show deals and updates from the past week',
       confidence: 0.9,
       icon: Clock,
-      href: '/dashboard',
+      href: '/home',
     });
   }
 

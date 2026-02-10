@@ -51,7 +51,7 @@ export function PortfolioHealth({ companies }: PortfolioHealthProps) {
                 Portfolio Health
               </h3>
               <p className="text-xs text-[var(--app-text-muted)]">
-                AI-powered forecasting
+                Health scores, runway, and forward outlook
               </p>
             </div>
           </div>
@@ -72,7 +72,7 @@ export function PortfolioHealth({ companies }: PortfolioHealthProps) {
         {companies.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-sm text-[var(--app-text-muted)]">
-              No portfolio companies
+              No portfolio companies available
             </p>
           </div>
         ) : (

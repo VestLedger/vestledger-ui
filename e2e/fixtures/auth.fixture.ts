@@ -11,7 +11,7 @@ export type AuthFixture = {
 
 export const test = base.extend<AuthFixture>({
   authenticatedPage: async ({ page }, use) => {
-    await loginViaRedirect(page, '/dashboard', {
+    await loginViaRedirect(page, '/home', {
       email: TEST_USER.email,
       password: TEST_USER.password,
     });
@@ -22,7 +22,7 @@ export const test = base.extend<AuthFixture>({
       email: string = TEST_USER.email,
       password: string = TEST_USER.password
     ) => {
-      await loginViaRedirect(page, '/dashboard', { email, password });
+      await loginViaRedirect(page, '/home', { email, password });
     };
     await use(loginFn);
   },

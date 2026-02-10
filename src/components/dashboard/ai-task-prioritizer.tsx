@@ -9,6 +9,7 @@ export interface Task {
   id: string;
   title: string;
   description: string;
+  domain?: 'capital-calls' | 'portfolio' | 'compliance' | 'operations' | 'reporting';
   urgency: number; // 0-10
   impact: number; // 0-10
   priorityScore: number; // urgency × impact
@@ -23,9 +24,20 @@ export interface Task {
 interface AITaskPrioritizerProps {
   tasks: Task[];
   onTaskClick?: (task: Task) => void;
+  title?: string;
+  description?: string;
+  emptyTitle?: string;
+  emptyDescription?: string;
 }
 
-export function AITaskPrioritizer({ tasks, onTaskClick }: AITaskPrioritizerProps) {
+export function AITaskPrioritizer({
+  tasks,
+  onTaskClick,
+  title = 'Priority Task Queue',
+  description = 'Ranked by urgency and impact',
+  emptyTitle = 'No open tasks',
+  emptyDescription = 'Current priorities are complete',
+}: AITaskPrioritizerProps) {
   const sortedTasks = useMemo(() => {
     return [...tasks]
       .filter(t => t.status !== 'completed')
@@ -47,10 +59,10 @@ export function AITaskPrioritizer({ tasks, onTaskClick }: AITaskPrioritizerProps
             </div>
             <div>
               <h3 className="text-base font-semibold text-[var(--app-text)]">
-                AI-Prioritized Tasks
+                {title}
               </h3>
               <p className="text-xs text-[var(--app-text-muted)]">
-                Ranked by urgency × impact
+                {description}
               </p>
             </div>
           </div>
@@ -72,10 +84,10 @@ export function AITaskPrioritizer({ tasks, onTaskClick }: AITaskPrioritizerProps
           <div className="text-center py-8">
             <CheckCircle className="w-12 h-12 text-[var(--app-success)] mx-auto mb-3" />
             <p className="text-sm font-semibold text-[var(--app-text)] mb-1">
-              All tasks completed!
+              {emptyTitle}
             </p>
             <p className="text-xs text-[var(--app-text-muted)]">
-              You&apos;re all caught up for today
+              {emptyDescription}
             </p>
           </div>
         ) : (
@@ -93,7 +105,7 @@ export function AITaskPrioritizer({ tasks, onTaskClick }: AITaskPrioritizerProps
         {completedTasks.length > 0 && sortedTasks.length > 0 && (
           <div className="pt-3 border-t border-[var(--app-border)]">
             <p className="text-xs text-center text-[var(--app-text-subtle)]">
-              {completedTasks.length} task{completedTasks.length > 1 ? 's' : ''} completed today
+              {completedTasks.length} task{completedTasks.length > 1 ? 's' : ''} completed in this cycle
             </p>
           </div>
         )}

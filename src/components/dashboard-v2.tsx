@@ -38,6 +38,20 @@ const formatCurrency = (amount: number, showDecimals = false) => {
   return `$${(amount / MILLION_VALUE).toFixed(showDecimals ? 1 : 0)}M`;
 };
 
+const formatStatusLabel = (status: string) => {
+  return status
+    .split('-')
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(' ');
+};
+
+const formatCountLabel = (count: number, singular: string, plural?: string) => {
+  const resolvedPlural = plural ?? `${singular}s`;
+  return `${count} ${count === 1 ? singular : resolvedPlural}`;
+};
+
+const isCapitalCallTask = (task: { domain?: string }) => task.domain === 'capital-calls';
+
 const DashboardLoading = () => (
   <div className="p-4 space-y-4 animate-pulse">
     <div className="h-6 w-48 rounded bg-[var(--app-surface-hover)]" />
@@ -106,6 +120,7 @@ export function DashboardV2() {
 
   const insight = useAIInsights(metrics);
   const summary = getFundSummary();
+  const overviewTasks = tasks.filter((task) => !isCapitalCallTask(task));
   const { value: consolidatedUI, patch: patchConsolidatedUI } = useUIKey('dashboard-consolidated-tabs', {
     activeTab: 'overview',
   });
@@ -146,49 +161,57 @@ export function DashboardV2() {
     const activeTab = consolidatedUI.activeTab ?? 'overview';
     const consolidatedTabs = [
       { id: 'overview', label: 'Overview' },
-      { id: 'capital-calls', label: 'Active Capital Calls' },
+      { id: 'capital-calls', label: 'Capital Calls' },
       { id: 'portfolio-health', label: 'Portfolio Health' },
     ];
+    const totalFundLabel = formatCountLabel(summary.totalFunds, 'fund');
+    const totalCompanyLabel = formatCountLabel(summary.totalPortfolioCompanies, 'company', 'companies');
 
     return (
       <PageScaffold
         breadcrumbs={routeConfig?.breadcrumbs || [{ label: 'Dashboard' }]}
         aiSuggestion={routeConfig?.aiSuggestion}
         header={{
-          title: 'Consolidated View',
-          description: `Overview across all ${summary.totalFunds} funds`,
+          title: 'GP Consolidated Dashboard',
+          description: `Portfolio-level view across ${totalFundLabel}`,
           icon: LayoutDashboard,
           aiSummary: {
-            text: `Managing ${summary.totalFunds} funds with ${formatCurrency(summary.totalCommitment)} total AUM. Portfolio of ${summary.totalPortfolioCompanies} companies valued at ${formatCurrency(summary.totalPortfolioValue)}. Average fund IRR: ${(funds.reduce((sum, f) => sum + f.irr, 0) / funds.length).toFixed(1)}%`,
+            text: `Tracking ${totalFundLabel} with ${formatCurrency(summary.totalCommitment)} committed capital and ${formatCurrency(summary.totalPortfolioValue)} portfolio value across ${totalCompanyLabel}. Average IRR: ${summary.averageIRR.toFixed(1)}%.`,
             confidence: 0.94,
           },
           badges: [
             {
-              label: `${summary.totalFunds} funds`,
+              label: formatCountLabel(summary.totalFunds, 'fund'),
               size: 'md',
               variant: 'flat',
               className: 'bg-[var(--app-primary-bg)] text-[var(--app-primary)]',
             },
             {
-              label: `Portfolio: ${summary.totalPortfolioCompanies} companies`,
+              label: formatCountLabel(summary.activeFunds, 'active fund'),
               size: 'md',
               variant: 'bordered',
               className: 'text-[var(--app-text-muted)] border-[var(--app-border)]',
             },
             {
-              label: `Total Commitment: ${formatCurrency(summary.totalCommitment, true)}`,
+              label: `Portfolio companies: ${summary.totalPortfolioCompanies}`,
               size: 'md',
               variant: 'bordered',
               className: 'text-[var(--app-text-muted)] border-[var(--app-border)]',
             },
             {
-              label: `Portfolio Value: ${formatCurrency(summary.totalPortfolioValue, true)}`,
+              label: `Committed capital: ${formatCurrency(summary.totalCommitment, true)}`,
               size: 'md',
               variant: 'bordered',
               className: 'text-[var(--app-text-muted)] border-[var(--app-border)]',
             },
             {
-              label: `Average IRR: ${(funds.reduce((sum, f) => sum + f.irr, 0) / funds.length).toFixed(1)}%`,
+              label: `Portfolio value: ${formatCurrency(summary.totalPortfolioValue, true)}`,
+              size: 'md',
+              variant: 'bordered',
+              className: 'text-[var(--app-text-muted)] border-[var(--app-border)]',
+            },
+            {
+              label: `Average IRR: ${summary.averageIRR.toFixed(1)}%`,
               size: 'md',
               variant: 'bordered',
               className: 'text-[var(--app-text-muted)] border-[var(--app-border)]',
@@ -214,8 +237,8 @@ export function DashboardV2() {
                       <tr>
                         <th className={`${density.table.headerCellClass} text-left font-medium`}>Fund</th>
                         <th className={`${density.table.headerCellClass} text-left font-medium`}>Status</th>
-                        <th className={`${density.table.headerCellClass} text-right font-medium`}>AUM</th>
-                        <th className={`${density.table.headerCellClass} text-right font-medium`}>Portfolio</th>
+                        <th className={`${density.table.headerCellClass} text-right font-medium`}>Commitment</th>
+                        <th className={`${density.table.headerCellClass} text-right font-medium`}>Companies</th>
                         <th className={`${density.table.headerCellClass} text-right font-medium`}>IRR</th>
                         <th className={`${density.table.headerCellClass} text-right font-medium`}>TVPI</th>
                       </tr>
@@ -237,11 +260,13 @@ export function DashboardV2() {
                               variant="bordered"
                               className={fund.status === 'active' ? 'text-[var(--app-success)] border-[var(--app-success)]' : 'text-[var(--app-text-muted)] border-[var(--app-border)]'}
                             >
-                              {fund.status}
+                              {formatStatusLabel(fund.status)}
                             </Badge>
                           </td>
                           <td className={`${density.table.bodyCellClass} text-right text-[var(--app-text)]`}>{formatCurrency(fund.totalCommitment)}</td>
-                          <td className={`${density.table.bodyCellClass} text-right text-[var(--app-text)]`}>{fund.portfolioCount} companies</td>
+                          <td className={`${density.table.bodyCellClass} text-right text-[var(--app-text)]`}>
+                            {formatCountLabel(fund.portfolioCount, 'company', 'companies')}
+                          </td>
                           <td className={`${density.table.bodyCellClass} text-right text-[var(--app-success)]`}>{fund.irr.toFixed(1)}%</td>
                           <td className={`${density.table.bodyCellClass} text-right text-[var(--app-success)]`}>{fund.tvpi.toFixed(2)}x</td>
                         </tr>
@@ -252,14 +277,21 @@ export function DashboardV2() {
               </div>
 
               <div>
-                <AITaskPrioritizer tasks={tasks} onTaskClick={(task) => console.log('Task clicked:', task)} />
+                <AITaskPrioritizer
+                  tasks={overviewTasks}
+                  onTaskClick={(task) => console.log('Task clicked:', task)}
+                  title="Priority Task Queue"
+                  description="Non-capital-call work ranked by urgency and impact"
+                  emptyTitle="No open non-capital-call tasks"
+                  emptyDescription="Capital call actions are grouped in the Capital Calls tab"
+                />
               </div>
             </div>
           </div>
         )}
 
         {activeTab === 'capital-calls' && (
-          <div className={sectionTopSpacingClass}>
+          <div className={`${sectionTopSpacingClass} ${density.page.sectionStackClass}`}>
             <ActiveCapitalCalls calls={capitalCalls} />
           </div>
         )}
@@ -322,10 +354,10 @@ export function DashboardV2() {
       aiSuggestion={routeConfig?.aiSuggestion}
       header={{
         title: selectedFund.name,
-        description: selectedFund.description || 'Fund performance and metrics',
+        description: selectedFund.description || 'Performance, deployment, and portfolio metrics',
         icon: LayoutDashboard,
         aiSummary: {
-          text: `${formatCurrency(selectedFund.totalCommitment)} fund with ${selectedFund.portfolioCount} portfolio companies. ${((selectedFund.deployedCapital / selectedFund.totalCommitment) * DASHBOARD_PERCENT_SCALE).toFixed(0)}% deployed. IRR: ${selectedFund.irr.toFixed(1)}%, TVPI: ${selectedFund.tvpi.toFixed(2)}x, DPI: ${selectedFund.dpi.toFixed(2)}x`,
+          text: `${formatCurrency(selectedFund.totalCommitment)} committed across ${formatCountLabel(selectedFund.portfolioCount, 'portfolio company', 'portfolio companies')}. ${((selectedFund.deployedCapital / selectedFund.totalCommitment) * DASHBOARD_PERCENT_SCALE).toFixed(0)}% deployed. IRR ${selectedFund.irr.toFixed(1)}%, TVPI ${selectedFund.tvpi.toFixed(2)}x, DPI ${selectedFund.dpi.toFixed(2)}x.`,
           confidence: 0.96,
         },
         actionContent: <FundSelector />,
@@ -336,7 +368,7 @@ export function DashboardV2() {
               variant="bordered"
               className={selectedFund.status === 'active' ? 'text-[var(--app-success)] border-[var(--app-success)]' : 'text-[var(--app-text-muted)] border-[var(--app-border)]'}
             >
-              {selectedFund.status}
+              {formatStatusLabel(selectedFund.status)}
             </Badge>
             <Badge size="md" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">
               Vintage {selectedFund.vintage}

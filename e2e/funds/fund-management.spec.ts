@@ -72,7 +72,7 @@ test.describe('Fund Management', () => {
 
 test.describe('Fund Admin Features', () => {
   test('should access fund admin from navigation', async ({ page }) => {
-    await loginViaRedirect(page, '/dashboard');
+    await loginViaRedirect(page, '/home');
 
     // Navigate via sidebar
     await page.getByText('Fund Admin', { exact: false }).first().click();

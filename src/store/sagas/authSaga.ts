@@ -115,8 +115,6 @@ export function* loginWorker(action: ReturnType<typeof loginRequested>) {
     setDataModeCookie(modeOverride);
     const result: AuthResult = yield call(authenticateUser, email, password);
 
-    yield put(loginSucceeded({ user: result.user, accessToken: result.accessToken }));
-
     // Persist to localStorage
     safeLocalStorage.setItem(STORAGE_AUTH_KEY, 'true');
     safeLocalStorage.setJSON(STORAGE_USER_KEY, result.user);
@@ -131,6 +129,10 @@ export function* loginWorker(action: ReturnType<typeof loginRequested>) {
 
     // Sync to cookies for middleware access
     setAuthCookies(result.user);
+
+    // Mark auth state as successful only after storage and cookies are synced
+    // so middleware sees the authenticated session on immediate redirects.
+    yield put(loginSucceeded({ user: result.user, accessToken: result.accessToken }));
   } catch (error: unknown) {
     logger.error('Login failed', error);
     yield put(loginFailed(normalizeError(error)));

@@ -118,7 +118,7 @@ export const TaskCard = memo(function TaskCard({ task, index, onTaskClick }: Tas
               <User className="w-3 h-3 text-[var(--app-primary)] mt-0.5 flex-shrink-0" />
               <div className="flex-1">
                 <p className="text-xs text-[var(--app-text)] mb-0.5">
-                  <span className="font-semibold">AI Suggestion: </span>
+                  <span className="font-semibold">Suggested owner: </span>
                   Delegate to {task.delegationSuggestion.person}
                 </p>
                 <p className="text-xs text-[var(--app-text-subtle)]">

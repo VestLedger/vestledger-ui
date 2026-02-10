@@ -35,11 +35,11 @@ export interface RouteConfig {
 
 export const routes: Record<string, RouteConfig> = {
   dashboard: {
-    path: '/dashboard',
+    path: '/home',
     label: 'Dashboard',
     icon: LayoutDashboard,
     breadcrumbs: [
-      { label: 'Home', href: '/dashboard' },
+      { label: 'Home', href: '/home' },
       { label: 'Dashboard' },
     ],
     aiSuggestion: {
@@ -56,8 +56,8 @@ export const routes: Record<string, RouteConfig> = {
     label: 'Pipeline',
     icon: GitBranch,
     breadcrumbs: [
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Core Operations', href: '/dashboard' },
+      { label: 'Home', href: '/home' },
+      { label: 'Core Operations', href: '/home' },
       { label: 'Pipeline' },
     ],
     aiSuggestion: {
@@ -74,8 +74,8 @@ export const routes: Record<string, RouteConfig> = {
     label: 'Portfolio',
     icon: Briefcase,
     breadcrumbs: [
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Core Operations', href: '/dashboard' },
+      { label: 'Home', href: '/home' },
+      { label: 'Core Operations', href: '/home' },
       { label: 'Portfolio' },
     ],
     aiSuggestion: {
@@ -92,8 +92,8 @@ export const routes: Record<string, RouteConfig> = {
     label: 'Deal Intelligence',
     icon: Search,
     breadcrumbs: [
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Deal Management', href: '/dashboard' },
+      { label: 'Home', href: '/home' },
+      { label: 'Deal Management', href: '/home' },
       { label: 'Deal Intelligence' },
     ],
     aiSuggestion: {
@@ -110,8 +110,8 @@ export const routes: Record<string, RouteConfig> = {
     label: 'Dealflow Review',
     icon: Vote,
     breadcrumbs: [
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Deal Management', href: '/dashboard' },
+      { label: 'Home', href: '/home' },
+      { label: 'Deal Management', href: '/home' },
       { label: 'Dealflow Review' },
     ],
     aiSuggestion: {
@@ -127,8 +127,8 @@ export const routes: Record<string, RouteConfig> = {
     label: 'Analytics',
     icon: TrendingUp,
     breadcrumbs: [
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Portfolio Management', href: '/dashboard' },
+      { label: 'Home', href: '/home' },
+      { label: 'Portfolio Management', href: '/home' },
       { label: 'Analytics' },
     ],
     aiSuggestion: {
@@ -145,8 +145,8 @@ export const routes: Record<string, RouteConfig> = {
     label: 'Fund Admin',
     icon: DollarSign,
     breadcrumbs: [
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Back Office', href: '/dashboard' },
+      { label: 'Home', href: '/home' },
+      { label: 'Back Office', href: '/home' },
       { label: 'Fund Admin' },
     ],
     aiSuggestion: {
@@ -163,8 +163,8 @@ export const routes: Record<string, RouteConfig> = {
     label: 'New Distribution',
     icon: Receipt,
     breadcrumbs: [
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Back Office', href: '/dashboard' },
+      { label: 'Home', href: '/home' },
+      { label: 'Back Office', href: '/home' },
       { label: 'Fund Admin', href: '/fund-admin' },
       { label: 'New Distribution' },
     ],
@@ -182,8 +182,8 @@ export const routes: Record<string, RouteConfig> = {
     label: 'Distribution Calendar',
     icon: CalendarDays,
     breadcrumbs: [
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Back Office', href: '/dashboard' },
+      { label: 'Home', href: '/home' },
+      { label: 'Back Office', href: '/home' },
       { label: 'Fund Admin', href: '/fund-admin' },
       { label: 'Distribution Calendar' },
     ],
@@ -201,8 +201,8 @@ export const routes: Record<string, RouteConfig> = {
     label: 'Distribution Detail',
     icon: Receipt,
     breadcrumbs: [
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Back Office', href: '/dashboard' },
+      { label: 'Home', href: '/home' },
+      { label: 'Back Office', href: '/home' },
       { label: 'Fund Admin', href: '/fund-admin' },
       { label: 'Distribution Detail' },
     ],
@@ -220,8 +220,8 @@ export const routes: Record<string, RouteConfig> = {
     label: 'LP Management',
     icon: UserCheck,
     breadcrumbs: [
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Back Office', href: '/dashboard' },
+      { label: 'Home', href: '/home' },
+      { label: 'Back Office', href: '/home' },
       { label: 'LP Management' },
     ],
     aiSuggestion: {
@@ -238,7 +238,7 @@ export const routes: Record<string, RouteConfig> = {
     label: 'LP Portal',
     icon: Users,
     breadcrumbs: [
-      { label: 'Home', href: '/dashboard' },
+      { label: 'Home', href: '/home' },
       { label: 'LP Portal' },
     ],
     aiSuggestion: {
@@ -255,8 +255,8 @@ export const routes: Record<string, RouteConfig> = {
     label: 'Compliance',
     icon: Shield,
     breadcrumbs: [
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Back Office', href: '/dashboard' },
+      { label: 'Home', href: '/home' },
+      { label: 'Back Office', href: '/home' },
       { label: 'Compliance' },
     ],
     aiSuggestion: {
@@ -273,8 +273,8 @@ export const routes: Record<string, RouteConfig> = {
     label: '409A Valuations',
     icon: Receipt,
     breadcrumbs: [
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Back Office', href: '/dashboard' },
+      { label: 'Home', href: '/home' },
+      { label: 'Back Office', href: '/home' },
       { label: '409A Valuations' },
     ],
     aiSuggestion: {
@@ -291,8 +291,8 @@ export const routes: Record<string, RouteConfig> = {
     label: 'Tax Center',
     icon: Scale,
     breadcrumbs: [
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Back Office', href: '/dashboard' },
+      { label: 'Home', href: '/home' },
+      { label: 'Back Office', href: '/home' },
       { label: 'Tax Center' },
     ],
     aiSuggestion: {
@@ -309,8 +309,8 @@ export const routes: Record<string, RouteConfig> = {
     label: 'Contacts',
     icon: Users,
     breadcrumbs: [
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Utilities', href: '/dashboard' },
+      { label: 'Home', href: '/home' },
+      { label: 'Utilities', href: '/home' },
       { label: 'Contacts' },
     ],
     aiSuggestion: {
@@ -327,13 +327,13 @@ export const routes: Record<string, RouteConfig> = {
     label: 'Notifications',
     icon: Bell,
     breadcrumbs: [
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Utilities', href: '/dashboard' },
+      { label: 'Home', href: '/home' },
+      { label: 'Utilities', href: '/home' },
       { label: 'Notifications' },
     ],
     aiSuggestion: {
       label: 'Dashboard',
-      href: '/dashboard',
+      href: '/home',
       reasoning: 'After reviewing notifications, return to the dashboard to prioritize today’s work.',
       confidence: 0.78,
     },
@@ -345,13 +345,13 @@ export const routes: Record<string, RouteConfig> = {
     label: 'Reports',
     icon: FileDown,
     breadcrumbs: [
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Utilities', href: '/dashboard' },
+      { label: 'Home', href: '/home' },
+      { label: 'Utilities', href: '/home' },
       { label: 'Reports' },
     ],
     aiSuggestion: {
       label: 'Dashboard',
-      href: '/dashboard',
+      href: '/home',
       reasoning: 'Return to dashboard overview after generating reports to see updated metrics.',
       confidence: 0.80,
     },
@@ -363,8 +363,8 @@ export const routes: Record<string, RouteConfig> = {
     label: 'AI Tools',
     icon: Sparkles,
     breadcrumbs: [
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Utilities', href: '/dashboard' },
+      { label: 'Home', href: '/home' },
+      { label: 'Utilities', href: '/home' },
       { label: 'AI Tools' },
     ],
     aiSuggestion: {
@@ -381,8 +381,8 @@ export const routes: Record<string, RouteConfig> = {
     label: 'Waterfall Modeling',
     icon: TrendingDown,
     breadcrumbs: [
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Portfolio Management', href: '/dashboard' },
+      { label: 'Home', href: '/home' },
+      { label: 'Portfolio Management', href: '/home' },
       { label: 'Waterfall Modeling' },
     ],
     aiSuggestion: {
@@ -399,8 +399,8 @@ export const routes: Record<string, RouteConfig> = {
     label: 'Audit Trail',
     icon: Database,
     breadcrumbs: [
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Back Office', href: '/dashboard' },
+      { label: 'Home', href: '/home' },
+      { label: 'Back Office', href: '/home' },
       { label: 'Audit Trail' },
     ],
     aiSuggestion: {
@@ -417,8 +417,8 @@ export const routes: Record<string, RouteConfig> = {
     label: 'Documents',
     icon: FileText,
     breadcrumbs: [
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Utilities', href: '/dashboard' },
+      { label: 'Home', href: '/home' },
+      { label: 'Utilities', href: '/home' },
       { label: 'Documents' },
     ],
     aiSuggestion: {
@@ -435,8 +435,8 @@ export const routes: Record<string, RouteConfig> = {
     label: 'Integrations',
     icon: Plug,
     breadcrumbs: [
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Utilities', href: '/dashboard' },
+      { label: 'Home', href: '/home' },
+      { label: 'Utilities', href: '/home' },
       { label: 'Integrations' },
     ],
     aiSuggestion: {
@@ -453,12 +453,12 @@ export const routes: Record<string, RouteConfig> = {
     label: 'Settings',
     icon: Settings,
     breadcrumbs: [
-      { label: 'Home', href: '/dashboard' },
+      { label: 'Home', href: '/home' },
       { label: 'Settings' },
     ],
     aiSuggestion: {
       label: 'Dashboard',
-      href: '/dashboard',
+      href: '/home',
       reasoning: 'Return to dashboard to see how your settings changes affect the overview.',
       confidence: 0.75,
     },
@@ -495,7 +495,7 @@ export function getRouteConfig(path: string): RouteConfig | undefined {
  */
 export function getBreadcrumbs(path: string): BreadcrumbItem[] {
   const config = getRouteConfig(path);
-  return config?.breadcrumbs || [{ label: 'Home', href: '/dashboard' }];
+  return config?.breadcrumbs || [{ label: 'Home', href: '/home' }];
 }
 
 /**

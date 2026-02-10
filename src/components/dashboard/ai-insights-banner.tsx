@@ -111,7 +111,7 @@ export function AIInsightsBanner({ insight }: AIInsightsBannerProps) {
               className="px-3"
             >
               <span className="text-xs mr-2">
-                {isExpanded ? 'Hide Details' : 'Show Details'}
+                {isExpanded ? 'Collapse' : 'Expand'}
               </span>
               <motion.div
                 animate={{ rotate: isExpanded ? 180 : 0 }}
@@ -153,7 +153,7 @@ export function AIInsightsBanner({ insight }: AIInsightsBannerProps) {
                         <div className="flex items-start gap-2 p-2 rounded bg-[var(--app-surface)]/50 mt-2">
                           <Info className="w-3 h-3 text-[var(--app-text-subtle)] mt-0.5 flex-shrink-0" />
                           <p className="text-xs text-[var(--app-text-subtle)]">
-                            <span className="font-semibold">AI Analysis: </span>
+                            <span className="font-semibold">Model analysis: </span>
                             {detail.reasoning}
                           </p>
                         </div>
@@ -163,7 +163,7 @@ export function AIInsightsBanner({ insight }: AIInsightsBannerProps) {
                           <div className="mt-2">
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[var(--app-primary)]/10 text-[var(--app-primary)] text-xs font-medium">
                               <Sparkles className="w-3 h-3" />
-                              Action Required
+                              Recommended action
                             </span>
                           </div>
                         )}
@@ -176,9 +176,8 @@ export function AIInsightsBanner({ insight }: AIInsightsBannerProps) {
                 <div className="p-3 rounded-lg bg-[var(--app-surface)]/50 border border-[var(--app-border)]">
                   <p className="text-xs text-[var(--app-text-subtle)]">
                     <span className="font-semibold text-[var(--app-text-muted)]">Confidence Score: </span>
-                    This {Math.round(insight.confidence * 100)}% confidence is based on current fund data quality,
-                    historical pattern analysis, and the completeness of available information.
-                    Higher scores indicate greater certainty in AI predictions.
+                    This {Math.round(insight.confidence * 100)}% score reflects fund data quality, trend consistency,
+                    and the breadth of available inputs. Higher scores indicate stronger model reliability.
                   </p>
                 </div>
               </div>

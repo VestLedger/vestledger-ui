@@ -8,6 +8,23 @@ import { useAuth } from '@/contexts/auth-context';
 import { getAuthErrorMessage } from '@/utils/auth-error-message';
 import { ROUTE_PATHS } from '@/config/routes';
 
+const LEGACY_DASHBOARD_PATH = '/dashboard';
+
+const normalizeRedirectPath = (redirectPath: string) => {
+  if (redirectPath === LEGACY_DASHBOARD_PATH) {
+    return ROUTE_PATHS.dashboard;
+  }
+
+  if (
+    redirectPath.startsWith(`${LEGACY_DASHBOARD_PATH}/`) ||
+    redirectPath.startsWith(`${LEGACY_DASHBOARD_PATH}?`)
+  ) {
+    return `${ROUTE_PATHS.dashboard}${redirectPath.slice(LEGACY_DASHBOARD_PATH.length)}`;
+  }
+
+  return redirectPath;
+};
+
 type LoginModalProps = {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
@@ -33,15 +50,16 @@ export function LoginModal({
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const hasAttemptedLogin = useRef(false);
+  const resolvedRedirectTo = normalizeRedirectPath(redirectTo);
 
   useEffect(() => {
     if (isOpen && hydrated && isAuthenticated) {
       setIsSubmitting(false);
       setPassword('');
       onOpenChange(false);
-      router.push(redirectTo);
+      router.push(resolvedRedirectTo);
     }
-  }, [isOpen, hydrated, isAuthenticated, onOpenChange, redirectTo, router]);
+  }, [isOpen, hydrated, isAuthenticated, onOpenChange, resolvedRedirectTo, router]);
 
   useEffect(() => {
     if (status === 'failed' && hasAttemptedLogin.current) {

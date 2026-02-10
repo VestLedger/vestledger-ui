@@ -116,7 +116,7 @@ export const CapitalCallCard = memo(function CapitalCallCard({ call, index }: Ca
           <Sparkles className="w-4 h-4 text-[var(--app-primary)] mt-0.5 flex-shrink-0" />
           <div className="flex-1">
             <p className="text-xs font-semibold text-[var(--app-text)] mb-1">
-              AI Forecast
+              Forecast
             </p>
             <div className="flex items-baseline gap-2">
               <TrendingUp className="w-3 h-3 text-[var(--app-primary)]" />

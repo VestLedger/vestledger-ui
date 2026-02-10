@@ -9,6 +9,27 @@ import { BrandLogo } from './brand-logo';
 import { getAuthErrorMessage } from '@/utils/auth-error-message';
 import { ROUTE_PATHS } from '@/config/routes';
 
+const LEGACY_DASHBOARD_PATH = '/dashboard';
+
+const normalizeRedirectPath = (redirectPath: string | null) => {
+  if (!redirectPath) {
+    return ROUTE_PATHS.dashboard;
+  }
+
+  if (redirectPath === LEGACY_DASHBOARD_PATH) {
+    return ROUTE_PATHS.dashboard;
+  }
+
+  if (
+    redirectPath.startsWith(`${LEGACY_DASHBOARD_PATH}/`) ||
+    redirectPath.startsWith(`${LEGACY_DASHBOARD_PATH}?`)
+  ) {
+    return `${ROUTE_PATHS.dashboard}${redirectPath.slice(LEGACY_DASHBOARD_PATH.length)}`;
+  }
+
+  return redirectPath;
+};
+
 export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,8 +40,8 @@ export function LoginForm() {
   const searchParams = useSearchParams();
   const hasAttemptedLogin = useRef(false);
 
-  // Get redirect parameter from URL
-  const redirectTo = searchParams.get('redirect') || ROUTE_PATHS.dashboard;
+  // Normalize legacy dashboard redirects to the new app home path
+  const redirectTo = normalizeRedirectPath(searchParams.get('redirect'));
 
   // Handle successful authentication - redirect to intended page
   useEffect(() => {

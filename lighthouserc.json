@@ -9,7 +9,7 @@
         "http://vestledger.local:3000/how-it-works",
         "http://vestledger.local:3000/security",
         "http://vestledger.local:3000/eoi",
-        "http://app.vestledger.local:3000/dashboard",
+        "http://app.vestledger.local:3000/home",
         "http://app.vestledger.local:3000/pipeline",
         "http://app.vestledger.local:3000/portfolio",
         "http://app.vestledger.local:3000/contacts",

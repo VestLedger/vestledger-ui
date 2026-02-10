@@ -127,7 +127,7 @@ export const PortfolioCompanyCard = memo(function PortfolioCompanyCard({
           <Sparkles className="w-4 h-4 text-[var(--app-primary)] mt-0.5 flex-shrink-0" />
           <div className="flex-1">
             <p className="text-xs font-semibold text-[var(--app-text)] mb-1">
-              AI Forecast: Next Quarter
+              Forecast: Next Quarter
             </p>
 
             {/* Predicted Health */}

@@ -19,7 +19,7 @@ test.describe('Error Handling - Network Errors', () => {
       await route.continue();
     });
 
-    await authenticatedPage.goto('/dashboard', { timeout: 5000 }).catch(() => {
+    await authenticatedPage.goto('/home', { timeout: 5000 }).catch(() => {
       // Expected to timeout
     });
 
@@ -36,7 +36,7 @@ test.describe('Error Handling - Network Errors', () => {
     // Block API requests to simulate network failure
     await authenticatedPage.route('**/api/**', (route) => route.abort('failed'));
 
-    await authenticatedPage.goto('/dashboard');
+    await authenticatedPage.goto('/home');
     await authenticatedPage.waitForLoadState('domcontentloaded');
 
     // Look for retry button or error state
@@ -72,7 +72,7 @@ test.describe('Error Handling - API Errors', () => {
       })
     );
 
-    await authenticatedPage.goto('/dashboard');
+    await authenticatedPage.goto('/home');
     await authenticatedPage.waitForLoadState('domcontentloaded');
 
     // Check for error message
@@ -91,7 +91,7 @@ test.describe('Error Handling - API Errors', () => {
       })
     );
 
-    await authenticatedPage.goto('/dashboard');
+    await authenticatedPage.goto('/home');
     await authenticatedPage.waitForLoadState('domcontentloaded');
 
     // Check for permission error
@@ -112,7 +112,7 @@ test.describe('Error Handling - Session Expiration', () => {
       })
     );
 
-    await authenticatedPage.goto('/dashboard');
+    await authenticatedPage.goto('/home');
     await authenticatedPage.waitForLoadState('networkidle');
 
     // Should redirect to login or show session expired message
@@ -128,7 +128,7 @@ test.describe('Error Handling - Session Expiration', () => {
 
   test('should show session expired message', async ({ authenticatedPage }) => {
     // Navigate to a page first
-    await authenticatedPage.goto('/dashboard');
+    await authenticatedPage.goto('/home');
     await authenticatedPage.waitForLoadState('networkidle');
 
     // Then simulate session expiry
@@ -214,7 +214,7 @@ test.describe('Error Handling - Data Loading', () => {
       await route.continue();
     });
 
-    await authenticatedPage.goto('/dashboard');
+    await authenticatedPage.goto('/home');
 
     // Check for loading indicator
     const loadingIndicator = authenticatedPage.locator(
@@ -253,7 +253,7 @@ test.describe('Error Handling - Data Loading', () => {
       })
     );
 
-    await authenticatedPage.goto('/dashboard');
+    await authenticatedPage.goto('/home');
     await authenticatedPage.waitForLoadState('domcontentloaded');
 
     // Check for error state
@@ -266,7 +266,7 @@ test.describe('Error Handling - Data Loading', () => {
 
 test.describe('Error Handling - User Feedback', () => {
   test('should show toast/notification on error', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/dashboard');
+    await authenticatedPage.goto('/home');
     await authenticatedPage.waitForLoadState('networkidle');
 
     // Mock an action that fails
@@ -293,7 +293,7 @@ test.describe('Error Handling - User Feedback', () => {
   });
 
   test('should allow dismissing error notifications', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/dashboard');
+    await authenticatedPage.goto('/home');
     await authenticatedPage.waitForLoadState('networkidle');
 
     // Check if there are any dismissible notifications
@@ -311,7 +311,7 @@ test.describe('Error Handling - User Feedback', () => {
 
 test.describe('Error Handling - Error Boundaries', () => {
   test('should catch and display component errors', async ({ authenticatedPage }) => {
-    await authenticatedPage.goto('/dashboard');
+    await authenticatedPage.goto('/home');
     await authenticatedPage.waitForLoadState('networkidle');
 
     // Check that the page doesn't crash on error
@@ -340,7 +340,7 @@ test.describe('Error Handling - Graceful Degradation', () => {
       return route.continue();
     });
 
-    await authenticatedPage.goto('/dashboard');
+    await authenticatedPage.goto('/home');
     await authenticatedPage.waitForLoadState('domcontentloaded');
 
     // Page should still be partially functional
@@ -361,7 +361,7 @@ test.describe('Error Handling - Graceful Degradation', () => {
       return route.continue();
     });
 
-    await authenticatedPage.goto('/dashboard');
+    await authenticatedPage.goto('/home');
     await authenticatedPage.waitForLoadState('networkidle');
 
     // The application should have retried and eventually loaded

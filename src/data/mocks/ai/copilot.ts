@@ -40,7 +40,7 @@ export const getMockCopilotContextualResponse = (pathname: string, query: string
   }
 
   // Page-specific responses
-  if (pathname === '/dashboard') {
+  if (pathname === '/home') {
     return "I'm analyzing your dashboard metrics. I noticed 3 overdue capital calls and 2 portfolio companies at risk. Would you like me to prioritize these items or show you predicted health trends?";
   }
 
@@ -61,7 +61,7 @@ export const getMockCopilotPageSuggestions = (pathname: string, tab?: string | n
   const contextKey = tab ? `${pathname}:${tab}` : pathname;
 
   const baseSuggestions: Record<string, Suggestion[]> = {
-    '/dashboard': [
+    '/home': [
       {
         id: 'review-portfolio',
         text: 'Review at-risk portfolio companies',
@@ -986,7 +986,7 @@ export const getMockCopilotQuickActions = (pathname: string, tab?: string | null
   const contextKey = tab ? `${pathname}:${tab}` : pathname;
 
   const baseActions: Record<string, QuickAction[]> = {
-    '/dashboard': [
+    '/home': [
       {
         id: 'summarize',
         label: 'Summarize Today',

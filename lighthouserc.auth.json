@@ -4,7 +4,7 @@
       "numberOfRuns": 1,
       "chromePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
       "url": [
-        "http://localhost:3000/dashboard",
+        "http://localhost:3000/home",
         "http://localhost:3000/pipeline",
         "http://localhost:3000/portfolio",
         "http://localhost:3000/contacts",

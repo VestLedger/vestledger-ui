@@ -41,7 +41,7 @@ export function ActiveCapitalCalls({ calls }: ActiveCapitalCallsProps) {
                 Active Capital Calls
               </h3>
               <p className="text-xs text-[var(--app-text-muted)]">
-                AI predictions included
+                Collection progress and forecasted completion
               </p>
             </div>
           </div>
@@ -60,7 +60,7 @@ export function ActiveCapitalCalls({ calls }: ActiveCapitalCallsProps) {
         {calls.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-sm text-[var(--app-text-muted)]">
-              No active capital calls
+              No open capital calls
             </p>
           </div>
         ) : (

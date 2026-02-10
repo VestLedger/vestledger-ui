@@ -44,7 +44,7 @@ pnpm --filter vestledger-ui dev -- --hostname 0.0.0.0 --port 3001
 
 - **Public Pages**: http://vestledger.local:3001
 - **Login Page**: http://app.vestledger.local:3001/login
-- **Dashboard**: http://app.vestledger.local:3001/dashboard
+- **Dashboard**: http://app.vestledger.local:3001/home
 
 ### 4. Test the Full Flow
 
@@ -142,7 +142,7 @@ VestLedger uses a **subdomain-based architecture** with **route-specific provide
 │                                                               │
 │  Routes:                                                      │
 │  ├─ /login ⭐ (Authentication page)                          │
-│  ├─ /dashboard                                               │
+│  ├─ /home                                               │
 │  ├─ /portfolio                                               │
 │  ├─ /analytics                                               │
 │  ├─ /pipeline                                                │
@@ -195,9 +195,9 @@ VestLedger uses a **subdomain-based architecture** with **route-specific provide
 **Rules:**
 1. **Public domain** (`vestledger.com`) → Serves ONLY `(public)` routes
 2. **App domain** (`app.vestledger.com`) → Serves ONLY `(dashboard)` routes + `/login`
-3. Unauthenticated `app.vestledger.com/dashboard` → Redirect to `/login`
+3. Unauthenticated `app.vestledger.com/home` → Redirect to `/login`
 4. Authenticated `app.vestledger.com/login` → Client-side redirect
-5. Root `app.vestledger.com/` → Redirect to `/login` (unauth) or `/dashboard` (auth)
+5. Root `app.vestledger.com/` → Redirect to `/login` (unauth) or `/home` (auth)
 
 **Root Layout Provider Selection** (`app/layout.tsx`):
 ```typescript
@@ -222,7 +222,7 @@ vestledger.com → Click "Login"
            ↓
 app.vestledger.com/login → Enter credentials
            ↓
-app.vestledger.com/dashboard → Full SPA
+app.vestledger.com/home → Full SPA
            ↓
 Click "Logout"
            ↓

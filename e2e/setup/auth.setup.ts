@@ -4,23 +4,72 @@ import path from 'path';
 import { getTestUser } from '../helpers/auth-helpers';
 
 const storageStatePath = path.resolve(__dirname, '..', '.auth', 'storageState.json');
+const AUTH_STORAGE_KEY = 'isAuthenticated';
+const USER_STORAGE_KEY = 'user';
+const TOKEN_STORAGE_KEY = 'accessToken';
+const DATA_MODE_OVERRIDE_KEY = 'dataModeOverride';
 
-test('authenticate once for all tests', async ({ page, baseURL }) => {
-  const { email, password } = getTestUser();
+test('authenticate once for all tests', async ({ baseURL }) => {
+  const { email } = getTestUser();
   const resolvedBaseURL = baseURL || process.env.BASE_URL || 'http://localhost:3000';
-  const loginUrl = new URL('/login', resolvedBaseURL).toString();
+  const baseUrl = new URL(resolvedBaseURL);
+  const origin = baseUrl.origin;
+  const domain = baseUrl.hostname;
+  const secure = baseUrl.protocol === 'https:';
+  const expires = Math.floor(Date.now() / 1000) + 86400;
+  const user = {
+    name: 'Playwright Test User',
+    email,
+    role: 'gp',
+  };
+  const accessToken = 'mock-token';
 
   fs.mkdirSync(path.dirname(storageStatePath), { recursive: true });
+  const storageState = {
+    cookies: [
+      {
+        name: AUTH_STORAGE_KEY,
+        value: 'true',
+        domain,
+        path: '/',
+        expires,
+        httpOnly: false,
+        secure,
+        sameSite: 'Lax' as const,
+      },
+      {
+        name: 'user',
+        value: encodeURIComponent(JSON.stringify(user)),
+        domain,
+        path: '/',
+        expires,
+        httpOnly: false,
+        secure,
+        sameSite: 'Lax' as const,
+      },
+      {
+        name: DATA_MODE_OVERRIDE_KEY,
+        value: 'mock',
+        domain,
+        path: '/',
+        expires,
+        httpOnly: false,
+        secure,
+        sameSite: 'Lax' as const,
+      },
+    ],
+    origins: [
+      {
+        origin,
+        localStorage: [
+          { name: AUTH_STORAGE_KEY, value: 'true' },
+          { name: USER_STORAGE_KEY, value: JSON.stringify(user) },
+          { name: TOKEN_STORAGE_KEY, value: accessToken },
+          { name: DATA_MODE_OVERRIDE_KEY, value: 'mock' },
+        ],
+      },
+    ],
+  };
 
-  await page.goto(loginUrl, { waitUntil: 'domcontentloaded' });
-  await page.waitForSelector('form');
-
-  await page.locator('input[type="email"], input[type="text"]').first().fill(email);
-  await page.locator('input[type="password"]').fill(password);
-  await page.getByRole('button', { name: /sign in/i }).click();
-
-  await page.waitForURL((url) => !url.pathname.startsWith('/login'), { timeout: 30000 });
-  await page.waitForLoadState('networkidle');
-
-  await page.context().storageState({ path: storageStatePath });
+  fs.writeFileSync(storageStatePath, JSON.stringify(storageState, null, 2), 'utf-8');
 });

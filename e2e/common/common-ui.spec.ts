@@ -3,14 +3,14 @@ import { test, expect, loginViaRedirect } from '../fixtures/auth.fixture';
 test.describe('Common UI Elements', () => {
   test.describe('Navigation', () => {
     test('should display sidebar navigation', async ({ page }) => {
-      await loginViaRedirect(page, '/dashboard');
+      await loginViaRedirect(page, '/home');
 
       const sidebar = page.locator('nav, aside, [data-testid="sidebar"]').first();
       await expect(sidebar).toBeVisible();
     });
 
     test('should have collapsible sidebar on desktop', async ({ page }) => {
-      await loginViaRedirect(page, '/dashboard');
+      await loginViaRedirect(page, '/home');
 
       const toggleButton = page.locator('[data-testid="sidebar-toggle"], [aria-label*="sidebar" i]');
 
@@ -22,7 +22,7 @@ test.describe('Common UI Elements', () => {
 
     test('should have mobile menu', async ({ page }) => {
       await page.setViewportSize({ width: 375, height: 667 });
-      await loginViaRedirect(page, '/dashboard');
+      await loginViaRedirect(page, '/home');
 
       const mobileMenu = page.locator('[data-testid="mobile-menu"], [aria-label*="menu" i]');
 
@@ -34,15 +34,17 @@ test.describe('Common UI Elements', () => {
   });
 
   test.describe('Header', () => {
-    test('should display header with user info', async ({ page }) => {
-      await loginViaRedirect(page, '/dashboard');
+    test('should display topbar with user controls', async ({ page }) => {
+      await loginViaRedirect(page, '/home');
 
-      const header = page.locator('header, [data-testid="header"]').first();
-      await expect(header).toBeVisible();
+      const searchInput = page.getByPlaceholder(/ask vesta anything/i);
+      const themeToggle = page.getByRole('button', { name: /toggle theme/i });
+      await expect(searchInput).toBeVisible();
+      await expect(themeToggle).toBeVisible();
     });
 
     test('should have notifications button', async ({ page }) => {
-      await loginViaRedirect(page, '/dashboard');
+      await loginViaRedirect(page, '/home');
 
       const notificationsBtn = page.locator('[aria-label*="notification" i], [data-testid="notifications"]');
 
@@ -52,7 +54,7 @@ test.describe('Common UI Elements', () => {
     });
 
     test('should have user menu', async ({ page }) => {
-      await loginViaRedirect(page, '/dashboard');
+      await loginViaRedirect(page, '/home');
 
       const userMenu = page.locator('[data-testid="user-menu"], [aria-label*="user" i], [aria-label*="profile" i]');
 
@@ -65,7 +67,7 @@ test.describe('Common UI Elements', () => {
 
   test.describe('Search', () => {
     test('should have global search', async ({ page }) => {
-      await loginViaRedirect(page, '/dashboard');
+      await loginViaRedirect(page, '/home');
 
       const searchInput = page.getByPlaceholder(/search/i);
 
@@ -78,7 +80,7 @@ test.describe('Common UI Elements', () => {
 
   test.describe('Theme', () => {
     test('should support dark mode toggle', async ({ page }) => {
-      await loginViaRedirect(page, '/dashboard');
+      await loginViaRedirect(page, '/home');
 
       const themeToggle = page.locator('[data-testid="theme-toggle"], [aria-label*="theme" i], [aria-label*="dark" i]');
 
@@ -91,7 +93,7 @@ test.describe('Common UI Elements', () => {
 
   test.describe('Loading States', () => {
     test('should show loading indicators during data fetch', async ({ page }) => {
-      await loginViaRedirect(page, '/dashboard');
+      await loginViaRedirect(page, '/home');
 
       // Look for loading indicators (they may be brief)
       const loadingIndicator = page.locator('[data-testid="loading"], [class*="loading"], [class*="spinner"]');
@@ -103,14 +105,10 @@ test.describe('Common UI Elements', () => {
 
   test.describe('Error States', () => {
     test('should handle 404 page', async ({ page }) => {
-      await loginViaRedirect(page, '/non-existent-page-12345');
+      await loginViaRedirect(page, '/non-existent-page-12345', { requireLoginRedirect: false });
 
-      // Should show 404 or redirect
-      const notFoundContent = page.locator('text=/404|not found|page not found/i');
-
-      // Either shows 404 or redirects to login/home
       const url = page.url();
-      const has404 = await notFoundContent.isVisible();
+      const has404 = await page.getByRole('heading', { name: /page not found/i }).isVisible().catch(() => false);
       const redirected = url.includes('/login') || url === '/';
 
       expect(has404 || redirected).toBeTruthy();
@@ -128,9 +126,15 @@ test.describe('Responsive Design', () => {
   for (const viewport of viewports) {
     test(`should render correctly on ${viewport.name}`, async ({ page }) => {
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
-      await loginViaRedirect(page, '/dashboard');
+      await loginViaRedirect(page, '/home');
 
       const mainContent = page.locator('main');
+      if (!(await mainContent.isVisible())) {
+        const sidebarToggle = page.getByRole('button', { name: /(collapse|expand) sidebar/i });
+        if (await sidebarToggle.count()) {
+          await sidebarToggle.first().click();
+        }
+      }
       await expect(mainContent).toBeVisible();
 
       // Content should not overflow
@@ -145,7 +149,7 @@ test.describe('Responsive Design', () => {
 
 test.describe('Accessibility', () => {
   test('should have proper heading hierarchy', async ({ page }) => {
-    await loginViaRedirect(page, '/dashboard');
+    await loginViaRedirect(page, '/home');
 
     const h1 = page.locator('h1');
     const h1Count = await h1.count();
@@ -155,7 +159,7 @@ test.describe('Accessibility', () => {
   });
 
   test('should have alt text for images', async ({ page }) => {
-    await loginViaRedirect(page, '/dashboard');
+    await loginViaRedirect(page, '/home');
 
     const images = page.locator('img');
     const imageCount = await images.count();
@@ -171,7 +175,7 @@ test.describe('Accessibility', () => {
   });
 
   test('should have proper focus states', async ({ page }) => {
-    await loginViaRedirect(page, '/dashboard');
+    await loginViaRedirect(page, '/home');
 
     // Tab through interactive elements
     await page.keyboard.press('Tab');
