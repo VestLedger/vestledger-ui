@@ -80,6 +80,9 @@ describe('fundSlice', () => {
     selectedFundId: null as string | null,
     viewMode: 'consolidated' as FundViewMode,
     hydrated: false,
+    archivedFundIds: [] as string[],
+    mutationStatus: 'idle' as const,
+    mutationError: undefined as import('@/store/types/AsyncState').NormalizedError | undefined,
   };
 
   describe('initial state', () => {
@@ -90,6 +93,8 @@ describe('fundSlice', () => {
       expect(state.selectedFundId).toBeNull();
       expect(state.viewMode).toBe('consolidated');
       expect(state.hydrated).toBe(false);
+      expect(state.archivedFundIds).toEqual([]);
+      expect(state.mutationStatus).toBe('idle');
     });
   });
 

@@ -7,7 +7,6 @@ import type { CapitalCall, Distribution, LPResponse } from '@/data/mocks/back-of
 import type { TaxDocument, TaxSummary, PortfolioCompanyTax } from '@/data/mocks/back-office/tax-center';
 import type { Valuation409A, StrikePrice, ValuationHistory } from '@/data/mocks/back-office/valuation-409a';
 
-// Back-office data interfaces
 export interface ComplianceData {
   complianceItems: ComplianceItem[];
   regulatoryFilings: RegulatoryFiling[];
@@ -18,6 +17,15 @@ export interface FundAdminData {
   capitalCalls: CapitalCall[];
   distributions: Distribution[];
   lpResponses: LPResponse[];
+}
+
+export interface CapitalCallCreateInput {
+  fundId: string;
+  fundName: string;
+  totalAmount: number;
+  dueDate: string;
+  purpose: string;
+  callDate?: string;
 }
 
 export interface TaxCenterData {
@@ -38,6 +46,7 @@ interface BackOfficeState {
   fundAdmin: AsyncState<FundAdminData>;
   taxCenter: AsyncState<TaxCenterData>;
   valuation409a: AsyncState<Valuation409aData>;
+  fundAdminLastExportAt?: string;
 }
 
 const initialState: BackOfficeState = {
@@ -47,11 +56,28 @@ const initialState: BackOfficeState = {
   valuation409a: createInitialAsyncState<Valuation409aData>(),
 };
 
+function upsertCapitalCall(list: CapitalCall[], value: CapitalCall) {
+  const index = list.findIndex((item) => item.id === value.id);
+  if (index === -1) {
+    list.unshift(value);
+    return;
+  }
+  list[index] = value;
+}
+
+function upsertLPResponse(list: LPResponse[], value: LPResponse) {
+  const index = list.findIndex((item) => item.id === value.id);
+  if (index === -1) {
+    list.unshift(value);
+    return;
+  }
+  list[index] = value;
+}
+
 const backOfficeSlice = createSlice({
   name: 'backOffice',
   initialState,
   reducers: {
-    // Compliance
     complianceRequested: (state) => {
       state.compliance.status = 'loading';
       state.compliance.error = undefined;
@@ -66,8 +92,7 @@ const backOfficeSlice = createSlice({
       state.compliance.error = action.payload;
     },
 
-    // Fund Admin
-    fundAdminRequested: (state) => {
+    fundAdminRequested: (state, _action: PayloadAction<{ fundId?: string } | undefined>) => {
       state.fundAdmin.status = 'loading';
       state.fundAdmin.error = undefined;
     },
@@ -81,7 +106,81 @@ const backOfficeSlice = createSlice({
       state.fundAdmin.error = action.payload;
     },
 
-    // Tax Center
+    capitalCallCreateRequested: (state, _action: PayloadAction<CapitalCallCreateInput>) => {
+      state.fundAdmin.status = 'loading';
+      state.fundAdmin.error = undefined;
+    },
+    capitalCallCreateSucceeded: (state, action: PayloadAction<CapitalCall>) => {
+      if (!state.fundAdmin.data) {
+        state.fundAdmin.data = { capitalCalls: [], distributions: [], lpResponses: [] };
+      }
+      upsertCapitalCall(state.fundAdmin.data.capitalCalls, action.payload);
+      state.fundAdmin.status = 'succeeded';
+      state.fundAdmin.error = undefined;
+    },
+    capitalCallCreateFailed: (state, action: PayloadAction<NormalizedError>) => {
+      state.fundAdmin.status = 'failed';
+      state.fundAdmin.error = action.payload;
+    },
+
+    capitalCallUpdateRequested: (
+      state,
+      _action: PayloadAction<{ capitalCallId: string; patch: Partial<CapitalCall> }>
+    ) => {
+      state.fundAdmin.status = 'loading';
+      state.fundAdmin.error = undefined;
+    },
+    capitalCallUpdateSucceeded: (state, action: PayloadAction<CapitalCall>) => {
+      if (!state.fundAdmin.data) {
+        state.fundAdmin.data = { capitalCalls: [], distributions: [], lpResponses: [] };
+      }
+      upsertCapitalCall(state.fundAdmin.data.capitalCalls, action.payload);
+      state.fundAdmin.status = 'succeeded';
+      state.fundAdmin.error = undefined;
+    },
+    capitalCallUpdateFailed: (state, action: PayloadAction<NormalizedError>) => {
+      state.fundAdmin.status = 'failed';
+      state.fundAdmin.error = action.payload;
+    },
+
+    capitalCallSendRequested: (state, _action: PayloadAction<{ capitalCallId: string }>) => {
+      state.fundAdmin.status = 'loading';
+      state.fundAdmin.error = undefined;
+    },
+    capitalCallReminderRequested: (state, _action: PayloadAction<{ capitalCallId: string }>) => {
+      state.fundAdmin.error = undefined;
+    },
+
+    lpReminderRequested: (state, _action: PayloadAction<{ lpResponseId: string }>) => {
+      state.fundAdmin.error = undefined;
+    },
+    lpResponseUpdateRequested: (
+      state,
+      _action: PayloadAction<{ lpResponseId: string; amountPaid: number }>
+    ) => {
+      state.fundAdmin.status = 'loading';
+      state.fundAdmin.error = undefined;
+    },
+    lpResponseUpdateSucceeded: (state, action: PayloadAction<LPResponse>) => {
+      if (!state.fundAdmin.data) {
+        state.fundAdmin.data = { capitalCalls: [], distributions: [], lpResponses: [] };
+      }
+      upsertLPResponse(state.fundAdmin.data.lpResponses, action.payload);
+      state.fundAdmin.status = 'succeeded';
+      state.fundAdmin.error = undefined;
+    },
+    lpResponseUpdateFailed: (state, action: PayloadAction<NormalizedError>) => {
+      state.fundAdmin.status = 'failed';
+      state.fundAdmin.error = action.payload;
+    },
+
+    fundAdminExportRequested: (state) => {
+      state.fundAdmin.error = undefined;
+    },
+    fundAdminExportSucceeded: (state, action: PayloadAction<{ exportedAt: string }>) => {
+      state.fundAdminLastExportAt = action.payload.exportedAt;
+    },
+
     taxCenterRequested: (state) => {
       state.taxCenter.status = 'loading';
       state.taxCenter.error = undefined;
@@ -96,7 +195,6 @@ const backOfficeSlice = createSlice({
       state.taxCenter.error = action.payload;
     },
 
-    // 409A Valuations
     valuation409aRequested: (state) => {
       state.valuation409a.status = 'loading';
       state.valuation409a.error = undefined;
@@ -120,6 +218,20 @@ export const {
   fundAdminRequested,
   fundAdminLoaded,
   fundAdminFailed,
+  capitalCallCreateRequested,
+  capitalCallCreateSucceeded,
+  capitalCallCreateFailed,
+  capitalCallUpdateRequested,
+  capitalCallUpdateSucceeded,
+  capitalCallUpdateFailed,
+  capitalCallSendRequested,
+  capitalCallReminderRequested,
+  lpReminderRequested,
+  lpResponseUpdateRequested,
+  lpResponseUpdateSucceeded,
+  lpResponseUpdateFailed,
+  fundAdminExportRequested,
+  fundAdminExportSucceeded,
   taxCenterRequested,
   taxCenterLoaded,
   taxCenterFailed,
@@ -128,7 +240,6 @@ export const {
   valuation409aFailed,
 } = backOfficeSlice.actions;
 
-// Selectors for nested compliance state
 export const complianceSelectors = {
   selectData: (state: RootState) => state.backOffice.compliance.data,
   selectStatus: (state: RootState) => state.backOffice.compliance.status,
@@ -139,7 +250,6 @@ export const complianceSelectors = {
   selectState: (state: RootState) => state.backOffice.compliance,
 };
 
-// Selectors for nested fund admin state
 export const fundAdminSelectors = {
   selectData: (state: RootState) => state.backOffice.fundAdmin.data,
   selectStatus: (state: RootState) => state.backOffice.fundAdmin.status,
@@ -150,7 +260,6 @@ export const fundAdminSelectors = {
   selectState: (state: RootState) => state.backOffice.fundAdmin,
 };
 
-// Selectors for nested tax center state
 export const taxCenterSelectors = {
   selectData: (state: RootState) => state.backOffice.taxCenter.data,
   selectStatus: (state: RootState) => state.backOffice.taxCenter.status,
@@ -161,7 +270,6 @@ export const taxCenterSelectors = {
   selectState: (state: RootState) => state.backOffice.taxCenter,
 };
 
-// Selectors for nested 409a valuation state
 export const valuation409aSelectors = {
   selectData: (state: RootState) => state.backOffice.valuation409a.data,
   selectStatus: (state: RootState) => state.backOffice.valuation409a.status,

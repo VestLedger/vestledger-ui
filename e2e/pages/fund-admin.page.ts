@@ -4,7 +4,7 @@ import { loginViaRedirect } from '../helpers/auth-helpers';
 export class FundAdminPage {
   readonly page: Page;
   readonly pageTitle: Locator;
-  readonly fundsTable: Locator;
+  readonly fundsList: Locator;
   readonly createFundButton: Locator;
   readonly searchInput: Locator;
   readonly filterDropdown: Locator;
@@ -12,10 +12,11 @@ export class FundAdminPage {
   constructor(page: Page) {
     this.page = page;
     this.pageTitle = page.getByRole('heading', { level: 1 });
-    this.fundsTable = page.locator('table');
+    this.fundsList = page.locator('[data-testid="funds-list"], table');
     this.createFundButton = page.getByRole('button', { name: /create|new|add/i });
     this.searchInput = page.getByPlaceholder(/search/i);
-    this.filterDropdown = page.locator('[data-testid="filter-dropdown"]');
+    this.filterDropdown = page.getByRole('combobox', { name: /status/i })
+      .or(page.locator('[data-testid="filter-dropdown"]'));
   }
 
   async goto() {
@@ -23,7 +24,7 @@ export class FundAdminPage {
   }
 
   async getFundRows() {
-    return this.fundsTable.locator('tbody tr');
+    return this.page.locator('[data-testid="fund-item"], table tbody tr');
   }
 
   async getFundCount() {

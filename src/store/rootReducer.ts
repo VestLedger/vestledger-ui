@@ -19,6 +19,10 @@ import { miscReducer } from './slices/miscSlice';
 import { searchReducer } from './slices/searchSlice';
 import { waterfallReducer } from './slices/waterfallSlice';
 import { distributionReducer } from './slices/distributionSlice';
+import { navOpsReducer } from './slices/navOpsSlice';
+import { carryOpsReducer } from './slices/carryOpsSlice';
+import { expenseOpsReducer } from './slices/expenseOpsSlice';
+import { secondaryTransferOpsReducer } from './slices/secondaryTransferOpsSlice';
 
 export const rootReducer = combineReducers({
   alerts: alertsReducer,
@@ -41,6 +45,10 @@ export const rootReducer = combineReducers({
   search: searchReducer,
   waterfall: waterfallReducer,
   distribution: distributionReducer,
+  navOps: navOpsReducer,
+  carryOps: carryOpsReducer,
+  expenseOps: expenseOpsReducer,
+  secondaryTransferOps: secondaryTransferOpsReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

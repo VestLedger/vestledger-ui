@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { useCallback, useMemo } from 'react';
 import type { FundContextType, FundSummary, FundViewMode } from '@/types/fund';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { fundUISelectors, fundsSelectors, setSelectedFundId, setViewMode } from '@/store/slices/fundSlice';
+import { fundUISelectors, setSelectedFundId, setViewMode } from '@/store/slices/fundSlice';
 
 export function FundProvider({ children }: { children: ReactNode }) {
   return children;
@@ -12,8 +12,7 @@ export function FundProvider({ children }: { children: ReactNode }) {
 
 export function useFund() {
   const dispatch = useAppDispatch();
-  const fundsData = useAppSelector(fundsSelectors.selectData);
-  const funds = useMemo(() => fundsData?.funds ?? [], [fundsData?.funds]);
+  const funds = useAppSelector(fundUISelectors.selectVisibleFunds);
   const selectedFundId = useAppSelector(fundUISelectors.selectSelectedFundId);
   const viewMode = useAppSelector(fundUISelectors.selectViewMode);
 

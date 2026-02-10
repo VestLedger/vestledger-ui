@@ -1,5 +1,6 @@
 export interface CapitalCall {
   id: string;
+  fundId: string;
   callNumber: number;
   fundName: string;
   callDate: string;
@@ -14,6 +15,7 @@ export interface CapitalCall {
 
 export interface Distribution {
   id: string;
+  fundId: string;
   distributionNumber: number;
   fundName: string;
   distributionDate: string;
@@ -26,6 +28,7 @@ export interface Distribution {
 
 export interface LPResponse {
   id: string;
+  fundId: string;
   lpName: string;
   commitment: number;
   callAmount: number;
@@ -38,6 +41,7 @@ export interface LPResponse {
 export const mockCapitalCalls: CapitalCall[] = [
   {
     id: '1',
+    fundId: 'fund-2',
     callNumber: 8,
     fundName: 'Acme Ventures Fund II',
     callDate: '2024-12-01',
@@ -51,6 +55,7 @@ export const mockCapitalCalls: CapitalCall[] = [
   },
   {
     id: '2',
+    fundId: 'fund-2',
     callNumber: 7,
     fundName: 'Acme Ventures Fund II',
     callDate: '2024-09-15',
@@ -64,6 +69,7 @@ export const mockCapitalCalls: CapitalCall[] = [
   },
   {
     id: '3',
+    fundId: 'fund-3',
     callNumber: 9,
     fundName: 'Acme Ventures Fund III',
     callDate: '2024-12-10',
@@ -80,6 +86,7 @@ export const mockCapitalCalls: CapitalCall[] = [
 export const mockDistributions: Distribution[] = [
   {
     id: '1',
+    fundId: 'fund-2',
     distributionNumber: 5,
     fundName: 'Acme Ventures Fund II',
     distributionDate: '2024-11-30',
@@ -91,6 +98,7 @@ export const mockDistributions: Distribution[] = [
   },
   {
     id: '2',
+    fundId: 'fund-2',
     distributionNumber: 4,
     fundName: 'Acme Ventures Fund II',
     distributionDate: '2024-08-31',
@@ -102,6 +110,7 @@ export const mockDistributions: Distribution[] = [
   },
   {
     id: '3',
+    fundId: 'fund-1',
     distributionNumber: 6,
     fundName: 'Acme Ventures Fund I',
     distributionDate: '2024-12-20',
@@ -116,6 +125,7 @@ export const mockDistributions: Distribution[] = [
 export const mockLPResponses: LPResponse[] = [
   {
     id: '1',
+    fundId: 'fund-2',
     lpName: 'University Endowment Fund',
     commitment: 50000000,
     callAmount: 5000000,
@@ -126,6 +136,7 @@ export const mockLPResponses: LPResponse[] = [
   },
   {
     id: '2',
+    fundId: 'fund-2',
     lpName: 'Tech Pension Fund',
     commitment: 30000000,
     callAmount: 3000000,
@@ -136,6 +147,7 @@ export const mockLPResponses: LPResponse[] = [
   },
   {
     id: '3',
+    fundId: 'fund-2',
     lpName: 'Family Office Partners',
     commitment: 25000000,
     callAmount: 2500000,
@@ -146,6 +158,7 @@ export const mockLPResponses: LPResponse[] = [
   },
   {
     id: '4',
+    fundId: 'fund-2',
     lpName: 'Sovereign Wealth Fund',
     commitment: 75000000,
     callAmount: 7500000,
@@ -155,4 +168,3 @@ export const mockLPResponses: LPResponse[] = [
     paymentMethod: 'Wire Transfer',
   },
 ];
-

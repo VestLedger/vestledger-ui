@@ -22,7 +22,7 @@ const ROUTE_SAGAS: Array<{
   { match: (pathname) => pathname.startsWith(ROUTE_PATHS.dealflowReview), sagas: ['dealflow'] },
   { match: (pathname) => pathname.startsWith(ROUTE_PATHS.aiTools), sagas: ['ai'] },
   { match: (pathname) => pathname.startsWith(ROUTE_PATHS.waterfall), sagas: ['waterfall', 'distribution'] },
-  { match: (pathname) => pathname.startsWith(ROUTE_PATHS.fundAdmin), sagas: ['backOffice', 'distribution'] },
+  { match: (pathname) => pathname.startsWith(ROUTE_PATHS.fundAdmin), sagas: ['backOffice', 'distribution', 'fundAdminOps'] },
   { match: (pathname) => pathname.startsWith(ROUTE_PATHS.compliance), sagas: ['backOffice'] },
   { match: (pathname) => pathname.startsWith(ROUTE_PATHS.taxCenter), sagas: ['backOffice'] },
   { match: (pathname) => pathname.startsWith(ROUTE_PATHS.valuations409a), sagas: ['backOffice'] },

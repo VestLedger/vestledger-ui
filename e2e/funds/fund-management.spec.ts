@@ -11,6 +11,7 @@ test.describe('Fund Management', () => {
     await fundAdmin.goto();
 
     await expect(fundAdmin.pageTitle).toBeVisible();
+    await expect(page.getByRole('tab', { name: /fund setup/i })).toBeVisible();
   });
 
   test('should display funds list', async ({ page }) => {

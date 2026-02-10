@@ -35,6 +35,10 @@ test.describe('Capital Calls - Fund Admin Tab', () => {
   test('should display summary metrics cards', async ({ page }) => {
     await loginViaRedirect(page, '/fund-admin');
     await page.waitForLoadState('networkidle');
+    const capitalCallsTab = page.getByRole('tab', { name: /capital calls/i });
+    if (await capitalCallsTab.isVisible()) {
+      await capitalCallsTab.click();
+    }
 
     // Should show Active Calls, YTD Distributions, Outstanding, Total LPs
     const activeCallsCard = page.locator('[class*="card"]').filter({ hasText: 'Active Calls' });
@@ -51,6 +55,10 @@ test.describe('Capital Calls - List View', () => {
   test('should display capital call cards with details', async ({ page }) => {
     await loginViaRedirect(page, '/fund-admin');
     await page.waitForLoadState('networkidle');
+    const capitalCallsTab = page.getByRole('tab', { name: /capital calls/i });
+    if (await capitalCallsTab.isVisible()) {
+      await capitalCallsTab.click();
+    }
 
     // Look for capital call cards
     const capitalCallCards = page.locator('[class*="card"]').filter({ hasText: /Capital Call #/i });
@@ -63,6 +71,10 @@ test.describe('Capital Calls - List View', () => {
   test('should show call number and status badge on each card', async ({ page }) => {
     await loginViaRedirect(page, '/fund-admin');
     await page.waitForLoadState('networkidle');
+    const capitalCallsTab = page.getByRole('tab', { name: /capital calls/i });
+    if (await capitalCallsTab.isVisible()) {
+      await capitalCallsTab.click();
+    }
 
     const callCard = page.locator('[class*="card"]').filter({ hasText: /Capital Call #/i }).first();
 
@@ -76,6 +88,10 @@ test.describe('Capital Calls - List View', () => {
   test('should display total amount and received amount', async ({ page }) => {
     await loginViaRedirect(page, '/fund-admin');
     await page.waitForLoadState('networkidle');
+    const capitalCallsTab = page.getByRole('tab', { name: /capital calls/i });
+    if (await capitalCallsTab.isVisible()) {
+      await capitalCallsTab.click();
+    }
 
     const callCard = page.locator('[class*="card"]').filter({ hasText: /Capital Call #/i }).first();
 
@@ -91,6 +107,10 @@ test.describe('Capital Calls - List View', () => {
   test('should display call date and due date', async ({ page }) => {
     await loginViaRedirect(page, '/fund-admin');
     await page.waitForLoadState('networkidle');
+    const capitalCallsTab = page.getByRole('tab', { name: /capital calls/i });
+    if (await capitalCallsTab.isVisible()) {
+      await capitalCallsTab.click();
+    }
 
     const callCard = page.locator('[class*="card"]').filter({ hasText: /Capital Call #/i }).first();
 
@@ -106,6 +126,10 @@ test.describe('Capital Calls - List View', () => {
   test('should show collection progress bar for active calls', async ({ page }) => {
     await loginViaRedirect(page, '/fund-admin');
     await page.waitForLoadState('networkidle');
+    const capitalCallsTab = page.getByRole('tab', { name: /capital calls/i });
+    if (await capitalCallsTab.isVisible()) {
+      await capitalCallsTab.click();
+    }
 
     const callCard = page.locator('[class*="card"]').filter({ hasText: /Capital Call #/i }).first();
 
@@ -123,6 +147,10 @@ test.describe('Capital Calls - List View', () => {
   test('should show LP response count', async ({ page }) => {
     await loginViaRedirect(page, '/fund-admin');
     await page.waitForLoadState('networkidle');
+    const capitalCallsTab = page.getByRole('tab', { name: /capital calls/i });
+    if (await capitalCallsTab.isVisible()) {
+      await capitalCallsTab.click();
+    }
 
     const callCard = page.locator('[class*="card"]').filter({ hasText: /Capital Call #/i }).first();
 
@@ -139,6 +167,10 @@ test.describe('Capital Calls - Actions', () => {
   test('should have Send to LPs button for draft calls', async ({ page }) => {
     await loginViaRedirect(page, '/fund-admin');
     await page.waitForLoadState('networkidle');
+    const capitalCallsTab = page.getByRole('tab', { name: /capital calls/i });
+    if (await capitalCallsTab.isVisible()) {
+      await capitalCallsTab.click();
+    }
 
     const sendToLPsButton = page.getByRole('button', { name: /send to lps/i });
     if (await sendToLPsButton.isVisible()) {
@@ -149,6 +181,10 @@ test.describe('Capital Calls - Actions', () => {
   test('should have Send Reminder button for active calls', async ({ page }) => {
     await loginViaRedirect(page, '/fund-admin');
     await page.waitForLoadState('networkidle');
+    const capitalCallsTab = page.getByRole('tab', { name: /capital calls/i });
+    if (await capitalCallsTab.isVisible()) {
+      await capitalCallsTab.click();
+    }
 
     const sendReminderButton = page.getByRole('button', { name: /send reminder/i });
     if (await sendReminderButton.isVisible()) {
@@ -159,6 +195,10 @@ test.describe('Capital Calls - Actions', () => {
   test('should have Export button', async ({ page }) => {
     await loginViaRedirect(page, '/fund-admin');
     await page.waitForLoadState('networkidle');
+    const capitalCallsTab = page.getByRole('tab', { name: /capital calls/i });
+    if (await capitalCallsTab.isVisible()) {
+      await capitalCallsTab.click();
+    }
 
     const exportButton = page.getByRole('button', { name: /export/i });
     if (await exportButton.isVisible()) {
@@ -261,6 +301,10 @@ test.describe('Capital Calls - LP Responses Tab', () => {
       if (await paidOption.isVisible()) {
         await paidOption.click();
         await page.waitForLoadState('networkidle');
+    const capitalCallsTab = page.getByRole('tab', { name: /capital calls/i });
+    if (await capitalCallsTab.isVisible()) {
+      await capitalCallsTab.click();
+    }
       }
     }
   });
@@ -270,6 +314,10 @@ test.describe('Capital Calls - Collection Tracking', () => {
   test('should show collection progress percentage', async ({ page }) => {
     await loginViaRedirect(page, '/fund-admin');
     await page.waitForLoadState('networkidle');
+    const capitalCallsTab = page.getByRole('tab', { name: /capital calls/i });
+    if (await capitalCallsTab.isVisible()) {
+      await capitalCallsTab.click();
+    }
 
     const collectionProgress = page.locator('text=Collection Progress');
     if (await collectionProgress.isVisible()) {
@@ -324,6 +372,10 @@ test.describe('Capital Calls - Overdue Identification', () => {
       if (await overdueOption.isVisible()) {
         await overdueOption.click();
         await page.waitForLoadState('networkidle');
+    const capitalCallsTab = page.getByRole('tab', { name: /capital calls/i });
+    if (await capitalCallsTab.isVisible()) {
+      await capitalCallsTab.click();
+    }
 
         // Overdue items should be visible (if any exist)
         const overdueItems = page.locator('[class*="rounded-lg"]').filter({ hasText: /overdue/i });
@@ -338,6 +390,10 @@ test.describe('Capital Calls - Fund Selector', () => {
   test('should have fund selector', async ({ page }) => {
     await loginViaRedirect(page, '/fund-admin');
     await page.waitForLoadState('networkidle');
+    const capitalCallsTab = page.getByRole('tab', { name: /capital calls/i });
+    if (await capitalCallsTab.isVisible()) {
+      await capitalCallsTab.click();
+    }
 
     const fundSelector = page.getByRole('combobox', { name: /fund/i })
       .or(page.locator('[data-testid="fund-selector"]'))
@@ -368,6 +424,10 @@ test.describe('Capital Calls - Tab Navigation', () => {
   test('should show tab counts/badges', async ({ page }) => {
     await loginViaRedirect(page, '/fund-admin');
     await page.waitForLoadState('networkidle');
+    const capitalCallsTab = page.getByRole('tab', { name: /capital calls/i });
+    if (await capitalCallsTab.isVisible()) {
+      await capitalCallsTab.click();
+    }
 
     // Tabs may have count badges
     const tabBadges = page.locator('[role="tab"] [class*="badge"], [role="tab"] span').filter({ hasText: /\\d+/ });
@@ -380,6 +440,10 @@ test.describe('Capital Calls - Interactions - Data Verification', () => {
   test('fund selector should update capital call cards', async ({ page }) => {
     await loginViaRedirect(page, '/fund-admin');
     await page.waitForLoadState('networkidle');
+    const capitalCallsTab = page.getByRole('tab', { name: /capital calls/i });
+    if (await capitalCallsTab.isVisible()) {
+      await capitalCallsTab.click();
+    }
 
     const fundSelector = page.getByRole('combobox', { name: /fund/i })
       .or(page.locator('[data-testid="fund-selector"]'))
@@ -426,6 +490,10 @@ test.describe('Capital Calls - Interactions - Data Verification', () => {
         if (await paidOption.isVisible()) {
           await paidOption.click();
           await page.waitForLoadState('networkidle');
+    const capitalCallsTab = page.getByRole('tab', { name: /capital calls/i });
+    if (await capitalCallsTab.isVisible()) {
+      await capitalCallsTab.click();
+    }
 
           const after = await captureDataSnapshot(page, dataSelector);
           const changed = verifyDataChanged(before, after);
@@ -450,6 +518,10 @@ test.describe('Capital Calls - Interactions - Data Verification', () => {
     // Switch to Distributions tab
     await capitalCalls.selectDistributionsTab();
     await page.waitForLoadState('networkidle');
+    const capitalCallsTab = page.getByRole('tab', { name: /capital calls/i });
+    if (await capitalCallsTab.isVisible()) {
+      await capitalCallsTab.click();
+    }
 
     const after = await captureDataSnapshot(page, contentSelector);
     const changed = verifyDataChanged(before, after);
@@ -463,6 +535,10 @@ test.describe('Capital Calls - Interactions - Data Verification', () => {
   test('metrics cards should reflect filtered data', async ({ page }) => {
     await loginViaRedirect(page, '/fund-admin');
     await page.waitForLoadState('networkidle');
+    const capitalCallsTab = page.getByRole('tab', { name: /capital calls/i });
+    if (await capitalCallsTab.isVisible()) {
+      await capitalCallsTab.click();
+    }
 
     const fundSelector = page.getByRole('combobox', { name: /fund/i })
       .or(page.locator('[data-testid="fund-selector"]'));

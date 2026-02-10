@@ -58,6 +58,7 @@ export class CapitalCallsPage {
 
   async goto() {
     await loginViaRedirect(this.page, '/fund-admin');
+    await this.selectCapitalCallsTab();
   }
 
   async selectCapitalCallsTab() {

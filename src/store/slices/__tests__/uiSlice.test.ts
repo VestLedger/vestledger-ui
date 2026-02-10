@@ -172,7 +172,7 @@ describe('uiSlice', () => {
           theme: 'dark',
         },
       },
-    } as RootState;
+    } as unknown as RootState;
 
     it('selectByKey should return entire byKey object', () => {
       const result = uiSelectors.selectByKey(mockRootState);

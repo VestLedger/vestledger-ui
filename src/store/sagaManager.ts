@@ -27,6 +27,8 @@ const sagaLoaders = {
   waterfall: () => import('./sagas/waterfallSaga').then((mod) => ({ saga: mod.waterfallSaga })),
   distribution: () =>
     import('./sagas/distributionSaga').then((mod) => ({ saga: mod.distributionSaga })),
+  fundAdminOps: () =>
+    import('./sagas/fundAdminOpsSaga').then((mod) => ({ saga: mod.fundAdminOpsSaga })),
 } satisfies Record<string, SagaLoader>;
 
 export type SagaKey = keyof typeof sagaLoaders;

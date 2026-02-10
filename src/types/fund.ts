@@ -71,3 +71,7 @@ export interface FundContextType {
   getFundById: (id: string) => Fund | undefined;
   getFundSummary: () => FundSummary;
 }
+
+export interface FundArchiveState {
+  archivedFundIds: string[];
+}
