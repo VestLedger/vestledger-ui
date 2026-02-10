@@ -51,7 +51,7 @@ export function PageScaffold({
       <PageHeader {...resolvedHeader} />
 
       {toolbar && (
-        <div className={density.mode === 'compact' ? 'mt-3' : 'mt-4'}>
+        <div className={density.mode === 'compact' ? 'mt-2' : 'mt-3'}>
           {toolbar}
         </div>
       )}

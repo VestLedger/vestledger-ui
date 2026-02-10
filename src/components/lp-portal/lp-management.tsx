@@ -227,7 +227,7 @@ export function LPManagement() {
     >
 
       {/* Fund Overview Stats */}
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card padding="md">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-[var(--app-primary-bg)]">
@@ -281,7 +281,7 @@ export function LPManagement() {
         </Card>
       </div>
 
-      <Card padding="lg" className="mt-6">
+      <Card padding="lg" className="mt-4">
         <SectionHeader
           className="mb-4"
           title="LP Portal Preview"
@@ -296,7 +296,7 @@ export function LPManagement() {
       </Card>
 
       {/* Tab Content */}
-      <div className="mt-6">
+      <div className="mt-4">
         {/* LP Overview Tab - with AdvancedTable and Bulk Actions */}
         {selectedTab === 'overview' && (
           <div className="space-y-4">
@@ -380,7 +380,7 @@ export function LPManagement() {
 
         {/* Capital Activity Tab */}
         {selectedTab === 'capital' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Capital Calls */}
             <div>
               <SectionHeader
@@ -455,7 +455,7 @@ export function LPManagement() {
             <Card padding="lg">
               <SectionHeader title="Fund Performance Summary" className="mb-4" titleClassName="font-semibold text-base" />
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div className="p-4 rounded-lg bg-[var(--app-success-bg)]">
                   <p className="text-sm text-[var(--app-text-muted)] mb-1">Total Value to Paid-In (TVPI)</p>
                   <p className="text-3xl font-bold text-[var(--app-success)]">
@@ -481,7 +481,7 @@ export function LPManagement() {
                 </div>
               </div>
 
-              <div className="border-t border-[var(--app-border)] pt-6">
+              <div className="border-t border-[var(--app-border)] pt-4">
                 <h4 className="font-medium mb-4">Capital Deployment</h4>
                 <div className="space-y-4">
                   {lps.map((lp) => (

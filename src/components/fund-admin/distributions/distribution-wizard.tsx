@@ -1204,7 +1204,7 @@ export function DistributionWizard() {
     <PageScaffold
       breadcrumbs={routeConfig?.breadcrumbs}
       aiSuggestion={routeConfig?.aiSuggestion}
-      containerProps={{ className: "space-y-6" }}
+      containerProps={{ className: "space-y-4" }}
       header={{
         title: "Create Distribution",
         description: "Build a new distribution with fees, allocations, and approvals.",
@@ -1233,8 +1233,8 @@ export function DistributionWizard() {
         <WorkflowStepper steps={workflowSteps} showPredictions={false} />
       </Card>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
-        <div className="space-y-6">
+      <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
+        <div className="space-y-4">
           {validationForStep.length > 0 && (
             <div className="rounded-lg border border-[var(--app-danger)] bg-[var(--app-danger-bg)] px-3 py-2 text-sm text-[var(--app-danger)]">
               {validationForStep.map((error) => (

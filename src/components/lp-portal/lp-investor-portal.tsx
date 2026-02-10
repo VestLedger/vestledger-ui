@@ -83,7 +83,7 @@ export function LPInvestorPortal() {
         return (
           <PageScaffold
             routePath={ROUTE_PATHS.lpPortal}
-            containerProps={{ className: "space-y-6" }}
+            containerProps={{ className: "space-y-4" }}
             header={{
               title: investor.fundName,
               description: investor.name,
@@ -95,7 +95,7 @@ export function LPInvestorPortal() {
               },
             }}
           >
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card padding="lg">
@@ -143,7 +143,7 @@ export function LPInvestorPortal() {
         {/* Performance Overview */}
         <Card padding="lg">
           <SectionHeader title="Performance Overview" className="mb-4" />
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-3 gap-4">
             <div className="text-center p-4 rounded-lg bg-[var(--app-surface-hover)]">
               <p className="text-sm text-[var(--app-text-muted)] mb-2">Total Value to Paid-In</p>
               <p className="text-3xl font-bold text-[var(--app-success)]">{investor.tvpi.toFixed(2)}x</p>
@@ -275,17 +275,17 @@ export function LPInvestorPortal() {
               </div>
             }
           >
-            <div className="mt-4 space-y-6">
+            <div className="mt-4 space-y-4">
               <DistributionUpcoming distributions={upcomingDistributions} />
               <DistributionStatements statements={distributionStatements} />
               <DistributionElections elections={distributionElections} />
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 <DistributionConfirmation confirmations={distributionConfirmations} />
                 {notificationPreferences && (
                   <DistributionPreferences preferences={notificationPreferences} />
                 )}
               </div>
-              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 {bankDetails && <BankDetailsForm details={bankDetails} />}
                 {emailPreview && <DistributionEmailPreview preview={emailPreview} />}
               </div>
@@ -308,7 +308,7 @@ export function LPInvestorPortal() {
                 <SectionHeader
                   title="Portfolio Composition"
                   description="Detailed portfolio company information is available in the quarterly reports. Contact your fund manager for specific portfolio insights."
-                  className="mb-6"
+                  className="mb-4"
                 />
 
                 <div className="space-y-4">
@@ -353,7 +353,7 @@ export function LPInvestorPortal() {
             <div className="mt-4">
               <Card padding="lg">
                 <SectionHeader title="Investment Details" className="mb-4" />
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-[var(--app-text-muted)] mb-1">Investor</p>
                     <p className="font-medium">{investor.name}</p>

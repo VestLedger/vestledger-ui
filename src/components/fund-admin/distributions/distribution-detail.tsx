@@ -183,7 +183,7 @@ export function DistributionDetail() {
           },
         ],
       }}
-      containerProps={{ className: "space-y-6" }}
+      containerProps={{ className: "space-y-4" }}
     >
       <AsyncStateRenderer
         data={distribution}
@@ -251,8 +251,8 @@ export function DistributionDetail() {
             <>
               <MetricsGrid items={summaryCards} columns={{ base: 1, md: 2, lg: 4 }} />
 
-              <div className="grid grid-cols-1 gap-6 xl:grid-cols-[2fr_1fr]">
-                <div className="space-y-6">
+              <div className="grid grid-cols-1 gap-4 xl:grid-cols-[2fr_1fr]">
+                <div className="space-y-4">
                   <Card padding="lg">
                     <SectionHeader
                       title="Distribution Overview"
@@ -343,7 +343,7 @@ export function DistributionDetail() {
                   <DistributionAdvancedSummary distribution={record} />
                 </div>
 
-                <div className="space-y-6">
+                <div className="space-y-4">
                   <Card padding="lg">
                     <SectionHeader title="Lifecycle Timeline" className="mb-4" />
                     <Timeline items={lifecycleItems} />

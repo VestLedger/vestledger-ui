@@ -9,7 +9,7 @@ const LoginForm = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="w-full max-w-md bg-[var(--app-surface)] rounded-lg p-8">
+      <div className="w-full max-w-md bg-[var(--app-surface)] rounded-lg p-4">
         <LoadingState fullHeight={false} message="Loading..." />
       </div>
     )

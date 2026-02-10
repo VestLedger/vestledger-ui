@@ -1,0 +1,27 @@
+{
+  "generatedAt": "2026-02-10",
+  "scope": {
+    "include": [
+      "src/**/*.ts",
+      "src/**/*.tsx",
+      "app/**/*.ts",
+      "app/**/*.tsx"
+    ],
+    "exclude": [
+      "**/__tests__/**",
+      "**/*.test.*",
+      "**/*.spec.*"
+    ]
+  },
+  "thresholds": {
+    "nextui_feature_import_files": 0,
+    "raw_control_lines_in_features": 0,
+    "legacy_components_ui_import_files": 0
+  },
+  "exceptions": {
+    "nextui_feature_import_files": [],
+    "raw_control_lines_in_features": [],
+    "legacy_components_ui_import_files": []
+  },
+  "notes": "Thresholds are set to current audit values. Any increase is a regression."
+}

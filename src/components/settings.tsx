@@ -177,7 +177,7 @@ export function Settings() {
     switch (activeSection) {
       case 'profile':
         return (
-          <div className="space-y-6">
+          <div className="space-y-4">
             <div>
               <SectionHeader title="Personal Information" className="mb-4" />
               <div className="space-y-4">
@@ -214,7 +214,7 @@ export function Settings() {
 
       case 'notifications':
         return (
-          <div className="space-y-6">
+          <div className="space-y-4">
             <div>
               <SectionHeader title="Email Notifications" className="mb-4" />
               <div className="space-y-3">
@@ -262,7 +262,7 @@ export function Settings() {
 
       case 'security':
         return (
-          <div className="space-y-6">
+          <div className="space-y-4">
             <div>
               <SectionHeader title="Change Password" className="mb-4" />
               <div className="space-y-4 max-w-md">
@@ -290,7 +290,7 @@ export function Settings() {
               </div>
             </div>
 
-            <div className="border-t border-[var(--app-border)] pt-6">
+            <div className="border-t border-[var(--app-border)] pt-4">
               <SectionHeader title="Two-Factor Authentication" className="mb-4" />
               <div className="flex items-start gap-4 p-4 rounded-lg bg-[var(--app-surface)]">
                 <div className="flex-1">
@@ -316,7 +316,7 @@ export function Settings() {
               </div>
             </div>
 
-            <div className="border-t border-[var(--app-border)] pt-6">
+            <div className="border-t border-[var(--app-border)] pt-4">
               <SectionHeader title="Active Sessions" className="mb-4" />
               <div className="space-y-3">
                 {[
@@ -349,7 +349,7 @@ export function Settings() {
 
       case 'appearance':
         return (
-          <div className="space-y-6">
+          <div className="space-y-4">
             <div>
               <SectionHeader title="Theme" className="mb-4" />
               <RadioGroup
@@ -400,7 +400,7 @@ export function Settings() {
 
       case 'preferences':
         return (
-          <div className="space-y-6">
+          <div className="space-y-4">
             <div>
               <SectionHeader title="Regional Settings" className="mb-4" />
               <div className="space-y-4 max-w-md">
@@ -446,7 +446,7 @@ export function Settings() {
 
       case 'billing':
         return (
-          <div className="space-y-6">
+          <div className="space-y-4">
             <div>
               <SectionHeader title="Current Plan" className="mb-4" />
               <Card padding="lg" className="border-[var(--app-primary)]">
@@ -517,7 +517,7 @@ export function Settings() {
 
       case 'team':
         return (
-          <div className="space-y-6">
+          <div className="space-y-4">
             <div>
               <SectionHeader
                 title="Team Members"
@@ -578,7 +578,7 @@ export function Settings() {
         badges: headerBadges,
       }}
     >
-      <div className="mt-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* Settings Navigation */}
         <div className="lg:col-span-1">
           <Card padding="sm">
@@ -608,7 +608,7 @@ export function Settings() {
         {/* Settings Content */}
         <div className="lg:col-span-3">
           <Card padding="lg">
-            <div className="mb-6">
+            <div className="mb-4">
               <h2 className="text-2xl font-bold mb-2">
                 {activeSectionConfig?.title ?? 'Settings'}
               </h2>

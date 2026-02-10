@@ -49,9 +49,9 @@ export function Analytics() {
         ),
       }}
     >
-      <div className="mt-6" key={fundKey}>
+      <div className="mt-4" key={fundKey}>
         {selected === 'performance' && (
-          <div className="space-y-8">
+          <div className="space-y-4">
             <FundPerformanceOverview key={`perf-${fundKey}`} />
             <JCurveChart key={`jcurve-${fundKey}`} />
           </div>

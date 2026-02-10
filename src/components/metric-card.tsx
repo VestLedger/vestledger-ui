@@ -71,6 +71,11 @@ export const MetricCard = memo(function MetricCard({
   const cardClassName = className ?? 'hover:border-[var(--app-border-subtle)] transition-colors';
   const containerClassName = iconContainerClassName ?? 'p-2 bg-[var(--app-primary-bg)] rounded-lg';
   const resolvedIconClassName = iconClassName ?? 'w-5 h-5 text-[var(--app-primary)]';
+  const subtitleSpacingClass = density.mode === 'compact' ? 'mt-0.5' : 'mt-1';
+  const benchmarkSectionClass = density.mode === 'compact'
+    ? 'mt-2 pt-2 border-t border-[var(--app-border)]'
+    : 'mt-3 pt-3 border-t border-[var(--app-border)]';
+  const benchmarkSecondaryRowMarginClass = density.mode === 'compact' ? 'mt-0.5' : 'mt-1';
 
   const iconContent = isValidElement(icon)
     ? icon
@@ -122,15 +127,15 @@ export const MetricCard = memo(function MetricCard({
       <div className={density.metrics.valueClass}>{value}</div>
       <div className="text-sm text-[var(--app-text-muted)]">{label}</div>
       {subtitle && (
-        <div className="text-xs text-[var(--app-text-subtle)] mt-1">{subtitle}</div>
+        <div className={`text-xs text-[var(--app-text-subtle)] ${subtitleSpacingClass}`}>{subtitle}</div>
       )}
       {benchmark && (
-        <div className="mt-3 pt-3 border-t border-[var(--app-border)]">
+        <div className={benchmarkSectionClass}>
           <div className="flex items-center justify-between text-xs">
             <span className="text-[var(--app-text-muted)]">Industry Median</span>
             <span className="font-medium">{benchmark.industryMedian.toFixed(2)}</span>
           </div>
-          <div className="flex items-center justify-between text-xs mt-1">
+          <div className={`flex items-center justify-between text-xs ${benchmarkSecondaryRowMarginClass}`}>
             <span className="text-[var(--app-text-muted)]">Top Quartile</span>
             <span className="font-medium">{benchmark.topQuartile.toFixed(2)}</span>
           </div>

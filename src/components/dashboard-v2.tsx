@@ -39,7 +39,7 @@ const formatCurrency = (amount: number, showDecimals = false) => {
 };
 
 const DashboardLoading = () => (
-  <div className="p-6 space-y-4 animate-pulse">
+  <div className="p-4 space-y-4 animate-pulse">
     <div className="h-6 w-48 rounded bg-[var(--app-surface-hover)]" />
     <div className="h-4 w-72 rounded bg-[var(--app-surface-hover)]" />
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -79,6 +79,13 @@ const AuditorDashboard = dynamic(
 export function DashboardV2() {
   const { user } = useAuth();
   const density = useDashboardDensity();
+  const sectionTopSpacingClass = density.mode === 'compact' ? 'mt-3' : 'mt-4';
+  const fundHeaderBadgeSpacingClass = density.mode === 'compact'
+    ? 'flex flex-wrap items-center gap-2 mt-3'
+    : 'flex flex-wrap items-center gap-2 mt-4';
+  const fundSummaryCardMarginClass = density.mode === 'compact' ? 'mb-4' : 'mb-4';
+  const fundSummaryGridGapClass = density.mode === 'compact' ? 'gap-3' : 'gap-4';
+  const metricsBottomSpacingClass = density.mode === 'compact' ? 'mb-4' : 'mb-4';
   const { selectedFund, viewMode, funds, getFundSummary, setSelectedFund, setViewMode } = useFund();
   const dispatch = useAppDispatch();
   const {
@@ -194,7 +201,7 @@ export function DashboardV2() {
       >
 
         {activeTab === 'overview' && (
-          <div className={`mt-4 ${density.page.sectionStackClass}`}>
+          <div className={`${sectionTopSpacingClass} ${density.page.sectionStackClass}`}>
             {/* AI Insights Banner */}
             <AIInsightsBanner insight={insight} />
 
@@ -252,13 +259,13 @@ export function DashboardV2() {
         )}
 
         {activeTab === 'capital-calls' && (
-          <div className="mt-4">
+          <div className={sectionTopSpacingClass}>
             <ActiveCapitalCalls calls={capitalCalls} />
           </div>
         )}
 
         {activeTab === 'portfolio-health' && (
-          <div className="mt-4">
+          <div className={sectionTopSpacingClass}>
             <PortfolioHealth companies={portfolioCompanies} />
           </div>
         )}
@@ -323,7 +330,7 @@ export function DashboardV2() {
         },
         actionContent: <FundSelector />,
         children: (
-          <div className="flex flex-wrap items-center gap-2 mt-4">
+          <div className={fundHeaderBadgeSpacingClass}>
             <Badge
               size="md"
               variant="bordered"
@@ -340,8 +347,8 @@ export function DashboardV2() {
     >
 
       {/* Fund Performance Summary Card */}
-      <Card padding="md" className="bg-gradient-to-br from-[var(--app-primary-bg)] to-[var(--app-surface)] mb-6">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <Card padding="md" className={`bg-gradient-to-br from-[var(--app-primary-bg)] to-[var(--app-surface)] ${fundSummaryCardMarginClass}`}>
+        <div className={`grid grid-cols-2 sm:grid-cols-4 ${fundSummaryGridGapClass}`}>
           <div>
             <div className="text-xs text-[var(--app-text-muted)] mb-1">Total Commitment</div>
             <div className="text-xl sm:text-2xl font-medium">{formatCurrency(selectedFund.totalCommitment, true)}</div>
@@ -365,7 +372,7 @@ export function DashboardV2() {
       <MetricsGrid
         items={fundMetricItems}
         columns={{ base: 1, sm: 2, lg: 4 }}
-        className="mb-6"
+        className={metricsBottomSpacingClass}
       />
 
       <div className={density.spacer.pageBottomClass} />

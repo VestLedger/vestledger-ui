@@ -32,15 +32,17 @@ export function RoleDashboardLayout({
   const titleClassName = density.mode === 'compact'
     ? 'text-xl sm:text-2xl font-bold'
     : 'text-2xl sm:text-3xl font-bold';
+  const headerGapClass = density.mode === 'compact' ? 'gap-2' : 'gap-3';
+  const actionGapClass = density.mode === 'compact' ? 'gap-1.5' : 'gap-2';
 
   return (
     <PageContainer className={resolvedClassName}>
-      <div className={`flex flex-col sm:flex-row sm:items-center sm:justify-between ${density.mode === 'compact' ? 'gap-3' : 'gap-4'}`}>
+      <div className={`flex flex-col sm:flex-row sm:items-center sm:justify-between ${headerGapClass}`}>
         <div>
           <h2 className={titleClassName}>{title}</h2>
           <p className="text-sm text-[var(--app-text-muted)]">{description}</p>
         </div>
-        {actions && <div className="flex gap-2">{actions}</div>}
+        {actions && <div className={`flex ${actionGapClass}`}>{actions}</div>}
       </div>
 
       {beforeMetrics}

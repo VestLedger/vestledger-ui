@@ -83,12 +83,12 @@ export function DealflowReview() {
     switch (currentSlide.type) {
       case 'overview':
         return (
-          <div className="space-y-6">
+          <div className="space-y-4">
             <div className="text-center">
               <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-[var(--app-primary)] to-transparent bg-clip-text text-transparent">
                 {currentSlide.content.companyName}
               </h1>
-              <p className="text-xl text-[var(--app-text-muted)] mb-6">{currentSlide.content.oneLiner}</p>
+              <p className="text-xl text-[var(--app-text-muted)] mb-4">{currentSlide.content.oneLiner}</p>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
@@ -113,22 +113,22 @@ export function DealflowReview() {
 
       case 'market':
         return (
-          <div className="space-y-6">
+          <div className="space-y-4">
             <div className="grid grid-cols-3 gap-4">
-              <div className="p-6 rounded-lg bg-[var(--app-primary-bg)] text-center">
+              <div className="p-4 rounded-lg bg-[var(--app-primary-bg)] text-center">
                 <p className="text-sm text-[var(--app-text-muted)] mb-2">TAM</p>
                 <p className="text-3xl font-bold text-[var(--app-primary)]">{currentSlide.content.tam}</p>
               </div>
-              <div className="p-6 rounded-lg bg-[var(--app-secondary)] bg-opacity-10 text-center">
+              <div className="p-4 rounded-lg bg-[var(--app-secondary)] bg-opacity-10 text-center">
                 <p className="text-sm text-[var(--app-text-muted)] mb-2">SAM</p>
                 <p className="text-3xl font-bold text-[var(--app-secondary)]">{currentSlide.content.sam}</p>
               </div>
-              <div className="p-6 rounded-lg bg-[var(--app-success-bg)] text-center">
+              <div className="p-4 rounded-lg bg-[var(--app-success-bg)] text-center">
                 <p className="text-sm text-[var(--app-text-muted)] mb-2">SOM</p>
                 <p className="text-3xl font-bold text-[var(--app-success)]">{currentSlide.content.som}</p>
               </div>
             </div>
-            <div className="p-6 rounded-lg bg-[var(--app-surface-hover)]">
+            <div className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
               <p className="text-sm text-[var(--app-text-muted)] mb-2">Market Growth</p>
               <p className="text-2xl font-bold">{currentSlide.content.growth}</p>
             </div>
@@ -147,8 +147,8 @@ export function DealflowReview() {
 
       case 'competition':
         return (
-          <div className="space-y-6">
-            <div className="p-6 rounded-lg bg-[var(--app-surface-hover)]">
+          <div className="space-y-4">
+            <div className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
               <p className="text-sm text-[var(--app-text-muted)] mb-2">Differentiation</p>
               <p className="text-lg font-semibold">{currentSlide.content.differentiation}</p>
             </div>
@@ -173,8 +173,8 @@ export function DealflowReview() {
 
       case 'product':
         return (
-          <div className="space-y-6">
-            <div className="p-6 rounded-lg bg-[var(--app-surface-hover)]">
+          <div className="space-y-4">
+            <div className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
               <p className="text-lg mb-4">{currentSlide.content.description}</p>
             </div>
             <div>
@@ -198,21 +198,21 @@ export function DealflowReview() {
 
       case 'financials':
         return (
-          <div className="space-y-6">
+          <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-6 rounded-lg bg-[var(--app-success-bg)] text-center">
+              <div className="p-4 rounded-lg bg-[var(--app-success-bg)] text-center">
                 <p className="text-sm text-[var(--app-text-muted)] mb-2">ARR</p>
                 <p className="text-3xl font-bold text-[var(--app-success)]">{formatCurrencyCompact(currentSlide.content.arr)}</p>
               </div>
-              <div className="p-6 rounded-lg bg-[var(--app-primary-bg)] text-center">
+              <div className="p-4 rounded-lg bg-[var(--app-primary-bg)] text-center">
                 <p className="text-sm text-[var(--app-text-muted)] mb-2">YoY Growth</p>
                 <p className="text-3xl font-bold text-[var(--app-primary)]">{currentSlide.content.growth}%</p>
               </div>
-              <div className="p-6 rounded-lg bg-[var(--app-warning-bg)] text-center">
+              <div className="p-4 rounded-lg bg-[var(--app-warning-bg)] text-center">
                 <p className="text-sm text-[var(--app-text-muted)] mb-2">Monthly Burn</p>
                 <p className="text-3xl font-bold text-[var(--app-warning)]">{formatCurrencyCompact(currentSlide.content.burn)}</p>
               </div>
-              <div className="p-6 rounded-lg bg-[var(--app-info-bg)] text-center">
+              <div className="p-4 rounded-lg bg-[var(--app-info-bg)] text-center">
                 <p className="text-sm text-[var(--app-text-muted)] mb-2">Runway</p>
                 <p className="text-3xl font-bold text-[var(--app-info)]">{currentSlide.content.runway}mo</p>
               </div>
@@ -238,7 +238,7 @@ export function DealflowReview() {
 
       case 'team':
         return (
-          <div className="space-y-6">
+          <div className="space-y-4">
             <div>
               <p className="font-semibold mb-3">Leadership Team</p>
               <div className="space-y-3">
@@ -271,8 +271,8 @@ export function DealflowReview() {
 
       case 'ask':
         return (
-          <div className="space-y-6">
-            <div className="text-center p-8 rounded-lg bg-gradient-to-br from-[var(--app-primary-bg)] to-transparent bg-opacity-10">
+          <div className="space-y-4">
+            <div className="text-center p-4 rounded-lg bg-gradient-to-br from-[var(--app-primary-bg)] to-transparent bg-opacity-10">
               <p className="text-sm text-[var(--app-text-muted)] mb-2">Raising</p>
               <p className="text-5xl font-bold mb-4 bg-gradient-to-r from-[var(--app-primary)] to-transparent bg-clip-text text-transparent">
                 {formatCurrencyCompact(currentSlide.content.amount)}
@@ -349,7 +349,7 @@ export function DealflowReview() {
                 icon: FileSearch,
               }}
             >
-              <Card padding="lg" className="mt-6">
+              <Card padding="lg" className="mt-4">
                 <div className="text-sm text-[var(--app-text-muted)]">Add deals via the backend integration when ready.</div>
               </Card>
             </PageScaffold>
@@ -387,7 +387,7 @@ export function DealflowReview() {
             }}
           >
       {/* Deal Selector */}
-      <div className="mt-6 mb-4">
+      <div className="mt-4 mb-4">
         <Card padding="md">
           <div className="flex items-center justify-between gap-4">
             <Button
@@ -439,7 +439,7 @@ export function DealflowReview() {
           </div>
         </Card>
       </div>
-      <div className="mt-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* Slide Navigation */}
         <div className="lg:col-span-1">
           <Card padding="md">
@@ -543,7 +543,7 @@ export function DealflowReview() {
         <div className="lg:col-span-3">
           <Card padding="lg" className="min-h-[600px]">
             {/* Slide Header */}
-            <div className="flex items-center justify-between mb-6 pb-4 border-b border-[var(--app-border)]">
+            <div className="flex items-center justify-between mb-4 pb-4 border-b border-[var(--app-border)]">
               <div>
                 <Badge size="sm" variant="flat" className="mb-2">
                   Slide {currentSlideIndex + 1} of {slides.length}
@@ -556,7 +556,7 @@ export function DealflowReview() {
             </div>
 
             {/* Slide Content */}
-            <div className="mb-6">{renderSlideContent()}</div>
+            <div className="mb-4">{renderSlideContent()}</div>
 
             {/* Navigation Controls */}
             <div className="flex items-center justify-between pt-4 border-t border-[var(--app-border)]">

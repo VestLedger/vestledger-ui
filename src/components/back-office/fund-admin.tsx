@@ -104,7 +104,7 @@ export function FundAdmin() {
         <PageScaffold
           breadcrumbs={routeConfig?.breadcrumbs}
           aiSuggestion={routeConfig?.aiSuggestion}
-          containerProps={{ className: 'space-y-6' }}
+          containerProps={{ className: 'space-y-4' }}
           header={{
             title: 'Fund Administration',
             description: 'Manage capital calls, distributions, and LP communications',

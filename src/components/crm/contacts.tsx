@@ -216,7 +216,7 @@ export function Contacts() {
             <PageScaffold
               breadcrumbs={routeConfig?.breadcrumbs}
               aiSuggestion={routeConfig?.aiSuggestion}
-              containerProps={{ className: 'space-y-6' }}
+              containerProps={{ className: 'space-y-4' }}
               header={{
                 title: 'Contacts & CRM',
                 description: 'Manage relationships and track communications',
@@ -232,7 +232,7 @@ export function Contacts() {
           <PageScaffold
             breadcrumbs={routeConfig?.breadcrumbs}
             aiSuggestion={routeConfig?.aiSuggestion}
-            containerProps={{ className: 'space-y-6' }}
+            containerProps={{ className: 'space-y-4' }}
             header={{
               title: 'Contacts & CRM',
               description: 'Manage relationships with founders, investors, and advisors',
@@ -257,7 +257,7 @@ export function Contacts() {
       {/* Stats Overview */}
       <MetricsGrid items={summaryCards} columns={{ base: 1, md: 2, lg: 4 }} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* Smart Lists Sidebar */}
         <div className="lg:col-span-1">
           <SmartLists
@@ -367,7 +367,7 @@ export function Contacts() {
         {selectedContact && (
           <div>
               {/* Tabs */}
-              <div className="flex gap-2 mb-6 border-b border-[var(--app-border)]">
+              <div className="flex gap-2 mb-4 border-b border-[var(--app-border)]">
                 <button
                   onClick={() => patchUI({ activeTab: 'overview' })}
                   className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
@@ -402,7 +402,7 @@ export function Contacts() {
 
               {/* Overview Tab */}
               {activeTab === 'overview' && (
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {/* Header */}
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-4">

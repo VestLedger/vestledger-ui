@@ -52,7 +52,7 @@ export function AITools() {
     >
 
       {/* Tab Content */}
-      <div className="mt-6">
+      <div className="mt-4">
         {selected === 'decision-writer' && <DecisionWriter />}
         {selected === 'pitch-deck-reader' && <PitchDeckReader />}
         {selected === 'dd-assistant' && <DDChatAssistant dealName="Quantum AI" />}

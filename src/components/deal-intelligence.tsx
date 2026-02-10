@@ -95,7 +95,7 @@ export function DealIntelligence() {
             >
 
         {/* Fund Analytics Summary */}
-        <div className="mb-8">
+        <div className="mb-4">
           <SectionHeader
             title={(
               <span className="flex items-center gap-2">
@@ -108,7 +108,7 @@ export function DealIntelligence() {
           />
 
           {/* Deal Flow Metrics */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
             <Card padding="md">
               <div className="text-sm text-[var(--app-text-muted)] mb-1">Active Deals</div>
               <div className="text-3xl font-medium text-[var(--app-primary)]">{fundAnalytics.dealFlowMetrics.activeDeals}</div>
@@ -132,7 +132,7 @@ export function DealIntelligence() {
           </div>
 
           {/* Deal Distribution and DD Progress */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {/* Deals by Stage */}
             <Card padding="md">
               <h4 className="text-sm font-medium mb-4">Deals by Stage</h4>
@@ -215,7 +215,7 @@ export function DealIntelligence() {
         </div>
 
         {/* DD Status Summary */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
           <Card padding="md" className="border-[var(--app-border)]">
             <div className="flex items-center gap-3">
               <CheckCircle2 className="w-5 h-5 text-[var(--app-success)]" />
@@ -255,7 +255,7 @@ export function DealIntelligence() {
         </div>
 
         {/* Active Deals Section */}
-        <div className="mb-8">
+        <div className="mb-4">
           <SectionHeader
             title={(
               <span className="flex items-center gap-2">
@@ -274,7 +274,7 @@ export function DealIntelligence() {
           <CompanySearch />
         </div>
 
-        <div className="mb-8">
+        <div className="mb-4">
           <SectionHeader
             title={(
               <span className="flex items-center gap-2">
@@ -365,13 +365,13 @@ export function DealIntelligence() {
           size="sm"
           startContent={<ArrowLeft className="w-4 h-4" />}
           onPress={handleBackToFundView}
-          className="mb-6"
+          className="mb-4"
         >
           Back to Fund View
         </Button>
 
         {/* Deal Header */}
-        <div className="mb-6">
+        <div className="mb-4">
           <div className="flex items-start justify-between mb-4">
             <div>
               <h2 className="text-2xl sm:text-3xl mb-2">{selectedDeal.name}</h2>
@@ -409,10 +409,10 @@ export function DealIntelligence() {
         </div>
 
         {/* Tabs */}
-        <Tabs aria-label="Deal Intelligence Tabs" variant="underlined" classNames={{ tabList: "mb-6" }}>
+        <Tabs aria-label="Deal Intelligence Tabs" variant="underlined" classNames={{ tabList: "mb-4" }}>
           <Tab key="overview" title="Overview & Status">
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* DD Progress by Category */}
               <Card padding="md">
                 <SectionHeader title="Due Diligence Progress" titleClassName="font-medium" className="mb-4" />
@@ -484,7 +484,7 @@ export function DealIntelligence() {
               }
 
               return (
-                <div className="space-y-6">
+                <div className="space-y-4">
                   {/* Financial Metrics */}
                   <div>
                     <SectionHeader
@@ -725,7 +725,7 @@ export function DealIntelligence() {
           <Tab key="documents" title="DD Documents">
             <div>
               {/* Search and Filter */}
-              <div className="mb-6">
+              <div className="mb-4">
                 <SearchToolbar
                   searchValue={searchQuery}
                   onSearchChange={(value) => patchUI({ searchQuery: value })}
@@ -742,7 +742,7 @@ export function DealIntelligence() {
               </div>
 
               {/* Document Categories Stats */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
                 {documentCategories.map((category) => {
                   const CategoryIcon = category.icon;
                   const count = documents.filter((d) => d.dealId === selectedDeal.id && d.category === category.id).length;
@@ -768,7 +768,7 @@ export function DealIntelligence() {
                 <SectionHeader
                   title="Document Library"
                   titleClassName="font-medium"
-                  className="mb-6"
+                  className="mb-4"
                   action={(
                     <>
                       <Button

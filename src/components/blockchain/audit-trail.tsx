@@ -115,7 +115,7 @@ export function BlockchainAuditTrail() {
             }}
           >
       {/* Stats */}
-      <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
         <Card padding="md">
           <div className="text-center">
             <div className="text-2xl font-bold text-[var(--app-primary)]">{auditEvents.length}</div>
@@ -168,7 +168,7 @@ export function BlockchainAuditTrail() {
           {filteredEvents.map((event, index) => (
             <div
               key={event.id}
-              className={`relative pl-8 pb-6 ${index !== filteredEvents.length - 1 ? 'border-l-2 border-[var(--app-border)]' : ''}`}
+              className={`relative pl-8 pb-4 ${index !== filteredEvents.length - 1 ? 'border-l-2 border-[var(--app-border)]' : ''}`}
               style={{ marginLeft: '8px' }}
             >
               {/* Timeline dot */}

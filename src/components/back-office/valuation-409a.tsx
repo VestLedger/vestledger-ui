@@ -84,7 +84,7 @@ export function Valuation409A() {
         <PageScaffold
           breadcrumbs={routeConfig?.breadcrumbs}
           aiSuggestion={routeConfig?.aiSuggestion}
-          containerProps={{ className: 'space-y-6' }}
+          containerProps={{ className: 'space-y-4' }}
           header={{
             title: '409A Valuations',
             description: 'Manage IRS-compliant fair market value determinations for stock options',
@@ -263,7 +263,7 @@ export function Valuation409A() {
                       <div className="p-2 rounded-full bg-[var(--app-primary-bg)] border-2 border-[var(--app-primary)]">
                         <DollarSign className="w-4 h-4 text-[var(--app-primary)]" />
                       </div>
-                      <div className="flex-1 pb-6">
+                      <div className="flex-1 pb-4">
                         <div className="flex items-center justify-between mb-2">
                           <div>
                             <p className="font-semibold">{formatCurrency(item.fmv)} per share</p>

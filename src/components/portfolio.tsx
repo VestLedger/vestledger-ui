@@ -59,7 +59,7 @@ export function Portfolio() {
     >
 
       {/* Tab Content */}
-      <div className="mt-6">
+      <div className="mt-4">
         {selected === 'overview' && <PortfolioDashboard />}
         {selected === 'updates' && <PortfolioUpdates />}
         {selected === 'documents' && <PortfolioDocuments />}

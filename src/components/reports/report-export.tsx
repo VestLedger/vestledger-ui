@@ -82,7 +82,7 @@ export function ReportExport() {
         ],
       }}
     >
-      <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Report Templates */}
         <div className="lg:col-span-2 space-y-4">
           <SectionHeader title="Report Templates" />
@@ -136,7 +136,7 @@ export function ReportExport() {
           </div>
 
           {/* Export History */}
-          <div className="mt-6">
+          <div className="mt-4">
             <SectionHeader title="Recent Exports" className="mb-4" />
             <Card padding="none">
               <div className="divide-y divide-[var(--app-border)]">
@@ -184,7 +184,7 @@ export function ReportExport() {
             <SectionHeader title="Export Configuration" className="mb-4" />
 
             {selectedTemplate ? (
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {/* Format Selection */}
                 <div>
                   <label className="text-sm font-medium mb-2 block">Export Format</label>

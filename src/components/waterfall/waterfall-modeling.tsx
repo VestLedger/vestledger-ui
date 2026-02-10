@@ -601,7 +601,7 @@ export function WaterfallModeling() {
         isEmpty={(data) => !data?.scenarios?.length}
       >
         {() => (
-          <div className={`mt-6 grid gap-6 ${printMode ? 'lg:grid-cols-1' : 'lg:grid-cols-3'}`}>
+          <div className={`mt-4 grid gap-4 ${printMode ? 'lg:grid-cols-1' : 'lg:grid-cols-3'}`}>
             <div className={`space-y-4 ${printMode ? '' : 'lg:col-span-2'}`}>
               {!printMode && (
                 <InvestorClassManager

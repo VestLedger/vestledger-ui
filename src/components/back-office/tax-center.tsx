@@ -143,7 +143,7 @@ export function TaxCenter() {
       <MetricsGrid
         items={summaryCards}
         columns={{ base: 1, md: 2, lg: 4 }}
-        className="mt-6"
+        className="mt-4"
       />
 
       {/* Overview Tab - Tax Documents */}

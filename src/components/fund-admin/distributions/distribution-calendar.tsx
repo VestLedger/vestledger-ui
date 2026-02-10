@@ -381,7 +381,7 @@ export function DistributionCalendar() {
           },
         ],
       }}
-      containerProps={{ className: "space-y-6" }}
+      containerProps={{ className: "space-y-4" }}
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Tabs
