@@ -5,14 +5,24 @@ import React from 'react';
  * 
  * Uses the VestLedger logo paths.
  * Fill color is controlled via 'currentColor', so set the text color on the parent or this component.
+ * Default size is 1em so it follows surrounding text sizing.
  * Default color is 'text-app-primary'.
  */
-export function BrandLogo({ className = "text-app-primary", ...props }: React.SVGProps<SVGSVGElement>) {
+export function BrandLogo({
+  className = "text-app-primary",
+  width = '1em',
+  height = '1em',
+  ...props
+}: React.SVGProps<SVGSVGElement>) {
+  const resolvedClassName = ['inline-block', 'shrink-0', className].filter(Boolean).join(' ');
+
   return (
     <svg 
       xmlns="http://www.w3.org/2000/svg" 
       viewBox="463 260 354 348" 
-      className={className}
+      width={width}
+      height={height}
+      className={resolvedClassName}
       fill="currentColor"
       aria-label="VestLedger Logo"
       {...props}

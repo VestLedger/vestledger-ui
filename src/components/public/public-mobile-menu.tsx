@@ -22,13 +22,15 @@ export function PublicMobileMenu() {
         onClick={() => setIsOpen((open) => !open)}
         aria-label={isOpen ? 'Close menu' : 'Open menu'}
         aria-expanded={isOpen}
-        className="inline-flex items-center gap-3 px-2 py-1 rounded-lg text-[var(--app-text-muted)] hover:bg-[var(--app-surface-hover)] transition-colors"
+        className="inline-flex items-center px-2 py-1 rounded-lg text-[var(--app-text-muted)] hover:bg-[var(--app-surface-hover)] transition-colors"
       >
-        <BrandLogo
-          className={`h-8 w-8 text-[var(--app-primary)] transition-transform duration-200 ${isOpen ? 'rotate-90' : 'rotate-0'}`}
-        />
-        <span className="text-xl tracking-tight text-[var(--app-primary)] font-bold">
-          VestLedger
+        <span className="inline-flex items-center gap-3 text-xl text-[var(--app-primary)]">
+          <BrandLogo
+            className={`h-[1em] w-[1em] transition-transform duration-200 ${isOpen ? 'rotate-90' : 'rotate-0'}`}
+          />
+          <span className="tracking-tight font-bold">
+            VestLedger
+          </span>
         </span>
       </button>
 

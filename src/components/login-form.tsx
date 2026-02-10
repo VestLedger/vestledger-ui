@@ -66,9 +66,9 @@ export function LoginForm() {
   return (
     <Card padding="lg">
       <div className="text-center mb-8">
-        <div className="flex items-center justify-center gap-3 mb-4">
-          <BrandLogo className="h-12 w-12 text-[var(--app-primary)]" />
-          <span className="text-2xl font-bold text-app-primary dark:text-app-dark-primary">VestLedger</span>
+        <div className="flex items-center justify-center gap-3 mb-4 text-2xl text-app-primary dark:text-app-dark-primary">
+          <BrandLogo className="h-[1em] w-[1em]" />
+          <span className="font-bold">VestLedger</span>
         </div>
         <h1 className="text-2xl font-semibold mb-2">Welcome back</h1>
         <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">

@@ -152,14 +152,14 @@ export function SidebarGrouped() {
       >
         {effectivelyCollapsed ? (
           <div className="flex items-center justify-center w-full">
-            <div className="w-9 h-9 rounded-lg bg-app-surface/80 dark:bg-app-dark-surface/80 border border-app-border dark:border-app-dark-border flex items-center justify-center">
-              <BrandLogo className="h-6 w-6 text-[var(--app-primary)]" />
+            <div className="w-9 h-9 rounded-lg bg-app-surface/80 dark:bg-app-dark-surface/80 border border-app-border dark:border-app-dark-border flex items-center justify-center text-2xl">
+              <BrandLogo className="h-[1em] w-[1em] text-[var(--app-primary)]" />
             </div>
           </div>
         ) : (
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-app-surface/80 dark:bg-app-dark-surface/80 border border-app-border dark:border-app-dark-border flex items-center justify-center">
-                <BrandLogo className="h-6 w-6 text-[var(--app-primary)]" />
+            <div className="w-8 h-8 rounded-lg bg-app-surface/80 dark:bg-app-dark-surface/80 border border-app-border dark:border-app-dark-border flex items-center justify-center text-2xl">
+                <BrandLogo className="h-[1em] w-[1em] text-[var(--app-primary)]" />
             </div>
             <div>
               <h1 className="text-sm font-bold text-app-text dark:text-app-dark-text">VestLedger</h1>

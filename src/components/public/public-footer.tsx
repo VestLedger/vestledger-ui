@@ -9,9 +9,9 @@ export function PublicFooter() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-6 sm:mb-8">
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="flex items-center gap-2 mb-3 sm:mb-4">
-              <BrandLogo className="h-6 w-6 text-[var(--app-primary)]" />
-              <h4 className="text-base sm:text-lg text-app-primary dark:text-app-dark-primary font-bold">VestLedger</h4>
+            <Link href="/" className="flex items-center gap-2 mb-3 sm:mb-4 text-base sm:text-lg text-app-primary dark:text-app-dark-primary">
+              <BrandLogo className="h-[1em] w-[1em]" />
+              <h4 className="font-bold">VestLedger</h4>
             </Link>
             <p className="text-xs sm:text-sm text-app-text-muted dark:text-app-dark-text-muted">
               AI-native fund intelligence, powered by Vesta.
