@@ -1,5 +1,5 @@
 import { Brain, Clock, Zap, Users, CheckCircle2, Bot } from 'lucide-react';
-import { LoginButton } from './public/login-button';
+import Link from 'next/link';
 
 /**
  * Vesta-centric Homepage
@@ -75,9 +75,9 @@ export function HomepageStatic() {
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <LoginButton className="btn-primary btn-lg">
+              <Link href="/eoi" className="btn-primary btn-lg">
                 Get Started with Vesta
-              </LoginButton>
+              </Link>
               <a
                 href="/how-it-works"
                 className="btn-secondary btn-lg"
@@ -191,9 +191,9 @@ export function HomepageStatic() {
             <p className="text-lg text-app-text-muted dark:text-app-dark-text-muted mb-8 max-w-2xl mx-auto">
               Join funds who have moved from managing tools to working with intelligence.
             </p>
-            <LoginButton className="btn-primary btn-lg">
+            <Link href="/eoi" className="btn-primary btn-lg">
               Get Started
-            </LoginButton>
+            </Link>
           </div>
         </div>
       </section>
