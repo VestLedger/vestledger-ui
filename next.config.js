@@ -9,8 +9,10 @@ const nextConfig = {
     'http://localhost:3001',
     'http://127.0.0.1:3001',
     'http://app.vestledger.local:3001',
+    'http://admin.vestledger.local:3001',
     'http://vestledger.local:3001',
     'https://app.vestledger.local',
+    'https://admin.vestledger.local',
     'https://vestledger.local',
   ],
   compiler: {

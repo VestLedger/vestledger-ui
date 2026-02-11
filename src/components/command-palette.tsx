@@ -17,6 +17,9 @@ import {
 import './command-palette.css';
 import { useUIKey } from '@/store/ui';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useAuth } from '@/contexts/auth-context';
+import { buildAdminSuperadminUrl } from '@/config/env';
+import { isSuperadminUser } from '@/utils/auth/internal-access';
 
 interface CommandItem {
   id: string;
@@ -34,6 +37,8 @@ export function CommandPalette() {
     search: '',
   });
   const router = useRouter();
+  const { user } = useAuth();
+  const isSuperadmin = isSuperadminUser(user);
 
   // Toggle command palette with Cmd+K / Ctrl+K
   useEffect(() => {
@@ -63,7 +68,27 @@ export function CommandPalette() {
     [patchCommandUI, router]
   );
 
-  const pages: CommandItem[] = [
+  const navigateToSuperadminDomain = useCallback(() => {
+    patchCommandUI({ open: false, search: '' });
+
+    if (typeof window !== 'undefined') {
+      window.location.href = buildAdminSuperadminUrl(window.location.hostname);
+    }
+  }, [patchCommandUI]);
+
+  const pages: CommandItem[] = isSuperadmin
+    ? [
+        {
+          id: 'superadmin',
+          title: 'Superadmin Cockpit',
+          subtitle: 'Tenant onboarding and platform operations',
+          category: 'Pages',
+          icon: Building2,
+          action: navigateToSuperadminDomain,
+          keywords: ['internal', 'tenant', 'platform', 'admin'],
+        },
+      ]
+    : [
     {
       id: 'dashboard',
       title: 'Dashboard',
@@ -138,7 +163,9 @@ export function CommandPalette() {
     },
   ];
 
-  const actions: CommandItem[] = [
+  const actions: CommandItem[] = isSuperadmin
+    ? []
+    : [
     {
       id: 'add-deal',
       title: 'Add New Deal',
@@ -225,21 +252,23 @@ export function CommandPalette() {
             ))}
           </Command.Group>
 
-          <Command.Group heading="Actions" className="command-palette-group">
-            {actions.map((item) => (
-              <Command.Item
-                key={item.id}
-                value={`${item.title} ${item.keywords?.join(' ')}`}
-                onSelect={item.action}
-                className="command-palette-item"
-              >
-                <Sparkles className="command-palette-item-icon command-palette-item-icon-action" />
-                <div className="command-palette-item-content">
-                  <span className="command-palette-item-title">{item.title}</span>
-                </div>
-              </Command.Item>
-            ))}
-          </Command.Group>
+          {actions.length > 0 && (
+            <Command.Group heading="Actions" className="command-palette-group">
+              {actions.map((item) => (
+                <Command.Item
+                  key={item.id}
+                  value={`${item.title} ${item.keywords?.join(' ')}`}
+                  onSelect={item.action}
+                  className="command-palette-item"
+                >
+                  <Sparkles className="command-palette-item-icon command-palette-item-icon-action" />
+                  <div className="command-palette-item-content">
+                    <span className="command-palette-item-title">{item.title}</span>
+                  </div>
+                </Command.Item>
+              ))}
+            </Command.Group>
+          )}
         </Command.List>
 
         <div className="command-palette-footer">

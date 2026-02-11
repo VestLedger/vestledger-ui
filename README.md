@@ -14,6 +14,7 @@ If you start the stack from the repo root with `docker compose up`, the UI is
 served via nginx:
 - Public UI: `https://vestledger.local`
 - App UI: `https://app.vestledger.local`
+- Admin UI: `https://admin.vestledger.local`
 
 The steps below are for running the UI directly with Next.js.
 
@@ -26,6 +27,7 @@ sudo nano /etc/hosts
 # Add these lines:
 127.0.0.1 vestledger.local
 127.0.0.1 app.vestledger.local
+127.0.0.1 admin.vestledger.local
 
 # Save and exit (Ctrl+X, Y, Enter)
 ```
@@ -45,6 +47,7 @@ pnpm --filter vestledger-ui dev -- --hostname 0.0.0.0 --port 3001
 - **Public Pages**: http://vestledger.local:3001
 - **Login Page**: http://app.vestledger.local:3001/login
 - **Dashboard**: http://app.vestledger.local:3001/home
+- **Superadmin**: http://admin.vestledger.local:3001/superadmin
 
 ### 4. Test the Full Flow
 
@@ -67,6 +70,7 @@ cat /etc/hosts | grep vestledger
 # Should show:
 # 127.0.0.1 vestledger.local
 # 127.0.0.1 app.vestledger.local
+# 127.0.0.1 admin.vestledger.local
 
 # Flush DNS cache (macOS)
 dscacheutil -flushcache

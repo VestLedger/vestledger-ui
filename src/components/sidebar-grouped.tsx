@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { LayoutDashboard, GitBranch, Briefcase, Search, Vote, TrendingUp, Users, UserCheck, DollarSign, Shield, Scale, Receipt, FileDown, Sparkles, Activity, BarChart3, Settings, FileText, Plug, ChevronLeft, FileCheck, Building2, Target, Layers, Mail } from 'lucide-react';
+import { LayoutDashboard, GitBranch, Briefcase, Search, Vote, TrendingUp, Users, UserCheck, DollarSign, Shield, Scale, Receipt, FileDown, Sparkles, Activity, BarChart3, Settings, FileText, Plug, ChevronLeft, FileCheck, Building2, Target, Layers, Mail, ShieldCheck } from 'lucide-react';
 import { NavigationGroup } from './navigation-group';
 import { NavigationItem } from './navigation-item';
 import { SidebarToggleButton } from './sidebar-toggle-button';
@@ -19,6 +19,8 @@ import {
   FUND_ADMIN_TAB_IDS,
   FUND_ADMIN_TABS,
 } from '@/config/fund-admin-tabs';
+import { buildAdminSuperadminUrl } from '@/config/env';
+import { isSuperadminUser } from '@/utils/auth/internal-access';
 
 type FundAdminSidebarUIState = {
   selectedTab: string;
@@ -110,6 +112,7 @@ export function SidebarGrouped() {
   const { updateBadge, sidebarState, toggleLeftSidebar } = useNavigation();
   const aiBadges = useAIBadges();
   const { user } = useAuth();
+  const isSuperadmin = isSuperadminUser(user);
   const density = useDashboardDensity();
   const isFundAdminRoute = pathname === ROUTE_PATHS.fundAdmin;
   const isCollapsed = sidebarState.leftCollapsed;
@@ -229,7 +232,33 @@ export function SidebarGrouped() {
         onMouseEnter={() => isCollapsed && patchSidebarUI({ isHovered: true })}
         onMouseLeave={() => patchSidebarUI({ isHovered: false })}
       >
-        {isFundAdminContext ? (
+        {isSuperadmin ? (
+          <NavigationGroup
+            id="internal-admin"
+            label="Internal Admin"
+            icon={ShieldCheck}
+            alwaysExpanded={true}
+            isCollapsed={effectivelyCollapsed}
+          >
+            <NavigationItem
+              id="superadmin"
+              href={ROUTE_PATHS.superadmin}
+              label="Superadmin Cockpit"
+              icon={ShieldCheck}
+              isCollapsed={effectivelyCollapsed}
+              onClick={(event) => {
+                if (typeof window === 'undefined') {
+                  return;
+                }
+
+                if (!window.location.hostname.startsWith('admin.')) {
+                  event.preventDefault();
+                  window.location.href = buildAdminSuperadminUrl(window.location.hostname);
+                }
+              }}
+            />
+          </NavigationGroup>
+        ) : isFundAdminContext ? (
           <div className="mb-2">
             {effectivelyCollapsed ? (
               <button
@@ -450,13 +479,15 @@ export function SidebarGrouped() {
         onMouseEnter={() => isCollapsed && patchSidebarUI({ isHovered: true })}
         onMouseLeave={() => patchSidebarUI({ isHovered: false })}
       >
-        <NavigationItem
-          id="settings"
-          href={ROUTE_PATHS.settings}
-          label="Settings"
-          icon={Settings}
-          isCollapsed={effectivelyCollapsed}
-        />
+        {!isSuperadmin && (
+          <NavigationItem
+            id="settings"
+            href={ROUTE_PATHS.settings}
+            label="Settings"
+            icon={Settings}
+            isCollapsed={effectivelyCollapsed}
+          />
+        )}
       </div>
     </motion.aside>
   );

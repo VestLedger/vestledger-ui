@@ -1,6 +1,21 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { DATA_MODE_OVERRIDE_KEY } from '@/config/data-mode';
+import { resolveUserDomainTarget } from '@/utils/auth/internal-access';
+import type { User } from '@/types/auth';
+
+const PUBLIC_ROUTES = ['/', '/features', '/how-it-works', '/security', '/about', '/eoi'];
+const AUTH_ROUTES = ['/login'];
+const ADMIN_DEFAULT_PATH = '/superadmin';
+const APP_DEFAULT_PATH = '/home';
+
+type HostType = 'public' | 'app' | 'admin' | 'localhost';
+
+type ParsedHost = {
+  hostname: string;
+  port: string;
+  hostType: HostType;
+};
 
 function nextWithDataMode(request: NextRequest) {
   const override = request.cookies.get(DATA_MODE_OVERRIDE_KEY)?.value;
@@ -12,166 +27,304 @@ function nextWithDataMode(request: NextRequest) {
   return NextResponse.next();
 }
 
-export function middleware(request: NextRequest) {
-  const url = request.nextUrl.clone();
-  const hostname = request.headers.get('host') || '';
+function parseHost(hostHeader: string): ParsedHost {
+  const [hostnameRaw, port = ''] = hostHeader.split(':');
+  const hostname = hostnameRaw.toLowerCase();
+  const isLocalhost =
+    hostname === 'localhost' ||
+    hostname === '127.0.0.1' ||
+    hostname === 'localhost.localdomain' ||
+    hostname === '::1';
 
-  // Extract subdomain
-  // localhost and 127.0.0.1 are treated as special case for Lighthouse testing
-  const isLocalhost = hostname === 'localhost:3000' || hostname === '127.0.0.1:3000' || hostname === 'localhost' || hostname === '127.0.0.1';
+  if (isLocalhost) {
+    return {
+      hostname,
+      port,
+      hostType: 'localhost',
+    };
+  }
 
-  // Check if this is the app subdomain
-  // Works for: app.vestledger.local:3000, app.vestledger.com, app.domain.com, etc.
-  const isApp = !isLocalhost && hostname.startsWith('app.');
+  if (hostname.startsWith('admin.')) {
+    return {
+      hostname,
+      port,
+      hostType: 'admin',
+    };
+  }
 
-  // Public domain is everything that's not app subdomain or localhost
-  const isPublic = !isApp && !isLocalhost;
+  if (hostname.startsWith('app.')) {
+    return {
+      hostname,
+      port,
+      hostType: 'app',
+    };
+  }
 
-  // Get auth status from cookies (middleware runs on Edge, no localStorage)
-  const isAuthenticated = request.cookies.get('isAuthenticated')?.value === 'true';
+  return {
+    hostname,
+    port,
+    hostType: 'public',
+  };
+}
 
-  // Define route categories
-  const publicRoutes = ['/', '/features', '/how-it-works', '/security', '/about', '/eoi'];
-  const authRoutes = ['/login'];
-  const isDashboardRoute = (path: string) =>
-    path.startsWith('/home') ||
-    path.startsWith('/portfolio') ||
-    path.startsWith('/analytics') ||
-    path.startsWith('/pipeline') ||
-    path.startsWith('/lp-management') ||
-    path.startsWith('/fund-admin') ||
-    path.startsWith('/documents') ||
-    path.startsWith('/reports') ||
-    path.startsWith('/compliance') ||
-    path.startsWith('/audit-trail') ||
-    path.startsWith('/409a-valuations') ||
-    path.startsWith('/integrations') ||
-    path.startsWith('/settings') ||
-    path.startsWith('/tax-center') ||
-    path.startsWith('/waterfall') ||
-    path.startsWith('/ai-tools') ||
-    path.startsWith('/notifications') ||
-    path.startsWith('/deal-intelligence') ||
-    path.startsWith('/dealflow-review') ||
-    path.startsWith('/contacts') ||
-    path.startsWith('/lp-portal');
+function resolveBaseHostname(hostname: string): string {
+  return hostname.replace(/^www\./, '').replace(/^app\./, '').replace(/^admin\./, '');
+}
 
-  const pathname = url.pathname;
+function buildHostForType(hostname: string, port: string, hostType: Exclude<HostType, 'localhost'>): string {
+  const baseHostname = resolveBaseHostname(hostname);
+  const publicHostname =
+    process.env.NEXT_PUBLIC_USE_WWW === 'true' ? `www.${baseHostname}` : baseHostname;
 
-  // Skip middleware for static files and Next.js internals
-  if (
+  const targetHostname =
+    hostType === 'public'
+      ? publicHostname
+      : hostType === 'app'
+        ? `app.${baseHostname}`
+        : `admin.${baseHostname}`;
+
+  return port ? `${targetHostname}:${port}` : targetHostname;
+}
+
+function redirectToHost(
+  requestUrl: URL,
+  targetHost: string,
+  pathname: string,
+  search?: URLSearchParams
+): NextResponse {
+  const redirectUrl = new URL(requestUrl.toString());
+  redirectUrl.host = targetHost;
+  redirectUrl.pathname = pathname;
+
+  if (search) {
+    redirectUrl.search = search.toString();
+  } else {
+    redirectUrl.search = '';
+  }
+
+  return NextResponse.redirect(redirectUrl);
+}
+
+function isPublicRoute(pathname: string): boolean {
+  return (
+    PUBLIC_ROUTES.includes(pathname) ||
+    PUBLIC_ROUTES.filter((route) => route !== '/').some((route) => pathname.startsWith(route))
+  );
+}
+
+function isDashboardRoute(pathname: string): boolean {
+  return (
+    pathname.startsWith('/home') ||
+    pathname.startsWith('/portfolio') ||
+    pathname.startsWith('/analytics') ||
+    pathname.startsWith('/pipeline') ||
+    pathname.startsWith('/lp-management') ||
+    pathname.startsWith('/fund-admin') ||
+    pathname.startsWith('/documents') ||
+    pathname.startsWith('/reports') ||
+    pathname.startsWith('/compliance') ||
+    pathname.startsWith('/audit-trail') ||
+    pathname.startsWith('/409a-valuations') ||
+    pathname.startsWith('/integrations') ||
+    pathname.startsWith('/settings') ||
+    pathname.startsWith('/tax-center') ||
+    pathname.startsWith('/waterfall') ||
+    pathname.startsWith('/ai-tools') ||
+    pathname.startsWith('/notifications') ||
+    pathname.startsWith('/deal-intelligence') ||
+    pathname.startsWith('/dealflow-review') ||
+    pathname.startsWith('/contacts') ||
+    pathname.startsWith('/lp-portal')
+  );
+}
+
+function isAdminRoute(pathname: string): boolean {
+  return pathname.startsWith(ADMIN_DEFAULT_PATH);
+}
+
+function isStaticOrBypassed(pathname: string): boolean {
+  return (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
     pathname.includes('/icons/') ||
     pathname.includes('/logo/') ||
     pathname.includes('/manifest') ||
-    pathname.match(/\.(ico|png|jpg|jpeg|svg|webp|gif|css|js)$/)
-  ) {
+    pathname.match(/\.(ico|png|jpg|jpeg|svg|webp|gif|css|js)$/) !== null
+  );
+}
+
+function parseUserCookie(request: NextRequest): Partial<User> | null {
+  const encodedUser = request.cookies.get('user')?.value;
+  if (!encodedUser) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(decodeURIComponent(encodedUser)) as Partial<User>;
+  } catch {
+    return null;
+  }
+}
+
+function redirectToLoginForHost(
+  requestUrl: URL,
+  targetHost: string,
+  redirectPath?: string
+): NextResponse {
+  const search = new URLSearchParams();
+  if (redirectPath) {
+    search.set('redirect', redirectPath);
+  }
+
+  return redirectToHost(requestUrl, targetHost, '/login', search);
+}
+
+export function middleware(request: NextRequest) {
+  const url = request.nextUrl.clone();
+  const pathname = url.pathname;
+
+  if (isStaticOrBypassed(pathname)) {
     return nextWithDataMode(request);
   }
 
-  // For localhost Lighthouse testing: check if this is dashboard route (app domain) or public route
-  if (isLocalhost) {
-    const isAppRoute = isDashboardRoute(pathname) || pathname === '/login' || pathname === '/';
-    // If it's a dashboard route on localhost, treat as app domain
-    // If it's a public route on localhost, treat as public domain
-    // This allows Lighthouse to test both domains via localhost
-    if (isAppRoute && !isAuthenticated && pathname !== '/login' && pathname !== '/') {
-      // Redirect to login for unauthenticated dashboard access
-      url.pathname = '/login';
-      url.searchParams.set('redirect', pathname);
-      return NextResponse.redirect(url);
+  const rawHost = request.headers.get('host') || '';
+  const { hostname, port, hostType } = parseHost(rawHost);
+
+  const appHost = hostType === 'localhost' ? rawHost : buildHostForType(hostname, port, 'app');
+  const adminHost = hostType === 'localhost' ? rawHost : buildHostForType(hostname, port, 'admin');
+  const publicHost = hostType === 'localhost' ? rawHost : buildHostForType(hostname, port, 'public');
+
+  const isAuthenticated = request.cookies.get('isAuthenticated')?.value === 'true';
+  const isLoginRoute = AUTH_ROUTES.includes(pathname);
+  const matchesPublicRoute = isPublicRoute(pathname);
+  const matchesDashboardRoute = isDashboardRoute(pathname);
+  const matchesAdminRoute = isAdminRoute(pathname);
+  const matchesProtectedRoute = matchesDashboardRoute || matchesAdminRoute;
+
+  if (hostType === 'localhost') {
+    if (!isAuthenticated && matchesProtectedRoute) {
+      return redirectToLoginForHost(url, rawHost, pathname);
     }
 
-    if (pathname === '/' && !isAuthenticated) {
-      url.pathname = '/login';
-      return NextResponse.redirect(url);
+    if (!isAuthenticated && pathname === '/') {
+      return redirectToHost(url, rawHost, '/login');
     }
 
-    if (pathname === '/' && isAuthenticated) {
-      url.pathname = '/home';
-      return NextResponse.redirect(url);
+    const currentUser = parseUserCookie(request);
+    const target = resolveUserDomainTarget(currentUser);
+
+    if (isAuthenticated && isLoginRoute) {
+      const nextPath = target === 'admin' ? ADMIN_DEFAULT_PATH : APP_DEFAULT_PATH;
+      return redirectToHost(url, rawHost, nextPath);
     }
 
-    // Allow all other localhost requests through
+    if (isAuthenticated && pathname === '/') {
+      const nextPath = target === 'admin' ? ADMIN_DEFAULT_PATH : APP_DEFAULT_PATH;
+      return redirectToHost(url, rawHost, nextPath);
+    }
+
+    if (isAuthenticated && target === 'admin' && !matchesAdminRoute) {
+      return redirectToHost(url, rawHost, ADMIN_DEFAULT_PATH);
+    }
+
+    if (isAuthenticated && target === 'app' && matchesAdminRoute) {
+      return redirectToHost(url, rawHost, APP_DEFAULT_PATH);
+    }
+
     return nextWithDataMode(request);
   }
 
-  // Rule 1: Public domain should ONLY serve public pages
-  // Check if pathname is exactly a public route or starts with a public route (excluding '/' root)
-  const isPublicRoute = publicRoutes.includes(pathname) ||
-                        publicRoutes.filter(route => route !== '/').some(route => pathname.startsWith(route));
-
-  if (isPublic && !isPublicRoute) {
-    // If accessing /login or dashboard routes on public domain, redirect to app subdomain
-    if (pathname === '/login' || isDashboardRoute(pathname)) {
-      // Extract just the domain part without port
-      const [domain, port] = hostname.split(':');
-
-      // Remove www. prefix if present, then add app. prefix
-      // www.vestledger.com → app.vestledger.com
-      // vestledger.com → app.vestledger.com
-      // vestledger.local → app.vestledger.local
-      const baseDomain = domain.replace(/^www\./, '');
-      const appHostname = `app.${baseDomain}`;
-
-      // Build the redirect URL
-      const redirectUrl = new URL(url.toString());
-      redirectUrl.hostname = appHostname;
-      if (port) {
-        redirectUrl.port = port;
+  if (!isAuthenticated) {
+    if (hostType === 'public') {
+      if (isLoginRoute || matchesDashboardRoute) {
+        return redirectToHost(url, appHost, pathname, url.searchParams);
       }
-      return NextResponse.redirect(redirectUrl);
+
+      if (matchesAdminRoute) {
+        return redirectToLoginForHost(url, adminHost, pathname);
+      }
+
+      return nextWithDataMode(request);
     }
 
-    // For any other non-public route, show 404 (let Next.js handle it)
-  }
+    if (hostType === 'app') {
+      if (matchesPublicRoute && pathname !== '/') {
+        return redirectToHost(url, publicHost, pathname, url.searchParams);
+      }
 
-  // Rule 2: App subdomain should NOT serve public pages (except homepage which redirects)
-  if (isApp && publicRoutes.includes(pathname) && pathname !== '/') {
-    // Redirect to public domain
-    const [domain, port] = hostname.split(':');
+      if (pathname === '/') {
+        return redirectToHost(url, appHost, '/login');
+      }
 
-    // Remove app. prefix: app.vestledger.com → vestledger.com
-    // For production, you can add www. prefix if desired
-    // Use environment variable to determine if www should be added
-    const baseDomain = domain.replace(/^app\./, '');
-    const publicHostname = process.env.NEXT_PUBLIC_USE_WWW === 'true' ? `www.${baseDomain}` : baseDomain;
+      if (matchesDashboardRoute) {
+        return redirectToLoginForHost(url, appHost, pathname);
+      }
 
-    const redirectUrl = new URL(url.toString());
-    redirectUrl.hostname = publicHostname;
-    if (port) {
-      redirectUrl.port = port;
+      if (matchesAdminRoute) {
+        return redirectToLoginForHost(url, adminHost, pathname);
+      }
+
+      return nextWithDataMode(request);
     }
-    return NextResponse.redirect(redirectUrl);
+
+    if (hostType === 'admin') {
+      if (matchesPublicRoute && pathname !== '/') {
+        return redirectToHost(url, publicHost, pathname, url.searchParams);
+      }
+
+      if (pathname === '/') {
+        return redirectToHost(url, adminHost, '/login');
+      }
+
+      if (matchesAdminRoute) {
+        return redirectToLoginForHost(url, adminHost, pathname);
+      }
+
+      if (matchesDashboardRoute) {
+        return redirectToLoginForHost(url, appHost, pathname);
+      }
+
+      return nextWithDataMode(request);
+    }
+
+    return nextWithDataMode(request);
   }
 
-  // Rule 3: Unauthenticated access to dashboard routes → redirect to login
-  if (isApp && isDashboardRoute(pathname) && !isAuthenticated) {
-    url.pathname = '/login';
-    url.searchParams.set('redirect', pathname); // Store intended destination
-    return NextResponse.redirect(url);
+  const currentUser = parseUserCookie(request);
+  const domainTarget = resolveUserDomainTarget(currentUser);
+  const targetHost = domainTarget === 'admin' ? adminHost : appHost;
+
+  if ((domainTarget === 'admin' && hostType !== 'admin') || (domainTarget === 'app' && hostType !== 'app')) {
+    const targetPath =
+      domainTarget === 'admin'
+        ? matchesAdminRoute
+          ? pathname
+          : ADMIN_DEFAULT_PATH
+        : matchesDashboardRoute
+          ? pathname
+          : APP_DEFAULT_PATH;
+
+    return redirectToHost(url, targetHost, targetPath, url.searchParams);
   }
 
-  // Rule 4: Authenticated access to login page → let client-side handle redirect
-  // (LoginForm component will handle this to avoid redirect loops)
-  // if (isApp && pathname === '/login' && isAuthenticated) {
-  //   const redirectTo = url.searchParams.get('redirect') || '/home';
-  //   url.pathname = redirectTo;
-  //   url.searchParams.delete('redirect');
-  //   return NextResponse.redirect(url);
-  // }
-
-  // Rule 5: Root of app subdomain without auth → redirect to login
-  if (isApp && pathname === '/' && !isAuthenticated) {
-    url.pathname = '/login';
-    return NextResponse.redirect(url);
+  if (isLoginRoute) {
+    return redirectToHost(url, targetHost, domainTarget === 'admin' ? ADMIN_DEFAULT_PATH : APP_DEFAULT_PATH);
   }
 
-  // Rule 6: Root of app subdomain with auth → redirect to home
-  if (isApp && pathname === '/' && isAuthenticated) {
-    url.pathname = '/home';
-    return NextResponse.redirect(url);
+  if (pathname === '/') {
+    return redirectToHost(url, targetHost, domainTarget === 'admin' ? ADMIN_DEFAULT_PATH : APP_DEFAULT_PATH);
+  }
+
+  if (domainTarget === 'admin') {
+    if (!matchesAdminRoute) {
+      return redirectToHost(url, targetHost, ADMIN_DEFAULT_PATH);
+    }
+
+    return nextWithDataMode(request);
+  }
+
+  if (matchesAdminRoute || matchesPublicRoute) {
+    return redirectToHost(url, targetHost, APP_DEFAULT_PATH);
   }
 
   return nextWithDataMode(request);
@@ -179,13 +332,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder assets
-     */
     '/((?!_next/static|_next/image|favicon.ico|icons|logo|manifest).*)',
   ],
 };

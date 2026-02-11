@@ -34,6 +34,17 @@ export interface RouteConfig {
 }
 
 export const routes: Record<string, RouteConfig> = {
+  superadmin: {
+    path: '/superadmin',
+    label: 'Superadmin Cockpit',
+    icon: Shield,
+    breadcrumbs: [
+      { label: 'Admin', href: '/superadmin' },
+      { label: 'Superadmin Cockpit' },
+    ],
+    description: 'Internal VestLedger tenant and onboarding operations',
+  },
+
   dashboard: {
     path: '/home',
     label: 'Dashboard',

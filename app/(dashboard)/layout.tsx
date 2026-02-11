@@ -17,7 +17,8 @@ import { useUIKey } from '@/store/ui'
 import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys'
 import { DashboardDensityProvider } from '@/contexts/dashboard-density-context'
 import { DASHBOARD_DENSITY, resolveDashboardDensityMode } from '@/config/dashboard-density'
-import { buildAppLoginUrl } from '@/config/env'
+import { buildAdminSuperadminUrl, buildAppLoginUrl } from '@/config/env'
+import { resolveUserDomainTarget } from '@/utils/auth/internal-access'
 
 const AICopilotSidebar = dynamic(
   () => import('@/components/ai-copilot-sidebar').then((mod) => mod.AICopilotSidebar),
@@ -104,12 +105,20 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   const isLoginPage = pathname === '/login'
 
   // Always call hooks (rules of hooks) - but only use auth for protected pages
-  const { hydrated, isAuthenticated } = useAuth()
+  const { hydrated, isAuthenticated, user } = useAuth()
   const sagasReady = useRouteSagas({ enabled: !isLoginPage })
 
   useEffect(() => {
     // Check if logout is in progress
     const isLoggingOut = typeof window !== 'undefined' && sessionStorage.getItem('isLoggingOut') === 'true';
+
+    if (!isLoginPage && hydrated && isAuthenticated && user) {
+      if (resolveUserDomainTarget(user) === 'admin') {
+        setIsRedirecting(true)
+        window.location.href = buildAdminSuperadminUrl(window.location.hostname)
+        return
+      }
+    }
 
     // Only redirect if NOT on login page, user is not authenticated, AND not logging out
     if (!isLoginPage && hydrated && !isAuthenticated && !isLoggingOut) {
@@ -119,7 +128,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
       // Redirect to app subdomain login page (cross-domain requires full page navigation)
       window.location.href = buildAppLoginUrl(window.location.hostname);
     }
-  }, [isLoginPage, hydrated, isAuthenticated])
+  }, [isLoginPage, hydrated, isAuthenticated, user])
 
   // For login page, skip auth check and render directly
   if (isLoginPage) {

@@ -1,5 +1,6 @@
 'use client';
 
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useUIKey } from '@/store/ui';
 import { Card, Button, Input, Badge, Checkbox, Select, RadioGroup } from '@/ui';
 import type { PageHeaderBadge } from '@/ui';
@@ -25,6 +26,19 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import { PageScaffold, SectionHeader, StatusBadge } from '@/ui/composites';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useAuth } from '@/contexts/auth-context';
+import {
+  createTeamUser,
+  getTeamAccessSnapshot,
+  inviteTeamMember,
+  resendTeamInvite,
+  resolveTenantIdForUser,
+  updateTeamMemberRole,
+  updateTeamMemberStatus,
+  type TeamAccessSnapshot,
+  type TeamMember,
+} from '@/services/internal/teamAccessService';
+import type { AssignableAppRole, OrganizationRole } from '@/data/mocks/internal/superadmin';
 
 interface SettingsSection {
   id: string;
@@ -106,12 +120,24 @@ const currencyOptions = [
 ];
 
 const teamRoleOptions = [
-  { value: 'owner', label: 'Owner' },
-  { value: 'admin', label: 'Admin' },
+  { value: 'org_admin', label: 'Org Admin' },
   { value: 'member', label: 'Member' },
 ];
 
+const teamAppRoleOptions: Array<{ value: AssignableAppRole; label: string }> = [
+  { value: 'gp', label: 'GP' },
+  { value: 'analyst', label: 'Analyst' },
+  { value: 'ops', label: 'Operations' },
+  { value: 'ir', label: 'Investor Relations' },
+  { value: 'researcher', label: 'Researcher' },
+  { value: 'lp', label: 'LP' },
+  { value: 'auditor', label: 'Auditor' },
+  { value: 'service_provider', label: 'Service Provider' },
+  { value: 'strategic_partner', label: 'Strategic Partner' },
+];
+
 export function Settings() {
+  const { user } = useAuth();
   const { value: settingsUI, patch: patchSettingsUI } = useUIKey('settings', {
     activeSection: 'profile',
     showPassword: false,
@@ -138,6 +164,57 @@ export function Settings() {
   const currency = settingsUI.currency;
   const activeSectionConfig = settingsSections.find((section) => section.id === activeSection);
   const activeSectionLabel = activeSectionConfig?.title ?? 'Settings';
+  const resolvedTenantId = useMemo(() => resolveTenantIdForUser(user), [user]);
+  const [teamSnapshot, setTeamSnapshot] = useState<TeamAccessSnapshot | null>(null);
+  const [teamError, setTeamError] = useState<string | null>(null);
+  const [teamNotice, setTeamNotice] = useState<string | null>(null);
+  const [teamInviteForm, setTeamInviteForm] = useState<{
+    email: string;
+    targetAppRole: AssignableAppRole;
+    targetOrgRole: OrganizationRole;
+  }>({
+    email: '',
+    targetAppRole: 'analyst',
+    targetOrgRole: 'member',
+  });
+  const [teamCreateForm, setTeamCreateForm] = useState<{
+    name: string;
+    email: string;
+    appRole: AssignableAppRole;
+    organizationRole: OrganizationRole;
+  }>({
+    name: '',
+    email: '',
+    appRole: 'analyst',
+    organizationRole: 'member',
+  });
+
+  const refreshTeamSnapshot = useCallback(() => {
+    if (!resolvedTenantId) {
+      setTeamSnapshot(null);
+      return null;
+    }
+
+    const snapshot = getTeamAccessSnapshot(resolvedTenantId, {
+      userId: user?.id,
+      email: user?.email,
+    });
+    setTeamSnapshot(snapshot);
+    return snapshot;
+  }, [resolvedTenantId, user?.email, user?.id]);
+
+  useEffect(() => {
+    if (activeSection !== 'team') {
+      return;
+    }
+
+    try {
+      refreshTeamSnapshot();
+      setTeamError(null);
+    } catch (error) {
+      setTeamError(error instanceof Error ? error.message : 'Failed to load team access data');
+    }
+  }, [activeSection, refreshTeamSnapshot]);
 
   const aiSummaryText = activeSection === 'security'
     ? `Security status: 2FA is ${twoFactorEnabled ? 'enabled' : 'disabled'}. Review active sessions and update your password regularly.`
@@ -172,6 +249,106 @@ export function Settings() {
         : 'text-[var(--app-warning)] border-[var(--app-warning)]',
     });
   }
+
+  const runTeamMutation = (mutation: () => void, successMessage: string) => {
+    try {
+      mutation();
+      refreshTeamSnapshot();
+      setTeamError(null);
+      setTeamNotice(successMessage);
+    } catch (error) {
+      setTeamError(error instanceof Error ? error.message : 'Team update failed');
+      setTeamNotice(null);
+    }
+  };
+
+  const handleTeamRoleUpdate = (member: TeamMember, role: OrganizationRole) => {
+    if (!resolvedTenantId || !teamSnapshot?.actorUserId || !teamSnapshot.canManageTeam) {
+      return;
+    }
+
+    runTeamMutation(() => {
+      updateTeamMemberRole({
+        tenantId: resolvedTenantId,
+        userId: member.id,
+        organizationRole: role,
+        actorUserId: teamSnapshot.actorUserId ?? undefined,
+      });
+    }, 'Team member role updated.');
+  };
+
+  const handleTeamStatusToggle = (member: TeamMember) => {
+    if (!resolvedTenantId || !teamSnapshot?.actorUserId || !teamSnapshot.canManageTeam) {
+      return;
+    }
+
+    const nextStatus = member.status === 'active' ? 'disabled' : 'active';
+
+    runTeamMutation(() => {
+      updateTeamMemberStatus({
+        tenantId: resolvedTenantId,
+        userId: member.id,
+        status: nextStatus,
+        actorUserId: teamSnapshot.actorUserId ?? undefined,
+      });
+    }, `Team member ${nextStatus === 'active' ? 'activated' : 'disabled'}.`);
+  };
+
+  const handleTeamInvite = () => {
+    if (!resolvedTenantId || !teamSnapshot?.actorUserId || !teamSnapshot.canManageTeam) {
+      return;
+    }
+
+    runTeamMutation(() => {
+      inviteTeamMember({
+        tenantId: resolvedTenantId,
+        email: teamInviteForm.email,
+        targetAppRole: teamInviteForm.targetAppRole,
+        targetOrgRole: teamInviteForm.targetOrgRole,
+        invitedByUserId: teamSnapshot.actorUserId ?? undefined,
+      });
+    }, 'Invitation sent.');
+
+    setTeamInviteForm({
+      email: '',
+      targetAppRole: 'analyst',
+      targetOrgRole: 'member',
+    });
+  };
+
+  const handleTeamCreateUser = () => {
+    if (!resolvedTenantId || !teamSnapshot?.actorUserId || !teamSnapshot.canManageTeam) {
+      return;
+    }
+
+    runTeamMutation(() => {
+      createTeamUser({
+        tenantId: resolvedTenantId,
+        name: teamCreateForm.name,
+        email: teamCreateForm.email,
+        appRole: teamCreateForm.appRole,
+        organizationRole: teamCreateForm.organizationRole,
+        actorUserId: teamSnapshot.actorUserId ?? undefined,
+      });
+    }, 'User created.');
+
+    setTeamCreateForm({
+      name: '',
+      email: '',
+      appRole: 'analyst',
+      organizationRole: 'member',
+    });
+  };
+
+  const handleTeamResendInvite = (inviteId: string) => {
+    if (!resolvedTenantId || !teamSnapshot?.actorUserId || !teamSnapshot.canManageTeam) {
+      return;
+    }
+
+    runTeamMutation(() => {
+      resendTeamInvite(resolvedTenantId, inviteId, teamSnapshot.actorUserId ?? undefined);
+    }, 'Invitation resent.');
+  };
 
   const renderSectionContent = () => {
     switch (activeSection) {
@@ -518,44 +695,202 @@ export function Settings() {
       case 'team':
         return (
           <div className="space-y-4">
-            <div>
-              <SectionHeader
-                title="Team Members"
-                className="mb-4"
-                action={<Button color="primary" startContent={<Plus className="w-4 h-4" />}>Invite Member</Button>}
-              />
-              <div className="space-y-2">
-                {[
-                  { name: 'John Doe', email: 'john@vestledger.com', role: 'Owner', status: 'Active' },
-                  { name: 'Jane Smith', email: 'jane@vestledger.com', role: 'Admin', status: 'Active' },
-                  { name: 'Mike Johnson', email: 'mike@vestledger.com', role: 'Member', status: 'Active' },
-                  { name: 'Sarah Williams', email: 'sarah@vestledger.com', role: 'Member', status: 'Invited' }
-                ].map((member, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-4 rounded-lg border border-[var(--app-border)]">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--app-primary)] to-transparent flex items-center justify-center text-white font-semibold">
-                        {member.name.split(' ').map(n => n[0]).join('')}
-                      </div>
-                      <div>
-                        <div className="font-medium">{member.name}</div>
-                        <div className="text-sm text-[var(--app-text-muted)]">{member.email}</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <StatusBadge status={member.status} domain="general" size="sm" />
-                      <Select
-                        aria-label={`${member.name} role`}
-                        options={teamRoleOptions}
-                        defaultSelectedKeys={[member.role.toLowerCase()]}
-                        size="sm"
-                        className="min-w-[140px]"
+            {!resolvedTenantId && (
+              <Card padding="md" className="border-[var(--app-warning)]">
+                <p className="text-sm text-[var(--app-warning)]">
+                  Team access data is unavailable for this account.
+                </p>
+              </Card>
+            )}
+
+            {resolvedTenantId && (
+              <div>
+                <SectionHeader
+                  title="Team Members"
+                  className="mb-4"
+                  action={(
+                    <Badge variant="bordered">
+                      {teamSnapshot?.canManageTeam ? 'Org Admin Access' : 'Read Only'}
+                    </Badge>
+                  )}
+                />
+
+                {teamError && (
+                  <Card padding="sm" className="mb-3 border-[var(--app-danger)]">
+                    <div className="text-sm text-[var(--app-danger)]">{teamError}</div>
+                  </Card>
+                )}
+
+                {teamNotice && (
+                  <Card padding="sm" className="mb-3 border-[var(--app-success)]">
+                    <div className="text-sm text-[var(--app-success)]">{teamNotice}</div>
+                  </Card>
+                )}
+
+                {teamSnapshot?.canManageTeam && (
+                  <div className="mb-4 rounded-lg border border-[var(--app-border)] p-4">
+                    <SectionHeader title="Invite User" className="mb-3" />
+                    <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+                      <Input
+                        label="Email"
+                        value={teamInviteForm.email}
+                        onChange={(event) =>
+                          setTeamInviteForm((prev) => ({ ...prev, email: event.target.value }))
+                        }
                       />
-                      <Button variant="ghost" size="sm" color="danger">Remove</Button>
+                      <Select
+                        label="App Persona"
+                        options={teamAppRoleOptions}
+                        selectedKeys={[teamInviteForm.targetAppRole]}
+                        onChange={(event) =>
+                          setTeamInviteForm((prev) => ({
+                            ...prev,
+                            targetAppRole: event.target.value as AssignableAppRole,
+                          }))
+                        }
+                      />
+                      <Select
+                        label="Org Role"
+                        options={teamRoleOptions}
+                        selectedKeys={[teamInviteForm.targetOrgRole]}
+                        onChange={(event) =>
+                          setTeamInviteForm((prev) => ({
+                            ...prev,
+                            targetOrgRole: event.target.value as OrganizationRole,
+                          }))
+                        }
+                      />
+                      <div className="flex items-end">
+                        <Button
+                          color="primary"
+                          className="w-full"
+                          startContent={<Plus className="w-4 h-4" />}
+                          onClick={handleTeamInvite}
+                        >
+                          Invite Member
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                ))}
+                )}
+
+                {teamSnapshot?.canManageTeam && (
+                  <div className="mb-4 rounded-lg border border-[var(--app-border)] p-4">
+                    <SectionHeader title="Create User (Shared Mode)" className="mb-3" />
+                    <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
+                      <Input
+                        label="Name"
+                        value={teamCreateForm.name}
+                        onChange={(event) =>
+                          setTeamCreateForm((prev) => ({ ...prev, name: event.target.value }))
+                        }
+                      />
+                      <Input
+                        label="Email"
+                        value={teamCreateForm.email}
+                        onChange={(event) =>
+                          setTeamCreateForm((prev) => ({ ...prev, email: event.target.value }))
+                        }
+                      />
+                      <Select
+                        label="App Persona"
+                        options={teamAppRoleOptions}
+                        selectedKeys={[teamCreateForm.appRole]}
+                        onChange={(event) =>
+                          setTeamCreateForm((prev) => ({
+                            ...prev,
+                            appRole: event.target.value as AssignableAppRole,
+                          }))
+                        }
+                      />
+                      <Select
+                        label="Org Role"
+                        options={teamRoleOptions}
+                        selectedKeys={[teamCreateForm.organizationRole]}
+                        onChange={(event) =>
+                          setTeamCreateForm((prev) => ({
+                            ...prev,
+                            organizationRole: event.target.value as OrganizationRole,
+                          }))
+                        }
+                      />
+                      <div className="flex items-end">
+                        <Button color="primary" className="w-full" onClick={handleTeamCreateUser}>
+                          Create User
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  {(teamSnapshot?.members ?? []).map((member) => (
+                    <div key={member.id} className="flex items-center justify-between p-4 rounded-lg border border-[var(--app-border)]">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--app-primary)] to-transparent flex items-center justify-center text-white font-semibold">
+                          {member.name.split(' ').map((n) => n[0]).join('')}
+                        </div>
+                        <div>
+                          <div className="font-medium">{member.name}</div>
+                          <div className="text-sm text-[var(--app-text-muted)]">{member.email}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <StatusBadge status={member.status === 'active' ? 'Active' : 'Disabled'} domain="general" size="sm" />
+                        <Badge variant="bordered">{member.appRole}</Badge>
+                        <Select
+                          aria-label={`${member.name} org role`}
+                          options={teamRoleOptions}
+                          selectedKeys={[member.organizationRole]}
+                          size="sm"
+                          className="min-w-[160px]"
+                          onChange={(event) =>
+                            handleTeamRoleUpdate(member, event.target.value as OrganizationRole)
+                          }
+                          isDisabled={!teamSnapshot?.canManageTeam || member.isLastOrgAdmin}
+                        />
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          color={member.status === 'active' ? 'danger' : 'success'}
+                          onClick={() => handleTeamStatusToggle(member)}
+                          isDisabled={!teamSnapshot?.canManageTeam || member.isLastOrgAdmin}
+                        >
+                          {member.status === 'active' ? 'Disable' : 'Activate'}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-4">
+                  <SectionHeader title="Invitations" className="mb-3" />
+                  <div className="space-y-2">
+                    {(teamSnapshot?.invitations ?? []).map((invite) => (
+                      <div key={invite.id} className="flex items-center justify-between rounded-lg border border-[var(--app-border)] p-3">
+                        <div>
+                          <div className="font-medium">{invite.email}</div>
+                          <div className="text-sm text-[var(--app-text-muted)]">
+                            {invite.targetOrgRole} · {invite.targetAppRole}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <StatusBadge status={invite.status} domain="general" size="sm" />
+                          <Button
+                            variant="bordered"
+                            size="sm"
+                            onClick={() => handleTeamResendInvite(invite.id)}
+                            isDisabled={!teamSnapshot?.canManageTeam || invite.status !== 'pending'}
+                          >
+                            Resend
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         );
 

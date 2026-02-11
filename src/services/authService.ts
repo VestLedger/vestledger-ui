@@ -3,6 +3,7 @@ import { ApiError } from '@/api/errors';
 import type { DataMode } from '@/config/data-mode';
 import { createMockUser } from '@/data/mocks/auth';
 import type { User, UserRole } from '@/types/auth';
+import { INTERNAL_TENANT_ID } from '@/utils/auth/internal-access';
 
 type AuthResponse = {
   access_token: string;
@@ -19,16 +20,28 @@ type JwtPayload = {
   email: string;
   username: string;
   role: UserRole;
+  tenantId?: string;
+  organizationRole?: 'org_admin' | 'member';
+  isPlatformAdmin?: boolean;
 };
 
 const DEMO_EMAIL = process.env.NEXT_PUBLIC_DEMO_EMAIL?.trim().toLowerCase();
 const DEMO_PASSWORD = process.env.NEXT_PUBLIC_DEMO_PASSWORD;
+const SUPERADMIN_EMAIL = process.env.NEXT_PUBLIC_SUPERADMIN_EMAIL?.trim().toLowerCase();
+const SUPERADMIN_PASSWORD = process.env.NEXT_PUBLIC_SUPERADMIN_PASSWORD;
 
 export function isDemoCredentials(email: string, password: string): boolean {
   if (!DEMO_EMAIL || !DEMO_PASSWORD) {
     return false;
   }
   return email.trim().toLowerCase() === DEMO_EMAIL && password === DEMO_PASSWORD;
+}
+
+export function isSuperadminCredentials(email: string, password: string): boolean {
+  if (!SUPERADMIN_EMAIL || !SUPERADMIN_PASSWORD) {
+    return false;
+  }
+  return email.trim().toLowerCase() === SUPERADMIN_EMAIL && password === SUPERADMIN_PASSWORD;
 }
 
 function decodeJwt(token: string): JwtPayload {
@@ -44,9 +57,13 @@ function decodeJwt(token: string): JwtPayload {
 function userFromJwt(token: string): User {
   const payload = decodeJwt(token);
   return {
+    id: payload.sub,
     name: payload.username,
     email: payload.email,
     role: payload.role,
+    tenantId: payload.tenantId,
+    organizationRole: payload.organizationRole,
+    isPlatformAdmin: payload.isPlatformAdmin,
   };
 }
 
@@ -88,9 +105,28 @@ export async function authenticateUser(
   email: string,
   password: string
 ): Promise<AuthResult> {
+  if (isSuperadminCredentials(email, password)) {
+    return {
+      user: createMockUser(SUPERADMIN_EMAIL!, 'superadmin', {
+        id: 'user_superadmin_001',
+        name: 'Platform Superadmin',
+        tenantId: INTERNAL_TENANT_ID,
+        organizationRole: 'org_admin',
+        isPlatformAdmin: true,
+      }),
+      accessToken: 'mock-superadmin-token',
+      dataModeOverride: 'mock',
+    };
+  }
+
   if (isDemoCredentials(email, password)) {
     return {
-      user: createMockUser(DEMO_EMAIL!, 'gp'),
+      user: createMockUser(DEMO_EMAIL!, 'gp', {
+        id: 'user_demo_gp_001',
+        tenantId: 'org_summit_vc',
+        organizationRole: 'org_admin',
+        isPlatformAdmin: false,
+      }),
       accessToken: 'mock-token',
       dataModeOverride: 'mock',
     };

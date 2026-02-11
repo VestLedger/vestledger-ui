@@ -7,10 +7,11 @@ vi.mock('@/api/config', () => ({
 }));
 
 vi.mock('@/data/mocks/auth', () => ({
-  createMockUser: vi.fn((email: string, role: UserRole): User => ({
+  createMockUser: vi.fn((email: string, role: UserRole, overrides?: Partial<User>): User => ({
     name: 'Mock User',
     email,
     role,
+    ...overrides,
   })),
 }));
 
@@ -36,6 +37,8 @@ describe('authService', () => {
     vi.resetModules();
     process.env.NEXT_PUBLIC_DEMO_EMAIL = 'demo@vestledger.com';
     process.env.NEXT_PUBLIC_DEMO_PASSWORD = 'Pa$$w0rd';
+    process.env.NEXT_PUBLIC_SUPERADMIN_EMAIL = 'superadmin@vestledger.com';
+    process.env.NEXT_PUBLIC_SUPERADMIN_PASSWORD = 'SuperPa$$w0rd';
   });
 
   describe('authenticateUser', () => {
@@ -48,6 +51,22 @@ describe('authService', () => {
       expect(result.user.email).toBe(demoEmail);
       expect(result.user.role).toBe('gp');
       expect(result.accessToken).toBe('mock-token');
+      expect(result.dataModeOverride).toBe('mock');
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
+
+    it('should return internal superadmin user with mock override when superadmin credentials are used', async () => {
+      const { authenticateUser } = await import('@/services/authService');
+      const result = await authenticateUser(
+        process.env.NEXT_PUBLIC_SUPERADMIN_EMAIL!,
+        process.env.NEXT_PUBLIC_SUPERADMIN_PASSWORD!
+      );
+
+      expect(result.user.email).toBe(process.env.NEXT_PUBLIC_SUPERADMIN_EMAIL);
+      expect(result.user.role).toBe('superadmin');
+      expect(result.user.tenantId).toBe('org_vestledger_internal');
+      expect(result.user.isPlatformAdmin).toBe(true);
+      expect(result.accessToken).toBe('mock-superadmin-token');
       expect(result.dataModeOverride).toBe('mock');
       expect(mockFetch).not.toHaveBeenCalled();
     });
@@ -234,6 +253,7 @@ describe('authService', () => {
         'auditor',
         'service_provider',
         'strategic_partner',
+        'superadmin',
       ];
 
       for (const role of roles) {

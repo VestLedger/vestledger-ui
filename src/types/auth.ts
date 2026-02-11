@@ -1,6 +1,7 @@
 import { ROUTE_PATHS } from '@/config/routes';
 
 export type UserRole =
+  | 'superadmin'
   | 'gp'
   | 'analyst'
   | 'ops'
@@ -20,6 +21,13 @@ export interface PersonaConfig {
 }
 
 export const PERSONA_CONFIG: Record<UserRole, PersonaConfig> = {
+  superadmin: {
+    id: 'superadmin',
+    label: 'Platform Superadmin',
+    description: 'Internal VestLedger tenant management and platform operations.',
+    defaultPath: ROUTE_PATHS.superadmin,
+    category: 'primary',
+  },
   // Primary Personas (Internal Team)
   gp: {
     id: 'gp',
@@ -88,8 +96,12 @@ export const PERSONA_CONFIG: Record<UserRole, PersonaConfig> = {
 };
 
 export interface User {
+  id?: string;
   name: string;
   email: string;
   role: UserRole;
   avatar?: string;
+  tenantId?: string;
+  organizationRole?: 'org_admin' | 'member';
+  isPlatformAdmin?: boolean;
 }

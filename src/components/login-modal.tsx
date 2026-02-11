@@ -2,11 +2,12 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { Button, Input, Modal } from '@/ui';
 import { useAuth } from '@/contexts/auth-context';
 import { getAuthErrorMessage } from '@/utils/auth-error-message';
 import { ROUTE_PATHS } from '@/config/routes';
+import { buildAdminSuperadminUrl, buildAppWebUrl } from '@/config/env';
+import { resolveUserDomainTarget } from '@/utils/auth/internal-access';
 
 const LEGACY_DASHBOARD_PATH = '/dashboard';
 
@@ -44,8 +45,7 @@ export function LoginModal({
   signUpHref = '/eoi',
   signUpLabel = 'Sign up',
 }: LoginModalProps) {
-  const { login, isAuthenticated, hydrated, status, error, clearError } = useAuth();
-  const router = useRouter();
+  const { login, isAuthenticated, hydrated, status, error, clearError, user } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,13 +53,23 @@ export function LoginModal({
   const resolvedRedirectTo = normalizeRedirectPath(redirectTo);
 
   useEffect(() => {
-    if (isOpen && hydrated && isAuthenticated) {
+    if (!isOpen || !hydrated || !isAuthenticated || !user || typeof window === 'undefined') {
+      return;
+    }
+
+    const domainTarget = resolveUserDomainTarget(user);
+    const nextUrl =
+      domainTarget === 'admin'
+        ? buildAdminSuperadminUrl(window.location.hostname)
+        : `${buildAppWebUrl(window.location.hostname)}${resolvedRedirectTo}`;
+
+    if (window.location.href !== nextUrl) {
       setIsSubmitting(false);
       setPassword('');
       onOpenChange(false);
-      router.push(resolvedRedirectTo);
+      window.location.href = nextUrl;
     }
-  }, [isOpen, hydrated, isAuthenticated, onOpenChange, resolvedRedirectTo, router]);
+  }, [isOpen, hydrated, isAuthenticated, onOpenChange, resolvedRedirectTo, user]);
 
   useEffect(() => {
     if (status === 'failed' && hasAttemptedLogin.current) {

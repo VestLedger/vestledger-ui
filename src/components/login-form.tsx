@@ -1,13 +1,15 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { Button, Input, Card } from '@/ui';
 import { LoadingState } from '@/ui/async-states';
 import { useAuth } from '@/contexts/auth-context';
 import { BrandLogo } from './brand-logo';
 import { getAuthErrorMessage } from '@/utils/auth-error-message';
 import { ROUTE_PATHS } from '@/config/routes';
+import { buildAdminSuperadminUrl, buildAppWebUrl } from '@/config/env';
+import { resolveUserDomainTarget } from '@/utils/auth/internal-access';
 
 const LEGACY_DASHBOARD_PATH = '/dashboard';
 
@@ -35,8 +37,7 @@ export function LoginForm() {
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { login, isAuthenticated, hydrated, status, error, clearError } = useAuth();
-  const router = useRouter();
+  const { login, isAuthenticated, hydrated, status, error, clearError, user } = useAuth();
   const searchParams = useSearchParams();
   const hasAttemptedLogin = useRef(false);
 
@@ -45,10 +46,20 @@ export function LoginForm() {
 
   // Handle successful authentication - redirect to intended page
   useEffect(() => {
-    if (hydrated && isAuthenticated) {
-      router.push(redirectTo);
+    if (!hydrated || !isAuthenticated || !user || typeof window === 'undefined') {
+      return;
     }
-  }, [hydrated, isAuthenticated, router, redirectTo]);
+
+    const domainTarget = resolveUserDomainTarget(user);
+    const nextUrl =
+      domainTarget === 'admin'
+        ? buildAdminSuperadminUrl(window.location.hostname)
+        : `${buildAppWebUrl(window.location.hostname)}${redirectTo}`;
+
+    if (window.location.href !== nextUrl) {
+      window.location.href = nextUrl;
+    }
+  }, [hydrated, isAuthenticated, user, redirectTo]);
 
   // Handle login failure - stop spinner and show error
   useEffect(() => {
