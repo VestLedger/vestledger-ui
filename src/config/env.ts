@@ -1,12 +1,13 @@
-const DEFAULT_PUBLIC_DOMAIN = 'vestledger.local:3000';
-const DEFAULT_APP_DOMAIN = 'app.vestledger.local:3000';
-const DEFAULT_ADMIN_DOMAIN = 'admin.vestledger.local:3000';
-const DEFAULT_API_BASE_URL = 'http://localhost:3000';
-const DEFAULT_CANONICAL_PUBLIC_URL = 'https://vestledger.com';
+import { ACCESS_ROUTE_PATHS } from '@/config/access-routes';
 
 const normalizeDomain = (value?: string) => {
   if (!value) return null;
   return value.replace(/^https?:\/\//, '').replace(/\/+$/, '');
+};
+
+const normalizeValue = (value?: string) => {
+  const normalized = value?.trim();
+  return normalized && normalized.length > 0 ? normalized : null;
 };
 
 const splitHostAndPort = (hostname?: string) => {
@@ -32,66 +33,118 @@ const resolveBaseDomainFromHost = (hostname?: string) => {
   return port ? `${base}:${port}` : base;
 };
 
+const toBaseDomain = (hostname?: string | null) => {
+  if (!hostname) return null;
+  const { host, port } = splitHostAndPort(hostname);
+  if (!host) return null;
+  const base = host.replace(/^www\./, '').replace(/^app\./, '').replace(/^admin\./, '');
+  if (!base) return null;
+  return port ? `${base}:${port}` : base;
+};
+
+const toSubdomainDomain = (
+  hostname: string | null,
+  subdomain: 'app' | 'admin'
+) => {
+  if (!hostname) return null;
+  const { host, port } = splitHostAndPort(hostname);
+  if (!host) return null;
+  const base = host.replace(/^www\./, '').replace(/^app\./, '').replace(/^admin\./, '');
+  if (!base) return null;
+  return port ? `${subdomain}.${base}:${port}` : `${subdomain}.${base}`;
+};
+
+const resolveDomainFromCurrentHost = (
+  currentHostname: string | undefined,
+  target: 'public' | 'app' | 'admin'
+) => {
+  if (!currentHostname) return null;
+  const normalizedCurrent = normalizeDomain(currentHostname);
+  if (!normalizedCurrent) return null;
+
+  const resolvedBase = resolveBaseDomainFromHost(currentHostname);
+  if (resolvedBase) {
+    if (target === 'public') return resolvedBase;
+    return `${target}.${resolvedBase}`;
+  }
+
+  return normalizedCurrent;
+};
+
 const isProductionRuntime = () => process.env.NODE_ENV === 'production';
-
-const configuredPublicDomain =
-  normalizeDomain(process.env.NEXT_PUBLIC_PUBLIC_DOMAIN) ?? DEFAULT_PUBLIC_DOMAIN;
-const configuredAppDomain =
-  normalizeDomain(process.env.NEXT_PUBLIC_APP_DOMAIN) ?? DEFAULT_APP_DOMAIN;
-const configuredAdminDomain =
-  normalizeDomain(process.env.NEXT_PUBLIC_ADMIN_DOMAIN) ?? DEFAULT_ADMIN_DOMAIN;
-
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? DEFAULT_API_BASE_URL;
-
-export const CANONICAL_PUBLIC_WEB_URL =
-  normalizeDomain(process.env.NEXT_PUBLIC_PUBLIC_DOMAIN)
-    ? `https://${normalizeDomain(process.env.NEXT_PUBLIC_PUBLIC_DOMAIN)}`
-    : DEFAULT_CANONICAL_PUBLIC_URL;
-
 const resolveProtocol = () => (isProductionRuntime() ? 'https' : 'http');
 
-export const resolvePublicDomain = (currentHostname?: string) => {
-  const resolvedBase = resolveBaseDomainFromHost(currentHostname);
-  if (resolvedBase) {
-    return resolvedBase;
-  }
-  return configuredPublicDomain;
-};
+const explicitPublicDomain = normalizeDomain(process.env.NEXT_PUBLIC_PUBLIC_DOMAIN);
+const explicitAppDomain = normalizeDomain(process.env.NEXT_PUBLIC_APP_DOMAIN);
+const explicitAdminDomain = normalizeDomain(process.env.NEXT_PUBLIC_ADMIN_DOMAIN);
 
-export const resolveAppDomain = (currentHostname?: string) => {
-  const resolvedBase = resolveBaseDomainFromHost(currentHostname);
-  if (resolvedBase) {
-    return `app.${resolvedBase}`;
-  }
-  return configuredAppDomain;
-};
+const fallbackPublicDomain = normalizeDomain(process.env.NEXT_PUBLIC_DEFAULT_PUBLIC_DOMAIN);
+const fallbackAppDomain = normalizeDomain(process.env.NEXT_PUBLIC_DEFAULT_APP_DOMAIN);
+const fallbackAdminDomain = normalizeDomain(process.env.NEXT_PUBLIC_DEFAULT_ADMIN_DOMAIN);
 
-export const resolveAdminDomain = (currentHostname?: string) => {
-  const resolvedBase = resolveBaseDomainFromHost(currentHostname);
-  if (resolvedBase) {
-    return `admin.${resolvedBase}`;
-  }
-  return configuredAdminDomain;
-};
+const configuredPublicDomain =
+  explicitPublicDomain ??
+  fallbackPublicDomain ??
+  toBaseDomain(explicitAppDomain) ??
+  toBaseDomain(explicitAdminDomain);
+
+const configuredAppDomain =
+  explicitAppDomain ??
+  fallbackAppDomain ??
+  toSubdomainDomain(configuredPublicDomain, 'app');
+
+const configuredAdminDomain =
+  explicitAdminDomain ??
+  fallbackAdminDomain ??
+  toSubdomainDomain(configuredPublicDomain, 'admin');
+
+export const API_BASE_URL =
+  normalizeValue(process.env.NEXT_PUBLIC_API_BASE_URL) ??
+  normalizeValue(process.env.NEXT_PUBLIC_DEFAULT_API_BASE_URL) ??
+  '';
+
+const explicitCanonicalPublicUrl = normalizeValue(
+  process.env.NEXT_PUBLIC_CANONICAL_PUBLIC_URL
+);
+
+const buildUrlForDomain = (domain: string | null, protocol = resolveProtocol()) =>
+  domain ? `${protocol}://${domain}` : '';
+
+export const resolvePublicDomain = (currentHostname?: string) =>
+  configuredPublicDomain ?? resolveDomainFromCurrentHost(currentHostname, 'public') ?? '';
+
+export const resolveAppDomain = (currentHostname?: string) =>
+  configuredAppDomain ??
+  resolveDomainFromCurrentHost(currentHostname, 'app') ??
+  resolvePublicDomain(currentHostname);
+
+export const resolveAdminDomain = (currentHostname?: string) =>
+  configuredAdminDomain ??
+  resolveDomainFromCurrentHost(currentHostname, 'admin') ??
+  resolvePublicDomain(currentHostname);
 
 export const buildPublicWebUrl = (currentHostname?: string) =>
-  `${resolveProtocol()}://${resolvePublicDomain(currentHostname)}`;
+  buildUrlForDomain(resolvePublicDomain(currentHostname));
 
 export const buildAppWebUrl = (currentHostname?: string) =>
-  `${resolveProtocol()}://${resolveAppDomain(currentHostname)}`;
+  buildUrlForDomain(resolveAppDomain(currentHostname));
 
 export const buildAdminWebUrl = (currentHostname?: string) =>
-  `${resolveProtocol()}://${resolveAdminDomain(currentHostname)}`;
+  buildUrlForDomain(resolveAdminDomain(currentHostname));
 
 export const buildAppLoginUrl = (currentHostname?: string) =>
-  `${buildAppWebUrl(currentHostname)}/login`;
+  `${buildAppWebUrl(currentHostname)}${ACCESS_ROUTE_PATHS.login}`;
 
 export const buildAdminLoginUrl = (currentHostname?: string) =>
-  `${buildAdminWebUrl(currentHostname)}/login`;
+  `${buildAdminWebUrl(currentHostname)}${ACCESS_ROUTE_PATHS.login}`;
 
 export const buildAdminSuperadminUrl = (currentHostname?: string) =>
-  `${buildAdminWebUrl(currentHostname)}/superadmin`;
+  `${buildAdminWebUrl(currentHostname)}${ACCESS_ROUTE_PATHS.adminHome}`;
+
+export const CANONICAL_PUBLIC_WEB_URL =
+  explicitCanonicalPublicUrl ??
+  buildUrlForDomain(resolvePublicDomain(), 'https') ??
+  '';
 
 export const PUBLIC_WEB_URL = buildPublicWebUrl();
 export const APP_WEB_URL = buildAppWebUrl();

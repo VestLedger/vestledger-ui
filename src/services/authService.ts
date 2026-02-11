@@ -3,7 +3,11 @@ import { ApiError } from '@/api/errors';
 import type { DataMode } from '@/config/data-mode';
 import { createMockUser } from '@/data/mocks/auth';
 import type { User, UserRole } from '@/types/auth';
-import { INTERNAL_TENANT_ID } from '@/utils/auth/internal-access';
+import {
+  INTERNAL_TENANT_ID,
+  MOCK_DEMO_PROFILE,
+  MOCK_SUPERADMIN_PROFILE,
+} from '@/config/auth';
 
 type AuthResponse = {
   access_token: string;
@@ -108,13 +112,13 @@ export async function authenticateUser(
   if (isSuperadminCredentials(email, password)) {
     return {
       user: createMockUser(SUPERADMIN_EMAIL!, 'superadmin', {
-        id: 'user_superadmin_001',
-        name: 'Platform Superadmin',
+        id: MOCK_SUPERADMIN_PROFILE.id,
+        name: MOCK_SUPERADMIN_PROFILE.displayName,
         tenantId: INTERNAL_TENANT_ID,
         organizationRole: 'org_admin',
         isPlatformAdmin: true,
       }),
-      accessToken: 'mock-superadmin-token',
+      accessToken: MOCK_SUPERADMIN_PROFILE.accessToken,
       dataModeOverride: 'mock',
     };
   }
@@ -122,12 +126,12 @@ export async function authenticateUser(
   if (isDemoCredentials(email, password)) {
     return {
       user: createMockUser(DEMO_EMAIL!, 'gp', {
-        id: 'user_demo_gp_001',
-        tenantId: 'org_summit_vc',
+        id: MOCK_DEMO_PROFILE.id,
+        tenantId: MOCK_DEMO_PROFILE.tenantId,
         organizationRole: 'org_admin',
         isPlatformAdmin: false,
       }),
-      accessToken: 'mock-token',
+      accessToken: MOCK_DEMO_PROFILE.accessToken,
       dataModeOverride: 'mock',
     };
   }

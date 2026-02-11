@@ -3,11 +3,17 @@ import type { NextRequest } from 'next/server';
 import { DATA_MODE_OVERRIDE_KEY } from '@/config/data-mode';
 import { resolveUserDomainTarget } from '@/utils/auth/internal-access';
 import type { User } from '@/types/auth';
+import {
+  ACCESS_ROUTE_PATHS,
+  DASHBOARD_ROUTE_PREFIXES,
+  PUBLIC_MARKETING_ROUTES,
+  STATIC_BYPASS_EXTENSIONS,
+  STATIC_BYPASS_PREFIXES,
+  STATIC_BYPASS_SEGMENTS,
+} from '@/config/access-routes';
 
-const PUBLIC_ROUTES = ['/', '/features', '/how-it-works', '/security', '/about', '/eoi'];
-const AUTH_ROUTES = ['/login'];
-const ADMIN_DEFAULT_PATH = '/superadmin';
-const APP_DEFAULT_PATH = '/home';
+const ADMIN_DEFAULT_PATH = ACCESS_ROUTE_PATHS.adminHome;
+const APP_DEFAULT_PATH = ACCESS_ROUTE_PATHS.appHome;
 
 type HostType = 'public' | 'app' | 'admin' | 'localhost';
 
@@ -25,6 +31,14 @@ function nextWithDataMode(request: NextRequest) {
     return NextResponse.next({ request: { headers } });
   }
   return NextResponse.next();
+}
+
+function normalizePathname(pathname: string): string {
+  if (pathname.length > 1 && pathname.endsWith('/')) {
+    return pathname.slice(0, -1);
+  }
+
+  return pathname;
 }
 
 function parseHost(hostHeader: string): ParsedHost {
@@ -71,6 +85,14 @@ function resolveBaseHostname(hostname: string): string {
   return hostname.replace(/^www\./, '').replace(/^app\./, '').replace(/^admin\./, '');
 }
 
+function normalizeConfiguredHost(value?: string): string | null {
+  if (!value) {
+    return null;
+  }
+
+  return value.replace(/^https?:\/\//, '').replace(/\/+$/, '');
+}
+
 function buildHostForType(hostname: string, port: string, hostType: Exclude<HostType, 'localhost'>): string {
   const baseHostname = resolveBaseHostname(hostname);
   const publicHostname =
@@ -107,35 +129,15 @@ function redirectToHost(
 
 function isPublicRoute(pathname: string): boolean {
   return (
-    PUBLIC_ROUTES.includes(pathname) ||
-    PUBLIC_ROUTES.filter((route) => route !== '/').some((route) => pathname.startsWith(route))
+    PUBLIC_MARKETING_ROUTES.includes(pathname) ||
+    PUBLIC_MARKETING_ROUTES
+      .filter((route) => route !== ACCESS_ROUTE_PATHS.publicHome)
+      .some((route) => pathname.startsWith(route))
   );
 }
 
 function isDashboardRoute(pathname: string): boolean {
-  return (
-    pathname.startsWith('/home') ||
-    pathname.startsWith('/portfolio') ||
-    pathname.startsWith('/analytics') ||
-    pathname.startsWith('/pipeline') ||
-    pathname.startsWith('/lp-management') ||
-    pathname.startsWith('/fund-admin') ||
-    pathname.startsWith('/documents') ||
-    pathname.startsWith('/reports') ||
-    pathname.startsWith('/compliance') ||
-    pathname.startsWith('/audit-trail') ||
-    pathname.startsWith('/409a-valuations') ||
-    pathname.startsWith('/integrations') ||
-    pathname.startsWith('/settings') ||
-    pathname.startsWith('/tax-center') ||
-    pathname.startsWith('/waterfall') ||
-    pathname.startsWith('/ai-tools') ||
-    pathname.startsWith('/notifications') ||
-    pathname.startsWith('/deal-intelligence') ||
-    pathname.startsWith('/dealflow-review') ||
-    pathname.startsWith('/contacts') ||
-    pathname.startsWith('/lp-portal')
-  );
+  return DASHBOARD_ROUTE_PREFIXES.some((route) => pathname.startsWith(route));
 }
 
 function isAdminRoute(pathname: string): boolean {
@@ -143,13 +145,13 @@ function isAdminRoute(pathname: string): boolean {
 }
 
 function isStaticOrBypassed(pathname: string): boolean {
+  const staticExtensionRegex = new RegExp(
+    `\\.(${STATIC_BYPASS_EXTENSIONS.join('|')})$`
+  );
   return (
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/api') ||
-    pathname.includes('/icons/') ||
-    pathname.includes('/logo/') ||
-    pathname.includes('/manifest') ||
-    pathname.match(/\.(ico|png|jpg|jpeg|svg|webp|gif|css|js)$/) !== null
+    STATIC_BYPASS_PREFIXES.some((prefix) => pathname.startsWith(prefix)) ||
+    STATIC_BYPASS_SEGMENTS.some((segment) => pathname.includes(segment)) ||
+    staticExtensionRegex.test(pathname)
   );
 }
 
@@ -176,29 +178,45 @@ function redirectToLoginForHost(
     search.set('redirect', redirectPath);
   }
 
-  return redirectToHost(requestUrl, targetHost, '/login', search);
+  return redirectToHost(requestUrl, targetHost, ACCESS_ROUTE_PATHS.login, search);
 }
 
 export function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
   const pathname = url.pathname;
+  const normalizedPathname = normalizePathname(pathname);
 
   if (isStaticOrBypassed(pathname)) {
     return nextWithDataMode(request);
   }
 
   const rawHost = request.headers.get('host') || '';
-  const { hostname, port, hostType } = parseHost(rawHost);
+  const { hostname, hostType } = parseHost(rawHost);
+  const configuredPublicHost = normalizeConfiguredHost(process.env.NEXT_PUBLIC_PUBLIC_DOMAIN);
+  const configuredAppHost = normalizeConfiguredHost(process.env.NEXT_PUBLIC_APP_DOMAIN);
+  const configuredAdminHost = normalizeConfiguredHost(process.env.NEXT_PUBLIC_ADMIN_DOMAIN);
 
-  const appHost = hostType === 'localhost' ? rawHost : buildHostForType(hostname, port, 'app');
-  const adminHost = hostType === 'localhost' ? rawHost : buildHostForType(hostname, port, 'admin');
-  const publicHost = hostType === 'localhost' ? rawHost : buildHostForType(hostname, port, 'public');
+  const derivedAppHost = buildHostForType(hostname, '', 'app');
+  const derivedAdminHost = buildHostForType(hostname, '', 'admin');
+  const derivedPublicHost = buildHostForType(hostname, '', 'public');
 
-  const isAuthenticated = request.cookies.get('isAuthenticated')?.value === 'true';
-  const isLoginRoute = AUTH_ROUTES.includes(pathname);
-  const matchesPublicRoute = isPublicRoute(pathname);
-  const matchesDashboardRoute = isDashboardRoute(pathname);
-  const matchesAdminRoute = isAdminRoute(pathname);
+  const appHost = hostType === 'localhost'
+    ? rawHost
+    : configuredAppHost || derivedAppHost || rawHost;
+  const adminHost = hostType === 'localhost'
+    ? rawHost
+    : configuredAdminHost || derivedAdminHost || rawHost;
+  const publicHost = hostType === 'localhost'
+    ? rawHost
+    : configuredPublicHost || derivedPublicHost || rawHost;
+
+  const currentUser = parseUserCookie(request);
+  const hasValidUserIdentity = Boolean(currentUser?.email && currentUser?.role);
+  const isAuthenticated = request.cookies.get('isAuthenticated')?.value === 'true' && hasValidUserIdentity;
+  const isLoginRoute = normalizedPathname === ACCESS_ROUTE_PATHS.login;
+  const matchesPublicRoute = isPublicRoute(normalizedPathname);
+  const matchesDashboardRoute = isDashboardRoute(normalizedPathname);
+  const matchesAdminRoute = isAdminRoute(normalizedPathname);
   const matchesProtectedRoute = matchesDashboardRoute || matchesAdminRoute;
 
   if (hostType === 'localhost') {
@@ -206,19 +224,12 @@ export function middleware(request: NextRequest) {
       return redirectToLoginForHost(url, rawHost, pathname);
     }
 
-    if (!isAuthenticated && pathname === '/') {
-      return redirectToHost(url, rawHost, '/login');
+    if (!isAuthenticated && normalizedPathname === ACCESS_ROUTE_PATHS.publicHome) {
+      return redirectToHost(url, rawHost, ACCESS_ROUTE_PATHS.login);
     }
-
-    const currentUser = parseUserCookie(request);
     const target = resolveUserDomainTarget(currentUser);
 
-    if (isAuthenticated && isLoginRoute) {
-      const nextPath = target === 'admin' ? ADMIN_DEFAULT_PATH : APP_DEFAULT_PATH;
-      return redirectToHost(url, rawHost, nextPath);
-    }
-
-    if (isAuthenticated && pathname === '/') {
+    if (isAuthenticated && normalizedPathname === ACCESS_ROUTE_PATHS.publicHome) {
       const nextPath = target === 'admin' ? ADMIN_DEFAULT_PATH : APP_DEFAULT_PATH;
       return redirectToHost(url, rawHost, nextPath);
     }
@@ -241,19 +252,19 @@ export function middleware(request: NextRequest) {
       }
 
       if (matchesAdminRoute) {
-        return redirectToLoginForHost(url, adminHost, pathname);
+        return redirectToLoginForHost(url, appHost, pathname);
       }
 
       return nextWithDataMode(request);
     }
 
     if (hostType === 'app') {
-      if (matchesPublicRoute && pathname !== '/') {
+      if (matchesPublicRoute && pathname !== ACCESS_ROUTE_PATHS.publicHome) {
         return redirectToHost(url, publicHost, pathname, url.searchParams);
       }
 
-      if (pathname === '/') {
-        return redirectToHost(url, appHost, '/login');
+      if (normalizedPathname === ACCESS_ROUTE_PATHS.publicHome) {
+        return redirectToHost(url, appHost, ACCESS_ROUTE_PATHS.login);
       }
 
       if (matchesDashboardRoute) {
@@ -261,23 +272,27 @@ export function middleware(request: NextRequest) {
       }
 
       if (matchesAdminRoute) {
-        return redirectToLoginForHost(url, adminHost, pathname);
+        return redirectToLoginForHost(url, appHost, pathname);
       }
 
       return nextWithDataMode(request);
     }
 
     if (hostType === 'admin') {
-      if (matchesPublicRoute && pathname !== '/') {
+      if (isLoginRoute) {
+        return redirectToHost(url, appHost, ACCESS_ROUTE_PATHS.login, url.searchParams);
+      }
+
+      if (matchesPublicRoute && pathname !== ACCESS_ROUTE_PATHS.publicHome) {
         return redirectToHost(url, publicHost, pathname, url.searchParams);
       }
 
-      if (pathname === '/') {
-        return redirectToHost(url, adminHost, '/login');
+      if (normalizedPathname === ACCESS_ROUTE_PATHS.publicHome) {
+        return redirectToHost(url, appHost, ACCESS_ROUTE_PATHS.login);
       }
 
       if (matchesAdminRoute) {
-        return redirectToLoginForHost(url, adminHost, pathname);
+        return redirectToLoginForHost(url, appHost, pathname);
       }
 
       if (matchesDashboardRoute) {
@@ -290,9 +305,20 @@ export function middleware(request: NextRequest) {
     return nextWithDataMode(request);
   }
 
-  const currentUser = parseUserCookie(request);
   const domainTarget = resolveUserDomainTarget(currentUser);
   const targetHost = domainTarget === 'admin' ? adminHost : appHost;
+
+  // Public marketing pages should remain accessible even when authenticated
+  // on app/admin domains. Do not force cross-domain redirects for public routes.
+  if (hostType === 'public' && matchesPublicRoute) {
+    return nextWithDataMode(request);
+  }
+
+  // Let app-domain login page render so client auth hydration can decide redirect.
+  // This prevents stale cookies from forcing an edge redirect before auth state is known.
+  if (hostType === 'app' && isLoginRoute) {
+    return nextWithDataMode(request);
+  }
 
   if ((domainTarget === 'admin' && hostType !== 'admin') || (domainTarget === 'app' && hostType !== 'app')) {
     const targetPath =
@@ -311,7 +337,7 @@ export function middleware(request: NextRequest) {
     return redirectToHost(url, targetHost, domainTarget === 'admin' ? ADMIN_DEFAULT_PATH : APP_DEFAULT_PATH);
   }
 
-  if (pathname === '/') {
+  if (normalizedPathname === ACCESS_ROUTE_PATHS.publicHome) {
     return redirectToHost(url, targetHost, domainTarget === 'admin' ? ADMIN_DEFAULT_PATH : APP_DEFAULT_PATH);
   }
 

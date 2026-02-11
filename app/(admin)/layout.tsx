@@ -5,7 +5,7 @@ import { DashboardProviders } from '../providers-dashboard';
 import { useAuth } from '@/contexts/auth-context';
 import { AdminShell } from '@/components/internal/admin-shell';
 import { LoadingState } from '@/ui/async-states';
-import { buildAdminLoginUrl, buildAppWebUrl } from '@/config/env';
+import { buildAppLoginUrl, buildAppWebUrl } from '@/config/env';
 import { isSuperadminUser, resolveUserDomainTarget } from '@/utils/auth/internal-access';
 
 function AdminLayoutContent({ children }: { children: React.ReactNode }) {
@@ -21,13 +21,13 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
 
     if (!isAuthenticated) {
       setIsRedirecting(true);
-      window.location.href = buildAdminLoginUrl(window.location.hostname);
+      window.location.href = buildAppLoginUrl(window.location.hostname);
       return;
     }
 
     if (!user) {
       setIsRedirecting(true);
-      window.location.href = buildAdminLoginUrl(window.location.hostname);
+      window.location.href = buildAppLoginUrl(window.location.hostname);
       return;
     }
 

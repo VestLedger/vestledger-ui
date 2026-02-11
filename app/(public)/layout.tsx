@@ -3,8 +3,12 @@ import { PublicFooter } from '@/components/public/public-footer';
 import type { Metadata, Viewport } from 'next';
 import { CANONICAL_PUBLIC_WEB_URL } from '@/config/env';
 
+const metadataBase = CANONICAL_PUBLIC_WEB_URL
+  ? new URL(CANONICAL_PUBLIC_WEB_URL)
+  : undefined;
+
 export const metadata: Metadata = {
-  metadataBase: new URL(CANONICAL_PUBLIC_WEB_URL),
+  metadataBase,
   title: {
     default: 'VestLedger - AI-Native Fund Intelligence',
     template: '%s | VestLedger',

@@ -1,8 +1,8 @@
 import type { User } from '@/types/auth';
+import { INTERNAL_TENANT_ID } from '@/config/auth';
 
 export type DomainTarget = 'admin' | 'app';
-
-export const INTERNAL_TENANT_ID = 'org_vestledger_internal';
+export { INTERNAL_TENANT_ID };
 
 type UserLike = Partial<User> | null | undefined;
 

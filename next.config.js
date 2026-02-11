@@ -2,19 +2,75 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 });
 
+const normalizeDomain = (value) =>
+  value ? value.replace(/^https?:\/\//, '').replace(/\/+$/, '') : null;
+
+const parseCsv = (value) =>
+  value
+    ? value
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean)
+    : [];
+
+const toOriginVariants = (domain) => {
+  if (!domain) return [];
+  const hostWithOptionalPort = normalizeDomain(domain);
+  if (!hostWithOptionalPort) return [];
+
+  const hostOnly = hostWithOptionalPort.split(':')[0];
+  return [
+    hostWithOptionalPort,
+    hostOnly,
+    `http://${hostWithOptionalPort}`,
+    `https://${hostWithOptionalPort}`,
+    `http://${hostOnly}`,
+    `https://${hostOnly}`,
+  ];
+};
+
+const toHostPortTargets = (hosts, ports) => {
+  if (ports.length === 0) {
+    return hosts;
+  }
+
+  const targets = [...hosts];
+  hosts.forEach((host) => {
+    ports.forEach((port) => {
+      targets.push(`${host}:${port}`);
+    });
+  });
+  return targets;
+};
+
+const configuredAllowedOrigins = [
+  process.env.NEXT_PUBLIC_PUBLIC_DOMAIN,
+  process.env.NEXT_PUBLIC_APP_DOMAIN,
+  process.env.NEXT_PUBLIC_ADMIN_DOMAIN,
+]
+  .flatMap(toOriginVariants);
+
+const configuredDevHosts = parseCsv(process.env.NEXT_PUBLIC_DEV_ALLOWED_HOSTS);
+const configuredDevPorts = parseCsv(process.env.NEXT_PUBLIC_DEV_ALLOWED_PORTS);
+const configuredExtraOrigins = parseCsv(process.env.NEXT_PUBLIC_ALLOWED_DEV_ORIGINS);
+
+const devHostPortTargets = toHostPortTargets(configuredDevHosts, configuredDevPorts);
+const dynamicAllowedOrigins = [
+  ...configuredExtraOrigins,
+  ...configuredExtraOrigins.flatMap(toOriginVariants),
+  ...devHostPortTargets,
+  ...devHostPortTargets.flatMap(toOriginVariants),
+].filter(Boolean);
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  allowedDevOrigins: [
-    'http://localhost:3001',
-    'http://127.0.0.1:3001',
-    'http://app.vestledger.local:3001',
-    'http://admin.vestledger.local:3001',
-    'http://vestledger.local:3001',
-    'https://app.vestledger.local',
-    'https://admin.vestledger.local',
-    'https://vestledger.local',
-  ],
+  allowedDevOrigins: Array.from(
+    new Set([
+      ...configuredAllowedOrigins,
+      ...dynamicAllowedOrigins,
+    ])
+  ),
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production'
       ? { exclude: ['error', 'warn'] }

@@ -14,10 +14,54 @@ import { safeLocalStorage } from '@/lib/storage/safeLocalStorage';
 import { normalizeError } from '@/store/utils/normalizeError';
 import { logger } from '@/lib/logger';
 import { DATA_MODE_OVERRIDE_KEY, type DataMode } from '@/config/data-mode';
+import {
+  AUTH_COOKIE_MAX_AGE_SECONDS,
+  AUTH_HYDRATION_TIMEOUT_MS,
+} from '@/config/auth';
 
 const STORAGE_AUTH_KEY = 'isAuthenticated';
 const STORAGE_USER_KEY = 'user';
 const STORAGE_TOKEN_KEY = 'accessToken';
+
+function getCookieValue(name: string): string | null {
+  if (typeof document === 'undefined') return null;
+  const prefix = `${name}=`;
+  const entries = document.cookie.split(';');
+  for (const entry of entries) {
+    const trimmed = entry.trim();
+    if (trimmed.startsWith(prefix)) {
+      return trimmed.slice(prefix.length);
+    }
+  }
+  return null;
+}
+
+function parseCookieUser(): Partial<User> | null {
+  const raw = getCookieValue('user');
+  if (!raw) return null;
+  try {
+    return JSON.parse(decodeURIComponent(raw)) as Partial<User>;
+  } catch {
+    return null;
+  }
+}
+
+function isValidPersistedUser(user: Partial<User> | null | undefined): user is Partial<User> & Pick<User, 'email' | 'name' | 'role'> {
+  return Boolean(user?.email && user?.name && user?.role);
+}
+
+function normalizeUser(user: Partial<User> & Pick<User, 'email' | 'name' | 'role'>): User {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    avatar: user.avatar,
+    tenantId: user.tenantId,
+    organizationRole: user.organizationRole,
+    isPlatformAdmin: user.isPlatformAdmin,
+  };
+}
 
 function getAuthCookieDomain(hostname?: string | null) {
   if (!hostname) return null;
@@ -32,15 +76,15 @@ function setAuthCookies(user: User) {
   if (typeof document === 'undefined') return;
   const domain = getAuthCookieDomain(window.location.hostname);
   const domainAttribute = domain ? `; domain=${domain}` : '';
-  document.cookie = `isAuthenticated=true; path=/${domainAttribute}; max-age=86400; SameSite=Lax`;
-  document.cookie = `user=${encodeURIComponent(JSON.stringify(user))}; path=/${domainAttribute}; max-age=86400; SameSite=Lax`;
+  document.cookie = `isAuthenticated=true; path=/${domainAttribute}; max-age=${AUTH_COOKIE_MAX_AGE_SECONDS}; SameSite=Lax`;
+  document.cookie = `user=${encodeURIComponent(JSON.stringify(user))}; path=/${domainAttribute}; max-age=${AUTH_COOKIE_MAX_AGE_SECONDS}; SameSite=Lax`;
 }
 
 function setDataModeCookie(mode: DataMode) {
   if (typeof document === 'undefined') return;
   const domain = getAuthCookieDomain(window.location.hostname);
   const domainAttribute = domain ? `; domain=${domain}` : '';
-  document.cookie = `${DATA_MODE_OVERRIDE_KEY}=${mode}; path=/${domainAttribute}; max-age=86400; SameSite=Lax`;
+  document.cookie = `${DATA_MODE_OVERRIDE_KEY}=${mode}; path=/${domainAttribute}; max-age=${AUTH_COOKIE_MAX_AGE_SECONDS}; SameSite=Lax`;
 }
 
 function clearAuthCookies() {
@@ -59,26 +103,18 @@ function clearDataModeCookie() {
 }
 
 function* hydrateAuthWorker() {
-  const savedAuth = safeLocalStorage.getItem(STORAGE_AUTH_KEY);
-  const savedUser = safeLocalStorage.getJSON<Partial<User>>(STORAGE_USER_KEY);
   const savedToken = safeLocalStorage.getItem(STORAGE_TOKEN_KEY);
   const savedDataMode = safeLocalStorage.getItem(DATA_MODE_OVERRIDE_KEY);
+  const cookieAuth = getCookieValue('isAuthenticated');
+  const cookieUser = parseCookieUser();
 
-  // Require all fields including role - no defaults
-  if (savedAuth === 'true' && savedUser?.email && savedUser?.name && savedUser?.role) {
-    const normalizedUser: User = {
-      id: savedUser.id,
-      name: savedUser.name,
-      email: savedUser.email,
-      role: savedUser.role,
-      avatar: savedUser.avatar,
-      tenantId: savedUser.tenantId,
-      organizationRole: savedUser.organizationRole,
-      isPlatformAdmin: savedUser.isPlatformAdmin,
-    };
+  const hasValidCookieSession = cookieAuth === 'true' && isValidPersistedUser(cookieUser);
+  if (hasValidCookieSession) {
+    const normalizedUser = normalizeUser(cookieUser);
 
-    // Sync to cookies for middleware access
-    setAuthCookies(normalizedUser);
+    // Keep local storage aligned with the shared cross-subdomain cookie session.
+    safeLocalStorage.setItem(STORAGE_AUTH_KEY, 'true');
+    safeLocalStorage.setJSON(STORAGE_USER_KEY, normalizedUser);
     if (savedDataMode === 'mock' || savedDataMode === 'api') {
       setDataModeCookie(savedDataMode);
     } else {
@@ -89,13 +125,11 @@ function* hydrateAuthWorker() {
     return;
   }
 
-  // Invalid or missing session - clear any stale data and redirect to login
+  // Shared auth cookie is absent/invalid: treat as logged out and clear stale local state.
   safeLocalStorage.removeItem(STORAGE_AUTH_KEY);
   safeLocalStorage.removeItem(STORAGE_USER_KEY);
   safeLocalStorage.removeItem(STORAGE_TOKEN_KEY);
-  safeLocalStorage.removeItem(DATA_MODE_OVERRIDE_KEY);
   clearAuthCookies();
-  clearDataModeCookie();
 
   if (savedDataMode === 'mock' || savedDataMode === 'api') {
     setDataModeCookie(savedDataMode);
@@ -158,10 +192,10 @@ export function* logoutWorker() {
 
 export function* authSaga() {
   if (typeof window !== 'undefined') {
-    // Wait for clientMounted with a 5 second timeout fallback
+    // Wait for clientMounted with a configurable timeout fallback
     yield race({
       mounted: take(clientMounted.type),
-      timeout: delay(5000),
+      timeout: delay(AUTH_HYDRATION_TIMEOUT_MS),
     });
   }
   yield call(hydrateAuthWorker);
