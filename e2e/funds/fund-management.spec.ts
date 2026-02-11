@@ -71,6 +71,53 @@ test.describe('Fund Management', () => {
 });
 
 test.describe('Fund Admin Features', () => {
+  test('clicking fund admin should open contextual menu and load fund setup', async ({ page }) => {
+    await loginViaRedirect(page, '/home');
+
+    const expandSidebarButton = page.getByRole('button', { name: /expand sidebar/i });
+    if (await expandSidebarButton.count()) {
+      await expandSidebarButton.first().click();
+    }
+
+    const sidebar = page.locator('aside').first();
+    const sidebarNav = sidebar.locator('nav').first();
+
+    await sidebarNav.getByRole('link', { name: /fund admin/i }).first().click();
+    await expect(page).toHaveURL(/fund-admin/);
+
+    await expect(sidebarNav.getByRole('link', { name: /dashboard/i })).toHaveCount(0);
+    await expect(sidebarNav.getByRole('link', { name: /fund setup/i })).toBeVisible();
+    await expect(sidebarNav.getByRole('button', { name: /back to main menu/i })).toBeVisible();
+    await expect(sidebar.getByRole('link', { name: /settings/i })).toBeVisible();
+    await expect(page.locator('main').getByRole('heading', { name: /^Fund Setup$/i })).toBeVisible();
+  });
+
+  test('back arrow from contextual menu should return to main-menu fund-admin state', async ({ page }) => {
+    await loginViaRedirect(page, '/fund-admin');
+
+    const expandSidebarButton = page.getByRole('button', { name: /expand sidebar/i });
+    if (await expandSidebarButton.count()) {
+      await expandSidebarButton.first().click();
+    }
+
+    const sidebarNav = page.locator('aside nav').first();
+
+    await sidebarNav.getByRole('link', { name: /fund admin/i }).first().click();
+    await expect(sidebarNav.getByRole('button', { name: /back to main menu/i })).toBeVisible();
+    await expect(sidebarNav.getByRole('link', { name: /dashboard/i })).toHaveCount(0);
+
+    await sidebarNav.getByRole('link', { name: /capital calls/i }).click();
+    await expect(page.locator('main').getByText(/Capital Call #/i).first()).toBeVisible();
+
+    await sidebarNav.getByRole('link', { name: /^expenses$/i }).click();
+    await expect(page.locator('main').getByText(/Fund Expense Tracking/i)).toBeVisible();
+
+    await sidebarNav.getByRole('button', { name: /back to main menu/i }).click();
+    await expect(sidebarNav.getByRole('link', { name: /dashboard/i })).toBeVisible();
+    await expect(sidebarNav.getByRole('link', { name: /fund admin/i })).toBeVisible();
+    await expect(page.locator('main').getByRole('heading', { name: /^Fund Setup$/i })).toBeVisible();
+  });
+
   test('should access fund admin from navigation', async ({ page }) => {
     await loginViaRedirect(page, '/home');
 

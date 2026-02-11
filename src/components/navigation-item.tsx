@@ -1,5 +1,6 @@
 'use client'
 
+import type { MouseEventHandler } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -14,15 +15,25 @@ interface NavigationItemProps {
   label: string;
   icon: LucideIcon;
   isCollapsed?: boolean;
+  isActiveOverride?: boolean;
+  onClick?: MouseEventHandler<HTMLAnchorElement>;
 }
 
-export function NavigationItem({ id, href, label, icon: Icon, isCollapsed = false }: NavigationItemProps) {
+export function NavigationItem({
+  id,
+  href,
+  label,
+  icon: Icon,
+  isCollapsed = false,
+  isActiveOverride,
+  onClick,
+}: NavigationItemProps) {
   const pathname = usePathname();
   const { badges } = useNavigation();
   const density = useDashboardDensity();
   const badge = badges[id];
 
-  const isActive = pathname === href || pathname.startsWith(`${href}/`);
+  const isActive = isActiveOverride ?? (pathname === href || pathname.startsWith(`${href}/`));
   const rowPaddingClass = density.mode === 'compact' ? 'px-2.5 py-2' : 'px-3 py-2.5';
   const labelTextClass = density.mode === 'compact' ? 'text-[13px]' : 'text-sm';
   const tooltipTextClass = density.mode === 'compact' ? 'text-xs' : 'text-sm';
@@ -41,7 +52,7 @@ export function NavigationItem({ id, href, label, icon: Icon, isCollapsed = fals
   };
 
   return (
-    <Link href={href}>
+    <Link href={href} onClick={onClick}>
       <motion.div
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}

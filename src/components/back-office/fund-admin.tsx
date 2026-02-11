@@ -9,13 +9,11 @@ import { fundUISelectors } from '@/store/slices/fundSlice';
 import { useFund } from '@/contexts/fund-context';
 import { Card, Button, Progress, Select, Modal, Input } from '@/ui';
 import {
-  DollarSign,
   Send,
   Download,
   Users,
   Mail,
   ArrowUpRight,
-  ArrowDownRight,
   Building2,
 } from 'lucide-react';
 import { FundSelector } from '../fund-selector';
@@ -36,7 +34,6 @@ import {
   lpReminderRequested,
   lpResponseUpdateRequested,
 } from '@/store/slices/backOfficeSlice';
-import { distributionsRequested, distributionsSelectors } from '@/store/slices/distributionSlice';
 import {
   navCalculateRequested,
   navExportRequested,
@@ -75,10 +72,13 @@ import {
 } from '@/store/slices/secondaryTransferOpsSlice';
 import { AsyncStateRenderer } from '@/ui/async-states';
 import { formatCurrency } from '@/utils/formatting';
-import { KeyValueRow, StatusBadge, MetricsGrid, PageScaffold, SectionHeader } from '@/ui/composites';
-import type { MetricsGridItem } from '@/ui/composites';
+import { KeyValueRow, StatusBadge, PageScaffold, SectionHeader } from '@/ui/composites';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import type { CreateCapitalCallParams } from '@/services/backOffice/fundAdminService';
+import {
+  DEFAULT_FUND_ADMIN_TAB_ID,
+  FUND_ADMIN_TAB_IDS,
+} from '@/config/fund-admin-tabs';
 
 type FundAdminUIState = {
   selectedTab: string;
@@ -92,17 +92,6 @@ const LP_STATUS_OPTIONS = [
   { value: 'pending', label: 'Pending' },
   { value: 'overdue', label: 'Overdue' },
 ];
-
-const FUND_ADMIN_TAB_IDS = new Set([
-  'fund-setup',
-  'capital-calls',
-  'distributions',
-  'lp-responses',
-  'nav-calculator',
-  'carried-interest',
-  'expenses',
-  'secondary-transfers',
-]);
 
 export function FundAdmin() {
   const dispatch = useAppDispatch();
@@ -124,22 +113,15 @@ export function FundAdmin() {
     }
   );
 
-  const {
-    data: distributionsData,
-  } = useAsyncData(distributionsRequested, distributionsSelectors.selectState, {
-    params: { fundId: targetFundId },
-    dependencies: [targetFundId, viewMode],
-  });
-
   const { value: ui, patch: patchUI } = useUIKey<FundAdminUIState>('back-office-fund-admin', {
-    selectedTab: 'fund-setup',
+    selectedTab: DEFAULT_FUND_ADMIN_TAB_ID,
     lpStatusFilter: 'all',
   });
   const { selectedTab, lpStatusFilter } = ui;
 
   useEffect(() => {
     if (!FUND_ADMIN_TAB_IDS.has(selectedTab)) {
-      patchUI({ selectedTab: 'fund-setup' });
+      patchUI({ selectedTab: DEFAULT_FUND_ADMIN_TAB_ID });
     }
   }, [selectedTab, patchUI]);
 
@@ -185,7 +167,6 @@ export function FundAdmin() {
 
   const capitalCalls = useMemo(() => data?.capitalCalls ?? [], [data?.capitalCalls]);
   const lpResponses = useMemo(() => data?.lpResponses ?? [], [data?.lpResponses]);
-  const distributions = distributionsData?.distributions ?? [];
 
   const filteredLPResponses = useMemo(() => {
     if (lpStatusFilter === 'all') {
@@ -201,53 +182,6 @@ export function FundAdmin() {
     0
   );
   const pendingLPs = lpResponses.filter((response) => response.status === 'pending' || response.status === 'partial').length;
-
-  const completedDistributions = distributions.filter((distribution) => distribution.status === 'completed');
-
-  const totalLPs = capitalCalls.length > 0
-    ? Math.max(0, ...capitalCalls.map((call) => call.lpCount))
-    : 0;
-
-  const summaryCards: MetricsGridItem[] = [
-    {
-      type: 'stats',
-      props: {
-        title: 'Active Calls',
-        value: activeCallsCount,
-        icon: ArrowUpRight,
-        variant: 'warning',
-        subtitle: formatCurrency(activeCalls.reduce((sum, call) => sum + call.totalAmount, 0)),
-      },
-    },
-    {
-      type: 'stats',
-      props: {
-        title: 'YTD Distributions',
-        value: completedDistributions.length,
-        icon: ArrowDownRight,
-        variant: 'success',
-        subtitle: formatCurrency(completedDistributions.reduce((sum, dist) => sum + dist.totalDistributed, 0)),
-      },
-    },
-    {
-      type: 'stats',
-      props: {
-        title: 'Outstanding',
-        value: formatCurrency(totalOutstanding),
-        icon: DollarSign,
-        variant: 'primary',
-      },
-    },
-    {
-      type: 'stats',
-      props: {
-        title: 'Total LPs',
-        value: totalLPs,
-        icon: Users,
-        variant: 'primary',
-      },
-    },
-  ];
 
   const resolveActionFund = () => {
     if (selectedFund) return selectedFund;
@@ -413,6 +347,13 @@ export function FundAdmin() {
             breadcrumbs={routeConfig?.breadcrumbs}
             aiSuggestion={routeConfig?.aiSuggestion}
             containerProps={{ className: 'space-y-4' }}
+            toolbar={(
+              <div className="flex justify-end">
+                <div className="w-full sm:w-64">
+                  <FundSelector />
+                </div>
+              </div>
+            )}
             header={{
               title: 'Fund Administration',
               description: 'Operate fund setup, capital workflows, and back-office operations in one cockpit.',
@@ -428,58 +369,8 @@ export function FundAdmin() {
                   onClick: () => dispatch(fundAdminExportRequested()),
                 },
               ],
-              tabs: [
-                {
-                  id: 'fund-setup',
-                  label: 'Fund Setup',
-                },
-                {
-                  id: 'capital-calls',
-                  label: 'Capital Calls',
-                  count: activeCallsCount,
-                  priority: totalOutstanding > 0 ? 'high' : undefined,
-                },
-                {
-                  id: 'distributions',
-                  label: 'Distributions',
-                },
-                {
-                  id: 'lp-responses',
-                  label: 'LP Responses',
-                  count: pendingLPs,
-                  priority: pendingLPs > 2 ? 'medium' : undefined,
-                },
-                {
-                  id: 'nav-calculator',
-                  label: 'NAV Calculator',
-                },
-                {
-                  id: 'carried-interest',
-                  label: 'Carried Interest',
-                },
-                {
-                  id: 'expenses',
-                  label: 'Expenses',
-                },
-                {
-                  id: 'secondary-transfers',
-                  label: 'Secondary Transfers',
-                },
-              ],
-              activeTab: selectedTab,
-              onTabChange: (tabId) => patchUI({ selectedTab: tabId }),
-              children: (
-                <div className="w-full sm:w-64">
-                  <FundSelector />
-                </div>
-              ),
             }}
           >
-            <MetricsGrid
-              items={summaryCards}
-              columns={{ base: 1, md: 2, lg: 4 }}
-            />
-
             <div>
               {selectedTab === 'fund-setup' && (
                 <FundSetupList canMutate={canMutate} createSignal={fundSetupCreateSignal} />
