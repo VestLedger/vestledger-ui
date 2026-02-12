@@ -49,6 +49,11 @@ export const STATIC_BYPASS_SEGMENTS = Object.freeze([
   '/manifest',
 ]);
 
+export const STATIC_BYPASS_PATHS = Object.freeze([
+  '/robots.txt',
+  '/sitemap.xml',
+]);
+
 export const STATIC_BYPASS_EXTENSIONS = Object.freeze([
   'ico',
   'png',

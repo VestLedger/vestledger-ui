@@ -8,6 +8,7 @@ import {
   DASHBOARD_ROUTE_PREFIXES,
   PUBLIC_MARKETING_ROUTES,
   STATIC_BYPASS_EXTENSIONS,
+  STATIC_BYPASS_PATHS,
   STATIC_BYPASS_PREFIXES,
   STATIC_BYPASS_SEGMENTS,
 } from '@/config/access-routes';
@@ -148,7 +149,9 @@ function isStaticOrBypassed(pathname: string): boolean {
   const staticExtensionRegex = new RegExp(
     `\\.(${STATIC_BYPASS_EXTENSIONS.join('|')})$`
   );
+  const normalizedPathname = normalizePathname(pathname);
   return (
+    STATIC_BYPASS_PATHS.includes(normalizedPathname) ||
     STATIC_BYPASS_PREFIXES.some((prefix) => pathname.startsWith(prefix)) ||
     STATIC_BYPASS_SEGMENTS.some((segment) => pathname.includes(segment)) ||
     staticExtensionRegex.test(pathname)
@@ -358,6 +361,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|icons|logo|manifest).*)',
+    '/((?!_next/static|_next/image|favicon.ico|icons|logo|manifest|robots\\.txt|sitemap\\.xml).*)',
   ],
 };
