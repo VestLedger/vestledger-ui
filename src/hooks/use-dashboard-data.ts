@@ -10,13 +10,13 @@ import { getDashboardData } from '@/services/dashboard/dashboardDataService';
  * In production, this would fetch from real APIs and aggregate data
  * from various microservices. For now, it provides intelligent mock data
  * that demonstrates AI-native features.
- * 
+ *
  * Data reacts to the selected fund from FundContext.
  */
 export function useDashboardData() {
-  const { selectedFund, viewMode } = useFund();
-  
+  const { selectedFund, viewMode, funds } = useFund();
+
   return useMemo(() => {
-    return getDashboardData(selectedFund, viewMode);
-  }, [selectedFund, viewMode]);
+    return getDashboardData(selectedFund, viewMode, funds);
+  }, [selectedFund, viewMode, funds]);
 }

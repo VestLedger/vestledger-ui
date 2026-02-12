@@ -2,13 +2,13 @@
 
 import { useEffect } from 'react';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/navigation';
 import { DollarSign, Users, Target, Clock, LayoutDashboard } from 'lucide-react';
-import { AIInsightsBanner } from './dashboard/ai-insights-banner';
-import { ActiveCapitalCalls } from './dashboard/active-capital-calls';
-import { PortfolioHealth } from './dashboard/portfolio-health';
-import { AITaskPrioritizer } from './dashboard/ai-task-prioritizer';
+import { HomeMorningBrief } from './dashboard/home-morning-brief';
+import { HomePriorityMatrix } from './dashboard/home-priority-matrix';
+import { HomeFundHealthList } from './dashboard/home-fund-health-list';
+import { HomePortfolioHealthList } from './dashboard/home-portfolio-health-list';
 import { useDashboardData } from '@/hooks/use-dashboard-data';
-import { useAIInsights } from '@/hooks/use-ai-insights';
 import { useAuth } from '@/contexts/auth-context';
 import { useFund } from '@/contexts/fund-context';
 import { MetricsGrid, PageScaffold } from '@/ui/composites';
@@ -16,10 +16,10 @@ import type { MetricsGridItem } from '@/ui/composites';
 import { Card, Badge } from '@/ui';
 import { FundSelector } from '@/components/fund-selector';
 import { getRouteConfig, ROUTE_PATHS } from '@/config/routes';
-import { Fund } from '@/types/fund';
 import { useAppDispatch } from '@/store/hooks';
 import { setQuickActionsOverride } from '@/store/slices/copilotSlice';
-import { useUIKey } from '@/store/ui';
+import { patchUIState } from '@/store/slices/uiSlice';
+import type { DailyBriefItem } from '@/data/mocks/hooks/dashboard-data';
 import { useDashboardDensity } from '@/contexts/dashboard-density-context';
 
 const DASHBOARD_PERCENT_SCALE = 100;
@@ -49,8 +49,6 @@ const formatCountLabel = (count: number, singular: string, plural?: string) => {
   const resolvedPlural = plural ?? `${singular}s`;
   return `${count} ${count === 1 ? singular : resolvedPlural}`;
 };
-
-const isCapitalCallTask = (task: { domain?: string }) => task.domain === 'capital-calls';
 
 const DashboardLoading = () => (
   <div className="p-4 space-y-4 animate-pulse">
@@ -92,6 +90,7 @@ const AuditorDashboard = dynamic(
 
 export function DashboardV2() {
   const { user } = useAuth();
+  const router = useRouter();
   const density = useDashboardDensity();
   const sectionTopSpacingClass = density.mode === 'compact' ? 'mt-3' : 'mt-4';
   const fundHeaderBadgeSpacingClass = density.mode === 'compact'
@@ -103,11 +102,11 @@ export function DashboardV2() {
   const { selectedFund, viewMode, funds, getFundSummary, setSelectedFund, setViewMode } = useFund();
   const dispatch = useAppDispatch();
   const {
-    capitalCalls,
-    portfolioCompanies,
     quickActions,
-    tasks,
-    metrics,
+    morningBrief,
+    dailyBriefItems,
+    fundHealthRows,
+    portfolioSignals,
   } = useDashboardData();
 
   // Surface dashboard quick actions inside the AI Copilot sidebar
@@ -118,12 +117,7 @@ export function DashboardV2() {
     };
   }, [dispatch, quickActions]);
 
-  const insight = useAIInsights(metrics);
   const summary = getFundSummary();
-  const overviewTasks = tasks.filter((task) => !isCapitalCallTask(task));
-  const { value: consolidatedUI, patch: patchConsolidatedUI } = useUIKey('dashboard-consolidated-tabs', {
-    activeTab: 'overview',
-  });
 
   // Role-based view switching (non-GP roles get their own dashboards)
   switch (user?.role) {
@@ -146,11 +140,59 @@ export function DashboardV2() {
       break;
   }
 
-  const handleFundSelect = (fund: Fund | null) => {
-    setSelectedFund(fund);
+  const openFundSetupDetails = (fundId: string) => {
+    const fund = funds.find((entry) => entry.id === fundId);
     if (fund) {
+      setSelectedFund(fund);
       setViewMode('individual');
     }
+    dispatch(patchUIState({ key: 'back-office-fund-admin', patch: { selectedTab: 'fund-setup' } }));
+    dispatch(patchUIState({ key: 'fund-setup', patch: { selectedFundId: fundId } }));
+    router.push(ROUTE_PATHS.fundAdmin);
+  };
+
+  const openPortfolioDetails = (companyName: string) => {
+    dispatch(patchUIState({ key: 'portfolio', patch: { selected: 'overview' } }));
+    dispatch(
+      patchUIState({
+        key: 'advanced-table:portfolio-dashboard:companies',
+        patch: { searchQuery: companyName, currentPage: 1 },
+      })
+    );
+    router.push(ROUTE_PATHS.portfolio);
+  };
+
+  const openBriefItem = (item: DailyBriefItem) => {
+    if (item.fundId) {
+      const fund = funds.find((entry) => entry.id === item.fundId);
+      if (fund) {
+        setSelectedFund(fund);
+        setViewMode('individual');
+      }
+    }
+
+    if (item.route === ROUTE_PATHS.fundAdmin) {
+      dispatch(
+        patchUIState({
+          key: 'back-office-fund-admin',
+          patch: { selectedTab: item.tabTarget ?? 'capital-calls' },
+        })
+      );
+    }
+
+    if (item.route === ROUTE_PATHS.portfolio) {
+      dispatch(patchUIState({ key: 'portfolio', patch: { selected: 'overview' } }));
+      if (item.searchHint) {
+        dispatch(
+          patchUIState({
+            key: 'advanced-table:portfolio-dashboard:companies',
+            patch: { searchQuery: item.searchHint, currentPage: 1 },
+          })
+        );
+      }
+    }
+
+    router.push(item.route);
   };
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -158,149 +200,59 @@ export function DashboardV2() {
   // ─────────────────────────────────────────────────────────────────────────────
   if (viewMode === 'consolidated' || !selectedFund) {
     const routeConfig = getRouteConfig(ROUTE_PATHS.dashboard);
-    const activeTab = consolidatedUI.activeTab ?? 'overview';
-    const consolidatedTabs = [
-      { id: 'overview', label: 'Overview' },
-      { id: 'capital-calls', label: 'Capital Calls' },
-      { id: 'portfolio-health', label: 'Portfolio Health' },
-    ];
     const totalFundLabel = formatCountLabel(summary.totalFunds, 'fund');
-    const totalCompanyLabel = formatCountLabel(summary.totalPortfolioCompanies, 'company', 'companies');
+    const watchFundCount = fundHealthRows.filter((row) => row.riskFlag !== 'stable').length;
+    const watchPortfolioCount = portfolioSignals.filter((row) => row.riskFlag !== 'stable').length;
 
     return (
       <PageScaffold
         breadcrumbs={routeConfig?.breadcrumbs || [{ label: 'Dashboard' }]}
         aiSuggestion={routeConfig?.aiSuggestion}
         header={{
-          title: 'GP Consolidated Dashboard',
-          description: `Portfolio-level view across ${totalFundLabel}`,
+          title: 'GP Home',
+          description: `Decision and health view across ${totalFundLabel}`,
           icon: LayoutDashboard,
           aiSummary: {
-            text: `Tracking ${totalFundLabel} with ${formatCurrency(summary.totalCommitment)} committed capital and ${formatCurrency(summary.totalPortfolioValue)} portfolio value across ${totalCompanyLabel}. Average IRR: ${summary.averageIRR.toFixed(1)}%.`,
-            confidence: 0.94,
+            text: morningBrief.summary,
+            confidence: morningBrief.confidence,
           },
           badges: [
             {
-              label: formatCountLabel(summary.totalFunds, 'fund'),
+              label: `${morningBrief.itemCount} items in 7d`,
               size: 'md',
               variant: 'flat',
               className: 'bg-[var(--app-primary-bg)] text-[var(--app-primary)]',
             },
             {
-              label: formatCountLabel(summary.activeFunds, 'active fund'),
+              label: `${morningBrief.urgentCount} urgent`,
               size: 'md',
               variant: 'bordered',
               className: 'text-[var(--app-text-muted)] border-[var(--app-border)]',
             },
             {
-              label: `Portfolio companies: ${summary.totalPortfolioCompanies}`,
+              label: `${watchFundCount} funds on watch`,
               size: 'md',
               variant: 'bordered',
               className: 'text-[var(--app-text-muted)] border-[var(--app-border)]',
             },
             {
-              label: `Committed capital: ${formatCurrency(summary.totalCommitment, true)}`,
-              size: 'md',
-              variant: 'bordered',
-              className: 'text-[var(--app-text-muted)] border-[var(--app-border)]',
-            },
-            {
-              label: `Portfolio value: ${formatCurrency(summary.totalPortfolioValue, true)}`,
-              size: 'md',
-              variant: 'bordered',
-              className: 'text-[var(--app-text-muted)] border-[var(--app-border)]',
-            },
-            {
-              label: `Average IRR: ${summary.averageIRR.toFixed(1)}%`,
+              label: `${watchPortfolioCount} companies on watch`,
               size: 'md',
               variant: 'bordered',
               className: 'text-[var(--app-text-muted)] border-[var(--app-border)]',
             },
           ],
-          tabs: consolidatedTabs,
-          activeTab,
-          onTabChange: (tabId) => patchConsolidatedUI({ activeTab: tabId }),
         }}
       >
+        <div className={`${sectionTopSpacingClass} ${density.page.sectionStackClass}`}>
+          <HomeMorningBrief brief={morningBrief} />
+          <HomePriorityMatrix items={dailyBriefItems} onItemClick={openBriefItem} />
 
-        {activeTab === 'overview' && (
-          <div className={`${sectionTopSpacingClass} ${density.page.sectionStackClass}`}>
-            {/* AI Insights Banner */}
-            <AIInsightsBanner insight={insight} />
-
-            <div className={`grid grid-cols-1 lg:grid-cols-3 ${density.page.blockGapClass}`}>
-              {/* Fund Summary Table */}
-              <div className="lg:col-span-2">
-                <div className="overflow-x-auto rounded-lg border border-[var(--app-border)]" data-fund-selector-target>
-                  <table className="min-w-full text-sm">
-                    <thead className="bg-[var(--app-surface-hover)] text-[var(--app-text-muted)]">
-                      <tr>
-                        <th className={`${density.table.headerCellClass} text-left font-medium`}>Fund</th>
-                        <th className={`${density.table.headerCellClass} text-left font-medium`}>Status</th>
-                        <th className={`${density.table.headerCellClass} text-right font-medium`}>Commitment</th>
-                        <th className={`${density.table.headerCellClass} text-right font-medium`}>Companies</th>
-                        <th className={`${density.table.headerCellClass} text-right font-medium`}>IRR</th>
-                        <th className={`${density.table.headerCellClass} text-right font-medium`}>TVPI</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-[var(--app-border)]">
-                      {funds.map((fund) => (
-                        <tr
-                          key={fund.id}
-                          onClick={() => handleFundSelect(fund)}
-                          className="cursor-pointer hover:bg-[var(--app-surface-hover)] transition-colors"
-                        >
-                          <td className={density.table.bodyCellClass}>
-                            <div className="font-medium text-[var(--app-text)]">{fund.displayName}</div>
-                            <div className="text-xs text-[var(--app-text-subtle)]">Vintage {fund.vintage}</div>
-                          </td>
-                          <td className={density.table.bodyCellClass}>
-                            <Badge
-                              size="sm"
-                              variant="bordered"
-                              className={fund.status === 'active' ? 'text-[var(--app-success)] border-[var(--app-success)]' : 'text-[var(--app-text-muted)] border-[var(--app-border)]'}
-                            >
-                              {formatStatusLabel(fund.status)}
-                            </Badge>
-                          </td>
-                          <td className={`${density.table.bodyCellClass} text-right text-[var(--app-text)]`}>{formatCurrency(fund.totalCommitment)}</td>
-                          <td className={`${density.table.bodyCellClass} text-right text-[var(--app-text)]`}>
-                            {formatCountLabel(fund.portfolioCount, 'company', 'companies')}
-                          </td>
-                          <td className={`${density.table.bodyCellClass} text-right text-[var(--app-success)]`}>{fund.irr.toFixed(1)}%</td>
-                          <td className={`${density.table.bodyCellClass} text-right text-[var(--app-success)]`}>{fund.tvpi.toFixed(2)}x</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div>
-                <AITaskPrioritizer
-                  tasks={overviewTasks}
-                  onTaskClick={(task) => console.log('Task clicked:', task)}
-                  title="Priority Task Queue"
-                  description="Non-capital-call work ranked by urgency and impact"
-                  emptyTitle="No open non-capital-call tasks"
-                  emptyDescription="Capital call actions are grouped in the Capital Calls tab"
-                />
-              </div>
-            </div>
+          <div className={`grid grid-cols-1 xl:grid-cols-2 ${density.page.blockGapClass}`}>
+            <HomeFundHealthList rows={fundHealthRows} onRowClick={openFundSetupDetails} />
+            <HomePortfolioHealthList rows={portfolioSignals} onRowClick={openPortfolioDetails} />
           </div>
-        )}
-
-        {activeTab === 'capital-calls' && (
-          <div className={`${sectionTopSpacingClass} ${density.page.sectionStackClass}`}>
-            <ActiveCapitalCalls calls={capitalCalls} />
-          </div>
-        )}
-
-        {activeTab === 'portfolio-health' && (
-          <div className={sectionTopSpacingClass}>
-            <PortfolioHealth companies={portfolioCompanies} />
-          </div>
-        )}
+        </div>
 
         <div className={density.spacer.pageBottomClass} />
       </PageScaffold>

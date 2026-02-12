@@ -6,12 +6,134 @@ import type { QuickAction } from '@/components/dashboard/quick-actions';
 import type { Task } from '@/components/dashboard/ai-task-prioritizer';
 import { Send, DollarSign, FileText, Users, BarChart } from 'lucide-react';
 
+const BRIEF_HORIZON_DAYS = 7;
+const URGENT_DUE_WINDOW_DAYS = 2;
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
+const addDays = (date: Date, days: number) => new Date(date.getTime() + (days * MS_PER_DAY));
+
+const getDaysUntil = (target: Date, anchor: Date) => Math.floor((target.getTime() - anchor.getTime()) / MS_PER_DAY);
+
+const isWithinBriefWindow = (target: Date, anchor: Date) => {
+  const daysUntil = getDaysUntil(target, anchor);
+  return daysUntil >= 0 && daysUntil <= BRIEF_HORIZON_DAYS;
+};
+
+const MOCK_QUICK_ACTIONS: QuickAction[] = [
+  {
+    id: 'qa-1',
+    label: 'Send LP Reminders',
+    description: 'Email overdue LPs about Fund II call',
+    icon: Send,
+    aiSuggested: true,
+    confidence: 0.94,
+    onClick: () => console.log('Send reminders'),
+  },
+  {
+    id: 'qa-2',
+    label: 'Draft Capital Call',
+    description: 'Generate Fund III notice',
+    icon: DollarSign,
+    aiSuggested: true,
+    confidence: 0.88,
+    onClick: () => console.log('Draft capital call'),
+  },
+  {
+    id: 'qa-3',
+    label: 'Generate Report',
+    description: 'Q4 portfolio health summary',
+    icon: FileText,
+    aiSuggested: false,
+    onClick: () => console.log('Generate report'),
+  },
+  {
+    id: 'qa-4',
+    label: 'Contact LP',
+    description: 'View LP directory',
+    icon: Users,
+    aiSuggested: false,
+    onClick: () => console.log('View LPs'),
+  },
+  {
+    id: 'qa-5',
+    label: 'View Analytics',
+    description: 'Deep dive into metrics',
+    icon: BarChart,
+    aiSuggested: false,
+    onClick: () => console.log('View analytics'),
+  },
+];
+
+export type PriorityQuadrant =
+  | 'urgent-important'
+  | 'urgent-non-important'
+  | 'non-urgent-important'
+  | 'non-urgent-non-important';
+
+export type DailyBriefItemType = 'task' | 'warning';
+
+export interface DailyBriefItem {
+  id: string;
+  type: DailyBriefItemType;
+  title: string;
+  description: string;
+  owner: string;
+  dueDate: Date;
+  urgencyScore: number;
+  importanceScore: number;
+  route: string;
+  tabTarget?: string;
+  fundId?: string;
+  searchHint?: string;
+  quadrant: PriorityQuadrant;
+}
+
+export interface MorningBrief {
+  summary: string;
+  confidence: number;
+  asOf: Date;
+  horizonDays: number;
+  itemCount: number;
+  urgentCount: number;
+  importantCount: number;
+}
+
+export interface FundHealthRow {
+  id: string;
+  displayName: string;
+  status: Fund['status'];
+  healthScore: number;
+  healthDelta: number;
+  deploymentPct: number;
+  availableCapital: number;
+  irr: number;
+  tvpi: number;
+  riskFlag: 'stable' | 'watch' | 'critical';
+}
+
+export interface PortfolioSignalRow {
+  id: string;
+  name: string;
+  healthScore: number;
+  healthDelta: number;
+  runwayMonths: number;
+  anomalyCount: number;
+  riskFlag: 'stable' | 'watch' | 'critical';
+  route: string;
+}
+
 export interface DashboardData {
   capitalCalls: CapitalCall[];
   portfolioCompanies: PortfolioCompany[];
   alerts: Alert[];
   quickActions: QuickAction[];
   tasks: Task[];
+  morningBrief: MorningBrief;
+  dailyBriefItems: DailyBriefItem[];
+  fundHealthRows: FundHealthRow[];
+  portfolioSignals: PortfolioSignalRow[];
   metrics: {
     overdueCapitalCalls: number;
     upcomingDeadlines: number;
@@ -23,7 +145,67 @@ export interface DashboardData {
   selectedFundName: string;
 }
 
-export function getMockDashboardData(selectedFund: Fund | null, viewMode: FundViewMode): DashboardData {
+const getPriorityQuadrant = (
+  urgencyScore: number,
+  importanceScore: number,
+  dueDate: Date,
+  anchor: Date
+): PriorityQuadrant => {
+  const daysUntilDue = getDaysUntil(dueDate, anchor);
+  const urgent = urgencyScore >= 8 || daysUntilDue <= URGENT_DUE_WINDOW_DAYS;
+  const important = importanceScore >= 8;
+
+  if (urgent && important) return 'urgent-important';
+  if (urgent) return 'urgent-non-important';
+  if (important) return 'non-urgent-important';
+  return 'non-urgent-non-important';
+};
+
+const getTaskRouteConfig = (domain: Task['domain']) => {
+  if (domain === 'capital-calls') {
+    return { route: '/fund-admin', tabTarget: 'capital-calls' };
+  }
+  if (domain === 'portfolio') {
+    return { route: '/portfolio' };
+  }
+  if (domain === 'compliance') {
+    return { route: '/compliance' };
+  }
+  if (domain === 'reporting') {
+    return { route: '/reports' };
+  }
+  return { route: '/home' };
+};
+
+const getAlertRouteConfig = (alert: Alert) => {
+  const lowerTitle = alert.title.toLowerCase();
+  if (lowerTitle.includes('capital call') || lowerTitle.includes('lp')) {
+    return { route: '/fund-admin', tabTarget: 'capital-calls' };
+  }
+  if (lowerTitle.includes('compliance')) {
+    return { route: '/compliance' };
+  }
+  return { route: '/portfolio' };
+};
+
+const getQuadrantRank = (quadrant: PriorityQuadrant) => {
+  switch (quadrant) {
+    case 'urgent-important':
+      return 0;
+    case 'urgent-non-important':
+      return 1;
+    case 'non-urgent-important':
+      return 2;
+    default:
+      return 3;
+  }
+};
+
+export function getMockDashboardData(
+  selectedFund: Fund | null,
+  viewMode: FundViewMode,
+  funds: Fund[] = []
+): DashboardData {
   const today = new Date('2025-01-01T12:00:00.000Z');
   const fundName = selectedFund?.displayName || 'All Funds';
   void viewMode;
@@ -35,12 +217,12 @@ export function getMockDashboardData(selectedFund: Fund | null, viewMode: FundVi
       fundName: 'Fund II - Series A',
       amount: 5200000,
       collected: 4524000,
-      dueDate: new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
+      dueDate: new Date(today.getTime() - 7 * MS_PER_DAY),
       totalLPs: 15,
       respondedLPs: 13,
       overdueLPs: 2,
       prediction: {
-        expectedCompletion: new Date(today.getTime() + 3 * 24 * 60 * 60 * 1000), // 3 days from now
+        expectedCompletion: new Date(today.getTime() + 3 * MS_PER_DAY),
         confidence: 0.89,
         atRiskLPs: [
           { name: 'Acme Ventures', typicalDelayDays: 5 },
@@ -53,16 +235,14 @@ export function getMockDashboardData(selectedFund: Fund | null, viewMode: FundVi
       fundName: 'Fund III - Seed',
       amount: 2100000,
       collected: 945000,
-      dueDate: new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000), // 14 days from now
+      dueDate: new Date(today.getTime() + 14 * MS_PER_DAY),
       totalLPs: 12,
       respondedLPs: 5,
       overdueLPs: 0,
       prediction: {
-        expectedCompletion: new Date(today.getTime() + 18 * 24 * 60 * 60 * 1000),
+        expectedCompletion: new Date(today.getTime() + 18 * MS_PER_DAY),
         confidence: 0.82,
-        atRiskLPs: [
-          { name: 'Gamma Partners', typicalDelayDays: 7 },
-        ],
+        atRiskLPs: [{ name: 'Gamma Partners', typicalDelayDays: 7 }],
       },
     },
   ];
@@ -109,7 +289,7 @@ export function getMockDashboardData(selectedFund: Fund | null, viewMode: FundVi
       id: 'pc-3',
       name: 'FinServe',
       health: 92,
-      healthChange: +5,
+      healthChange: 5,
       runway: 18,
       burnRate: 100000,
       prediction: {
@@ -123,7 +303,7 @@ export function getMockDashboardData(selectedFund: Fund | null, viewMode: FundVi
       id: 'pc-4',
       name: 'EduTech',
       health: 88,
-      healthChange: +3,
+      healthChange: 3,
       runway: 24,
       burnRate: 75000,
       prediction: {
@@ -147,7 +327,7 @@ export function getMockDashboardData(selectedFund: Fund | null, viewMode: FundVi
         'Runway < 6 months is critical threshold. Company has high burn ($200K/mo) and recent clinical trial setbacks. Risk of down round or shutdown without intervention.',
       prediction: {
         label: 'Cash depletion date',
-        value: new Date(today.getTime() + 180 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', {
+        value: new Date(today.getTime() + 180 * MS_PER_DAY).toLocaleDateString('en-US', {
           month: 'short',
           day: 'numeric',
           year: 'numeric',
@@ -192,51 +372,7 @@ export function getMockDashboardData(selectedFund: Fund | null, viewMode: FundVi
     },
   ];
 
-  // Mock Quick Actions
-  const quickActions: QuickAction[] = [
-    {
-      id: 'qa-1',
-      label: 'Send LP Reminders',
-      description: 'Email overdue LPs about Fund II call',
-      icon: Send,
-      aiSuggested: true,
-      confidence: 0.94,
-      onClick: () => console.log('Send reminders'),
-    },
-    {
-      id: 'qa-2',
-      label: 'Draft Capital Call',
-      description: 'Generate Fund III notice',
-      icon: DollarSign,
-      aiSuggested: true,
-      confidence: 0.88,
-      onClick: () => console.log('Draft capital call'),
-    },
-    {
-      id: 'qa-3',
-      label: 'Generate Report',
-      description: 'Q4 portfolio health summary',
-      icon: FileText,
-      aiSuggested: false,
-      onClick: () => console.log('Generate report'),
-    },
-    {
-      id: 'qa-4',
-      label: 'Contact LP',
-      description: 'View LP directory',
-      icon: Users,
-      aiSuggested: false,
-      onClick: () => console.log('View LPs'),
-    },
-    {
-      id: 'qa-5',
-      label: 'View Analytics',
-      description: 'Deep dive into metrics',
-      icon: BarChart,
-      aiSuggested: false,
-      onClick: () => console.log('View analytics'),
-    },
-  ];
+  const quickActions = MOCK_QUICK_ACTIONS;
 
   // Mock Tasks
   const tasks: Task[] = [
@@ -305,10 +441,176 @@ export function getMockDashboardData(selectedFund: Fund | null, viewMode: FundVi
     },
   ];
 
-  // Aggregate metrics for AI insights
+  const sourceFunds = funds.length > 0 ? funds : selectedFund ? [selectedFund] : [];
+
+  const fundHealthRows: FundHealthRow[] = sourceFunds
+    .map((fund) => {
+      const deploymentPct = Math.round((fund.deployedCapital / Math.max(fund.totalCommitment, 1)) * 100);
+      const irrScore = clamp((fund.irr / 25) * 100, 0, 100);
+      const tvpiScore = clamp((fund.tvpi / 2.5) * 100, 0, 100);
+      const deploymentScore = deploymentPct < 30 ? 55 : deploymentPct > 92 ? 60 : 85;
+      const statusModifier = fund.status === 'active' ? 0 : fund.status === 'fundraising' ? -8 : -15;
+
+      const healthScore = clamp(
+        Math.round((irrScore * 0.45) + (tvpiScore * 0.35) + (deploymentScore * 0.2) + statusModifier),
+        25,
+        97
+      );
+
+      const healthDelta = clamp(Math.round(((fund.irr - 15) / 2) + ((fund.tvpi - 1.5) * 2)), -9, 9);
+
+      const riskFlag: FundHealthRow['riskFlag'] =
+        healthScore < 60 || fund.status !== 'active' || deploymentPct > 92
+          ? 'critical'
+          : healthScore < 75 || deploymentPct < 30 || deploymentPct > 85
+            ? 'watch'
+            : 'stable';
+
+      return {
+        id: fund.id,
+        displayName: fund.displayName,
+        status: fund.status,
+        healthScore,
+        healthDelta,
+        deploymentPct,
+        availableCapital: fund.availableCapital,
+        irr: fund.irr,
+        tvpi: fund.tvpi,
+        riskFlag,
+      };
+    })
+    .sort((a, b) => a.healthScore - b.healthScore);
+
+  const portfolioSignals: PortfolioSignalRow[] = [...portfolioCompanies]
+    .map((company) => {
+      const anomalyCount = company.anomalies?.length ?? 0;
+      const riskFlag: PortfolioSignalRow['riskFlag'] =
+        company.health < 70 || company.runway < 9
+          ? 'critical'
+          : company.health < 80 || company.runway < 12 || anomalyCount > 0
+            ? 'watch'
+            : 'stable';
+
+      return {
+        id: company.id,
+        name: company.name,
+        healthScore: company.health,
+        healthDelta: company.healthChange,
+        runwayMonths: company.runway,
+        anomalyCount,
+        riskFlag,
+        route: '/portfolio',
+      };
+    })
+    .sort((a, b) => a.healthScore - b.healthScore);
+
+  const taskDueDateOffsets: Record<string, number> = {
+    'task-1': 0,
+    'task-2': 1,
+    'task-3': 3,
+    'task-4': 5,
+    'task-5': 7,
+  };
+
+  const alertDueDateOffsets: Record<string, number> = {
+    'alert-1': 6,
+    'alert-2': 2,
+  };
+
+  const taskItems: DailyBriefItem[] = tasks
+    .filter((task) => task.status !== 'completed')
+    .flatMap((task) => {
+      const dueDate = addDays(today, taskDueDateOffsets[task.id] ?? BRIEF_HORIZON_DAYS);
+      if (!isWithinBriefWindow(dueDate, today)) return [];
+
+      const routeConfig = getTaskRouteConfig(task.domain);
+      return [{
+        id: `brief-${task.id}`,
+        type: 'task' as const,
+        title: task.title,
+        description: task.description,
+        owner: task.delegationSuggestion?.person ?? 'GP',
+        dueDate,
+        urgencyScore: task.urgency,
+        importanceScore: task.impact,
+        route: routeConfig.route,
+        tabTarget: routeConfig.tabTarget,
+        searchHint: task.domain === 'portfolio' ? task.title.replace('Review ', '').replace(' metrics', '') : undefined,
+        quadrant: getPriorityQuadrant(task.urgency, task.impact, dueDate, today),
+      }];
+    });
+
+  const warningItems: DailyBriefItem[] = alerts
+    .filter((alert) => !alert.title.toLowerCase().includes('capital call'))
+    .flatMap((alert) => {
+      const dueDate = addDays(today, alertDueDateOffsets[alert.id] ?? BRIEF_HORIZON_DAYS);
+      if (!isWithinBriefWindow(dueDate, today)) return [];
+
+      const routeConfig = getAlertRouteConfig(alert);
+      const urgencyScore = clamp(Math.round(alert.priority / 10), 4, 10);
+      const importanceScore = clamp(Math.round((alert.priority + 10) / 12), 4, 10);
+
+      return [{
+        id: `brief-${alert.id}`,
+        type: 'warning' as const,
+        title: alert.title,
+        description: alert.description,
+        owner: 'GP',
+        dueDate,
+        urgencyScore,
+        importanceScore,
+        route: routeConfig.route,
+        tabTarget: routeConfig.tabTarget,
+        quadrant: getPriorityQuadrant(urgencyScore, importanceScore, dueDate, today),
+      }];
+    });
+
+  const overdueCapitalCallWarnings: DailyBriefItem[] = capitalCalls
+    .filter((call) => call.overdueLPs > 0)
+    .map((call) => ({
+      id: `brief-capital-call-${call.id}`,
+      type: 'warning' as const,
+      title: `Escalate overdue LP commitments for ${call.fundName}`,
+      description: `${call.overdueLPs} LPs are overdue. ${call.respondedLPs}/${call.totalLPs} have responded so far.`,
+      owner: 'Fund Admin',
+      dueDate: addDays(today, 1),
+      urgencyScore: 9,
+      importanceScore: 8,
+      route: '/fund-admin',
+      tabTarget: 'capital-calls',
+      quadrant: getPriorityQuadrant(9, 8, addDays(today, 1), today),
+    }));
+
+  const dailyBriefItems = [...taskItems, ...warningItems, ...overdueCapitalCallWarnings].sort((a, b) => {
+    const quadrantDiff = getQuadrantRank(a.quadrant) - getQuadrantRank(b.quadrant);
+    if (quadrantDiff !== 0) return quadrantDiff;
+
+    if (a.dueDate.getTime() !== b.dueDate.getTime()) {
+      return a.dueDate.getTime() - b.dueDate.getTime();
+    }
+
+    return (b.urgencyScore + b.importanceScore) - (a.urgencyScore + a.importanceScore);
+  });
+
+  const urgentCount = dailyBriefItems.filter((item) => item.quadrant.startsWith('urgent')).length;
+  const importantCount = dailyBriefItems.filter((item) => item.quadrant.endsWith('important')).length;
+  const watchFundsCount = fundHealthRows.filter((row) => row.riskFlag !== 'stable').length;
+  const watchPortfolioCount = portfolioSignals.filter((row) => row.riskFlag !== 'stable').length;
+
+  const morningBrief: MorningBrief = {
+    summary: `${urgentCount} urgent and ${importantCount} important items over the next ${BRIEF_HORIZON_DAYS} days. ${watchFundsCount} funds and ${watchPortfolioCount} portfolio companies are on watch.`,
+    confidence: 0.92,
+    asOf: new Date(today),
+    horizonDays: BRIEF_HORIZON_DAYS,
+    itemCount: dailyBriefItems.length,
+    urgentCount,
+    importantCount,
+  };
+
+  // Aggregate metrics for downstream AI/summary usage
   const metrics = {
     overdueCapitalCalls: capitalCalls.filter((c) => c.overdueLPs > 0).length,
-    upcomingDeadlines: 1, // From tasks
+    upcomingDeadlines: dailyBriefItems.length,
     atRiskCompanies: portfolioCompanies.filter((c) => c.health < 70 || c.runway < 12).length,
     healthyCompanies: portfolioCompanies.filter((c) => c.health >= 80).length,
     totalTasks: tasks.filter((t) => t.status !== 'completed').length,
@@ -321,6 +623,10 @@ export function getMockDashboardData(selectedFund: Fund | null, viewMode: FundVi
     alerts,
     quickActions,
     tasks,
+    morningBrief,
+    dailyBriefItems,
+    fundHealthRows,
+    portfolioSignals,
     metrics,
     selectedFundName: fundName,
   };
