@@ -1,23 +1,28 @@
 'use client'
 
 import { useUIKey } from '@/store/ui';
-import { Card, Button, Badge, Progress, Checkbox } from '@/ui';
+import { Card, Button, Badge, Progress, Checkbox, useToast } from '@/ui';
 import { TrendingUp, DollarSign, Download, Eye, Send, FileText, BarChart3, Users, ArrowUpRight, ArrowDownRight, UserCheck, Mail } from 'lucide-react';
 import { LPInvestorPortal } from './lp-investor-portal';
 import { AdvancedTable, ColumnDef } from '@/components/data-table/advanced-table';
 import { BulkActionsToolbar, useBulkSelection, BulkAction } from '@/components/bulk-actions-toolbar';
 import {
   type LP,
-  getLPCapitalCalls,
-  getLPDistributions,
-  getLPReports,
-  getLPs,
+  exportLPData,
+  generateLPReport,
+  sendCapitalCallToLPs,
+  sendLPUpdate,
+  sendReportToLPs,
 } from '@/services/lpPortal/lpManagementService';
 import { formatCurrency, formatPercent } from '@/utils/formatting';
 import { PageScaffold, SearchToolbar, SectionHeader, StatusBadge } from '@/ui/composites';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useAsyncData } from '@/hooks/useAsyncData';
+import { lpManagementRequested, lpManagementSelectors } from '@/store/slices/miscSlice';
+import { AsyncStateRenderer } from '@/ui/async-states';
 
 export function LPManagement() {
+  const toast = useToast();
   const { value: ui, patch: patchUI } = useUIKey<{
     selectedTab: string;
     selectedLP: LP | null;
@@ -25,12 +30,16 @@ export function LPManagement() {
     selectedTab: 'overview',
     selectedLP: null,
   });
+  const { data, isLoading, error, refetch } = useAsyncData(
+    lpManagementRequested,
+    lpManagementSelectors.selectState
+  );
   const { selectedTab } = ui;
 
-  const lps = getLPs();
-  const reports = getLPReports();
-  const capitalCalls = getLPCapitalCalls();
-  const distributions = getLPDistributions();
+  const lps = data?.lps ?? [];
+  const reports = data?.reports ?? [];
+  const capitalCalls = data?.capitalCalls ?? [];
+  const distributions = data?.distributions ?? [];
 
   // Bulk selection for LPs
   const {
@@ -39,12 +48,63 @@ export function LPManagement() {
     selectAll,
     clearSelection,
     isSelected,
+    selectedItems,
   } = useBulkSelection(lps, 'lp-management:lps');
+
+  const getSelectedLPIds = () => selectedItems.map((lp) => lp.id);
+
+  const handleGenerateReport = async () => {
+    try {
+      const report = await generateLPReport(getSelectedLPIds());
+      toast.success(`${report.title} saved as draft`, 'Report generated');
+      refetch();
+    } catch {
+      toast.error('Unable to generate report');
+    }
+  };
+
+  const handleSendUpdate = async () => {
+    try {
+      const result = await sendLPUpdate(getSelectedLPIds());
+      toast.success(`Update sent to ${result.recipientCount} LPs`, 'LP update delivered');
+    } catch {
+      toast.error('Unable to send LP update');
+    }
+  };
+
+  const handleSendReport = async () => {
+    try {
+      const result = await sendReportToLPs(getSelectedLPIds());
+      toast.success(`Report sent to ${result.recipientCount} LPs`, 'Report sent');
+    } catch {
+      toast.error('Unable to send report');
+    }
+  };
+
+  const handleSendCapitalCall = async () => {
+    try {
+      const result = await sendCapitalCallToLPs(getSelectedLPIds());
+      toast.success(`Capital call sent to ${result.recipientCount} LPs`, 'Capital call sent');
+    } catch {
+      toast.error('Unable to send capital call');
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      const result = await exportLPData(getSelectedLPIds());
+      toast.success(`${result.recordCount} LP records prepared (${result.fileName})`, 'Export ready');
+    } catch {
+      toast.error('Unable to export LP data');
+    }
+  };
 
   // Calculate LP metrics for AI summary
   const totalLPs = lps.length;
   const totalCommitments = lps.reduce((sum, lp) => sum + lp.commitmentAmount, 0);
-  const averageIRR = (lps.reduce((sum, lp) => sum + lp.irr, 0) / lps.length).toFixed(1);
+  const averageIRR = totalLPs > 0
+    ? (lps.reduce((sum, lp) => sum + lp.irr, 0) / totalLPs).toFixed(1)
+    : '0.0';
   const pendingCapitalCalls = capitalCalls.filter(c => c.status === 'pending').length;
   const publishedReports = reports.filter(r => r.status === 'published').length;
 
@@ -65,19 +125,25 @@ export function LPManagement() {
       id: 'send-report',
       label: 'Send Report',
       icon: <Mail className="w-4 h-4" />,
-      onClick: () => console.log('Send report to selected LPs'),
+      onClick: () => {
+        void handleSendReport();
+      },
     },
     {
       id: 'send-capital-call',
       label: 'Send Capital Call',
       icon: <Send className="w-4 h-4" />,
-      onClick: () => console.log('Send capital call to selected LPs'),
+      onClick: () => {
+        void handleSendCapitalCall();
+      },
     },
     {
       id: 'export',
       label: 'Export Data',
       icon: <Download className="w-4 h-4" />,
-      onClick: () => console.log('Export selected LPs'),
+      onClick: () => {
+        void handleExport();
+      },
     },
   ];
 
@@ -177,54 +243,70 @@ export function LPManagement() {
   });
 
   return (
-    <PageScaffold
-      routePath={ROUTE_PATHS.lpManagement}
-      header={{
-        title: 'LP Management',
-        description: 'Manage Limited Partners, generate reports, and track capital activities',
-        icon: UserCheck,
-        aiSummary: {
-          text: `${totalLPs} Limited Partners with ${formatCurrency(totalCommitments)} in commitments. Average IRR: ${averageIRR}%. ${pendingCapitalCalls} pending capital call(s), ${publishedReports} published report(s).`,
-          confidence: 0.88,
-        },
-        primaryAction: {
-          label: 'Generate Report',
-          onClick: () => console.log('Generate report clicked'),
-          aiSuggested: true,
-          confidence: 0.82,
-        },
-        secondaryActions: [
-          {
-            label: 'Send Update',
-            onClick: () => console.log('Send update clicked'),
-          },
-        ],
-        tabs: [
-          {
-            id: 'overview',
-            label: 'LP Overview',
-            count: totalLPs,
-          },
-          {
-            id: 'reports',
-            label: 'Reports',
-            count: publishedReports,
-          },
-          {
-            id: 'capital',
-            label: 'Capital Activity',
-            count: pendingCapitalCalls,
-            priority: pendingCapitalCalls > 0 ? 'high' : undefined,
-          },
-          {
-            id: 'performance',
-            label: 'Performance',
-          },
-        ],
-        activeTab: selectedTab,
-        onTabChange: (tabId) => patchUI({ selectedTab: tabId }),
-      }}
+    <AsyncStateRenderer
+      data={data}
+      isLoading={isLoading}
+      error={error}
+      onRetry={refetch}
+      loadingMessage="Loading LP management data..."
+      errorTitle="Failed to load LP management data"
+      isEmpty={(snapshot) => Boolean(snapshot) && snapshot.lps.length === 0}
+      emptyTitle="No LP records yet"
+      emptyMessage="Add LPs or switch to demo mock mode to preview this workflow."
     >
+      {() => (
+        <PageScaffold
+          routePath={ROUTE_PATHS.lpManagement}
+          header={{
+            title: 'LP Management',
+            description: 'Manage Limited Partners, generate reports, and track capital activities',
+            icon: UserCheck,
+            aiSummary: {
+              text: `${totalLPs} Limited Partners with ${formatCurrency(totalCommitments)} in commitments. Average IRR: ${averageIRR}%. ${pendingCapitalCalls} pending capital call(s), ${publishedReports} published report(s).`,
+              confidence: 0.88,
+            },
+            primaryAction: {
+              label: 'Generate Report',
+              onClick: () => {
+                void handleGenerateReport();
+              },
+              aiSuggested: true,
+              confidence: 0.82,
+            },
+            secondaryActions: [
+              {
+                label: 'Send Update',
+                onClick: () => {
+                  void handleSendUpdate();
+                },
+              },
+            ],
+            tabs: [
+              {
+                id: 'overview',
+                label: 'LP Overview',
+                count: totalLPs,
+              },
+              {
+                id: 'reports',
+                label: 'Reports',
+                count: publishedReports,
+              },
+              {
+                id: 'capital',
+                label: 'Capital Activity',
+                count: pendingCapitalCalls,
+                priority: pendingCapitalCalls > 0 ? 'high' : undefined,
+              },
+              {
+                id: 'performance',
+                label: 'Performance',
+              },
+            ],
+            activeTab: selectedTab,
+            onTabChange: (tabId) => patchUI({ selectedTab: tabId }),
+          }}
+        >
 
       {/* Fund Overview Stats */}
       <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -459,7 +541,7 @@ export function LPManagement() {
                 <div className="p-4 rounded-lg bg-[var(--app-success-bg)]">
                   <p className="text-sm text-[var(--app-text-muted)] mb-1">Total Value to Paid-In (TVPI)</p>
                   <p className="text-3xl font-bold text-[var(--app-success)]">
-                    {(lps.reduce((sum, lp) => sum + lp.tvpi, 0) / lps.length).toFixed(2)}x
+                    {totalLPs > 0 ? (lps.reduce((sum, lp) => sum + lp.tvpi, 0) / totalLPs).toFixed(2) : '0.00'}x
                   </p>
                   <p className="text-xs text-[var(--app-text-muted)] mt-1">Average across all LPs</p>
                 </div>
@@ -467,7 +549,7 @@ export function LPManagement() {
                 <div className="p-4 rounded-lg bg-[var(--app-info-bg)]">
                   <p className="text-sm text-[var(--app-text-muted)] mb-1">Distributions to Paid-In (DPI)</p>
                   <p className="text-3xl font-bold text-[var(--app-info)]">
-                    {(lps.reduce((sum, lp) => sum + lp.dpi, 0) / lps.length).toFixed(2)}x
+                    {totalLPs > 0 ? (lps.reduce((sum, lp) => sum + lp.dpi, 0) / totalLPs).toFixed(2) : '0.00'}x
                   </p>
                   <p className="text-xs text-[var(--app-text-muted)] mt-1">Realized returns</p>
                 </div>
@@ -475,7 +557,7 @@ export function LPManagement() {
                 <div className="p-4 rounded-lg bg-[var(--app-primary-bg)]">
                   <p className="text-sm text-[var(--app-text-muted)] mb-1">Internal Rate of Return (IRR)</p>
                   <p className="text-3xl font-bold text-[var(--app-primary)]">
-                    {formatPercent(lps.reduce((sum, lp) => sum + lp.irr, 0) / lps.length)}
+                    {formatPercent(totalLPs > 0 ? lps.reduce((sum, lp) => sum + lp.irr, 0) / totalLPs : 0)}
                   </p>
                   <p className="text-xs text-[var(--app-text-muted)] mt-1">Net to LPs</p>
                 </div>
@@ -493,13 +575,13 @@ export function LPManagement() {
                         </span>
                       </div>
                       <Progress
-                        value={(lp.calledCapital / lp.commitmentAmount) * 100}
+                        value={lp.commitmentAmount > 0 ? (lp.calledCapital / lp.commitmentAmount) * 100 : 0}
                         maxValue={100}
                         className="h-2"
-                        aria-label={`${lp.name} capital deployment ${((lp.calledCapital / lp.commitmentAmount) * 100).toFixed(1)}%`}
+                        aria-label={`${lp.name} capital deployment ${lp.commitmentAmount > 0 ? ((lp.calledCapital / lp.commitmentAmount) * 100).toFixed(1) : '0.0'}%`}
                       />
                       <p className="text-xs text-[var(--app-text-subtle)] mt-1">
-                        {((lp.calledCapital / lp.commitmentAmount) * 100).toFixed(1)}% deployed
+                        {lp.commitmentAmount > 0 ? ((lp.calledCapital / lp.commitmentAmount) * 100).toFixed(1) : '0.0'}% deployed
                       </p>
                     </div>
                   ))}
@@ -509,6 +591,8 @@ export function LPManagement() {
           </div>
         )}
       </div>
-    </PageScaffold>
+        </PageScaffold>
+      )}
+    </AsyncStateRenderer>
   );
 }

@@ -861,7 +861,7 @@ export function DealIntelligence() {
             <Card padding="md">
               <div className="text-center py-12 text-[var(--app-text-muted)]">
                 <Brain className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>Investment thesis and analysis coming soon</p>
+                <p>Investment thesis and analysis workspace is staged for the next release increment.</p>
               </div>
             </Card>
           </Tab>
@@ -870,7 +870,7 @@ export function DealIntelligence() {
             <Card padding="md">
               <div className="text-center py-12 text-[var(--app-text-muted)]">
                 <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>Investment Committee materials coming soon</p>
+                <p>Investment Committee materials workspace is staged for the next release increment.</p>
               </div>
             </Card>
           </Tab>

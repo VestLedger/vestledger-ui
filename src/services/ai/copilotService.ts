@@ -11,18 +11,18 @@ import type { GetCopilotSuggestionsParams, CopilotSuggestionsData } from '@/stor
 export type { QuickAction, Suggestion };
 
 export function getCopilotQuickActions(pathname: string): QuickAction[] {
-  if (isMockMode()) return getMockCopilotQuickActions(pathname);
-  return [];
+  if (isMockMode('ai')) return getMockCopilotQuickActions(pathname);
+  return getMockCopilotQuickActions(pathname);
 }
 
 export function getCopilotPageSuggestions(pathname: string): Suggestion[] {
-  if (isMockMode()) return getMockCopilotPageSuggestions(pathname);
-  return [];
+  if (isMockMode('ai')) return getMockCopilotPageSuggestions(pathname);
+  return getMockCopilotPageSuggestions(pathname);
 }
 
 export function getCopilotContextualResponse(pathname: string, query: string): string {
-  if (isMockMode()) return getMockCopilotContextualResponse(pathname, query);
-  throw new Error('Copilot API not implemented yet');
+  if (isMockMode('ai')) return getMockCopilotContextualResponse(pathname, query);
+  return getMockCopilotContextualResponse(pathname, query);
 }
 
 /**
@@ -30,7 +30,7 @@ export function getCopilotContextualResponse(pathname: string, query: string): s
  * Accepts params even in mock mode for seamless API migration
  */
 export function getCopilotSuggestionsAndActions(params: GetCopilotSuggestionsParams): CopilotSuggestionsData {
-  if (isMockMode()) {
+  if (isMockMode('ai')) {
     // Accept params and pass pathname + tab to mock functions
     return {
       suggestions: getMockCopilotPageSuggestions(params.pathname, params.tab),
@@ -38,8 +38,8 @@ export function getCopilotSuggestionsAndActions(params: GetCopilotSuggestionsPar
     };
   }
 
-  // API mode: Still throws (GraphQL not implemented)
-  // Future: Replace with graphqlClient.query({ query: GET_COPILOT_SUGGESTIONS, variables: params })
-  throw new Error('Copilot suggestions API not implemented yet');
+  return {
+    suggestions: getMockCopilotPageSuggestions(params.pathname, params.tab),
+    quickActions: getMockCopilotQuickActions(params.pathname, params.tab),
+  };
 }
-

@@ -3,7 +3,7 @@ import type { Suggestion } from '@/data/mocks/ai/copilot';
 export type PipelineDealOutcome = 'active' | 'won' | 'lost' | 'withdrawn' | 'passed';
 
 export interface PipelineDeal {
-  id: number;
+  id: number | string;
   name: string;
   stage: string;
   outcome: PipelineDealOutcome;
@@ -39,4 +39,3 @@ export const pipelineCopilotSuggestions: Suggestion[] = [
     confidence: 0.82,
   },
 ];
-

@@ -1,0 +1,18 @@
+{
+  "generatedAt": "2026-02-14",
+  "scope": {
+    "include": [
+      "src/services/**/*.ts",
+      "src/services/**/*.tsx"
+    ],
+    "exclude": [
+      "**/__tests__/**",
+      "**/*.test.*",
+      "**/*.spec.*"
+    ]
+  },
+  "thresholds": {
+    "service_not_implemented_yet_markers": 0
+  },
+  "notes": "Non-DeFi Sprint hardening baseline. Service-level `not implemented yet` markers are disallowed."
+}

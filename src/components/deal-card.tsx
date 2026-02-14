@@ -7,7 +7,7 @@ import { Card, Badge, Progress } from '@/ui';
 type DealOutcome = 'active' | 'won' | 'lost' | 'withdrawn' | 'passed';
 
 interface Deal {
-  id: number;
+  id: number | string;
   name: string;
   stage: string;
   sector: string;

@@ -9,15 +9,15 @@ test.describe('Common UI Elements', () => {
       await expect(sidebar).toBeVisible();
     });
 
-    test('should have collapsible sidebar on desktop', async ({ page }) => {
+    test('should auto-expand sidebar on hover on desktop', async ({ page }) => {
       await loginViaRedirect(page, '/home');
 
-      const toggleButton = page.locator('[data-testid="sidebar-toggle"], [aria-label*="sidebar" i]');
+      const sidebar = page.locator('aside').first();
+      const collapsedLogoOnly = page.getByText('AI-Powered VC');
 
-      if (await toggleButton.isVisible()) {
-        await toggleButton.click();
-        await page.waitForTimeout(300);
-      }
+      await expect(collapsedLogoOnly).toBeHidden();
+      await sidebar.hover();
+      await expect(collapsedLogoOnly).toBeVisible();
     });
 
     test('should have mobile menu', async ({ page }) => {

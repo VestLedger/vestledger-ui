@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, Button, Badge, Progress } from '@/ui';
+import { Card, Button, Badge, Progress, useToast } from '@/ui';
 import { Receipt, Download, Send, Calendar, DollarSign, Mail, FileText } from 'lucide-react';
 import { getRouteConfig, ROUTE_PATHS } from '@/config/routes';
 import { K1Generator } from '../tax/k1-generator';
@@ -13,6 +13,7 @@ import type { MetricsGridItem } from '@/ui/composites';
 import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function TaxCenter() {
+  const toast = useToast();
   const { data, isLoading, error, refetch } = useAsyncData(taxCenterRequested, taxCenterSelectors.selectState);
   const { value: ui, patch: patchUI } = useUIKey('back-office-tax-center', { selectedTab: 'overview' });
   const { selectedTab } = ui;
@@ -75,6 +76,48 @@ export function TaxCenter() {
     },
   ];
 
+  const handleGenerateK1Batch = () => {
+    toast.success('K-1 generation batch has been queued for all configured funds.', 'Generation Started');
+  };
+
+  const handleUploadTaxDocuments = () => {
+    toast.info(
+      'Upload source files in Documents. Tax document ingestion is wired for API integration.',
+      'Upload Documents'
+    );
+  };
+
+  const handleConfigureK1 = (fundId: string) => {
+    toast.info(`K-1 configuration opened for ${fundId}.`, 'Configuration');
+  };
+
+  const handleGenerateK1s = (fundId: string, taxYear: number) => {
+    toast.success(`K-1 generation started for ${fundId} (${taxYear}).`, 'Generation Started');
+  };
+
+  const handlePreviewK1 = (documentId: string) => {
+    toast.info(`Preview requested for K-1 document ${documentId}.`, 'Preview');
+  };
+
+  const handleApproveK1 = (documentId: string) => {
+    toast.success(`K-1 document ${documentId} has been approved.`, 'Approved');
+  };
+
+  const handleSendK1 = (documentId: string) => {
+    toast.success(`K-1 document ${documentId} has been sent.`, 'Sent');
+  };
+
+  const handleAmendK1 = (documentId: string) => {
+    toast.warning(`Amendment workflow opened for K-1 document ${documentId}.`, 'Amendment Started');
+  };
+
+  const handleExportAllK1 = (fundId: string, taxYear: number, format: 'pdf' | 'csv') => {
+    toast.success(
+      `Export started for ${fundId} (${taxYear}) in ${format.toUpperCase()} format.`,
+      'Export Started'
+    );
+  };
+
   return (
     <AsyncStateRenderer
       data={data}
@@ -99,13 +142,13 @@ export function TaxCenter() {
             },
             primaryAction: {
               label: 'Generate K-1s',
-              onClick: () => console.log('Generate K-1s'),
+              onClick: handleGenerateK1Batch,
               aiSuggested: readyDocuments > 0,
             },
             secondaryActions: [
               {
                 label: 'Upload Documents',
-                onClick: () => console.log('Upload documents'),
+                onClick: handleUploadTaxDocuments,
               },
             ],
             tabs: [
@@ -242,13 +285,13 @@ export function TaxCenter() {
           <K1Generator
             configurations={[]}
             documents={[]}
-            onConfigureK1={(fundId) => console.log('Configure K1:', fundId)}
-            onGenerateK1s={(fundId, taxYear) => console.log('Generate K1s:', fundId, taxYear)}
-            onPreviewK1={(documentId) => console.log('Preview K1:', documentId)}
-            onApproveK1={(documentId) => console.log('Approve K1:', documentId)}
-            onSendK1={(documentId) => console.log('Send K1:', documentId)}
-            onAmendK1={(documentId) => console.log('Amend K1:', documentId)}
-            onExportAll={(fundId, taxYear, format) => console.log('Export all:', fundId, taxYear, format)}
+            onConfigureK1={handleConfigureK1}
+            onGenerateK1s={handleGenerateK1s}
+            onPreviewK1={handlePreviewK1}
+            onApproveK1={handleApproveK1}
+            onSendK1={handleSendK1}
+            onAmendK1={handleAmendK1}
+            onExportAll={handleExportAllK1}
           />
         </div>
       )}

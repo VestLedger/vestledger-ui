@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, Button, Badge, Progress, Textarea } from '@/ui';
+import { Card, Button, Badge, Progress, Textarea, useToast } from '@/ui';
 import { ThumbsUp, ThumbsDown, MinusCircle, MessageSquare, Users, Building2, Target, SkipForward, SkipBack, Plus, Edit3, FileSearch } from 'lucide-react';
 import { CompanyScoring } from './company-scoring';
 import { getDealflowReviewSlides, type DealflowReviewSlide } from '@/services/dealflow/dealflowReviewService';
@@ -12,6 +12,7 @@ import { formatCurrencyCompact } from '@/utils/formatting';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { PageScaffold, SectionHeader } from '@/ui/composites';
 import { ROUTE_PATHS } from '@/config/routes';
+import { writeToClipboard } from '@/utils/clipboard';
 
 interface Vote {
   partnerId: string;
@@ -21,7 +22,13 @@ interface Vote {
   timestamp: string;
 }
 
+function toSafeFilePart(value: string): string {
+  const normalized = value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  return normalized || 'dealflow-review';
+}
+
 export function DealflowReview() {
+  const toast = useToast();
   const { data, isLoading, error, refetch } = useAsyncData(dealflowDealsRequested, dealflowSelectors.selectState, { params: {} });
 
   // Use centralized UI state defaults
@@ -328,6 +335,75 @@ export function DealflowReview() {
     setVoteComment('');
   };
 
+  const handleShare = async () => {
+    if (!selectedDeal || typeof window === 'undefined') return;
+
+    const shareUrl = `${window.location.origin}${ROUTE_PATHS.dealflowReview}?dealId=${encodeURIComponent(String(selectedDeal.id))}`;
+    const shareText = `Dealflow review: ${selectedDeal.companyName} (${selectedDeal.stage})`;
+    const shareTitle = `Dealflow Review - ${selectedDeal.companyName}`;
+    const shareCapableNavigator = navigator as Navigator & {
+      share?: (data: ShareData) => Promise<void>;
+    };
+
+    if (typeof shareCapableNavigator.share === 'function') {
+      try {
+        await shareCapableNavigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl,
+        });
+        toast.success('Deal review shared.');
+        return;
+      } catch (error) {
+        if ((error as { name?: string })?.name === 'AbortError') {
+          return;
+        }
+      }
+    }
+
+    const copied = await writeToClipboard(`${shareText}\n${shareUrl}`);
+    if (copied) {
+      toast.info('Share link copied to clipboard.');
+      return;
+    }
+
+    toast.warning('Share is unavailable. Copy the current URL from your browser.');
+  };
+
+  const handleExport = () => {
+    if (!selectedDeal || typeof window === 'undefined') return;
+
+    const exportedAt = new Date().toISOString();
+    const payload = {
+      exportedAt,
+      deal: selectedDeal,
+      selectedSlide: currentSlide
+        ? { id: currentSlide.id, title: currentSlide.title, type: currentSlide.type }
+        : null,
+      voteSummary: {
+        totalVotes,
+        yesVotes,
+        maybeVotes,
+        consensusPercentage,
+      },
+      votes,
+    };
+
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {
+      type: 'application/json',
+    });
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    const datePart = exportedAt.slice(0, 10);
+    anchor.href = downloadUrl;
+    anchor.download = `dealflow-review-${toSafeFilePart(selectedDeal.companyName)}-${datePart}.json`;
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+    window.URL.revokeObjectURL(downloadUrl);
+    toast.success('Dealflow review export downloaded.');
+  };
+
   return (
     <AsyncStateRenderer
       data={data}
@@ -377,11 +453,13 @@ export function DealflowReview() {
               secondaryActions: [
                 {
                   label: 'Share',
-                  onClick: () => console.log('Share clicked'),
+                  onClick: () => {
+                    void handleShare();
+                  },
                 },
                 {
                   label: 'Export',
-                  onClick: () => console.log('Export clicked'),
+                  onClick: handleExport,
                 },
               ],
             }}

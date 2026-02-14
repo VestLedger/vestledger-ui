@@ -23,6 +23,7 @@ import { navOpsReducer } from './slices/navOpsSlice';
 import { carryOpsReducer } from './slices/carryOpsSlice';
 import { expenseOpsReducer } from './slices/expenseOpsSlice';
 import { secondaryTransferOpsReducer } from './slices/secondaryTransferOpsSlice';
+import { analyticsReducer } from './slices/analyticsSlice';
 
 export const rootReducer = combineReducers({
   alerts: alertsReducer,
@@ -49,6 +50,7 @@ export const rootReducer = combineReducers({
   carryOps: carryOpsReducer,
   expenseOps: expenseOpsReducer,
   secondaryTransferOps: secondaryTransferOpsReducer,
+  analytics: analyticsReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

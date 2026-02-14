@@ -458,7 +458,31 @@ export async function createScenarioFromTemplate(
     return newScenario;
   }
 
-  throw new Error('Waterfall API not implemented yet');
+  const templates = await fetchWaterfallTemplates();
+  const template = templates.find((item) => item.id === templateId);
+  if (!template) {
+    throw new Error(`Template not found: ${templateId}`);
+  }
+
+  return createWaterfallScenario({
+    name: scenarioData.name,
+    description: `Created from template: ${template.name}`,
+    fundId: scenarioData.fundId,
+    fundName: scenarioData.fundName,
+    model: template.model,
+    investorClasses: [],
+    tiers: template.tiers.map((tier, index) => ({
+      ...tier,
+      id: `template-tier-${Date.now()}-${index}`,
+    })),
+    exitValue: scenarioData.exitValue,
+    totalInvested: scenarioData.totalInvested,
+    managementFees: scenarioData.managementFees,
+    isFavorite: false,
+    isTemplate: false,
+    createdBy: scenarioData.createdBy,
+    tags: [template.name.toLowerCase().replace(/\s+/g, '-')],
+  });
 }
 
 // ============================================================================

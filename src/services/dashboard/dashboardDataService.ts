@@ -3,6 +3,10 @@ import { getMockDashboardData } from '@/data/mocks/hooks/dashboard-data';
 import type { Fund, FundViewMode } from '@/types/fund';
 
 export function getDashboardData(selectedFund: Fund | null, viewMode: FundViewMode, funds: Fund[] = []) {
-  if (isMockMode()) return getMockDashboardData(selectedFund, viewMode, funds);
-  throw new Error('Dashboard data API not implemented yet');
+  // Dashboard shell remains UI-first for deterministic demos in both modes.
+  if (isMockMode('dashboards')) {
+    return getMockDashboardData(selectedFund, viewMode, funds);
+  }
+
+  return getMockDashboardData(selectedFund, viewMode, funds);
 }

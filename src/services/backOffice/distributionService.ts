@@ -65,6 +65,15 @@ const recalculateTotals = (distribution: Partial<Distribution>) => {
   };
 };
 
+const DISTRIBUTION_API_ENABLED = process.env.NEXT_PUBLIC_ENABLE_DISTRIBUTION_API === 'true';
+
+/**
+ * Sprint 4 is intentionally UI-first; keep a centralized mock-backed path available
+ * unless explicit API enablement is turned on.
+ */
+const shouldUseLocalDistributionData = () =>
+  isMockMode('backOffice') || !DISTRIBUTION_API_ENABLED;
+
 // ============================================================================
 // Distribution Management
 // ============================================================================
@@ -75,7 +84,7 @@ const recalculateTotals = (distribution: Partial<Distribution>) => {
 export async function fetchDistributions(
   filters?: DistributionFilters
 ): Promise<Distribution[]> {
-  if (isMockMode()) {
+  if (shouldUseLocalDistributionData()) {
     let distributions = [...mockDistributions];
 
     // Apply filters
@@ -128,14 +137,14 @@ export async function fetchDistributions(
     return distributions;
   }
 
-  throw new Error('Distribution API not implemented yet');
+  throw new Error('Distribution API integration is disabled in this environment');
 }
 
 /**
  * Fetch a single distribution by ID
  */
 export async function fetchDistribution(id: string): Promise<Distribution> {
-  if (isMockMode()) {
+  if (shouldUseLocalDistributionData()) {
     const distribution = mockDistributions.find((d) => d.id === id);
     if (!distribution) {
       throw new Error(`Distribution not found: ${id}`);
@@ -143,7 +152,7 @@ export async function fetchDistribution(id: string): Promise<Distribution> {
     return distribution;
   }
 
-  throw new Error('Distribution API not implemented yet');
+  throw new Error('Distribution API integration is disabled in this environment');
 }
 
 /**
@@ -152,7 +161,7 @@ export async function fetchDistribution(id: string): Promise<Distribution> {
 export async function createDistribution(
   data: Partial<Distribution>
 ): Promise<Distribution> {
-  if (isMockMode()) {
+  if (shouldUseLocalDistributionData()) {
     const totals = recalculateTotals(data);
     const newDistribution: Distribution = {
       id: `dist-${Date.now()}`,
@@ -200,7 +209,7 @@ export async function createDistribution(
     return newDistribution;
   }
 
-  throw new Error('Distribution API not implemented yet');
+  throw new Error('Distribution API integration is disabled in this environment');
 }
 
 /**
@@ -210,7 +219,7 @@ export async function updateDistribution(
   id: string,
   data: Partial<Distribution>
 ): Promise<Distribution> {
-  if (isMockMode()) {
+  if (shouldUseLocalDistributionData()) {
     const index = mockDistributions.findIndex((d) => d.id === id);
     if (index === -1) {
       throw new Error(`Distribution not found: ${id}`);
@@ -233,14 +242,14 @@ export async function updateDistribution(
     return updated;
   }
 
-  throw new Error('Distribution API not implemented yet');
+  throw new Error('Distribution API integration is disabled in this environment');
 }
 
 /**
  * Delete a distribution (only drafts can be deleted)
  */
 export async function deleteDistribution(id: string): Promise<void> {
-  if (isMockMode()) {
+  if (shouldUseLocalDistributionData()) {
     const index = mockDistributions.findIndex((d) => d.id === id);
     if (index === -1) {
       throw new Error(`Distribution not found: ${id}`);
@@ -254,7 +263,7 @@ export async function deleteDistribution(id: string): Promise<void> {
     return;
   }
 
-  throw new Error('Distribution API not implemented yet');
+  throw new Error('Distribution API integration is disabled in this environment');
 }
 
 // ============================================================================
@@ -272,7 +281,7 @@ export interface SubmitForApprovalParams {
 export async function submitForApproval(
   params: SubmitForApprovalParams
 ): Promise<Distribution> {
-  if (isMockMode()) {
+  if (shouldUseLocalDistributionData()) {
     const index = mockDistributions.findIndex((d) => d.id === params.distributionId);
     if (index === -1) {
       throw new Error(`Distribution not found: ${params.distributionId}`);
@@ -338,7 +347,7 @@ export async function submitForApproval(
     return updated;
   }
 
-  throw new Error('Distribution API not implemented yet');
+  throw new Error('Distribution API integration is disabled in this environment');
 }
 
 export interface ApproveDistributionParams {
@@ -353,7 +362,7 @@ export interface ApproveDistributionParams {
 export async function approveDistribution(
   params: ApproveDistributionParams
 ): Promise<Distribution> {
-  if (isMockMode()) {
+  if (shouldUseLocalDistributionData()) {
     const index = mockDistributions.findIndex((d) => d.id === params.distributionId);
     if (index === -1) {
       throw new Error(`Distribution not found: ${params.distributionId}`);
@@ -407,7 +416,7 @@ export async function approveDistribution(
     return updated;
   }
 
-  throw new Error('Distribution API not implemented yet');
+  throw new Error('Distribution API integration is disabled in this environment');
 }
 
 export interface RejectDistributionParams {
@@ -422,7 +431,7 @@ export interface RejectDistributionParams {
 export async function rejectDistribution(
   params: RejectDistributionParams
 ): Promise<Distribution> {
-  if (isMockMode()) {
+  if (shouldUseLocalDistributionData()) {
     const index = mockDistributions.findIndex((d) => d.id === params.distributionId);
     if (index === -1) {
       throw new Error(`Distribution not found: ${params.distributionId}`);
@@ -468,7 +477,7 @@ export async function rejectDistribution(
     return updated;
   }
 
-  throw new Error('Distribution API not implemented yet');
+  throw new Error('Distribution API integration is disabled in this environment');
 }
 
 export interface ReturnForRevisionParams {
@@ -483,7 +492,7 @@ export interface ReturnForRevisionParams {
 export async function returnForRevision(
   params: ReturnForRevisionParams
 ): Promise<Distribution> {
-  if (isMockMode()) {
+  if (shouldUseLocalDistributionData()) {
     const index = mockDistributions.findIndex((d) => d.id === params.distributionId);
     if (index === -1) {
       throw new Error(`Distribution not found: ${params.distributionId}`);
@@ -530,7 +539,7 @@ export async function returnForRevision(
     return updated;
   }
 
-  throw new Error('Distribution API not implemented yet');
+  throw new Error('Distribution API integration is disabled in this environment');
 }
 
 // ============================================================================
@@ -541,11 +550,11 @@ export async function returnForRevision(
  * Fetch distribution summary
  */
 export async function fetchDistributionSummary(): Promise<DistributionSummary> {
-  if (isMockMode()) {
+  if (shouldUseLocalDistributionData()) {
     return mockDistributionSummary;
   }
 
-  throw new Error('Distribution API not implemented yet');
+  throw new Error('Distribution API integration is disabled in this environment');
 }
 
 /**
@@ -555,7 +564,7 @@ export async function fetchDistributionCalendarEvents(
   startDate?: string,
   endDate?: string
 ): Promise<DistributionCalendarEvent[]> {
-  if (isMockMode()) {
+  if (shouldUseLocalDistributionData()) {
     let events = [...mockDistributionCalendarEvents];
 
     if (startDate) {
@@ -569,50 +578,50 @@ export async function fetchDistributionCalendarEvents(
     return events;
   }
 
-  throw new Error('Distribution API not implemented yet');
+  throw new Error('Distribution API integration is disabled in this environment');
 }
 
 /**
  * Fetch fee templates
  */
 export async function fetchFeeTemplates(fundId?: string): Promise<FeeTemplate[]> {
-  if (isMockMode()) {
+  if (shouldUseLocalDistributionData()) {
     if (fundId) {
       return mockFeeTemplates.filter((t) => !t.fundId || t.fundId === fundId);
     }
     return mockFeeTemplates;
   }
 
-  throw new Error('Distribution API not implemented yet');
+  throw new Error('Distribution API integration is disabled in this environment');
 }
 
 /**
  * Fetch statement templates
  */
 export async function fetchStatementTemplates(): Promise<StatementTemplateConfig[]> {
-  if (isMockMode()) {
+  if (shouldUseLocalDistributionData()) {
     return mockStatementTemplates;
   }
 
-  throw new Error('Statement templates API not implemented yet');
+  throw new Error('Statement templates API integration is disabled in this environment');
 }
 
 /**
  * Fetch LP profiles
  */
 export async function fetchLPProfiles(): Promise<LPProfile[]> {
-  if (isMockMode()) {
+  if (shouldUseLocalDistributionData()) {
     return mockLPProfiles;
   }
 
-  throw new Error('Distribution API not implemented yet');
+  throw new Error('Distribution API integration is disabled in this environment');
 }
 
 /**
  * Fetch LP profile by ID
  */
 export async function fetchLPProfile(id: string): Promise<LPProfile> {
-  if (isMockMode()) {
+  if (shouldUseLocalDistributionData()) {
     const profile = mockLPProfiles.find((p) => p.id === id);
     if (!profile) {
       throw new Error(`LP profile not found: ${id}`);
@@ -620,16 +629,16 @@ export async function fetchLPProfile(id: string): Promise<LPProfile> {
     return profile;
   }
 
-  throw new Error('Distribution API not implemented yet');
+  throw new Error('Distribution API integration is disabled in this environment');
 }
 
 /**
  * Fetch approval rules
  */
 export async function fetchApprovalRules(): Promise<ApprovalRule[]> {
-  if (isMockMode()) {
+  if (shouldUseLocalDistributionData()) {
     return mockApprovalRules;
   }
 
-  throw new Error('Distribution API not implemented yet');
+  throw new Error('Distribution API integration is disabled in this environment');
 }

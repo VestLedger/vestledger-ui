@@ -34,9 +34,8 @@ export function NavigationItem({
   const badge = badges[id];
 
   const isActive = isActiveOverride ?? (pathname === href || pathname.startsWith(`${href}/`));
-  const rowPaddingClass = density.mode === 'compact' ? 'px-2.5 py-2' : 'px-3 py-2.5';
+  const rowDimensionClass = density.mode === 'compact' ? 'px-2.5 h-9' : 'px-3 h-10';
   const labelTextClass = density.mode === 'compact' ? 'text-[13px]' : 'text-sm';
-  const tooltipTextClass = density.mode === 'compact' ? 'text-xs' : 'text-sm';
 
   const getBadgeColor = (variant: 'danger' | 'warning' | 'info') => {
     switch (variant) {
@@ -57,7 +56,7 @@ export function NavigationItem({
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         className={`
-          group relative flex items-center ${isCollapsed ? 'justify-center' : 'justify-between gap-3'} ${rowPaddingClass} rounded-lg
+          group relative flex items-center ${isCollapsed ? 'justify-center' : 'justify-between gap-3'} ${rowDimensionClass} rounded-lg
           transition-all duration-150
           ${isActive
             ? 'bg-app-surface-hover dark:bg-app-dark-surface-hover border-l-2 border-app-primary dark:border-app-dark-primary shadow-[0_0_12px_rgba(4,120,87,0.3)] dark:shadow-[0_0_12px_rgba(16,185,129,0.3)]'
@@ -86,13 +85,6 @@ export function NavigationItem({
                 {badge.count > 9 ? '9+' : badge.count}
               </div>
             )}
-            {/* Tooltip on hover */}
-            <div className="absolute left-full ml-2 px-2 py-1 bg-app-surface dark:bg-app-dark-surface
-                            rounded shadow-lg opacity-0 group-hover:opacity-100
-                            pointer-events-none transition-opacity z-50 whitespace-nowrap
-                            border border-app-border dark:border-app-dark-border">
-              <span className={tooltipTextClass}>{label}</span>
-            </div>
           </div>
         ) : (
           <>

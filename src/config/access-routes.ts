@@ -27,6 +27,7 @@ export const DASHBOARD_ROUTE_PREFIXES = Object.freeze([
   '/audit-trail',
   '/409a-valuations',
   '/integrations',
+  '/collaboration',
   '/settings',
   '/tax-center',
   '/waterfall',

@@ -11,14 +11,23 @@ import { NavigationProvider, useNavigation } from '@/contexts/navigation-context
 import { SidebarGrouped } from '@/components/sidebar-grouped'
 import { Topbar } from '@/components/topbar'
 import { CommandPalette } from '@/components/command-palette'
+import { RoleOnboardingBeacon } from '@/components/onboarding/role-onboarding-beacon'
 import { useKeyboardShortcut } from '@/hooks/use-keyboard-shortcut'
 import { LoadingState } from '@/ui/async-states'
+import { useToast } from '@/ui'
 import { useUIKey } from '@/store/ui'
 import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys'
 import { DashboardDensityProvider } from '@/contexts/dashboard-density-context'
 import { DASHBOARD_DENSITY, resolveDashboardDensityMode } from '@/config/dashboard-density'
 import { buildAdminSuperadminUrl, buildAppLoginUrl } from '@/config/env'
 import { resolveUserDomainTarget } from '@/utils/auth/internal-access'
+import {
+  canRoleAccessPath,
+  getDefaultPathForRole,
+  normalizeRoutePath,
+} from '@/config/route-access-control'
+import { useSessionIdleGuard } from '@/hooks/use-session-idle-guard'
+import { SESSION_IDLE_TIMEOUT_MS, SESSION_WARNING_LEAD_MS } from '@/config/session-security'
 
 const AICopilotSidebar = dynamic(
   () => import('@/components/ai-copilot-sidebar').then((mod) => mod.AICopilotSidebar),
@@ -91,6 +100,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
             <div className="flex-1" aria-hidden="true" />
           )}
         </motion.div>
+        <RoleOnboardingBeacon />
         <CommandPalette />
       </div>
     </DashboardDensityProvider>
@@ -105,8 +115,28 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   const isLoginPage = pathname === '/login'
 
   // Always call hooks (rules of hooks) - but only use auth for protected pages
-  const { hydrated, isAuthenticated, user } = useAuth()
+  const { hydrated, isAuthenticated, user, logout } = useAuth()
+  const toast = useToast()
   const sagasReady = useRouteSagas({ enabled: !isLoginPage })
+
+  useSessionIdleGuard({
+    enabled: !isLoginPage && hydrated && isAuthenticated,
+    idleTimeoutMs: SESSION_IDLE_TIMEOUT_MS,
+    warningLeadMs: SESSION_WARNING_LEAD_MS,
+    onWarning: () => {
+      const remainingMinutes = Math.max(1, Math.floor(SESSION_WARNING_LEAD_MS / 60000))
+      toast.warning(
+        `No activity detected. Your session will expire in about ${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}.`,
+        'Session Timeout Warning'
+      )
+    },
+    onTimeout: () => {
+      sessionStorage.setItem('isLoggingOut', 'true')
+      logout()
+      setIsRedirecting(true)
+      window.location.href = `${buildAppLoginUrl(window.location.hostname)}?reason=session-expired`
+    },
+  })
 
   useEffect(() => {
     // Check if logout is in progress
@@ -118,6 +148,15 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         window.location.href = buildAdminSuperadminUrl(window.location.hostname)
         return
       }
+
+      if (!canRoleAccessPath(user.role, pathname)) {
+        const fallbackPath = normalizeRoutePath(getDefaultPathForRole(user.role))
+        if (fallbackPath !== normalizeRoutePath(pathname)) {
+          setIsRedirecting(true)
+          window.location.href = fallbackPath
+          return
+        }
+      }
     }
 
     // Only redirect if NOT on login page, user is not authenticated, AND not logging out
@@ -128,7 +167,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
       // Redirect to app subdomain login page (cross-domain requires full page navigation)
       window.location.href = buildAppLoginUrl(window.location.hostname);
     }
-  }, [isLoginPage, hydrated, isAuthenticated, user])
+  }, [isLoginPage, hydrated, isAuthenticated, pathname, user])
 
   // For login page, skip auth check and render directly
   if (isLoginPage) {

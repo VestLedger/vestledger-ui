@@ -30,3 +30,15 @@ export type { SectionHeaderProps } from './SectionHeader';
 
 export { Timeline } from './Timeline';
 export type { TimelineItem, TimelineProps } from './Timeline';
+
+export { SignalBeacon } from './signal-beacon';
+export type { SignalBeaconItem, SignalBeaconProps, SignalBeaconTone } from './signal-beacon';
+
+export { KpiChip } from './kpi-chip';
+export type { KpiChipProps, KpiChipTone } from './kpi-chip';
+
+export { CompactLaneHeader } from './compact-lane-header';
+export type { CompactLaneHeaderProps, CompactLaneTone } from './compact-lane-header';
+
+export { TaskChecklist } from './TaskChecklist';
+export type { TaskChecklistItem, TaskChecklistProps } from './TaskChecklist';

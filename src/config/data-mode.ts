@@ -6,6 +6,9 @@ export type FeatureName =
   | 'auth'
   | 'funds'
   | 'alerts'
+  | 'search'
+  | 'reports'
+  | 'analytics'
   | 'documents'
   | 'portfolio'
   | 'pipeline'
@@ -18,7 +21,9 @@ export type FeatureName =
   | 'integrations'
   | 'lpPortal'
   | 'auditTrail'
-  | 'companySearch';
+  | 'companySearch'
+  | 'collaboration'
+  | 'onboarding';
 
 /**
  * Feature flags for per-feature mock/API mode control.
@@ -30,6 +35,9 @@ const featureFlags: Partial<Record<FeatureName, boolean>> = {
   auth: false,
   funds: false,
   alerts: false,
+  search: false,
+  reports: false,
+  analytics: false,
   documents: false,
   portfolio: false,
   pipeline: false,
@@ -43,6 +51,8 @@ const featureFlags: Partial<Record<FeatureName, boolean>> = {
   lpPortal: false,
   auditTrail: false,
   companySearch: false,
+  collaboration: false,
+  onboarding: false,
 };
 
 export const DATA_MODE_OVERRIDE_KEY = 'dataModeOverride';

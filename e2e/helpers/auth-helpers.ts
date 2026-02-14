@@ -1,13 +1,29 @@
 import type { Page } from '@playwright/test';
 
+export type TestUserRole =
+  | 'superadmin'
+  | 'gp'
+  | 'analyst'
+  | 'ops'
+  | 'ir'
+  | 'researcher'
+  | 'lp'
+  | 'auditor'
+  | 'service_provider'
+  | 'strategic_partner';
+
 const DEFAULT_TEST_USER = {
   email: process.env.TEST_USER_EMAIL || process.env.NEXT_PUBLIC_DEMO_EMAIL || 'demo@vestledger.com',
   password: process.env.TEST_USER_PASSWORD || process.env.NEXT_PUBLIC_DEMO_PASSWORD || 'Pa$$w0rd',
+  role: (process.env.TEST_USER_ROLE as TestUserRole | undefined) || 'gp',
 };
 const AUTH_STORAGE_KEY = 'isAuthenticated';
 const USER_STORAGE_KEY = 'user';
 const TOKEN_STORAGE_KEY = 'accessToken';
 const DATA_MODE_OVERRIDE_KEY = 'dataModeOverride';
+const RETRYABLE_NAVIGATION_ERRORS = ['ERR_ABORTED', 'frame was detached'];
+const NAVIGATION_RETRY_DELAY_MS = 250;
+const NAVIGATION_ATTEMPT_TIMEOUT_MS = 20_000;
 
 export function getTestUser() {
   return { ...DEFAULT_TEST_USER };
@@ -38,6 +54,34 @@ async function waitForTargetPath(page: Page, targetPath: string, timeoutMs = 200
   );
 }
 
+async function gotoWithRetry(
+  page: Page,
+  targetPath: string,
+  options: Parameters<Page['goto']>[1],
+  maxAttempts = 3
+) {
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      await page.goto(targetPath, {
+        timeout: NAVIGATION_ATTEMPT_TIMEOUT_MS,
+        ...options,
+      });
+      return;
+    } catch (error) {
+      lastError = error;
+      const message = error instanceof Error ? error.message : String(error);
+      const isRetryable = RETRYABLE_NAVIGATION_ERRORS.some((fragment) => message.includes(fragment));
+      if (!isRetryable || attempt === maxAttempts) {
+        throw error;
+      }
+      await page.waitForTimeout(NAVIGATION_RETRY_DELAY_MS * attempt);
+    }
+  }
+
+  throw lastError ?? new Error(`Failed to navigate to ${targetPath}`);
+}
+
 async function clearAuthState(page: Page) {
   await page.context().clearCookies();
   await page.goto('/login', { waitUntil: 'domcontentloaded' });
@@ -58,11 +102,11 @@ async function clearAuthState(page: Page) {
   );
 }
 
-async function seedAuthenticatedState(page: Page, email: string) {
+async function seedAuthenticatedState(page: Page, email: string, role: TestUserRole) {
   const user = {
-    name: 'Playwright Test User',
+    name: `Playwright ${role.toUpperCase()} User`,
     email,
-    role: 'gp',
+    role,
   };
   const currentUrl = new URL(page.url());
   const domain = currentUrl.hostname;
@@ -114,6 +158,7 @@ export async function loginViaRedirect(
   options?: {
     email?: string;
     password?: string;
+    role?: TestUserRole;
     waitForLoadState?: 'load' | 'domcontentloaded' | 'networkidle';
     timeoutMs?: number;
     requireLoginRedirect?: boolean;
@@ -121,6 +166,7 @@ export async function loginViaRedirect(
 ) {
   const user = getTestUser();
   const email = options?.email ?? user.email;
+  const role = options?.role ?? user.role;
   const waitForLoadState = options?.waitForLoadState ?? 'networkidle';
   const timeoutMs = options?.timeoutMs ?? 20000;
   const requireLoginRedirect = options?.requireLoginRedirect ?? true;
@@ -129,22 +175,22 @@ export async function loginViaRedirect(
   await clearAuthState(page);
 
   if (variants.pathname !== '/login') {
-    await page.goto(variants.full);
+    await gotoWithRetry(page, variants.full, { waitUntil: 'domcontentloaded' });
     const unauthPathname = new URL(page.url()).pathname;
     if (requireLoginRedirect && unauthPathname !== '/login') {
       throw new Error(`Expected unauthenticated access to ${variants.full} to redirect to /login but landed on ${unauthPathname}`);
     }
   }
 
-  await seedAuthenticatedState(page, email);
-  await page.goto(variants.full);
+  await seedAuthenticatedState(page, email, role);
+  await gotoWithRetry(page, variants.full, { waitUntil: 'domcontentloaded' });
   await waitForTargetPath(page, variants.full, timeoutMs).catch(() => {});
 
   const finalUrl = new URL(page.url());
   const atPathnameOnly = finalUrl.pathname === variants.pathname && finalUrl.search === '';
 
   if (variants.hasSearch && atPathnameOnly) {
-    await page.goto(variants.full);
+    await gotoWithRetry(page, variants.full, { waitUntil: 'domcontentloaded' });
     await waitForTargetPath(page, variants.full, timeoutMs).catch(() => {});
   }
 

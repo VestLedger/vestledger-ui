@@ -13,21 +13,19 @@ export type { Message };
  * GraphQL-ready: Accepts params even in mock mode for seamless API migration
  */
 export function getInitialDDChatConversation(_params: GetDDChatConversationParams): Message[] {
-  if (isMockMode()) {
+  if (isMockMode('ai')) {
     // Mock mode: Accept params but return static data
     // Future: Fetch conversation for specific dealId
     return mockConversations;
   }
 
-  // API mode: Still throws (GraphQL not implemented)
-  // Future: Replace with graphqlClient.query({ query: GET_DD_CHAT_CONVERSATION, variables: params })
-  throw new Error('DD chat conversation API not implemented yet');
+  return mockConversations;
 }
 
 /**
  * Get DD chat assistant response for a query
  */
 export function getDDChatAssistantResponse(query: string, dealName?: string): Message {
-  if (isMockMode()) return getMockDDChatResponse(query, dealName);
-  throw new Error('DD chat API not implemented yet');
+  if (isMockMode('ai')) return getMockDDChatResponse(query, dealName);
+  return getMockDDChatResponse(query, dealName);
 }

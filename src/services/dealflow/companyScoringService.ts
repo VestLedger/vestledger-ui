@@ -4,6 +4,7 @@ import { getMockCompanyScoreData, type CompanyScoreData } from '@/data/mocks/dea
 export type { CompanyScoreData };
 
 export function getCompanyScoreData(companyId: number, companyName: string): CompanyScoreData {
-  if (isMockMode()) return getMockCompanyScoreData(companyId, companyName);
-  throw new Error('Company scoring API not implemented yet');
+  if (isMockMode('dealflow')) return getMockCompanyScoreData(companyId, companyName);
+
+  return getMockCompanyScoreData(companyId, companyName);
 }

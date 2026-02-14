@@ -8,20 +8,43 @@ import { PortfolioUpdates } from './portfolio-updates';
 import { FundSelector } from './fund-selector';
 import { getRouteConfig, ROUTE_PATHS } from '@/config/routes';
 import { useUIKey } from '@/store/ui';
+import { useFund } from '@/contexts/fund-context';
+import { useAsyncData } from '@/hooks/useAsyncData';
+import {
+  portfolioSelectors,
+  portfolioUpdatesRequested,
+} from '@/store/slices/portfolioSlice';
+import {
+  getPortfolioHealthyCompanies,
+  getPortfolioPageMetrics,
+} from '@/services/portfolio/portfolioPageMetricsService';
 
 export function Portfolio() {
   const { value: ui, patch: patchUI } = useUIKey('portfolio', { selected: 'overview' });
   const { selected } = ui;
+  const { selectedFund } = useFund();
+  const fundId = selectedFund?.id ?? null;
 
   // Get route config for breadcrumbs and AI suggestions
   const routeConfig = getRouteConfig(ROUTE_PATHS.portfolio);
 
-  // TODO: Restore metrics loading via separate metrics slice
-  // For now using placeholder values since we migrated portfolio slice to handle updates only
-  const totalCompanies = 12;
-  const healthyCompanies = 10;
-  const atRiskCompanies = 2;
-  const pendingUpdates = 5;
+  const { isLoading } = useAsyncData(
+    portfolioUpdatesRequested,
+    portfolioSelectors.selectState,
+    {
+      params: { fundId },
+      dependencies: [fundId],
+    }
+  );
+
+  const pageMetrics = getPortfolioPageMetrics();
+  const totalCompanies = pageMetrics.totalCompanies;
+  const healthyCompanies = getPortfolioHealthyCompanies();
+  const atRiskCompanies = pageMetrics.atRiskCompanies;
+  const pendingUpdates = pageMetrics.pendingUpdates;
+  const aiSummaryText = isLoading
+    ? 'Refreshing portfolio metrics and updates...'
+    : `${healthyCompanies}/${totalCompanies} companies performing well. ${atRiskCompanies} companies flagged for attention. ${pendingUpdates} unread portfolio updates require review.`;
 
   return (
     <PageScaffold
@@ -32,7 +55,7 @@ export function Portfolio() {
         description: 'Track performance across your investments',
         icon: Briefcase,
         aiSummary: {
-          text: `${healthyCompanies}/${totalCompanies} companies performing well. ${atRiskCompanies} companies flagged for attention. ${pendingUpdates} unread portfolio updates require review.`,
+          text: aiSummaryText,
           confidence: 0.89,
         },
         tabs: [

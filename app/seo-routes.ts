@@ -9,11 +9,11 @@ export const PUBLIC_SITEMAP_PATHS = [
   '/eoi',
 ] as const;
 
-const DEFAULT_LOCAL_BASE_URL = 'http://localhost:3000';
+const DEFAULT_PUBLIC_BASE_URL = 'https://vestledger.ai';
 
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, '');
 
 export const resolvePublicSeoBaseUrl = () =>
   trimTrailingSlash(
-    CANONICAL_PUBLIC_WEB_URL || PUBLIC_WEB_URL || DEFAULT_LOCAL_BASE_URL
+    CANONICAL_PUBLIC_WEB_URL || PUBLIC_WEB_URL || DEFAULT_PUBLIC_BASE_URL
   );

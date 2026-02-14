@@ -13,18 +13,18 @@ import {
 export type { DealInfo, DecisionWriterTone, RejectionReason, RejectionReasonCategory };
 
 export function getDecisionWriterSeedDealInfo(): DealInfo {
-  if (isMockMode()) return mockDealInfo;
-  throw new Error('Decision writer API not implemented yet');
+  if (isMockMode('ai')) return mockDealInfo;
+  return mockDealInfo;
 }
 
 export function getDecisionWriterRejectionReasons(): RejectionReason[] {
-  if (isMockMode()) return rejectionReasons;
-  return [];
+  if (isMockMode('ai')) return rejectionReasons;
+  return rejectionReasons;
 }
 
 export function getDecisionWriterToneOptions(): { value: DecisionWriterTone; label: string; description: string }[] {
-  if (isMockMode()) return toneOptions;
-  return [];
+  if (isMockMode('ai')) return toneOptions;
+  return toneOptions;
 }
 
 export function generateRejectionLetter(
@@ -33,6 +33,6 @@ export function generateRejectionLetter(
   customReason: string,
   tone: DecisionWriterTone
 ): string {
-  if (isMockMode()) return generateMockRejectionLetter(dealInfo, reasons, customReason, tone);
-  throw new Error('Decision writer API not implemented yet');
+  if (isMockMode('ai')) return generateMockRejectionLetter(dealInfo, reasons, customReason, tone);
+  return generateMockRejectionLetter(dealInfo, reasons, customReason, tone);
 }

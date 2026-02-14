@@ -1,0 +1,31 @@
+{
+  "generatedAt": "2026-02-14",
+  "scope": {
+    "include": [
+      "src/components/**/*.ts",
+      "src/components/**/*.tsx",
+      "app/**/page.ts",
+      "app/**/page.tsx"
+    ],
+    "exclude": [
+      "**/__tests__/**",
+      "**/*.test.*",
+      "**/*.spec.*"
+    ]
+  },
+  "thresholds": {
+    "placeholder_console_log_calls": 0,
+    "placeholder_todo_markers": 0,
+    "placeholder_coming_soon_markers": 0,
+    "placeholder_to_be_implemented_markers": 0,
+    "placeholder_not_implemented_markers": 0
+  },
+  "exceptions": {
+    "placeholder_console_log_calls": [],
+    "placeholder_todo_markers": [],
+    "placeholder_coming_soon_markers": [],
+    "placeholder_to_be_implemented_markers": [],
+    "placeholder_not_implemented_markers": []
+  },
+  "notes": "Sprint hardening baseline. Placeholder patterns are disallowed in production routes."
+}

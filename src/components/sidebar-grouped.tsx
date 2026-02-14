@@ -3,10 +3,9 @@
 import { useEffect, useRef } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { LayoutDashboard, GitBranch, Briefcase, Search, Vote, TrendingUp, Users, UserCheck, DollarSign, Shield, Scale, Receipt, FileDown, Sparkles, Activity, BarChart3, Settings, FileText, Plug, ChevronLeft, FileCheck, Building2, Target, Layers, Mail, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, GitBranch, Briefcase, Search, Vote, TrendingUp, Users, UserCheck, DollarSign, Shield, Scale, Receipt, FileDown, Sparkles, Activity, BarChart3, Settings, FileText, Plug, ChevronLeft, FileCheck, Building2, Target, Layers, Mail, ShieldCheck, MessageSquare } from 'lucide-react';
 import { NavigationGroup } from './navigation-group';
 import { NavigationItem } from './navigation-item';
-import { SidebarToggleButton } from './sidebar-toggle-button';
 import { useNavigation } from '@/contexts/navigation-context';
 import { useAIBadges } from '@/hooks/use-ai-badges';
 import { useAuth, UserRole } from '@/contexts/auth-context';
@@ -95,12 +94,13 @@ const navigationStructure = {
     id: 'utilities',
     label: 'Utilities',
     icon: Mail,
-    allowedRoles: ['gp', 'analyst', 'ops', 'ir', 'researcher', 'auditor', 'service_provider'] as UserRole[],
+    allowedRoles: ['gp', 'analyst', 'ops', 'ir', 'researcher', 'auditor', 'service_provider', 'lp', 'strategic_partner'] as UserRole[],
     items: [
       { id: 'contacts', href: ROUTE_PATHS.contacts, label: 'Contacts', icon: Users },
       { id: 'documents', href: ROUTE_PATHS.documents, label: 'Documents', icon: FileText },
       { id: 'reports', href: ROUTE_PATHS.reports, label: 'Reports', icon: FileDown },
       { id: 'integrations', href: ROUTE_PATHS.integrations, label: 'Integrations', icon: Plug },
+      { id: 'collaboration', href: ROUTE_PATHS.collaboration, label: 'Collaboration', icon: MessageSquare },
       { id: 'ai-tools', href: ROUTE_PATHS.aiTools, label: 'AI Tools', icon: Sparkles },
     ],
   },
@@ -109,13 +109,12 @@ const navigationStructure = {
 export function SidebarGrouped() {
   const pathname = usePathname();
   const router = useRouter();
-  const { updateBadge, sidebarState, toggleLeftSidebar } = useNavigation();
+  const { updateBadge } = useNavigation();
   const aiBadges = useAIBadges();
   const { user } = useAuth();
   const isSuperadmin = isSuperadminUser(user);
   const density = useDashboardDensity();
   const isFundAdminRoute = pathname === ROUTE_PATHS.fundAdmin;
-  const isCollapsed = sidebarState.leftCollapsed;
   const { value: sidebarUI, patch: patchSidebarUI } = useUIKey<SidebarGroupedUIState>('sidebar-grouped', {
     isHovered: false,
     fundAdminMenuMode: 'main',
@@ -142,8 +141,8 @@ export function SidebarGrouped() {
     return allowedRoles.includes(user.role);
   };
 
-  // Determine effective collapsed state (collapsed but temporarily expanded on hover)
-  const effectivelyCollapsed = isCollapsed && !isHovered;
+  // Auto-collapse by default, expand only while hovered.
+  const effectivelyCollapsed = !isHovered;
 
   // Update navigation badges from AI calculations
   useEffect(() => {
@@ -181,30 +180,16 @@ export function SidebarGrouped() {
           : `${density.shell.leftSidebarExpandedWidthPx}px`,
       }}
       transition={{ duration: 0.2, ease: 'easeInOut' }}
-      className="relative flex flex-col h-full border-r border-app-border dark:border-app-dark-border bg-gradient-to-t from-app-primary/10 dark:from-app-dark-primary/15 to-app-surface dark:to-app-dark-surface"
+      className="relative flex flex-col h-full overflow-hidden border-r border-app-border dark:border-app-dark-border bg-gradient-to-t from-app-primary/10 dark:from-app-dark-primary/15 to-app-surface dark:to-app-dark-surface"
+      onMouseEnter={() => patchSidebarUI({ isHovered: true })}
+      onMouseLeave={() => patchSidebarUI({ isHovered: false })}
       style={{
         willChange: 'width',
       }}
     >
-      {/* Toggle Button */}
-      <div
-        onMouseEnter={(e) => {
-          e.stopPropagation();
-        }}
-      >
-        <SidebarToggleButton
-          isCollapsed={isCollapsed}
-          onToggle={toggleLeftSidebar}
-          side="left"
-          ariaLabel={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-        />
-      </div>
-
       {/* Header / Branding */}
       <div
         className={`${density.shell.sidebarHeaderPaddingClass} border-b border-app-border dark:border-app-dark-border flex-shrink-0 flex items-center`}
-        onMouseEnter={() => isCollapsed && patchSidebarUI({ isHovered: true })}
-        onMouseLeave={() => patchSidebarUI({ isHovered: false })}
         style={{ height: `${density.shell.topBarHeightPx}px` }}
       >
         {effectivelyCollapsed ? (
@@ -228,9 +213,7 @@ export function SidebarGrouped() {
 
       {/* Navigation Groups */}
       <nav
-        className={`flex-1 overflow-y-auto ${density.shell.sidebarNavPaddingClass} ${density.shell.sidebarNavGapClass}`}
-        onMouseEnter={() => isCollapsed && patchSidebarUI({ isHovered: true })}
-        onMouseLeave={() => patchSidebarUI({ isHovered: false })}
+        className={`flex-1 overflow-y-auto overflow-x-hidden ${effectivelyCollapsed ? 'no-scrollbar' : ''} ${density.shell.sidebarNavPaddingClass} ${density.shell.sidebarNavGapClass}`}
       >
         {isSuperadmin ? (
           <NavigationGroup
@@ -476,8 +459,6 @@ export function SidebarGrouped() {
       {/* Footer */}
       <div
         className={`${density.shell.sidebarNavPaddingClass} border-t border-app-border dark:border-app-dark-border space-y-3 flex-shrink-0`}
-        onMouseEnter={() => isCollapsed && patchSidebarUI({ isHovered: true })}
-        onMouseLeave={() => patchSidebarUI({ isHovered: false })}
       >
         {!isSuperadmin && (
           <NavigationItem

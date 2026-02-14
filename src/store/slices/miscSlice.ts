@@ -19,6 +19,8 @@ import type {
 } from '@/data/mocks/lp-portal/lp-investor-portal';
 import type { AuditEvent } from '@/data/mocks/blockchain/audit-trail';
 import type { Company } from '@/data/mocks/deal-intelligence/company-search';
+import type { LPManagementSnapshot } from '@/services/lpPortal/lpManagementService';
+import type { CollaborationSnapshot } from '@/services/collaboration/collaborationService';
 
 // Types for each feature
 interface IntegrationsData {
@@ -41,6 +43,8 @@ interface LPPortalData {
   faqItems: LPFAQItem[];
 }
 
+type LPManagementData = LPManagementSnapshot;
+
 interface AuditTrailData {
   events: AuditEvent[];
 }
@@ -51,18 +55,24 @@ interface CompanySearchData {
   stages: string[];
 }
 
+type CollaborationData = CollaborationSnapshot;
+
 interface MiscState {
   integrations: AsyncState<IntegrationsData>;
   lpPortal: AsyncState<LPPortalData>;
+  lpManagement: AsyncState<LPManagementData>;
   auditTrail: AsyncState<AuditTrailData>;
   companySearch: AsyncState<CompanySearchData>;
+  collaboration: AsyncState<CollaborationData>;
 }
 
 const initialState: MiscState = {
   integrations: createInitialAsyncState<IntegrationsData>(),
   lpPortal: createInitialAsyncState<LPPortalData>(),
+  lpManagement: createInitialAsyncState<LPManagementData>(),
   auditTrail: createInitialAsyncState<AuditTrailData>(),
   companySearch: createInitialAsyncState<CompanySearchData>(),
+  collaboration: createInitialAsyncState<CollaborationData>(),
 };
 
 const miscSlice = createSlice({
@@ -99,6 +109,21 @@ const miscSlice = createSlice({
       state.lpPortal.error = action.payload;
     },
 
+    // LP Management actions
+    lpManagementRequested: (state) => {
+      state.lpManagement.status = 'loading';
+      state.lpManagement.error = undefined;
+    },
+    lpManagementLoaded: (state, action: PayloadAction<LPManagementData>) => {
+      state.lpManagement.data = action.payload;
+      state.lpManagement.status = 'succeeded';
+      state.lpManagement.error = undefined;
+    },
+    lpManagementFailed: (state, action: PayloadAction<NormalizedError>) => {
+      state.lpManagement.status = 'failed';
+      state.lpManagement.error = action.payload;
+    },
+
     // Audit Trail actions
     auditTrailRequested: (state) => {
       state.auditTrail.status = 'loading';
@@ -128,6 +153,21 @@ const miscSlice = createSlice({
       state.companySearch.status = 'failed';
       state.companySearch.error = action.payload;
     },
+
+    // Collaboration actions
+    collaborationRequested: (state) => {
+      state.collaboration.status = 'loading';
+      state.collaboration.error = undefined;
+    },
+    collaborationLoaded: (state, action: PayloadAction<CollaborationData>) => {
+      state.collaboration.data = action.payload;
+      state.collaboration.status = 'succeeded';
+      state.collaboration.error = undefined;
+    },
+    collaborationFailed: (state, action: PayloadAction<NormalizedError>) => {
+      state.collaboration.status = 'failed';
+      state.collaboration.error = action.payload;
+    },
   },
 });
 
@@ -138,12 +178,18 @@ export const {
   lpPortalRequested,
   lpPortalLoaded,
   lpPortalFailed,
+  lpManagementRequested,
+  lpManagementLoaded,
+  lpManagementFailed,
   auditTrailRequested,
   auditTrailLoaded,
   auditTrailFailed,
   companySearchRequested,
   companySearchLoaded,
   companySearchFailed,
+  collaborationRequested,
+  collaborationLoaded,
+  collaborationFailed,
 } = miscSlice.actions;
 
 // Selectors for integrations
@@ -168,6 +214,17 @@ export const lpPortalSelectors = {
   selectState: (state: RootState) => state.misc.lpPortal,
 };
 
+// Selectors for LP management
+export const lpManagementSelectors = {
+  selectData: (state: RootState) => state.misc.lpManagement.data,
+  selectStatus: (state: RootState) => state.misc.lpManagement.status,
+  selectError: (state: RootState) => state.misc.lpManagement.error,
+  selectIsLoading: (state: RootState) => state.misc.lpManagement.status === 'loading',
+  selectIsSucceeded: (state: RootState) => state.misc.lpManagement.status === 'succeeded',
+  selectIsFailed: (state: RootState) => state.misc.lpManagement.status === 'failed',
+  selectState: (state: RootState) => state.misc.lpManagement,
+};
+
 // Selectors for audit trail
 export const auditTrailSelectors = {
   selectData: (state: RootState) => state.misc.auditTrail.data,
@@ -188,6 +245,17 @@ export const companySearchSelectors = {
   selectIsSucceeded: (state: RootState) => state.misc.companySearch.status === 'succeeded',
   selectIsFailed: (state: RootState) => state.misc.companySearch.status === 'failed',
   selectState: (state: RootState) => state.misc.companySearch,
+};
+
+// Selectors for collaboration
+export const collaborationSelectors = {
+  selectData: (state: RootState) => state.misc.collaboration.data,
+  selectStatus: (state: RootState) => state.misc.collaboration.status,
+  selectError: (state: RootState) => state.misc.collaboration.error,
+  selectIsLoading: (state: RootState) => state.misc.collaboration.status === 'loading',
+  selectIsSucceeded: (state: RootState) => state.misc.collaboration.status === 'succeeded',
+  selectIsFailed: (state: RootState) => state.misc.collaboration.status === 'failed',
+  selectState: (state: RootState) => state.misc.collaboration,
 };
 
 export const miscReducer = miscSlice.reducer;

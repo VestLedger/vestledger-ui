@@ -27,8 +27,9 @@ export function NavigationGroup({
   const { expandedGroups, toggleGroup } = useNavigation();
   const density = useDashboardDensity();
   const isExpanded = alwaysExpanded || expandedGroups.has(id);
-  const headerPaddingClass = density.mode === 'compact' ? 'px-2.5 py-1.5' : 'px-3 py-2';
-  const collapsedIconPaddingClass = density.mode === 'compact' ? 'p-1.5' : 'p-2';
+  const headerHorizontalPaddingClass = density.mode === 'compact' ? 'px-2.5' : 'px-3';
+  const headerHeightClass = density.mode === 'compact' ? 'h-8' : 'h-9';
+  const headerBaseClass = `${headerHorizontalPaddingClass} ${headerHeightClass}`;
   const labelClass = density.mode === 'compact'
     ? 'text-[11px] font-semibold uppercase tracking-wider'
     : 'text-xs font-semibold uppercase tracking-wider';
@@ -37,31 +38,44 @@ export function NavigationGroup({
     <div className="mb-2">
       {/* Group Header */}
       {isCollapsed ? (
-        // In collapsed mode, always reserve space for group icon
+        // In collapsed mode, keep group icons visible at all times.
         Icon && (
-          !isExpanded ? (
-            <button
-              onClick={() => toggleGroup(id)}
-              className={`flex items-center justify-center ${collapsedIconPaddingClass} w-full rounded-lg hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover transition-colors`}
-              title={label}
-              aria-label={label}
-              aria-expanded={isExpanded}
-            >
-              <Icon className={`w-5 h-5 ${alwaysExpanded ? 'text-app-primary dark:text-app-dark-primary' : 'text-app-text-muted dark:text-app-dark-text-muted'}`} />
-            </button>
-          ) : (
-            // Keep the space but make it invisible when expanded
-            <div className="p-2 w-full" aria-hidden="true">
-              <div className="w-5 h-5" />
-            </div>
-          )
+          <button
+            type="button"
+            onClick={() => {
+              if (!alwaysExpanded) {
+                toggleGroup(id);
+              }
+            }}
+            className={[
+              `flex items-center justify-center ${headerBaseClass} w-full rounded-lg transition-colors`,
+              alwaysExpanded
+                ? 'cursor-default'
+                : 'hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover',
+              !alwaysExpanded && isExpanded
+                ? 'bg-app-surface-hover dark:bg-app-dark-surface-hover'
+                : '',
+            ].filter(Boolean).join(' ')}
+            title={label}
+            aria-label={label}
+            aria-expanded={isExpanded}
+            aria-disabled={alwaysExpanded}
+          >
+            <Icon
+              className={`w-4 h-4 ${
+                alwaysExpanded
+                  ? 'text-app-primary dark:text-app-dark-primary'
+                  : 'text-app-text-muted dark:text-app-dark-text-muted'
+              }`}
+            />
+          </button>
         )
       ) : (
         // In expanded mode, show full group header
         <button
           onClick={() => toggleGroup(id)}
           className={`
-            w-full flex items-center justify-between ${headerPaddingClass} rounded-lg
+            w-full flex items-center justify-between ${headerBaseClass} rounded-lg
             transition-colors duration-150
             ${alwaysExpanded
               ? 'cursor-default'
@@ -107,7 +121,7 @@ export function NavigationGroup({
       {isCollapsed ? (
         // When sidebar collapsed, show items only if group is expanded
         isExpanded && (
-          <div className="space-y-1">
+          <div className="mt-1 space-y-1">
             {children}
           </div>
         )

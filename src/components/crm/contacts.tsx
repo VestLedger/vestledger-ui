@@ -1,6 +1,7 @@
 'use client'
 
-import { Card, Button, Badge } from '@/ui';
+import { useEffect } from 'react';
+import { Card, Button, Badge, useToast } from '@/ui';
 import { Mail, Phone, Building2, MapPin, Calendar, Tag, Edit3, Trash2, Star, MessageSquare, Video, Send, ExternalLink, Briefcase, Users } from 'lucide-react';
 import { getRouteConfig, ROUTE_PATHS } from '@/config/routes';
 import { SideDrawer } from '@/components/side-drawer';
@@ -9,9 +10,21 @@ import { SmartLists, type SmartList } from '@/components/crm/smart-lists';
 import { EmailIntegration, type EmailAccount } from '@/components/crm/email-integration';
 import { InteractionTimeline } from '@/components/crm/interaction-timeline';
 import { NetworkGraph } from './network-graph';
+import {
+  connectCRMEmailAccount,
+  createCRMContact,
+  createCRMInteraction,
+  deleteCRMInteraction,
+  disconnectCRMEmailAccount,
+  linkCRMInteractionToDeal,
+  syncCRMEmailAccount,
+  toggleCRMContactStar,
+  toggleCRMEmailAutoCapture,
+  updateCRMInteraction,
+  type Contact,
+} from '@/services/crm/contactsService';
 import { useUIKey } from '@/store/ui';
 import { crmDataRequested, crmSelectors } from '@/store/slices/crmSlice';
-import type { Contact } from '@/services/crm/contactsService';
 import { AsyncStateRenderer, EmptyState } from '@/ui/async-states';
 import { MetricsGrid, PageScaffold, SearchToolbar } from '@/ui/composites';
 import type { MetricsGridItem } from '@/ui/composites';
@@ -32,6 +45,7 @@ interface ContactsUIState {
 
 export function Contacts() {
   const routeConfig = getRouteConfig(ROUTE_PATHS.contacts);
+  const toast = useToast();
   const { data, isLoading, error, refetch } = useAsyncData(crmDataRequested, crmSelectors.selectState, { params: {} });
 
   const mockContacts = data?.contacts || [];
@@ -65,6 +79,20 @@ export function Contacts() {
   // Use contacts directly from Redux, not from UI state
   const contacts = mockContacts;
   const emailAccounts = mockEmailAccounts;
+
+  useEffect(() => {
+    if (!selectedContact) return;
+    const latestContact = contacts.find((contact) => contact.id === selectedContact.id);
+
+    if (!latestContact) {
+      patchUI({ selectedContact: null, isDrawerOpen: false });
+      return;
+    }
+
+    if (latestContact !== selectedContact) {
+      patchUI({ selectedContact: latestContact });
+    }
+  }, [contacts, patchUI, selectedContact]);
 
   // Helper to get relationship metrics for a contact
   const getRelationshipMetrics = (contact: Contact): RelationshipMetrics => {
@@ -146,10 +174,95 @@ export function Contacts() {
     patchUI({ activeSmartList: list });
   };
 
-  const toggleStar = (contactId: string) => {
-    // TODO: Dispatch action to update contact star status
-    // For now, this is read-only from Redux state
-    console.log('Toggle star for contact:', contactId);
+  const getErrorMessage = (error: unknown, fallback: string) =>
+    error instanceof Error ? error.message : fallback;
+
+  const runCRMAction = async (action: () => Promise<void>, successMessage?: string) => {
+    try {
+      await action();
+      refetch();
+      if (successMessage) {
+        toast.success(successMessage);
+      }
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Unable to update CRM data.'));
+    }
+  };
+
+  const toggleStar = async (contactId: string) => {
+    await runCRMAction(
+      () => toggleCRMContactStar(contactId),
+      'Contact star updated.'
+    );
+  };
+
+  const handleCreateContact = async () => {
+    await runCRMAction(
+      () => createCRMContact(),
+      'Contact created.'
+    );
+  };
+
+  const handleAddInteraction = async (type: 'email' | 'call' | 'meeting' | 'note') => {
+    if (!selectedContact) {
+      toast.warning('Select a contact to add an interaction.');
+      return;
+    }
+
+    await runCRMAction(
+      () => createCRMInteraction(selectedContact.id, { type, direction: 'outbound' }),
+      'Interaction added.'
+    );
+  };
+
+  const handleEditInteraction = async (interactionId: string) => {
+    await runCRMAction(
+      () => updateCRMInteraction(interactionId),
+      'Interaction updated.'
+    );
+  };
+
+  const handleDeleteInteraction = async (interactionId: string) => {
+    await runCRMAction(
+      () => deleteCRMInteraction(interactionId),
+      'Interaction deleted.'
+    );
+  };
+
+  const handleLinkInteractionToDeal = async (interactionId: string) => {
+    const linkedDeal = selectedContact?.deals[0] ?? 'Deal Follow-up';
+    await runCRMAction(
+      () => linkCRMInteractionToDeal(interactionId, linkedDeal),
+      'Interaction linked to deal.'
+    );
+  };
+
+  const handleConnectEmail = async (provider: 'gmail' | 'outlook') => {
+    await runCRMAction(
+      () => connectCRMEmailAccount(provider),
+      'Email account connected.'
+    );
+  };
+
+  const handleDisconnectEmail = async (accountId: string) => {
+    await runCRMAction(
+      () => disconnectCRMEmailAccount(accountId),
+      'Email account disconnected.'
+    );
+  };
+
+  const handleSyncEmail = async (accountId: string) => {
+    await runCRMAction(
+      () => syncCRMEmailAccount(accountId),
+      'Email sync completed.'
+    );
+  };
+
+  const handleToggleEmailAutoCapture = async (accountId: string, enabled: boolean) => {
+    await runCRMAction(
+      () => toggleCRMEmailAutoCapture(accountId, enabled),
+      'Auto-capture setting updated.'
+    );
   };
 
   const getRoleBadgeColor = (role: string) => {
@@ -243,7 +356,9 @@ export function Contacts() {
               },
               primaryAction: {
                 label: 'Add Contact',
-                onClick: () => console.log('Add contact clicked'),
+                onClick: () => {
+                  void handleCreateContact();
+                },
               },
               secondaryActions: [
                 {
@@ -591,10 +706,18 @@ export function Contacts() {
                 <InteractionTimeline
                   interactions={mockTimelineInteractions}
                   contactName={selectedContact.name}
-                  onAddInteraction={(type) => console.log('Add interaction:', type)}
-                  onEditInteraction={(id) => console.log('Edit interaction:', id)}
-                  onDeleteInteraction={(id) => console.log('Delete interaction:', id)}
-                  onLinkToDeal={(id) => console.log('Link to deal:', id)}
+                  onAddInteraction={(type) => {
+                    void handleAddInteraction(type);
+                  }}
+                  onEditInteraction={(id) => {
+                    void handleEditInteraction(id);
+                  }}
+                  onDeleteInteraction={(id) => {
+                    void handleDeleteInteraction(id);
+                  }}
+                  onLinkToDeal={(id) => {
+                    void handleLinkInteractionToDeal(id);
+                  }}
                 />
               )}
 
@@ -602,13 +725,17 @@ export function Contacts() {
               {activeTab === 'email' && (
                 <EmailIntegration
                   accounts={emailAccounts}
-                  onConnect={(provider) => console.log('Connect:', provider)}
-                  onDisconnect={(id) => console.log('Disconnect:', id)}
-                  onSync={(id) => console.log('Sync:', id)}
+                  onConnect={(provider) => {
+                    void handleConnectEmail(provider);
+                  }}
+                  onDisconnect={(id) => {
+                    void handleDisconnectEmail(id);
+                  }}
+                  onSync={(id) => {
+                    void handleSyncEmail(id);
+                  }}
                   onToggleAutoCapture={(id, enabled) => {
-                    // TODO: Dispatch action to update email account auto-capture
-                    // For now, this is read-only from Redux state
-                    console.log('Toggle auto-capture for account:', id, enabled);
+                    void handleToggleEmailAutoCapture(id, enabled);
                   }}
                 />
               )}
@@ -635,7 +762,7 @@ export function Contacts() {
                 centralNode={{ id: '1', name: 'Your Network', type: 'contact' }}
                 nodes={[]}
                 connections={[]}
-                onNodeClick={(node) => console.log('Node clicked:', node)}
+                onNodeClick={() => toast.info('Network node drill-down is available in the extended graph workspace.')}
               />
             </div>
           </div>

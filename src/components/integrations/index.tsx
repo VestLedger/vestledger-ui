@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Button, RadioGroup } from '@/ui';
+import { Card, Button, RadioGroup, useToast } from '@/ui';
 import type { LucideIcon } from 'lucide-react';
 import { Plug, Calendar, Mail, Slack, Github, Settings } from 'lucide-react';
 import { CalendarIntegration } from './calendar-integration';
@@ -11,6 +11,20 @@ import { AsyncStateRenderer, EmptyState } from '@/ui/async-states';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { PageScaffold, StatusBadge } from '@/ui/composites';
 import { ROUTE_PATHS } from '@/config/routes';
+import {
+  captureCalendarEvent,
+  configureCalendarRules,
+  connectCalendar,
+  connectIntegration,
+  createCalendarEvent,
+  disconnectCalendar,
+  disconnectIntegration,
+  editCalendarEvent,
+  exportCalendarEvents,
+  ignoreCalendarEvent,
+  syncCalendar,
+  toggleCalendarAutoCapture,
+} from '@/services/integrationsService';
 
 const integrationIconMap = {
   calendar: Calendar,
@@ -20,6 +34,7 @@ const integrationIconMap = {
 } as const satisfies Record<IntegrationSummary['icon'], LucideIcon>;
 
 export function Integrations() {
+  const toast = useToast();
   const { data, isLoading, error, refetch } = useAsyncData(integrationsRequested, integrationsSelectors.selectState);
 
   // UI state MUST be called before any early returns (Rules of Hooks)
@@ -34,6 +49,40 @@ export function Integrations() {
   const filteredIntegrations = selectedCategory === 'all'
     ? integrations
     : integrations.filter((i) => i.category === selectedCategory);
+
+  const getErrorMessage = (error: unknown, fallback: string) =>
+    error instanceof Error ? error.message : fallback;
+
+  const runRefreshAction = async (
+    action: () => Promise<void>,
+    successMessage: string
+  ) => {
+    try {
+      await action();
+      refetch();
+      toast.success(successMessage);
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Unable to update integration.'));
+    }
+  };
+
+  const handleExportEvents = async (format: 'csv' | 'ical') => {
+    try {
+      const content = await exportCalendarEvents(format);
+      const mimeType = format === 'csv' ? 'text/csv' : 'text/calendar';
+      const extension = format === 'csv' ? 'csv' : 'ics';
+      const blob = new Blob([content], { type: `${mimeType};charset=utf-8` });
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const anchor = window.document.createElement('a');
+      anchor.href = downloadUrl;
+      anchor.download = `calendar-events.${extension}`;
+      anchor.click();
+      window.URL.revokeObjectURL(downloadUrl);
+      toast.success('Calendar events exported.');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Unable to export calendar events.'));
+    }
+  };
 
   return (
     <AsyncStateRenderer
@@ -92,20 +141,47 @@ export function Integrations() {
                 <div className="flex gap-2">
                   {integration.status === 'connected' ? (
                     <>
-                      <Button variant="bordered" size="sm" startContent={<Settings className="w-4 h-4" />}>
+                      <Button
+                        variant="bordered"
+                        size="sm"
+                        startContent={<Settings className="w-4 h-4" />}
+                        onPress={() => {
+                          toast.info(`Configuration opened for ${integration.name}.`);
+                        }}
+                      >
                         Configure
                       </Button>
-                      <Button variant="bordered" size="sm" color="danger">
+                      <Button
+                        variant="bordered"
+                        size="sm"
+                        color="danger"
+                        onPress={() => {
+                          void runRefreshAction(
+                            () => disconnectIntegration(integration.id),
+                            `${integration.name} disconnected.`
+                          );
+                        }}
+                      >
                         Disconnect
                       </Button>
                     </>
                   ) : integration.status === 'available' ? (
-                    <Button color="primary" size="sm" fullWidth>
+                    <Button
+                      color="primary"
+                      size="sm"
+                      fullWidth
+                      onPress={() => {
+                        void runRefreshAction(
+                          () => connectIntegration(integration.id),
+                          `${integration.name} connected.`
+                        );
+                      }}
+                    >
                       Connect
                     </Button>
                   ) : (
                     <Button variant="bordered" size="sm" fullWidth disabled>
-                      Coming Soon
+                      Planned
                     </Button>
                   )}
                 </div>
@@ -120,16 +196,63 @@ export function Integrations() {
           <CalendarIntegration
             accounts={calendarAccounts}
             events={calendarEvents}
-            onConnectCalendar={(provider) => console.log('Connect calendar:', provider)}
-            onDisconnectCalendar={(accountId) => console.log('Disconnect calendar:', accountId)}
-            onSyncCalendar={(accountId) => console.log('Sync calendar:', accountId)}
-            onConfigureRules={(accountId) => console.log('Configure rules for:', accountId)}
-            onToggleAutoCapture={(accountId) => console.log('Toggle auto-capture for:', accountId)}
-            onCaptureEvent={(eventId) => console.log('Capture event:', eventId)}
-            onIgnoreEvent={(eventId) => console.log('Ignore event:', eventId)}
-            onEditEvent={(eventId) => console.log('Edit event:', eventId)}
-            onCreateEvent={() => console.log('Create event')}
-            onExportEvents={(format) => console.log('Export events:', format)}
+            onConnectCalendar={(provider) => {
+              void runRefreshAction(
+                () => connectCalendar(provider),
+                `${provider.charAt(0).toUpperCase()}${provider.slice(1)} calendar connected.`
+              );
+            }}
+            onDisconnectCalendar={(accountId) => {
+              void runRefreshAction(
+                () => disconnectCalendar(accountId),
+                'Calendar disconnected.'
+              );
+            }}
+            onSyncCalendar={(accountId) => {
+              void runRefreshAction(
+                () => syncCalendar(accountId),
+                'Calendar sync complete.'
+              );
+            }}
+            onConfigureRules={(accountId) => {
+              void runRefreshAction(
+                () => configureCalendarRules(accountId),
+                'Calendar capture rules updated.'
+              );
+            }}
+            onToggleAutoCapture={(accountId) => {
+              void runRefreshAction(
+                () => toggleCalendarAutoCapture(accountId),
+                'Auto-capture setting updated.'
+              );
+            }}
+            onCaptureEvent={(eventId) => {
+              void runRefreshAction(
+                () => captureCalendarEvent(eventId),
+                'Calendar event captured.'
+              );
+            }}
+            onIgnoreEvent={(eventId) => {
+              void runRefreshAction(
+                () => ignoreCalendarEvent(eventId),
+                'Calendar event ignored.'
+              );
+            }}
+            onEditEvent={(eventId) => {
+              void runRefreshAction(
+                () => editCalendarEvent(eventId),
+                'Calendar event updated.'
+              );
+            }}
+            onCreateEvent={() => {
+              void runRefreshAction(
+                () => createCalendarEvent(),
+                'Calendar event created.'
+              );
+            }}
+            onExportEvents={(format) => {
+              void handleExportEvents(format);
+            }}
           />
         </div>
       </div>

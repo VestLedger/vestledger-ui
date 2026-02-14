@@ -18,6 +18,7 @@ import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys'
 import { useDashboardDensity } from '@/contexts/dashboard-density-context';
 import { buildPublicWebUrl } from '@/config/env';
 import { ROUTE_PATHS } from '@/config/routes';
+import { logger } from '@/lib/logger';
 
 export function Topbar() {
   const { user, logout } = useAuth();
@@ -50,7 +51,10 @@ export function Topbar() {
 
     // Redirect to public domain.
     const redirectUrl = buildPublicWebUrl(window.location.hostname);
-    console.log('Logging out, redirecting to:', redirectUrl);
+    logger.info('Logging out user and redirecting to public website.', {
+      component: 'topbar',
+      redirectUrl,
+    });
     window.location.href = redirectUrl;
   };
 

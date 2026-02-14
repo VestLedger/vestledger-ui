@@ -8,6 +8,10 @@ import { HomeMorningBrief } from './dashboard/home-morning-brief';
 import { HomePriorityMatrix } from './dashboard/home-priority-matrix';
 import { HomeFundHealthList } from './dashboard/home-fund-health-list';
 import { HomePortfolioHealthList } from './dashboard/home-portfolio-health-list';
+import { HomeBlockerBeacon } from './dashboard/home-blocker-beacon';
+import { HomeOpportunitiesRail } from './dashboard/home-opportunities-rail';
+import { HomeRevenueDistribution } from './dashboard/home-revenue-distribution';
+import { HomeARRTrend } from './dashboard/home-arr-trend';
 import { useDashboardData } from '@/hooks/use-dashboard-data';
 import { useAuth } from '@/contexts/auth-context';
 import { useFund } from '@/contexts/fund-context';
@@ -19,7 +23,7 @@ import { getRouteConfig, ROUTE_PATHS } from '@/config/routes';
 import { useAppDispatch } from '@/store/hooks';
 import { setQuickActionsOverride } from '@/store/slices/copilotSlice';
 import { patchUIState } from '@/store/slices/uiSlice';
-import type { DailyBriefItem } from '@/data/mocks/hooks/dashboard-data';
+import type { DailyBriefItem, HomeBlocker, HomeOpportunity } from '@/data/mocks/hooks/dashboard-data';
 import { useDashboardDensity } from '@/contexts/dashboard-density-context';
 
 const DASHBOARD_PERCENT_SCALE = 100;
@@ -99,14 +103,18 @@ export function DashboardV2() {
   const fundSummaryCardMarginClass = density.mode === 'compact' ? 'mb-4' : 'mb-4';
   const fundSummaryGridGapClass = density.mode === 'compact' ? 'gap-3' : 'gap-4';
   const metricsBottomSpacingClass = density.mode === 'compact' ? 'mb-4' : 'mb-4';
-  const { selectedFund, viewMode, funds, getFundSummary, setSelectedFund, setViewMode } = useFund();
+  const { selectedFund, viewMode, funds, getFundSummary, setSelectedFund } = useFund();
   const dispatch = useAppDispatch();
   const {
     quickActions,
     morningBrief,
     dailyBriefItems,
-    fundHealthRows,
-    portfolioSignals,
+    fundTrustRows,
+    portfolioRevenueRows,
+    blockers,
+    opportunities,
+    revenueDistribution,
+    portfolioRevenueTrend,
   } = useDashboardData();
 
   // Surface dashboard quick actions inside the AI Copilot sidebar
@@ -140,59 +148,80 @@ export function DashboardV2() {
       break;
   }
 
-  const openFundSetupDetails = (fundId: string) => {
-    const fund = funds.find((entry) => entry.id === fundId);
-    if (fund) {
-      setSelectedFund(fund);
-      setViewMode('individual');
-    }
-    dispatch(patchUIState({ key: 'back-office-fund-admin', patch: { selectedTab: 'fund-setup' } }));
-    dispatch(patchUIState({ key: 'fund-setup', patch: { selectedFundId: fundId } }));
-    router.push(ROUTE_PATHS.fundAdmin);
+  type RouteTarget = {
+    route: string;
+    tabTarget?: string;
+    fundId?: string;
+    searchHint?: string;
   };
 
-  const openPortfolioDetails = (companyName: string) => {
-    dispatch(patchUIState({ key: 'portfolio', patch: { selected: 'overview' } }));
-    dispatch(
-      patchUIState({
-        key: 'advanced-table:portfolio-dashboard:companies',
-        patch: { searchQuery: companyName, currentPage: 1 },
-      })
-    );
-    router.push(ROUTE_PATHS.portfolio);
-  };
-
-  const openBriefItem = (item: DailyBriefItem) => {
-    if (item.fundId) {
-      const fund = funds.find((entry) => entry.id === item.fundId);
-      if (fund) {
-        setSelectedFund(fund);
-        setViewMode('individual');
-      }
-    }
-
-    if (item.route === ROUTE_PATHS.fundAdmin) {
+  const navigateWithContext = (target: RouteTarget) => {
+    if (target.route === ROUTE_PATHS.fundAdmin) {
       dispatch(
         patchUIState({
           key: 'back-office-fund-admin',
-          patch: { selectedTab: item.tabTarget ?? 'capital-calls' },
+          patch: { selectedTab: target.tabTarget ?? 'capital-calls', lpStatusFilter: 'all' },
         })
       );
     }
 
-    if (item.route === ROUTE_PATHS.portfolio) {
+    if (target.fundId) {
+      const fund = funds.find((entry) => entry.id === target.fundId);
+      if (fund) {
+        setSelectedFund(fund);
+      }
+      dispatch(
+        patchUIState({
+          key: 'fund-setup',
+          patch: {
+            selectedFundId: target.fundId,
+            searchQuery: '',
+            statusFilter: 'all',
+          },
+        })
+      );
+    }
+
+    if (target.route === ROUTE_PATHS.portfolio) {
       dispatch(patchUIState({ key: 'portfolio', patch: { selected: 'overview' } }));
-      if (item.searchHint) {
+      if (target.searchHint) {
         dispatch(
           patchUIState({
             key: 'advanced-table:portfolio-dashboard:companies',
-            patch: { searchQuery: item.searchHint, currentPage: 1 },
+            patch: { searchQuery: target.searchHint, currentPage: 1 },
           })
         );
       }
     }
 
-    router.push(item.route);
+    router.push(target.route);
+  };
+
+  const openFundSetupDetails = (fundId: string) => {
+    navigateWithContext({
+      route: ROUTE_PATHS.fundAdmin,
+      tabTarget: 'fund-setup',
+      fundId,
+    });
+  };
+
+  const openPortfolioDetails = (companyName: string) => {
+    navigateWithContext({
+      route: ROUTE_PATHS.portfolio,
+      searchHint: companyName,
+    });
+  };
+
+  const openBriefItem = (item: DailyBriefItem) => {
+    navigateWithContext(item);
+  };
+
+  const openBlocker = (blocker: HomeBlocker) => {
+    navigateWithContext(blocker);
+  };
+
+  const openOpportunity = (opportunity: HomeOpportunity) => {
+    navigateWithContext(opportunity);
   };
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -201,42 +230,49 @@ export function DashboardV2() {
   if (viewMode === 'consolidated' || !selectedFund) {
     const routeConfig = getRouteConfig(ROUTE_PATHS.dashboard);
     const totalFundLabel = formatCountLabel(summary.totalFunds, 'fund');
-    const watchFundCount = fundHealthRows.filter((row) => row.riskFlag !== 'stable').length;
-    const watchPortfolioCount = portfolioSignals.filter((row) => row.riskFlag !== 'stable').length;
+    const trustWatchCount = fundTrustRows.filter((row) => row.riskFlag !== 'stable').length;
+    const trustCriticalCount = fundTrustRows.filter((row) => row.riskFlag === 'critical').length;
+    const portfolioWatchCount = portfolioRevenueRows.filter((row) => row.riskFlag !== 'stable').length;
+    const urgentSignalsCount = dailyBriefItems.filter((item) => item.quadrant.startsWith('urgent')).length;
+    const arrNow = portfolioRevenueTrend[portfolioRevenueTrend.length - 1]?.arr ?? 0;
 
     return (
       <PageScaffold
+        containerProps={{ className: 'gp-home-skin' }}
         breadcrumbs={routeConfig?.breadcrumbs || [{ label: 'Dashboard' }]}
         aiSuggestion={routeConfig?.aiSuggestion}
         header={{
-          title: 'GP Home',
-          description: `Decision and health view across ${totalFundLabel}`,
+          title: 'GP Command Center',
+          description: `Revenue makers and LP trust across ${totalFundLabel}`,
           icon: LayoutDashboard,
           aiSummary: {
             text: morningBrief.summary,
             confidence: morningBrief.confidence,
           },
+          actionContent: (
+            <HomeBlockerBeacon blockers={blockers} onBlockerClick={openBlocker} />
+          ),
           badges: [
             {
-              label: `${morningBrief.itemCount} items in 7d`,
+              label: `$${arrNow}M ARR`,
               size: 'md',
               variant: 'flat',
-              className: 'bg-[var(--app-primary-bg)] text-[var(--app-primary)]',
+              className: 'bg-[var(--app-success-bg)] text-[var(--app-success)]',
             },
             {
-              label: `${morningBrief.urgentCount} urgent`,
+              label: `${morningBrief.itemCount} signals / 7d`,
               size: 'md',
               variant: 'bordered',
               className: 'text-[var(--app-text-muted)] border-[var(--app-border)]',
             },
             {
-              label: `${watchFundCount} funds on watch`,
+              label: `${urgentSignalsCount} urgent`,
               size: 'md',
               variant: 'bordered',
-              className: 'text-[var(--app-text-muted)] border-[var(--app-border)]',
+              className: 'text-[var(--app-warning)] border-[var(--app-warning)]/45',
             },
             {
-              label: `${watchPortfolioCount} companies on watch`,
+              label: `${trustWatchCount} trust watch / ${portfolioWatchCount} portfolio watch`,
               size: 'md',
               variant: 'bordered',
               className: 'text-[var(--app-text-muted)] border-[var(--app-border)]',
@@ -244,13 +280,49 @@ export function DashboardV2() {
           ],
         }}
       >
-        <div className={`${sectionTopSpacingClass} ${density.page.sectionStackClass}`}>
+        <div className={`gp-home-content ${sectionTopSpacingClass} ${density.page.sectionStackClass}`}>
           <HomeMorningBrief brief={morningBrief} />
-          <HomePriorityMatrix items={dailyBriefItems} onItemClick={openBriefItem} />
 
-          <div className={`grid grid-cols-1 xl:grid-cols-2 ${density.page.blockGapClass}`}>
-            <HomeFundHealthList rows={fundHealthRows} onRowClick={openFundSetupDetails} />
-            <HomePortfolioHealthList rows={portfolioSignals} onRowClick={openPortfolioDetails} />
+          <section className="overflow-hidden rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)]" data-testid="gp-home-signals-tape">
+            <div className="grid grid-cols-2 gap-px bg-[var(--app-border)] lg:grid-cols-5">
+              <div className="bg-[var(--app-surface)] px-3 py-2">
+                <p className="text-[10px] uppercase tracking-[0.14em] text-[var(--app-text-subtle)]">Urgent now</p>
+                <p className="text-sm font-semibold text-[var(--app-danger)]">{urgentSignalsCount}</p>
+              </div>
+              <div className="bg-[var(--app-surface)] px-3 py-2">
+                <p className="text-[10px] uppercase tracking-[0.14em] text-[var(--app-text-subtle)]">LP trust critical</p>
+                <p className="text-sm font-semibold text-[var(--app-warning)]">{trustCriticalCount}</p>
+              </div>
+              <div className="bg-[var(--app-surface)] px-3 py-2">
+                <p className="text-[10px] uppercase tracking-[0.14em] text-[var(--app-text-subtle)]">Blockers</p>
+                <p className="text-sm font-semibold text-[var(--app-warning)]">{blockers.length}</p>
+              </div>
+              <div className="bg-[var(--app-surface)] px-3 py-2">
+                <p className="text-[10px] uppercase tracking-[0.14em] text-[var(--app-text-subtle)]">Revenue makers</p>
+                <p className="text-sm font-semibold text-[var(--app-success)]">{portfolioRevenueRows.length}</p>
+              </div>
+              <div className="bg-[var(--app-surface)] px-3 py-2">
+                <p className="text-[10px] uppercase tracking-[0.14em] text-[var(--app-text-subtle)]">Opportunities</p>
+                <p className="text-sm font-semibold text-[var(--app-info)]">{opportunities.length}</p>
+              </div>
+            </div>
+          </section>
+
+          <div className={`grid grid-cols-1 ${density.page.blockGapClass} xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]`}>
+            <HomePriorityMatrix items={dailyBriefItems} onItemClick={openBriefItem} />
+            <HomeOpportunitiesRail opportunities={opportunities} onOpportunityClick={openOpportunity} />
+          </div>
+
+          <div className={`grid grid-cols-1 ${density.page.blockGapClass} xl:grid-cols-[minmax(0,1.38fr)_minmax(0,1fr)]`} data-testid="gp-home-portfolio-lane">
+            <HomePortfolioHealthList rows={portfolioRevenueRows} onRowClick={openPortfolioDetails} />
+            <div className={`grid grid-cols-1 ${density.page.blockGapClass}`}>
+              <HomeRevenueDistribution slices={revenueDistribution} />
+              <HomeARRTrend points={portfolioRevenueTrend} />
+            </div>
+          </div>
+
+          <div data-testid="gp-home-fund-lane">
+            <HomeFundHealthList rows={fundTrustRows} onRowClick={openFundSetupDetails} />
           </div>
         </div>
 
