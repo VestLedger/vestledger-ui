@@ -1,0 +1,24 @@
+# Enforce quality gates before pushing.
+PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+export PATH
+
+run_pnpm() {
+  if command -v pnpm >/dev/null 2>&1; then
+    pnpm "$@"
+    return $?
+  fi
+
+  if command -v corepack >/dev/null 2>&1; then
+    corepack pnpm "$@"
+    return $?
+  fi
+
+  echo "pre-push: pnpm is not available in PATH: $PATH"
+  echo "Install/enable via: corepack enable && corepack prepare pnpm@10.23.0 --activate"
+  return 127
+}
+
+run_pnpm run build
+run_pnpm run lint
+run_pnpm run audit:ui-centralization:enforce
+run_pnpm test

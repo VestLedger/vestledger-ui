@@ -1,4 +1,2 @@
-pnpm run build
-pnpm run lint
-pnpm run audit:ui-centralization:enforce
-pnpm test
+# Commit should be fast: checks are enforced in pre-push only.
+exit 0
