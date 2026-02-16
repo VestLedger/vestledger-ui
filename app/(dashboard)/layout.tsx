@@ -11,7 +11,6 @@ import { NavigationProvider, useNavigation } from '@/contexts/navigation-context
 import { SidebarGrouped } from '@/components/sidebar-grouped'
 import { Topbar } from '@/components/topbar'
 import { CommandPalette } from '@/components/command-palette'
-import { RoleOnboardingBeacon } from '@/components/onboarding/role-onboarding-beacon'
 import { useKeyboardShortcut } from '@/hooks/use-keyboard-shortcut'
 import { LoadingState } from '@/ui/async-states'
 import { useToast } from '@/ui'
@@ -100,7 +99,6 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
             <div className="flex-1" aria-hidden="true" />
           )}
         </motion.div>
-        <RoleOnboardingBeacon />
         <CommandPalette />
       </div>
     </DashboardDensityProvider>

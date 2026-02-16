@@ -1,10 +1,12 @@
 'use client'
 
+import { useEffect } from 'react';
 import { Card, Button, Badge, Progress, useToast } from '@/ui';
 import { Receipt, Download, Send, Calendar, DollarSign, Mail, FileText } from 'lucide-react';
 import { getRouteConfig, ROUTE_PATHS } from '@/config/routes';
 import { K1Generator } from '../tax/k1-generator';
 import { useUIKey } from '@/store/ui';
+import { DEFAULT_TAX_CENTER_TAB_ID, TAX_CENTER_TAB_IDS } from '@/config/tax-center-tabs';
 import { taxCenterRequested, taxCenterSelectors } from '@/store/slices/backOfficeSlice';
 import { AsyncStateRenderer } from '@/ui/async-states';
 import { formatCurrency, formatDate } from '@/utils/formatting';
@@ -15,8 +17,14 @@ import { useAsyncData } from '@/hooks/useAsyncData';
 export function TaxCenter() {
   const toast = useToast();
   const { data, isLoading, error, refetch } = useAsyncData(taxCenterRequested, taxCenterSelectors.selectState);
-  const { value: ui, patch: patchUI } = useUIKey('back-office-tax-center', { selectedTab: 'overview' });
+  const { value: ui, patch: patchUI } = useUIKey('back-office-tax-center', { selectedTab: DEFAULT_TAX_CENTER_TAB_ID });
   const { selectedTab } = ui;
+
+  useEffect(() => {
+    if (!TAX_CENTER_TAB_IDS.has(selectedTab)) {
+      patchUI({ selectedTab: DEFAULT_TAX_CENTER_TAB_ID });
+    }
+  }, [patchUI, selectedTab]);
 
   // Get route config for breadcrumbs and AI suggestions
   const routeConfig = getRouteConfig(ROUTE_PATHS.taxCenter);
@@ -145,42 +153,14 @@ export function TaxCenter() {
               onClick: handleGenerateK1Batch,
               aiSuggested: readyDocuments > 0,
             },
-            secondaryActions: [
-              {
-                label: 'Upload Documents',
-                onClick: handleUploadTaxDocuments,
-              },
-            ],
-            tabs: [
-              {
-                id: 'overview',
-                label: 'Tax Documents',
-                count: taxDocuments.length,
-              },
-              {
-                id: 'k1-generator',
-                label: 'K-1 Generator',
-              },
-              {
-                id: 'fund-summary',
-                label: 'Fund Summary',
-                count: taxSummaries.length,
-              },
-              {
-                id: 'portfolio',
-                label: 'Portfolio Companies',
-                count: portfolioTax.filter(c => c.k1Required && !c.k1Received).length,
-                priority: portfolioTax.filter(c => c.k1Required && !c.k1Received).length > 0 ? 'high' : undefined,
-              },
-              {
-                id: 'communications',
-                label: 'LP Communications',
-              },
-            ],
-            activeTab: selectedTab,
-            onTabChange: (tabId) => patchUI({ selectedTab: tabId }),
-          }}
-        >
+	            secondaryActions: [
+	              {
+	                label: 'Upload Documents',
+	                onClick: handleUploadTaxDocuments,
+	              },
+	            ],
+	          }}
+	        >
 
       {/* Summary Cards */}
       <MetricsGrid

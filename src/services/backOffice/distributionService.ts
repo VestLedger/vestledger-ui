@@ -9,12 +9,22 @@ import type {
   DistributionFilters,
   DistributionSummary,
   DistributionCalendarEvent,
+  DistributionEventType,
+  DistributionStatus,
   FeeTemplate,
   LPProfile,
   ApprovalRule,
+  ApprovalStatus,
   StatementTemplateConfig,
+  FeeType,
+  TaxFormType,
+  FeeLineItem,
+  LPAllocation,
+  ApprovalStep,
+  DistributionComment,
 } from '@/types/distribution';
 import { isMockMode } from '@/config/data-mode';
+import { requestJson } from '@/services/shared/httpClient';
 import {
   mockDistributions,
   mockDistributionSummary,
@@ -66,6 +76,295 @@ const recalculateTotals = (distribution: Partial<Distribution>) => {
 };
 
 const DISTRIBUTION_API_ENABLED = process.env.NEXT_PUBLIC_ENABLE_DISTRIBUTION_API === 'true';
+
+const DISTRIBUTION_STATUSES: DistributionStatus[] = [
+  'draft',
+  'pending-approval',
+  'approved',
+  'processing',
+  'completed',
+  'rejected',
+  'cancelled',
+];
+
+const DISTRIBUTION_EVENT_TYPES: DistributionEventType[] = [
+  'exit',
+  'dividend',
+  'recapitalization',
+  'refinancing',
+  'partial-exit',
+  'other',
+];
+
+const APPROVAL_STATUSES: ApprovalStatus[] = ['pending', 'approved', 'rejected', 'returned'];
+
+const FEE_TYPE_VALUES: FeeType[] = [
+  'management-fee',
+  'transaction-cost',
+  'legal-fee',
+  'audit-fee',
+  'admin-fee',
+  'other',
+];
+
+const TAX_FORM_TYPES: TaxFormType[] = ['k1', '1099', 'other'];
+
+function asFiniteNumber(value: unknown, fallback = 0): number {
+  const parsed = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function asRecord(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== 'object') return {};
+  return value as Record<string, unknown>;
+}
+
+function asArray(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : [];
+}
+
+function toIsoString(value: unknown): string {
+  if (!value) return new Date().toISOString();
+  const date = value instanceof Date ? value : new Date(value as string);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return date.toISOString();
+}
+
+function toDateOnly(value: unknown): string {
+  if (!value) return new Date().toISOString().split('T')[0];
+  const date = value instanceof Date ? value : new Date(value as string);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toISOString().split('T')[0];
+}
+
+function asDistributionStatus(value: unknown): DistributionStatus {
+  const normalized = String(value);
+  return DISTRIBUTION_STATUSES.includes(normalized as DistributionStatus)
+    ? (normalized as DistributionStatus)
+    : 'draft';
+}
+
+function asDistributionEventType(value: unknown): DistributionEventType {
+  const normalized = String(value);
+  return DISTRIBUTION_EVENT_TYPES.includes(normalized as DistributionEventType)
+    ? (normalized as DistributionEventType)
+    : 'other';
+}
+
+function asApprovalStatus(value: unknown): ApprovalStatus {
+  const normalized = String(value);
+  return APPROVAL_STATUSES.includes(normalized as ApprovalStatus)
+    ? (normalized as ApprovalStatus)
+    : 'pending';
+}
+
+function asFeeType(value: unknown): FeeType {
+  const normalized = String(value);
+  return FEE_TYPE_VALUES.includes(normalized as FeeType) ? (normalized as FeeType) : 'other';
+}
+
+function asTaxFormType(value: unknown): TaxFormType {
+  const normalized = String(value).toLowerCase();
+  return TAX_FORM_TYPES.includes(normalized as TaxFormType) ? (normalized as TaxFormType) : 'other';
+}
+
+type ApiDistributionListResponse = {
+  data: unknown[];
+  meta?: unknown;
+};
+
+type ApiDistributionCalendarEvent = {
+  id: string;
+  title: string;
+  fundId: string;
+  fundName: string;
+  eventType: string;
+  status: string;
+  eventDate: unknown;
+  paymentDate: unknown;
+  totalAmount?: unknown;
+};
+
+function mapApiDistributionToUi(distribution: unknown): Distribution {
+  const record = asRecord(distribution);
+
+  const feeLineItems: FeeLineItem[] = asArray(record['fees']).map((fee): FeeLineItem => {
+    const feeRecord = asRecord(fee);
+    const percentage = feeRecord['percentage'];
+    const notes = feeRecord['notes'];
+    return {
+      id: String(feeRecord['id']),
+      type: asFeeType(feeRecord['type']),
+      description: String(feeRecord['name'] ?? feeRecord['description'] ?? ''),
+      amount: asFiniteNumber(feeRecord['amount']),
+      ...(percentage === null || percentage === undefined ? {} : { percentage: asFiniteNumber(percentage) }),
+      ...(notes === null || notes === undefined ? {} : { notes: String(notes) }),
+      createdAt: toIsoString(feeRecord['createdAt']),
+      updatedAt: toIsoString(feeRecord['updatedAt']),
+    };
+  });
+
+  const lpAllocations: LPAllocation[] = asArray(record['allocations']).map((allocation): LPAllocation => {
+    const allocationRecord = asRecord(allocation);
+    const lpRecord = asRecord(allocationRecord['lp']);
+    const specialTermsNotes = allocationRecord['specialTermsNotes'];
+    const bankAccountId = allocationRecord['bankAccountId'];
+    const bankAccountName = allocationRecord['bankAccountName'];
+    const wireInstructions = allocationRecord['wireInstructions'];
+    const confirmedAt = allocationRecord['confirmedAt'];
+    const notes = allocationRecord['notes'];
+
+    return {
+      id: String(allocationRecord['id']),
+      lpId: String(allocationRecord['lpId']),
+      lpName: String(allocationRecord['lpName'] ?? lpRecord['name'] ?? ''),
+      investorClassId: String(allocationRecord['investorClassId'] ?? ''),
+      investorClassName: String(allocationRecord['investorClassName'] ?? ''),
+      commitment: asFiniteNumber(allocationRecord['commitment']),
+      ownershipPercentage: asFiniteNumber(allocationRecord['ownershipPct']),
+      proRataPercentage: asFiniteNumber(allocationRecord['proRataPercentage']),
+      grossAmount: asFiniteNumber(allocationRecord['grossAmount']),
+      netAmount: asFiniteNumber(allocationRecord['netAmount']),
+      taxJurisdiction: String(allocationRecord['taxJurisdiction'] ?? lpRecord['taxJurisdiction'] ?? 'US'),
+      taxWithholdingRate: asFiniteNumber(allocationRecord['taxWithholdingRate']),
+      taxWithholdingAmount: asFiniteNumber(
+        allocationRecord['taxWithholdingAmount'] ?? allocationRecord['taxWithholding']
+      ),
+      taxFormType: asTaxFormType(allocationRecord['taxFormType']),
+      isTaxOverride: Boolean(allocationRecord['isTaxOverride']),
+      hasSpecialTerms: Boolean(allocationRecord['hasSpecialTerms']),
+      ...(specialTermsNotes ? { specialTermsNotes: String(specialTermsNotes) } : {}),
+      ...(bankAccountId ? { bankAccountId: String(bankAccountId) } : {}),
+      ...(bankAccountName ? { bankAccountName: String(bankAccountName) } : {}),
+      ...(wireInstructions ? { wireInstructions: String(wireInstructions) } : {}),
+      isConfirmed: Boolean(allocationRecord['isConfirmed']),
+      ...(confirmedAt ? { confirmedAt: toIsoString(confirmedAt) } : {}),
+      ...(notes ? { notes: String(notes) } : {}),
+      createdAt: toIsoString(allocationRecord['createdAt']),
+      updatedAt: toIsoString(allocationRecord['updatedAt']),
+    };
+  });
+
+  const approvalSteps: ApprovalStep[] = asArray(record['approvals']).map((approval): ApprovalStep => {
+    const approvalRecord = asRecord(approval);
+    const comments = approvalRecord['comments'];
+    const respondedAt = approvalRecord['respondedAt'];
+    const dueDate = approvalRecord['dueDate'];
+    const reminderSentAt = approvalRecord['reminderSentAt'];
+
+    return {
+      id: String(approvalRecord['id']),
+      order: asFiniteNumber(approvalRecord['order']),
+      approverId: String(approvalRecord['approverId']),
+      approverName: String(approvalRecord['approverName'] ?? 'Approver'),
+      approverRole: String(approvalRecord['approverRole'] ?? 'Approver'),
+      approverEmail: String(approvalRecord['approverEmail'] ?? ''),
+      status: asApprovalStatus(approvalRecord['status']),
+      requiredComment: Boolean(approvalRecord['requiredComment']),
+      ...(comments ? { comment: String(comments) } : {}),
+      assignedAt: toIsoString(approvalRecord['assignedAt'] ?? approvalRecord['createdAt']),
+      ...(respondedAt ? { respondedAt: toIsoString(respondedAt) } : {}),
+      ...(dueDate ? { dueDate: toIsoString(dueDate) } : {}),
+      notificationSent: Boolean(approvalRecord['notificationSent']),
+      ...(reminderSentAt ? { reminderSentAt: toIsoString(reminderSentAt) } : {}),
+    };
+  });
+
+  const comments: DistributionComment[] = asArray(record['comments']).map((comment): DistributionComment => {
+    const commentRecord = asRecord(comment);
+    const attachments = commentRecord['attachments'];
+    return {
+      id: String(commentRecord['id']),
+      distributionId: String(commentRecord['distributionId']),
+      userId: String(commentRecord['userId']),
+      userName: String(commentRecord['userName']),
+      userRole: String(commentRecord['userRole']),
+      comment: String(commentRecord['comment']),
+      isInternal: Boolean(commentRecord['isInternal']),
+      ...(Array.isArray(attachments) ? { attachments: attachments.map(String) } : {}),
+      createdAt: toIsoString(commentRecord['createdAt']),
+      updatedAt: toIsoString(commentRecord['updatedAt']),
+    };
+  });
+
+  const fundRecord = asRecord(record['fund']);
+  const fundName = String(record['fundName'] ?? fundRecord['displayName'] ?? fundRecord['name'] ?? '');
+
+  return {
+    id: String(record['id']),
+    fundId: String(record['fundId']),
+    fundName,
+    name: String(record['name']),
+    eventType: asDistributionEventType(record['eventType']),
+    eventDate: toDateOnly(record['eventDate']),
+    paymentDate: toDateOnly(record['paymentDate']),
+    ...(record['description'] ? { description: String(record['description']) } : {}),
+    status: asDistributionStatus(record['status']),
+    grossProceeds: asFiniteNumber(record['grossProceeds']),
+    totalFees: asFiniteNumber(record['totalFees']),
+    totalExpenses: asFiniteNumber(record['totalExpenses']),
+    netProceeds: asFiniteNumber(record['netProceeds']),
+    totalTaxWithholding: asFiniteNumber(record['totalTaxWithholding']),
+    totalDistributed: asFiniteNumber(record['totalDistributed']),
+    feeLineItems,
+    ...(record['waterfallScenarioId'] ? { waterfallScenarioId: String(record['waterfallScenarioId']) } : {}),
+    lpAllocations,
+    approvalChainId: String(record['approvalChainId'] ?? ''),
+    approvalSteps,
+    ...(record['currentApprovalStep'] ? { currentApprovalStep: asFiniteNumber(record['currentApprovalStep']) } : {}),
+    statementsGenerated: false,
+    statements: [],
+    createdBy: String(record['createdBy'] ?? 'Unknown'),
+    createdAt: toIsoString(record['createdAt']),
+    updatedAt: toIsoString(record['updatedAt']),
+    ...(record['submittedForApprovalAt'] ? { submittedForApprovalAt: toIsoString(record['submittedForApprovalAt']) } : {}),
+    ...(record['approvedAt'] ? { approvedAt: toIsoString(record['approvedAt']) } : {}),
+    ...(record['processedAt'] ? { processedAt: toIsoString(record['processedAt']) } : {}),
+    ...(record['completedAt'] ? { completedAt: toIsoString(record['completedAt']) } : {}),
+    isDraft: Boolean(record['isDraft']),
+    revisionNumber: asFiniteNumber(record['revisionNumber'], 1),
+    ...(record['previousVersionId'] ? { previousVersionId: String(record['previousVersionId']) } : {}),
+    comments,
+    ...(record['internalNotes'] ? { internalNotes: String(record['internalNotes']) } : {}),
+    isRecurring: Boolean(record['isRecurring']),
+  };
+}
+
+function mapUiDistributionToApiBody(distribution: Partial<Distribution>): Record<string, unknown> {
+  const totals = recalculateTotals(distribution);
+  const fundId = distribution.fundId || '';
+  const eventDate = distribution.eventDate || new Date().toISOString().split('T')[0];
+  const paymentDate = distribution.paymentDate || eventDate;
+  const feeLineItems = distribution.feeLineItems ?? [];
+
+  return {
+    fundId,
+    fundName: distribution.fundName,
+    name: distribution.name ?? 'New Distribution',
+    description: distribution.description,
+    eventType: distribution.eventType ?? 'other',
+    eventDate,
+    paymentDate,
+    totalAmount: totals.totalDistributed,
+    grossProceeds: totals.grossProceeds,
+    netProceeds: totals.netProceeds,
+    totalFees: totals.totalFees,
+    totalExpenses: totals.totalExpenses,
+    totalTaxWithholding: totals.totalTaxWithholding,
+    totalDistributed: totals.totalDistributed,
+    waterfallScenarioId: distribution.waterfallScenarioId,
+    internalNotes: distribution.internalNotes,
+    isRecurring: distribution.isRecurring,
+    fees: feeLineItems.map((item) => ({
+      type: item.type,
+      name: item.description || item.type,
+      amount: getFeeAmount(item, totals.grossProceeds),
+      ...(item.percentage !== undefined ? { percentage: item.percentage } : {}),
+      paidBy: 'fund',
+      ...(item.notes ? { notes: item.notes } : {}),
+    })),
+  };
+}
 
 /**
  * Sprint 4 is intentionally UI-first; keep a centralized mock-backed path available
@@ -137,7 +436,63 @@ export async function fetchDistributions(
     return distributions;
   }
 
-  throw new Error('Distribution API integration is disabled in this environment');
+  const query = {
+    fromDate: filters?.dateFrom,
+    toDate: filters?.dateTo,
+    status: filters?.status?.length === 1 ? filters.status[0] : undefined,
+    eventType: filters?.eventType?.length === 1 ? filters.eventType[0] : undefined,
+  };
+
+  const payload = filters?.fundId
+    ? await requestJson<ApiDistributionListResponse>(`/funds/${filters.fundId}/distributions`, {
+        query,
+        fallbackMessage: 'Failed to load distributions',
+      })
+    : await requestJson<ApiDistributionListResponse>('/distributions', {
+        query,
+        fallbackMessage: 'Failed to load distributions',
+      });
+
+  const list = Array.isArray(payload?.data) ? payload.data : [];
+  let distributions = list.map(mapApiDistributionToUi);
+
+  // Apply UI-side filters for fields not supported by the API query DTO.
+  if (filters?.status && filters.status.length > 0) {
+    distributions = distributions.filter((d) => filters.status?.includes(d.status));
+  }
+
+  if (filters?.eventType && filters.eventType.length > 0) {
+    distributions = distributions.filter((d) => filters.eventType?.includes(d.eventType));
+  }
+
+  if (filters?.minAmount !== undefined) {
+    distributions = distributions.filter((d) => d.totalDistributed >= filters.minAmount!);
+  }
+
+  if (filters?.maxAmount !== undefined) {
+    distributions = distributions.filter((d) => d.totalDistributed <= filters.maxAmount!);
+  }
+
+  if (filters?.searchQuery) {
+    const query = filters.searchQuery.toLowerCase();
+    distributions = distributions.filter(
+      (d) =>
+        d.name.toLowerCase().includes(query)
+        || (d.description ?? '').toLowerCase().includes(query)
+        || d.fundName.toLowerCase().includes(query)
+    );
+  }
+
+  if (filters?.createdBy) {
+    distributions = distributions.filter((d) => d.createdBy === filters.createdBy);
+  }
+
+  // Default sort: eventDate descending (match mock behavior)
+  distributions.sort(
+    (a, b) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime()
+  );
+
+  return distributions;
 }
 
 /**
@@ -152,7 +507,10 @@ export async function fetchDistribution(id: string): Promise<Distribution> {
     return distribution;
   }
 
-  throw new Error('Distribution API integration is disabled in this environment');
+  const payload = await requestJson<unknown>(`/distributions/${id}`, {
+    fallbackMessage: 'Failed to load distribution',
+  });
+  return mapApiDistributionToUi(payload);
 }
 
 /**
@@ -209,7 +567,16 @@ export async function createDistribution(
     return newDistribution;
   }
 
-  throw new Error('Distribution API integration is disabled in this environment');
+  if (!data.fundId) {
+    throw new Error('fundId is required to create a distribution');
+  }
+
+  const created = await requestJson<unknown>(`/funds/${data.fundId}/distributions`, {
+    method: 'POST',
+    body: mapUiDistributionToApiBody(data),
+    fallbackMessage: 'Failed to create distribution',
+  });
+  return mapApiDistributionToUi(created);
 }
 
 /**
@@ -242,7 +609,19 @@ export async function updateDistribution(
     return updated;
   }
 
-  throw new Error('Distribution API integration is disabled in this environment');
+  const existing = await fetchDistribution(id);
+  const merged: Partial<Distribution> = { ...existing, ...data };
+  const fundId = merged.fundId;
+  if (!fundId) {
+    throw new Error('fundId is required to update a distribution');
+  }
+
+  const updated = await requestJson<unknown>(`/funds/${fundId}/distributions/${id}`, {
+    method: 'PUT',
+    body: mapUiDistributionToApiBody(merged),
+    fallbackMessage: 'Failed to update distribution',
+  });
+  return mapApiDistributionToUi(updated);
 }
 
 /**
@@ -263,7 +642,11 @@ export async function deleteDistribution(id: string): Promise<void> {
     return;
   }
 
-  throw new Error('Distribution API integration is disabled in this environment');
+  const existing = await fetchDistribution(id);
+  await requestJson<void>(`/funds/${existing.fundId}/distributions/${id}`, {
+    method: 'DELETE',
+    fallbackMessage: 'Failed to delete distribution',
+  });
 }
 
 // ============================================================================
@@ -554,7 +937,50 @@ export async function fetchDistributionSummary(): Promise<DistributionSummary> {
     return mockDistributionSummary;
   }
 
-  throw new Error('Distribution API integration is disabled in this environment');
+  const distributions = await fetchDistributions();
+  const totalDistributed = distributions.reduce((sum, d) => sum + d.totalDistributed, 0);
+  const today = new Date();
+
+  const byStatus = DISTRIBUTION_STATUSES.map((status) => {
+    const items = distributions.filter((d) => d.status === status);
+    return {
+      status,
+      count: items.length,
+      totalAmount: items.reduce((sum, d) => sum + d.totalDistributed, 0),
+    };
+  }).filter((row) => row.count > 0);
+
+  const byFund = Object.values(
+    distributions.reduce<Record<string, { fundId: string; fundName: string; count: number; totalAmount: number }>>(
+      (acc, d) => {
+        const current = acc[d.fundId] ?? { fundId: d.fundId, fundName: d.fundName, count: 0, totalAmount: 0 };
+        current.count += 1;
+        current.totalAmount += d.totalDistributed;
+        acc[d.fundId] = current;
+        return acc;
+      },
+      {}
+    )
+  );
+
+  const recentDistributions = [...distributions]
+    .sort((a, b) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime())
+    .slice(0, 5);
+
+  const upcomingScheduled = (await fetchDistributionCalendarEvents()).filter(
+    (event) => new Date(event.date).getTime() >= today.getTime()
+  );
+
+  return {
+    totalDistributions: distributions.length,
+    totalDistributed,
+    pendingApproval: distributions.filter((d) => d.status === 'pending-approval').length,
+    upcomingDistributions: upcomingScheduled.length,
+    byStatus,
+    byFund,
+    recentDistributions,
+    upcomingScheduled,
+  };
 }
 
 /**
@@ -578,7 +1004,27 @@ export async function fetchDistributionCalendarEvents(
     return events;
   }
 
-  throw new Error('Distribution API integration is disabled in this environment');
+  const payload = await requestJson<ApiDistributionCalendarEvent[]>(`/distributions/calendar`, {
+    query: {
+      fromDate: startDate,
+      toDate: endDate,
+    },
+    fallbackMessage: 'Failed to load distribution calendar events',
+  });
+
+  const events = Array.isArray(payload) ? payload : [];
+  return events.map((event) => ({
+    id: String(event.id),
+    distributionId: String(event.id),
+    title: String(event.title),
+    date: toDateOnly(event.paymentDate ?? event.eventDate),
+    eventType: asDistributionEventType(event.eventType),
+    status: asDistributionStatus(event.status),
+    ...(event.totalAmount !== undefined ? { amount: asFiniteNumber(event.totalAmount) } : {}),
+    fundId: String(event.fundId),
+    fundName: String(event.fundName),
+    isRecurring: false,
+  }));
 }
 
 /**
@@ -592,7 +1038,11 @@ export async function fetchFeeTemplates(fundId?: string): Promise<FeeTemplate[]>
     return mockFeeTemplates;
   }
 
-  throw new Error('Distribution API integration is disabled in this environment');
+  // Backend templates are not implemented yet; keep UI unblocked in API mode.
+  if (fundId) {
+    return mockFeeTemplates.filter((t) => !t.fundId || t.fundId === fundId);
+  }
+  return mockFeeTemplates;
 }
 
 /**
@@ -603,7 +1053,8 @@ export async function fetchStatementTemplates(): Promise<StatementTemplateConfig
     return mockStatementTemplates;
   }
 
-  throw new Error('Statement templates API integration is disabled in this environment');
+  // Backend statement templates are not implemented yet; keep UI unblocked in API mode.
+  return mockStatementTemplates;
 }
 
 /**
@@ -614,7 +1065,8 @@ export async function fetchLPProfiles(): Promise<LPProfile[]> {
     return mockLPProfiles;
   }
 
-  throw new Error('Distribution API integration is disabled in this environment');
+  // Backend LP profile API is not implemented yet; keep UI unblocked in API mode.
+  return mockLPProfiles;
 }
 
 /**
@@ -629,7 +1081,11 @@ export async function fetchLPProfile(id: string): Promise<LPProfile> {
     return profile;
   }
 
-  throw new Error('Distribution API integration is disabled in this environment');
+  const profile = mockLPProfiles.find((p) => p.id === id);
+  if (!profile) {
+    throw new Error(`LP profile not found: ${id}`);
+  }
+  return profile;
 }
 
 /**
@@ -640,5 +1096,6 @@ export async function fetchApprovalRules(): Promise<ApprovalRule[]> {
     return mockApprovalRules;
   }
 
-  throw new Error('Distribution API integration is disabled in this environment');
+  // Backend approval rules are not implemented yet; keep UI unblocked in API mode.
+  return mockApprovalRules;
 }

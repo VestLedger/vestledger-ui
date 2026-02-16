@@ -139,28 +139,38 @@ function mapApiValuationHistory(
   };
 }
 
-async function fetchValuationsFromApi(): Promise<Valuation409A[]> {
-  const response = await requestJson<ApiListResponse<ApiValuationRecord>>('/valuations/409a', {
+function extractNestedRecords<TItem>(source: unknown, key: string): TItem[] {
+  if (!source || typeof source !== 'object') return [];
+  const container = source as Record<string, unknown>;
+  const value = container[key];
+  if (!Array.isArray(value)) return [];
+  return value as TItem[];
+}
+
+async function fetchValuationSnapshotFromApi(): Promise<ValuationSnapshot> {
+  const response = await requestJson<ApiListResponse<ApiValuationRecord>>('/valuations', {
     method: 'GET',
     fallbackMessage: 'Failed to fetch 409A valuations',
   });
-  return extractApiList(response).map(mapApiValuation);
-}
 
-async function fetchStrikePricesFromApi(): Promise<StrikePrice[]> {
-  const response = await requestJson<ApiListResponse<ApiStrikePriceRecord>>('/valuations/409a/strike-prices', {
-    method: 'GET',
-    fallbackMessage: 'Failed to fetch strike prices',
-  });
-  return extractApiList(response).map(mapApiStrikePrice);
-}
+  const records = extractApiList(response);
+  const valuations = records.map(mapApiValuation);
 
-async function fetchValuationHistoryFromApi(): Promise<ValuationHistory[]> {
-  const response = await requestJson<ApiListResponse<ApiValuationHistoryRecord>>('/valuations/409a/history', {
-    method: 'GET',
-    fallbackMessage: 'Failed to fetch valuation history',
+  const strikePriceRecords: ApiStrikePriceRecord[] = [];
+  const historyRecords: ApiValuationHistoryRecord[] = [];
+
+  records.forEach((record) => {
+    strikePriceRecords.push(...extractNestedRecords<ApiStrikePriceRecord>(record, 'strikePrices'));
+    historyRecords.push(
+      ...extractNestedRecords<ApiValuationHistoryRecord>(record, 'valuationHistory')
+    );
   });
-  return extractApiList(response).map(mapApiValuationHistory);
+
+  return {
+    valuations,
+    strikePrices: strikePriceRecords.map(mapApiStrikePrice),
+    history: historyRecords.map(mapApiValuationHistory),
+  };
 }
 
 function getBaseMockSnapshot(): ValuationSnapshot {
@@ -188,29 +198,20 @@ async function getValuationSnapshot(): Promise<ValuationSnapshot> {
   }
 
   const previous = getCachedOrMockSnapshot();
-  const [valuationsResult, strikePricesResult, historyResult] = await Promise.allSettled([
-    fetchValuationsFromApi(),
-    fetchStrikePricesFromApi(),
-    fetchValuationHistoryFromApi(),
-  ]);
 
-  const snapshot: ValuationSnapshot = {
-    valuations:
-      valuationsResult.status === 'fulfilled' && valuationsResult.value.length > 0
-        ? valuationsResult.value
-        : previous.valuations,
-    strikePrices:
-      strikePricesResult.status === 'fulfilled' && strikePricesResult.value.length > 0
-        ? strikePricesResult.value
-        : previous.strikePrices,
-    history:
-      historyResult.status === 'fulfilled' && historyResult.value.length > 0
-        ? historyResult.value
-        : previous.history,
-  };
+  try {
+    const current = await fetchValuationSnapshotFromApi();
+    const snapshot: ValuationSnapshot = {
+      valuations: current.valuations.length > 0 ? current.valuations : previous.valuations,
+      strikePrices: current.strikePrices.length > 0 ? current.strikePrices : previous.strikePrices,
+      history: current.history.length > 0 ? current.history : previous.history,
+    };
 
-  setCachedSnapshot(snapshot);
-  return clone(snapshot);
+    setCachedSnapshot(snapshot);
+    return clone(snapshot);
+  } catch {
+    return previous;
+  }
 }
 
 export async function getValuations409a(): Promise<Valuation409A[]> {

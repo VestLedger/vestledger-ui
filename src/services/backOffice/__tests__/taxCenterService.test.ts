@@ -93,7 +93,7 @@ describe('taxCenterService', () => {
         ];
       }
 
-      if (path === '/tax/portfolio') {
+      if (path === '/tax/portfolio-companies') {
         return [
           {
             id: 'api-portfolio-tax-1',

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type MouseEvent } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { LayoutDashboard, GitBranch, Briefcase, Search, Vote, TrendingUp, Users, UserCheck, DollarSign, Shield, Scale, Receipt, FileDown, Sparkles, Activity, BarChart3, Settings, FileText, Plug, ChevronLeft, FileCheck, Building2, Target, Layers, Mail, ShieldCheck, MessageSquare } from 'lucide-react';
@@ -16,8 +16,46 @@ import { ROUTE_PATHS } from '@/config/routes';
 import {
   DEFAULT_FUND_ADMIN_TAB_ID,
   FUND_ADMIN_TAB_IDS,
-  FUND_ADMIN_TABS,
 } from '@/config/fund-admin-tabs';
+import { UI_STATE_DEFAULTS, UI_STATE_KEYS } from '@/store/constants/uiStateKeys';
+import {
+  ANALYTICS_TAB_IDS,
+  DEFAULT_ANALYTICS_TAB_ID,
+} from '@/config/analytics-tabs';
+import {
+  AI_TOOLS_TAB_IDS,
+  DEFAULT_AI_TOOLS_TAB_ID,
+} from '@/config/ai-tools-tabs';
+import {
+  COLLABORATION_TAB_IDS,
+  DEFAULT_COLLABORATION_TAB_ID,
+} from '@/config/collaboration-tabs';
+import {
+  COMPLIANCE_TAB_IDS,
+  DEFAULT_COMPLIANCE_TAB_ID,
+} from '@/config/compliance-tabs';
+import {
+  DEAL_INTELLIGENCE_TAB_IDS,
+  DEFAULT_DEAL_INTELLIGENCE_TAB_ID,
+} from '@/config/deal-intelligence-tabs';
+import {
+  DEFAULT_LP_MANAGEMENT_TAB_ID,
+  LP_MANAGEMENT_TAB_IDS,
+} from '@/config/lp-management-tabs';
+import { DEFAULT_LP_PORTAL_TAB_ID, LP_PORTAL_TAB_IDS } from '@/config/lp-portal-tabs';
+import { DEFAULT_PORTFOLIO_TAB_ID, PORTFOLIO_TAB_IDS } from '@/config/portfolio-tabs';
+import {
+  DEFAULT_TAX_CENTER_TAB_ID,
+  TAX_CENTER_TAB_IDS,
+} from '@/config/tax-center-tabs';
+import {
+  DEFAULT_VALUATION_409A_TAB_ID,
+  VALUATION_409A_TAB_IDS,
+} from '@/config/valuation-409a-tabs';
+import {
+  SIDEBAR_CONTEXTUAL_MENUS,
+  type ContextualMenuId,
+} from '@/config/sidebar-contextual-menus';
 import { buildAdminSuperadminUrl } from '@/config/env';
 import { isSuperadminUser } from '@/utils/auth/internal-access';
 
@@ -28,7 +66,32 @@ type FundAdminSidebarUIState = {
 
 type SidebarGroupedUIState = {
   isHovered: boolean;
-  fundAdminMenuMode: 'main' | 'contextual';
+  menuMode: 'main' | 'contextual';
+  contextualMenuId: ContextualMenuId | null;
+};
+
+type CollaborationSidebarUIState = {
+  searchQuery: string;
+  selectedThreadId: string | null;
+  taskStatusFilter: 'all' | 'todo' | 'in-progress' | 'blocked' | 'done';
+  messageDraft: string;
+  taskTitleDraft: string;
+  taskDescriptionDraft: string;
+  activeTab: 'threads' | 'tasks';
+};
+
+const CONTEXTUAL_MENU_BY_NAV_ID: Record<string, ContextualMenuId> = {
+  portfolio: 'portfolio',
+  analytics: 'analytics',
+  'fund-admin': 'fund-admin',
+  'lp-management': 'lp-management',
+  compliance: 'compliance',
+  '409a-valuations': 'valuation-409a',
+  'tax-center': 'tax-center',
+  'lp-portal': 'lp-portal',
+  'deal-intelligence': 'deal-intelligence',
+  collaboration: 'collaboration',
+  'ai-tools': 'ai-tools',
 };
 
 // Define navigation structure
@@ -114,11 +177,31 @@ export function SidebarGrouped() {
   const { user } = useAuth();
   const isSuperadmin = isSuperadminUser(user);
   const density = useDashboardDensity();
-  const isFundAdminRoute = pathname === ROUTE_PATHS.fundAdmin;
   const { value: sidebarUI, patch: patchSidebarUI } = useUIKey<SidebarGroupedUIState>('sidebar-grouped', {
     isHovered: false,
-    fundAdminMenuMode: 'main',
+    menuMode: 'main',
+    contextualMenuId: null,
   });
+
+  // Migrate the previous fund-admin-only menu state if present (keeps sidebar usable after updates).
+  useEffect(() => {
+    const raw = sidebarUI as unknown as {
+      menuMode?: unknown;
+      contextualMenuId?: unknown;
+      fundAdminMenuMode?: unknown;
+    };
+
+    if (typeof raw.menuMode === 'string' && raw.contextualMenuId !== undefined) {
+      return;
+    }
+
+    const wasFundAdminContextual = raw.fundAdminMenuMode === 'contextual';
+    patchSidebarUI({
+      menuMode: wasFundAdminContextual ? 'contextual' : 'main',
+      contextualMenuId: wasFundAdminContextual ? 'fund-admin' : null,
+    });
+  }, [patchSidebarUI, sidebarUI]);
+
   const { value: fundAdminUI, patch: patchFundAdminUI } = useUIKey<FundAdminSidebarUIState>(
     'back-office-fund-admin',
     {
@@ -126,13 +209,81 @@ export function SidebarGrouped() {
       lpStatusFilter: 'all',
     }
   );
+
+  const { value: portfolioUI, patch: patchPortfolioUI } = useUIKey<{ selected: string }>('portfolio', {
+    selected: DEFAULT_PORTFOLIO_TAB_ID,
+  });
+  const { value: analyticsUI, patch: patchAnalyticsUI } = useUIKey<{ selected: string }>('analytics', {
+    selected: DEFAULT_ANALYTICS_TAB_ID,
+  });
+  const { value: aiToolsUI, patch: patchAIToolsUI } = useUIKey<{ selected: string }>('ai-tools', {
+    selected: DEFAULT_AI_TOOLS_TAB_ID,
+  });
+  const { value: lpManagementUI, patch: patchLPManagementUI } = useUIKey<{ selectedTab: string; selectedLP: unknown | null }>(
+    'lp-management',
+    {
+      selectedTab: DEFAULT_LP_MANAGEMENT_TAB_ID,
+      selectedLP: null,
+    }
+  );
+  const { value: complianceUI, patch: patchComplianceUI } = useUIKey<{ selectedTab: string }>('back-office-compliance', {
+    selectedTab: DEFAULT_COMPLIANCE_TAB_ID,
+  });
+  const { value: taxCenterUI, patch: patchTaxCenterUI } = useUIKey<{ selectedTab: string }>('back-office-tax-center', {
+    selectedTab: DEFAULT_TAX_CENTER_TAB_ID,
+  });
+  const { value: valuation409aUI, patch: patchValuation409aUI } = useUIKey<{ selectedTab: string }>(
+    'back-office-valuation-409a',
+    { selectedTab: DEFAULT_VALUATION_409A_TAB_ID }
+  );
+  const { value: lpPortalUI, patch: patchLPPortalUI } = useUIKey<{ selectedTab: string }>('lp-investor-portal', {
+    selectedTab: DEFAULT_LP_PORTAL_TAB_ID,
+  });
+  const { value: dealIntelligenceUI, patch: patchDealIntelligenceUI } = useUIKey<typeof UI_STATE_DEFAULTS.dealIntelligence>(
+    UI_STATE_KEYS.DEAL_INTELLIGENCE,
+    UI_STATE_DEFAULTS.dealIntelligence
+  );
+  const { value: collaborationUI, patch: patchCollaborationUI } = useUIKey<CollaborationSidebarUIState>(
+    'collaboration-workspace',
+    {
+      searchQuery: '',
+      selectedThreadId: null,
+      taskStatusFilter: 'all',
+      messageDraft: '',
+      taskTitleDraft: '',
+      taskDescriptionDraft: '',
+      activeTab: DEFAULT_COLLABORATION_TAB_ID as CollaborationSidebarUIState['activeTab'],
+    }
+  );
+
   const isHovered = sidebarUI.isHovered;
-  const fundAdminMenuMode = sidebarUI.fundAdminMenuMode === 'contextual' ? 'contextual' : 'main';
-  const isFundAdminContext = isFundAdminRoute && fundAdminMenuMode === 'contextual';
+  const menuMode = sidebarUI.menuMode === 'contextual' ? 'contextual' : 'main';
+  const contextualMenuId = sidebarUI.contextualMenuId && sidebarUI.contextualMenuId in SIDEBAR_CONTEXTUAL_MENUS
+    ? sidebarUI.contextualMenuId
+    : null;
+  const activeContextMenu = menuMode === 'contextual' && contextualMenuId
+    ? SIDEBAR_CONTEXTUAL_MENUS[contextualMenuId]
+    : null;
+  const isContextual = Boolean(activeContextMenu) && pathname === activeContextMenu?.routePath;
+
   const selectedFundAdminTab = FUND_ADMIN_TAB_IDS.has(fundAdminUI.selectedTab)
     ? fundAdminUI.selectedTab
     : DEFAULT_FUND_ADMIN_TAB_ID;
-  const wasFundAdminRouteRef = useRef(isFundAdminRoute);
+  const selectedPortfolioTab = PORTFOLIO_TAB_IDS.has(portfolioUI.selected) ? portfolioUI.selected : DEFAULT_PORTFOLIO_TAB_ID;
+  const selectedAnalyticsTab = ANALYTICS_TAB_IDS.has(analyticsUI.selected) ? analyticsUI.selected : DEFAULT_ANALYTICS_TAB_ID;
+  const selectedAIToolsTab = AI_TOOLS_TAB_IDS.has(aiToolsUI.selected) ? aiToolsUI.selected : DEFAULT_AI_TOOLS_TAB_ID;
+  const selectedLPManagementTab = LP_MANAGEMENT_TAB_IDS.has(lpManagementUI.selectedTab) ? lpManagementUI.selectedTab : DEFAULT_LP_MANAGEMENT_TAB_ID;
+  const selectedComplianceTab = COMPLIANCE_TAB_IDS.has(complianceUI.selectedTab) ? complianceUI.selectedTab : DEFAULT_COMPLIANCE_TAB_ID;
+  const selectedTaxCenterTab = TAX_CENTER_TAB_IDS.has(taxCenterUI.selectedTab) ? taxCenterUI.selectedTab : DEFAULT_TAX_CENTER_TAB_ID;
+  const selectedValuation409aTab = VALUATION_409A_TAB_IDS.has(valuation409aUI.selectedTab) ? valuation409aUI.selectedTab : DEFAULT_VALUATION_409A_TAB_ID;
+  const selectedLPPortalTab = LP_PORTAL_TAB_IDS.has(lpPortalUI.selectedTab) ? lpPortalUI.selectedTab : DEFAULT_LP_PORTAL_TAB_ID;
+  const selectedDealIntelligenceTab = DEAL_INTELLIGENCE_TAB_IDS.has(dealIntelligenceUI.selectedDetailTab)
+    ? dealIntelligenceUI.selectedDetailTab
+    : DEFAULT_DEAL_INTELLIGENCE_TAB_ID;
+  const selectedCollaborationTab = COLLABORATION_TAB_IDS.has(collaborationUI.activeTab)
+    ? collaborationUI.activeTab
+    : DEFAULT_COLLABORATION_TAB_ID;
+  const pendingOpenRef = useRef<ContextualMenuId | null>(null);
 
   // Helper to check if a group is accessible
   const isAccessible = (allowedRoles?: UserRole[]) => {
@@ -152,23 +303,158 @@ export function SidebarGrouped() {
   }, [aiBadges, updateBadge]);
 
   useEffect(() => {
-    if (wasFundAdminRouteRef.current && !isFundAdminRoute && fundAdminMenuMode !== 'main') {
-      patchSidebarUI({ fundAdminMenuMode: 'main' });
+    if (menuMode !== 'contextual' || !contextualMenuId) {
+      return;
     }
-    wasFundAdminRouteRef.current = isFundAdminRoute;
-  }, [fundAdminMenuMode, isFundAdminRoute, patchSidebarUI]);
 
-  const openFundAdminMainMenu = () => {
-    patchSidebarUI({ fundAdminMenuMode: 'main' });
-    patchFundAdminUI({ selectedTab: DEFAULT_FUND_ADMIN_TAB_ID });
+    const config = SIDEBAR_CONTEXTUAL_MENUS[contextualMenuId];
+    if (pathname === config.routePath) {
+      if (pendingOpenRef.current === contextualMenuId) {
+        pendingOpenRef.current = null;
+      }
+      return;
+    }
+
+    if (pendingOpenRef.current === contextualMenuId) {
+      return;
+    }
+
+    patchSidebarUI({ menuMode: 'main', contextualMenuId: null });
+  }, [contextualMenuId, menuMode, pathname, patchSidebarUI]);
+
+  const resetContextualSelection = (targetMenuId: ContextualMenuId) => {
+    switch (targetMenuId) {
+      case 'portfolio':
+        patchPortfolioUI({ selected: DEFAULT_PORTFOLIO_TAB_ID });
+        return;
+      case 'analytics':
+        patchAnalyticsUI({ selected: DEFAULT_ANALYTICS_TAB_ID });
+        return;
+      case 'ai-tools':
+        patchAIToolsUI({ selected: DEFAULT_AI_TOOLS_TAB_ID });
+        return;
+      case 'lp-management':
+        patchLPManagementUI({ selectedTab: DEFAULT_LP_MANAGEMENT_TAB_ID });
+        return;
+      case 'compliance':
+        patchComplianceUI({ selectedTab: DEFAULT_COMPLIANCE_TAB_ID });
+        return;
+      case 'tax-center':
+        patchTaxCenterUI({ selectedTab: DEFAULT_TAX_CENTER_TAB_ID });
+        return;
+      case 'valuation-409a':
+        patchValuation409aUI({ selectedTab: DEFAULT_VALUATION_409A_TAB_ID });
+        return;
+      case 'fund-admin':
+        patchFundAdminUI({ selectedTab: DEFAULT_FUND_ADMIN_TAB_ID });
+        return;
+      case 'lp-portal':
+        patchLPPortalUI({ selectedTab: DEFAULT_LP_PORTAL_TAB_ID });
+        return;
+      case 'deal-intelligence':
+        patchDealIntelligenceUI({ selectedDetailTab: DEFAULT_DEAL_INTELLIGENCE_TAB_ID });
+        return;
+      case 'collaboration':
+        patchCollaborationUI({ activeTab: DEFAULT_COLLABORATION_TAB_ID });
+        return;
+      default: {
+        const exhaustiveCheck: never = targetMenuId;
+        void exhaustiveCheck;
+        return;
+      }
+    }
   };
 
-  const openFundAdminContextualMenu = () => {
-    patchSidebarUI({ fundAdminMenuMode: 'contextual' });
-    patchFundAdminUI({ selectedTab: DEFAULT_FUND_ADMIN_TAB_ID });
+  const openContextualMenu = (targetMenuId: ContextualMenuId) => (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    pendingOpenRef.current = targetMenuId;
+    resetContextualSelection(targetMenuId);
+    patchSidebarUI({ menuMode: 'contextual', contextualMenuId: targetMenuId });
+    const config = SIDEBAR_CONTEXTUAL_MENUS[targetMenuId];
+    if (pathname !== config.routePath) {
+      router.push(config.routePath);
+    }
+  };
 
-    if (!isFundAdminRoute) {
-      router.push(ROUTE_PATHS.fundAdmin);
+  const closeContextualMenu = () => {
+    if (contextualMenuId) {
+      resetContextualSelection(contextualMenuId);
+    }
+    pendingOpenRef.current = null;
+    patchSidebarUI({ menuMode: 'main', contextualMenuId: null });
+  };
+
+  const setContextualSelection = (targetMenuId: ContextualMenuId, tabId: string) => {
+    switch (targetMenuId) {
+      case 'portfolio':
+        patchPortfolioUI({ selected: tabId });
+        return;
+      case 'analytics':
+        patchAnalyticsUI({ selected: tabId });
+        return;
+      case 'ai-tools':
+        patchAIToolsUI({ selected: tabId });
+        return;
+      case 'lp-management':
+        patchLPManagementUI({ selectedTab: tabId });
+        return;
+      case 'compliance':
+        patchComplianceUI({ selectedTab: tabId });
+        return;
+      case 'tax-center':
+        patchTaxCenterUI({ selectedTab: tabId });
+        return;
+      case 'valuation-409a':
+        patchValuation409aUI({ selectedTab: tabId });
+        return;
+      case 'fund-admin':
+        patchFundAdminUI({ selectedTab: tabId });
+        return;
+      case 'lp-portal':
+        patchLPPortalUI({ selectedTab: tabId });
+        return;
+      case 'collaboration':
+        patchCollaborationUI({ activeTab: tabId as CollaborationSidebarUIState['activeTab'] });
+        return;
+      case 'deal-intelligence':
+        patchDealIntelligenceUI({ selectedDetailTab: tabId as typeof dealIntelligenceUI.selectedDetailTab, viewMode: 'per-deal' });
+        return;
+      default: {
+        const exhaustiveCheck: never = targetMenuId;
+        void exhaustiveCheck;
+        return;
+      }
+    }
+  };
+
+  const getSelectedTabForContextualMenu = (targetMenuId: ContextualMenuId): string => {
+    switch (targetMenuId) {
+      case 'portfolio':
+        return selectedPortfolioTab;
+      case 'analytics':
+        return selectedAnalyticsTab;
+      case 'ai-tools':
+        return selectedAIToolsTab;
+      case 'lp-management':
+        return selectedLPManagementTab;
+      case 'compliance':
+        return selectedComplianceTab;
+      case 'tax-center':
+        return selectedTaxCenterTab;
+      case 'valuation-409a':
+        return selectedValuation409aTab;
+      case 'fund-admin':
+        return selectedFundAdminTab;
+      case 'lp-portal':
+        return selectedLPPortalTab;
+      case 'deal-intelligence':
+        return selectedDealIntelligenceTab;
+      case 'collaboration':
+        return selectedCollaborationTab;
+      default: {
+        const exhaustiveCheck: never = targetMenuId;
+        return exhaustiveCheck;
+      }
     }
   };
 
@@ -215,8 +501,8 @@ export function SidebarGrouped() {
       <nav
         className={`flex-1 overflow-y-auto overflow-x-hidden ${effectivelyCollapsed ? 'no-scrollbar' : ''} ${density.shell.sidebarNavPaddingClass} ${density.shell.sidebarNavGapClass}`}
       >
-        {isSuperadmin ? (
-          <NavigationGroup
+	        {isSuperadmin ? (
+	          <NavigationGroup
             id="internal-admin"
             label="Internal Admin"
             icon={ShieldCheck}
@@ -239,65 +525,111 @@ export function SidebarGrouped() {
                   window.location.href = buildAdminSuperadminUrl(window.location.hostname);
                 }
               }}
-            />
-          </NavigationGroup>
-        ) : isFundAdminContext ? (
-          <div className="mb-2">
-            {effectivelyCollapsed ? (
-              <button
-                type="button"
-                onClick={openFundAdminMainMenu}
-                aria-label="Back to Main Menu"
-                title="Back to Main Menu"
-                className="w-full flex items-center justify-center p-2 rounded-lg hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover transition-colors"
-              >
-                <ChevronLeft className="w-5 h-5 text-app-text-muted dark:text-app-dark-text-muted" />
-              </button>
-            ) : (
-              <div
-                className={`w-full flex items-center gap-2 ${
-                  density.mode === 'compact' ? 'px-2.5 py-1.5' : 'px-3 py-2'
-                }`}
-              >
-                <button
-                  type="button"
-                  onClick={openFundAdminMainMenu}
-                  aria-label="Back to Main Menu"
-                  title="Back to Main Menu"
-                  className="p-1 rounded-md hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover transition-colors"
-                >
-                  <ChevronLeft className="w-4 h-4 text-app-text-muted dark:text-app-dark-text-muted" />
-                </button>
-                <DollarSign className="w-4 h-4 text-app-primary dark:text-app-dark-primary" />
-                <span
-                  className={`${
-                    density.mode === 'compact'
-                      ? 'text-[11px] font-semibold uppercase tracking-wider'
-                      : 'text-xs font-semibold uppercase tracking-wider'
-                  } text-app-text dark:text-app-dark-text`}
-                >
-                  Fund Admin
-                </span>
-              </div>
-            )}
-
-            <div className={effectivelyCollapsed ? 'space-y-1' : 'mt-1 space-y-1'}>
-              {FUND_ADMIN_TABS.map((tab) => (
-                <NavigationItem
-                  key={tab.id}
-                  id={`fund-admin-tab-${tab.id}`}
-                  href={ROUTE_PATHS.fundAdmin}
-                  label={tab.label}
-                  icon={tab.icon}
-                  isCollapsed={effectivelyCollapsed}
-                  isActiveOverride={selectedFundAdminTab === tab.id}
-                  onClick={() => patchFundAdminUI({ selectedTab: tab.id })}
-                />
-              ))}
-            </div>
-          </div>
-        ) : (
-          <>
+	            />
+	          </NavigationGroup>
+	        ) : isContextual && activeContextMenu && contextualMenuId ? (
+	          <div className="mb-2">
+	            {effectivelyCollapsed ? (
+	              <button
+	                type="button"
+	                onClick={closeContextualMenu}
+	                aria-label="Back to Main Menu"
+	                title="Back to Main Menu"
+	                className="w-full flex items-center justify-center p-2 rounded-lg hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover transition-colors"
+	              >
+	                <ChevronLeft className="w-5 h-5 text-app-text-muted dark:text-app-dark-text-muted" />
+	              </button>
+	            ) : (
+	              (() => {
+	                const ContextIcon = activeContextMenu.icon;
+	                return (
+	                  <div
+	                    className={`w-full flex items-center gap-2 ${
+	                      density.mode === 'compact' ? 'px-2.5 py-1.5' : 'px-3 py-2'
+	                    }`}
+	                  >
+	                    <button
+	                      type="button"
+	                      onClick={closeContextualMenu}
+	                      aria-label="Back to Main Menu"
+	                      title="Back to Main Menu"
+	                      className="p-1 rounded-md hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover transition-colors"
+	                    >
+	                      <ChevronLeft className="w-4 h-4 text-app-text-muted dark:text-app-dark-text-muted" />
+	                    </button>
+	                    <ContextIcon className="w-4 h-4 text-app-primary dark:text-app-dark-primary" />
+	                    <span
+	                      className={`${
+	                        density.mode === 'compact'
+	                          ? 'text-[11px] font-semibold uppercase tracking-wider'
+	                          : 'text-xs font-semibold uppercase tracking-wider'
+	                      } text-app-text dark:text-app-dark-text`}
+	                    >
+	                      {activeContextMenu.label}
+	                    </span>
+	                  </div>
+	                );
+	              })()
+	            )}
+	
+	            <div className={effectivelyCollapsed ? 'space-y-1' : 'mt-1 space-y-1'}>
+	              {contextualMenuId === 'deal-intelligence' ? (
+	                <>
+	                  <NavigationItem
+	                    id="deal-intelligence-fund-overview"
+	                    href={ROUTE_PATHS.dealIntelligence}
+	                    label="Fund Overview"
+	                    icon={LayoutDashboard}
+	                    isCollapsed={effectivelyCollapsed}
+	                    isActiveOverride={dealIntelligenceUI.viewMode !== 'per-deal'}
+	                    onClick={(event) => {
+	                      event.preventDefault();
+	                      patchDealIntelligenceUI({
+	                        viewMode: 'fund-level',
+	                        selectedDeal: null,
+	                        selectedDetailTab: DEFAULT_DEAL_INTELLIGENCE_TAB_ID,
+	                      });
+	                    }}
+	                  />
+	                  {dealIntelligenceUI.selectedDeal
+	                    ? activeContextMenu.tabs.map((tab) => (
+	                      <NavigationItem
+	                        key={tab.id}
+	                        id={`contextual-${contextualMenuId}-${tab.id}`}
+	                        href={activeContextMenu.routePath}
+	                        label={tab.label}
+	                        icon={tab.icon}
+	                        isCollapsed={effectivelyCollapsed}
+	                        isActiveOverride={dealIntelligenceUI.viewMode === 'per-deal' && selectedDealIntelligenceTab === tab.id}
+	                        onClick={(event) => {
+	                          event.preventDefault();
+	                          setContextualSelection(contextualMenuId, tab.id);
+	                        }}
+	                      />
+	                    ))
+	                    : null}
+	                </>
+	              ) : (
+	                activeContextMenu.tabs.map((tab) => (
+	                  <NavigationItem
+	                    key={tab.id}
+	                    id={`contextual-${contextualMenuId}-${tab.id}`}
+	                    href={activeContextMenu.routePath}
+	                    label={tab.label}
+	                    icon={tab.icon}
+	                    isCollapsed={effectivelyCollapsed}
+	                    isActiveOverride={getSelectedTabForContextualMenu(contextualMenuId) === tab.id}
+	                    onClick={(event) => {
+	                      event.preventDefault();
+	                      setContextualSelection(contextualMenuId, tab.id);
+	                    }}
+	                  />
+	                ))
+	              )}
+	            </div>
+	          </div>
+	        ) : (
+	          <>
             {/* Core Operations - Always Expanded */}
             <NavigationGroup
               id={navigationStructure.coreOperations.id}
@@ -305,18 +637,22 @@ export function SidebarGrouped() {
               icon={navigationStructure.coreOperations.icon}
               alwaysExpanded={navigationStructure.coreOperations.alwaysExpanded}
               isCollapsed={effectivelyCollapsed}
-            >
-              {navigationStructure.coreOperations.items.map(item => (
-                <NavigationItem
-                  key={item.id}
-                  id={item.id}
-                  href={item.href}
-                  label={item.label}
-                  icon={item.icon}
-                  isCollapsed={effectivelyCollapsed}
-                />
-              ))}
-            </NavigationGroup>
+	            >
+	              {navigationStructure.coreOperations.items.map((item) => {
+	                const contextualTarget = CONTEXTUAL_MENU_BY_NAV_ID[item.id];
+	                return (
+	                  <NavigationItem
+	                    key={item.id}
+	                    id={item.id}
+	                    href={item.href}
+	                    label={item.label}
+	                    icon={item.icon}
+	                    isCollapsed={effectivelyCollapsed}
+	                    onClick={contextualTarget ? openContextualMenu(contextualTarget) : undefined}
+	                  />
+	                );
+	              })}
+	            </NavigationGroup>
 
             {/* Deal Management */}
             {isAccessible(navigationStructure.dealManagement.allowedRoles) && (
@@ -326,18 +662,22 @@ export function SidebarGrouped() {
                 icon={navigationStructure.dealManagement.icon}
                 isCollapsed={effectivelyCollapsed}
               >
-                {navigationStructure.dealManagement.items.map(item => (
-                  <NavigationItem
-                    key={item.id}
-                    id={item.id}
-                    href={item.href}
-                    label={item.label}
-                    icon={item.icon}
-                    isCollapsed={effectivelyCollapsed}
-                  />
-                ))}
-              </NavigationGroup>
-            )}
+	                {navigationStructure.dealManagement.items.map((item) => {
+	                  const contextualTarget = CONTEXTUAL_MENU_BY_NAV_ID[item.id];
+	                  return (
+	                    <NavigationItem
+	                      key={item.id}
+	                      id={item.id}
+	                      href={item.href}
+	                      label={item.label}
+	                      icon={item.icon}
+	                      isCollapsed={effectivelyCollapsed}
+	                      onClick={contextualTarget ? openContextualMenu(contextualTarget) : undefined}
+	                    />
+	                  );
+	                })}
+	              </NavigationGroup>
+	            )}
 
             {/* Portfolio Management */}
             {isAccessible(navigationStructure.portfolioManagement.allowedRoles) && (
@@ -347,18 +687,22 @@ export function SidebarGrouped() {
                 icon={navigationStructure.portfolioManagement.icon}
                 isCollapsed={effectivelyCollapsed}
               >
-                {navigationStructure.portfolioManagement.items.map(item => (
-                  <NavigationItem
-                    key={item.id}
-                    id={item.id}
-                    href={item.href}
-                    label={item.label}
-                    icon={item.icon}
-                    isCollapsed={effectivelyCollapsed}
-                  />
-                ))}
-              </NavigationGroup>
-            )}
+	                {navigationStructure.portfolioManagement.items.map((item) => {
+	                  const contextualTarget = CONTEXTUAL_MENU_BY_NAV_ID[item.id];
+	                  return (
+	                    <NavigationItem
+	                      key={item.id}
+	                      id={item.id}
+	                      href={item.href}
+	                      label={item.label}
+	                      icon={item.icon}
+	                      isCollapsed={effectivelyCollapsed}
+	                      onClick={contextualTarget ? openContextualMenu(contextualTarget) : undefined}
+	                    />
+	                  );
+	                })}
+	              </NavigationGroup>
+	            )}
 
             {/* Back Office */}
             {isAccessible(navigationStructure.backOffice.allowedRoles) && (
@@ -368,48 +712,22 @@ export function SidebarGrouped() {
                 icon={navigationStructure.backOffice.icon}
                 isCollapsed={effectivelyCollapsed}
               >
-                {navigationStructure.backOffice.items.map((item) => {
-                  if (item.id !== 'fund-admin') {
-                    return (
-                      <NavigationItem
-                        key={item.id}
-                        id={item.id}
-                        href={item.href}
-                        label={item.label}
-                        icon={item.icon}
-                        isCollapsed={effectivelyCollapsed}
-                      />
-                    );
-                  }
-
-                  if (effectivelyCollapsed) {
-                    return (
-                      <NavigationItem
-                        key={item.id}
-                        id={item.id}
-                        href={item.href}
-                        label={item.label}
-                        icon={item.icon}
-                        isCollapsed={effectivelyCollapsed}
-                        onClick={openFundAdminContextualMenu}
-                      />
-                    );
-                  }
-
-                  return (
-                    <NavigationItem
-                      key={item.id}
-                      id={item.id}
-                      href={item.href}
-                      label={item.label}
-                      icon={item.icon}
-                      isCollapsed={effectivelyCollapsed}
-                      onClick={openFundAdminContextualMenu}
-                    />
-                  );
-                })}
-              </NavigationGroup>
-            )}
+	                {navigationStructure.backOffice.items.map((item) => {
+	                  const contextualTarget = CONTEXTUAL_MENU_BY_NAV_ID[item.id];
+	                  return (
+	                    <NavigationItem
+	                      key={item.id}
+	                      id={item.id}
+	                      href={item.href}
+	                      label={item.label}
+	                      icon={item.icon}
+	                      isCollapsed={effectivelyCollapsed}
+	                      onClick={contextualTarget ? openContextualMenu(contextualTarget) : undefined}
+	                    />
+	                  );
+	                })}
+	              </NavigationGroup>
+	            )}
 
             {/* LP Portal - Only for LP users */}
             {isAccessible(navigationStructure.lpPortal.allowedRoles) && (
@@ -419,18 +737,22 @@ export function SidebarGrouped() {
                 icon={navigationStructure.lpPortal.icon}
                 isCollapsed={effectivelyCollapsed}
               >
-                {navigationStructure.lpPortal.items.map(item => (
-                  <NavigationItem
-                    key={item.id}
-                    id={item.id}
-                    href={item.href}
-                    label={item.label}
-                    icon={item.icon}
-                    isCollapsed={effectivelyCollapsed}
-                  />
-                ))}
-              </NavigationGroup>
-            )}
+	                {navigationStructure.lpPortal.items.map((item) => {
+	                  const contextualTarget = CONTEXTUAL_MENU_BY_NAV_ID[item.id];
+	                  return (
+	                    <NavigationItem
+	                      key={item.id}
+	                      id={item.id}
+	                      href={item.href}
+	                      label={item.label}
+	                      icon={item.icon}
+	                      isCollapsed={effectivelyCollapsed}
+	                      onClick={contextualTarget ? openContextualMenu(contextualTarget) : undefined}
+	                    />
+	                  );
+	                })}
+	              </NavigationGroup>
+	            )}
 
             {/* Utilities */}
             {isAccessible(navigationStructure.utilities.allowedRoles) && (
@@ -440,20 +762,24 @@ export function SidebarGrouped() {
                 icon={navigationStructure.utilities.icon}
                 isCollapsed={effectivelyCollapsed}
               >
-                {navigationStructure.utilities.items.map(item => (
-                  <NavigationItem
-                    key={item.id}
-                    id={item.id}
-                    href={item.href}
-                    label={item.label}
-                    icon={item.icon}
-                    isCollapsed={effectivelyCollapsed}
-                  />
-                ))}
-              </NavigationGroup>
-            )}
-          </>
-        )}
+	                {navigationStructure.utilities.items.map((item) => {
+	                  const contextualTarget = CONTEXTUAL_MENU_BY_NAV_ID[item.id];
+	                  return (
+	                    <NavigationItem
+	                      key={item.id}
+	                      id={item.id}
+	                      href={item.href}
+	                      label={item.label}
+	                      icon={item.icon}
+	                      isCollapsed={effectivelyCollapsed}
+	                      onClick={contextualTarget ? openContextualMenu(contextualTarget) : undefined}
+	                    />
+	                  );
+	                })}
+	              </NavigationGroup>
+	            )}
+	          </>
+	        )}
       </nav>
 
       {/* Footer */}

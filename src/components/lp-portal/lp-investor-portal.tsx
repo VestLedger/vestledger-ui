@@ -1,19 +1,18 @@
 'use client'
 
+import { useEffect } from 'react';
 import { Card, Button, Badge, Progress } from '@/ui';
-import { Tabs, Tab } from '@/ui';
 import {
   TrendingUp,
   Download,
   FileText,
   Calendar,
-  Activity,
   PieChart,
   ArrowUpRight,
   ArrowDownRight,
-  Receipt,
   Users,
 } from 'lucide-react';
+import { DEFAULT_LP_PORTAL_TAB_ID, LP_PORTAL_TAB_IDS } from '@/config/lp-portal-tabs';
 import { useUIKey } from '@/store/ui';
 import { lpPortalRequested, lpPortalSelectors } from '@/store/slices/miscSlice';
 import { AsyncStateRenderer, EmptyState } from '@/ui/async-states';
@@ -32,8 +31,16 @@ import { ROUTE_PATHS } from '@/config/routes';
 
 export function LPInvestorPortal() {
   const { data, isLoading, error, refetch } = useAsyncData(lpPortalRequested, lpPortalSelectors.selectState);
-  const { value: ui, patch: patchUI } = useUIKey('lp-investor-portal', { selectedTab: 'distributions' });
+  const { value: ui, patch: patchUI } = useUIKey<{ selectedTab: string }>('lp-investor-portal', {
+    selectedTab: DEFAULT_LP_PORTAL_TAB_ID,
+  });
   const { selectedTab } = ui;
+
+  useEffect(() => {
+    if (!LP_PORTAL_TAB_IDS.has(selectedTab)) {
+      patchUI({ selectedTab: DEFAULT_LP_PORTAL_TAB_ID });
+    }
+  }, [patchUI, selectedTab]);
 
   const investor = data?.investor;
 
@@ -166,17 +173,7 @@ export function LPInvestorPortal() {
           </div>
         </Card>
 
-        <Tabs selectedKey={selectedTab} onSelectionChange={(key) => patchUI({ selectedTab: key as string })}>
-          {/* Reports Tab */}
-          <Tab
-            key="reports"
-            title={
-              <div className="flex items-center gap-2">
-                <FileText className="w-4 h-4" />
-                <span>Reports</span>
-              </div>
-            }
-          >
+        {selectedTab === 'reports' && (
             <div className="mt-4 space-y-3">
               {reports.map((report) => (
                 <Card key={report.id} padding="md">
@@ -202,18 +199,9 @@ export function LPInvestorPortal() {
                 </Card>
               ))}
             </div>
-          </Tab>
+        )}
 
-          {/* Transactions Tab */}
-          <Tab
-            key="transactions"
-            title={
-              <div className="flex items-center gap-2">
-                <Activity className="w-4 h-4" />
-                <span>Transactions</span>
-              </div>
-            }
-          >
+        {selectedTab === 'transactions' && (
             <div className="mt-4 space-y-3">
               {transactions.map((transaction) => (
                 <Card key={transaction.id} padding="md">
@@ -263,18 +251,9 @@ export function LPInvestorPortal() {
                 </Card>
               ))}
             </div>
-          </Tab>
+        )}
 
-          {/* Distributions Tab */}
-          <Tab
-            key="distributions"
-            title={
-              <div className="flex items-center gap-2">
-                <Receipt className="w-4 h-4" />
-                <span>Distributions</span>
-              </div>
-            }
-          >
+        {selectedTab === 'distributions' && (
             <div className="mt-4 space-y-4">
               <DistributionUpcoming distributions={upcomingDistributions} />
               <DistributionStatements statements={distributionStatements} />
@@ -291,18 +270,9 @@ export function LPInvestorPortal() {
               </div>
               <DistributionFAQ items={faqItems} />
             </div>
-          </Tab>
+        )}
 
-          {/* Portfolio Tab */}
-          <Tab
-            key="portfolio"
-            title={
-              <div className="flex items-center gap-2">
-                <PieChart className="w-4 h-4" />
-                <span>Portfolio</span>
-              </div>
-            }
-          >
+        {selectedTab === 'portfolio' && (
             <div className="mt-4">
               <Card padding="lg">
                 <SectionHeader
@@ -338,18 +308,9 @@ export function LPInvestorPortal() {
                 </div>
               </Card>
             </div>
-          </Tab>
+        )}
 
-          {/* Account Tab */}
-          <Tab
-            key="account"
-            title={
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                <span>Account</span>
-              </div>
-            }
-          >
+        {selectedTab === 'account' && (
             <div className="mt-4">
               <Card padding="lg">
                 <SectionHeader title="Investment Details" className="mb-4" />
@@ -396,8 +357,7 @@ export function LPInvestorPortal() {
                 </div>
               </Card>
             </div>
-          </Tab>
-        </Tabs>
+        )}
       </div>
           </PageScaffold>
         );

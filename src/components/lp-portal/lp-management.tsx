@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react';
 import { useUIKey } from '@/store/ui';
 import { Card, Button, Badge, Progress, Checkbox, useToast } from '@/ui';
 import { TrendingUp, DollarSign, Download, Eye, Send, FileText, BarChart3, Users, ArrowUpRight, ArrowDownRight, UserCheck, Mail } from 'lucide-react';
@@ -17,6 +18,7 @@ import {
 import { formatCurrency, formatPercent } from '@/utils/formatting';
 import { PageScaffold, SearchToolbar, SectionHeader, StatusBadge } from '@/ui/composites';
 import { ROUTE_PATHS } from '@/config/routes';
+import { DEFAULT_LP_MANAGEMENT_TAB_ID, LP_MANAGEMENT_TAB_IDS } from '@/config/lp-management-tabs';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { lpManagementRequested, lpManagementSelectors } from '@/store/slices/miscSlice';
 import { AsyncStateRenderer } from '@/ui/async-states';
@@ -27,7 +29,7 @@ export function LPManagement() {
     selectedTab: string;
     selectedLP: LP | null;
   }>('lp-management', {
-    selectedTab: 'overview',
+    selectedTab: DEFAULT_LP_MANAGEMENT_TAB_ID,
     selectedLP: null,
   });
   const { data, isLoading, error, refetch } = useAsyncData(
@@ -35,6 +37,12 @@ export function LPManagement() {
     lpManagementSelectors.selectState
   );
   const { selectedTab } = ui;
+
+  useEffect(() => {
+    if (!LP_MANAGEMENT_TAB_IDS.has(selectedTab)) {
+      patchUI({ selectedTab: DEFAULT_LP_MANAGEMENT_TAB_ID });
+    }
+  }, [patchUI, selectedTab]);
 
   const lps = data?.lps ?? [];
   const reports = data?.reports ?? [];
@@ -273,40 +281,16 @@ export function LPManagement() {
               aiSuggested: true,
               confidence: 0.82,
             },
-            secondaryActions: [
-              {
-                label: 'Send Update',
-                onClick: () => {
-                  void handleSendUpdate();
-                },
-              },
-            ],
-            tabs: [
-              {
-                id: 'overview',
-                label: 'LP Overview',
-                count: totalLPs,
-              },
-              {
-                id: 'reports',
-                label: 'Reports',
-                count: publishedReports,
-              },
-              {
-                id: 'capital',
-                label: 'Capital Activity',
-                count: pendingCapitalCalls,
-                priority: pendingCapitalCalls > 0 ? 'high' : undefined,
-              },
-              {
-                id: 'performance',
-                label: 'Performance',
-              },
-            ],
-            activeTab: selectedTab,
-            onTabChange: (tabId) => patchUI({ selectedTab: tabId }),
-          }}
-        >
+	            secondaryActions: [
+	              {
+	                label: 'Send Update',
+	                onClick: () => {
+	                  void handleSendUpdate();
+	                },
+	              },
+	            ],
+	          }}
+	        >
 
       {/* Fund Overview Stats */}
       <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">

@@ -35,6 +35,14 @@ interface ApiDocumentsResponse {
 
 const clone = <T>(value: T): T => structuredClone(value);
 
+function cloneDocumentCategories(
+  categories: typeof documentCategories
+): typeof documentCategories {
+  // `documentCategories` contains Lucide icons (React forwardRef components) which are not
+  // structured-cloneable. We only need a shallow copy for immutability; keep icon refs as-is.
+  return categories.map((category) => ({ ...category }));
+}
+
 // Re-export types for consumers
 export type {
   ActiveDeal,
@@ -376,7 +384,7 @@ export async function getDealIntelligenceData(
     return {
       activeDeals: clone(activeDeals),
       dealAnalyticsData: clone(dealAnalyticsData),
-      documentCategories: clone(documentCategories),
+      documentCategories: cloneDocumentCategories(documentCategories),
       fundAnalytics: clone(fundAnalytics),
       documents: clone(mockDocuments),
     };
@@ -425,7 +433,7 @@ export async function getDealIntelligenceData(
   return {
     activeDeals: activeDealsFromApi,
     dealAnalyticsData: analyticsFromApi,
-    documentCategories: clone(documentCategories),
+    documentCategories: cloneDocumentCategories(documentCategories),
     fundAnalytics: buildFundAnalytics(apiDeals, activeDealsFromApi),
     documents: mappedDocuments,
   };

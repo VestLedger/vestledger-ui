@@ -50,7 +50,7 @@ describe('valuation409aService', () => {
   it('maps API valuation payloads when endpoints are available', async () => {
     isMockMode.mockReturnValue(false);
     requestJson.mockImplementation(async (path: string) => {
-      if (path === '/valuations/409a') {
+      if (path === '/valuations') {
         return [
           {
             id: 'api-valuation-1',
@@ -64,32 +64,26 @@ describe('valuation409aService', () => {
             provider: 'API Provider',
             reportUrl: '/reports/api-valuation-1.pdf',
             methodology: 'Hybrid',
-          },
-        ];
-      }
-
-      if (path === '/valuations/409a/strike-prices') {
-        return [
-          {
-            id: 'api-strike-1',
-            grantDate: '2025-12-10',
-            strikePrice: 18.25,
-            sharesGranted: 10000,
-            recipient: 'API Recipient',
-            vestingSchedule: '4-year',
-            status: 'active',
-          },
-        ];
-      }
-
-      if (path === '/valuations/409a/history') {
-        return [
-          {
-            id: 'api-history-1',
-            date: '2025-12-01',
-            fmv: 18.25,
-            change: 14.3,
-            trigger: 'Annual refresh',
+            strikePrices: [
+              {
+                id: 'api-strike-1',
+                grantDate: '2025-12-10',
+                strikePrice: 18.25,
+                sharesGranted: 10000,
+                recipient: 'API Recipient',
+                vestingSchedule: '4-year',
+                status: 'active',
+              },
+            ],
+            valuationHistory: [
+              {
+                id: 'api-history-1',
+                date: '2025-12-01',
+                fmv: 18.25,
+                change: 14.3,
+                trigger: 'Annual refresh',
+              },
+            ],
           },
         ];
       }

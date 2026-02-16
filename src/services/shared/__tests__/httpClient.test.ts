@@ -66,6 +66,25 @@ describe('httpClient.requestJson', () => {
     expect(response).toBeUndefined();
   });
 
+  it('supports relative API base URLs (e.g. /api) without URL construction errors', async () => {
+    getApiBaseUrl.mockReturnValue('/api');
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify({ data: [] }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      })
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { requestJson } = await import('@/services/shared/httpClient');
+    await requestJson('/pipeline/stages', {
+      query: { limit: 10 },
+    });
+
+    const [url] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe('/api/pipeline/stages?limit=10');
+  });
+
   it('throws ApiError with extracted backend message on non-2xx responses', async () => {
     const fetchMock = vi.fn(async () =>
       new Response(JSON.stringify({ message: ['Pipeline unavailable'] }), {

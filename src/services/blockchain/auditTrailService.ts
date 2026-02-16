@@ -112,7 +112,7 @@ function mapApiEvent(record: ApiAuditEventRecord, index: number): AuditEvent {
 }
 
 async function fetchAuditEventsFromApi(): Promise<AuditEvent[]> {
-  const response = await requestJson<ApiAuditTrailResponse>('/audit-trail/events', {
+  const response = await requestJson<ApiAuditTrailResponse>('/audit/events', {
     method: 'GET',
     fallbackMessage: 'Failed to fetch audit trail events',
   });

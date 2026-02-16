@@ -15,17 +15,34 @@ export type ApiRequestOptions = {
   fallbackMessage?: string;
 };
 
+function isAbsoluteHttpUrl(value: string): boolean {
+  return /^https?:\/\//i.test(value);
+}
+
 function buildUrl(path: string, query?: ApiQueryParams): string {
   const baseUrl = getApiBaseUrl().replace(/\/$/, '');
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-  const url = new URL(`${baseUrl}${normalizedPath}`);
+  const isAbsoluteBase = isAbsoluteHttpUrl(baseUrl);
+  const normalizedBase = isAbsoluteBase
+    ? baseUrl
+    : baseUrl
+      ? `/${baseUrl.replace(/^\/+/, '')}`
+      : '';
+  const relativeTarget = `${normalizedBase}${normalizedPath}`;
+  const url = isAbsoluteBase
+    ? new URL(relativeTarget)
+    : new URL(relativeTarget, 'http://localhost');
 
   for (const [key, value] of Object.entries(query ?? {})) {
     if (value === null || value === undefined || value === '') continue;
     url.searchParams.set(key, String(value));
   }
 
-  return url.toString();
+  if (isAbsoluteBase) {
+    return url.toString();
+  }
+
+  return `${url.pathname}${url.search}`;
 }
 
 function extractMessage(payload: unknown, fallback: string): string {

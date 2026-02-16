@@ -224,7 +224,7 @@ async function fetchTaxSummariesFromApi(): Promise<TaxSummary[]> {
 }
 
 async function fetchPortfolioTaxFromApi(): Promise<PortfolioCompanyTax[]> {
-  const response = await requestJson<ApiListResponse<ApiPortfolioTaxRecord>>('/tax/portfolio', {
+  const response = await requestJson<ApiListResponse<ApiPortfolioTaxRecord>>('/tax/portfolio-companies', {
     method: 'GET',
     fallbackMessage: 'Failed to fetch portfolio tax details',
   });

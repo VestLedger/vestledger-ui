@@ -38,6 +38,10 @@ export function formatCurrency(
  * @example formatCurrencyCompact(45000) => "$45K"
  */
 export function formatCurrencyCompact(amount: number): string {
+  // Defensive: some API payloads / persisted localStorage snapshots can contain null/undefined.
+  // Avoid crashing the UI on `.toFixed()` in those cases.
+  if (!Number.isFinite(amount)) return '$0';
+
   if (amount >= 1_000_000_000) return `$${(amount / 1_000_000_000).toFixed(1)}B`;
   if (amount >= 1_000_000) return `$${(amount / 1_000_000).toFixed(1)}M`;
   if (amount >= 1_000) return `$${(amount / 1_000).toFixed(0)}K`;

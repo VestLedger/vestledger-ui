@@ -79,6 +79,11 @@ const nextConfig = {
   },
   productionBrowserSourceMaps: false,
   async headers() {
+    // Long-lived caching is desirable in production, but it can break local dev because
+    // Next dev chunk URLs are not content-hashed and the browser may keep stale JS.
+    if (process.env.NODE_ENV !== 'production') {
+      return [];
+    }
     return [
       {
         source: '/_next/static/:path*',

@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react';
 import { PageScaffold } from '@/ui/composites';
 import { Briefcase } from 'lucide-react';
 import { PortfolioDashboard } from './portfolio-dashboard';
@@ -7,6 +8,7 @@ import { PortfolioDocuments } from './portfolio-documents';
 import { PortfolioUpdates } from './portfolio-updates';
 import { FundSelector } from './fund-selector';
 import { getRouteConfig, ROUTE_PATHS } from '@/config/routes';
+import { DEFAULT_PORTFOLIO_TAB_ID, PORTFOLIO_TAB_IDS } from '@/config/portfolio-tabs';
 import { useUIKey } from '@/store/ui';
 import { useFund } from '@/contexts/fund-context';
 import { useAsyncData } from '@/hooks/useAsyncData';
@@ -20,10 +22,16 @@ import {
 } from '@/services/portfolio/portfolioPageMetricsService';
 
 export function Portfolio() {
-  const { value: ui, patch: patchUI } = useUIKey('portfolio', { selected: 'overview' });
+  const { value: ui, patch: patchUI } = useUIKey('portfolio', { selected: DEFAULT_PORTFOLIO_TAB_ID });
   const { selected } = ui;
   const { selectedFund } = useFund();
   const fundId = selectedFund?.id ?? null;
+
+  useEffect(() => {
+    if (!PORTFOLIO_TAB_IDS.has(selected)) {
+      patchUI({ selected: DEFAULT_PORTFOLIO_TAB_ID });
+    }
+  }, [patchUI, selected]);
 
   // Get route config for breadcrumbs and AI suggestions
   const routeConfig = getRouteConfig(ROUTE_PATHS.portfolio);
@@ -58,25 +66,6 @@ export function Portfolio() {
           text: aiSummaryText,
           confidence: 0.89,
         },
-        tabs: [
-          {
-            id: 'overview',
-            label: 'Overview',
-            priority: atRiskCompanies > 0 ? 'high' : undefined,
-          },
-          {
-            id: 'updates',
-            label: 'Updates',
-            count: pendingUpdates,
-            priority: pendingUpdates > 3 ? 'medium' : undefined,
-          },
-          {
-            id: 'documents',
-            label: 'Documents',
-          },
-        ],
-        activeTab: selected,
-        onTabChange: (tabId) => patchUI({ selected: tabId }),
         actionContent: <FundSelector />,
       }}
     >

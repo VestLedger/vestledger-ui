@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { AsyncState, NormalizedError } from '@/store/types/AsyncState';
 import { createInitialAsyncState } from '@/store/types/AsyncState';
 import { createAsyncSelectors } from '@/store/utils/createAsyncSelectors';
@@ -238,6 +238,13 @@ export const {
 
 export const fundsSelectors = createAsyncSelectors<FundsData>('fund');
 
+// Avoid returning a new array literal when state is empty/unhydrated; react-redux
+// will warn if a selector returns a different reference for the same state.
+const EMPTY_FUNDS: Fund[] = [];
+const selectFunds = (state: RootState) => state.fund.data?.funds ?? EMPTY_FUNDS;
+const selectArchivedFundIds = (state: RootState) => state.fund.archivedFundIds;
+const selectArchivedFundIdSet = createSelector([selectArchivedFundIds], (ids) => new Set(ids));
+
 export const fundUISelectors = {
   selectHydrated: (state: RootState) => state.fund.hydrated,
   selectSelectedFundId: (state: RootState) => state.fund.selectedFundId,
@@ -245,16 +252,13 @@ export const fundUISelectors = {
   selectArchivedFundIds: (state: RootState) => state.fund.archivedFundIds,
   selectMutationStatus: (state: RootState) => state.fund.mutationStatus,
   selectMutationError: (state: RootState) => state.fund.mutationError,
-  selectVisibleFunds: (state: RootState): Fund[] => {
-    const archivedIds = new Set(state.fund.archivedFundIds);
-    const funds = state.fund.data?.funds || [];
+  // Memoized selectors to avoid returning new array refs on every render.
+  selectVisibleFunds: createSelector([selectFunds, selectArchivedFundIdSet], (funds, archivedIds): Fund[] => {
     return funds.filter((fund) => !archivedIds.has(fund.id));
-  },
-  selectArchivedFunds: (state: RootState): Fund[] => {
-    const archivedIds = new Set(state.fund.archivedFundIds);
-    const funds = state.fund.data?.funds || [];
+  }),
+  selectArchivedFunds: createSelector([selectFunds, selectArchivedFundIdSet], (funds, archivedIds): Fund[] => {
     return funds.filter((fund) => archivedIds.has(fund.id));
-  },
+  }),
   selectSelectedFund: (state: RootState): Fund | null => {
     const fundId = state.fund.selectedFundId;
     const funds = state.fund.data?.funds || [];

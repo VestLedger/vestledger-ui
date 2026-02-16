@@ -83,4 +83,19 @@ describe('webVitalsService', () => {
       })
     );
   });
+
+  it('handles metrics containing non-cloneable extra fields', async () => {
+    mocks.isMockMode.mockReturnValue(true);
+
+    const metricWithEntries = {
+      ...SAMPLE_METRIC,
+      entries: [{ node: { ownerDocument: globalThis } }],
+      toJSON: () => {
+        throw new Error('should not be called');
+      },
+    } as unknown as WebVitalMetric;
+
+    await expect(reportWebVitalMetric(metricWithEntries)).resolves.toBeUndefined();
+    expect(getWebVitalMetricsBuffer()).toEqual([SAMPLE_METRIC]);
+  });
 });

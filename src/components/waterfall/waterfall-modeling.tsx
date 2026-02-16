@@ -164,7 +164,20 @@ export function WaterfallModeling() {
     distributionsSelectors.selectState
   );
 
-  const scenarios = useMemo(() => scenariosData?.scenarios ?? [], [scenariosData?.scenarios]);
+  const scenarios = useMemo<WaterfallScenario[]>(() => {
+    const raw = (scenariosData as unknown as { scenarios?: unknown } | null)?.scenarios;
+    if (Array.isArray(raw)) return raw as WaterfallScenario[];
+
+    // Defensive: tolerate accidental wrapper shapes (e.g. `{ data: [...] }`).
+    if (raw && typeof raw === 'object') {
+      const candidate = raw as { data?: unknown; scenarios?: unknown };
+      if (Array.isArray(candidate.data)) return candidate.data as WaterfallScenario[];
+      if (Array.isArray(candidate.scenarios)) return candidate.scenarios as WaterfallScenario[];
+    }
+
+    return [];
+  }, [scenariosData]);
+
   const templates = useMemo(() => templatesData?.templates ?? [], [templatesData?.templates]);
   const distributions = useMemo(
     () => distributionsData?.distributions ?? [],

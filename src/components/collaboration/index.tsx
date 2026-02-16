@@ -1,11 +1,12 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { MessageSquare, Send, CheckCircle2, CircleDashed, AlertTriangle } from 'lucide-react';
 import { Card, Button, Badge, Input, Select, Textarea, useToast } from '@/ui';
 import { AsyncStateRenderer } from '@/ui/async-states';
 import { PageScaffold, SearchToolbar, SectionHeader } from '@/ui/composites';
 import { ROUTE_PATHS } from '@/config/routes';
+import { COLLABORATION_TAB_IDS, DEFAULT_COLLABORATION_TAB_ID } from '@/config/collaboration-tabs';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { collaborationRequested, collaborationSelectors } from '@/store/slices/miscSlice';
 import { useUIKey } from '@/store/ui';
@@ -23,6 +24,7 @@ import { useAuth } from '@/contexts/auth-context';
 type CollaborationUIState = {
   searchQuery: string;
   selectedThreadId: string | null;
+  activeTab: 'threads' | 'tasks';
   taskStatusFilter: 'all' | CollaborationTaskStatus;
   messageDraft: string;
   taskTitleDraft: string;
@@ -43,11 +45,19 @@ export function CollaborationWorkspace() {
   const { value: ui, patch: patchUI } = useUIKey<CollaborationUIState>('collaboration-workspace', {
     searchQuery: '',
     selectedThreadId: null,
+    activeTab: DEFAULT_COLLABORATION_TAB_ID,
     taskStatusFilter: 'all',
     messageDraft: '',
     taskTitleDraft: '',
     taskDescriptionDraft: '',
   });
+  const activeTab = COLLABORATION_TAB_IDS.has(ui.activeTab) ? ui.activeTab : DEFAULT_COLLABORATION_TAB_ID;
+
+  useEffect(() => {
+    if (!COLLABORATION_TAB_IDS.has(ui.activeTab)) {
+      patchUI({ activeTab: DEFAULT_COLLABORATION_TAB_ID });
+    }
+  }, [patchUI, ui.activeTab]);
 
   const threads = data?.threads ?? EMPTY_THREADS;
   const tasks = data?.tasks ?? EMPTY_TASKS;
@@ -162,15 +172,10 @@ export function CollaborationWorkspace() {
               text: `${unreadThreadsCount} threads need review and ${openTasksCount} tasks are still open. ${blockedTasksCount} tasks are blocked and should be escalated first.`,
               confidence: 0.9,
             },
-            tabs: [
-              { id: 'threads', label: 'Threads', count: threads.length },
-              { id: 'tasks', label: 'Tasks', count: tasks.length },
-            ],
-            activeTab: 'threads',
           }}
         >
-          <div className="mt-4 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-            <div className="space-y-4">
+          {activeTab === 'threads' && (
+            <div className="mt-4 space-y-4">
               <Card padding="md">
                 <SearchToolbar
                   searchValue={ui.searchQuery}
@@ -251,8 +256,10 @@ export function CollaborationWorkspace() {
                 </Card>
               </div>
             </div>
+          )}
 
-            <div className="space-y-4">
+          {activeTab === 'tasks' && (
+            <div className="mt-4 space-y-4">
               <Card padding="md">
                 <SectionHeader
                   title="Task Handoffs"
@@ -348,7 +355,7 @@ export function CollaborationWorkspace() {
                 </div>
               </Card>
             </div>
-          </div>
+          )}
         </PageScaffold>
       )}
     </AsyncStateRenderer>

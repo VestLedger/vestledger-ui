@@ -96,7 +96,7 @@ export async function fetchWaterfallScenarios(
   }
 
   // API mode
-  const result = await unwrapApiResult(
+  const payload = await unwrapApiResult(
     apiClient.GET('/waterfall/scenarios', {
       params: {
         query: {
@@ -108,8 +108,20 @@ export async function fetchWaterfallScenarios(
     { fallbackMessage: 'Failed to fetch waterfall scenarios' }
   );
 
-  // Map API response to UI type (API should return compatible structure)
-  return (result as unknown as WaterfallScenario[]) ?? [];
+  // API returns `{ data, meta }` for lists. Normalize to the scenario array so reducers/components
+  // always operate on `WaterfallScenario[]`.
+  if (Array.isArray(payload)) {
+    return payload as unknown as WaterfallScenario[];
+  }
+
+  if (payload && typeof payload === 'object') {
+    const candidate = payload as { data?: unknown };
+    if (Array.isArray(candidate.data)) {
+      return candidate.data as WaterfallScenario[];
+    }
+  }
+
+  return [];
 }
 
 /**
@@ -159,12 +171,19 @@ export async function createWaterfallScenario(
   // API mode - map UI data to API DTO format
   const apiData = {
     fundId: data.fundId ?? '',
+    fundName: data.fundName,
     name: data.name,
     description: data.description,
     model: data.model,
     exitValue: data.exitValue,
+    totalInvested: data.totalInvested,
+    managementFees: data.managementFees,
     isFavorite: data.isFavorite,
+    isTemplate: data.isTemplate,
     tags: data.tags,
+    blendedConfig: data.blendedConfig,
+    clawbackProvision: data.clawbackProvision,
+    lookbackProvision: data.lookbackProvision,
     tiers: data.tiers.map((tier) => ({
       name: tier.name,
       type: tier.type,
@@ -235,8 +254,14 @@ export async function updateWaterfallScenario(
         description: data.description,
         model: data.model,
         exitValue: data.exitValue,
+        totalInvested: data.totalInvested,
+        managementFees: data.managementFees,
         isFavorite: data.isFavorite,
+        isTemplate: data.isTemplate,
         tags: data.tags,
+        blendedConfig: data.blendedConfig,
+        clawbackProvision: data.clawbackProvision,
+        lookbackProvision: data.lookbackProvision,
         tiers: data.tiers?.map((tier) => ({
           name: tier.name,
           type: tier.type,

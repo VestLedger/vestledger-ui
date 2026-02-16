@@ -27,6 +27,7 @@ type UITabState = {
   selectedTab?: string;
   selected?: string;
   viewMode?: string;
+  selectedDetailTab?: string;
 };
 
 export function useAICopilot() {
@@ -99,7 +100,11 @@ export function AICopilotSidebar() {
       return getTabValue('lp-management', 'selectedTab');
     }
     if (pathname === ROUTE_PATHS.dealIntelligence) {
-      return getTabValue('deal-intelligence', 'viewMode');
+      const viewMode = getTabValue('deal-intelligence', 'viewMode');
+      if (viewMode === 'per-deal') {
+        return getTabValue('deal-intelligence', 'selectedDetailTab');
+      }
+      return 'fund-level';
     }
     if (pathname === ROUTE_PATHS.fundAdmin) {
       return getTabValue('back-office-fund-admin', 'selectedTab');

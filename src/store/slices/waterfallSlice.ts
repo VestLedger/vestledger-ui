@@ -358,18 +358,21 @@ export const waterfallUISelectors = {
   selectSelectedScenarioId: (state: RootState) => state.waterfall?.selectedScenarioId || null,
   selectSelectedScenario: (state: RootState): WaterfallScenario | null => {
     const scenarioId = state.waterfall?.selectedScenarioId;
-    const scenarios = state.waterfall?.scenarios.data?.scenarios || [];
-    return scenarios.find((s) => s.id === scenarioId) || null;
+    const scenarios = state.waterfall?.scenarios.data?.scenarios;
+    const list = Array.isArray(scenarios) ? scenarios : [];
+    return list.find((s) => s.id === scenarioId) || null;
   },
   selectComparisonScenarioIds: (state: RootState) => state.waterfall?.comparisonScenarioIds || [],
   selectComparisonScenarios: (state: RootState): WaterfallScenario[] => {
     const scenarioIds = state.waterfall?.comparisonScenarioIds || [];
-    const scenarios = state.waterfall?.scenarios.data?.scenarios || [];
-    return scenarios.filter((s) => scenarioIds.includes(s.id));
+    const scenarios = state.waterfall?.scenarios.data?.scenarios;
+    const list = Array.isArray(scenarios) ? scenarios : [];
+    return list.filter((s) => scenarioIds.includes(s.id));
   },
   selectFavoriteScenarios: (state: RootState): WaterfallScenario[] => {
-    const scenarios = state.waterfall?.scenarios.data?.scenarios || [];
-    return scenarios.filter((s) => s.isFavorite);
+    const scenarios = state.waterfall?.scenarios.data?.scenarios;
+    const list = Array.isArray(scenarios) ? scenarios : [];
+    return list.filter((s) => s.isFavorite);
   },
 };
 
