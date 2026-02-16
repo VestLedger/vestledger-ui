@@ -34,6 +34,9 @@ describe('pipelineGateway', () => {
   });
 
   it('maps API deal payloads to UI pipeline model', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-02-14T12:00:00.000Z'));
+
     const gateway = await import('@/services/shared/pipelineGateway');
 
     const mapped = gateway.mapPipelineApiDealToPipelineDeal({
