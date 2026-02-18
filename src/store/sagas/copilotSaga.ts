@@ -42,10 +42,11 @@ export function* openWithQueryWorker(action: ReturnType<typeof openWithQueryRequ
 
     yield delay(1000 + Math.random() * 1000);
 
+    const responseContent: string = yield call(getCopilotContextualResponse, pathname, query);
     const aiMessage: CopilotMessage = {
       id: nextId(),
       type: 'ai',
-      content: getCopilotContextualResponse(pathname, query),
+      content: responseContent,
       timestamp: new Date(),
       confidence: randomConfidence(),
     };
@@ -80,10 +81,11 @@ export function* sendMessageWorker(action: ReturnType<typeof sendMessageRequeste
 
     yield delay(1000 + Math.random() * 1000);
 
+    const responseContent: string = yield call(getCopilotContextualResponse, pathname, trimmed);
     const aiMessage: CopilotMessage = {
       id: nextId(),
       type: 'ai',
-      content: getCopilotContextualResponse(pathname, trimmed),
+      content: responseContent,
       timestamp: new Date(),
       confidence: randomConfidence(),
     };

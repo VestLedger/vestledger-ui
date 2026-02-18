@@ -209,7 +209,8 @@ export async function createWaterfallScenario(
 
   const result = await unwrapApiResult(
     apiClient.POST('/waterfall/scenarios', {
-      body: apiData,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      body: apiData as any,
     }),
     { fallbackMessage: 'Failed to create waterfall scenario' }
   );
@@ -245,45 +246,48 @@ export async function updateWaterfallScenario(
     return updated;
   }
 
-  // API mode
+  // API mode — complex nested types (blendedConfig, clawbackProvision, etc.) don't match
+  // the OpenAPI-generated schema (Record<string, never>). Cast to bypass schema mismatch.
+  const updateBody = {
+    name: data.name,
+    description: data.description,
+    model: data.model,
+    exitValue: data.exitValue,
+    totalInvested: data.totalInvested,
+    managementFees: data.managementFees,
+    isFavorite: data.isFavorite,
+    isTemplate: data.isTemplate,
+    tags: data.tags,
+    blendedConfig: data.blendedConfig,
+    clawbackProvision: data.clawbackProvision,
+    lookbackProvision: data.lookbackProvision,
+    tiers: data.tiers?.map((tier) => ({
+      name: tier.name,
+      type: tier.type,
+      order: tier.order,
+      threshold: tier.threshold,
+      hurdleRate: tier.hurdleRate,
+      gpCarryPercentage: tier.gpCarryPercentage,
+      lpPercentage: tier.lpPercentage,
+      splitType: tier.splitType,
+      description: tier.description,
+      isCustom: tier.isCustom,
+    })),
+    investorClasses: data.investorClasses?.map((ic) => ({
+      name: ic.name,
+      type: ic.type,
+      ownershipPercentage: ic.ownershipPercentage,
+      commitment: ic.commitment,
+      capitalCalled: ic.capitalCalled,
+      capitalReturned: ic.capitalReturned,
+      order: ic.order,
+    })),
+  };
   const result = await unwrapApiResult(
     apiClient.PUT('/waterfall/scenarios/{id}', {
       params: { path: { id } },
-      body: {
-        name: data.name,
-        description: data.description,
-        model: data.model,
-        exitValue: data.exitValue,
-        totalInvested: data.totalInvested,
-        managementFees: data.managementFees,
-        isFavorite: data.isFavorite,
-        isTemplate: data.isTemplate,
-        tags: data.tags,
-        blendedConfig: data.blendedConfig,
-        clawbackProvision: data.clawbackProvision,
-        lookbackProvision: data.lookbackProvision,
-        tiers: data.tiers?.map((tier) => ({
-          name: tier.name,
-          type: tier.type,
-          order: tier.order,
-          threshold: tier.threshold,
-          hurdleRate: tier.hurdleRate,
-          gpCarryPercentage: tier.gpCarryPercentage,
-          lpPercentage: tier.lpPercentage,
-          splitType: tier.splitType,
-          description: tier.description,
-          isCustom: tier.isCustom,
-        })),
-        investorClasses: data.investorClasses?.map((ic) => ({
-          name: ic.name,
-          type: ic.type,
-          ownershipPercentage: ic.ownershipPercentage,
-          commitment: ic.commitment,
-          capitalCalled: ic.capitalCalled,
-          capitalReturned: ic.capitalReturned,
-          order: ic.order,
-        })),
-      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      body: updateBody as any,
     }),
     { fallbackMessage: 'Failed to update waterfall scenario' }
   );

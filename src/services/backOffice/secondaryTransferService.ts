@@ -1,13 +1,7 @@
-import {
-  mockROFRExercises,
-  mockSecondaryTransfers,
-} from '@/data/mocks/back-office/fund-admin-ops';
-import type {
-  LPTransfer,
-  ROFRExercise,
-  TransferDocument,
-  TransferStatus,
-} from '@/types/fundAdminOps';
+import { isMockMode } from '@/config/data-mode';
+import { mockROFRExercises, mockSecondaryTransfers } from '@/data/mocks/back-office/fund-admin-ops';
+import { requestJson } from '@/services/shared/httpClient';
+import type { LPTransfer, ROFRExercise, TransferDocument, TransferStatus } from '@/types/fundAdminOps';
 
 const clone = <T>(value: T): T => structuredClone(value);
 
@@ -23,127 +17,175 @@ function findTransfer(id: string) {
 }
 
 export async function getSecondaryTransfers(fundId?: string): Promise<LPTransfer[]> {
-  const values = fundId ? transferStore.filter((item) => item.fundId === fundId) : transferStore;
-  return clone(values);
+  if (isMockMode('backOffice')) {
+    const values = fundId ? transferStore.filter((item) => item.fundId === fundId) : transferStore;
+    return clone(values);
+  }
+
+  const path = fundId ? `/funds/${fundId}/transfers` : '/transfers';
+  const payload = await requestJson<LPTransfer[]>(path, {
+    fallbackMessage: 'Failed to load secondary transfers',
+  });
+  return Array.isArray(payload) ? payload : [];
 }
 
 export async function getROFRExercises(fundId?: string): Promise<ROFRExercise[]> {
-  if (!fundId) {
-    return clone(rofrStore);
+  if (isMockMode('backOffice')) {
+    if (!fundId) return clone(rofrStore);
+    const transferIds = new Set(
+      transferStore.filter((item) => item.fundId === fundId).map((item) => item.id)
+    );
+    return clone(rofrStore.filter((item) => transferIds.has(item.transferId)));
   }
 
-  const transferIds = new Set(
-    transferStore.filter((item) => item.fundId === fundId).map((item) => item.id)
-  );
-
-  return clone(rofrStore.filter((item) => transferIds.has(item.transferId)));
+  const path = fundId ? `/funds/${fundId}/transfers/rofr` : '/transfers/rofr';
+  const payload = await requestJson<ROFRExercise[]>(path, {
+    fallbackMessage: 'Failed to load ROFR exercises',
+  });
+  return Array.isArray(payload) ? payload : [];
 }
 
 export async function initiateSecondaryTransfer(
   payload: Omit<LPTransfer, 'id' | 'transferNumber' | 'requestedDate' | 'documents' | 'status'>
 ): Promise<LPTransfer> {
-  const transfer: LPTransfer = {
-    ...payload,
-    id: `transfer-${Date.now()}`,
-    transferNumber: `TR-${new Date().getFullYear()}-${String(transferStore.length + 1).padStart(3, '0')}`,
-    requestedDate: new Date(),
-    documents: [],
-    status: 'draft',
-  };
+  if (isMockMode('backOffice')) {
+    const transfer: LPTransfer = {
+      ...payload,
+      id: `transfer-${Date.now()}`,
+      transferNumber: `TR-${new Date().getFullYear()}-${String(transferStore.length + 1).padStart(3, '0')}`,
+      requestedDate: new Date(),
+      documents: [],
+      status: 'draft',
+    };
+    transferStore = [transfer, ...transferStore];
+    return clone(transfer);
+  }
 
-  transferStore = [transfer, ...transferStore];
-  return clone(transfer);
+  const result = await requestJson<LPTransfer>(`/funds/${payload.fundId}/transfers`, {
+    method: 'POST',
+    body: payload,
+    fallbackMessage: 'Failed to create secondary transfer',
+  });
+  return result;
 }
 
 export async function reviewSecondaryTransfer(id: string): Promise<LPTransfer> {
-  const index = findTransfer(id);
-  const nextStatus: TransferStatus = transferStore[index].status === 'draft'
-    ? 'pending-gp-approval'
-    : 'pending-legal-review';
+  if (isMockMode('backOffice')) {
+    const index = findTransfer(id);
+    const nextStatus: TransferStatus = transferStore[index].status === 'draft'
+      ? 'pending-gp-approval'
+      : 'pending-legal-review';
+    transferStore[index] = { ...transferStore[index], status: nextStatus };
+    return clone(transferStore[index]);
+  }
 
-  transferStore[index] = {
-    ...transferStore[index],
-    status: nextStatus,
-  };
-
-  return clone(transferStore[index]);
+  const payload = await requestJson<LPTransfer>(`/transfers/${id}/review`, {
+    method: 'POST',
+    fallbackMessage: 'Failed to start transfer review',
+  });
+  return payload;
 }
 
 export async function approveSecondaryTransfer(id: string): Promise<LPTransfer> {
-  const index = findTransfer(id);
-  transferStore[index] = {
-    ...transferStore[index],
-    status: 'approved',
-    gpApprovalDate: new Date(),
-  };
+  if (isMockMode('backOffice')) {
+    const index = findTransfer(id);
+    transferStore[index] = { ...transferStore[index], status: 'approved', gpApprovalDate: new Date() };
+    return clone(transferStore[index]);
+  }
 
-  return clone(transferStore[index]);
+  const payload = await requestJson<LPTransfer>(`/transfers/${id}/approve`, {
+    method: 'POST',
+    fallbackMessage: 'Failed to approve transfer',
+  });
+  return payload;
 }
 
-export async function rejectSecondaryTransfer(
-  id: string,
-  reason: string
-): Promise<LPTransfer> {
-  const index = findTransfer(id);
-  transferStore[index] = {
-    ...transferStore[index],
-    status: 'rejected',
-    rejectionReason: reason,
-  };
+export async function rejectSecondaryTransfer(id: string, reason: string): Promise<LPTransfer> {
+  if (isMockMode('backOffice')) {
+    const index = findTransfer(id);
+    transferStore[index] = { ...transferStore[index], status: 'rejected', rejectionReason: reason };
+    return clone(transferStore[index]);
+  }
 
-  return clone(transferStore[index]);
+  const payload = await requestJson<LPTransfer>(`/transfers/${id}/reject`, {
+    method: 'POST',
+    body: { reason },
+    fallbackMessage: 'Failed to reject transfer',
+  });
+  return payload;
 }
 
 export async function completeSecondaryTransfer(id: string): Promise<LPTransfer> {
-  const index = findTransfer(id);
-  transferStore[index] = {
-    ...transferStore[index],
-    status: 'completed',
-    closingDate: new Date(),
-    effectiveDate: new Date(),
-  };
+  if (isMockMode('backOffice')) {
+    const index = findTransfer(id);
+    transferStore[index] = {
+      ...transferStore[index],
+      status: 'completed',
+      closingDate: new Date(),
+      effectiveDate: new Date(),
+    };
+    return clone(transferStore[index]);
+  }
 
-  return clone(transferStore[index]);
+  const payload = await requestJson<LPTransfer>(`/transfers/${id}/complete`, {
+    method: 'POST',
+    fallbackMessage: 'Failed to complete transfer',
+  });
+  return payload;
 }
 
 export async function uploadTransferDocument(
   transferId: string,
   docName: string
 ): Promise<LPTransfer> {
-  const index = findTransfer(transferId);
-  const document: TransferDocument = {
-    id: `transfer-doc-${Date.now()}`,
-    name: docName,
-    type: 'other',
-    uploadedDate: new Date(),
-    uploadedBy: 'ops@vestledger.ai',
-    status: 'pending',
-  };
+  if (isMockMode('backOffice')) {
+    const index = findTransfer(transferId);
+    const document: TransferDocument = {
+      id: `transfer-doc-${Date.now()}`,
+      name: docName,
+      type: 'other',
+      uploadedDate: new Date(),
+      uploadedBy: 'ops@vestledger.ai',
+      status: 'pending',
+    };
+    transferStore[index] = {
+      ...transferStore[index],
+      documents: [...transferStore[index].documents, document],
+    };
+    return clone(transferStore[index]);
+  }
 
-  transferStore[index] = {
-    ...transferStore[index],
-    documents: [...transferStore[index].documents, document],
-  };
-
-  return clone(transferStore[index]);
+  const payload = await requestJson<LPTransfer>(`/transfers/${transferId}/documents`, {
+    method: 'POST',
+    body: { name: docName },
+    fallbackMessage: 'Failed to upload transfer document',
+  });
+  return payload;
 }
 
 export async function exerciseTransferROFR(
   transferId: string,
   exercisedByName = 'Existing LP'
 ): Promise<ROFRExercise> {
-  findTransfer(transferId);
+  if (isMockMode('backOffice')) {
+    findTransfer(transferId);
+    const exercise: ROFRExercise = {
+      id: `rofr-${Date.now()}`,
+      transferId,
+      exercisedBy: 'lp-existing',
+      exercisedByName,
+      exerciseDate: new Date(),
+      amount: 0,
+      status: 'pending',
+    };
+    rofrStore = [exercise, ...rofrStore];
+    return clone(exercise);
+  }
 
-  const exercise: ROFRExercise = {
-    id: `rofr-${Date.now()}`,
-    transferId,
-    exercisedBy: 'lp-existing',
-    exercisedByName,
-    exerciseDate: new Date(),
-    amount: 0,
-    status: 'pending',
-  };
-
-  rofrStore = [exercise, ...rofrStore];
-  return clone(exercise);
+  const payload = await requestJson<ROFRExercise>(`/transfers/${transferId}/rofr/exercise`, {
+    method: 'POST',
+    body: { exercisedByName },
+    fallbackMessage: 'Failed to exercise ROFR',
+  });
+  return payload;
 }

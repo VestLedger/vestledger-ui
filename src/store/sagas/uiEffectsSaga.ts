@@ -243,7 +243,7 @@ function* reportExportWorker(): SagaGenerator {
 function* aiBadgesLoop(): SagaGenerator {
   const key = 'ai-badges';
   while (true) {
-    const badges: BadgeData = calculateBadges();
+    const badges: BadgeData = yield call(calculateBadges);
     yield put(setUIState({ key, value: badges }));
     yield delay(60000);
   }

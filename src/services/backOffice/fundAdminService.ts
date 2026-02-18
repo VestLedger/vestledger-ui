@@ -196,19 +196,37 @@ export async function sendCapitalCallToLPs(capitalCallId: string): Promise<Capit
 }
 
 export async function sendCapitalCallReminder(capitalCallId: string): Promise<CapitalCall> {
-  const call = mockCapitalCalls.find((item) => item.id === capitalCallId);
-  if (!call) {
-    throw new Error(`Capital call not found: ${capitalCallId}`);
+  if (isMockMode('backOffice')) {
+    const call = mockCapitalCalls.find((item) => item.id === capitalCallId);
+    if (!call) throw new Error(`Capital call not found: ${capitalCallId}`);
+    return clone(call);
   }
 
-  return clone(call);
+  const result = await unwrapApiResult(
+    apiClient.POST('/capital-calls/{id}/remind' as never, {
+      params: { path: { id: capitalCallId } },
+    } as never),
+    { fallbackMessage: 'Failed to send capital call reminder' }
+  );
+  return mapApiToCapitalCall(result as unknown as ApiCapitalCall, '');
 }
 
 export async function getDistributions(fundId?: string): Promise<Distribution[]> {
-  const values = fundId
-    ? mockDistributions.filter((distribution) => distribution.fundId === fundId)
-    : mockDistributions;
-  return clone(values);
+  if (isMockMode('backOffice')) {
+    const values = fundId
+      ? mockDistributions.filter((distribution) => distribution.fundId === fundId)
+      : mockDistributions;
+    return clone(values);
+  }
+
+  const result = await unwrapApiResult(
+    fundId
+      ? apiClient.GET('/funds/{fundId}/distributions' as never, { params: { path: { fundId } } } as never)
+      : apiClient.GET('/distributions' as never),
+    { fallbackMessage: 'Failed to load distributions' }
+  );
+  const list = Array.isArray(result) ? result : (result as { data?: unknown[] })?.data ?? [];
+  return (list as Distribution[]);
 }
 
 export async function getLPResponses(fundId?: string): Promise<LPResponse[]> {

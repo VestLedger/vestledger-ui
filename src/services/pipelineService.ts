@@ -15,6 +15,8 @@ import {
   mapPipelineApiDealToPipelineDeal,
   updatePipelineDealInApi,
 } from './shared/pipelineGateway';
+import { requestJson } from '@/services/shared/httpClient';
+import type { Suggestion } from '@/services/ai/copilotService';
 
 export type { PipelineDeal, PipelineDealOutcome };
 
@@ -73,16 +75,19 @@ export async function getPipelineData(params: GetPipelineParams): Promise<Pipeli
     };
   }
 
-  const [stages, apiDeals] = await Promise.all([
+  const [stages, apiDeals, copilotSuggestions] = await Promise.all([
     fetchPipelineStagesFromApi(),
     fetchPipelineDealsFromApi(params),
+    requestJson<Suggestion[]>('/ai/copilot/suggestions', {
+      query: { pathname: '/pipeline' },
+      fallbackMessage: 'Failed to load pipeline copilot suggestions',
+    }).catch(() => [] as Suggestion[]),
   ]);
 
   return {
     stages,
     deals: apiDeals.map(mapPipelineApiDealToPipelineDeal),
-    // Keep copilot guidance available in API mode until dedicated AI endpoints are available.
-    copilotSuggestions: clone(pipelineCopilotSuggestions),
+    copilotSuggestions: copilotSuggestions ?? [],
   };
 }
 

@@ -75,7 +75,6 @@ const recalculateTotals = (distribution: Partial<Distribution>) => {
   };
 };
 
-const DISTRIBUTION_API_ENABLED = process.env.NEXT_PUBLIC_ENABLE_DISTRIBUTION_API === 'true';
 
 const DISTRIBUTION_STATUSES: DistributionStatus[] = [
   'draft',
@@ -366,12 +365,6 @@ function mapUiDistributionToApiBody(distribution: Partial<Distribution>): Record
   };
 }
 
-/**
- * Sprint 4 is intentionally UI-first; keep a centralized mock-backed path available
- * unless explicit API enablement is turned on.
- */
-const shouldUseLocalDistributionData = () =>
-  isMockMode('backOffice') || !DISTRIBUTION_API_ENABLED;
 
 // ============================================================================
 // Distribution Management
@@ -383,7 +376,7 @@ const shouldUseLocalDistributionData = () =>
 export async function fetchDistributions(
   filters?: DistributionFilters
 ): Promise<Distribution[]> {
-  if (shouldUseLocalDistributionData()) {
+  if (isMockMode('backOffice')) {
     let distributions = [...mockDistributions];
 
     // Apply filters
@@ -499,7 +492,7 @@ export async function fetchDistributions(
  * Fetch a single distribution by ID
  */
 export async function fetchDistribution(id: string): Promise<Distribution> {
-  if (shouldUseLocalDistributionData()) {
+  if (isMockMode('backOffice')) {
     const distribution = mockDistributions.find((d) => d.id === id);
     if (!distribution) {
       throw new Error(`Distribution not found: ${id}`);
@@ -519,7 +512,7 @@ export async function fetchDistribution(id: string): Promise<Distribution> {
 export async function createDistribution(
   data: Partial<Distribution>
 ): Promise<Distribution> {
-  if (shouldUseLocalDistributionData()) {
+  if (isMockMode('backOffice')) {
     const totals = recalculateTotals(data);
     const newDistribution: Distribution = {
       id: `dist-${Date.now()}`,
@@ -586,7 +579,7 @@ export async function updateDistribution(
   id: string,
   data: Partial<Distribution>
 ): Promise<Distribution> {
-  if (shouldUseLocalDistributionData()) {
+  if (isMockMode('backOffice')) {
     const index = mockDistributions.findIndex((d) => d.id === id);
     if (index === -1) {
       throw new Error(`Distribution not found: ${id}`);
@@ -628,7 +621,7 @@ export async function updateDistribution(
  * Delete a distribution (only drafts can be deleted)
  */
 export async function deleteDistribution(id: string): Promise<void> {
-  if (shouldUseLocalDistributionData()) {
+  if (isMockMode('backOffice')) {
     const index = mockDistributions.findIndex((d) => d.id === id);
     if (index === -1) {
       throw new Error(`Distribution not found: ${id}`);
@@ -664,7 +657,7 @@ export interface SubmitForApprovalParams {
 export async function submitForApproval(
   params: SubmitForApprovalParams
 ): Promise<Distribution> {
-  if (shouldUseLocalDistributionData()) {
+  if (isMockMode('backOffice')) {
     const index = mockDistributions.findIndex((d) => d.id === params.distributionId);
     if (index === -1) {
       throw new Error(`Distribution not found: ${params.distributionId}`);
@@ -730,7 +723,12 @@ export async function submitForApproval(
     return updated;
   }
 
-  throw new Error('Distribution API integration is disabled in this environment');
+  const payload = await requestJson<unknown>(`/distributions/${params.distributionId}/submit`, {
+    method: 'POST',
+    body: { approverIds: [] },
+    fallbackMessage: 'Failed to submit distribution for approval',
+  });
+  return mapApiDistributionToUi(payload);
 }
 
 export interface ApproveDistributionParams {
@@ -745,7 +743,7 @@ export interface ApproveDistributionParams {
 export async function approveDistribution(
   params: ApproveDistributionParams
 ): Promise<Distribution> {
-  if (shouldUseLocalDistributionData()) {
+  if (isMockMode('backOffice')) {
     const index = mockDistributions.findIndex((d) => d.id === params.distributionId);
     if (index === -1) {
       throw new Error(`Distribution not found: ${params.distributionId}`);
@@ -799,7 +797,12 @@ export async function approveDistribution(
     return updated;
   }
 
-  throw new Error('Distribution API integration is disabled in this environment');
+  const payload = await requestJson<unknown>(`/distributions/${params.distributionId}/approve`, {
+    method: 'POST',
+    body: { decision: 'approve', comment: params.comment },
+    fallbackMessage: 'Failed to approve distribution',
+  });
+  return mapApiDistributionToUi(payload);
 }
 
 export interface RejectDistributionParams {
@@ -814,7 +817,7 @@ export interface RejectDistributionParams {
 export async function rejectDistribution(
   params: RejectDistributionParams
 ): Promise<Distribution> {
-  if (shouldUseLocalDistributionData()) {
+  if (isMockMode('backOffice')) {
     const index = mockDistributions.findIndex((d) => d.id === params.distributionId);
     if (index === -1) {
       throw new Error(`Distribution not found: ${params.distributionId}`);
@@ -860,7 +863,12 @@ export async function rejectDistribution(
     return updated;
   }
 
-  throw new Error('Distribution API integration is disabled in this environment');
+  const payload = await requestJson<unknown>(`/distributions/${params.distributionId}/approve`, {
+    method: 'POST',
+    body: { decision: 'reject', comment: params.reason },
+    fallbackMessage: 'Failed to reject distribution',
+  });
+  return mapApiDistributionToUi(payload);
 }
 
 export interface ReturnForRevisionParams {
@@ -875,7 +883,7 @@ export interface ReturnForRevisionParams {
 export async function returnForRevision(
   params: ReturnForRevisionParams
 ): Promise<Distribution> {
-  if (shouldUseLocalDistributionData()) {
+  if (isMockMode('backOffice')) {
     const index = mockDistributions.findIndex((d) => d.id === params.distributionId);
     if (index === -1) {
       throw new Error(`Distribution not found: ${params.distributionId}`);
@@ -922,7 +930,12 @@ export async function returnForRevision(
     return updated;
   }
 
-  throw new Error('Distribution API integration is disabled in this environment');
+  const payload = await requestJson<unknown>(`/distributions/${params.distributionId}/approve`, {
+    method: 'POST',
+    body: { decision: 'return', comment: params.reason },
+    fallbackMessage: 'Failed to return distribution for revision',
+  });
+  return mapApiDistributionToUi(payload);
 }
 
 // ============================================================================
@@ -933,7 +946,7 @@ export async function returnForRevision(
  * Fetch distribution summary
  */
 export async function fetchDistributionSummary(): Promise<DistributionSummary> {
-  if (shouldUseLocalDistributionData()) {
+  if (isMockMode('backOffice')) {
     return mockDistributionSummary;
   }
 
@@ -990,7 +1003,7 @@ export async function fetchDistributionCalendarEvents(
   startDate?: string,
   endDate?: string
 ): Promise<DistributionCalendarEvent[]> {
-  if (shouldUseLocalDistributionData()) {
+  if (isMockMode('backOffice')) {
     let events = [...mockDistributionCalendarEvents];
 
     if (startDate) {
@@ -1031,49 +1044,53 @@ export async function fetchDistributionCalendarEvents(
  * Fetch fee templates
  */
 export async function fetchFeeTemplates(fundId?: string): Promise<FeeTemplate[]> {
-  if (shouldUseLocalDistributionData()) {
+  if (isMockMode('backOffice')) {
     if (fundId) {
       return mockFeeTemplates.filter((t) => !t.fundId || t.fundId === fundId);
     }
     return mockFeeTemplates;
   }
 
-  // Backend templates are not implemented yet; keep UI unblocked in API mode.
-  if (fundId) {
-    return mockFeeTemplates.filter((t) => !t.fundId || t.fundId === fundId);
-  }
-  return mockFeeTemplates;
+  const payload = await requestJson<FeeTemplate[]>('/distributions/config/fee-templates', {
+    query: fundId ? { fundId } : undefined,
+    fallbackMessage: 'Failed to load fee templates',
+  });
+  return Array.isArray(payload) ? payload : [];
 }
 
 /**
  * Fetch statement templates
  */
 export async function fetchStatementTemplates(): Promise<StatementTemplateConfig[]> {
-  if (shouldUseLocalDistributionData()) {
+  if (isMockMode('backOffice')) {
     return mockStatementTemplates;
   }
 
-  // Backend statement templates are not implemented yet; keep UI unblocked in API mode.
-  return mockStatementTemplates;
+  const payload = await requestJson<StatementTemplateConfig[]>('/distributions/config/statement-templates', {
+    fallbackMessage: 'Failed to load statement templates',
+  });
+  return Array.isArray(payload) ? payload : [];
 }
 
 /**
  * Fetch LP profiles
  */
 export async function fetchLPProfiles(): Promise<LPProfile[]> {
-  if (shouldUseLocalDistributionData()) {
+  if (isMockMode('backOffice')) {
     return mockLPProfiles;
   }
 
-  // Backend LP profile API is not implemented yet; keep UI unblocked in API mode.
-  return mockLPProfiles;
+  const payload = await requestJson<LPProfile[]>('/distributions/config/lp-profiles', {
+    fallbackMessage: 'Failed to load LP profiles',
+  });
+  return Array.isArray(payload) ? payload : [];
 }
 
 /**
  * Fetch LP profile by ID
  */
 export async function fetchLPProfile(id: string): Promise<LPProfile> {
-  if (shouldUseLocalDistributionData()) {
+  if (isMockMode('backOffice')) {
     const profile = mockLPProfiles.find((p) => p.id === id);
     if (!profile) {
       throw new Error(`LP profile not found: ${id}`);
@@ -1081,7 +1098,8 @@ export async function fetchLPProfile(id: string): Promise<LPProfile> {
     return profile;
   }
 
-  const profile = mockLPProfiles.find((p) => p.id === id);
+  const profiles = await fetchLPProfiles();
+  const profile = profiles.find((p) => p.id === id);
   if (!profile) {
     throw new Error(`LP profile not found: ${id}`);
   }
@@ -1092,10 +1110,12 @@ export async function fetchLPProfile(id: string): Promise<LPProfile> {
  * Fetch approval rules
  */
 export async function fetchApprovalRules(): Promise<ApprovalRule[]> {
-  if (shouldUseLocalDistributionData()) {
+  if (isMockMode('backOffice')) {
     return mockApprovalRules;
   }
 
-  // Backend approval rules are not implemented yet; keep UI unblocked in API mode.
-  return mockApprovalRules;
+  const payload = await requestJson<ApprovalRule[]>('/distributions/config/approval-rules', {
+    fallbackMessage: 'Failed to load approval rules',
+  });
+  return Array.isArray(payload) ? payload : [];
 }

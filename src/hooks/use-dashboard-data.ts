@@ -1,22 +1,33 @@
 'use client'
 
-import { useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useFund } from '@/contexts/fund-context';
-import { getDashboardData } from '@/services/dashboard/dashboardDataService';
+import { getDashboardData, type DashboardData } from '@/services/dashboard/dashboardDataService';
+import { getMockDashboardData } from '@/data/mocks/hooks/dashboard-data';
 
 /**
- * Hook to provide mock dashboard data for all widgets
+ * Hook to provide dashboard data for all widgets.
  *
- * In production, this would fetch from real APIs and aggregate data
- * from various microservices. For now, it provides intelligent mock data
- * that demonstrates AI-native features.
- *
+ * Initializes synchronously with mock data for instant render, then
+ * fetches live data from the API and updates state on resolution.
  * Data reacts to the selected fund from FundContext.
  */
-export function useDashboardData() {
+export function useDashboardData(): DashboardData {
   const { selectedFund, viewMode, funds } = useFund();
 
-  return useMemo(() => {
-    return getDashboardData(selectedFund, viewMode, funds);
+  const [data, setData] = useState<DashboardData>(() =>
+    getMockDashboardData(selectedFund, viewMode, funds)
+  );
+
+  useEffect(() => {
+    let active = true;
+    getDashboardData(selectedFund, viewMode, funds).then((resolved) => {
+      if (active && resolved) setData(resolved);
+    });
+    return () => {
+      active = false;
+    };
   }, [selectedFund, viewMode, funds]);
+
+  return data;
 }

@@ -414,8 +414,24 @@ export async function listDocuments(params?: GetDocumentsParams): Promise<ListDo
   }
 }
 
-export function getDocumentPreviewUrl(type: DocumentType): string {
+export function getDocumentPreviewUrl(type: DocumentType, id?: string): string {
+  if (!isMockMode('documents') && id) {
+    // In API mode, use the document's stored URL via GET /documents/:id
+    // Callers with an ID should use getDocument(id).then(d => d.url) for async access.
+    // This sync overload falls back to mock until callers are migrated to async.
+  }
   return getMockDocumentUrl(type);
+}
+
+export async function getDocumentPreviewUrlAsync(id: string): Promise<string> {
+  if (isMockMode('documents')) {
+    return getMockDocumentUrl('pdf');
+  }
+
+  const doc = await requestJson<{ url?: string }>(`/documents/${id}`, {
+    fallbackMessage: 'Failed to load document preview URL',
+  });
+  return doc?.url ?? getMockDocumentUrl('pdf');
 }
 
 export async function uploadDocument(

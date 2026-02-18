@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react';
 import { Card, Button, Badge, Progress, Input, Select, Switch } from '@/ui';
 import { Download, FileText, File, Table, Image as ImageIcon, Calendar, Filter, Check, Mail, Clock, Repeat , FileDown} from 'lucide-react';
 import { getInitialExportJobs, getReportTemplates, type ExportJob, type ReportTemplate } from '@/services/reports/reportExportService';
@@ -22,7 +23,7 @@ const defaultReportExportState: {
   exportFormat: 'pdf',
   dateRange: { start: '2024-01-01', end: '2024-12-31' },
   selectedSections: [],
-  exportJobs: getInitialExportJobs(),
+  exportJobs: [],
   scheduleEnabled: false,
   scheduleFrequency: 'weekly',
 };
@@ -37,8 +38,19 @@ export function ReportExport() {
   const dispatch = useAppDispatch();
   const { value: ui, patch: patchUI } = useUIKey('report-export', defaultReportExportState);
   const { selectedTemplate, exportFormat, dateRange, selectedSections, exportJobs, scheduleEnabled, scheduleFrequency } = ui;
-  const reportTemplates = getReportTemplates();
+  const [reportTemplates, setReportTemplates] = useState<ReportTemplate[]>([]);
   const formatOptions: ReportTemplate['format'][] = ['pdf', 'excel', 'csv', 'ppt'];
+
+  useEffect(() => {
+    let active = true;
+    Promise.all([getReportTemplates(), getInitialExportJobs()]).then(([templates, jobs]) => {
+      if (!active) return;
+      setReportTemplates(templates);
+      if (ui.exportJobs.length === 0) patchUI({ exportJobs: jobs });
+    });
+    return () => { active = false; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleExport = () => {
     if (!selectedTemplate) return;
