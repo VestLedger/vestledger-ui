@@ -26,6 +26,10 @@ vi.mock('@/services/shared/pipelineGateway', () => ({
   formatAmountToMillions,
 }));
 
+vi.mock('@/services/shared/httpClient', () => ({
+  requestJson: vi.fn().mockResolvedValue([]),
+}));
+
 describe('pipelineService', () => {
   beforeEach(() => {
     vi.resetModules();
@@ -73,7 +77,7 @@ describe('pipelineService', () => {
     expect(data).toEqual({
       stages: ['Sourced'],
       deals: [{ id: 'mapped-1' }, { id: 'mapped-2' }],
-      copilotSuggestions: pipelineCopilotSuggestions,
+      copilotSuggestions: [],
     });
   });
 

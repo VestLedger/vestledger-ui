@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Distribution } from '@/types/distribution';
 
+vi.mock('@/config/data-mode', () => ({
+  isMockMode: vi.fn(() => true),
+}));
+
 const loadService = async () => import('@/services/backOffice/distributionService');
 
 const buildDistribution = (): Partial<Distribution> => ({
