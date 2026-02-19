@@ -107,4 +107,36 @@ describe('httpClient.requestJson', () => {
       message: 'Pipeline unavailable',
     });
   });
+
+  it('throws EMPTY_RESPONSE for non-204 success responses with empty body', async () => {
+    const fetchMock = vi.fn(async () =>
+      new Response(null, {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      })
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { requestJson } = await import('@/services/shared/httpClient');
+
+    await expect(requestJson('/pipeline/deals')).rejects.toMatchObject<ApiError>({
+      name: 'ApiError',
+      status: 200,
+      code: 'EMPTY_RESPONSE',
+    });
+  });
+
+  it('allows empty success payload when allowEmptyResponse is enabled', async () => {
+    const fetchMock = vi.fn(async () =>
+      new Response(null, {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      })
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { requestJson } = await import('@/services/shared/httpClient');
+    const response = await requestJson('/pipeline/deals', { allowEmptyResponse: true });
+    expect(response).toBeUndefined();
+  });
 });

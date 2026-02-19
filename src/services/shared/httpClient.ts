@@ -13,6 +13,7 @@ export type ApiRequestOptions = {
   body?: unknown;
   headers?: HeadersInit;
   fallbackMessage?: string;
+  allowEmptyResponse?: boolean;
 };
 
 function isAbsoluteHttpUrl(value: string): boolean {
@@ -85,9 +86,10 @@ export async function requestJson<TResponse>(
   });
 
   const contentType = response.headers.get('content-type') ?? '';
-  const payload = contentType.includes('application/json')
-    ? await response.json().catch(() => undefined)
-    : undefined;
+  let payload: unknown;
+  if (contentType.includes('application/json')) {
+    payload = await response.json().catch(() => undefined);
+  }
 
   if (!response.ok) {
     throw new ApiError({
@@ -103,6 +105,15 @@ export async function requestJson<TResponse>(
 
   if (response.status === 204) {
     return undefined as TResponse;
+  }
+
+  if (payload === undefined && !options.allowEmptyResponse) {
+    throw new ApiError({
+      message: options.fallbackMessage ?? 'Empty response from server',
+      status: response.status,
+      code: 'EMPTY_RESPONSE',
+      details: { path, method, contentType: contentType || null },
+    });
   }
 
   return payload as TResponse;

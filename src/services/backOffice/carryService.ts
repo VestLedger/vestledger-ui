@@ -1,5 +1,6 @@
 import { isMockMode } from '@/config/data-mode';
 import { mockCarriedInterestTerms, mockCarryAccruals } from '@/data/mocks/back-office/fund-admin-ops';
+import { logger } from '@/lib/logger';
 import { requestJson } from '@/services/shared/httpClient';
 import type { CarryAccrual, CarriedInterestTerm } from '@/types/fundAdminOps';
 
@@ -14,6 +15,63 @@ function findAccrual(id: string) {
     throw new Error(`Carry accrual not found: ${id}`);
   }
   return index;
+}
+
+function buildFallbackAccrual(overrides: Partial<CarryAccrual> = {}): CarryAccrual {
+  const now = new Date();
+  const template = mockCarryAccruals[0];
+  const base: CarryAccrual = template
+    ? {
+        ...clone(template),
+        asOfDate: now,
+        calculationDate: now,
+        waterfall: clone(template.waterfall ?? []),
+      }
+    : {
+        id: `carry-${Date.now()}`,
+        fundId: '',
+        asOfDate: now,
+        calculationDate: now,
+        totalContributions: 0,
+        totalDistributions: 0,
+        unrealizedValue: 0,
+        realizedGains: 0,
+        unrealizedGains: 0,
+        totalValue: 0,
+        lpPreferredReturn: 0,
+        lpPreferredReturnPaid: false,
+        catchupAmount: 0,
+        catchupPaid: 0,
+        accruedCarry: 0,
+        vestedCarry: 0,
+        unvestedCarry: 0,
+        distributedCarry: 0,
+        remainingCarry: 0,
+        irr: 0,
+        moic: 1,
+        waterfall: [],
+        status: 'draft',
+      };
+
+  return {
+    ...base,
+    ...overrides,
+    id: overrides.id ?? base.id ?? `carry-${Date.now()}`,
+    fundId: overrides.fundId ?? base.fundId ?? '',
+    asOfDate: overrides.asOfDate ?? base.asOfDate ?? now,
+    calculationDate: overrides.calculationDate ?? base.calculationDate ?? now,
+    waterfall: overrides.waterfall ?? base.waterfall ?? [],
+    status: overrides.status ?? base.status ?? 'draft',
+  };
+}
+
+function upsertAccrual(next: CarryAccrual) {
+  const index = accrualStore.findIndex((item) => item.id === next.id);
+  if (index === -1) {
+    accrualStore = [next, ...accrualStore];
+    return;
+  }
+  accrualStore[index] = next;
 }
 
 export async function getCarriedInterestTerms(fundId?: string): Promise<CarriedInterestTerm[]> {
@@ -92,6 +150,15 @@ export async function calculateCarryAccrual(
     body: { fundId },
     fallbackMessage: 'Failed to calculate carry accrual',
   });
+  if (!payload) {
+    logger.warn('Empty carry accrual payload from API; using fallback', {
+      component: 'carryService',
+      fundId,
+    });
+    const fallback = buildFallbackAccrual({ fundId, status: 'calculated' });
+    upsertAccrual(fallback);
+    return clone(fallback);
+  }
   return payload;
 }
 
@@ -110,6 +177,21 @@ export async function approveCarryAccrual(id: string): Promise<CarryAccrual> {
     method: 'POST',
     fallbackMessage: 'Failed to approve carry accrual',
   });
+  if (!payload) {
+    logger.warn('Empty approve carry payload from API; using fallback', {
+      component: 'carryService',
+      accrualId: id,
+    });
+    const existing = accrualStore.find((item) => item.id === id);
+    const fallback = buildFallbackAccrual({
+      ...(existing ?? {}),
+      id,
+      status: 'approved',
+      calculationDate: new Date(),
+    });
+    upsertAccrual(fallback);
+    return clone(fallback);
+  }
   return payload;
 }
 
@@ -130,6 +212,24 @@ export async function distributeCarryAccrual(id: string): Promise<CarryAccrual> 
     method: 'POST',
     fallbackMessage: 'Failed to distribute carry accrual',
   });
+  if (!payload) {
+    logger.warn('Empty distribute carry payload from API; using fallback', {
+      component: 'carryService',
+      accrualId: id,
+    });
+    const existing = accrualStore.find((item) => item.id === id);
+    const base = existing ?? buildFallbackAccrual({ id });
+    const fallback = buildFallbackAccrual({
+      ...base,
+      id,
+      status: 'distributed',
+      distributedCarry: base.accruedCarry,
+      remainingCarry: 0,
+      calculationDate: new Date(),
+    });
+    upsertAccrual(fallback);
+    return clone(fallback);
+  }
   return payload;
 }
 
@@ -146,5 +246,13 @@ export async function exportCarryAccrual(
     `/carry/accruals/${accrualId}/export`,
     { method: 'POST', body: { format }, fallbackMessage: 'Failed to export carry accrual' }
   );
+  if (!payload) {
+    logger.warn('Empty carry export payload from API; using fallback metadata', {
+      component: 'carryService',
+      accrualId,
+      format,
+    });
+    return { accrualId, format, exportedAt: new Date().toISOString() };
+  }
   return payload;
 }

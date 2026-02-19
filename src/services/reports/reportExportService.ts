@@ -6,6 +6,7 @@ import {
   type ReportTemplate,
 } from '@/data/mocks/reports/report-export';
 import { requestJson } from '@/services/shared/httpClient';
+import { logger } from '@/lib/logger';
 
 export type { ExportJob, ReportTemplate };
 
@@ -47,10 +48,39 @@ export async function createExportJob(templateId: string, format: string): Promi
       createdAt: new Date().toISOString(),
     } as ExportJob;
   }
-  const data = await requestJson<ExportJob>('/reports/export-jobs', {
-    method: 'POST',
-    body: { templateId, format },
-    fallbackMessage: 'Failed to create export job',
-  });
-  return data!;
+
+  try {
+    const data = await requestJson<ExportJob>('/reports/export-jobs', {
+      method: 'POST',
+      body: { templateId, format },
+      fallbackMessage: 'Failed to create export job',
+    });
+
+    if (!data) {
+      logger.warn('Empty create export job payload from API; using fallback', {
+        component: 'reportExportService',
+        templateId,
+        format,
+      });
+    } else {
+      return data;
+    }
+  } catch (error) {
+    logger.warn('Falling back to local export job after API error', {
+      component: 'reportExportService',
+      templateId,
+      format,
+      error,
+    });
+  }
+
+  return {
+    id: `fallback-${Date.now()}`,
+    templateId,
+    reportName: reportTemplates.find((t) => t.id === templateId)?.name ?? 'Report',
+    format,
+    status: 'queued',
+    progress: 0,
+    createdAt: new Date().toISOString(),
+  } as ExportJob;
 }

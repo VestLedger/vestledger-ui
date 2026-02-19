@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import type { RootState } from '@/store/rootReducer';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { AsyncState, NormalizedError } from '@/store/types/AsyncState';
+import { emitRecoverableErrorToast } from '@/utils/errors/recoverableToast';
 
 /**
  * Options for the useAsyncData hook
@@ -144,6 +145,18 @@ export function useAsyncData<T, TParams = void>(
       onError(error);
     }
   }, [status, data, error, onSuccess, onError]);
+
+  useEffect(() => {
+    if (status !== 'failed' || !error) {
+      return;
+    }
+
+    emitRecoverableErrorToast(error, {
+      title: 'Could not refresh data',
+      fallbackMessage: 'Unable to load the latest data.',
+      context: 'useAsyncData',
+    });
+  }, [status, error]);
 
   // Helpers
   const isLoading = status === 'loading';

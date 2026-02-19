@@ -8,6 +8,9 @@ import { getAuthErrorMessage } from '@/utils/auth-error-message';
 import { ROUTE_PATHS } from '@/config/routes';
 import { buildAdminSuperadminUrl, buildAppWebUrl } from '@/config/env';
 import { resolveUserDomainTarget } from '@/utils/auth/internal-access';
+import { useToast } from '@/ui';
+import { extractFieldErrors } from '@/utils/errors/fieldErrors';
+import { findFirstMissingRequiredField } from '@/utils/forms/required';
 
 const LEGACY_DASHBOARD_PATH = '/dashboard';
 
@@ -46,11 +49,15 @@ export function LoginModal({
   signUpLabel = 'Sign up',
 }: LoginModalProps) {
   const { login, isAuthenticated, hydrated, status, error, clearError, user } = useAuth();
+  const toast = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const hasAttemptedLogin = useRef(false);
   const resolvedRedirectTo = normalizeRedirectPath(redirectTo);
+  const fieldErrors = extractFieldErrors(error);
+  const emailError = fieldErrors.email?.[0];
+  const passwordError = fieldErrors.password?.[0];
 
   useEffect(() => {
     if (!isOpen || !hydrated || !isAuthenticated || !user || typeof window === 'undefined') {
@@ -97,9 +104,20 @@ export function LoginModal({
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const missingField = findFirstMissingRequiredField([
+      { key: 'email', label: 'Email', value: email },
+      { key: 'password', label: 'Password', value: password },
+    ]);
+
+    if (missingField) {
+      toast.warning(`${missingField.label} is required.`, 'Missing information');
+      setIsSubmitting(false);
+      return;
+    }
+
     setIsSubmitting(true);
     hasAttemptedLogin.current = true;
-    login(email, password);
+    login(email.trim(), password);
   };
 
   const handleOpenChange = (open: boolean) => {
@@ -135,6 +153,8 @@ export function LoginModal({
           onChange={(event) => setEmail(event.target.value)}
           placeholder="you@company.com"
           isRequired
+          isInvalid={Boolean(emailError)}
+          errorMessage={emailError}
         />
         <Input
           label="Password"
@@ -143,6 +163,8 @@ export function LoginModal({
           onChange={(event) => setPassword(event.target.value)}
           placeholder="••••••••"
           isRequired
+          isInvalid={Boolean(passwordError)}
+          errorMessage={passwordError}
         />
         {error && (
           <div className="p-3 rounded-md bg-[var(--app-danger-bg)] border border-[var(--app-danger-bg)] text-[var(--app-danger)] text-sm">

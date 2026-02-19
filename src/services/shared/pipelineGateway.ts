@@ -1,5 +1,6 @@
 import type { GetPipelineParams } from '@/store/slices/pipelineSlice';
 import type { PipelineDeal, PipelineDealOutcome } from '@/data/mocks/pipeline';
+import { logger } from '@/lib/logger';
 import { requestJson, type ApiQueryParams } from './httpClient';
 
 export interface PipelineApiDeal {
@@ -131,8 +132,22 @@ export async function fetchPipelineDealsFromApi(
     fallbackMessage: 'Failed to load pipeline deals',
   });
 
+  if (!response) {
+    logger.warn('Empty pipeline deals payload from API; using fallback', {
+      component: 'pipelineGateway',
+      params,
+    });
+    return [];
+  }
   if (Array.isArray(response)) return response;
-  return response.data ?? [];
+  if (!Array.isArray(response.data)) {
+    logger.warn('Malformed pipeline deals payload from API; using fallback', {
+      component: 'pipelineGateway',
+      params,
+    });
+    return [];
+  }
+  return response.data;
 }
 
 export async function fetchPipelineStagesFromApi(): Promise<string[]> {
@@ -141,7 +156,16 @@ export async function fetchPipelineStagesFromApi(): Promise<string[]> {
     fallbackMessage: 'Failed to load pipeline stages',
   });
 
+  if (!stages) {
+    logger.warn('Empty pipeline stages payload from API; using default stages', {
+      component: 'pipelineGateway',
+    });
+    return DEFAULT_STAGES;
+  }
   if (!Array.isArray(stages) || stages.length === 0) {
+    logger.warn('Malformed pipeline stages payload from API; using default stages', {
+      component: 'pipelineGateway',
+    });
     return DEFAULT_STAGES;
   }
 

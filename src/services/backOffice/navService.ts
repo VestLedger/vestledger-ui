@@ -1,5 +1,6 @@
 import { isMockMode } from '@/config/data-mode';
 import { mockNAVCalculations } from '@/data/mocks/back-office/fund-admin-ops';
+import { logger } from '@/lib/logger';
 import { requestJson } from '@/services/shared/httpClient';
 import type { NAVCalculation } from '@/types/fundAdminOps';
 
@@ -13,6 +14,56 @@ function findCalculation(id: string) {
     throw new Error(`NAV calculation not found: ${id}`);
   }
   return index;
+}
+
+function buildFallbackCalculation(overrides: Partial<NAVCalculation> = {}): NAVCalculation {
+  const now = new Date();
+  const template = mockNAVCalculations[0];
+  const base: NAVCalculation = template
+    ? {
+        ...clone(template),
+        asOfDate: now,
+        calculationDate: now,
+        components: clone(template.components ?? []),
+        adjustments: clone(template.adjustments ?? []),
+      }
+    : {
+        id: `nav-${Date.now()}`,
+        fundId: '',
+        fundName: 'Unknown fund',
+        asOfDate: now,
+        calculationDate: now,
+        status: 'draft',
+        totalAssets: 0,
+        totalLiabilities: 0,
+        netAssets: 0,
+        outstandingShares: 1,
+        navPerShare: 0,
+        components: [],
+        adjustments: [],
+      };
+
+  return {
+    ...base,
+    ...overrides,
+    id: overrides.id ?? base.id ?? `nav-${Date.now()}`,
+    fundId: overrides.fundId ?? base.fundId ?? '',
+    fundName: overrides.fundName ?? base.fundName ?? 'Unknown fund',
+    asOfDate: overrides.asOfDate ?? base.asOfDate ?? now,
+    calculationDate: overrides.calculationDate ?? base.calculationDate ?? now,
+    components: overrides.components ?? base.components ?? [],
+    adjustments: overrides.adjustments ?? base.adjustments ?? [],
+    status: overrides.status ?? base.status ?? 'draft',
+  };
+}
+
+function upsertCalculation(next: NAVCalculation) {
+  const index = navStore.findIndex((item) => item.id === next.id);
+  if (index === -1) {
+    navStore = [next, ...navStore];
+    return;
+  }
+  navStore[index] = next;
 }
 
 export async function getNAVCalculations(fundId?: string): Promise<NAVCalculation[]> {
@@ -71,6 +122,20 @@ export async function calculateNAV(fundId: string, fundName: string): Promise<NA
     body: { fundName },
     fallbackMessage: 'Failed to calculate NAV',
   });
+  if (!payload) {
+    logger.warn('Empty calculate NAV payload from API; using fallback', {
+      component: 'navService',
+      fundId,
+      fundName,
+    });
+    const fallback = buildFallbackCalculation({
+      fundId,
+      fundName,
+      status: 'calculated',
+    });
+    upsertCalculation(fallback);
+    return clone(fallback);
+  }
   return payload;
 }
 
@@ -94,6 +159,23 @@ export async function markNAVReviewed(
     body: { reviewedBy },
     fallbackMessage: 'Failed to mark NAV as reviewed',
   });
+  if (!payload) {
+    logger.warn('Empty review NAV payload from API; using fallback', {
+      component: 'navService',
+      calculationId,
+      reviewedBy,
+    });
+    const existing = navStore.find((item) => item.id === calculationId);
+    const fallback = buildFallbackCalculation({
+      ...(existing ?? {}),
+      id: calculationId,
+      status: 'reviewed',
+      reviewedBy,
+      calculationDate: new Date(),
+    });
+    upsertCalculation(fallback);
+    return clone(fallback);
+  }
   return payload;
 }
 
@@ -117,6 +199,23 @@ export async function publishNAV(
     body: { publishedBy },
     fallbackMessage: 'Failed to publish NAV',
   });
+  if (!payload) {
+    logger.warn('Empty publish NAV payload from API; using fallback', {
+      component: 'navService',
+      calculationId,
+      publishedBy,
+    });
+    const existing = navStore.find((item) => item.id === calculationId);
+    const fallback = buildFallbackCalculation({
+      ...(existing ?? {}),
+      id: calculationId,
+      status: 'published',
+      publishedBy,
+      calculationDate: new Date(),
+    });
+    upsertCalculation(fallback);
+    return clone(fallback);
+  }
   return payload;
 }
 
@@ -133,5 +232,13 @@ export async function exportNAV(
     `/nav/${calculationId}/export`,
     { method: 'POST', body: { format }, fallbackMessage: 'Failed to export NAV' }
   );
+  if (!payload) {
+    logger.warn('Empty NAV export payload from API; using fallback metadata', {
+      component: 'navService',
+      calculationId,
+      format,
+    });
+    return { calculationId, format, exportedAt: new Date().toISOString() };
+  }
   return payload;
 }

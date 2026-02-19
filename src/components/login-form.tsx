@@ -10,6 +10,9 @@ import { getAuthErrorMessage } from '@/utils/auth-error-message';
 import { ROUTE_PATHS } from '@/config/routes';
 import { buildAdminSuperadminUrl, buildAppWebUrl } from '@/config/env';
 import { resolveUserDomainTarget } from '@/utils/auth/internal-access';
+import { useToast } from '@/ui';
+import { extractFieldErrors } from '@/utils/errors/fieldErrors';
+import { findFirstMissingRequiredField } from '@/utils/forms/required';
 
 const LEGACY_DASHBOARD_PATH = '/dashboard';
 
@@ -38,8 +41,12 @@ export function LoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { login, isAuthenticated, hydrated, status, error, clearError, user } = useAuth();
+  const toast = useToast();
   const searchParams = useSearchParams();
   const hasAttemptedLogin = useRef(false);
+  const fieldErrors = extractFieldErrors(error);
+  const emailError = fieldErrors.email?.[0];
+  const passwordError = fieldErrors.password?.[0];
 
   // Normalize legacy dashboard redirects to the new app home path
   const redirectTo = normalizeRedirectPath(searchParams.get('redirect'));
@@ -79,9 +86,20 @@ export function LoginForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const missingField = findFirstMissingRequiredField([
+      { key: 'email', label: 'Email', value: email },
+      { key: 'password', label: 'Password', value: password },
+    ]);
+
+    if (missingField) {
+      toast.warning(`${missingField.label} is required.`, 'Missing information');
+      setIsSubmitting(false);
+      return;
+    }
+
     setIsSubmitting(true);
     hasAttemptedLogin.current = true;
-    login(email, password);
+    login(email.trim(), password);
   };
 
   const isLoading = isSubmitting && status === 'loading';
@@ -117,6 +135,8 @@ export function LoginForm() {
           placeholder="you@company.com"
           isRequired
           autoComplete="email"
+          isInvalid={Boolean(emailError)}
+          errorMessage={emailError}
         />
 
         <Input
@@ -127,6 +147,8 @@ export function LoginForm() {
           placeholder="••••••••"
           isRequired
           autoComplete="current-password"
+          isInvalid={Boolean(passwordError)}
+          errorMessage={passwordError}
         />
 
         {error && (

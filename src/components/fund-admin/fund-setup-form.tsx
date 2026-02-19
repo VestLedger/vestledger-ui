@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Input, Modal, Select, Textarea } from '@/ui';
+import { Button, Input, Modal, Select, Textarea, useToast } from '@/ui';
 import type { CreateFundParams } from '@/store/slices/fundSlice';
+import { findFirstMissingRequiredField } from '@/utils/forms/required';
 
 const STATUS_OPTIONS = [
   { value: 'active', label: 'Active' },
@@ -66,6 +67,7 @@ export function FundSetupForm({
   const defaults = useMemo(getDefaultFormValues, []);
   const [form, setForm] = useState<CreateFundParams>(defaults);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const toast = useToast();
 
   useEffect(() => {
     if (!isOpen) return;
@@ -93,8 +95,22 @@ export function FundSetupForm({
   };
 
   const submit = () => {
+    const missingField = findFirstMissingRequiredField([
+      { key: 'name', label: 'Fund Name', value: form.name },
+      { key: 'displayName', label: 'Display Name', value: form.displayName },
+      { key: 'startDate', label: 'Start Date', value: form.startDate },
+    ]);
+
+    if (missingField) {
+      toast.warning(`${missingField.label} is required.`, 'Missing information');
+      return;
+    }
+
     onSubmit({
       ...form,
+      name: form.name.trim(),
+      displayName: form.displayName.trim(),
+      description: form.description?.trim() || '',
       availableCapital: Math.max(form.totalCommitment - form.deployedCapital, 0),
       managers: form.managers.length > 0 ? form.managers : [''],
     });
