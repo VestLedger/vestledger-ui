@@ -504,6 +504,7 @@ export function FundAdmin() {
                     className="mb-4"
                     action={(
                       <Select
+                        aria-label="LP response status filter"
                         placeholder="Filter by status"
                         className="w-48"
                         size="sm"

@@ -21,8 +21,8 @@ export async function getFundExpenses(fundId?: string): Promise<FundExpense[]> {
     return clone(values);
   }
 
-  const path = fundId ? `/funds/${fundId}/expenses` : '/expenses';
-  const payload = await requestJson<FundExpense[]>(path, {
+  if (!fundId) return [];
+  const payload = await requestJson<FundExpense[]>(`/funds/${fundId}/expenses`, {
     fallbackMessage: 'Failed to load expenses',
   });
   return Array.isArray(payload) ? payload : [];

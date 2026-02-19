@@ -22,8 +22,8 @@ export async function getSecondaryTransfers(fundId?: string): Promise<LPTransfer
     return clone(values);
   }
 
-  const path = fundId ? `/funds/${fundId}/transfers` : '/transfers';
-  const payload = await requestJson<LPTransfer[]>(path, {
+  if (!fundId) return [];
+  const payload = await requestJson<LPTransfer[]>(`/funds/${fundId}/transfers`, {
     fallbackMessage: 'Failed to load secondary transfers',
   });
   return Array.isArray(payload) ? payload : [];
@@ -38,8 +38,8 @@ export async function getROFRExercises(fundId?: string): Promise<ROFRExercise[]>
     return clone(rofrStore.filter((item) => transferIds.has(item.transferId)));
   }
 
-  const path = fundId ? `/funds/${fundId}/transfers/rofr` : '/transfers/rofr';
-  const payload = await requestJson<ROFRExercise[]>(path, {
+  if (!fundId) return [];
+  const payload = await requestJson<ROFRExercise[]>(`/funds/${fundId}/transfers/rofr`, {
     fallbackMessage: 'Failed to load ROFR exercises',
   });
   return Array.isArray(payload) ? payload : [];

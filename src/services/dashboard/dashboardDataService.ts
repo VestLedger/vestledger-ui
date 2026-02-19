@@ -18,7 +18,9 @@ export async function getDashboardData(selectedFund: Fund | null, viewMode: Fund
       },
       fallbackMessage: 'Failed to load dashboard data',
     });
-    return payload ?? getMockDashboardData(selectedFund, viewMode, funds);
+    const fallback = getMockDashboardData(selectedFund, viewMode, funds);
+    if (!payload || !Array.isArray(payload.fundTrustRows)) return fallback;
+    return payload;
   } catch {
     return getMockDashboardData(selectedFund, viewMode, funds);
   }

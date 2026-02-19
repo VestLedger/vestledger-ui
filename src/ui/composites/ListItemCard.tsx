@@ -41,7 +41,8 @@ export function ListItemCard({
     <Card
       padding={padding}
       className={classes}
-      onClick={onClick}
+      isPressable={!!onClick}
+      onPress={onClick}
     >
       <div className="flex items-start gap-3">
         {icon && <div className="mt-1">{icon}</div>}

@@ -22,8 +22,8 @@ export async function getCarriedInterestTerms(fundId?: string): Promise<CarriedI
     return clone(values);
   }
 
-  const path = fundId ? `/funds/${fundId}/carry/terms` : '/carry/terms';
-  const payload = await requestJson<CarriedInterestTerm[]>(path, {
+  if (!fundId) return [];
+  const payload = await requestJson<CarriedInterestTerm[]>(`/funds/${fundId}/carry/terms`, {
     fallbackMessage: 'Failed to load carry terms',
   });
   return Array.isArray(payload) ? payload : [];
@@ -35,8 +35,8 @@ export async function getCarryAccruals(fundId?: string): Promise<CarryAccrual[]>
     return clone(values);
   }
 
-  const path = fundId ? `/funds/${fundId}/carry/accruals` : '/carry/accruals';
-  const payload = await requestJson<CarryAccrual[]>(path, {
+  if (!fundId) return [];
+  const payload = await requestJson<CarryAccrual[]>(`/funds/${fundId}/carry/accruals`, {
     fallbackMessage: 'Failed to load carry accruals',
   });
   return Array.isArray(payload) ? payload : [];

@@ -21,8 +21,8 @@ export async function getNAVCalculations(fundId?: string): Promise<NAVCalculatio
     return clone(values);
   }
 
-  const path = fundId ? `/funds/${fundId}/nav` : '/nav';
-  const payload = await requestJson<NAVCalculation[]>(path, {
+  if (!fundId) return [];
+  const payload = await requestJson<NAVCalculation[]>(`/funds/${fundId}/nav`, {
     fallbackMessage: 'Failed to load NAV calculations',
   });
   return Array.isArray(payload) ? payload : [];
