@@ -5,7 +5,7 @@ import {
   pipelineStages,
   type PipelineDeal,
   type PipelineDealOutcome,
-} from '@/data/mocks/pipeline';
+} from '@/data/seeds/pipeline';
 import type { GetPipelineParams, PipelineData } from '@/store/slices/pipelineSlice';
 import {
   createPipelineDealInApi,

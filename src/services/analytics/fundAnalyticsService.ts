@@ -28,7 +28,7 @@ import {
   type FundMetrics,
   type JCurveDataPoint,
   type ValuationTrend,
-} from "@/data/mocks/mock-fund-analytics-data";
+} from "@/data/seeds/mock-fund-analytics-data";
 import { requestJson } from '@/services/shared/httpClient';
 
 export type {
@@ -196,7 +196,7 @@ function formatQuarterLabel(value?: string, fallback?: string): string {
   return `Q${quarter} ${parsed.getFullYear()}`;
 }
 
-function getMockSnapshot(fundId?: string | null): FundAnalyticsSnapshot {
+function getSeedSnapshot(fundId?: string | null): FundAnalyticsSnapshot {
   const key = normalizeFundId(fundId);
 
   return {
@@ -413,13 +413,13 @@ function mapValuationTrendsResponse(
 function getSnapshotForReads(fundId?: string | null): FundAnalyticsSnapshot {
   const key = normalizeFundId(fundId);
   if (isMockMode('analytics')) {
-    return getMockSnapshot(key);
+    return getSeedSnapshot(key);
   }
 
   return clone(
     apiFundAnalyticsSnapshotCache.get(key)
     ?? latestApiFundAnalyticsSnapshot
-    ?? getMockSnapshot(key)
+    ?? getSeedSnapshot(key)
   );
 }
 
@@ -428,14 +428,14 @@ export async function fetchFundAnalyticsSnapshot(
 ): Promise<FundAnalyticsSnapshot> {
   const key = normalizeFundId(fundId);
   if (isMockMode('analytics')) {
-    const snapshot = getMockSnapshot(key);
+    const snapshot = getSeedSnapshot(key);
     apiFundAnalyticsSnapshotCache.set(key, snapshot);
     latestApiFundAnalyticsSnapshot = snapshot;
     return clone(snapshot);
   }
 
   if (key === 'all') {
-    const fallback = apiFundAnalyticsSnapshotCache.get(key) ?? getMockSnapshot(key);
+    const fallback = apiFundAnalyticsSnapshotCache.get(key) ?? getSeedSnapshot(key);
     return clone(fallback);
   }
 
@@ -512,7 +512,7 @@ export async function fetchFundAnalyticsSnapshot(
     const fallback = clone(
       apiFundAnalyticsSnapshotCache.get(key)
       ?? latestApiFundAnalyticsSnapshot
-      ?? getMockSnapshot(key)
+      ?? getSeedSnapshot(key)
     );
     return fallback;
   }

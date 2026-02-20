@@ -1,13 +1,13 @@
 import { isMockMode } from '@/config/data-mode';
 import {
-  mockCollaborationSnapshot,
+  mockCollaborationSnapshot as seedCollaborationSnapshot,
   type CollaborationMessage,
   type CollaborationSnapshot,
   type CollaborationTask,
   type CollaborationTaskPriority,
   type CollaborationTaskStatus,
   type CollaborationThread,
-} from '@/data/mocks/collaboration';
+} from '@/data/seeds/collaboration';
 import type { UserRole } from '@/types/auth';
 import { requestJson } from '@/services/shared/httpClient';
 
@@ -18,7 +18,7 @@ export type {
   CollaborationTaskPriority,
   CollaborationTaskStatus,
   CollaborationThread,
-} from '@/data/mocks/collaboration';
+} from '@/data/seeds/collaboration';
 
 type ApiListResponse<TItem> =
   | {
@@ -79,16 +79,16 @@ const clone = <T>(value: T): T => structuredClone(value);
 
 let collaborationCache: CollaborationSnapshot | null = null;
 
-function getBaseMockSnapshot(): CollaborationSnapshot {
-  return clone(mockCollaborationSnapshot);
+function getSeedSnapshot(): CollaborationSnapshot {
+  return clone(seedCollaborationSnapshot);
 }
 
 function setCachedSnapshot(snapshot: CollaborationSnapshot): void {
   collaborationCache = clone(snapshot);
 }
 
-function getCachedOrMockSnapshot(): CollaborationSnapshot {
-  return clone(collaborationCache ?? getBaseMockSnapshot());
+function getCachedSnapshot(): CollaborationSnapshot {
+  return clone(collaborationCache ?? getSeedSnapshot());
 }
 
 function extractApiList<TItem>(response: ApiListResponse<TItem>): TItem[] {
@@ -179,12 +179,12 @@ async function fetchSnapshotFromApi(previous: CollaborationSnapshot): Promise<Co
 export async function getCollaborationSnapshot(): Promise<CollaborationSnapshot> {
   if (isMockMode('collaboration')) {
     if (!collaborationCache) {
-      setCachedSnapshot(getBaseMockSnapshot());
+      setCachedSnapshot(getSeedSnapshot());
     }
-    return getCachedOrMockSnapshot();
+    return getCachedSnapshot();
   }
 
-  const previous = getCachedOrMockSnapshot();
+  const previous = getCachedSnapshot();
   try {
     const snapshot = await fetchSnapshotFromApi(previous);
     setCachedSnapshot(snapshot);
@@ -197,7 +197,7 @@ export async function getCollaborationSnapshot(): Promise<CollaborationSnapshot>
 export async function addCollaborationMessage(
   input: CreateCollaborationMessageInput
 ): Promise<CollaborationMessage> {
-  const snapshot = getCachedOrMockSnapshot();
+  const snapshot = getCachedSnapshot();
   const nextMessage: CollaborationMessage = {
     id: `message-${Date.now()}`,
     threadId: input.threadId,
@@ -226,7 +226,7 @@ export async function addCollaborationMessage(
 export async function createCollaborationTask(
   input: CreateCollaborationTaskInput
 ): Promise<CollaborationTask> {
-  const snapshot = getCachedOrMockSnapshot();
+  const snapshot = getCachedSnapshot();
   const task: CollaborationTask = {
     id: `task-${Date.now()}`,
     title: input.title,
@@ -248,7 +248,7 @@ export async function updateCollaborationTaskStatus(
   taskId: string,
   status: CollaborationTaskStatus
 ): Promise<CollaborationTask> {
-  const snapshot = getCachedOrMockSnapshot();
+  const snapshot = getCachedSnapshot();
   const index = snapshot.tasks.findIndex((task) => task.id === taskId);
   if (index === -1) {
     throw new Error(`Collaboration task not found: ${taskId}`);

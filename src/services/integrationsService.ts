@@ -12,7 +12,7 @@ import {
   mockCalendarAccounts,
   mockCalendarEvents,
   mockIntegrations,
-} from '@/data/mocks/integrations';
+} from '@/data/seeds/integrations';
 import { requestJson } from '@/services/shared/httpClient';
 import type { IntegrationCategory, IntegrationIcon, IntegrationStatus, IntegrationSummary } from '@/types/integrations';
 
@@ -303,7 +303,7 @@ function mapApiEvent(item: ApiCalendarEvent): CalendarEvent {
   };
 }
 
-function getMockSnapshot(): IntegrationsSnapshot {
+function getSeedSnapshot(): IntegrationsSnapshot {
   return {
     accounts: clone(mockCalendarAccounts),
     events: clone(mockCalendarEvents),
@@ -311,8 +311,8 @@ function getMockSnapshot(): IntegrationsSnapshot {
   };
 }
 
-function getCachedOrMockSnapshot(): IntegrationsSnapshot {
-  return clone(integrationsSnapshotCache ?? getMockSnapshot());
+function getCachedSnapshot(): IntegrationsSnapshot {
+  return clone(integrationsSnapshotCache ?? getSeedSnapshot());
 }
 
 function setSnapshot(snapshot: IntegrationsSnapshot): void {
@@ -322,7 +322,7 @@ function setSnapshot(snapshot: IntegrationsSnapshot): void {
 function updateSnapshot(
   updater: (snapshot: IntegrationsSnapshot) => IntegrationsSnapshot
 ): void {
-  const snapshot = getCachedOrMockSnapshot();
+  const snapshot = getCachedSnapshot();
   integrationsSnapshotCache = updater(snapshot);
 }
 
@@ -340,9 +340,9 @@ async function updateIntegrationStatusApi(
 export async function getIntegrationsSnapshot(): Promise<IntegrationsSnapshot> {
   if (isMockMode('integrations')) {
     if (!integrationsSnapshotCache) {
-      setSnapshot(getMockSnapshot());
+      setSnapshot(getSeedSnapshot());
     }
-    return getCachedOrMockSnapshot();
+    return getCachedSnapshot();
   }
 
   try {
@@ -364,7 +364,7 @@ export async function getIntegrationsSnapshot(): Promise<IntegrationsSnapshot> {
     setSnapshot(snapshot);
     return clone(snapshot);
   } catch {
-    return getCachedOrMockSnapshot();
+    return getCachedSnapshot();
   }
 }
 
@@ -399,7 +399,7 @@ export async function disconnectIntegration(integrationId: string): Promise<void
 }
 
 export async function connectCalendar(provider: CalendarProvider): Promise<void> {
-  const snapshot = getCachedOrMockSnapshot();
+  const snapshot = getCachedSnapshot();
   const existingAccount = snapshot.accounts.find((account) => account.provider === provider);
 
   if (existingAccount) {
@@ -516,7 +516,7 @@ export async function createCalendarEvent(): Promise<void> {
   const now = new Date();
   const startTime = new Date(now.getTime() + 60 * 60 * 1000);
   const endTime = new Date(startTime.getTime() + 30 * 60 * 1000);
-  const snapshot = getCachedOrMockSnapshot();
+  const snapshot = getCachedSnapshot();
   const accountId = snapshot.accounts[0]?.id ?? 'calendar-default';
   const provider = snapshot.accounts[0]?.provider ?? 'google';
 
@@ -552,7 +552,7 @@ export async function createCalendarEvent(): Promise<void> {
 }
 
 export async function exportCalendarEvents(format: 'csv' | 'ical'): Promise<string> {
-  const snapshot = getCachedOrMockSnapshot();
+  const snapshot = getCachedSnapshot();
   const events = snapshot.events;
 
   if (format === 'ical') {

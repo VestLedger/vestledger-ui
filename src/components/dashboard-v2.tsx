@@ -23,7 +23,7 @@ import { getRouteConfig, ROUTE_PATHS } from '@/config/routes';
 import { useAppDispatch } from '@/store/hooks';
 import { setQuickActionsOverride } from '@/store/slices/copilotSlice';
 import { patchUIState } from '@/store/slices/uiSlice';
-import type { DailyBriefItem, HomeBlocker, HomeOpportunity } from '@/data/mocks/hooks/dashboard-data';
+import type { DailyBriefItem, HomeBlocker, HomeOpportunity } from '@/data/seeds/hooks/dashboard-data';
 import { useDashboardDensity } from '@/contexts/dashboard-density-context';
 
 const DASHBOARD_PERCENT_SCALE = 100;
@@ -119,7 +119,11 @@ export function DashboardV2() {
 
   // Surface dashboard quick actions inside the AI Copilot sidebar
   useEffect(() => {
-    dispatch(setQuickActionsOverride(quickActions));
+    dispatch(
+      setQuickActionsOverride(
+        quickActions as unknown as Parameters<typeof setQuickActionsOverride>[0]
+      )
+    );
     return () => {
       dispatch(setQuickActionsOverride(null));
     };

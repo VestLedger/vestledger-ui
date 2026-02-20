@@ -1,5 +1,5 @@
 import type { GetPipelineParams } from '@/store/slices/pipelineSlice';
-import type { PipelineDeal, PipelineDealOutcome } from '@/data/mocks/pipeline';
+import type { PipelineDeal, PipelineDealOutcome } from '@/data/seeds/pipeline';
 import { logger } from '@/lib/logger';
 import { requestJson, type ApiQueryParams } from './httpClient';
 

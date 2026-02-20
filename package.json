@@ -48,6 +48,8 @@
     "audit:visual-regression:enforce": "node scripts/visual-regression-audit.mjs --enforce",
     "audit:error-hardening": "node scripts/error-hardening-audit.mjs",
     "audit:error-hardening:enforce": "node scripts/error-hardening-audit.mjs --enforce",
+    "audit:ui-api-wiring": "node scripts/ui-api-wiring-audit.mjs",
+    "audit:ui-api-wiring:enforce": "node scripts/ui-api-wiring-audit.mjs --enforce",
     "prepare": "husky",
     "gen:openapi": "node scripts/gen-openapi.mjs"
   },

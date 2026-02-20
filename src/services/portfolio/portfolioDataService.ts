@@ -8,14 +8,14 @@ import {
   type AssetAllocation,
   type PortfolioCompanyMetrics,
   type PortfolioUpdate,
-} from '@/data/mocks/mock-portfolio-data';
+} from '@/data/seeds/mock-portfolio-data';
 import { requestJson } from '@/services/shared/httpClient';
 
 export type {
   AssetAllocation,
   PortfolioCompanyMetrics,
   PortfolioUpdate,
-} from '@/data/mocks/mock-portfolio-data';
+} from '@/data/seeds/mock-portfolio-data';
 
 type ApiPortfolioCompany = {
   id: string;
@@ -288,7 +288,7 @@ function buildPortfolioSnapshot(
   };
 }
 
-function getMockPortfolioSnapshot(): PortfolioSnapshot {
+function buildSeedPortfolioSnapshot(): PortfolioSnapshot {
   const atRiskCompanies = portfolioCompanies.filter(
     (company) => company.status === 'at-risk' || company.healthScore < 82
   ).length;
@@ -340,14 +340,14 @@ async function fetchApiPortfolioHealth(fundId: string): Promise<ApiPortfolioHeal
 
 export async function fetchPortfolioSnapshot(fundId?: string | null): Promise<PortfolioSnapshot> {
   if (isMockMode('portfolio')) {
-    const snapshot = getMockPortfolioSnapshot();
+    const snapshot = buildSeedPortfolioSnapshot();
     apiPortfolioSnapshotCache = snapshot;
     return clone(snapshot);
   }
 
   const normalizedFundId = fundId?.trim();
   if (!normalizedFundId) {
-    const fallback = apiPortfolioSnapshotCache ?? getMockPortfolioSnapshot();
+    const fallback = apiPortfolioSnapshotCache ?? buildSeedPortfolioSnapshot();
     return clone(fallback);
   }
 
@@ -362,7 +362,7 @@ export async function fetchPortfolioSnapshot(fundId?: string | null): Promise<Po
     apiPortfolioSnapshotCache = snapshot;
     return clone(snapshot);
   } catch {
-    const fallback = apiPortfolioSnapshotCache ?? getMockPortfolioSnapshot();
+    const fallback = apiPortfolioSnapshotCache ?? buildSeedPortfolioSnapshot();
     return clone(fallback);
   }
 }
@@ -400,13 +400,13 @@ export function getPortfolioAssetAllocation(): AssetAllocation[] {
 }
 
 export function getPortfolioPageMetricsSnapshot(): PortfolioPageMetricsSnapshot {
-  if (isMockMode('portfolio')) return getMockPortfolioSnapshot().pageMetrics;
-  return clone(apiPortfolioSnapshotCache?.pageMetrics ?? getMockPortfolioSnapshot().pageMetrics);
+  if (isMockMode('portfolio')) return buildSeedPortfolioSnapshot().pageMetrics;
+  return clone(apiPortfolioSnapshotCache?.pageMetrics ?? buildSeedPortfolioSnapshot().pageMetrics);
 }
 
 export function getPortfolioHealthyCompaniesCount(): number {
-  if (isMockMode('portfolio')) return getMockPortfolioSnapshot().healthyCompanies;
-  return apiPortfolioSnapshotCache?.healthyCompanies ?? getMockPortfolioSnapshot().healthyCompanies;
+  if (isMockMode('portfolio')) return buildSeedPortfolioSnapshot().healthyCompanies;
+  return apiPortfolioSnapshotCache?.healthyCompanies ?? buildSeedPortfolioSnapshot().healthyCompanies;
 }
 
 export function clearPortfolioSnapshotCache(): void {

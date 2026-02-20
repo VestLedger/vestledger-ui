@@ -5,7 +5,7 @@ import {
   documentCategories,
   fundAnalytics,
   dealAnalyticsData,
-} from '@/data/mocks/deal-intelligence/deal-intelligence';
+} from '@/data/seeds/deal-intelligence/deal-intelligence';
 import type { GetDealIntelligenceParams } from '@/store/slices/dealIntelligenceSlice';
 import type { PipelineApiDeal } from '@/services/shared/pipelineGateway';
 import { fetchPipelineDealsFromApi, formatAmountToMillions } from '@/services/shared/pipelineGateway';
@@ -52,15 +52,15 @@ export type {
   DocumentCategory,
   DocumentStatus,
   ICStatus,
-} from '@/data/mocks/deal-intelligence/deal-intelligence';
+} from '@/data/seeds/deal-intelligence/deal-intelligence';
 
-type ActiveDeal = import('@/data/mocks/deal-intelligence/deal-intelligence').ActiveDeal;
-type Document = import('@/data/mocks/deal-intelligence/deal-intelligence').Document;
-type DealAnalytics = import('@/data/mocks/deal-intelligence/deal-intelligence').DealAnalytics;
-type FundAnalytics = import('@/data/mocks/deal-intelligence/deal-intelligence').FundAnalytics;
-type DocumentCategory = import('@/data/mocks/deal-intelligence/deal-intelligence').DocumentCategory;
-type DocumentStatus = import('@/data/mocks/deal-intelligence/deal-intelligence').DocumentStatus;
-type ICStatus = import('@/data/mocks/deal-intelligence/deal-intelligence').ICStatus;
+type ActiveDeal = import('@/data/seeds/deal-intelligence/deal-intelligence').ActiveDeal;
+type Document = import('@/data/seeds/deal-intelligence/deal-intelligence').Document;
+type DealAnalytics = import('@/data/seeds/deal-intelligence/deal-intelligence').DealAnalytics;
+type FundAnalytics = import('@/data/seeds/deal-intelligence/deal-intelligence').FundAnalytics;
+type DocumentCategory = import('@/data/seeds/deal-intelligence/deal-intelligence').DocumentCategory;
+type DocumentStatus = import('@/data/seeds/deal-intelligence/deal-intelligence').DocumentStatus;
+type ICStatus = import('@/data/seeds/deal-intelligence/deal-intelligence').ICStatus;
 
 const categoryTargets: Record<DocumentCategory, number> = {
   financial: 5,

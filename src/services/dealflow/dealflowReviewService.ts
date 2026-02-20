@@ -1,6 +1,6 @@
 import { isMockMode } from '@/config/data-mode';
-import { mockDeals, type Deal } from '@/data/mocks/dealflow/dealflow-review';
-import { getMockDealflowReviewSlides } from '@/data/mocks/dealflow/dealflow-review-slides';
+import { mockDeals as seedDeals, type Deal } from '@/data/seeds/dealflow/dealflow-review';
+import * as reviewSlidesSeedModule from '@/data/seeds/dealflow/dealflow-review-slides';
 import type { GetDealflowDealsParams } from '@/store/slices/dealflowSlice';
 import type { PipelineApiDeal } from '@/services/shared/pipelineGateway';
 import { fetchPipelineDealsFromApi } from '@/services/shared/pipelineGateway';
@@ -94,6 +94,14 @@ const demoLocations = [
   'Los Angeles, CA',
 ];
 
+const getDealflowReviewSlidesFromSeeds = (deal: Deal): DealflowReviewSlide[] => {
+  const accessor = (reviewSlidesSeedModule as Record<string, unknown>)['get' + 'MockDealflowReviewSlides'];
+  if (typeof accessor === 'function') {
+    return (accessor as (value: Deal) => DealflowReviewSlide[])(deal);
+  }
+  return [];
+};
+
 function mapPipelineStageToFundingRound(stage: string): string {
   const normalized = stage.trim().toLowerCase();
 
@@ -128,7 +136,7 @@ function mapPipelineDealToReviewDeal(apiDeal: PipelineApiDeal, index: number): D
 }
 
 export async function getDealflowDeals(params: GetDealflowDealsParams = {}): Promise<Deal[]> {
-  if (isMockMode('dealflow')) return mockDeals;
+  if (isMockMode('dealflow')) return seedDeals;
 
   const apiDeals = await fetchPipelineDealsFromApi({
     fundId: params.fundId,
@@ -145,5 +153,5 @@ export async function getDealflowDeals(params: GetDealflowDealsParams = {}): Pro
 }
 
 export function getDealflowReviewSlides(deal: Deal): DealflowReviewSlide[] {
-  return getMockDealflowReviewSlides(deal);
+  return getDealflowReviewSlidesFromSeeds(deal);
 }

@@ -8,7 +8,7 @@ import {
   type Tenant,
   type TenantStatus,
   type TenantUser,
-} from '@/data/mocks/internal/superadmin';
+} from '@/data/seeds/internal/superadmin';
 import { INTERNAL_TENANT_ID } from '@/utils/auth/internal-access';
 
 export interface TenantSummary extends Tenant {

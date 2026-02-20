@@ -1,13 +1,13 @@
 import { isMockMode } from '@/config/data-mode';
 import {
-  mockCapitalCalls,
-  mockDistributions,
-  mockLPResponses,
+  mockCapitalCalls as seedCapitalCalls,
+  mockDistributions as seedDistributions,
+  mockLPResponses as seedLPResponses,
   type CapitalCall,
   type Distribution,
   type LPResponse,
-} from '@/data/mocks/back-office/fund-admin';
-import { mockFunds } from '@/data/mocks/funds';
+} from '@/data/seeds/back-office/fund-admin';
+import { mockFunds as seedFunds } from '@/data/seeds/funds';
 import { apiClient } from '@/api/client';
 import { unwrapApiResult } from '@/api/unwrap';
 
@@ -36,7 +36,7 @@ export interface CreateCapitalCallParams {
 const clone = <T>(value: T): T => structuredClone(value);
 
 function getFundName(fundId: string): string {
-  return mockFunds.find((fund) => fund.id === fundId)?.name ?? 'Unknown Fund';
+  return seedFunds.find((fund) => fund.id === fundId)?.name ?? 'Unknown Fund';
 }
 
 function mapApiToCapitalCall(api: ApiCapitalCall, fundName: string): CapitalCall {
@@ -64,30 +64,30 @@ function mapApiToCapitalCall(api: ApiCapitalCall, fundName: string): CapitalCall
 }
 
 function upsertCapitalCall(value: CapitalCall): CapitalCall {
-  const index = mockCapitalCalls.findIndex((item) => item.id === value.id);
+  const index = seedCapitalCalls.findIndex((item) => item.id === value.id);
   if (index === -1) {
-    mockCapitalCalls.unshift(value);
+    seedCapitalCalls.unshift(value);
     return value;
   }
-  mockCapitalCalls[index] = value;
+  seedCapitalCalls[index] = value;
   return value;
 }
 
 function upsertLPResponse(value: LPResponse): LPResponse {
-  const index = mockLPResponses.findIndex((item) => item.id === value.id);
+  const index = seedLPResponses.findIndex((item) => item.id === value.id);
   if (index === -1) {
-    mockLPResponses.unshift(value);
+    seedLPResponses.unshift(value);
     return value;
   }
-  mockLPResponses[index] = value;
+  seedLPResponses[index] = value;
   return value;
 }
 
 export async function getCapitalCalls(fundId?: string): Promise<CapitalCall[]> {
   if (isMockMode('backOffice')) {
     const calls = fundId
-      ? mockCapitalCalls.filter((call) => call.fundId === fundId)
-      : mockCapitalCalls;
+      ? seedCapitalCalls.filter((call) => call.fundId === fundId)
+      : seedCapitalCalls;
     return clone(calls);
   }
 
@@ -115,7 +115,7 @@ export async function getCapitalCalls(fundId?: string): Promise<CapitalCall[]> {
 
 export async function createCapitalCall(params: CreateCapitalCallParams): Promise<CapitalCall> {
   if (isMockMode('backOffice')) {
-    const nextCallNumber = Math.max(0, ...mockCapitalCalls.map((call) => call.callNumber)) + 1;
+    const nextCallNumber = Math.max(0, ...seedCapitalCalls.map((call) => call.callNumber)) + 1;
     const next: CapitalCall = {
       id: `call-${Date.now()}`,
       fundId: params.fundId,
@@ -155,7 +155,7 @@ export async function updateCapitalCall(
   patch: Partial<CapitalCall>
 ): Promise<CapitalCall> {
   if (isMockMode('backOffice')) {
-    const current = mockCapitalCalls.find((item) => item.id === capitalCallId);
+    const current = seedCapitalCalls.find((item) => item.id === capitalCallId);
     if (!current) {
       throw new Error(`Capital call not found: ${capitalCallId}`);
     }
@@ -170,7 +170,7 @@ export async function updateCapitalCall(
     return clone(upsertCapitalCall(updated));
   }
 
-  const call = mockCapitalCalls.find((item) => item.id === capitalCallId);
+  const call = seedCapitalCalls.find((item) => item.id === capitalCallId);
   if (!call) {
     throw new Error('Capital call update is not available until fund context is loaded.');
   }
@@ -197,7 +197,7 @@ export async function sendCapitalCallToLPs(capitalCallId: string): Promise<Capit
 
 export async function sendCapitalCallReminder(capitalCallId: string): Promise<CapitalCall> {
   if (isMockMode('backOffice')) {
-    const call = mockCapitalCalls.find((item) => item.id === capitalCallId);
+    const call = seedCapitalCalls.find((item) => item.id === capitalCallId);
     if (!call) throw new Error(`Capital call not found: ${capitalCallId}`);
     return clone(call);
   }
@@ -214,8 +214,8 @@ export async function sendCapitalCallReminder(capitalCallId: string): Promise<Ca
 export async function getDistributions(fundId?: string): Promise<Distribution[]> {
   if (isMockMode('backOffice')) {
     const values = fundId
-      ? mockDistributions.filter((distribution) => distribution.fundId === fundId)
-      : mockDistributions;
+      ? seedDistributions.filter((distribution) => distribution.fundId === fundId)
+      : seedDistributions;
     return clone(values);
   }
 
@@ -232,20 +232,20 @@ export async function getDistributions(fundId?: string): Promise<Distribution[]>
 export async function getLPResponses(fundId?: string): Promise<LPResponse[]> {
   if (isMockMode('backOffice')) {
     const responses = fundId
-      ? mockLPResponses.filter((response) => response.fundId === fundId)
-      : mockLPResponses;
+      ? seedLPResponses.filter((response) => response.fundId === fundId)
+      : seedLPResponses;
     return clone(responses);
   }
 
   if (!fundId) {
-    return clone(mockLPResponses);
+    return clone(seedLPResponses);
   }
 
-  return clone(mockLPResponses.filter((response) => response.fundId === fundId));
+  return clone(seedLPResponses.filter((response) => response.fundId === fundId));
 }
 
 export async function sendLPReminder(lpResponseId: string): Promise<LPResponse> {
-  const response = mockLPResponses.find((item) => item.id === lpResponseId);
+  const response = seedLPResponses.find((item) => item.id === lpResponseId);
   if (!response) {
     throw new Error(`LP response not found: ${lpResponseId}`);
   }
@@ -257,7 +257,7 @@ export async function recordLPResponsePayment(
   lpResponseId: string,
   amountPaid: number
 ): Promise<LPResponse> {
-  const response = mockLPResponses.find((item) => item.id === lpResponseId);
+  const response = seedLPResponses.find((item) => item.id === lpResponseId);
   if (!response) {
     throw new Error(`LP response not found: ${lpResponseId}`);
   }

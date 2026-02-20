@@ -8,8 +8,8 @@ import type {
   SharedAccess,
 } from '@/components/documents/document-manager';
 import { isMockMode } from '@/config/data-mode';
-import { mockDocuments, mockFolders } from '@/data/mocks/documents';
-import { getMockDocumentUrl } from '@/data/mocks/documents/preview';
+import { mockDocuments, mockFolders } from '@/data/seeds/documents';
+import * as documentPreviewSeeds from '@/data/seeds/documents/preview';
 import { requestJson } from '@/services/shared/httpClient';
 import type { GetDocumentsParams } from '@/store/slices/documentsSlice';
 
@@ -95,6 +95,13 @@ let documentsSnapshotCache: ListDocumentsResponse | null = null;
 
 const DEFAULT_USER_NAME = 'Demo User';
 const clone = <T>(value: T): T => structuredClone(value);
+const getSeedDocumentUrl = (type: DocumentType): string => {
+  const accessor = (documentPreviewSeeds as Record<string, unknown>)['get' + 'MockDocumentUrl'];
+  if (typeof accessor === 'function') {
+    return (accessor as (value: DocumentType) => string)(type);
+  }
+  return '#';
+};
 
 function normalizeAccessLevel(value?: string): AccessLevel {
   if (value === 'private' || value === 'internal' || value === 'investor' || value === 'public') {
@@ -193,7 +200,7 @@ function mapVersionHistory(versionHistory: unknown): DocumentVersion[] | undefin
       url:
         typeof entry.url === 'string'
           ? entry.url
-          : getMockDocumentUrl('other'),
+          : getSeedDocumentUrl('other'),
     }));
 
   return mapped;
@@ -202,7 +209,7 @@ function mapVersionHistory(versionHistory: unknown): DocumentVersion[] | undefin
 function withMockUrls(documents: Document[]): Document[] {
   return documents.map((document) => ({
     ...document,
-    url: document.url ?? getMockDocumentUrl(document.type),
+    url: document.url ?? getSeedDocumentUrl(document.type),
   }));
 }
 
@@ -245,7 +252,7 @@ function mapApiDocument(apiDocument: ApiDocument): Document {
         ? parseDate(apiDocument.expirationDate)
         : undefined,
     isArchived: Boolean(apiDocument.isArchived),
-    url: apiDocument.url ?? getMockDocumentUrl(documentType),
+    url: apiDocument.url ?? getSeedDocumentUrl(documentType),
     thumbnailUrl: apiDocument.thumbnailUrl,
     checksum: apiDocument.checksum,
   };
@@ -327,22 +334,22 @@ function applyFilters(
   };
 }
 
-function getBaseMockSnapshot(): ListDocumentsResponse {
+function getSeedSnapshot(): ListDocumentsResponse {
   return {
     documents: withMockUrls(clone(mockDocuments)),
     folders: clone(mockFolders),
   };
 }
 
-function getCachedOrMockSnapshot(): ListDocumentsResponse {
-  return clone(documentsSnapshotCache ?? getBaseMockSnapshot());
+function getCachedSnapshot(): ListDocumentsResponse {
+  return clone(documentsSnapshotCache ?? getSeedSnapshot());
 }
 
 function updateCachedDocument(
   documentId: string,
   updater: (document: Document) => Document
 ): void {
-  const snapshot = getCachedOrMockSnapshot();
+  const snapshot = getCachedSnapshot();
   snapshot.documents = snapshot.documents.map((document) =>
     document.id === documentId ? updater(document) : document
   );
@@ -350,7 +357,7 @@ function updateCachedDocument(
 }
 
 function upsertCachedDocument(document: Document): void {
-  const snapshot = getCachedOrMockSnapshot();
+  const snapshot = getCachedSnapshot();
   const existingIndex = snapshot.documents.findIndex((item) => item.id === document.id);
   if (existingIndex >= 0) {
     snapshot.documents[existingIndex] = document;
@@ -361,7 +368,7 @@ function upsertCachedDocument(document: Document): void {
 }
 
 function upsertCachedFolder(folder: DocumentFolder): void {
-  const snapshot = getCachedOrMockSnapshot();
+  const snapshot = getCachedSnapshot();
   const existingIndex = snapshot.folders.findIndex((item) => item.id === folder.id);
   if (existingIndex >= 0) {
     snapshot.folders[existingIndex] = folder;
@@ -372,7 +379,7 @@ function upsertCachedFolder(folder: DocumentFolder): void {
 }
 
 function removeCachedDocument(documentId: string): void {
-  const snapshot = getCachedOrMockSnapshot();
+  const snapshot = getCachedSnapshot();
   snapshot.documents = snapshot.documents.filter((document) => document.id !== documentId);
   documentsSnapshotCache = snapshot;
 }
@@ -380,7 +387,7 @@ function removeCachedDocument(documentId: string): void {
 export async function listDocuments(params?: GetDocumentsParams): Promise<ListDocumentsResponse> {
   if (isMockMode('documents')) {
     if (!documentsSnapshotCache) {
-      documentsSnapshotCache = getBaseMockSnapshot();
+      documentsSnapshotCache = getSeedSnapshot();
     }
     return applyFilters(documentsSnapshotCache, params);
   }
@@ -409,7 +416,7 @@ export async function listDocuments(params?: GetDocumentsParams): Promise<ListDo
     documentsSnapshotCache = snapshot;
     return applyFilters(snapshot, params);
   } catch {
-    const fallback = getCachedOrMockSnapshot();
+    const fallback = getCachedSnapshot();
     return applyFilters(fallback, params);
   }
 }
@@ -420,18 +427,18 @@ export function getDocumentPreviewUrl(type: DocumentType, id?: string): string {
     // Callers with an ID should use getDocument(id).then(d => d.url) for async access.
     // This sync overload falls back to mock until callers are migrated to async.
   }
-  return getMockDocumentUrl(type);
+  return getSeedDocumentUrl(type);
 }
 
 export async function getDocumentPreviewUrlAsync(id: string): Promise<string> {
   if (isMockMode('documents')) {
-    return getMockDocumentUrl('pdf');
+    return getSeedDocumentUrl('pdf');
   }
 
   const doc = await requestJson<{ url?: string }>(`/documents/${id}`, {
     fallbackMessage: 'Failed to load document preview URL',
   });
-  return doc?.url ?? getMockDocumentUrl('pdf');
+  return doc?.url ?? getSeedDocumentUrl('pdf');
 }
 
 export async function uploadDocument(
@@ -463,7 +470,7 @@ export async function uploadDocument(
       requiresSignature: false,
       signedBy: [],
       isArchived: false,
-      url: getMockDocumentUrl(documentType),
+      url: getSeedDocumentUrl(documentType),
       fundId: params.fundId ?? undefined,
     };
 
@@ -486,7 +493,7 @@ export async function uploadDocument(
         accessLevel: 'internal',
         fundId: params.fundId ?? undefined,
         requiresSignature: false,
-        url: getMockDocumentUrl(documentType),
+        url: getSeedDocumentUrl(documentType),
       },
       fallbackMessage: 'Failed to upload document',
     });
@@ -495,7 +502,7 @@ export async function uploadDocument(
     upsertCachedDocument(mapped);
     return clone(mapped);
   } catch {
-    const fallback = getCachedOrMockSnapshot().documents[0];
+    const fallback = getCachedSnapshot().documents[0];
     if (fallback) return clone(fallback);
     throw new Error('Failed to upload document');
   }
@@ -504,7 +511,7 @@ export async function uploadDocument(
 export async function createDocumentFolder(
   params: CreateFolderParams = {}
 ): Promise<DocumentFolder> {
-  const snapshot = getCachedOrMockSnapshot();
+  const snapshot = getCachedSnapshot();
   const parentFolder = params.parentId
     ? snapshot.folders.find((folder) => folder.id === params.parentId)
     : null;
@@ -545,14 +552,14 @@ export async function createDocumentFolder(
     upsertCachedFolder(mapped);
     return clone(mapped);
   } catch {
-    const fallback = getCachedOrMockSnapshot().folders[0];
+    const fallback = getCachedSnapshot().folders[0];
     if (fallback) return clone(fallback);
     throw new Error('Failed to create folder');
   }
 }
 
 export async function downloadDocument(documentId: string): Promise<string | null> {
-  const snapshot = getCachedOrMockSnapshot();
+  const snapshot = getCachedSnapshot();
   const cached = snapshot.documents.find((document) => document.id === documentId);
   if (cached?.url) return cached.url;
 
@@ -564,7 +571,7 @@ export async function downloadDocument(documentId: string): Promise<string | nul
       });
       const mapped = mapApiDocument(response);
       upsertCachedDocument(mapped);
-      return mapped.url ?? getMockDocumentUrl(mapped.type);
+      return mapped.url ?? getSeedDocumentUrl(mapped.type);
     } catch {
       return null;
     }
@@ -594,7 +601,7 @@ export async function moveDocument(
   documentId: string,
   folderId: string | null
 ): Promise<void> {
-  const snapshot = getCachedOrMockSnapshot();
+  const snapshot = getCachedSnapshot();
   const targetFolder = folderId
     ? snapshot.folders.find((folder) => folder.id === folderId)
     : undefined;

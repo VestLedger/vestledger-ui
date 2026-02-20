@@ -6,7 +6,7 @@ import {
   lpDashboardMetrics,
   pendingCalls,
   pendingSignatures,
-} from '@/data/mocks/dashboards/lp-dashboard';
+} from '@/data/seeds/dashboards/lp-dashboard';
 import { apiClient } from '@/api/client';
 import { unwrapApiResult } from '@/api/unwrap';
 import { logger } from '@/lib/logger';

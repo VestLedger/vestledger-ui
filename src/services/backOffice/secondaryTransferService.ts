@@ -1,5 +1,5 @@
 import { isMockMode } from '@/config/data-mode';
-import { mockROFRExercises, mockSecondaryTransfers } from '@/data/mocks/back-office/fund-admin-ops';
+import { mockROFRExercises, mockSecondaryTransfers } from '@/data/seeds/back-office/fund-admin-ops';
 import { logger } from '@/lib/logger';
 import { requestJson } from '@/services/shared/httpClient';
 import type { LPTransfer, ROFRExercise, TransferDocument, TransferStatus } from '@/types/fundAdminOps';

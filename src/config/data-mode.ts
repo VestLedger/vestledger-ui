@@ -26,6 +26,33 @@ export type FeatureName =
   | 'onboarding';
 
 /**
+ * Audited features where mock fallback should be blocked while running in API mode.
+ * This supports the UI-to-API wiring initiative.
+ */
+export const AUDITED_NO_MOCK_FEATURES: readonly FeatureName[] = [
+  'auth',
+  'funds',
+  'alerts',
+  'reports',
+  'analytics',
+  'documents',
+  'portfolio',
+  'pipeline',
+  'dashboards',
+  'dealflow',
+  'backOffice',
+  'ai',
+  'dealIntelligence',
+  'crm',
+  'integrations',
+  'lpPortal',
+  'auditTrail',
+  'companySearch',
+  'collaboration',
+  'onboarding',
+] as const;
+
+/**
  * Feature flags for per-feature mock/API mode control.
  * Set a feature to true to use real API, false to use mock data.
  * If not specified, falls back to global DATA_MODE.
@@ -115,4 +142,20 @@ export function isMockMode(feature?: FeatureName): boolean {
 
   // Fall back to global mode
   return getDataMode() === 'mock';
+}
+
+/**
+ * Whether this runtime should disallow mock fallbacks for a feature.
+ * In API mode, audited features should not silently fall back to bundled mock data.
+ */
+export function isAuditedNoMockRuntime(feature?: FeatureName): boolean {
+  if (getDataMode() !== 'api') {
+    return false;
+  }
+
+  if (!feature) {
+    return true;
+  }
+
+  return AUDITED_NO_MOCK_FEATURES.includes(feature);
 }

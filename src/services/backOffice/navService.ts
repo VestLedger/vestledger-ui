@@ -1,5 +1,5 @@
 import { isMockMode } from '@/config/data-mode';
-import { mockNAVCalculations } from '@/data/mocks/back-office/fund-admin-ops';
+import { mockNAVCalculations } from '@/data/seeds/back-office/fund-admin-ops';
 import { logger } from '@/lib/logger';
 import { requestJson } from '@/services/shared/httpClient';
 import type { NAVCalculation } from '@/types/fundAdminOps';

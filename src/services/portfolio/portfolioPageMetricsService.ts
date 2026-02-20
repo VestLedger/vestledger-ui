@@ -2,7 +2,7 @@ import { isMockMode } from '@/config/data-mode';
 import {
   portfolioPageHealthyCompanies,
   portfolioPageMetrics,
-} from '@/data/mocks/portfolio/page-metrics';
+} from '@/data/seeds/portfolio/page-metrics';
 import {
   getPortfolioHealthyCompaniesCount,
   getPortfolioPageMetricsSnapshot,

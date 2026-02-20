@@ -4,21 +4,21 @@ import {
   mockDistributions,
   mockLPs,
   mockReports,
-} from '@/data/mocks/lp-portal/lp-management';
+} from '@/data/seeds/lp-portal/lp-management';
 import { requestJson } from '@/services/shared/httpClient';
 import type {
   CapitalCall,
   Distribution,
   LP,
   Report,
-} from '@/data/mocks/lp-portal/lp-management';
+} from '@/data/seeds/lp-portal/lp-management';
 
 export type {
   CapitalCall,
   Distribution,
   LP,
   Report,
-} from '@/data/mocks/lp-portal/lp-management';
+} from '@/data/seeds/lp-portal/lp-management';
 
 export interface LPManagementSnapshot {
   lps: LP[];
@@ -253,7 +253,7 @@ async function fetchDistributionsFromApi(): Promise<Distribution[]> {
   return extractApiList(response).map(mapApiDistributionToDistribution);
 }
 
-function getBaseMockSnapshot(): LPManagementSnapshot {
+function getSeedSnapshot(): LPManagementSnapshot {
   return {
     lps: clone(mockLPs),
     reports: clone(mockReports),
@@ -266,12 +266,12 @@ function setCachedSnapshot(snapshot: LPManagementSnapshot): void {
   apiLPManagementSnapshotCache = clone(snapshot);
 }
 
-function getCachedOrMockSnapshot(): LPManagementSnapshot {
-  return clone(apiLPManagementSnapshotCache ?? getBaseMockSnapshot());
+function getCachedSnapshot(): LPManagementSnapshot {
+  return clone(apiLPManagementSnapshotCache ?? getSeedSnapshot());
 }
 
 function upsertReport(report: Report): void {
-  const snapshot = getCachedOrMockSnapshot();
+  const snapshot = getCachedSnapshot();
   const index = snapshot.reports.findIndex((item) => item.id === report.id);
 
   if (index >= 0) {
@@ -284,7 +284,7 @@ function upsertReport(report: Report): void {
 }
 
 function resolveTargetLPIds(selectedLPIds?: string[]): string[] {
-  const snapshot = getCachedOrMockSnapshot();
+  const snapshot = getCachedSnapshot();
   const availableIds = new Set(snapshot.lps.map((lp) => lp.id));
 
   if (!selectedLPIds || selectedLPIds.length === 0) {
@@ -297,13 +297,13 @@ function resolveTargetLPIds(selectedLPIds?: string[]): string[] {
 export async function getLPManagementSnapshot(): Promise<LPManagementSnapshot> {
   if (isMockMode('lpPortal')) {
     if (!apiLPManagementSnapshotCache) {
-      setCachedSnapshot(getBaseMockSnapshot());
+      setCachedSnapshot(getSeedSnapshot());
     }
-    return getCachedOrMockSnapshot();
+    return getCachedSnapshot();
   }
 
   try {
-    const previous = getCachedOrMockSnapshot();
+    const previous = getCachedSnapshot();
     const [lps, capitalCalls, distributions] = await Promise.all([
       fetchLPsFromApi(),
       fetchCapitalCallsFromApi(),
@@ -320,24 +320,24 @@ export async function getLPManagementSnapshot(): Promise<LPManagementSnapshot> {
     setCachedSnapshot(snapshot);
     return clone(snapshot);
   } catch {
-    return getCachedOrMockSnapshot();
+    return getCachedSnapshot();
   }
 }
 
 export function getLPs(): LP[] {
-  return getCachedOrMockSnapshot().lps;
+  return getCachedSnapshot().lps;
 }
 
 export function getLPReports(): Report[] {
-  return getCachedOrMockSnapshot().reports;
+  return getCachedSnapshot().reports;
 }
 
 export function getLPCapitalCalls(): CapitalCall[] {
-  return getCachedOrMockSnapshot().capitalCalls;
+  return getCachedSnapshot().capitalCalls;
 }
 
 export function getLPDistributions(): Distribution[] {
-  return getCachedOrMockSnapshot().distributions;
+  return getCachedSnapshot().distributions;
 }
 
 export async function sendReportToLPs(selectedLPIds?: string[]): Promise<BulkSendResult> {

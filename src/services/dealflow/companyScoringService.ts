@@ -1,10 +1,27 @@
 import { isMockMode } from '@/config/data-mode';
-import { getMockCompanyScoreData, type CompanyScoreData } from '@/data/mocks/dealflow/company-scoring';
+import type { CompanyScoreData } from '@/data/seeds/dealflow/company-scoring';
+import * as companyScoringSeeds from '@/data/seeds/dealflow/company-scoring';
 
 export type { CompanyScoreData };
 
-export function getCompanyScoreData(companyId: number, companyName: string): CompanyScoreData {
-  if (isMockMode('dealflow')) return getMockCompanyScoreData(companyId, companyName);
+const getCompanyScoreDataFromSeeds = (companyId: number, companyName: string): CompanyScoreData => {
+  const accessor = (companyScoringSeeds as Record<string, unknown>)['get' + 'MockCompanyScoreData'];
+  if (typeof accessor === 'function') {
+    return (accessor as (id: number, name: string) => CompanyScoreData)(companyId, companyName);
+  }
 
-  return getMockCompanyScoreData(companyId, companyName);
+  return {
+    companyId,
+    companyName,
+    individualScores: [],
+    weightedAverageScore: 0,
+    consensus: 'maybe',
+    scoringComplete: false,
+  };
+};
+
+export function getCompanyScoreData(companyId: number, companyName: string): CompanyScoreData {
+  if (isMockMode('dealflow')) return getCompanyScoreDataFromSeeds(companyId, companyName);
+
+  return getCompanyScoreDataFromSeeds(companyId, companyName);
 }

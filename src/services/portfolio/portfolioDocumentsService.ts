@@ -6,7 +6,7 @@ import {
   type PortfolioDocument,
   type PortfolioDocumentCategory,
   type PortfolioDocumentCompany,
-} from '@/data/mocks/portfolio/documents';
+} from '@/data/seeds/portfolio/documents';
 import { fetchPortfolioSnapshot } from '@/services/portfolio/portfolioDataService';
 import { requestJson } from '@/services/shared/httpClient';
 
@@ -14,7 +14,7 @@ export type {
   PortfolioDocument,
   PortfolioDocumentCategory,
   PortfolioDocumentCompany,
-} from '@/data/mocks/portfolio/documents';
+} from '@/data/seeds/portfolio/documents';
 
 type ApiDocument = {
   id: string;
@@ -363,7 +363,7 @@ async function fetchApiDocuments(fundId: string): Promise<ApiDocument[]> {
   return response.documents ?? [];
 }
 
-function getMockPortfolioDocumentsSnapshot(): PortfolioDocumentsSnapshot {
+function buildSeedPortfolioDocumentsSnapshot(): PortfolioDocumentsSnapshot {
   return {
     companies: clone(portfolioDocumentCompanies),
     documents: clone(portfolioDocuments),
@@ -375,14 +375,14 @@ export async function fetchPortfolioDocumentsSnapshot(
   fundId?: string | null
 ): Promise<PortfolioDocumentsSnapshot> {
   if (shouldUseMockMode()) {
-    const snapshot = getMockPortfolioDocumentsSnapshot();
+    const snapshot = buildSeedPortfolioDocumentsSnapshot();
     apiPortfolioDocumentsSnapshotCache = snapshot;
     return clone(snapshot);
   }
 
   const normalizedFundId = fundId?.trim();
   if (!normalizedFundId) {
-    const fallback = apiPortfolioDocumentsSnapshotCache ?? getMockPortfolioDocumentsSnapshot();
+    const fallback = apiPortfolioDocumentsSnapshotCache ?? buildSeedPortfolioDocumentsSnapshot();
     return clone(fallback);
   }
 
@@ -393,7 +393,7 @@ export async function fetchPortfolioDocumentsSnapshot(
     ]);
 
     if (apiDocuments.length === 0) {
-      const fallback = apiPortfolioDocumentsSnapshotCache ?? getMockPortfolioDocumentsSnapshot();
+      const fallback = apiPortfolioDocumentsSnapshotCache ?? buildSeedPortfolioDocumentsSnapshot();
       return clone(fallback);
     }
 
@@ -409,14 +409,14 @@ export async function fetchPortfolioDocumentsSnapshot(
     apiPortfolioDocumentsSnapshotCache = snapshot;
     return clone(snapshot);
   } catch {
-    const fallback = apiPortfolioDocumentsSnapshotCache ?? getMockPortfolioDocumentsSnapshot();
+    const fallback = apiPortfolioDocumentsSnapshotCache ?? buildSeedPortfolioDocumentsSnapshot();
     return clone(fallback);
   }
 }
 
 export function getPortfolioDocumentsSnapshot(): PortfolioDocumentsSnapshot {
-  if (shouldUseMockMode()) return getMockPortfolioDocumentsSnapshot();
-  return clone(apiPortfolioDocumentsSnapshotCache ?? getMockPortfolioDocumentsSnapshot());
+  if (shouldUseMockMode()) return buildSeedPortfolioDocumentsSnapshot();
+  return clone(apiPortfolioDocumentsSnapshotCache ?? buildSeedPortfolioDocumentsSnapshot());
 }
 
 export function clearPortfolioDocumentsSnapshotCache(): void {

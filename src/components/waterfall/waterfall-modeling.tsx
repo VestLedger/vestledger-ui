@@ -66,7 +66,7 @@ import {
   WATERFALL_QUICK_SCENARIO_VALUES,
   WATERFALL_STARTER_SCENARIO_DEFAULTS,
 } from '@/config/calculation-defaults';
-import { mockInvestorClasses, mockWaterfallTemplates } from '@/data/mocks/analytics/waterfall';
+import { mockInvestorClasses, mockWaterfallTemplates } from '@/data/seeds/analytics/waterfall';
 import { ROUTE_PATHS } from '@/config/routes';
 
 const chartOptions = [

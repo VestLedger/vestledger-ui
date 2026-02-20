@@ -22,7 +22,7 @@ import {
   type LPNotificationPreferences,
   type LPEmailPreview,
   type LPFAQItem,
-} from '@/data/mocks/lp-portal/lp-investor-portal';
+} from '@/data/seeds/lp-portal/lp-investor-portal';
 import { requestJson } from '@/services/shared/httpClient';
 
 export interface LPInvestorSnapshot {
@@ -46,7 +46,7 @@ const clone = <T>(value: T): T => structuredClone(value);
 
 let apiInvestorSnapshotCache: LPInvestorSnapshot | null = null;
 
-function getBaseMockSnapshot(): LPInvestorSnapshot {
+function getSeedSnapshot(): LPInvestorSnapshot {
   return {
     investor: clone(mockInvestorData),
     reports: clone(mockReports),
@@ -119,20 +119,20 @@ function normalizeSnapshot(
   };
 }
 
-function getCachedOrMockSnapshot(): LPInvestorSnapshot {
-  return clone(apiInvestorSnapshotCache ?? getBaseMockSnapshot());
+function getCachedSnapshot(): LPInvestorSnapshot {
+  return clone(apiInvestorSnapshotCache ?? getSeedSnapshot());
 }
 
 export async function getInvestorSnapshot(): Promise<LPInvestorSnapshot> {
   if (isMockMode('lpPortal')) {
     if (!apiInvestorSnapshotCache) {
-      apiInvestorSnapshotCache = getBaseMockSnapshot();
+      apiInvestorSnapshotCache = getSeedSnapshot();
     }
-    return getCachedOrMockSnapshot();
+    return getCachedSnapshot();
   }
 
   try {
-    const fallback = getCachedOrMockSnapshot();
+    const fallback = getCachedSnapshot();
     const response = await requestJson<ApiInvestorSnapshotResponse>('/lp-portal/investor-snapshot', {
       method: 'GET',
       fallbackMessage: 'Failed to fetch LP investor portal snapshot',
@@ -147,6 +147,6 @@ export async function getInvestorSnapshot(): Promise<LPInvestorSnapshot> {
     apiInvestorSnapshotCache = clone(resolved);
     return clone(resolved);
   } catch {
-    return getCachedOrMockSnapshot();
+    return getCachedSnapshot();
   }
 }

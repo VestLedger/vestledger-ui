@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Badge, Button, Card } from "@/ui";
 import { ListItemCard, SectionHeader, StatusBadge } from '@/ui/composites';
 import { EmptyState } from '@/ui/async-states';
-import type { LPUpcomingDistribution } from "@/data/mocks/lp-portal/lp-investor-portal";
+import type { LPUpcomingDistribution } from "@/data/seeds/lp-portal/lp-investor-portal";
 import { buildMonthDays } from "@/utils/calendar";
 import { formatCurrency, formatDate } from "@/utils/formatting";
 import { ROUTE_PATHS } from "@/config/routes";

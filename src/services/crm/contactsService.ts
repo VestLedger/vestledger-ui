@@ -8,7 +8,7 @@ import {
   mockTimelineInteractions,
   type Contact,
   type Interaction,
-} from '@/data/mocks/crm/contacts';
+} from '@/data/seeds/crm/contacts';
 import { requestJson } from '@/services/shared/httpClient';
 import type { GetCRMDataParams } from '@/store/slices/crmSlice';
 
@@ -240,7 +240,7 @@ function mapApiTimelineInteraction(
   };
 }
 
-function getBaseMockSnapshot(): CRMSnapshot {
+function buildSeedSnapshot(): CRMSnapshot {
   return {
     contacts: clone(mockContacts),
     emailAccounts: clone(mockEmailAccounts),
@@ -264,24 +264,24 @@ function applyContactFilters(contacts: Contact[], params: GetCRMDataParams): Con
   });
 }
 
-function getMockSnapshot(params: GetCRMDataParams): CRMSnapshot {
-  const snapshot = getBaseMockSnapshot();
+function buildSeedSnapshotForParams(params: GetCRMDataParams): CRMSnapshot {
+  const snapshot = buildSeedSnapshot();
   snapshot.contacts = applyContactFilters(snapshot.contacts, params);
 
   return snapshot;
 }
 
-function getCachedOrMockSnapshot(params: GetCRMDataParams): CRMSnapshot {
+function getCachedSnapshot(params: GetCRMDataParams): CRMSnapshot {
   const snapshot = crmSnapshotCache
     ? clone(crmSnapshotCache)
-    : getMockSnapshot(params);
+    : buildSeedSnapshotForParams(params);
 
   snapshot.contacts = applyContactFilters(snapshot.contacts, params);
   return snapshot;
 }
 
 function updateCachedSnapshot(updater: (snapshot: CRMSnapshot) => CRMSnapshot): void {
-  const snapshot = getCachedOrMockSnapshot({});
+  const snapshot = getCachedSnapshot({});
   crmSnapshotCache = updater(snapshot);
 }
 
@@ -390,19 +390,19 @@ async function updateEmailIntegrationStatus(status: string): Promise<void> {
 export async function getCRMContacts(params: GetCRMDataParams): Promise<Contact[]> {
   if (isMockMode('crm')) {
     if (!crmSnapshotCache) {
-      crmSnapshotCache = getBaseMockSnapshot();
+      crmSnapshotCache = buildSeedSnapshot();
     }
-    return clone(getCachedOrMockSnapshot(params).contacts);
+    return clone(getCachedSnapshot(params).contacts);
   }
 
   try {
     const contacts = await fetchApiContacts(params);
-    const snapshot = getCachedOrMockSnapshot(params);
+    const snapshot = getCachedSnapshot(params);
     snapshot.contacts = contacts;
     crmSnapshotCache = snapshot;
     return clone(contacts);
   } catch {
-    return clone(getCachedOrMockSnapshot(params).contacts);
+    return clone(getCachedSnapshot(params).contacts);
   }
 }
 
@@ -411,21 +411,21 @@ export async function getCRMEmailAccounts(
 ): Promise<EmailAccount[]> {
   if (isMockMode('crm')) {
     if (!crmSnapshotCache) {
-      crmSnapshotCache = getBaseMockSnapshot();
+      crmSnapshotCache = buildSeedSnapshot();
     }
-    return clone(getCachedOrMockSnapshot(params).emailAccounts);
+    return clone(getCachedSnapshot(params).emailAccounts);
   }
 
   try {
     const emailAccounts = await fetchApiEmailAccounts();
-    const snapshot = getCachedOrMockSnapshot(params);
+    const snapshot = getCachedSnapshot(params);
     snapshot.emailAccounts = emailAccounts.length > 0
       ? emailAccounts
       : clone(mockEmailAccounts);
     crmSnapshotCache = snapshot;
     return clone(snapshot.emailAccounts);
   } catch {
-    return clone(getCachedOrMockSnapshot(params).emailAccounts);
+    return clone(getCachedSnapshot(params).emailAccounts);
   }
 }
 
@@ -434,21 +434,21 @@ export async function getCRMInteractions(
 ): Promise<Interaction[]> {
   if (isMockMode('crm')) {
     if (!crmSnapshotCache) {
-      crmSnapshotCache = getBaseMockSnapshot();
+      crmSnapshotCache = buildSeedSnapshot();
     }
-    return clone(getCachedOrMockSnapshot(params).interactions);
+    return clone(getCachedSnapshot(params).interactions);
   }
 
   try {
     const contacts = await fetchApiContacts(params);
     const interactions = await fetchApiInteractionsForContacts(contacts, false) as Interaction[];
-    const snapshot = getCachedOrMockSnapshot(params);
+    const snapshot = getCachedSnapshot(params);
     snapshot.contacts = contacts;
     snapshot.interactions = interactions;
     crmSnapshotCache = snapshot;
     return clone(interactions);
   } catch {
-    return clone(getCachedOrMockSnapshot(params).interactions);
+    return clone(getCachedSnapshot(params).interactions);
   }
 }
 
@@ -457,21 +457,21 @@ export async function getCRMTimelineInteractions(
 ): Promise<TimelineInteraction[]> {
   if (isMockMode('crm')) {
     if (!crmSnapshotCache) {
-      crmSnapshotCache = getBaseMockSnapshot();
+      crmSnapshotCache = buildSeedSnapshot();
     }
-    return clone(getCachedOrMockSnapshot(params).timelineInteractions);
+    return clone(getCachedSnapshot(params).timelineInteractions);
   }
 
   try {
     const contacts = await fetchApiContacts(params);
     const timelineInteractions = await fetchApiInteractionsForContacts(contacts, true) as TimelineInteraction[];
-    const snapshot = getCachedOrMockSnapshot(params);
+    const snapshot = getCachedSnapshot(params);
     snapshot.contacts = contacts;
     snapshot.timelineInteractions = timelineInteractions;
     crmSnapshotCache = snapshot;
     return clone(timelineInteractions);
   } catch {
-    return clone(getCachedOrMockSnapshot(params).timelineInteractions);
+    return clone(getCachedSnapshot(params).timelineInteractions);
   }
 }
 

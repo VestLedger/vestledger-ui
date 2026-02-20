@@ -1,10 +1,10 @@
 import { isMockMode } from '@/config/data-mode';
 import {
-  mockExportJobs,
-  reportTemplates,
+  mockExportJobs as seedExportJobs,
+  reportTemplates as seedReportTemplates,
   type ExportJob,
   type ReportTemplate,
-} from '@/data/mocks/reports/report-export';
+} from '@/data/seeds/reports/report-export';
 import { requestJson } from '@/services/shared/httpClient';
 import { logger } from '@/lib/logger';
 
@@ -13,27 +13,17 @@ export type { ExportJob, ReportTemplate };
 const clone = <T>(value: T): T => structuredClone(value);
 
 export async function getReportTemplates(): Promise<ReportTemplate[]> {
-  if (isMockMode('reports')) return clone(reportTemplates);
-  try {
-    const data = await requestJson<ReportTemplate[]>('/reports/templates', {
-      fallbackMessage: 'Failed to load report templates',
-    });
-    return data ?? clone(reportTemplates);
-  } catch {
-    return clone(reportTemplates);
-  }
+  if (isMockMode('reports')) return clone(seedReportTemplates);
+  return requestJson<ReportTemplate[]>('/reports/templates', {
+    fallbackMessage: 'Failed to load report templates',
+  });
 }
 
 export async function getInitialExportJobs(): Promise<ExportJob[]> {
-  if (isMockMode('reports')) return clone(mockExportJobs);
-  try {
-    const data = await requestJson<ExportJob[]>('/reports/export-jobs', {
-      fallbackMessage: 'Failed to load export jobs',
-    });
-    return data ?? clone(mockExportJobs);
-  } catch {
-    return clone(mockExportJobs);
-  }
+  if (isMockMode('reports')) return clone(seedExportJobs);
+  return requestJson<ExportJob[]>('/reports/export-jobs', {
+    fallbackMessage: 'Failed to load export jobs',
+  });
 }
 
 export async function createExportJob(templateId: string, format: string): Promise<ExportJob> {
@@ -41,7 +31,7 @@ export async function createExportJob(templateId: string, format: string): Promi
     return {
       id: `mock-${Date.now()}`,
       templateId,
-      reportName: reportTemplates.find((t) => t.id === templateId)?.name ?? 'Report',
+      reportName: seedReportTemplates.find((t) => t.id === templateId)?.name ?? 'Report',
       format,
       status: 'queued',
       progress: 0,
@@ -57,30 +47,21 @@ export async function createExportJob(templateId: string, format: string): Promi
     });
 
     if (!data) {
-      logger.warn('Empty create export job payload from API; using fallback', {
+      logger.warn('Empty create export job payload from API', {
         component: 'reportExportService',
         templateId,
         format,
       });
-    } else {
-      return data;
+      throw new Error('Empty create export job payload from API');
     }
+    return data;
   } catch (error) {
-    logger.warn('Falling back to local export job after API error', {
+    logger.warn('Create export job failed', {
       component: 'reportExportService',
       templateId,
       format,
       error,
     });
+    throw error;
   }
-
-  return {
-    id: `fallback-${Date.now()}`,
-    templateId,
-    reportName: reportTemplates.find((t) => t.id === templateId)?.name ?? 'Report',
-    format,
-    status: 'queued',
-    progress: 0,
-    createdAt: new Date().toISOString(),
-  } as ExportJob;
 }

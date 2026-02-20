@@ -1,5 +1,5 @@
 import { isMockMode } from '@/config/data-mode';
-import { mockAuditEvents, type AuditEvent } from '@/data/mocks/blockchain/audit-trail';
+import { mockAuditEvents, type AuditEvent } from '@/data/seeds/blockchain/audit-trail';
 import { requestJson } from '@/services/shared/httpClient';
 
 export type { AuditEvent };

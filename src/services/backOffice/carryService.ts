@@ -1,5 +1,5 @@
 import { isMockMode } from '@/config/data-mode';
-import { mockCarriedInterestTerms, mockCarryAccruals } from '@/data/mocks/back-office/fund-admin-ops';
+import { mockCarriedInterestTerms, mockCarryAccruals } from '@/data/seeds/back-office/fund-admin-ops';
 import { logger } from '@/lib/logger';
 import { requestJson } from '@/services/shared/httpClient';
 import type { CarryAccrual, CarriedInterestTerm } from '@/types/fundAdminOps';

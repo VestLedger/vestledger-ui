@@ -3,7 +3,7 @@ import {
   researcherDashboardMetrics,
   researcherRecentReports,
   researcherTrendingTopics,
-} from '@/data/mocks/dashboards/researcher-dashboard';
+} from '@/data/seeds/dashboards/researcher-dashboard';
 import { apiClient } from '@/api/client';
 import { unwrapApiResult } from '@/api/unwrap';
 
