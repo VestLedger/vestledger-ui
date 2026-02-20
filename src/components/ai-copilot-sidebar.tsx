@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Lightbulb, Zap, Bot, ChevronRight, ChevronDown, Send } from 'lucide-react';
+import { Lightbulb, Zap, Bot, ChevronRight, ChevronDown, Send, type LucideIcon } from 'lucide-react';
 import { Button, Input } from '@/ui';
 import { AICopilotBubble } from './ai-copilot-bubble';
 import { useNavigation } from '@/contexts/navigation-context';
@@ -29,6 +29,41 @@ type UITabState = {
   viewMode?: string;
   selectedDetailTab?: string;
 };
+
+function resolveQuickActionLabel(action: QuickAction & { title?: unknown }, index: number): string {
+  if (typeof action.label === 'string' && action.label.trim().length > 0) {
+    return action.label;
+  }
+
+  if (typeof action.title === 'string' && action.title.trim().length > 0) {
+    return action.title;
+  }
+
+  if (typeof action.action === 'string' && action.action.trim().length > 0) {
+    return action.action;
+  }
+
+  return `Action ${index + 1}`;
+}
+
+function resolveQuickActionIcon(icon: unknown): LucideIcon {
+  if (typeof icon === 'function') {
+    return icon as LucideIcon;
+  }
+
+  if (icon && typeof icon === 'object') {
+    const candidate = icon as { $$typeof?: unknown; render?: unknown; type?: unknown };
+    if (
+      '$$typeof' in candidate
+      || typeof candidate.render === 'function'
+      || typeof candidate.type === 'function'
+    ) {
+      return icon as LucideIcon;
+    }
+  }
+
+  return Zap;
+}
 
 export function useAICopilot() {
   const dispatch = useAppDispatch();
@@ -74,6 +109,17 @@ export function AICopilotSidebar() {
     const fallback = suggestionsData?.quickActions || [];
     return quickActionsOverride && quickActionsOverride.length > 0 ? quickActionsOverride : fallback;
   }, [suggestionsData, quickActionsOverride]);
+
+  const normalizedQuickActions = useMemo(() => {
+    return quickActions.map((rawAction, index) => {
+      const action = rawAction as QuickAction & { title?: unknown; icon?: unknown };
+      return {
+        ...action,
+        label: resolveQuickActionLabel(action, index),
+        icon: resolveQuickActionIcon(action.icon),
+      };
+    });
+  }, [quickActions]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -234,12 +280,12 @@ export function AICopilotSidebar() {
           <span className="text-xs font-semibold text-[var(--app-text-muted)]">QUICK ACTIONS</span>
         </div>
         <div className="flex flex-wrap gap-2">
-          {quickActions.map((action) => (
+          {normalizedQuickActions.map((action) => (
             <Button
               key={action.id}
               size="sm"
               variant="flat"
-              onClick={() => handleQuickAction(action)}
+              onPress={() => handleQuickAction(action)}
               title={action.description || action.action}
               className={`text-xs ${action.aiSuggested ? 'bg-[var(--app-primary-bg)]' : ''}`}
             >

@@ -60,13 +60,30 @@ const DEFAULT_STAGES = [
   'Closed',
 ];
 
+function normalizeOptionalNumber(value: unknown): number | undefined {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (trimmed.length === 0) {
+      return undefined;
+    }
+    const parsed = Number(trimmed);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+
+  return undefined;
+}
+
 function toQuery(params: GetPipelineParams): ApiQueryParams {
   return {
     stage: params.stageFilter,
     fundId: params.fundId,
     search: params.search,
-    limit: params.limit,
-    offset: params.offset,
+    limit: normalizeOptionalNumber(params.limit),
+    offset: normalizeOptionalNumber(params.offset),
     sortBy: params.sortBy,
     sortOrder: params.sortOrder,
   };
