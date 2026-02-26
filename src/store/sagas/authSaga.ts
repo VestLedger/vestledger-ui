@@ -13,11 +13,17 @@ import { clientMounted } from '@/store/slices/uiEffectsSlice';
 import { safeLocalStorage } from '@/lib/storage/safeLocalStorage';
 import { normalizeError } from '@/store/utils/normalizeError';
 import { logger } from '@/lib/logger';
-import { DATA_MODE_OVERRIDE_KEY, type DataMode } from '@/config/data-mode';
+import {
+  DATA_MODE_OVERRIDE_KEY,
+  parseDataMode,
+  type DataMode,
+} from "@/config/data-mode";
 import {
   AUTH_COOKIE_MAX_AGE_SECONDS,
   AUTH_HYDRATION_TIMEOUT_MS,
-} from '@/config/auth';
+  MOCK_DEMO_PROFILE,
+  MOCK_SUPERADMIN_PROFILE,
+} from "@/config/auth";
 
 const STORAGE_AUTH_KEY = 'isAuthenticated';
 const STORAGE_USER_KEY = 'user';
@@ -63,6 +69,43 @@ function normalizeUser(user: Partial<User> & Pick<User, 'email' | 'name' | 'role
   };
 }
 
+function isKnownMockUser(user: User): boolean {
+  const demoEmail = process.env.NEXT_PUBLIC_DEMO_EMAIL?.trim().toLowerCase();
+  const superadminEmail =
+    process.env.NEXT_PUBLIC_SUPERADMIN_EMAIL?.trim().toLowerCase();
+  const normalizedUserEmail = user.email.trim().toLowerCase();
+
+  if (demoEmail && normalizedUserEmail === demoEmail) return true;
+  if (superadminEmail && normalizedUserEmail === superadminEmail) return true;
+  if (
+    user.id &&
+    (user.id === MOCK_DEMO_PROFILE.id || user.id === MOCK_SUPERADMIN_PROFILE.id)
+  )
+    return true;
+  if (user.tenantId && user.tenantId === MOCK_DEMO_PROFILE.tenantId)
+    return true;
+
+  return false;
+}
+
+function resolveHydratedDataMode(
+  storageModeRaw: string | null,
+  cookieModeRaw: string | null,
+  user: User,
+): DataMode | null {
+  const storageMode = parseDataMode(storageModeRaw);
+  if (storageMode) return storageMode;
+
+  const cookieMode = parseDataMode(cookieModeRaw);
+  if (cookieMode) return cookieMode;
+
+  if (isKnownMockUser(user)) {
+    return "mock";
+  }
+
+  return null;
+}
+
 function getAuthCookieDomain(hostname?: string | null) {
   if (!hostname) return null;
   if (hostname === 'localhost' || hostname.endsWith('.localhost')) return null;
@@ -105,19 +148,27 @@ function clearDataModeCookie() {
 function* hydrateAuthWorker() {
   const savedToken = safeLocalStorage.getItem(STORAGE_TOKEN_KEY);
   const savedDataMode = safeLocalStorage.getItem(DATA_MODE_OVERRIDE_KEY);
+  const cookieDataMode = getCookieValue(DATA_MODE_OVERRIDE_KEY);
   const cookieAuth = getCookieValue('isAuthenticated');
   const cookieUser = parseCookieUser();
 
   const hasValidCookieSession = cookieAuth === 'true' && isValidPersistedUser(cookieUser);
   if (hasValidCookieSession) {
     const normalizedUser = normalizeUser(cookieUser);
+    const hydratedMode = resolveHydratedDataMode(
+      savedDataMode,
+      cookieDataMode,
+      normalizedUser,
+    );
 
     // Keep local storage aligned with the shared cross-subdomain cookie session.
     safeLocalStorage.setItem(STORAGE_AUTH_KEY, 'true');
     safeLocalStorage.setJSON(STORAGE_USER_KEY, normalizedUser);
-    if (savedDataMode === 'mock' || savedDataMode === 'api') {
-      setDataModeCookie(savedDataMode);
+    if (hydratedMode) {
+      safeLocalStorage.setItem(DATA_MODE_OVERRIDE_KEY, hydratedMode);
+      setDataModeCookie(hydratedMode);
     } else {
+      safeLocalStorage.removeItem(DATA_MODE_OVERRIDE_KEY);
       clearDataModeCookie();
     }
 
