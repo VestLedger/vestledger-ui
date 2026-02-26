@@ -494,6 +494,16 @@ export const routes: Record<string, RouteConfig> = {
     },
     description: 'Manage your account settings and preferences',
   },
+
+  vesta: {
+    path: '/vesta',
+    label: 'Vesta',
+    icon: Sparkles,
+    breadcrumbs: [
+      { label: 'Vesta' },
+    ],
+    description: 'Conversation-first Vesta experience',
+  },
 };
 
 export const ROUTE_PATHS = Object.freeze(

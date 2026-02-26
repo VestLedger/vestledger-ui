@@ -150,6 +150,13 @@ function isAdminRoute(pathname: string): boolean {
   return pathname.startsWith(ADMIN_DEFAULT_PATH);
 }
 
+function isPhoneUserAgent(userAgent: string): boolean {
+  const ua = userAgent.toLowerCase();
+  const isTablet = /ipad|tablet|playbook|silk/.test(ua);
+  if (isTablet) return false;
+  return /iphone|ipod|android.*mobile|windows phone|blackberry|opera mini|mobile/.test(ua);
+}
+
 function isStaticOrBypassed(pathname: string): boolean {
   const staticExtensionRegex = new RegExp(
     `\\.(${STATIC_BYPASS_EXTENSIONS.join('|')})$`
@@ -230,11 +237,26 @@ export function middleware(request: NextRequest) {
   const currentUser = parseUserCookie(request);
   const hasValidUserIdentity = Boolean(currentUser?.email && currentUser?.role);
   const isAuthenticated = request.cookies.get('isAuthenticated')?.value === 'true' && hasValidUserIdentity;
+  const isPhone = isPhoneUserAgent(request.headers.get('user-agent') || '');
   const isLoginRoute = normalizedPathname === ACCESS_ROUTE_PATHS.login;
+  const isVestaRoute = normalizedPathname === ACCESS_ROUTE_PATHS.vesta;
   const matchesPublicRoute = isPublicRoute(normalizedPathname);
   const matchesDashboardRoute = isDashboardRoute(normalizedPathname);
   const matchesAdminRoute = isAdminRoute(normalizedPathname);
-  const matchesProtectedRoute = matchesDashboardRoute || matchesAdminRoute;
+  const matchesProtectedRoute = matchesDashboardRoute || matchesAdminRoute || isVestaRoute;
+
+  if (isPhone && matchesProtectedRoute) {
+    if (!isAuthenticated) {
+      return redirectToLoginForHost(url, appHost, ACCESS_ROUTE_PATHS.vesta);
+    }
+
+    const isOnAppHost = hostType === 'app' || (hostType === 'localhost' && rawHost === appHost);
+    if (!isOnAppHost || !isVestaRoute) {
+      return redirectToHost(url, appHost, ACCESS_ROUTE_PATHS.vesta);
+    }
+
+    return nextWithDataMode(request);
+  }
 
   if (hostType === 'localhost') {
     if (!isAuthenticated && matchesProtectedRoute) {

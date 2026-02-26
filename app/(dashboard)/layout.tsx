@@ -18,6 +18,7 @@ import { useUIKey } from '@/store/ui'
 import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys'
 import { DashboardDensityProvider } from '@/contexts/dashboard-density-context'
 import { DASHBOARD_DENSITY, resolveDashboardDensityMode } from '@/config/dashboard-density'
+import { ROUTE_PATHS } from '@/config/routes'
 import { buildAdminSuperadminUrl, buildAppLoginUrl } from '@/config/env'
 import { resolveUserDomainTarget } from '@/utils/auth/internal-access'
 import {
@@ -36,16 +37,30 @@ const AICopilotSidebar = dynamic(
   }
 )
 
-function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
+function DashboardLayoutInner({
+  children,
+  isVestaRoute,
+}: {
+  children: React.ReactNode;
+  isVestaRoute: boolean;
+}) {
   const { sidebarState, toggleLeftSidebar, toggleRightSidebar } = useNavigation()
   const { value: dashboardDensityUI } = useUIKey(
     UI_STATE_KEYS.DASHBOARD_DENSITY,
     UI_STATE_DEFAULTS.dashboardDensity
   )
+  const { value: vestaShellUI } = useUIKey(
+    UI_STATE_KEYS.VESTA_SHELL,
+    UI_STATE_DEFAULTS.vestaShell
+  )
   const [copilotReady, setCopilotReady] = useState(false)
   const [enableSidebarMotion, setEnableSidebarMotion] = useState(false)
   const densityMode = resolveDashboardDensityMode(dashboardDensityUI.mode)
   const density = DASHBOARD_DENSITY[densityMode]
+  const isVestaFullscreen =
+    !isVestaRoute
+    && vestaShellUI.vestaViewMode === 'fullscreen'
+    && !sidebarState.rightCollapsed
 
   // Keyboard shortcuts
   // Cmd+B for left sidebar
@@ -73,9 +88,23 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
 
   const shouldRenderCopilot = sidebarState.rightCollapsed || copilotReady
 
+  if (isVestaRoute) {
+    return (
+      <DashboardDensityProvider mode={densityMode}>
+        <div
+          className="h-screen bg-[var(--app-bg)] text-[var(--app-text)]"
+          data-dashboard-density={densityMode}
+        >
+          <AICopilotSidebar mode="standalone" />
+          <CommandPalette />
+        </div>
+      </DashboardDensityProvider>
+    )
+  }
+
   return (
     <DashboardDensityProvider mode={densityMode}>
-      <div className="flex h-screen bg-[var(--app-bg)] text-[var(--app-text)]" data-dashboard-density={densityMode}>
+      <div className="relative flex h-screen bg-[var(--app-bg)] text-[var(--app-text)]" data-dashboard-density={densityMode}>
         <SidebarGrouped />
         <div className="flex-1 flex flex-col overflow-hidden">
           <Topbar />
@@ -87,18 +116,32 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
         <motion.div
           initial={false}
           animate={{
-            width: sidebarState.rightCollapsed ? '0px' : `${density.shell.rightSidebarWidthPx}px`,
+            width:
+              isVestaFullscreen || sidebarState.rightCollapsed
+                ? '0px'
+                : `${density.shell.rightSidebarWidthPx}px`,
           }}
           transition={enableSidebarMotion ? { duration: 0.2, ease: 'easeInOut' } : { duration: 0 }}
           className="border-l border-[var(--app-border)] bg-[var(--app-surface)] flex flex-col overflow-hidden"
           style={{ willChange: 'width' }}
         >
           {shouldRenderCopilot ? (
-            <AICopilotSidebar />
+            <AICopilotSidebar mode="panel" />
           ) : (
             <div className="flex-1" aria-hidden="true" />
           )}
         </motion.div>
+        {isVestaFullscreen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, ease: 'easeInOut' }}
+            className="absolute inset-0 z-40 border-l border-[var(--app-border)] bg-[var(--app-surface)]"
+          >
+            <AICopilotSidebar mode="fullscreen" />
+          </motion.div>
+        )}
         <CommandPalette />
       </div>
     </DashboardDensityProvider>
@@ -108,6 +151,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
 function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const [isRedirecting, setIsRedirecting] = useState(false)
+  const isVestaRoute = pathname === ROUTE_PATHS.vesta
 
   // Login page is in the (dashboard) route group but should NOT be protected
   const isLoginPage = pathname === '/login'
@@ -185,7 +229,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
   return (
     <NavigationProvider>
-      <DashboardLayoutInner>{resolvedChildren}</DashboardLayoutInner>
+      <DashboardLayoutInner isVestaRoute={isVestaRoute}>{resolvedChildren}</DashboardLayoutInner>
     </NavigationProvider>
   )
 }

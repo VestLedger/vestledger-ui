@@ -48,6 +48,10 @@ export const getMockCopilotContextualResponse = (pathname: string, query: string
     return "I'm currently viewing your pipeline. I can help you filter deals, predict close likelihood, or detect competitive conflicts. What would you like to explore?";
   }
 
+  if (pathname === '/vesta') {
+    return "Here is your mobile brief: 3 items need attention today. 1 distribution approval is pending, 2 LP reminders are overdue, and 1 compliance deadline is due in 5 days. I can walk you through each item and queue follow-ups with one confirmation.";
+  }
+
   if (pathname.startsWith('/fund-admin')) {
     return "I'm in Fund Admin mode. I can help you draft capital calls, track LP responses, or forecast collection timelines. What task can I assist with?";
   }
@@ -73,6 +77,20 @@ export const getMockCopilotPageSuggestions = (pathname: string, tab?: string | n
         text: 'Follow up on overdue capital calls',
         reasoning: '3 capital calls overdue by 5+ days',
         confidence: 0.88,
+      },
+    ],
+    '/vesta': [
+      {
+        id: 'vesta-morning-brief',
+        text: 'What needs my attention today?',
+        reasoning: 'Prioritized brief of approvals, risks, and deadlines',
+        confidence: 0.95,
+      },
+      {
+        id: 'vesta-overdue-items',
+        text: 'Show overdue LP and compliance items',
+        reasoning: '2 LP reminders and 1 compliance filing need action',
+        confidence: 0.91,
       },
     ],
     '/pipeline': [
@@ -1004,6 +1022,32 @@ export const getMockCopilotQuickActions = (pathname: string, tab?: string | null
         confidence: 0.86,
       },
     ],
+    '/vesta': [
+      {
+        id: 'vesta-daily-brief',
+        label: 'Daily Brief',
+        icon: Sparkles,
+        action: 'Generate attention-ranked brief',
+        aiSuggested: true,
+        confidence: 0.95,
+      },
+      {
+        id: 'vesta-pending-approvals',
+        label: 'Pending Approvals',
+        icon: Zap,
+        action: 'Show actions awaiting confirmation',
+        aiSuggested: true,
+        confidence: 0.9,
+      },
+      {
+        id: 'vesta-draft-reminders',
+        label: 'Draft Reminders',
+        icon: Lightbulb,
+        action: 'Prepare reminder messages for overdue LPs',
+        aiSuggested: false,
+        confidence: 0.84,
+      },
+    ],
     '/pipeline': [
       { id: 'analyze', label: 'Analyze Deals', icon: Sparkles, action: 'Run deal analysis' },
       { id: 'conflicts', label: 'Check Conflicts', icon: Zap, action: 'Detect conflicts' },
@@ -1270,4 +1314,3 @@ export const getMockCopilotQuickActions = (pathname: string, tab?: string | null
     { id: 'help', label: 'What can you do?', icon: Lightbulb, action: 'Show capabilities' },
   ];
 };
-

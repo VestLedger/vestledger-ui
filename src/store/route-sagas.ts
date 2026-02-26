@@ -39,6 +39,10 @@ const ROUTE_SAGAS: Array<{
 export function getSagaKeysForPath(pathname: string | null): SagaKey[] {
   if (!pathname || pathname === '/login') return [];
 
+  if (pathname === ROUTE_PATHS.vesta) {
+    return ['navigation', 'copilot', 'uiEffects'];
+  }
+
   const keys = new Set<SagaKey>(CORE_SAGAS);
   for (const entry of ROUTE_SAGAS) {
     if (entry.match(pathname)) {
