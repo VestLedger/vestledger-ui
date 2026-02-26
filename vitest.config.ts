@@ -37,11 +37,11 @@ export default defineConfig({
       all: false,
       reporter: ['text', 'json', 'html'],
       thresholds: {
-        // Start with achievable thresholds, increase over time
-        statements: 10,
-        branches: 10,
-        functions: 10,
-        lines: 10,
+        // Sprint 7 floor. Continue ratcheting toward PRD Section 6 target.
+        statements: 50,
+        branches: 50,
+        functions: 50,
+        lines: 50,
       },
     },
     setupFiles: ['./src/test/setup.ts'],

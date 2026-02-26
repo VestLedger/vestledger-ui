@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { Badge, Button, Card, Select } from "@/ui";
 import { ListItemCard, SectionHeader, StatusBadge } from '@/ui/composites';
-import type { LPDistributionElection } from "@/data/mocks/lp-portal/lp-investor-portal";
+import type { LPDistributionElection } from "@/data/seeds/lp-portal/lp-investor-portal";
 import { formatCurrency, formatDate } from "@/utils/formatting";
 import { ClipboardList } from "lucide-react";
 

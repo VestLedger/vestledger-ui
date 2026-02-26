@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo } from 'react';
-import { Card, Badge, Button, Progress } from '@/ui';
+import { Card, Badge, Button, Progress, useToast } from '@/ui';
 import {
   DollarSign,
   Briefcase,
@@ -39,6 +39,7 @@ const getStatusBadge = (status: string) => {
 };
 
 export function PortfolioDashboard() {
+  const toast = useToast();
   const portfolioCompanies = getPortfolioCompanies();
   type PortfolioCompanyRow = (typeof portfolioCompanies)[number];
   const portfolioSummary = getPortfolioSummary();
@@ -347,7 +348,9 @@ export function PortfolioDashboard() {
           stateKey="portfolio-dashboard:companies"
           data={filteredCompanies}
           columns={columns}
-          onRowClick={(company) => console.log('View company:', company.companyName)}
+          onRowClick={(company) =>
+            toast.info(`Opening company profile for ${company.companyName}.`, 'Portfolio Company')
+          }
           searchable={true}
           searchPlaceholder="Search companies..."
           searchKeys={['companyName', 'sector', 'stage']}

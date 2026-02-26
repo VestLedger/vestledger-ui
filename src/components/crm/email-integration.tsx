@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Button, Badge, Select } from '@/ui';
+import { Card, Button, Badge, Select, SafeHtml } from '@/ui';
 import { Mail, RefreshCw, X, AlertCircle, Calendar, Paperclip, ExternalLink, ChevronDown, ChevronUp, Users, Briefcase } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
 import { SearchToolbar, SectionHeader, StatusBadge } from '@/ui/composites';
@@ -440,9 +440,9 @@ export function EmailMessageDetail({
 
         {/* Body */}
         <div className="prose prose-sm max-w-none">
-          <div
+          <SafeHtml
             className="text-sm leading-relaxed whitespace-pre-wrap"
-            dangerouslySetInnerHTML={{ __html: message.body }}
+            html={message.body}
           />
         </div>
 

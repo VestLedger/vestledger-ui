@@ -34,18 +34,51 @@ const DEMO_PASSWORD = process.env.NEXT_PUBLIC_DEMO_PASSWORD;
 const SUPERADMIN_EMAIL = process.env.NEXT_PUBLIC_SUPERADMIN_EMAIL?.trim().toLowerCase();
 const SUPERADMIN_PASSWORD = process.env.NEXT_PUBLIC_SUPERADMIN_PASSWORD;
 
+function getPasswordVariants(value: string): string[] {
+  const variants: string[] = [];
+  const queue: string[] = [value.trim()];
+
+  while (queue.length > 0) {
+    const current = queue.shift();
+    if (!current || variants.includes(current)) {
+      continue;
+    }
+    variants.push(current);
+
+    // Support escaped-dollar variants from env interpolation layers.
+    if (current.includes('$$')) {
+      queue.push(current.replace(/\$\$/g, '$'));
+    }
+
+    // Support dotenv-style expansion side-effects (e.g. Pa$$w0rd -> Pa$).
+    const dotenvExpanded = current.replace(/\$[A-Za-z_][A-Za-z0-9_]*/g, '$');
+    if (dotenvExpanded !== current) {
+      queue.push(dotenvExpanded);
+    }
+  }
+
+  return variants;
+}
+
+function passwordMatches(input: string, expected: string): boolean {
+  const inputVariants = getPasswordVariants(input);
+  const expectedVariants = getPasswordVariants(expected);
+
+  return inputVariants.some((variant) => expectedVariants.includes(variant));
+}
+
 export function isDemoCredentials(email: string, password: string): boolean {
   if (!DEMO_EMAIL || !DEMO_PASSWORD) {
     return false;
   }
-  return email.trim().toLowerCase() === DEMO_EMAIL && password === DEMO_PASSWORD;
+  return email.trim().toLowerCase() === DEMO_EMAIL && passwordMatches(password, DEMO_PASSWORD);
 }
 
 export function isSuperadminCredentials(email: string, password: string): boolean {
   if (!SUPERADMIN_EMAIL || !SUPERADMIN_PASSWORD) {
     return false;
   }
-  return email.trim().toLowerCase() === SUPERADMIN_EMAIL && password === SUPERADMIN_PASSWORD;
+  return email.trim().toLowerCase() === SUPERADMIN_EMAIL && passwordMatches(password, SUPERADMIN_PASSWORD);
 }
 
 function decodeJwt(token: string): JwtPayload {

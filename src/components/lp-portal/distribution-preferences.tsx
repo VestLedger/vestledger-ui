@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Badge, Button, Card, Checkbox, Input, Switch } from "@/ui";
-import type { LPNotificationPreferences } from "@/data/mocks/lp-portal/lp-investor-portal";
+import type { LPNotificationPreferences } from "@/data/seeds/lp-portal/lp-investor-portal";
 import { SectionHeader } from "@/ui/composites";
 
 export interface DistributionPreferencesProps {

@@ -21,6 +21,7 @@ export const UI_STATE_KEYS = {
   // Component-specific UI state
   TOPBAR: 'topbar',
   DASHBOARD_DENSITY: 'dashboard-density',
+  VESTA_SHELL: 'vesta-shell',
   DEAL_INTELLIGENCE: 'deal-intelligence',
   PORTFOLIO_UPDATES: 'portfolio-updates',
   PIPELINE: 'pipeline',
@@ -40,6 +41,16 @@ export const UI_STATE_DEFAULTS = {
 
   dashboardDensity: {
     mode: 'compact' as 'compact' | 'comfortable',
+  },
+
+  vestaShell: {
+    vestaViewMode: 'sidebar' as 'collapsed' | 'sidebar' | 'fullscreen',
+    voiceCaptureMode: 'tap' as 'tap' | 'hold',
+    activeThreadContext: {
+      contextType: 'route' as 'route' | 'route-tab',
+      contextId: '/home',
+    },
+    ttsEnabled: true,
   },
 
   dealIntelligence: {

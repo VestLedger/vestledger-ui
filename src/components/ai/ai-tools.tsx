@@ -1,20 +1,28 @@
 'use client';
 
+import { useEffect } from 'react';
 import { DecisionWriter } from './decision-writer';
 import { DDChatAssistant } from './dd-chat-assistant';
 import { PitchDeckReader } from './pitch-deck-reader';
 import { PageScaffold } from '@/ui/composites';
 import { getBreadcrumbs, getAISuggestion, ROUTE_PATHS } from '@/config/routes';
+import { AI_TOOLS_TAB_IDS, DEFAULT_AI_TOOLS_TAB_ID } from '@/config/ai-tools-tabs';
 import { Sparkles } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
 
 const defaultAIToolsState = {
-  selected: 'decision-writer',
+  selected: DEFAULT_AI_TOOLS_TAB_ID,
 };
 
 export function AITools() {
   const { value: ui, patch: patchUI } = useUIKey<{ selected: string }>('ai-tools', defaultAIToolsState);
   const { selected } = ui;
+
+  useEffect(() => {
+    if (!AI_TOOLS_TAB_IDS.has(selected)) {
+      patchUI({ selected: DEFAULT_AI_TOOLS_TAB_ID });
+    }
+  }, [patchUI, selected]);
 
   // Get breadcrumbs and AI suggestions
   const breadcrumbs = getBreadcrumbs(ROUTE_PATHS.aiTools);
@@ -32,22 +40,6 @@ export function AITools() {
           text: '3 AI copilots available to streamline investment decision-making and due diligence processes',
           confidence: 0.9,
         },
-        tabs: [
-          {
-            id: 'decision-writer',
-            label: 'AI Decision Writer',
-          },
-          {
-            id: 'pitch-deck-reader',
-            label: 'AI Pitch Deck Reader',
-          },
-          {
-            id: 'dd-assistant',
-            label: 'AI Due Diligence Assistant',
-          },
-        ],
-        activeTab: selected,
-        onTabChange: (tabId) => patchUI({ selected: tabId }),
       }}
     >
 

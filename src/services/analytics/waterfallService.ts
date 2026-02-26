@@ -96,7 +96,7 @@ export async function fetchWaterfallScenarios(
   }
 
   // API mode
-  const result = await unwrapApiResult(
+  const payload = await unwrapApiResult(
     apiClient.GET('/waterfall/scenarios', {
       params: {
         query: {
@@ -108,8 +108,20 @@ export async function fetchWaterfallScenarios(
     { fallbackMessage: 'Failed to fetch waterfall scenarios' }
   );
 
-  // Map API response to UI type (API should return compatible structure)
-  return (result as unknown as WaterfallScenario[]) ?? [];
+  // API returns `{ data, meta }` for lists. Normalize to the scenario array so reducers/components
+  // always operate on `WaterfallScenario[]`.
+  if (Array.isArray(payload)) {
+    return payload as unknown as WaterfallScenario[];
+  }
+
+  if (payload && typeof payload === 'object') {
+    const candidate = payload as { data?: unknown };
+    if (Array.isArray(candidate.data)) {
+      return candidate.data as WaterfallScenario[];
+    }
+  }
+
+  return [];
 }
 
 /**
@@ -159,12 +171,19 @@ export async function createWaterfallScenario(
   // API mode - map UI data to API DTO format
   const apiData = {
     fundId: data.fundId ?? '',
+    fundName: data.fundName,
     name: data.name,
     description: data.description,
     model: data.model,
     exitValue: data.exitValue,
+    totalInvested: data.totalInvested,
+    managementFees: data.managementFees,
     isFavorite: data.isFavorite,
+    isTemplate: data.isTemplate,
     tags: data.tags,
+    blendedConfig: data.blendedConfig,
+    clawbackProvision: data.clawbackProvision,
+    lookbackProvision: data.lookbackProvision,
     tiers: data.tiers.map((tier) => ({
       name: tier.name,
       type: tier.type,
@@ -190,7 +209,8 @@ export async function createWaterfallScenario(
 
   const result = await unwrapApiResult(
     apiClient.POST('/waterfall/scenarios', {
-      body: apiData,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      body: apiData as any,
     }),
     { fallbackMessage: 'Failed to create waterfall scenario' }
   );
@@ -226,39 +246,48 @@ export async function updateWaterfallScenario(
     return updated;
   }
 
-  // API mode
+  // API mode — complex nested types (blendedConfig, clawbackProvision, etc.) don't match
+  // the OpenAPI-generated schema (Record<string, never>). Cast to bypass schema mismatch.
+  const updateBody = {
+    name: data.name,
+    description: data.description,
+    model: data.model,
+    exitValue: data.exitValue,
+    totalInvested: data.totalInvested,
+    managementFees: data.managementFees,
+    isFavorite: data.isFavorite,
+    isTemplate: data.isTemplate,
+    tags: data.tags,
+    blendedConfig: data.blendedConfig,
+    clawbackProvision: data.clawbackProvision,
+    lookbackProvision: data.lookbackProvision,
+    tiers: data.tiers?.map((tier) => ({
+      name: tier.name,
+      type: tier.type,
+      order: tier.order,
+      threshold: tier.threshold,
+      hurdleRate: tier.hurdleRate,
+      gpCarryPercentage: tier.gpCarryPercentage,
+      lpPercentage: tier.lpPercentage,
+      splitType: tier.splitType,
+      description: tier.description,
+      isCustom: tier.isCustom,
+    })),
+    investorClasses: data.investorClasses?.map((ic) => ({
+      name: ic.name,
+      type: ic.type,
+      ownershipPercentage: ic.ownershipPercentage,
+      commitment: ic.commitment,
+      capitalCalled: ic.capitalCalled,
+      capitalReturned: ic.capitalReturned,
+      order: ic.order,
+    })),
+  };
   const result = await unwrapApiResult(
     apiClient.PUT('/waterfall/scenarios/{id}', {
       params: { path: { id } },
-      body: {
-        name: data.name,
-        description: data.description,
-        model: data.model,
-        exitValue: data.exitValue,
-        isFavorite: data.isFavorite,
-        tags: data.tags,
-        tiers: data.tiers?.map((tier) => ({
-          name: tier.name,
-          type: tier.type,
-          order: tier.order,
-          threshold: tier.threshold,
-          hurdleRate: tier.hurdleRate,
-          gpCarryPercentage: tier.gpCarryPercentage,
-          lpPercentage: tier.lpPercentage,
-          splitType: tier.splitType,
-          description: tier.description,
-          isCustom: tier.isCustom,
-        })),
-        investorClasses: data.investorClasses?.map((ic) => ({
-          name: ic.name,
-          type: ic.type,
-          ownershipPercentage: ic.ownershipPercentage,
-          commitment: ic.commitment,
-          capitalCalled: ic.capitalCalled,
-          capitalReturned: ic.capitalReturned,
-          order: ic.order,
-        })),
-      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      body: updateBody as any,
     }),
     { fallbackMessage: 'Failed to update waterfall scenario' }
   );
@@ -458,7 +487,31 @@ export async function createScenarioFromTemplate(
     return newScenario;
   }
 
-  throw new Error('Waterfall API not implemented yet');
+  const templates = await fetchWaterfallTemplates();
+  const template = templates.find((item) => item.id === templateId);
+  if (!template) {
+    throw new Error(`Template not found: ${templateId}`);
+  }
+
+  return createWaterfallScenario({
+    name: scenarioData.name,
+    description: `Created from template: ${template.name}`,
+    fundId: scenarioData.fundId,
+    fundName: scenarioData.fundName,
+    model: template.model,
+    investorClasses: [],
+    tiers: template.tiers.map((tier, index) => ({
+      ...tier,
+      id: `template-tier-${Date.now()}-${index}`,
+    })),
+    exitValue: scenarioData.exitValue,
+    totalInvested: scenarioData.totalInvested,
+    managementFees: scenarioData.managementFees,
+    isFavorite: false,
+    isTemplate: false,
+    createdBy: scenarioData.createdBy,
+    tags: [template.name.toLowerCase().replace(/\s+/g, '-')],
+  });
 }
 
 // ============================================================================

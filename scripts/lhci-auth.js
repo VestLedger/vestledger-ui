@@ -3,6 +3,7 @@ const path = require('path');
 
 const OUTPUT_DIR = path.resolve('.lighthouseci', 'auth');
 const LOG_PREFIX = '[LHCI Auth]';
+const BASE_URL = process.env.LHCI_AUTH_BASE_URL || 'http://localhost:3000';
 
 function ensureOutputDir() {
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
@@ -57,54 +58,67 @@ module.exports = async (browser) => {
   const page = await browser.newPage();
   attachDiagnostics(page);
 
-  // Navigate to login page via localhost
-  const response = await page.goto('http://localhost:3000/login', { waitUntil: 'networkidle0' });
+  // Navigate to login page via localhost (best effort)
+  const response = await page.goto(`${BASE_URL}/login`, { waitUntil: 'domcontentloaded' }).catch(() => null);
   const status = response ? response.status() : 'no-response';
   console.log(`${LOG_PREFIX} login response status:`, status);
-  await captureSnapshot(page, 'login');
+  await captureSnapshot(page, 'login').catch(() => {});
 
-  // Set authentication in localStorage
-  await page.evaluate(() => {
-    localStorage.setItem('isAuthenticated', 'true');
-    localStorage.setItem(
-      'user',
-      JSON.stringify({
-        name: 'Lighthouse User',
-        email: 'lighthouse@vestledger.local',
-        role: 'gp',
-      })
-    );
-  });
+  const user = {
+    name: 'Lighthouse User',
+    email: 'lighthouse@vestledger.local',
+    role: 'gp',
+  };
+  const userString = JSON.stringify(user);
 
   // Set authentication cookies for middleware
-  await page.setCookie({
-    name: 'isAuthenticated',
-    value: 'true',
-    domain: 'localhost',
-    path: '/',
-    httpOnly: false,
-    secure: false,
-    sameSite: 'Lax',
-  });
+  await page.setCookie(
+    {
+      name: 'isAuthenticated',
+      value: 'true',
+      url: BASE_URL,
+      httpOnly: false,
+      secure: false,
+      sameSite: 'Lax',
+    },
+    {
+      name: 'user',
+      value: encodeURIComponent(userString),
+      url: BASE_URL,
+      httpOnly: false,
+      secure: false,
+      sameSite: 'Lax',
+    },
+    {
+      name: 'dataModeOverride',
+      value: 'mock',
+      url: BASE_URL,
+      httpOnly: false,
+      secure: false,
+      sameSite: 'Lax',
+    },
+  );
 
-  await page.setCookie({
-    name: 'user',
-    value: encodeURIComponent(JSON.stringify({
-      name: 'Lighthouse User',
-      email: 'lighthouse@vestledger.local',
-      role: 'gp',
-    })),
-    domain: 'localhost',
-    path: '/',
-    httpOnly: false,
-    secure: false,
-    sameSite: 'Lax',
-  });
-
-  const authState = await page.evaluate(() => ({
-    isAuthenticated: localStorage.getItem('isAuthenticated'),
-    user: localStorage.getItem('user'),
-  }));
+  // Seed localStorage when allowed by current page origin.
+  const authState = await page
+    .evaluate(({ serializedUser }) => {
+      try {
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('user', serializedUser);
+        localStorage.setItem('accessToken', 'mock-token');
+        localStorage.setItem('dataModeOverride', 'mock');
+        return {
+          isAuthenticated: localStorage.getItem('isAuthenticated'),
+          user: localStorage.getItem('user'),
+        };
+      } catch {
+        return {
+          isAuthenticated: null,
+          user: null,
+        };
+      }
+    }, { serializedUser: userString })
+    .catch(() => ({ isAuthenticated: null, user: null }));
   console.log(`${LOG_PREFIX} auth state:`, authState);
 
   await page.close();

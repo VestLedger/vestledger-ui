@@ -29,6 +29,8 @@ const sagaLoaders = {
     import('./sagas/distributionSaga').then((mod) => ({ saga: mod.distributionSaga })),
   fundAdminOps: () =>
     import('./sagas/fundAdminOpsSaga').then((mod) => ({ saga: mod.fundAdminOpsSaga })),
+  analytics: () =>
+    import('./sagas/analyticsSaga').then((mod) => ({ saga: mod.analyticsSaga })),
 } satisfies Record<string, SagaLoader>;
 
 export type SagaKey = keyof typeof sagaLoaders;

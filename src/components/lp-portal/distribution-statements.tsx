@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { Badge, Button, Card } from "@/ui";
 import { ListItemCard, SectionHeader, StatusBadge } from '@/ui/composites';
-import type { LPDistributionStatement } from "@/data/mocks/lp-portal/lp-investor-portal";
+import type { LPDistributionStatement } from "@/data/seeds/lp-portal/lp-investor-portal";
 import { formatCurrency, formatDate } from "@/utils/formatting";
 import { getLabelForType, taxFormTypeLabels } from "@/utils/styling/typeMappers";
 import { getStatementTemplateLabel } from "@/components/fund-admin/distributions/statement-template-constants";

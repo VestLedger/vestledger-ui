@@ -51,14 +51,56 @@ type ScenarioHistoryEntry = {
 
 type ScenarioHistoryStore = Record<string, ScenarioHistoryEntry[]>;
 
+const normalizeNumber = (value: unknown, fallback = 0) =>
+  typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+
+const normalizeHistoryEntry = (entry: unknown): ScenarioHistoryEntry | null => {
+  if (!entry || typeof entry !== 'object') return null;
+
+  const candidate = entry as Partial<ScenarioHistoryEntry> & { model?: unknown };
+  const model =
+    candidate.model === 'european' || candidate.model === 'american' || candidate.model === 'blended'
+      ? candidate.model
+      : 'european';
+
+  return {
+    version: normalizeNumber(candidate.version, 1),
+    updatedAt: typeof candidate.updatedAt === 'string' ? candidate.updatedAt : new Date().toISOString(),
+    name: typeof candidate.name === 'string' ? candidate.name : '',
+    model,
+    exitValue: normalizeNumber(candidate.exitValue, 0),
+    totalInvested: normalizeNumber(candidate.totalInvested, 0),
+    investorClassCount: normalizeNumber(candidate.investorClassCount, 0),
+  };
+};
+
+const normalizeHistoryStore = (store: unknown): ScenarioHistoryStore => {
+  if (!store || typeof store !== 'object') return {};
+
+  const normalized: ScenarioHistoryStore = {};
+  for (const [scenarioId, entries] of Object.entries(store as Record<string, unknown>)) {
+    if (!Array.isArray(entries)) continue;
+
+    const cleanEntries = entries
+      .map(normalizeHistoryEntry)
+      .filter((entry): entry is ScenarioHistoryEntry => entry !== null);
+
+    if (cleanEntries.length > 0) {
+      normalized[scenarioId] = cleanEntries;
+    }
+  }
+
+  return normalized;
+};
+
 const buildHistoryEntry = (scenario: WaterfallScenario): ScenarioHistoryEntry => ({
   version: scenario.version,
   updatedAt: scenario.updatedAt,
   name: scenario.name,
   model: scenario.model,
-  exitValue: scenario.exitValue,
-  totalInvested: scenario.totalInvested,
-  investorClassCount: scenario.investorClasses.length,
+  exitValue: normalizeNumber(scenario.exitValue, 0),
+  totalInvested: normalizeNumber(scenario.totalInvested, 0),
+  investorClassCount: Array.isArray(scenario.investorClasses) ? scenario.investorClasses.length : 0,
 });
 
 export interface ScenarioManagerProps {
@@ -114,7 +156,7 @@ export function ScenarioManager({
     if (historyInitialized.current) return;
     const stored = safeLocalStorage.getJSON<ScenarioHistoryStore>(HISTORY_STORAGE_KEY);
     if (stored) {
-      setHistoryByScenarioId(stored);
+      setHistoryByScenarioId(normalizeHistoryStore(stored));
     }
     historyInitialized.current = true;
   }, []);

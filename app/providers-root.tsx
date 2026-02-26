@@ -7,6 +7,7 @@ import { ReactNode } from 'react';
 import { getThemeFromCookie, setThemeCookie } from '@/lib/theme-sync';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ToastProvider } from '@/ui';
+import { RecoverableToastBridge } from '@/components/errors/RecoverableToastBridge';
 
 /**
  * Syncs theme between next-themes (localStorage) and cookies (cross-subdomain)
@@ -78,7 +79,10 @@ export function RootProviders({ children }: { children: ReactNode }) {
       <NextThemesProvider attribute="class" defaultTheme="light" storageKey="theme">
         <ThemeSyncWrapper>
           <NextUIProvider>
-            <ToastProvider>{children}</ToastProvider>
+            <ToastProvider>
+              <RecoverableToastBridge />
+              {children}
+            </ToastProvider>
           </NextUIProvider>
         </ThemeSyncWrapper>
       </NextThemesProvider>

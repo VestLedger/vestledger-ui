@@ -29,14 +29,19 @@ const ROUTE_SAGAS: Array<{
   { match: (pathname) => pathname.startsWith(ROUTE_PATHS.lpPortal), sagas: ['misc'] },
   { match: (pathname) => pathname.startsWith(ROUTE_PATHS.lpManagement), sagas: ['misc'] },
   { match: (pathname) => pathname.startsWith(ROUTE_PATHS.integrations), sagas: ['misc'] },
+  { match: (pathname) => pathname.startsWith(ROUTE_PATHS.collaboration), sagas: ['misc'] },
   { match: (pathname) => pathname.startsWith(ROUTE_PATHS.auditTrail), sagas: ['misc'] },
   { match: (pathname) => pathname.startsWith(ROUTE_PATHS.contacts), sagas: ['crm'] },
-  { match: (pathname) => pathname.startsWith(ROUTE_PATHS.analytics), sagas: ['portfolio'] },
+  { match: (pathname) => pathname.startsWith(ROUTE_PATHS.analytics), sagas: ['analytics'] },
   { match: (pathname) => pathname.startsWith(ROUTE_PATHS.notifications), sagas: ['alerts'] },
 ];
 
 export function getSagaKeysForPath(pathname: string | null): SagaKey[] {
   if (!pathname || pathname === '/login') return [];
+
+  if (pathname === ROUTE_PATHS.vesta) {
+    return ['navigation', 'copilot', 'uiEffects'];
+  }
 
   const keys = new Set<SagaKey>(CORE_SAGAS);
   for (const entry of ROUTE_SAGAS) {

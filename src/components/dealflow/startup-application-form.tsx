@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, Button, Input, Select, Textarea } from '@/ui';
+import { Card, Button, Input, Select, Textarea, useToast } from '@/ui';
 import { Building2, User, Mail, Globe, DollarSign, Users, TrendingUp, FileText, CheckCircle2, Copy, Code } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
 import { useAppDispatch } from '@/store/hooks';
@@ -8,6 +8,7 @@ import { startupApplicationSubmitRequested } from '@/store/slices/uiEffectsSlice
 import { writeToClipboard } from '@/utils/clipboard';
 import { SectionHeader } from '@/ui/composites';
 import { CANONICAL_PUBLIC_WEB_URL } from '@/config/env';
+import { findFirstMissingRequiredField } from '@/utils/forms/required';
 
 interface FormData {
   companyName: string;
@@ -49,6 +50,7 @@ const initialFormData: FormData = {
 
 export function StartupApplicationForm({ embedded = false }: { embedded?: boolean }) {
   const dispatch = useAppDispatch();
+  const toast = useToast();
   const { value: ui, patch: patchUI } = useUIKey<{
     formData: FormData;
     isSubmitting: boolean;
@@ -62,11 +64,26 @@ export function StartupApplicationForm({ embedded = false }: { embedded?: boolea
   });
   const { formData, isSubmitting, isSubmitted, showEmbedCode } = ui;
 
+  const missingRequiredField = findFirstMissingRequiredField([
+    { key: 'companyName', label: 'Company Name', value: formData.companyName },
+    { key: 'oneLiner', label: 'One-Liner', value: formData.oneLiner },
+    { key: 'founderName', label: 'Your Name', value: formData.founderName },
+    { key: 'founderEmail', label: 'Email', value: formData.founderEmail },
+    { key: 'sector', label: 'Sector', value: formData.sector },
+    { key: 'stage', label: 'Stage', value: formData.stage },
+    { key: 'problem', label: 'Problem', value: formData.problem },
+    { key: 'solution', label: 'Solution', value: formData.solution },
+  ]);
+
   const handleChange = (field: keyof FormData, value: string) => {
     patchUI({ formData: { ...formData, [field]: value } });
   };
 
   const handleSubmit = () => {
+    if (missingRequiredField) {
+      toast.warning(`${missingRequiredField.label} is required.`, 'Missing information');
+      return;
+    }
     dispatch(startupApplicationSubmitRequested());
   };
 
@@ -350,7 +367,7 @@ const embedCode = `<!-- VestLedger Startup Application Form -->
               size="lg"
               onPress={handleSubmit}
               isLoading={isSubmitting}
-              isDisabled={!formData.companyName || !formData.founderName || !formData.founderEmail || !formData.oneLiner || !formData.sector || !formData.stage || !formData.problem || !formData.solution}
+              isDisabled={Boolean(missingRequiredField) || isSubmitting}
             >
               Submit Application
             </Button>

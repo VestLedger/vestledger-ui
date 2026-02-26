@@ -3,7 +3,7 @@ import {
   opsComplianceAlerts,
   opsDashboardMetrics,
   opsUpcomingDistributions,
-} from '@/data/mocks/dashboards/ops-dashboard';
+} from '@/data/seeds/dashboards/ops-dashboard';
 import { apiClient } from '@/api/client';
 import { unwrapApiResult } from '@/api/unwrap';
 

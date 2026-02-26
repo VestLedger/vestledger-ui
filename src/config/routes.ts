@@ -21,6 +21,7 @@ import {
   Receipt,
   Bell,
   CalendarDays,
+  MessageSquare,
 } from 'lucide-react';
 import type { BreadcrumbItem, AISuggestion } from '@/ui';
 
@@ -459,6 +460,24 @@ export const routes: Record<string, RouteConfig> = {
     description: 'Connect external tools and services',
   },
 
+  collaboration: {
+    path: '/collaboration',
+    label: 'Collaboration',
+    icon: MessageSquare,
+    breadcrumbs: [
+      { label: 'Home', href: '/home' },
+      { label: 'Utilities', href: '/home' },
+      { label: 'Collaboration' },
+    ],
+    aiSuggestion: {
+      label: 'Dashboard',
+      href: '/home',
+      reasoning: 'Return to dashboard after clearing collaboration blockers to reprioritize work.',
+      confidence: 0.79,
+    },
+    description: 'Cross-persona threads, comments, and task handoffs',
+  },
+
   settings: {
     path: '/settings',
     label: 'Settings',
@@ -474,6 +493,16 @@ export const routes: Record<string, RouteConfig> = {
       confidence: 0.75,
     },
     description: 'Manage your account settings and preferences',
+  },
+
+  vesta: {
+    path: '/vesta',
+    label: 'Vesta',
+    icon: Sparkles,
+    breadcrumbs: [
+      { label: 'Vesta' },
+    ],
+    description: 'Conversation-first Vesta experience',
   },
 };
 

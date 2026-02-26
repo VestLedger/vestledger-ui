@@ -3,7 +3,7 @@ import {
   irDashboardMetrics,
   irRecentInteractions,
   irUpcomingTasks,
-} from '@/data/mocks/dashboards/ir-dashboard';
+} from '@/data/seeds/dashboards/ir-dashboard';
 import { apiClient } from '@/api/client';
 import { unwrapApiResult } from '@/api/unwrap';
 

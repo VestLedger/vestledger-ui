@@ -207,11 +207,17 @@ function* reportExportWorker(): SagaGenerator {
   const key = 'report-export';
   const current = (yield select(selectUIKey<ReportExportState>(key))) as ReportExportState | undefined;
   if (!current?.selectedTemplate) return;
+  const formatValue = typeof current.exportFormat === 'string'
+    ? current.exportFormat.toLowerCase()
+    : 'pdf';
+  const normalizedFormat = ['pdf', 'excel', 'csv', 'ppt'].includes(formatValue)
+    ? formatValue
+    : 'pdf';
 
   const newJob: ExportJob = {
     id: Date.now().toString(),
     reportName: current.selectedTemplate.name,
-    format: current.exportFormat.toUpperCase(),
+    format: normalizedFormat.toUpperCase(),
     status: 'processing',
     progress: 0,
     createdAt: new Date().toISOString(),
@@ -243,7 +249,7 @@ function* reportExportWorker(): SagaGenerator {
 function* aiBadgesLoop(): SagaGenerator {
   const key = 'ai-badges';
   while (true) {
-    const badges: BadgeData = calculateBadges();
+    const badges: BadgeData = yield call(calculateBadges);
     yield put(setUIState({ key, value: badges }));
     yield delay(60000);
   }

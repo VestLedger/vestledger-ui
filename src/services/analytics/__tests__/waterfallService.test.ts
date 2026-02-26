@@ -3,6 +3,19 @@ import type { WaterfallScenario } from '@/types/waterfall';
 
 const loadService = async () => import('@/services/analytics/waterfallService');
 
+const isMockMode = vi.fn(() => true);
+const unwrapApiResult = vi.fn();
+const apiClient = {
+  GET: vi.fn(),
+  POST: vi.fn(),
+  PUT: vi.fn(),
+  DELETE: vi.fn(),
+};
+
+vi.mock('@/config/data-mode', () => ({ isMockMode }));
+vi.mock('@/api/unwrap', () => ({ unwrapApiResult }));
+vi.mock('@/api/client', () => ({ apiClient }));
+
 const buildScenario = (): Omit<WaterfallScenario, 'id' | 'createdAt' | 'updatedAt' | 'version'> => ({
   name: 'Test Scenario',
   description: 'Scenario created in tests',
@@ -24,6 +37,47 @@ describe('waterfallService', () => {
   beforeEach(() => {
     localStorage.clear();
     vi.resetModules();
+    isMockMode.mockReset();
+    isMockMode.mockReturnValue(true);
+    unwrapApiResult.mockReset();
+    apiClient.GET.mockReset();
+  });
+
+  it('fetchWaterfallScenarios maps API list payloads ({ data, meta }) to scenario arrays', async () => {
+    isMockMode.mockReturnValue(false);
+    unwrapApiResult.mockResolvedValue({
+      data: [
+        {
+          id: 'api-scenario-1',
+          name: 'API Scenario',
+          description: 'From API list response',
+          fundId: 'fund-test',
+          fundName: 'Test Fund',
+          model: 'european',
+          investorClasses: [],
+          tiers: [],
+          exitValue: 10_000_000,
+          totalInvested: 5_000_000,
+          managementFees: 100_000,
+          isFavorite: false,
+          isTemplate: false,
+          version: 1,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          createdBy: 'API',
+          tags: [],
+        },
+      ],
+      meta: { total: 1, limit: 50, offset: 0, hasMore: false },
+    });
+    apiClient.GET.mockResolvedValue({});
+
+    const { fetchWaterfallScenarios } = await loadService();
+    const scenarios = await fetchWaterfallScenarios();
+
+    expect(Array.isArray(scenarios)).toBe(true);
+    expect(scenarios).toHaveLength(1);
+    expect(scenarios[0].id).toBe('api-scenario-1');
   });
 
   it('fetchWaterfallScenarios filters by fundId', async () => {

@@ -3,7 +3,7 @@ import {
   auditorAuditTrail,
   auditorComplianceItems,
   auditorDashboardMetrics,
-} from '@/data/mocks/dashboards/auditor-dashboard';
+} from '@/data/seeds/dashboards/auditor-dashboard';
 import { apiClient } from '@/api/client';
 import { unwrapApiResult } from '@/api/unwrap';
 

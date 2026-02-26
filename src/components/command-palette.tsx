@@ -13,6 +13,7 @@ import {
   BarChart3,
   DollarSign,
   Sparkles,
+  MessageSquare,
 } from 'lucide-react';
 import './command-palette.css';
 import { useUIKey } from '@/store/ui';
@@ -20,6 +21,8 @@ import { ROUTE_PATHS } from '@/config/routes';
 import { useAuth } from '@/contexts/auth-context';
 import { buildAdminSuperadminUrl } from '@/config/env';
 import { isSuperadminUser } from '@/utils/auth/internal-access';
+import { canRoleAccessPath } from '@/config/route-access-control';
+import { useToast } from '@/ui';
 
 interface CommandItem {
   id: string;
@@ -28,6 +31,7 @@ interface CommandItem {
   category: string;
   icon: React.ComponentType<{ className?: string }>;
   action: () => void;
+  route?: string;
   keywords?: string[];
 }
 
@@ -38,6 +42,7 @@ export function CommandPalette() {
   });
   const router = useRouter();
   const { user } = useAuth();
+  const toast = useToast();
   const isSuperadmin = isSuperadminUser(user);
 
   // Toggle command palette with Cmd+K / Ctrl+K
@@ -85,6 +90,7 @@ export function CommandPalette() {
           category: 'Pages',
           icon: Building2,
           action: navigateToSuperadminDomain,
+          route: ROUTE_PATHS.superadmin,
           keywords: ['internal', 'tenant', 'platform', 'admin'],
         },
       ]
@@ -96,6 +102,7 @@ export function CommandPalette() {
       category: 'Pages',
       icon: BarChart3,
       action: () => navigate(ROUTE_PATHS.dashboard),
+      route: ROUTE_PATHS.dashboard,
       keywords: ['home', 'overview', 'metrics'],
     },
     {
@@ -105,6 +112,7 @@ export function CommandPalette() {
       category: 'Pages',
       icon: GitBranch,
       action: () => navigate(ROUTE_PATHS.pipeline),
+      route: ROUTE_PATHS.pipeline,
       keywords: ['deals', 'kanban', 'opportunities'],
     },
     {
@@ -114,6 +122,7 @@ export function CommandPalette() {
       category: 'Pages',
       icon: Building2,
       action: () => navigate(ROUTE_PATHS.portfolio),
+      route: ROUTE_PATHS.portfolio,
       keywords: ['companies', 'investments'],
     },
     {
@@ -123,6 +132,7 @@ export function CommandPalette() {
       category: 'Pages',
       icon: Users,
       action: () => navigate(ROUTE_PATHS.contacts),
+      route: ROUTE_PATHS.contacts,
       keywords: ['crm', 'people', 'founders'],
     },
     {
@@ -132,6 +142,7 @@ export function CommandPalette() {
       category: 'Pages',
       icon: BarChart3,
       action: () => navigate(ROUTE_PATHS.analytics),
+      route: ROUTE_PATHS.analytics,
       keywords: ['charts', 'performance', 'metrics'],
     },
     {
@@ -141,6 +152,7 @@ export function CommandPalette() {
       category: 'Pages',
       icon: DollarSign,
       action: () => navigate(ROUTE_PATHS.fundAdmin),
+      route: ROUTE_PATHS.fundAdmin,
       keywords: ['capital', 'calls', 'distributions', 'lp'],
     },
     {
@@ -150,7 +162,18 @@ export function CommandPalette() {
       category: 'Pages',
       icon: FileText,
       action: () => navigate(ROUTE_PATHS.compliance),
+      route: ROUTE_PATHS.compliance,
       keywords: ['regulatory', 'filing', 'audit'],
+    },
+    {
+      id: 'collaboration',
+      title: 'Collaboration',
+      subtitle: 'Threads, comments, and task handoffs',
+      category: 'Pages',
+      icon: MessageSquare,
+      action: () => navigate(ROUTE_PATHS.collaboration),
+      route: ROUTE_PATHS.collaboration,
+      keywords: ['threads', 'tasks', 'comments', 'coordination'],
     },
     {
       id: 'waterfall',
@@ -159,6 +182,7 @@ export function CommandPalette() {
       category: 'Pages',
       icon: BarChart3,
       action: () => navigate(ROUTE_PATHS.waterfall),
+      route: ROUTE_PATHS.waterfall,
       keywords: ['exit', 'modeling', 'returns'],
     },
   ];
@@ -173,7 +197,8 @@ export function CommandPalette() {
       icon: GitBranch,
       action: () => {
         patchCommandUI({ open: false, search: '' });
-        alert('Add deal dialog - to be implemented');
+        toast.info('Opening pipeline with create-deal workflow.', 'Add Deal');
+        router.push(ROUTE_PATHS.pipeline);
       },
       keywords: ['create', 'new', 'opportunity'],
     },
@@ -184,7 +209,8 @@ export function CommandPalette() {
       icon: Users,
       action: () => {
         patchCommandUI({ open: false, search: '' });
-        alert('Add contact dialog - to be implemented');
+        toast.info('Opening contacts workspace to add a contact.', 'Add Contact');
+        router.push(ROUTE_PATHS.contacts);
       },
       keywords: ['create', 'new', 'person'],
     },
@@ -194,9 +220,20 @@ export function CommandPalette() {
       category: 'Actions',
       icon: DollarSign,
       action: () => navigate(ROUTE_PATHS.fundAdmin),
+      route: ROUTE_PATHS.fundAdmin,
       keywords: ['create', 'lp', 'funding'],
     },
   ];
+
+  const accessiblePages = pages.filter((item) => {
+    if (!item.route) return true;
+    return canRoleAccessPath(user?.role, item.route);
+  });
+
+  const accessibleActions = actions.filter((item) => {
+    if (!item.route) return true;
+    return canRoleAccessPath(user?.role, item.route);
+  });
 
   return (
     <>
@@ -234,7 +271,7 @@ export function CommandPalette() {
           </Command.Empty>
 
           <Command.Group heading="Pages" className="command-palette-group">
-            {pages.map((item) => (
+            {accessiblePages.map((item) => (
               <Command.Item
                 key={item.id}
                 value={`${item.title} ${item.subtitle} ${item.keywords?.join(' ')}`}
@@ -252,9 +289,9 @@ export function CommandPalette() {
             ))}
           </Command.Group>
 
-          {actions.length > 0 && (
+          {accessibleActions.length > 0 && (
             <Command.Group heading="Actions" className="command-palette-group">
-              {actions.map((item) => (
+              {accessibleActions.map((item) => (
                 <Command.Item
                   key={item.id}
                   value={`${item.title} ${item.keywords?.join(' ')}`}

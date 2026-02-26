@@ -98,7 +98,7 @@ export function CompanySearch() {
                 aria-label="Industry filter"
                 size="sm"
                 className="min-w-[170px]"
-                selectedKeys={[selectedIndustry]}
+                selectedKeys={industries.length > 0 ? [selectedIndustry] : []}
                 onChange={(e) => patchUI({ selectedIndustry: e.target.value })}
                 options={industries.map((ind) => ({ value: ind, label: ind }))}
               />
@@ -106,7 +106,7 @@ export function CompanySearch() {
                 aria-label="Funding stage filter"
                 size="sm"
                 className="min-w-[150px]"
-                selectedKeys={[selectedStage]}
+                selectedKeys={stages.length > 0 ? [selectedStage] : []}
                 onChange={(e) => patchUI({ selectedStage: e.target.value })}
                 options={stages.map((stage) => ({ value: stage, label: stage }))}
               />

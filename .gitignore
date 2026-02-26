@@ -1,6 +1,7 @@
 # Node / Next build artifacts
 node_modules
 .next
+.next-playwright
 out
 .vercel
 coverage
@@ -34,3 +35,7 @@ docs/*
 # Cypress output
 cypress/videos
 cypress/screenshots
+
+# Playwright visual regression snapshots
+e2e/**/non-defi-ui-visual.spec.ts-snapshots/
+e2e/**/*.spec.ts-snapshots/

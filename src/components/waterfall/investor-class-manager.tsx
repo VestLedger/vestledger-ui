@@ -316,6 +316,7 @@ export function InvestorClassManager({ classes, onChange }: InvestorClassManager
           value={Math.min(totalOwnership, 100)}
           maxValue={100}
           className="mt-3 h-2"
+          aria-label={`Total ownership ${Math.min(totalOwnership, 100)}%`}
         />
       </div>
 

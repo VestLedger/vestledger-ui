@@ -19,7 +19,14 @@ export class DashboardPage {
   }
 
   async goto() {
-    await loginViaRedirect(this.page, '/home');
+    await this.page.goto('/home', { waitUntil: 'domcontentloaded' });
+    const pathname = new URL(this.page.url()).pathname;
+    if (pathname === '/login') {
+      await loginViaRedirect(this.page, '/home', {
+        waitForLoadState: 'domcontentloaded',
+        requireLoginRedirect: false,
+      });
+    }
   }
 
   async navigateTo(menuItem: string) {

@@ -9,7 +9,7 @@ import {
   type Tenant,
   type TenantUser,
   type TenantUserStatus,
-} from '@/data/mocks/internal/superadmin';
+} from '@/data/seeds/internal/superadmin';
 import { INTERNAL_TENANT_ID } from '@/utils/auth/internal-access';
 import { createTenantUser, resendInvite } from '@/services/internal/superadminService';
 

@@ -86,16 +86,18 @@ export async function fetchFunds(params: GetFundsParams): Promise<Fund[]> {
     return clone(funds);
   }
 
+  const query: {
+    status?: 'active' | 'closed' | 'fundraising';
+  } = {};
+
+  if (params.status === 'active' || params.status === 'closed' || params.status === 'fundraising') {
+    query.status = params.status;
+  }
+
   const result = await unwrapApiResult(
     apiClient.GET('/funds', {
       params: {
-        query: {
-          status: params.status as
-            | 'active'
-            | 'closed'
-            | 'fundraising'
-            | undefined,
-        },
+        query,
       },
     }),
     { fallbackMessage: 'Failed to fetch funds' }

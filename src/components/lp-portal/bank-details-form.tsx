@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Badge, Button, Card, Input, Select, Textarea } from "@/ui";
-import type { LPBankDetails } from "@/data/mocks/lp-portal/lp-investor-portal";
+import type { LPBankDetails } from "@/data/seeds/lp-portal/lp-investor-portal";
 import { formatDate } from "@/utils/formatting";
 import { CheckCircle } from "lucide-react";
 import { SectionHeader } from "@/ui/composites";

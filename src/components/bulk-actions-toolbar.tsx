@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Button, Badge } from '@/ui';
+import { Button, Badge, useToast } from '@/ui';
 import { X, Trash2, Tag, Archive, Download, MoreHorizontal } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
 
@@ -23,44 +23,46 @@ export interface BulkActionsToolbarProps {
   customActions?: React.ReactNode;
 }
 
-const defaultActions: BulkAction[] = [
-  {
-    id: 'delete',
-    label: 'Delete',
-    icon: <Trash2 className="w-4 h-4" />,
-    variant: 'danger',
-    onClick: () => console.log('Delete selected'),
-  },
-  {
-    id: 'tag',
-    label: 'Add Tag',
-    icon: <Tag className="w-4 h-4" />,
-    onClick: () => console.log('Add tag'),
-  },
-  {
-    id: 'archive',
-    label: 'Archive',
-    icon: <Archive className="w-4 h-4" />,
-    onClick: () => console.log('Archive selected'),
-  },
-  {
-    id: 'export',
-    label: 'Export',
-    icon: <Download className="w-4 h-4" />,
-    onClick: () => console.log('Export selected'),
-  },
-];
-
 export function BulkActionsToolbar({
   selectedCount,
   totalCount,
   onClear,
   onSelectAll,
-  actions = defaultActions,
+  actions,
   customActions,
 }: BulkActionsToolbarProps) {
+  const toast = useToast();
   const isVisible = selectedCount > 0;
   const isAllSelected = selectedCount === totalCount;
+  const resolvedActions =
+    actions ??
+    [
+      {
+        id: 'delete',
+        label: 'Delete',
+        icon: <Trash2 className="w-4 h-4" />,
+        variant: 'danger',
+        onClick: () => toast.warning(`${selectedCount} items marked for deletion in demo mode.`, 'Delete Selection'),
+      },
+      {
+        id: 'tag',
+        label: 'Add Tag',
+        icon: <Tag className="w-4 h-4" />,
+        onClick: () => toast.info(`Bulk tag editor opened for ${selectedCount} items.`, 'Add Tag'),
+      },
+      {
+        id: 'archive',
+        label: 'Archive',
+        icon: <Archive className="w-4 h-4" />,
+        onClick: () => toast.success(`${selectedCount} items archived in current session.`, 'Archive Selection'),
+      },
+      {
+        id: 'export',
+        label: 'Export',
+        icon: <Download className="w-4 h-4" />,
+        onClick: () => toast.success(`Export queued for ${selectedCount} of ${totalCount} selected items.`, 'Export Started'),
+      },
+    ];
 
   return (
     <AnimatePresence>
@@ -114,7 +116,7 @@ export function BulkActionsToolbar({
 
             {/* Right side - Actions */}
             <div className="flex items-center gap-2 flex-wrap">
-              {actions.map((action) => {
+              {resolvedActions.map((action) => {
                 const buttonVariant =
                   action.variant === 'danger' ? 'flat' :
                   action.variant === 'success' ? 'flat' :

@@ -3,6 +3,16 @@
 import { PageScaffold } from '@/ui/composites';
 import { DocumentManager, type AccessLevel } from './document-manager';
 import { DocumentPreviewModal, useDocumentPreview, getMockDocumentUrl, type PreviewDocument } from './preview';
+import { useFund } from '@/contexts/fund-context';
+import {
+  createDocumentFolder,
+  deleteDocument as deleteDocumentService,
+  downloadDocument,
+  moveDocument,
+  shareDocument,
+  updateDocumentAccess,
+  uploadDocument,
+} from '@/services/documentsService';
 import { useAppDispatch } from '@/store/hooks';
 import {
   documentAccessUpdated,
@@ -15,10 +25,21 @@ import {
 import { useUIKey } from '@/store/ui';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { ROUTE_PATHS } from '@/config/routes';
+import { useToast } from '@/ui';
 
 export function Documents() {
   const dispatch = useAppDispatch();
-  const { data } = useAsyncData(documentsRequested, documentsSelectors.selectState, { params: {} });
+  const toast = useToast();
+  const { selectedFund, viewMode } = useFund();
+  const selectedFundId = viewMode === 'individual' ? selectedFund?.id ?? null : null;
+
+  const { data, refetch } = useAsyncData(documentsRequested, documentsSelectors.selectState, {
+    params: {
+      fundId: selectedFundId,
+    },
+    dependencies: [selectedFundId],
+  });
+
   const documents = data?.documents || [];
   const folders = data?.folders || [];
   const { value: ui } = useUIKey<{ currentFolderId: string | null }>('documents-page', {
@@ -27,14 +48,27 @@ export function Documents() {
   const { currentFolderId } = ui;
   const preview = useDocumentPreview();
 
-  const handleUpload = (folderId?: string | null) => {
-    console.log('Upload file to folder:', folderId);
-    // TODO: Implement file upload
+  const getErrorMessage = (error: unknown, fallback: string) =>
+    error instanceof Error ? error.message : fallback;
+
+  const handleUpload = async (folderId?: string | null) => {
+    try {
+      await uploadDocument({ folderId, fundId: selectedFundId });
+      refetch();
+      toast.success('Document uploaded.', 'Upload Complete');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Unable to upload document.'), 'Upload Failed');
+    }
   };
 
-  const handleCreateFolder = (parentId?: string | null) => {
-    console.log('Create folder in parent:', parentId);
-    // TODO: Implement folder creation (e.g., open modal to capture name)
+  const handleCreateFolder = async (parentId?: string | null) => {
+    try {
+      await createDocumentFolder({ parentId });
+      refetch();
+      toast.success('Folder created.', 'Folder Added');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Unable to create folder.'), 'Create Folder Failed');
+    }
   };
 
   const handleOpenDocument = (documentId: string) => {
@@ -69,33 +103,69 @@ export function Documents() {
     }
   };
 
-  const handleDownloadDocument = (documentId: string) => {
-    console.log('Download document:', documentId);
-    // TODO: Implement document download
+  const handleDownloadDocument = async (documentId: string) => {
+    try {
+      const url = await downloadDocument(documentId);
+      if (!url) {
+        toast.warning('Download link unavailable for this document.');
+        return;
+      }
+
+      const targetDocument = documents.find((document) => document.id === documentId);
+      const anchor = window.document.createElement('a');
+      anchor.href = url;
+      anchor.download = targetDocument?.name ?? 'document';
+      anchor.target = '_blank';
+      anchor.rel = 'noopener noreferrer';
+      anchor.click();
+      toast.success('Download started.');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Unable to download document.'), 'Download Failed');
+    }
   };
 
-  const handleShareDocument = (documentId: string) => {
-    console.log('Share document:', documentId);
-    // TODO: Implement document sharing
+  const handleShareDocument = async (documentId: string) => {
+    try {
+      await shareDocument(documentId);
+      dispatch(documentAccessUpdated({ documentId, accessLevel: 'investor' }));
+      toast.success('Document shared with investor access.');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Unable to share document.'), 'Share Failed');
+    }
   };
 
-  const handleDeleteDocument = (documentId: string) => {
-    console.log('Delete document:', documentId);
-    dispatch(documentDeleted(documentId));
+  const handleDeleteDocument = async (documentId: string) => {
+    try {
+      await deleteDocumentService(documentId);
+      dispatch(documentDeleted(documentId));
+      toast.success('Document deleted.');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Unable to delete document.'), 'Delete Failed');
+    }
   };
 
   const handleToggleFavorite = (documentId: string) => {
     dispatch(documentFavoriteToggled(documentId));
   };
 
-  const handleMoveDocument = (documentId: string, newFolderId: string | null) => {
-    console.log('Move document:', documentId, newFolderId);
-    dispatch(documentMoved({ documentId, newFolderId }));
+  const handleMoveDocument = async (documentId: string, newFolderId: string | null) => {
+    try {
+      await moveDocument(documentId, newFolderId);
+      dispatch(documentMoved({ documentId, newFolderId }));
+      toast.success('Document moved.');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Unable to move document.'), 'Move Failed');
+    }
   };
 
-  const handleUpdateAccess = (documentId: string, accessLevel: AccessLevel) => {
-    console.log('Update access:', documentId, accessLevel);
-    dispatch(documentAccessUpdated({ documentId, accessLevel }));
+  const handleUpdateAccess = async (documentId: string, accessLevel: AccessLevel) => {
+    try {
+      await updateDocumentAccess(documentId, accessLevel);
+      dispatch(documentAccessUpdated({ documentId, accessLevel }));
+      toast.success('Document access updated.');
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Unable to update access.'), 'Access Update Failed');
+    }
   };
 
   return (
@@ -110,15 +180,29 @@ export function Documents() {
         documents={documents}
         folders={folders}
         currentFolderId={currentFolderId}
-        onUpload={handleUpload}
-        onCreateFolder={handleCreateFolder}
+        onUpload={(folderId) => {
+          void handleUpload(folderId);
+        }}
+        onCreateFolder={(parentId) => {
+          void handleCreateFolder(parentId);
+        }}
         onOpenDocument={handleOpenDocument}
-        onDownloadDocument={handleDownloadDocument}
-        onShareDocument={handleShareDocument}
-        onDeleteDocument={handleDeleteDocument}
+        onDownloadDocument={(documentId) => {
+          void handleDownloadDocument(documentId);
+        }}
+        onShareDocument={(documentId) => {
+          void handleShareDocument(documentId);
+        }}
+        onDeleteDocument={(documentId) => {
+          void handleDeleteDocument(documentId);
+        }}
         onToggleFavorite={handleToggleFavorite}
-        onMoveDocument={handleMoveDocument}
-        onUpdateAccess={handleUpdateAccess}
+        onMoveDocument={(documentId, folderId) => {
+          void handleMoveDocument(documentId, folderId);
+        }}
+        onUpdateAccess={(documentId, accessLevel) => {
+          void handleUpdateAccess(documentId, accessLevel);
+        }}
       />
 
       {/* Document Preview Modal */}
@@ -130,8 +214,12 @@ export function Documents() {
           isOpen={preview.isOpen}
           onClose={preview.closePreview}
           onNavigate={preview.navigateToDocument}
-          onDownload={handleDownloadDocument}
-          onShare={handleShareDocument}
+          onDownload={(documentId) => {
+            void handleDownloadDocument(documentId);
+          }}
+          onShare={(documentId) => {
+            void handleShareDocument(documentId);
+          }}
         />
       )}
     </PageScaffold>

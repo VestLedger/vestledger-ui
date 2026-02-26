@@ -1,0 +1,14 @@
+{
+  "generatedAt": "2026-02-14T00:00:00.000Z",
+  "notes": [
+    "Sprint 7 security hardening baseline.",
+    "All tracked security anti-patterns are expected to remain at zero."
+  ],
+  "thresholds": {
+    "forbidden_eval_calls": 0,
+    "forbidden_new_function_calls": 0,
+    "forbidden_document_write_calls": 0,
+    "forbidden_innerhtml_assignments": 0,
+    "forbidden_direct_dangerously_set_inner_html": 0
+  }
+}

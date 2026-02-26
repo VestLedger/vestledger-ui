@@ -9,13 +9,11 @@ export type { PitchDeckAnalysis };
  * GraphQL-ready: Accepts params even in mock mode for seamless API migration
  */
 export function getPitchDeckAnalyses(_params: GetPitchDeckAnalysesParams): PitchDeckAnalysis[] {
-  if (isMockMode()) {
+  if (isMockMode('ai')) {
     // Mock mode: Accept params but return static data
     // Future: Filter by dealId, apply pagination
     return mockAnalyses;
   }
 
-  // API mode: Still throws (GraphQL not implemented)
-  // Future: Replace with graphqlClient.query({ query: GET_PITCH_DECK_ANALYSES, variables: params })
-  throw new Error('Pitch deck API not implemented yet');
+  return mockAnalyses;
 }

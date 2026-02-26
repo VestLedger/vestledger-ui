@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { Search, ChevronDown, LogOut, Sparkles, Moon, Sun } from 'lucide-react';
+import { Search, ChevronDown, LogOut, Sparkles, Moon, Sun, Mic, Minimize2 } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 import { Button, Badge, Card, Input } from '@/ui';
 import { useRouter } from 'next/navigation';
@@ -18,6 +18,8 @@ import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys'
 import { useDashboardDensity } from '@/contexts/dashboard-density-context';
 import { buildPublicWebUrl } from '@/config/env';
 import { ROUTE_PATHS } from '@/config/routes';
+import { logger } from '@/lib/logger';
+import { useNavigation } from '@/contexts/navigation-context';
 
 export function Topbar() {
   const { user, logout } = useAuth();
@@ -28,11 +30,16 @@ export function Topbar() {
   const alertsData = useAppSelector(alertsSelectors.selectData);
   const reduxNotifications = alertsData?.items || [];
   const { theme, setTheme } = useTheme();
+  const { sidebarState, toggleRightSidebar } = useNavigation();
 
   // Use centralized UI state defaults
   const { value: topbarUI, patch: patchTopbarUI } = useUIKey(
     UI_STATE_KEYS.TOPBAR,
     UI_STATE_DEFAULTS.topbar
+  );
+  const { value: vestaShellUI, patch: patchVestaShellUI } = useUIKey(
+    UI_STATE_KEYS.VESTA_SHELL,
+    UI_STATE_DEFAULTS.vestaShell
   );
 
   // Use centralized selectors for search
@@ -50,7 +57,10 @@ export function Topbar() {
 
     // Redirect to public domain.
     const redirectUrl = buildPublicWebUrl(window.location.hostname);
-    console.log('Logging out, redirecting to:', redirectUrl);
+    logger.info('Logging out user and redirecting to public website.', {
+      component: 'topbar',
+      redirectUrl,
+    });
     window.location.href = redirectUrl;
   };
 
@@ -112,6 +122,15 @@ export function Topbar() {
       router.push(result.href);
     }
     patchTopbarUI({ searchQuery: '', isSearchFocused: false });
+  };
+
+  const handleToggleVoiceMode = () => {
+    if (sidebarState.rightCollapsed) {
+      toggleRightSidebar();
+    }
+    patchVestaShellUI({
+      vestaViewMode: vestaShellUI.vestaViewMode === 'fullscreen' ? 'sidebar' : 'fullscreen',
+    });
   };
 
   return (
@@ -211,6 +230,24 @@ export function Topbar() {
 
       {/* Right: Actions and User */}
       <div className="flex items-center gap-2 ml-4">
+        <Button
+          variant={vestaShellUI.vestaViewMode === 'fullscreen' ? 'flat' : 'light'}
+          isIconOnly
+          onPress={handleToggleVoiceMode}
+          aria-label={
+            vestaShellUI.vestaViewMode === 'fullscreen'
+              ? 'Exit full-width Vesta voice mode'
+              : 'Expand Vesta to full-width voice mode'
+          }
+          className="text-app-text-muted dark:text-app-dark-text-muted hover:text-app-text dark:hover:text-app-dark-text"
+        >
+          {vestaShellUI.vestaViewMode === 'fullscreen' ? (
+            <Minimize2 className="w-5 h-5" />
+          ) : (
+            <Mic className="w-5 h-5" />
+          )}
+        </Button>
+
         {/* Theme Toggle */}
         <Button
           variant="light"

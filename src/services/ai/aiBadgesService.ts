@@ -3,11 +3,18 @@ import {
   calculateAIBadges,
   type BadgeData,
 } from '@/data/mocks/hooks/ai-badges';
+import { requestJson } from '@/services/shared/httpClient';
 
 export type { BadgeData };
 
-export function calculateBadges(): BadgeData {
+export async function calculateBadges(): Promise<BadgeData> {
   if (isMockMode()) return calculateAIBadges();
-  // TODO: Replace with API-backed badges when available.
-  return {};
+  try {
+    const data = await requestJson<BadgeData>('/ai/badges', {
+      fallbackMessage: 'Failed to load AI badges',
+    });
+    return data ?? {};
+  } catch {
+    return {};
+  }
 }

@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react';
 import { Card, Button, Badge, Progress, Input, Select, Switch } from '@/ui';
 import { Download, FileText, File, Table, Image as ImageIcon, Calendar, Filter, Check, Mail, Clock, Repeat , FileDown} from 'lucide-react';
 import { getInitialExportJobs, getReportTemplates, type ExportJob, type ReportTemplate } from '@/services/reports/reportExportService';
@@ -22,7 +23,7 @@ const defaultReportExportState: {
   exportFormat: 'pdf',
   dateRange: { start: '2024-01-01', end: '2024-12-31' },
   selectedSections: [],
-  exportJobs: getInitialExportJobs(),
+  exportJobs: [],
   scheduleEnabled: false,
   scheduleFrequency: 'weekly',
 };
@@ -33,12 +34,41 @@ const scheduleFrequencyOptions = [
   { value: 'quarterly', label: 'Quarterly' },
 ];
 
+const VALID_EXPORT_FORMATS = ['pdf', 'excel', 'csv', 'ppt'] as const;
+
+function normalizeFormat(format: unknown): (typeof VALID_EXPORT_FORMATS)[number] {
+  if (typeof format !== 'string') return 'pdf';
+  const normalized = format.trim().toLowerCase();
+  return (VALID_EXPORT_FORMATS as readonly string[]).includes(normalized)
+    ? (normalized as (typeof VALID_EXPORT_FORMATS)[number])
+    : 'pdf';
+}
+
+function formatDisplayLabel(format: unknown): string {
+  return normalizeFormat(format).toUpperCase();
+}
+
 export function ReportExport() {
   const dispatch = useAppDispatch();
   const { value: ui, patch: patchUI } = useUIKey('report-export', defaultReportExportState);
   const { selectedTemplate, exportFormat, dateRange, selectedSections, exportJobs, scheduleEnabled, scheduleFrequency } = ui;
-  const reportTemplates = getReportTemplates();
+  const [reportTemplates, setReportTemplates] = useState<ReportTemplate[]>([]);
   const formatOptions: ReportTemplate['format'][] = ['pdf', 'excel', 'csv', 'ppt'];
+  const safeSelectedSections = Array.isArray(selectedSections) ? selectedSections : [];
+  const selectedTemplateSections = Array.isArray(selectedTemplate?.sections)
+    ? selectedTemplate.sections.filter((section) => typeof section === 'string')
+    : [];
+
+  useEffect(() => {
+    let active = true;
+    Promise.all([getReportTemplates(), getInitialExportJobs()]).then(([templates, jobs]) => {
+      if (!active) return;
+      setReportTemplates(templates);
+      if (ui.exportJobs.length === 0) patchUI({ exportJobs: jobs });
+    });
+    return () => { active = false; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleExport = () => {
     if (!selectedTemplate) return;
@@ -47,14 +77,14 @@ export function ReportExport() {
 
   const toggleSection = (section: string) => {
     patchUI({
-      selectedSections: selectedSections.includes(section)
-        ? selectedSections.filter((s) => s !== section)
-        : [...selectedSections, section],
+      selectedSections: safeSelectedSections.includes(section)
+        ? safeSelectedSections.filter((s) => s !== section)
+        : [...safeSelectedSections, section],
     });
   };
 
-  const getFormatIcon = (format: string) => {
-    switch (format.toLowerCase()) {
+  const getFormatIcon = (format: unknown) => {
+    switch (normalizeFormat(format)) {
       case 'pdf': return <FileText className="w-4 h-4" />;
       case 'excel': return <Table className="w-4 h-4" />;
       case 'csv': return <File className="w-4 h-4" />;
@@ -100,8 +130,8 @@ export function ReportExport() {
                 onClick={() => {
                   patchUI({
                     selectedTemplate: template,
-                    exportFormat: template.format,
-                    selectedSections: template.sections,
+                    exportFormat: normalizeFormat(template.format),
+                    selectedSections: Array.isArray(template.sections) ? template.sections : [],
                   });
                 }}
               >
@@ -114,7 +144,7 @@ export function ReportExport() {
                       </Badge>
                       <Badge size="sm" variant="flat" className="bg-[var(--app-surface-hover)]">
                         {getFormatIcon(template.format)}
-                        <span className="ml-1">{template.format.toUpperCase()}</span>
+                        <span className="ml-1">{formatDisplayLabel(template.format)}</span>
                       </Badge>
                     </div>
                   </div>
@@ -243,19 +273,19 @@ export function ReportExport() {
                     Include Sections
                   </label>
                   <div className="space-y-2">
-                    {selectedTemplate.sections.map((section) => (
+                    {selectedTemplateSections.map((section) => (
                       <button
                         key={section}
                         onClick={() => toggleSection(section)}
                         className={`w-full text-left p-2 rounded-lg border transition-all ${
-                          selectedSections.includes(section)
+                          safeSelectedSections.includes(section)
                             ? 'border-[var(--app-primary)] bg-[var(--app-primary-bg)]'
                             : 'border-[var(--app-border)] hover:border-[var(--app-primary)]'
                         }`}
                       >
                         <div className="flex items-center justify-between">
                           <span className="text-sm">{section}</span>
-                          {selectedSections.includes(section) && (
+                          {safeSelectedSections.includes(section) && (
                             <Check className="w-4 h-4 text-[var(--app-primary)]" />
                           )}
                         </div>

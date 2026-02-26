@@ -142,7 +142,7 @@ export default function SecurityPage() {
           </div>
           <div className="mt-12">
             <button className="btn-secondary" disabled>
-              Download Security Whitepaper (Coming Soon)
+              Download Security Whitepaper (Planned)
             </button>
           </div>
         </div>

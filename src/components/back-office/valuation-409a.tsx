@@ -1,9 +1,11 @@
 'use client'
 
+import { useEffect } from 'react';
 import { Card, Button, Badge } from '@/ui';
 import { getRouteConfig, ROUTE_PATHS } from '@/config/routes';
 import { Download, Calendar, DollarSign, AlertCircle, CheckCircle, Clock, Building2, ChevronRight, Calculator } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
+import { DEFAULT_VALUATION_409A_TAB_ID, VALUATION_409A_TAB_IDS } from '@/config/valuation-409a-tabs';
 import { valuation409aRequested, valuation409aSelectors } from '@/store/slices/backOfficeSlice';
 import { AsyncStateRenderer } from '@/ui/async-states';
 import { formatCurrency } from '@/utils/formatting';
@@ -13,13 +15,23 @@ import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function Valuation409A() {
   const { data, isLoading, error, refetch } = useAsyncData(valuation409aRequested, valuation409aSelectors.selectState);
-  const { value: ui, patch: patchUI } = useUIKey('back-office-valuation-409a', { selectedTab: 'valuations' });
+  const { value: ui, patch: patchUI } = useUIKey('back-office-valuation-409a', { selectedTab: DEFAULT_VALUATION_409A_TAB_ID });
   const { selectedTab } = ui;
   const routeConfig = getRouteConfig(ROUTE_PATHS.valuations409a);
+
+  useEffect(() => {
+    if (!VALUATION_409A_TAB_IDS.has(selectedTab)) {
+      patchUI({ selectedTab: DEFAULT_VALUATION_409A_TAB_ID });
+    }
+  }, [patchUI, selectedTab]);
 
   const valuations = data?.valuations || [];
   const strikePrices = data?.strikePrices || [];
   const history = data?.history || [];
+  const averageFairMarketValue =
+    valuations.length > 0
+      ? valuations.reduce((acc, v) => acc + v.fairMarketValue, 0) / valuations.length
+      : 0;
 
   const getDaysUntilExpiration = (expirationDate: string) => {
     const today = new Date();
@@ -61,9 +73,7 @@ export function Valuation409A() {
       type: 'stats',
       props: {
         title: 'Avg. FMV',
-        value: formatCurrency(
-          valuations.reduce((acc, v) => acc + v.fairMarketValue, 0) / valuations.length
-        ),
+        value: formatCurrency(averageFairMarketValue),
         icon: DollarSign,
         variant: 'primary',
       },
@@ -99,25 +109,6 @@ export function Valuation409A() {
                 // Handle new valuation request
               },
             },
-            tabs: [
-              {
-                id: 'valuations',
-                label: 'Valuations',
-                count: valuations.length,
-              },
-              {
-                id: 'strike-prices',
-                label: 'Strike Prices',
-                count: strikePrices.length,
-              },
-              {
-                id: 'history',
-                label: 'Valuation History',
-                count: history.length,
-              },
-            ],
-            activeTab: selectedTab,
-            onTabChange: (tabId) => patchUI({ selectedTab: tabId }),
           }}
         >
 

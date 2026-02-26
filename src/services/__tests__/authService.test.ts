@@ -55,6 +55,32 @@ describe('authService', () => {
       expect(mockFetch).not.toHaveBeenCalled();
     });
 
+    it('accepts demo credentials when env password is dollar-escaped', async () => {
+      process.env.NEXT_PUBLIC_DEMO_PASSWORD = 'Pa$$$$w0rd';
+      vi.resetModules();
+
+      const { authenticateUser } = await import('@/services/authService');
+      const result = await authenticateUser('demo@vestledger.com', 'Pa$$w0rd');
+
+      expect(result.user.email).toBe('demo@vestledger.com');
+      expect(result.user.role).toBe('gp');
+      expect(result.dataModeOverride).toBe('mock');
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
+
+    it('accepts demo credentials when env password is dotenv-expanded', async () => {
+      process.env.NEXT_PUBLIC_DEMO_PASSWORD = 'Pa$';
+      vi.resetModules();
+
+      const { authenticateUser } = await import('@/services/authService');
+      const result = await authenticateUser('demo@vestledger.com', 'Pa$$w0rd');
+
+      expect(result.user.email).toBe('demo@vestledger.com');
+      expect(result.user.role).toBe('gp');
+      expect(result.dataModeOverride).toBe('mock');
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
+
     it('should return internal superadmin user with mock override when superadmin credentials are used', async () => {
       const { authenticateUser } = await import('@/services/authService');
       const result = await authenticateUser(
@@ -67,6 +93,19 @@ describe('authService', () => {
       expect(result.user.tenantId).toBe('org_vestledger_internal');
       expect(result.user.isPlatformAdmin).toBe(true);
       expect(result.accessToken).toBe('mock-superadmin-token');
+      expect(result.dataModeOverride).toBe('mock');
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
+
+    it('accepts superadmin credentials when env password is dotenv-expanded', async () => {
+      process.env.NEXT_PUBLIC_SUPERADMIN_PASSWORD = 'Pa$';
+      vi.resetModules();
+
+      const { authenticateUser } = await import('@/services/authService');
+      const result = await authenticateUser('superadmin@vestledger.com', 'Pa$$w0rd');
+
+      expect(result.user.email).toBe('superadmin@vestledger.com');
+      expect(result.user.role).toBe('superadmin');
       expect(result.dataModeOverride).toBe('mock');
       expect(mockFetch).not.toHaveBeenCalled();
     });

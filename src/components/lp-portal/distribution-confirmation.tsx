@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { Badge, Button, Card } from "@/ui";
 import { ListItemCard, SectionHeader, StatusBadge } from '@/ui/composites';
-import type { LPDistributionConfirmation } from "@/data/mocks/lp-portal/lp-investor-portal";
+import type { LPDistributionConfirmation } from "@/data/seeds/lp-portal/lp-investor-portal";
 import { formatCurrency, formatDate } from "@/utils/formatting";
 import { CheckCircle } from "lucide-react";
 

@@ -38,7 +38,7 @@ import {
   type TeamAccessSnapshot,
   type TeamMember,
 } from '@/services/internal/teamAccessService';
-import type { AssignableAppRole, OrganizationRole } from '@/data/mocks/internal/superadmin';
+import type { AssignableAppRole, OrganizationRole } from '@/data/seeds/internal/superadmin';
 
 interface SettingsSection {
   id: string;

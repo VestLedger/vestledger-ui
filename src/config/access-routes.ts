@@ -3,6 +3,7 @@ export const ACCESS_ROUTE_PATHS = Object.freeze({
   login: '/login',
   appHome: '/home',
   adminHome: '/superadmin',
+  vesta: '/vesta',
 });
 
 export const PUBLIC_MARKETING_ROUTES = Object.freeze([
@@ -16,6 +17,7 @@ export const PUBLIC_MARKETING_ROUTES = Object.freeze([
 
 export const DASHBOARD_ROUTE_PREFIXES = Object.freeze([
   ACCESS_ROUTE_PATHS.appHome,
+  ACCESS_ROUTE_PATHS.vesta,
   '/portfolio',
   '/analytics',
   '/pipeline',
@@ -27,6 +29,7 @@ export const DASHBOARD_ROUTE_PREFIXES = Object.freeze([
   '/audit-trail',
   '/409a-valuations',
   '/integrations',
+  '/collaboration',
   '/settings',
   '/tax-center',
   '/waterfall',

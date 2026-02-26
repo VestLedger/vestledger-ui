@@ -1,8 +1,9 @@
 'use client'
 
+import { useEffect } from 'react';
 import { useUIKey } from '@/store/ui';
 import { CheckCircle2, Clock, Eye, FileText, Users, DollarSign, BarChart, Upload, Download, Search, Filter, TrendingUp, AlertCircle, ArrowLeft, Brain } from 'lucide-react';
-import { Card, Badge, Progress, Button, Tabs, Tab, PageContainer } from '@/ui';
+import { Card, Badge, Progress, Button, PageContainer } from '@/ui';
 import { CompanySearch } from './deal-intelligence/company-search';
 import { dealIntelligenceRequested, dealIntelligenceSelectors } from '@/store/slices/dealIntelligenceSlice';
 import { AsyncStateRenderer } from '@/ui/async-states';
@@ -10,6 +11,7 @@ import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys'
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { KeyValueRow, ListItemCard, PageScaffold, SearchToolbar, SectionHeader, StatusBadge } from '@/ui/composites';
 import { ROUTE_PATHS } from '@/config/routes';
+import { DEFAULT_DEAL_INTELLIGENCE_TAB_ID, DEAL_INTELLIGENCE_TAB_IDS } from '@/config/deal-intelligence-tabs';
 import {
   type ActiveDeal,
   type Document,
@@ -23,14 +25,31 @@ export function DealIntelligence() {
     UI_STATE_KEYS.DEAL_INTELLIGENCE,
     UI_STATE_DEFAULTS.dealIntelligence
   );
-  const { viewMode, selectedDeal, searchQuery, selectedCategory } = ui;
+  const { viewMode, selectedDeal, searchQuery, selectedCategory, selectedDetailTab } = ui;
+  const activeDetailTab = DEAL_INTELLIGENCE_TAB_IDS.has(selectedDetailTab)
+    ? selectedDetailTab
+    : DEFAULT_DEAL_INTELLIGENCE_TAB_ID;
+
+  useEffect(() => {
+    if (!DEAL_INTELLIGENCE_TAB_IDS.has(selectedDetailTab)) {
+      patchUI({ selectedDetailTab: DEFAULT_DEAL_INTELLIGENCE_TAB_ID });
+    }
+  }, [patchUI, selectedDetailTab]);
 
   const handleDealClick = (deal: ActiveDeal) => {
-    patchUI({ selectedDeal: deal, viewMode: 'per-deal' });
+    patchUI({
+      selectedDeal: deal,
+      viewMode: 'per-deal',
+      selectedDetailTab: DEFAULT_DEAL_INTELLIGENCE_TAB_ID,
+    });
   };
 
   const handleBackToFundView = () => {
-    patchUI({ viewMode: 'fund-level', selectedDeal: null });
+    patchUI({
+      viewMode: 'fund-level',
+      selectedDeal: null,
+      selectedDetailTab: DEFAULT_DEAL_INTELLIGENCE_TAB_ID,
+    });
   };
 
   return (
@@ -82,15 +101,6 @@ export function DealIntelligence() {
                   text: `${dealsReadyForIC} deals ready for IC. ${overdueDocuments} overdue documents need immediate attention. ${dealsInProgress} deals in active DD. Average DD completion: ${fundAnalytics.ddProgress.avgCompletion}%.`,
                   confidence: 0.93,
                 },
-                tabs: [
-                  {
-                    id: 'fund-level',
-                    label: 'Fund Overview',
-                    count: fundAnalytics.ddProgress.atRisk,
-                    priority: fundAnalytics.ddProgress.atRisk > 0 ? 'high' : undefined,
-                  },
-                ],
-                activeTab: 'fund-level',
               }}
             >
 
@@ -408,10 +418,8 @@ export function DealIntelligence() {
           />
         </div>
 
-        {/* Tabs */}
-        <Tabs aria-label="Deal Intelligence Tabs" variant="underlined" classNames={{ tabList: "mb-4" }}>
-          <Tab key="overview" title="Overview & Status">
-
+        <div className="mt-4">
+          {activeDetailTab === 'overview' && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* DD Progress by Category */}
               <Card padding="md">
@@ -467,10 +475,10 @@ export function DealIntelligence() {
                 </div>
               </Card>
             </div>
-          </Tab>
+          )}
 
-          <Tab key="analytics" title="Deal Analytics">
-            {(() => {
+          {activeDetailTab === 'analytics' &&
+            (() => {
               const analytics = dealAnalyticsData.find((d) => d.dealId === selectedDeal.id);
               if (!analytics) {
                 return (
@@ -720,9 +728,8 @@ export function DealIntelligence() {
                 </div>
               );
             })()}
-          </Tab>
 
-          <Tab key="documents" title="DD Documents">
+          {activeDetailTab === 'documents' && (
             <div>
               {/* Search and Filter */}
               <div className="mb-4">
@@ -855,26 +862,26 @@ export function DealIntelligence() {
                 )}
               </Card>
             </div>
-          </Tab>
+          )}
 
-          <Tab key="analysis" title="Analysis & Insights">
+          {activeDetailTab === 'analysis' && (
             <Card padding="md">
               <div className="text-center py-12 text-[var(--app-text-muted)]">
                 <Brain className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>Investment thesis and analysis coming soon</p>
+                <p>Investment thesis and analysis workspace is staged for the next release increment.</p>
               </div>
             </Card>
-          </Tab>
+          )}
 
-          <Tab key="ic-materials" title="IC Materials">
+          {activeDetailTab === 'ic-materials' && (
             <Card padding="md">
               <div className="text-center py-12 text-[var(--app-text-muted)]">
                 <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>Investment Committee materials coming soon</p>
+                <p>Investment Committee materials workspace is staged for the next release increment.</p>
               </div>
             </Card>
-          </Tab>
-        </Tabs>
+          )}
+        </div>
             </PageContainer>
           );
         }

@@ -45,6 +45,9 @@ export type { RadioProps, RadioGroupProps, RadioOption } from './RadioGroup';
 export { Textarea } from './Textarea';
 export type { TextareaProps } from './Textarea';
 
+export { SafeHtml } from './SafeHtml';
+export type { SafeHtmlProps } from './SafeHtml';
+
 export { Tabs, Tab } from './Tabs';
 export type { TabsProps, TabProps } from './Tabs';
 

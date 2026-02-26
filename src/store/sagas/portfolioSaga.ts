@@ -5,7 +5,8 @@ import {
   portfolioUpdatesLoaded,
   portfolioUpdatesFailed,
 } from '@/store/slices/portfolioSlice';
-import { getPortfolioUpdates } from '@/services/portfolio/portfolioDataService';
+import { fetchPortfolioSnapshot } from '@/services/portfolio/portfolioDataService';
+import { fetchPortfolioDocumentsSnapshot } from '@/services/portfolio/portfolioDocumentsService';
 import { normalizeError } from '@/store/utils/normalizeError';
 import { logger } from '@/lib/logger';
 
@@ -13,11 +14,13 @@ import { logger } from '@/lib/logger';
  * Worker saga: Load portfolio updates
  */
 export function* loadPortfolioUpdatesWorker(
-  _action: ReturnType<typeof portfolioUpdatesRequested>
+  action: ReturnType<typeof portfolioUpdatesRequested>
 ): SagaIterator {
   try {
-    const updates = yield call(getPortfolioUpdates);
-    yield put(portfolioUpdatesLoaded({ updates }));
+    const fundId = action.payload?.fundId ?? null;
+    const snapshot = yield call(fetchPortfolioSnapshot, fundId);
+    yield call(fetchPortfolioDocumentsSnapshot, fundId);
+    yield put(portfolioUpdatesLoaded({ updates: snapshot.updates }));
   } catch (error: unknown) {
     logger.error('Failed to load portfolio updates', error);
     yield put(portfolioUpdatesFailed(normalizeError(error)));

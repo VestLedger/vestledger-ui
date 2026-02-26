@@ -6,6 +6,9 @@ export type FeatureName =
   | 'auth'
   | 'funds'
   | 'alerts'
+  | 'search'
+  | 'reports'
+  | 'analytics'
   | 'documents'
   | 'portfolio'
   | 'pipeline'
@@ -18,7 +21,36 @@ export type FeatureName =
   | 'integrations'
   | 'lpPortal'
   | 'auditTrail'
-  | 'companySearch';
+  | 'companySearch'
+  | 'collaboration'
+  | 'onboarding';
+
+/**
+ * Audited features where mock fallback should be blocked while running in API mode.
+ * This supports the UI-to-API wiring initiative.
+ */
+export const AUDITED_NO_MOCK_FEATURES: readonly FeatureName[] = [
+  'auth',
+  'funds',
+  'alerts',
+  'reports',
+  'analytics',
+  'documents',
+  'portfolio',
+  'pipeline',
+  'dashboards',
+  'dealflow',
+  'backOffice',
+  'ai',
+  'dealIntelligence',
+  'crm',
+  'integrations',
+  'lpPortal',
+  'auditTrail',
+  'companySearch',
+  'collaboration',
+  'onboarding',
+] as const;
 
 /**
  * Feature flags for per-feature mock/API mode control.
@@ -26,23 +58,27 @@ export type FeatureName =
  * If not specified, falls back to global DATA_MODE.
  */
 const featureFlags: Partial<Record<FeatureName, boolean>> = {
-  // All features set to mock mode (false = use mock data)
-  auth: false,
-  funds: false,
-  alerts: false,
-  documents: false,
-  portfolio: false,
-  pipeline: false,
-  dashboards: false,
-  dealflow: false,
-  backOffice: false,
-  ai: false,
-  dealIntelligence: false,
-  crm: false,
-  integrations: false,
-  lpPortal: false,
-  auditTrail: false,
-  companySearch: false,
+  auth: true,
+  funds: true,
+  alerts: true,
+  search: true,
+  reports: true,
+  analytics: true,
+  documents: true,
+  portfolio: true,
+  pipeline: true,
+  dashboards: true,
+  dealflow: true,
+  backOffice: true,
+  ai: true,
+  dealIntelligence: true,
+  crm: true,
+  integrations: true,
+  lpPortal: true,
+  auditTrail: true,
+  companySearch: true,
+  collaboration: true,
+  onboarding: true,
 };
 
 export const DATA_MODE_OVERRIDE_KEY = 'dataModeOverride';
@@ -106,4 +142,20 @@ export function isMockMode(feature?: FeatureName): boolean {
 
   // Fall back to global mode
   return getDataMode() === 'mock';
+}
+
+/**
+ * Whether this runtime should disallow mock fallbacks for a feature.
+ * In API mode, audited features should not silently fall back to bundled mock data.
+ */
+export function isAuditedNoMockRuntime(feature?: FeatureName): boolean {
+  if (getDataMode() !== 'api') {
+    return false;
+  }
+
+  if (!feature) {
+    return true;
+  }
+
+  return AUDITED_NO_MOCK_FEATURES.includes(feature);
 }
