@@ -106,6 +106,7 @@ const navigationStructure = {
       { id: 'dashboard', href: ROUTE_PATHS.dashboard, label: 'Dashboard', icon: LayoutDashboard },
       { id: 'pipeline', href: ROUTE_PATHS.pipeline, label: 'Pipeline', icon: GitBranch },
       { id: 'portfolio', href: ROUTE_PATHS.portfolio, label: 'Portfolio', icon: Briefcase },
+      { id: 'ai-tools', href: ROUTE_PATHS.aiTools, label: 'AI Tools', icon: Sparkles },
     ],
   },
   dealManagement: {
@@ -164,7 +165,6 @@ const navigationStructure = {
       { id: 'reports', href: ROUTE_PATHS.reports, label: 'Reports', icon: FileDown },
       { id: 'integrations', href: ROUTE_PATHS.integrations, label: 'Integrations', icon: Plug },
       { id: 'collaboration', href: ROUTE_PATHS.collaboration, label: 'Collaboration', icon: MessageSquare },
-      { id: 'ai-tools', href: ROUTE_PATHS.aiTools, label: 'AI Tools', icon: Sparkles },
     ],
   },
 };

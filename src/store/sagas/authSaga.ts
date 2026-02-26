@@ -28,6 +28,7 @@ import {
 const STORAGE_AUTH_KEY = 'isAuthenticated';
 const STORAGE_USER_KEY = 'user';
 const STORAGE_TOKEN_KEY = 'accessToken';
+const STORAGE_ARCHIVED_FUND_IDS = 'vestledger-archived-fund-ids';
 
 function getCookieValue(name: string): string | null {
   if (typeof document === 'undefined') return null;
@@ -93,17 +94,19 @@ function resolveHydratedDataMode(
   cookieModeRaw: string | null,
   user: User,
 ): DataMode | null {
+  if (isKnownMockUser(user)) {
+    return "mock";
+  }
+
   const storageMode = parseDataMode(storageModeRaw);
   if (storageMode) return storageMode;
 
   const cookieMode = parseDataMode(cookieModeRaw);
   if (cookieMode) return cookieMode;
 
-  if (isKnownMockUser(user)) {
-    return "mock";
-  }
-
-  return null;
+  // Authenticated non-demo sessions should default to API mode even if
+  // NEXT_PUBLIC_DATA_MODE is mock in local dev.
+  return 'api';
 }
 
 function getAuthCookieDomain(hostname?: string | null) {
@@ -167,6 +170,9 @@ function* hydrateAuthWorker() {
     if (hydratedMode) {
       safeLocalStorage.setItem(DATA_MODE_OVERRIDE_KEY, hydratedMode);
       setDataModeCookie(hydratedMode);
+      if (hydratedMode === 'mock') {
+        safeLocalStorage.removeItem(STORAGE_ARCHIVED_FUND_IDS);
+      }
     } else {
       safeLocalStorage.removeItem(DATA_MODE_OVERRIDE_KEY);
       clearDataModeCookie();
@@ -202,6 +208,9 @@ export function* loginWorker(action: ReturnType<typeof loginRequested>) {
     const modeOverride: DataMode = isDemoCredentials(email, password) ? 'mock' : 'api';
     safeLocalStorage.setItem(DATA_MODE_OVERRIDE_KEY, modeOverride);
     setDataModeCookie(modeOverride);
+    if (modeOverride === 'mock') {
+      safeLocalStorage.removeItem(STORAGE_ARCHIVED_FUND_IDS);
+    }
     const result: AuthResult = yield call(authenticateUser, email, password);
 
     // Persist to localStorage
@@ -211,6 +220,9 @@ export function* loginWorker(action: ReturnType<typeof loginRequested>) {
     if (result.dataModeOverride) {
       safeLocalStorage.setItem(DATA_MODE_OVERRIDE_KEY, result.dataModeOverride);
       setDataModeCookie(result.dataModeOverride);
+      if (result.dataModeOverride === 'mock') {
+        safeLocalStorage.removeItem(STORAGE_ARCHIVED_FUND_IDS);
+      }
     } else {
       safeLocalStorage.removeItem(DATA_MODE_OVERRIDE_KEY);
       clearDataModeCookie();

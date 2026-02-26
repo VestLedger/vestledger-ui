@@ -1,9 +1,12 @@
 import { isMockMode } from '@/config/data-mode';
-import type { DashboardData as SeedDashboardData } from '@/data/seeds/hooks/dashboard-data';
+import {
+  getMockDashboardData,
+  type DashboardData as MockDashboardData,
+} from '@/data/mocks/hooks/dashboard-data';
 import { requestJson } from '@/services/shared/httpClient';
 import type { Fund, FundViewMode } from '@/types/fund';
 
-export type DashboardData = SeedDashboardData;
+export type DashboardData = MockDashboardData;
 
 export function createEmptyDashboardData(): DashboardData {
   return {
@@ -132,10 +135,10 @@ function normalizeDashboardPayload(payload: unknown): DashboardData {
 export async function getDashboardData(
   selectedFund: Fund | null,
   viewMode: FundViewMode,
-  _funds: Fund[] = []
+  funds: Fund[] = []
 ): Promise<DashboardData> {
   if (isMockMode('dashboards')) {
-    return createEmptyDashboardData();
+    return getMockDashboardData(selectedFund, viewMode, funds);
   }
 
   const payload = await requestJson<unknown>('/dashboard', {

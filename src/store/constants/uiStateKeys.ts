@@ -46,6 +46,7 @@ export const UI_STATE_DEFAULTS = {
   vestaShell: {
     vestaViewMode: 'sidebar' as 'collapsed' | 'sidebar' | 'fullscreen',
     voiceCaptureMode: 'tap' as 'tap' | 'hold',
+    voiceCaptureRequestNonce: 0,
     activeThreadContext: {
       contextType: 'route' as 'route' | 'route-tab',
       contextId: '/home',

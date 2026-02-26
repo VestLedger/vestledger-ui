@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { Search, ChevronDown, LogOut, Sparkles, Moon, Sun, Mic, Minimize2 } from 'lucide-react';
+import { Search, ChevronDown, LogOut, Sparkles, Moon, Sun, Mic } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 import { Button, Badge, Card, Input } from '@/ui';
 import { useRouter } from 'next/navigation';
@@ -124,12 +124,20 @@ export function Topbar() {
     patchTopbarUI({ searchQuery: '', isSearchFocused: false });
   };
 
-  const handleToggleVoiceMode = () => {
+  const handleStartVoiceCapture = () => {
     if (sidebarState.rightCollapsed) {
       toggleRightSidebar();
     }
+
+    const currentNonce =
+      typeof vestaShellUI.voiceCaptureRequestNonce === 'number'
+        ? vestaShellUI.voiceCaptureRequestNonce
+        : 0;
+
     patchVestaShellUI({
-      vestaViewMode: vestaShellUI.vestaViewMode === 'fullscreen' ? 'sidebar' : 'fullscreen',
+      vestaViewMode: 'sidebar',
+      voiceCaptureMode: 'tap',
+      voiceCaptureRequestNonce: currentNonce + 1,
     });
   };
 
@@ -159,7 +167,16 @@ export function Topbar() {
               topbarUI.searchQuery && searchResults.some(r => r.type === 'ai-suggestion') ? (
                 <Sparkles className="w-4 h-4 text-app-primary dark:text-app-dark-primary" />
               ) : (
-                <Search className="w-4 h-4 text-app-text-subtle dark:text-app-dark-text-subtle" />
+                <button
+                  type="button"
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={handleStartVoiceCapture}
+                  aria-label="Open Vesta and start voice capture"
+                  title="Open Vesta and start tap-to-talk"
+                  className="pointer-events-auto rounded-full p-0.5 text-app-text-subtle dark:text-app-dark-text-subtle hover:text-app-text dark:hover:text-app-dark-text"
+                >
+                  <Mic className="w-4 h-4" />
+                </button>
               )
             }
             className="w-full"
@@ -230,27 +247,10 @@ export function Topbar() {
 
       {/* Right: Actions and User */}
       <div className="flex items-center gap-2 ml-4">
-        <Button
-          variant={vestaShellUI.vestaViewMode === 'fullscreen' ? 'flat' : 'light'}
-          isIconOnly
-          onPress={handleToggleVoiceMode}
-          aria-label={
-            vestaShellUI.vestaViewMode === 'fullscreen'
-              ? 'Exit full-width Vesta voice mode'
-              : 'Expand Vesta to full-width voice mode'
-          }
-          className="text-app-text-muted dark:text-app-dark-text-muted hover:text-app-text dark:hover:text-app-dark-text"
-        >
-          {vestaShellUI.vestaViewMode === 'fullscreen' ? (
-            <Minimize2 className="w-5 h-5" />
-          ) : (
-            <Mic className="w-5 h-5" />
-          )}
-        </Button>
-
         {/* Theme Toggle */}
         <Button
           variant="light"
+          color="default"
           isIconOnly
           onPress={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
           aria-label="Toggle theme"
@@ -273,7 +273,8 @@ export function Topbar() {
         {/* User Profile Dropdown */}
         <div className="relative">
           <Button
-            variant="flat"
+            variant="light"
+            color="default"
             className="gap-2"
             endContent={<ChevronDown className={`w-4 h-4 transition-transform ${topbarUI.isProfileOpen ? 'rotate-180' : ''}`} />}
             onPress={() => patchTopbarUI({ isProfileOpen: !topbarUI.isProfileOpen })}

@@ -127,12 +127,15 @@ export function NotificationCenter({
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Notification Bell Button */}
-      <button
-        onClick={() => patchUI({ isOpen: !isOpen })}
-        className="relative p-2 rounded-lg hover:bg-[var(--app-surface-hover)] transition-colors"
+      <Button
+        variant="light"
+        color="default"
+        isIconOnly
+        onPress={() => patchUI({ isOpen: !isOpen })}
+        className="relative text-[var(--app-text-muted)] hover:text-[var(--app-text)]"
         aria-label="Notifications"
       >
-        <Bell className="w-5 h-5 text-[var(--app-text-muted)]" />
+        <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
           <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--app-danger)] opacity-75" />
@@ -141,7 +144,7 @@ export function NotificationCenter({
             </span>
           </span>
         )}
-      </button>
+      </Button>
 
       {/* Dropdown */}
       <AnimatePresence>

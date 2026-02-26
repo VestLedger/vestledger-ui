@@ -246,10 +246,30 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
   const speechRef = useRef<BrowserSpeechRecognition | null>(null);
   const transcriptBufferRef = useRef('');
   const lastSpokenMessageIdRef = useRef<string | null>(null);
+  const lastVoiceCaptureRequestRef = useRef(0);
+  const ttsPrimedRef = useRef(false);
+
+  const primeSpeechSynthesis = useCallback(() => {
+    if (typeof window === 'undefined') return;
+    if (ttsPrimedRef.current) return;
+    if (!('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') return;
+
+    try {
+      const synth = window.speechSynthesis;
+      const primer = new SpeechSynthesisUtterance(' ');
+      primer.volume = 0;
+      synth.speak(primer);
+      synth.cancel();
+      ttsPrimedRef.current = true;
+    } catch {
+      // noop
+    }
+  }, []);
 
   const speakAssistantReply = useCallback((content: string) => {
     if (typeof window === 'undefined') return;
     if (!('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') return;
+    primeSpeechSynthesis();
 
     const synth = window.speechSynthesis;
     const utterance = new SpeechSynthesisUtterance(content);
@@ -291,7 +311,20 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
     }
 
     play();
-  }, []);
+  }, [primeSpeechSynthesis]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handlePrime = () => primeSpeechSynthesis();
+
+    window.addEventListener('pointerdown', handlePrime, { passive: true });
+    window.addEventListener('keydown', handlePrime);
+
+    return () => {
+      window.removeEventListener('pointerdown', handlePrime);
+      window.removeEventListener('keydown', handlePrime);
+    };
+  }, [primeSpeechSynthesis]);
 
   useEffect(() => {
     setSpeechSupported(Boolean(getSpeechRecognitionCtor()));
@@ -388,22 +421,25 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
   }, [dispatch, pathname, currentTab]);
 
   const handleSendMessage = useCallback(() => {
+    primeSpeechSynthesis();
     dispatch(sendMessageRequested({ pathname, content: inputValue }));
-  }, [dispatch, inputValue, pathname]);
+  }, [dispatch, inputValue, pathname, primeSpeechSynthesis]);
 
   const handleQuickAction = useCallback(
     (action: QuickAction) => {
+      primeSpeechSynthesis();
       action.onClick?.();
       dispatch(quickActionInvoked({ pathname, action }));
     },
-    [dispatch, pathname]
+    [dispatch, pathname, primeSpeechSynthesis]
   );
 
   const handleSuggestionClick = useCallback(
     (suggestion: Suggestion) => {
+      primeSpeechSynthesis();
       dispatch(suggestionInvoked({ suggestion }));
     },
-    [dispatch]
+    [dispatch, primeSpeechSynthesis]
   );
 
   const handleMessageSpeech = useCallback(
@@ -503,6 +539,20 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
     if (resolvedVestaShellUI.voiceCaptureMode !== 'tap') return;
     stopVoiceCapture();
   }, [resolvedVestaShellUI.voiceCaptureMode, stopVoiceCapture]);
+
+  useEffect(() => {
+    const requestNonce =
+      typeof resolvedVestaShellUI.voiceCaptureRequestNonce === 'number'
+        ? resolvedVestaShellUI.voiceCaptureRequestNonce
+        : 0;
+
+    if (requestNonce <= 0) return;
+    if (requestNonce === lastVoiceCaptureRequestRef.current) return;
+
+    lastVoiceCaptureRequestRef.current = requestNonce;
+    startVoiceCapture();
+    patchVestaShellUI({ voiceCaptureRequestNonce: 0 });
+  }, [patchVestaShellUI, resolvedVestaShellUI.voiceCaptureRequestNonce, startVoiceCapture]);
 
   const handleOpenFromBubble = useCallback(() => {
     patchVestaShellUI({ vestaViewMode: 'sidebar' });
