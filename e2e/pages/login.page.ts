@@ -15,9 +15,13 @@ export class LoginPage {
     this.emailInput = page.locator('input[type="email"], input[type="text"]').first();
     this.passwordInput = page.locator('input[type="password"]');
     this.signInButton = page.getByRole('button', { name: /sign in/i });
-    const errorContainers = page.locator('[role="alert"], [class*="danger"], [class*="error"]');
-    const errorText = page.getByText(/sign-in failed|failed to fetch|invalid|incorrect|unauthorized/i);
-    this.errorMessage = errorContainers.or(errorText);
+    const toastError = page.getByRole('alert').filter({
+      hasText: /sign-in failed|failed to fetch|invalid|incorrect|unauthorized|unable to sign in/i,
+    });
+    const inlineError = page.locator('form').getByText(
+      /incorrect email or password|failed to fetch|login failed|unable to sign in/i
+    );
+    this.errorMessage = toastError.or(inlineError);
     this.requestAccessLink = page.getByRole('link', { name: /request access/i });
     this.brandLogo = page.locator('.text-2xl').filter({ hasText: 'VestLedger' });
   }

@@ -52,6 +52,22 @@ describe('webVitalsService', () => {
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
+  it('skips network submission in development mode', async () => {
+    const originalNodeEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'development';
+    mocks.isMockMode.mockReturnValue(false);
+    const fetchSpy = vi.spyOn(global, 'fetch');
+
+    try {
+      await reportWebVitalMetric(SAMPLE_METRIC);
+    } finally {
+      process.env.NODE_ENV = originalNodeEnv;
+    }
+
+    expect(getWebVitalMetricsBuffer()).toEqual([SAMPLE_METRIC]);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
   it('posts metric to observability endpoint in api mode', async () => {
     mocks.isMockMode.mockReturnValue(false);
     const fetchSpy = vi

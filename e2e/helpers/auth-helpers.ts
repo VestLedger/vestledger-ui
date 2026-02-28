@@ -13,8 +13,8 @@ export type TestUserRole =
   | 'strategic_partner';
 
 const DEFAULT_TEST_USER = {
-  email: process.env.TEST_USER_EMAIL || process.env.NEXT_PUBLIC_DEMO_EMAIL || 'demo@vestledger.com',
-  password: process.env.TEST_USER_PASSWORD || process.env.NEXT_PUBLIC_DEMO_PASSWORD || 'Pa$$w0rd',
+  email: process.env.TEST_USER_EMAIL || 'gp@vestledger.com',
+  password: process.env.TEST_USER_PASSWORD || 'Password123!',
   role: (process.env.TEST_USER_ROLE as TestUserRole | undefined) || 'gp',
 };
 const AUTH_STORAGE_KEY = 'isAuthenticated';

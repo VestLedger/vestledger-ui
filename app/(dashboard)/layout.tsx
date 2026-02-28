@@ -92,7 +92,7 @@ function DashboardLayoutInner({
     return (
       <DashboardDensityProvider mode={densityMode}>
         <div
-          className="h-screen bg-[var(--app-bg)] text-[var(--app-text)]"
+          className="gp-home-skin h-screen bg-[var(--app-bg)] text-[var(--app-text)]"
           data-dashboard-density={densityMode}
         >
           <AICopilotSidebar mode="standalone" />
@@ -104,7 +104,7 @@ function DashboardLayoutInner({
 
   return (
     <DashboardDensityProvider mode={densityMode}>
-      <div className="relative flex h-screen bg-[var(--app-bg)] text-[var(--app-text)]" data-dashboard-density={densityMode}>
+      <div className="gp-home-skin relative flex h-screen bg-[var(--app-bg)] text-[var(--app-text)]" data-dashboard-density={densityMode}>
         <SidebarGrouped />
         <div className="flex-1 flex flex-col overflow-hidden">
           <Topbar />
@@ -229,7 +229,9 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
   return (
     <NavigationProvider>
-      <DashboardLayoutInner isVestaRoute={isVestaRoute}>{resolvedChildren}</DashboardLayoutInner>
+      <DashboardLayoutInner isVestaRoute={isVestaRoute}>
+        {resolvedChildren}
+      </DashboardLayoutInner>
     </NavigationProvider>
   )
 }

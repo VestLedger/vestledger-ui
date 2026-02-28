@@ -42,19 +42,25 @@ function addToBuffer(metric: WebVitalMetric): void {
   }
 }
 
+function isDevelopmentRuntime(): boolean {
+  return process.env.NODE_ENV === 'development';
+}
+
 export async function reportWebVitalMetric(metric: WebVitalMetric): Promise<void> {
   const payload = toSerializableMetric(metric);
   addToBuffer(payload);
 
+  if (isDevelopmentRuntime()) {
+    return;
+  }
+
   if (isMockMode()) {
-    if (process.env.NODE_ENV === 'development') {
-      logger.info('Captured web-vital metric (mock mode)', {
-        metric: payload.name,
-        value: payload.value,
-        rating: payload.rating,
-        navigationType: payload.navigationType,
-      });
-    }
+    logger.info('Captured web-vital metric (mock mode)', {
+      metric: payload.name,
+      value: payload.value,
+      rating: payload.rating,
+      navigationType: payload.navigationType,
+    });
     return;
   }
 

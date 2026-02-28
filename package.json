@@ -26,6 +26,7 @@
     "playwright:headed": "playwright test --headed",
     "playwright:debug": "playwright test --debug",
     "playwright:report": "playwright show-report",
+    "playwright:per-file": "bash scripts/playwright-per-file.sh",
     "audit:ui-centralization": "node scripts/ui-centralization-audit.mjs",
     "audit:ui-centralization:enforce": "node scripts/ui-centralization-audit.mjs --enforce",
     "audit:routing-mode-centralization": "node scripts/routing-mode-centralization-audit.mjs",

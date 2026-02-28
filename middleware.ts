@@ -87,6 +87,31 @@ function parseHost(hostHeader: string): ParsedHost {
   };
 }
 
+function splitHostPort(host: string): { hostname: string; port: string } {
+  const [hostnameRaw, port = ''] = host.split(':');
+  return { hostname: hostnameRaw.toLowerCase(), port };
+}
+
+function preserveIncomingHostPort(
+  incomingHost: string,
+  targetHost: string
+): string {
+  if (!incomingHost) return targetHost;
+  if (!targetHost) return incomingHost;
+
+  const incoming = splitHostPort(incomingHost);
+  const target = splitHostPort(targetHost);
+
+  // Same hostname: avoid bouncing to an alternate/internal port (e.g. :3001)
+  // when the incoming request is already on the desired public host.
+  if (incoming.hostname === target.hostname) {
+    if (!incoming.port) return incoming.hostname;
+    if (target.port && target.port !== incoming.port) return incomingHost;
+  }
+
+  return targetHost;
+}
+
 function resolveBaseHostname(hostname: string): string {
   return hostname.replace(/^www\./, '').replace(/^app\./, '').replace(/^admin\./, '');
 }
@@ -120,8 +145,12 @@ function redirectToHost(
   pathname: string,
   search?: URLSearchParams
 ): NextResponse {
+  const target = splitHostPort(targetHost);
   const redirectUrl = new URL(requestUrl.toString());
-  redirectUrl.host = targetHost;
+  redirectUrl.hostname = target.hostname;
+  // Explicitly clear the existing port when targetHost does not include one.
+  // Setting URL.host without a port preserves the old non-default port (e.g. :3001).
+  redirectUrl.port = target.port || '';
   redirectUrl.pathname = pathname;
 
   if (search) {
@@ -224,15 +253,19 @@ export function middleware(request: NextRequest) {
   const derivedAdminHost = buildHostForType(hostname, '', 'admin');
   const derivedPublicHost = buildHostForType(hostname, '', 'public');
 
+  const appHostCandidate = configuredAppHost || derivedAppHost || rawHost;
+  const adminHostCandidate = configuredAdminHost || derivedAdminHost || rawHost;
+  const publicHostCandidate = configuredPublicHost || derivedPublicHost || rawHost;
+
   const appHost = hostType === 'localhost'
     ? rawHost
-    : configuredAppHost || derivedAppHost || rawHost;
+    : preserveIncomingHostPort(rawHost, appHostCandidate);
   const adminHost = hostType === 'localhost'
     ? rawHost
-    : configuredAdminHost || derivedAdminHost || rawHost;
+    : preserveIncomingHostPort(rawHost, adminHostCandidate);
   const publicHost = hostType === 'localhost'
     ? rawHost
-    : configuredPublicHost || derivedPublicHost || rawHost;
+    : preserveIncomingHostPort(rawHost, publicHostCandidate);
 
   const currentUser = parseUserCookie(request);
   const hasValidUserIdentity = Boolean(currentUser?.email && currentUser?.role);

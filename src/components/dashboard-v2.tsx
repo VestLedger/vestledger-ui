@@ -242,7 +242,6 @@ export function DashboardV2() {
 
     return (
       <PageScaffold
-        containerProps={{ className: 'gp-home-skin' }}
         breadcrumbs={routeConfig?.breadcrumbs || [{ label: 'Dashboard' }]}
         aiSuggestion={routeConfig?.aiSuggestion}
         header={{
