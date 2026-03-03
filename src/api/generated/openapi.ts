@@ -196,6 +196,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/funds/{id}/active-waterfall": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the active waterfall scenario for a fund */
+        get: operations["FundsController_getActiveWaterfall"];
+        /** Set the active waterfall scenario for a fund */
+        put: operations["FundsController_setActiveWaterfall"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/funds/{fundId}/portfolio": {
         parameters: {
             query?: never;
@@ -2492,6 +2510,12 @@ export interface components {
             username: string;
             /** @example Jane Doe */
             name: string;
+            /** @example +1-555-123-4567 */
+            phone?: Record<string, never> | null;
+            /** @example Fund Manager */
+            jobTitle?: Record<string, never> | null;
+            /** @example 65f0d2c6a2d4b8746a1f91de */
+            orgId?: Record<string, never> | null;
             /**
              * @description User role for authorization
              * @example user
@@ -2501,7 +2525,7 @@ export interface components {
         AuthResponseDto: {
             user: components["schemas"]["UserResponseDto"];
             /**
-             * @description JWT access token containing sub, email, username, and role claims
+             * @description JWT access token containing sub, email, username, orgId, and role claims
              * @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
              */
             access_token: string;
@@ -2533,11 +2557,6 @@ export interface components {
             name?: string;
             /** @example user@example.com */
             email?: string;
-            /**
-             * @example analyst
-             * @enum {string}
-             */
-            role?: "gp" | "analyst" | "ops" | "ir" | "researcher" | "lp" | "auditor" | "service_provider" | "strategic_partner";
             /** @example +1-555-123-4567 */
             phone?: string;
             /** @example Fund Manager */
@@ -2616,6 +2635,11 @@ export interface components {
             endDate?: string;
             /** @example Early-stage venture fund focused on B2B SaaS */
             description?: string;
+            /**
+             * @description Waterfall scenario ID to attach as active for this fund
+             * @example 507f1f77bcf86cd799439099
+             */
+            activeWaterfallId: string;
         };
         UpdateFundDto: {
             /** @example Venture Fund I */
@@ -2690,6 +2714,18 @@ export interface components {
             endDate?: string;
             /** @example Early-stage venture fund focused on B2B SaaS */
             description?: string;
+            /**
+             * @description Waterfall scenario ID to attach as active for this fund
+             * @example 507f1f77bcf86cd799439099
+             */
+            activeWaterfallId?: string;
+        };
+        SetActiveWaterfallDto: {
+            /**
+             * @description Waterfall scenario ID to set as active
+             * @example 507f1f77bcf86cd799439099
+             */
+            waterfallScenarioId: string;
         };
         CreatePortfolioCompanyDto: {
             /** @example TechStartup Inc. */
@@ -2736,7 +2772,7 @@ export interface components {
              * @example active
              * @enum {string}
              */
-            status?: "active" | "exited" | "written-off";
+            status?: "active" | "exited" | "written_off";
             /** @example https://techstartup.com */
             website?: string;
             /** @example B2B SaaS platform for enterprise resource planning */
@@ -2787,7 +2823,7 @@ export interface components {
              * @example active
              * @enum {string}
              */
-            status?: "active" | "exited" | "written-off";
+            status?: "active" | "exited" | "written_off";
             /** @example https://techstartup.com */
             website?: string;
             /** @example B2B SaaS platform for enterprise resource planning */
@@ -2911,6 +2947,13 @@ export interface components {
             amount: number;
             /** @example 2024-06-30 */
             dueDate: string;
+            /** @example America/New_York */
+            dueDateTimezone?: string;
+            /**
+             * @description UTC offset snapshot in minutes
+             * @example -300
+             */
+            dueDateOffsetMinutes?: number;
             /** @example Q2 2024 capital call for new investments */
             purpose?: string;
         };
@@ -2921,6 +2964,13 @@ export interface components {
             amount?: number;
             /** @example 2024-06-30 */
             dueDate?: string;
+            /** @example America/New_York */
+            dueDateTimezone?: string;
+            /**
+             * @description UTC offset snapshot in minutes
+             * @example -300
+             */
+            dueDateOffsetMinutes?: number;
             /** @example Q2 2024 capital call for new investments */
             purpose?: string;
             /**
@@ -3007,7 +3057,7 @@ export interface components {
         };
         CreateScenarioDto: {
             /** @example 507f1f77bcf86cd799439011 */
-            fundId: string;
+            fundId?: string;
             /** @example Horizon Growth Fund III */
             fundName?: string;
             /** @example Base Case Scenario */
@@ -3163,6 +3213,21 @@ export interface components {
              */
             steps?: number;
         };
+        CreateWaterfallTemplateDto: {
+            /** @example Default European Waterfall */
+            name: string;
+            /** @example Template for standard LP/GP split */
+            description?: string;
+            /**
+             * @example european
+             * @enum {string}
+             */
+            model: "european" | "american" | "blended";
+            /** @description Tier definitions */
+            tiers: Record<string, never>[];
+            /** @default false */
+            isDefault: boolean;
+        };
         CreateFeeDto: {
             /** @example management-fee */
             type: string;
@@ -3198,8 +3263,22 @@ export interface components {
             eventType: "exit" | "dividend" | "recapitalization" | "refinancing" | "partial-exit" | "other";
             /** @example 2024-03-15T00:00:00Z */
             eventDate: string;
+            /** @example America/New_York */
+            eventDateTimezone?: string;
+            /**
+             * @description UTC offset snapshot in minutes
+             * @example -300
+             */
+            eventDateOffsetMinutes?: number;
             /** @example 2024-03-30T00:00:00Z */
             paymentDate: string;
+            /** @example America/New_York */
+            paymentDateTimezone?: string;
+            /**
+             * @description UTC offset snapshot in minutes
+             * @example -300
+             */
+            paymentDateOffsetMinutes?: number;
             /** @example 10000000 */
             totalAmount: number;
             /** @example 10500000 */
@@ -3238,8 +3317,22 @@ export interface components {
             eventType?: "exit" | "dividend" | "recapitalization" | "refinancing" | "partial-exit" | "other";
             /** @example 2024-03-15T00:00:00Z */
             eventDate?: string;
+            /** @example America/New_York */
+            eventDateTimezone?: string;
+            /**
+             * @description UTC offset snapshot in minutes
+             * @example -300
+             */
+            eventDateOffsetMinutes?: number;
             /** @example 2024-03-30T00:00:00Z */
             paymentDate?: string;
+            /** @example America/New_York */
+            paymentDateTimezone?: string;
+            /**
+             * @description UTC offset snapshot in minutes
+             * @example -300
+             */
+            paymentDateOffsetMinutes?: number;
             /** @example 10000000 */
             totalAmount?: number;
             /** @example 10500000 */
@@ -3266,10 +3359,23 @@ export interface components {
         };
         CalculateAllocationDto: {
             /**
-             * @description Waterfall scenario ID to use for calculation
+             * @description Waterfall scenario ID. Defaults to fund active waterfall.
              * @example 507f1f77bcf86cd799439099
              */
             waterfallScenarioId?: string;
+            /**
+             * @description Override exit value for waterfall calculation. Defaults to distribution netProceeds.
+             * @example 10000000
+             */
+            exitValue?: number;
+        };
+        SubmitDistributionForApprovalDto: {
+            /**
+             * @example [
+             *       "507f1f77bcf86cd799439011"
+             *     ]
+             */
+            approverIds: string[];
         };
         ApprovalActionDto: {
             /**
@@ -3322,6 +3428,17 @@ export interface components {
             /** @enum {string} */
             status?: "active" | "inactive" | "draft";
         };
+        CalculateCarryAccrualDto: {
+            /** @example Growth Fund III */
+            fundName: string;
+        };
+        ExportCarryAccrualDto: {
+            /**
+             * @example pdf
+             * @enum {string}
+             */
+            format: "pdf" | "csv" | "xlsx";
+        };
         CreateExpenseDto: {
             /** @example Growth Fund III */
             fundName: string;
@@ -3352,6 +3469,29 @@ export interface components {
              *     ]
              */
             tags?: string[];
+        };
+        ApproveExpenseDto: {
+            /** @example ops@vestledger.com */
+            approver: string;
+        };
+        CalculateNAVRequestDto: {
+            /** @example Growth Fund III */
+            fundName: string;
+        };
+        ReviewNAVRequestDto: {
+            /** @example ops@vestledger.com */
+            reviewedBy: string;
+        };
+        PublishNAVRequestDto: {
+            /** @example ops@vestledger.com */
+            publishedBy: string;
+        };
+        ExportNAVRequestDto: {
+            /**
+             * @example pdf
+             * @enum {string}
+             */
+            format: "pdf" | "csv" | "xlsx";
         };
         CreateTransferDto: {
             /** @example Growth Fund III */
@@ -3389,11 +3529,30 @@ export interface components {
             /** @example true */
             subjectToROFR?: boolean;
             rofrDeadline?: string;
+            /** @example America/New_York */
+            rofrDeadlineTimezone?: string;
+            /**
+             * @description UTC offset snapshot in minutes
+             * @example -300
+             */
+            rofrDeadlineOffsetMinutes?: number;
             /** @example true */
             requiresGPConsent?: boolean;
             /** @example false */
             requiresLPVote?: boolean;
             notes?: string;
+        };
+        RejectTransferDto: {
+            /** @example Missing signatures */
+            reason: string;
+        };
+        UploadTransferDocumentDto: {
+            /** @example Transfer agreement v2.pdf */
+            name: string;
+        };
+        ExerciseRofrDto: {
+            /** @example Investor Relations Team */
+            exercisedByName: string;
         };
         CreateComplianceItemDto: {
             /** @example Annual Fund Audit */
@@ -3408,6 +3567,23 @@ export interface components {
             priority?: "high" | "medium" | "low";
             /** @example Annual audit of fund financials */
             description: string;
+            /** @example Growth Fund III */
+            relatedFund?: string;
+            fundId?: string;
+        };
+        UpdateComplianceItemDto: {
+            /** @example Annual Fund Audit */
+            title?: string;
+            /** @enum {string} */
+            type?: "filing" | "report" | "certification" | "audit";
+            /** @example 2024-06-30 */
+            dueDate?: string;
+            /** @example John Smith */
+            assignedTo?: string;
+            /** @enum {string} */
+            priority?: "high" | "medium" | "low";
+            /** @example Annual audit of fund financials */
+            description?: string;
             /** @example Growth Fund III */
             relatedFund?: string;
             fundId?: string;
@@ -3451,6 +3627,21 @@ export interface components {
             recipientType: "LP" | "GP" | "Portfolio Company";
             /** @example Institutional Capital Partners */
             recipientName: string;
+            /** @enum {string} */
+            status?: "draft" | "ready" | "sent" | "filed";
+            /** @example 1250000 */
+            amount?: number;
+            fundId?: string;
+        };
+        UpdateTaxDocumentDto: {
+            /** @example Schedule K-1 */
+            documentType?: string;
+            /** @example 2024 */
+            taxYear?: number;
+            /** @enum {string} */
+            recipientType?: "LP" | "GP" | "Portfolio Company";
+            /** @example Institutional Capital Partners */
+            recipientName?: string;
             /** @enum {string} */
             status?: "draft" | "ready" | "sent" | "filed";
             /** @example 1250000 */
@@ -3687,6 +3878,17 @@ export interface components {
             lpName?: string;
             requiresSignature?: boolean;
             url?: string;
+        };
+        UpdateDocumentAccessDto: {
+            /**
+             * @example internal
+             * @enum {string}
+             */
+            accessLevel: "private" | "internal" | "investor" | "public";
+        };
+        UpdateIntegrationStatusDto: {
+            /** @example connected */
+            status: string;
         };
         CreateAuditEventDto: {
             /** @example 0x1234abcd... */
@@ -4258,10 +4460,91 @@ export interface operations {
             };
         };
     };
+    FundsController_getActiveWaterfall: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Fund ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Active waterfall scenario */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Fund not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FundsController_setActiveWaterfall: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Fund ID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetActiveWaterfallDto"];
+            };
+        };
+        responses: {
+            /** @description Active waterfall set successfully */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid scenario or does not belong to fund */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Fund not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     PortfolioController_findAll: {
         parameters: {
             query?: {
-                status?: "active" | "exited" | "written-off";
+                status?: "active" | "exited" | "written_off";
                 sector?: string;
                 stage?: "seed" | "series-a" | "series-b" | "series-c" | "growth" | "late-stage";
                 /** @description Minimum health score */
@@ -4498,6 +4781,8 @@ export interface operations {
     LPsController_findAll: {
         parameters: {
             query?: {
+                /** @description Filter LPs by fund commitment */
+                fundId?: string;
                 type?: "institutional" | "individual" | "strategic";
                 taxStatus?: "taxable" | "tax-exempt" | "foreign";
                 search?: string;
@@ -6078,7 +6363,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateWaterfallTemplateDto"];
+            };
+        };
         responses: {
             /** @description Template created */
             201: {
@@ -6106,7 +6395,7 @@ export interface operations {
     DistributionsController_findAllByFund: {
         parameters: {
             query?: {
-                status?: "draft" | "pending-approval" | "approved" | "processing" | "completed" | "rejected" | "cancelled";
+                status?: "draft" | "pending_approval" | "approved" | "processing" | "completed" | "rejected" | "cancelled";
                 eventType?: "exit" | "dividend" | "recapitalization" | "refinancing" | "partial-exit" | "other";
                 fromDate?: string;
                 toDate?: string;
@@ -6319,7 +6608,7 @@ export interface operations {
         parameters: {
             query?: {
                 fundId?: string;
-                status?: "draft" | "pending-approval" | "approved" | "processing" | "completed" | "rejected" | "cancelled";
+                status?: "draft" | "pending_approval" | "approved" | "processing" | "completed" | "rejected" | "cancelled";
                 eventType?: "exit" | "dividend" | "recapitalization" | "refinancing" | "partial-exit" | "other";
                 fromDate?: string;
                 toDate?: string;
@@ -6506,7 +6795,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmitDistributionForApprovalDto"];
+            };
+        };
         responses: {
             /** @description Distribution submitted for approval */
             200: {
@@ -6975,7 +7268,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CalculateCarryAccrualDto"];
+            };
+        };
         responses: {
             /** @description Accrual calculated */
             201: {
@@ -7038,7 +7335,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExportCarryAccrualDto"];
+            };
+        };
         responses: {
             /** @description Export metadata */
             200: {
@@ -7135,7 +7436,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApproveExpenseDto"];
+            };
+        };
         responses: {
             /** @description Expense approved */
             200: {
@@ -7191,7 +7496,7 @@ export interface operations {
     ExpensesController_exportByFund: {
         parameters: {
             query: {
-                format: string;
+                format: "pdf" | "csv" | "xlsx";
             };
             header?: never;
             path: {
@@ -7214,7 +7519,7 @@ export interface operations {
     ExpensesController_exportAll: {
         parameters: {
             query: {
-                format: string;
+                format: "pdf" | "csv" | "xlsx";
             };
             header?: never;
             path?: never;
@@ -7268,7 +7573,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CalculateNAVRequestDto"];
+            };
+        };
         responses: {
             /** @description NAV calculated */
             201: {
@@ -7310,7 +7619,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewNAVRequestDto"];
+            };
+        };
         responses: {
             /** @description NAV marked as reviewed */
             200: {
@@ -7331,7 +7644,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PublishNAVRequestDto"];
+            };
+        };
         responses: {
             /** @description NAV published */
             200: {
@@ -7352,7 +7669,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExportNAVRequestDto"];
+            };
+        };
         responses: {
             /** @description Export metadata */
             200: {
@@ -7489,7 +7810,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RejectTransferDto"];
+            };
+        };
         responses: {
             /** @description Transfer rejected */
             200: {
@@ -7531,7 +7856,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UploadTransferDocumentDto"];
+            };
+        };
         responses: {
             /** @description Document uploaded */
             200: {
@@ -7573,7 +7902,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExerciseRofrDto"];
+            };
+        };
         responses: {
             /** @description ROFR exercised */
             201: {
@@ -7641,7 +7974,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateComplianceItemDto"];
+            };
+        };
         responses: {
             /** @description Compliance item updated */
             200: {
@@ -7803,7 +8140,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateTaxDocumentDto"];
+            };
+        };
         responses: {
             /** @description Tax document updated */
             200: {
@@ -8430,9 +8771,7 @@ export interface operations {
     };
     DocumentsController_findFolders: {
         parameters: {
-            query: {
-                parentId: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -8547,7 +8886,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateDocumentAccessDto"];
+            };
+        };
         responses: {
             /** @description Access level updated */
             200: {
@@ -8604,7 +8947,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateIntegrationStatusDto"];
+            };
+        };
         responses: {
             /** @description Integration status updated */
             200: {
@@ -8902,6 +9249,8 @@ export interface operations {
             query?: {
                 /** @description Current page pathname */
                 pathname?: string;
+                /** @description Active tab */
+                tab?: string;
             };
             header?: never;
             path?: never;

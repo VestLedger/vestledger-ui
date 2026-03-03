@@ -314,14 +314,16 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
   const suggestionsData = useAppSelector(copilotSuggestionsSelectors.selectData);
 
   const suggestions = useMemo(() => {
-    const fallback = suggestionsData?.suggestions || [];
-    return suggestionsOverride && suggestionsOverride.length > 0 ? suggestionsOverride : fallback;
+    return suggestionsOverride && suggestionsOverride.length > 0
+      ? suggestionsOverride
+      : (suggestionsData?.suggestions || []);
   }, [suggestionsData, suggestionsOverride]);
 
   const quickActions = useMemo(() => {
-    const fallback = suggestionsData?.quickActions || [];
-    return quickActionsOverride && quickActionsOverride.length > 0 ? quickActionsOverride : fallback;
-  }, [suggestionsData, quickActionsOverride]);
+    return quickActionsOverride && quickActionsOverride.length > 0
+      ? quickActionsOverride
+      : (suggestionsData?.quickActions || []);
+  }, [quickActionsOverride, suggestionsData]);
 
   const normalizedQuickActions = useMemo(() => {
     return quickActions.map((rawAction, index) => {
@@ -369,6 +371,10 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
     utterance.pitch = 1;
     utterance.volume = 1;
     const preferredLanguage = normalizeLanguageTag(navigator.language) || 'en-us';
+    let speechStarted = false;
+    utterance.onstart = () => {
+      speechStarted = true;
+    };
 
     const applyPreferredVoice = () => {
       const voices = synth.getVoices();
@@ -384,6 +390,24 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
         synth.cancel();
         synth.resume();
         synth.speak(utterance);
+
+        // Some desktop environments occasionally drop the first utterance.
+        // Retry once with a plain fallback voice if speech never begins.
+        window.setTimeout(() => {
+          if (speechStarted || synth.speaking || synth.pending) return;
+          try {
+            const fallbackUtterance = new SpeechSynthesisUtterance(content);
+            fallbackUtterance.rate = 1;
+            fallbackUtterance.pitch = 1;
+            fallbackUtterance.volume = 1;
+            fallbackUtterance.lang = preferredLanguage;
+            synth.cancel();
+            synth.resume();
+            synth.speak(fallbackUtterance);
+          } catch {
+            // noop
+          }
+        }, 350);
       } catch {
         // noop
       }
@@ -577,12 +601,12 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
   const handleMessageSpeech = useCallback(
     (content: string, type: 'user' | 'ai') => {
       if (type !== 'ai') return;
-      if (!resolvedVestaShellUI.ttsEnabled) return;
       const trimmed = content.trim();
       if (!trimmed) return;
+      primeSpeechSynthesis();
       speakAssistantReply(trimmed);
     },
-    [resolvedVestaShellUI.ttsEnabled, speakAssistantReply]
+    [primeSpeechSynthesis, speakAssistantReply]
   );
 
   const startVoiceCapture = useCallback(() => {

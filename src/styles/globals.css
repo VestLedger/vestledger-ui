@@ -620,6 +620,42 @@ html {
     linear-gradient(180deg, #f4f6fb 0%, #f2f5fb 100%);
 }
 
+.dark .gp-home-skin {
+  --app-bg: #0b1220;
+  --app-surface: #111a2e;
+  --app-surface-2: #16223d;
+  --app-surface-hover: #1f2f4d;
+
+  --app-border: #294067;
+  --app-border-subtle: #223657;
+  --app-border-strong: #36527f;
+
+  --app-text: #e6edf8;
+  --app-text-muted: #b1c3df;
+  --app-text-subtle: #8fa3c2;
+
+  --app-primary: #60a5fa;
+  --app-primary-hover: #93c5fd;
+  --app-primary-bg: rgba(96, 165, 250, 0.18);
+  --app-secondary: #fbbf24;
+  --app-secondary-bg: rgba(251, 191, 36, 0.18);
+
+  --app-success: #34d399;
+  --app-success-bg: rgba(52, 211, 153, 0.18);
+  --app-warning: #f59e0b;
+  --app-warning-bg: rgba(245, 158, 11, 0.18);
+  --app-danger: #fb7185;
+  --app-danger-bg: rgba(251, 113, 133, 0.18);
+  --app-info: #38bdf8;
+  --app-info-bg: rgba(56, 189, 248, 0.18);
+
+  --shadow-xl: 0 18px 36px rgba(3, 8, 20, 0.45), 0 8px 18px rgba(3, 8, 20, 0.35);
+  background:
+    radial-gradient(ellipse at 12% 0%, rgba(96, 165, 250, 0.22) 0%, transparent 52%),
+    radial-gradient(ellipse at 84% 10%, rgba(16, 185, 129, 0.14) 0%, transparent 50%),
+    linear-gradient(180deg, #0b1220 0%, #0d1627 100%);
+}
+
 .gp-home-skin .gp-home-content {
   position: relative;
 }
