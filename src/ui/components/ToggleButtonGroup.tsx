@@ -1,7 +1,7 @@
 'use client';
 
-import { Button } from '@nextui-org/react';
 import { ReactNode, Key, useCallback, useMemo } from 'react';
+import { Button } from './Button';
 
 export interface ToggleButtonOption {
   key: string;

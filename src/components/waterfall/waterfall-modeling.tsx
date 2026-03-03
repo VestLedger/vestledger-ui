@@ -411,6 +411,8 @@ export function WaterfallModeling() {
     const scenarioDraft: WaterfallScenario = {
       ...selectedScenario,
       id: 'draft',
+      fundId: undefined,
+      fundName: undefined,
       name: buildScenarioName(selectedScenario, exitValueInput),
       exitValue: exitValueInput,
       totalInvested: computeTotalInvested(selectedScenario.investorClasses),
@@ -419,6 +421,8 @@ export function WaterfallModeling() {
       version: INITIAL_SCENARIO_VERSION,
       isFavorite: false,
       isTemplate: false,
+      isLocked: false,
+      lockedAt: undefined,
     };
 
     const scenarioWithResults = {

@@ -121,12 +121,13 @@ export function ReportExport() {
               <Card
                 key={template.id}
                 padding="lg"
+                isPressable
                 className={`cursor-pointer transition-all ${
                   selectedTemplate?.id === template.id
                     ? 'border-2 border-[var(--app-primary)] bg-[var(--app-primary-bg)]'
                     : 'hover:border-[var(--app-primary)]'
                 }`}
-                onClick={() => {
+                onPress={() => {
                   patchUI({
                     selectedTemplate: template,
                     exportFormat: normalizeFormat(template.format),

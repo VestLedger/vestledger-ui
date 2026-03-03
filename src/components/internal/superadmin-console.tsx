@@ -219,7 +219,7 @@ export function SuperadminConsole() {
                 Onboard, suspend, reactivate, and inspect tenant access state.
               </p>
             </div>
-            <Button variant="bordered" startContent={<RefreshCw className="h-4 w-4" />} onClick={() => refresh()}>
+            <Button variant="bordered" startContent={<RefreshCw className="h-4 w-4" />} onPress={() => refresh()}>
               Refresh
             </Button>
           </div>
@@ -255,8 +255,7 @@ export function SuperadminConsole() {
                       size="sm"
                       variant="bordered"
                       color="warning"
-                      onClick={(event) => {
-                        event.stopPropagation();
+                      onPress={() => {
                         handleToggleTenantStatus(tenant.id, 'suspended');
                       }}
                     >
@@ -267,8 +266,7 @@ export function SuperadminConsole() {
                       size="sm"
                       variant="bordered"
                       color="success"
-                      onClick={(event) => {
-                        event.stopPropagation();
+                      onPress={() => {
                         handleToggleTenantStatus(tenant.id, 'active');
                       }}
                     >
@@ -322,7 +320,7 @@ export function SuperadminConsole() {
                 }))
               }
             />
-            <Button color="primary" className="w-full" startContent={<Plus className="h-4 w-4" />} onClick={handleOnboardTenant}>
+            <Button color="primary" className="w-full" startContent={<Plus className="h-4 w-4" />} onPress={handleOnboardTenant}>
               Onboard Tenant
             </Button>
           </div>
@@ -370,7 +368,7 @@ export function SuperadminConsole() {
             }
           />
           <div className="flex items-end">
-            <Button color="primary" className="w-full" startContent={<UserPlus className="h-4 w-4" />} onClick={handleCreateUser}>
+            <Button color="primary" className="w-full" startContent={<UserPlus className="h-4 w-4" />} onPress={handleCreateUser}>
               Create User
             </Button>
           </div>
@@ -418,7 +416,7 @@ export function SuperadminConsole() {
                       size="sm"
                       variant="bordered"
                       startContent={<RefreshCw className="h-3.5 w-3.5" />}
-                      onClick={() => handleResendInvite(invite.id)}
+                      onPress={() => handleResendInvite(invite.id)}
                       isDisabled={invite.status !== 'pending'}
                     >
                       Resend
@@ -427,7 +425,7 @@ export function SuperadminConsole() {
                       size="sm"
                       variant="bordered"
                       startContent={<Copy className="h-3.5 w-3.5" />}
-                      onClick={() => void handleCopySetupLink(invite)}
+                      onPress={() => void handleCopySetupLink(invite)}
                     >
                       Copy Setup Link
                     </Button>

@@ -51,7 +51,7 @@ export const UI_STATE_DEFAULTS = {
       contextType: 'route' as 'route' | 'route-tab',
       contextId: '/home',
     },
-    ttsEnabled: true,
+    ttsEnabled: false,
   },
 
   dealIntelligence: {

@@ -15,7 +15,6 @@ import { normalizeError } from '@/store/utils/normalizeError';
 import { logger } from '@/lib/logger';
 import {
   DATA_MODE_OVERRIDE_KEY,
-  parseDataMode,
   type DataMode,
 } from "@/config/data-mode";
 import {
@@ -29,6 +28,8 @@ const STORAGE_AUTH_KEY = 'isAuthenticated';
 const STORAGE_USER_KEY = 'user';
 const STORAGE_TOKEN_KEY = 'accessToken';
 const STORAGE_ARCHIVED_FUND_IDS = 'vestledger-archived-fund-ids';
+const DEFAULT_DEMO_EMAIL = 'demo@vestledger.com';
+const DEFAULT_SUPERADMIN_EMAIL = 'superadmin@vestledger.com';
 
 function getCookieValue(name: string): string | null {
   if (typeof document === 'undefined') return null;
@@ -71,9 +72,12 @@ function normalizeUser(user: Partial<User> & Pick<User, 'email' | 'name' | 'role
 }
 
 function isKnownMockUser(user: User): boolean {
-  const demoEmail = process.env.NEXT_PUBLIC_DEMO_EMAIL?.trim().toLowerCase();
+  const demoEmail =
+    process.env.NEXT_PUBLIC_DEMO_EMAIL?.trim().toLowerCase()
+    || DEFAULT_DEMO_EMAIL;
   const superadminEmail =
-    process.env.NEXT_PUBLIC_SUPERADMIN_EMAIL?.trim().toLowerCase();
+    process.env.NEXT_PUBLIC_SUPERADMIN_EMAIL?.trim().toLowerCase()
+    || DEFAULT_SUPERADMIN_EMAIL;
   const normalizedUserEmail = user.email.trim().toLowerCase();
 
   if (demoEmail && normalizedUserEmail === demoEmail) return true;
@@ -82,8 +86,6 @@ function isKnownMockUser(user: User): boolean {
     user.id &&
     (user.id === MOCK_DEMO_PROFILE.id || user.id === MOCK_SUPERADMIN_PROFILE.id)
   )
-    return true;
-  if (user.tenantId && user.tenantId === MOCK_DEMO_PROFILE.tenantId)
     return true;
 
   return false;
@@ -97,15 +99,10 @@ function resolveHydratedDataMode(
   if (isKnownMockUser(user)) {
     return "mock";
   }
-
-  const storageMode = parseDataMode(storageModeRaw);
-  if (storageMode) return storageMode;
-
-  const cookieMode = parseDataMode(cookieModeRaw);
-  if (cookieMode) return cookieMode;
-
-  // Authenticated non-demo sessions should default to API mode even if
-  // NEXT_PUBLIC_DATA_MODE is mock in local dev.
+  // Authenticated non-demo sessions should always default to API mode
+  // regardless of stale local/cookie overrides.
+  void storageModeRaw;
+  void cookieModeRaw;
   return 'api';
 }
 
@@ -212,20 +209,19 @@ export function* loginWorker(action: ReturnType<typeof loginRequested>) {
       safeLocalStorage.removeItem(STORAGE_ARCHIVED_FUND_IDS);
     }
     const result: AuthResult = yield call(authenticateUser, email, password);
+    const resolvedModeOverride: DataMode =
+      isKnownMockUser(result.user)
+        ? 'mock'
+        : (result.dataModeOverride ?? modeOverride);
 
     // Persist to localStorage
     safeLocalStorage.setItem(STORAGE_AUTH_KEY, 'true');
     safeLocalStorage.setJSON(STORAGE_USER_KEY, result.user);
     safeLocalStorage.setItem(STORAGE_TOKEN_KEY, result.accessToken);
-    if (result.dataModeOverride) {
-      safeLocalStorage.setItem(DATA_MODE_OVERRIDE_KEY, result.dataModeOverride);
-      setDataModeCookie(result.dataModeOverride);
-      if (result.dataModeOverride === 'mock') {
-        safeLocalStorage.removeItem(STORAGE_ARCHIVED_FUND_IDS);
-      }
-    } else {
-      safeLocalStorage.removeItem(DATA_MODE_OVERRIDE_KEY);
-      clearDataModeCookie();
+    safeLocalStorage.setItem(DATA_MODE_OVERRIDE_KEY, resolvedModeOverride);
+    setDataModeCookie(resolvedModeOverride);
+    if (resolvedModeOverride === 'mock') {
+      safeLocalStorage.removeItem(STORAGE_ARCHIVED_FUND_IDS);
     }
 
     // Sync to cookies for middleware access

@@ -49,7 +49,9 @@ function mapApiFundToFund(apiFund: ApiFund): Fund {
   };
 }
 
-function toCreateFundDto(data: CreateFundParams): components['schemas']['CreateFundDto'] {
+function toCreateFundDto(
+  data: CreateFundParams
+): components['schemas']['CreateFundDto'] & { activeWaterfallId: string } {
   return {
     name: data.name,
     displayName: data.displayName,
@@ -71,6 +73,7 @@ function toCreateFundDto(data: CreateFundParams): components['schemas']['CreateF
     targetSectors: data.targetSectors,
     targetStages: data.targetStages,
     managers: data.managers,
+    activeWaterfallId: data.activeWaterfallId,
     startDate: data.startDate,
     endDate: data.endDate,
     description: data.description,
@@ -141,6 +144,7 @@ export async function createFund(data: CreateFundParams): Promise<Fund> {
       targetStages: data.targetStages,
       description: data.description,
       managers: data.managers,
+      activeWaterfallId: data.activeWaterfallId,
       createdAt: now,
       updatedAt: now,
     };

@@ -155,7 +155,7 @@ export function AlertBar({ alerts, maxVisible = 3 }: AlertBarProps) {
               {alert.action && (
                 <Button
                   size="sm"
-                  onClick={alert.action.onClick}
+                  onPress={alert.action.onClick}
                   className="text-xs"
                 >
                   {alert.action.label}

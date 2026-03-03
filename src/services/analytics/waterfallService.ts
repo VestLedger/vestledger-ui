@@ -161,6 +161,8 @@ export async function createWaterfallScenario(
       version: 1,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      isLocked: false,
+      lockedAt: undefined,
     };
 
     const next = [...scenarios, newScenario];
@@ -170,7 +172,7 @@ export async function createWaterfallScenario(
 
   // API mode - map UI data to API DTO format
   const apiData = {
-    fundId: data.fundId ?? '',
+    fundId: data.fundId?.trim() || undefined,
     fundName: data.fundName,
     name: data.name,
     description: data.description,
@@ -341,7 +343,12 @@ export async function duplicateWaterfallScenario(
       version: 1,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      fundId: undefined,
+      fundName: undefined,
       isFavorite: false,
+      isTemplate: false,
+      isLocked: false,
+      lockedAt: undefined,
     };
 
     const next = [...scenarios, duplicate];

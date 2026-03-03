@@ -86,7 +86,7 @@ export function AIInsightsBanner({ insight }: AIInsightsBannerProps) {
             <Button
               size="sm"
               variant="flat"
-              onClick={() => patchUI({ isExpanded: !isExpanded })}
+              onPress={() => patchUI({ isExpanded: !isExpanded })}
               className="px-3"
             >
               <span className="text-xs mr-2">

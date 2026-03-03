@@ -9,6 +9,8 @@ export class WaterfallPage {
   readonly calculateButton: Locator;
   readonly timelineView: Locator;
   readonly summaryPanel: Locator;
+  readonly scenarioItems: Locator;
+  readonly lockedBadges: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -18,6 +20,8 @@ export class WaterfallPage {
     this.calculateButton = page.getByRole('button', { name: /calculate|run/i });
     this.timelineView = page.locator('[data-testid="timeline"]');
     this.summaryPanel = page.locator('[data-testid="summary"]');
+    this.scenarioItems = page.locator('[class*="ListItemCard"]');
+    this.lockedBadges = page.getByText('Locked', { exact: true });
   }
 
   async goto() {
@@ -45,5 +49,21 @@ export class WaterfallPage {
 
   async isTimelineVisible() {
     return this.timelineView.isVisible();
+  }
+
+  getScenarioDeleteButton(scenarioItem: Locator) {
+    return scenarioItem.getByRole('button', { name: /delete scenario/i });
+  }
+
+  getScenarioArchiveButton(scenarioItem: Locator) {
+    return scenarioItem.getByRole('button', { name: /archive scenario/i });
+  }
+
+  getScenarioDuplicateButton(scenarioItem: Locator) {
+    return scenarioItem.getByRole('button', { name: /duplicate scenario/i });
+  }
+
+  getScenarioFavoriteButton(scenarioItem: Locator) {
+    return scenarioItem.getByRole('button', { name: /favorite/i });
   }
 }

@@ -8,6 +8,8 @@ export class FundAdminPage {
   readonly createFundButton: Locator;
   readonly searchInput: Locator;
   readonly filterDropdown: Locator;
+  readonly activeWaterfallLabel: Locator;
+  readonly changeWaterfallButton: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -17,6 +19,8 @@ export class FundAdminPage {
     this.searchInput = page.getByPlaceholder(/search/i);
     this.filterDropdown = page.getByRole('combobox', { name: /status/i })
       .or(page.locator('[data-testid="filter-dropdown"]'));
+    this.activeWaterfallLabel = page.getByText('Active Waterfall');
+    this.changeWaterfallButton = page.getByRole('button', { name: /change/i });
   }
 
   async goto() {

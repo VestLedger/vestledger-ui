@@ -1,7 +1,7 @@
 'use client';
 
-import { Button } from '@nextui-org/react';
 import { forwardRef, ReactNode } from 'react';
+import { Button } from './Button';
 
 export interface FloatingActionButtonProps {
   /** Icon to display (required for FAB) */

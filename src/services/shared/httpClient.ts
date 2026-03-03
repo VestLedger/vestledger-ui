@@ -88,7 +88,10 @@ export async function requestJson<TResponse>(
   const contentType = response.headers.get('content-type') ?? '';
   let payload: unknown;
   if (contentType.includes('application/json')) {
-    payload = await response.json().catch(() => undefined);
+    payload = await response.json().catch((error) => {
+      console.error('Failed to parse JSON response payload', error);
+      return undefined;
+    });
   }
 
   if (!response.ok) {

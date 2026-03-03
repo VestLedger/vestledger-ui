@@ -30,6 +30,8 @@ interface AIState {
   ddChatState: AsyncState<DDChatData>;
 }
 
+const EMPTY_MESSAGES: Message[] = [];
+
 const initialState: AIState = {
   pitchDeckState: createInitialAsyncState<PitchDeckData>(),
   ddChatState: createInitialAsyncState<DDChatData>(),
@@ -104,7 +106,7 @@ export const ddChatSelectors = {
   selectIsFailed: (state: RootState) => state.ai.ddChatState.status === 'failed',
   selectState: (state: RootState) => state.ai.ddChatState,
   selectConversation: (dealId: string) => (state: RootState) =>
-    state.ai.ddChatState.data?.conversations[dealId] || [],
+    state.ai.ddChatState.data?.conversations[dealId] ?? EMPTY_MESSAGES,
 };
 
 export const aiReducer = aiSlice.reducer;

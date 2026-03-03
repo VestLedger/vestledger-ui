@@ -40,10 +40,52 @@ const LOG_COLORS: Record<LogLevel, string> = {
 
 const RESET_COLOR = '\x1b[0m';
 
+const USER_CORRECTABLE_ERROR_CODES = new Set([
+  'BAD_REQUEST',
+  'VALIDATION_FAILED',
+  'UNPROCESSABLE_ENTITY',
+  'HTTP_400',
+  'HTTP_404',
+  'HTTP_409',
+  'HTTP_422',
+]);
+
 class Logger {
   private isDevelopment = process.env.NODE_ENV === 'development';
   private isTest = process.env.NODE_ENV === 'test';
   private isServer = typeof window === 'undefined';
+
+  private extractStatus(error: Error, context?: LogContext): number | undefined {
+    const errorStatus = (error as { status?: unknown }).status;
+    if (typeof errorStatus === 'number') {
+      return errorStatus;
+    }
+
+    const contextStatus = context?.status;
+    return typeof contextStatus === 'number' ? contextStatus : undefined;
+  }
+
+  private extractCode(error: Error, context?: LogContext): string | undefined {
+    const errorCode = (error as { code?: unknown }).code;
+    if (typeof errorCode === 'string' && errorCode.length > 0) {
+      return errorCode;
+    }
+
+    const contextCode = context?.code;
+    return typeof contextCode === 'string' && contextCode.length > 0
+      ? contextCode
+      : undefined;
+  }
+
+  private isUserCorrectableError(error: Error, context?: LogContext): boolean {
+    const status = this.extractStatus(error, context);
+    if (status === 400 || status === 404 || status === 409 || status === 422) {
+      return true;
+    }
+
+    const code = this.extractCode(error, context);
+    return typeof code === 'string' && USER_CORRECTABLE_ERROR_CODES.has(code.toUpperCase());
+  }
 
   /**
    * Format a log entry for console output
@@ -174,6 +216,28 @@ class Logger {
   error(message: string, error?: Error | unknown, context?: LogContext): void {
     const normalizedError =
       error instanceof Error ? error : new Error(String(error));
+
+    if (this.isUserCorrectableError(normalizedError, context)) {
+      const status = this.extractStatus(normalizedError, context);
+      const code = this.extractCode(normalizedError, context);
+      const downgradedContext: LogContext = {
+        ...(context ?? {}),
+        logPolicy: 'downgraded_user_correctable',
+      };
+
+      if (typeof status === 'number') {
+        downgradedContext.status = status;
+      }
+
+      if (typeof code === 'string') {
+        downgradedContext.code = code;
+      }
+
+      const entry = this.createEntry('warn', message, normalizedError, downgradedContext);
+      this.logToConsole(entry);
+      return;
+    }
+
     const entry = this.createEntry('error', message, normalizedError, context);
     this.logToConsole(entry);
     this.sendToErrorTracker(entry);

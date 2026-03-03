@@ -81,7 +81,10 @@ export async function getPipelineData(params: GetPipelineParams): Promise<Pipeli
     requestJson<Suggestion[]>('/ai/copilot/suggestions', {
       query: { pathname: '/pipeline' },
       fallbackMessage: 'Failed to load pipeline copilot suggestions',
-    }).catch(() => [] as Suggestion[]),
+    }).catch((error) => {
+      console.error('Failed to load pipeline copilot suggestions', error);
+      return [] as Suggestion[];
+    }),
   ]);
 
   return {

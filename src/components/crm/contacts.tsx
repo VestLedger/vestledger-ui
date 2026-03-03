@@ -751,7 +751,7 @@ export function Contacts() {
               <Button
                 variant="flat"
                 size="sm"
-                onClick={() => patchUI({ showNetworkGraph: false })}
+                onPress={() => patchUI({ showNetworkGraph: false })}
               >
                 Close
               </Button>

@@ -5,11 +5,11 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
-  Button,
 } from '@nextui-org/react';
 import type { DropdownProps, Selection } from '@nextui-org/react';
 import { forwardRef, ReactNode } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { Button } from './Button';
 
 type Key = string | number;
 

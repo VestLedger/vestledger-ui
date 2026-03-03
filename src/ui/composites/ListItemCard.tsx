@@ -1,6 +1,6 @@
 'use client'
 
-import type { ReactNode } from 'react';
+import type { KeyboardEvent, ReactNode } from 'react';
 import { Card, type CardProps } from '@/ui';
 
 export interface ListItemCardProps {
@@ -26,7 +26,10 @@ export function ListItemCard({
   className,
   padding = 'md',
 }: ListItemCardProps) {
-  const clickableClasses = onClick
+  const isInteractive = Boolean(onClick);
+  const usePressableCard = isInteractive && !actions;
+
+  const clickableClasses = isInteractive
     ? 'cursor-pointer hover:bg-[var(--app-surface-hover)] transition-colors'
     : '';
   const classes = [
@@ -37,12 +40,20 @@ export function ListItemCard({
     .filter(Boolean)
     .join(' ');
 
-  return (
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (!onClick) return;
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onClick();
+    }
+  };
+
+  const cardContent = (
     <Card
       padding={padding}
       className={classes}
-      isPressable={!!onClick}
-      onPress={onClick}
+      isPressable={usePressableCard}
+      onPress={usePressableCard ? onClick : undefined}
     >
       <div className="flex items-start gap-3">
         {icon && <div className="mt-1">{icon}</div>}
@@ -66,4 +77,19 @@ export function ListItemCard({
       {actions && <div className="flex items-center">{actions}</div>}
     </Card>
   );
+
+  if (!usePressableCard && isInteractive) {
+    return (
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={onClick}
+        onKeyDown={handleKeyDown}
+      >
+        {cardContent}
+      </div>
+    );
+  }
+
+  return cardContent;
 }

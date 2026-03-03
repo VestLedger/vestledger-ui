@@ -29,6 +29,7 @@ export interface CreateFundParams {
   targetSectors: string[];
   targetStages: string[];
   managers: string[];
+  activeWaterfallId: string;
   startDate: string;
   endDate?: string;
   description?: string;

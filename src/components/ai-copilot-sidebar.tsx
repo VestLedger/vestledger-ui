@@ -93,6 +93,98 @@ function getSpeechRecognitionCtor(): BrowserSpeechRecognitionCtor | null {
   return candidateWindow.SpeechRecognition ?? candidateWindow.webkitSpeechRecognition ?? null;
 }
 
+function normalizeLanguageTag(language: string | undefined): string {
+  return (language ?? '').trim().toLowerCase();
+}
+
+const HUMAN_VOICE_HINTS = [
+  'natural',
+  'neural',
+  'wavenet',
+  'enhanced',
+  'premium',
+  'siri',
+  'aria',
+  'jenny',
+  'guy',
+  'samantha',
+  'allison',
+  'victoria',
+  'serena',
+  'alex',
+  'daniel',
+];
+
+const ROBOTIC_VOICE_HINTS = [
+  'espeak',
+  'festival',
+  'flite',
+  'mbrola',
+  'compact',
+  'classic',
+  'legacy',
+  'robot',
+  'default',
+];
+
+function scoreSpeechVoice(voice: SpeechSynthesisVoice, preferredLanguage: string): number {
+  const voiceName = voice.name.toLowerCase();
+  const voiceLanguage = normalizeLanguageTag(voice.lang);
+  const preferred = normalizeLanguageTag(preferredLanguage);
+  const preferredBase = preferred.split('-')[0];
+
+  let score = 0;
+
+  if (voiceLanguage === preferred) {
+    score += 80;
+  } else if (preferredBase && (voiceLanguage === preferredBase || voiceLanguage.startsWith(`${preferredBase}-`))) {
+    score += 55;
+  } else if (voiceLanguage.startsWith('en')) {
+    score += 20;
+  } else {
+    score -= 35;
+  }
+
+  if (voice.default) {
+    score += 8;
+  }
+
+  // In many browsers, remote/cloud voices tend to sound more natural.
+  if (!voice.localService) {
+    score += 6;
+  }
+
+  for (const hint of HUMAN_VOICE_HINTS) {
+    if (voiceName.includes(hint)) {
+      score += 22;
+    }
+  }
+
+  for (const hint of ROBOTIC_VOICE_HINTS) {
+    if (voiceName.includes(hint)) {
+      score -= 26;
+    }
+  }
+
+  return score;
+}
+
+function pickPreferredSpeechVoice(
+  voices: SpeechSynthesisVoice[],
+  preferredLanguage: string
+): SpeechSynthesisVoice | null {
+  if (voices.length === 0) return null;
+
+  const rankedVoices = voices
+    .map((voice) => ({
+      voice,
+      score: scoreSpeechVoice(voice, preferredLanguage),
+    }))
+    .sort((left, right) => right.score - left.score);
+
+  return rankedVoices[0]?.voice ?? null;
+}
+
 function resolveQuickActionLabel(action: QuickAction & { title?: unknown }, index: number): string {
   if (typeof action.label === 'string' && action.label.trim().length > 0) {
     return action.label;
@@ -273,15 +365,17 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
 
     const synth = window.speechSynthesis;
     const utterance = new SpeechSynthesisUtterance(content);
-    utterance.rate = 1;
+    utterance.rate = 0.96;
     utterance.pitch = 1;
     utterance.volume = 1;
+    const preferredLanguage = normalizeLanguageTag(navigator.language) || 'en-us';
 
     const applyPreferredVoice = () => {
       const voices = synth.getVoices();
       if (voices.length === 0) return false;
-      const englishVoice = voices.find((voice) => voice.lang.toLowerCase().startsWith('en'));
-      utterance.voice = englishVoice ?? voices[0];
+      const preferredVoice = pickPreferredSpeechVoice(voices, preferredLanguage);
+      utterance.voice = preferredVoice ?? voices[0];
+      utterance.lang = utterance.voice?.lang || preferredLanguage;
       return true;
     };
 
@@ -295,22 +389,21 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
       }
     };
 
-    if (!applyPreferredVoice()) {
+    const hasPreferredVoice = applyPreferredVoice();
+    play();
+
+    // Keep voice selection warm for subsequent speaks without delaying
+    // the current utterance (important for click-to-speak user gestures).
+    if (!hasPreferredVoice) {
       const onVoicesChanged = () => {
         synth.removeEventListener('voiceschanged', onVoicesChanged);
         applyPreferredVoice();
-        play();
       };
       synth.addEventListener('voiceschanged', onVoicesChanged);
       window.setTimeout(() => {
         synth.removeEventListener('voiceschanged', onVoicesChanged);
-        applyPreferredVoice();
-        play();
-      }, 250);
-      return;
+      }, 1000);
     }
-
-    play();
   }, [primeSpeechSynthesis]);
 
   useEffect(() => {
@@ -355,6 +448,17 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
     lastSpokenMessageIdRef.current = latestMessage.id;
     speakAssistantReply(latestMessage.content);
   }, [messages, resolvedVestaShellUI.ttsEnabled, speakAssistantReply]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (resolvedVestaShellUI.ttsEnabled) return;
+    if (!('speechSynthesis' in window)) return;
+    try {
+      window.speechSynthesis.cancel();
+    } catch {
+      // noop
+    }
+  }, [resolvedVestaShellUI.ttsEnabled]);
 
   const uiState = useAppSelector((state) => state.ui.byKey);
   const getCurrentTab = useCallback(() => {
@@ -445,8 +549,12 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
   const handleToggleTts = useCallback(() => {
     const nextEnabled = !resolvedVestaShellUI.ttsEnabled;
 
-    if (typeof window !== 'undefined' && !nextEnabled) {
-      window.speechSynthesis.cancel();
+    if (typeof window !== 'undefined' && !nextEnabled && 'speechSynthesis' in window) {
+      try {
+        window.speechSynthesis.cancel();
+      } catch {
+        // noop
+      }
     }
 
     if (nextEnabled) {

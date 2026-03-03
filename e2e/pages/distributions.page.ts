@@ -42,6 +42,11 @@ export class DistributionWizardPage {
   readonly backButton: Locator;
   readonly submitButton: Locator;
   readonly cancelButton: Locator;
+  readonly waterfallIntegrationHeading: Locator;
+  readonly waterfallScenarioSelect: Locator;
+  readonly fundDefaultBadge: Locator;
+  readonly lockedBadge: Locator;
+  readonly quickPreviewSection: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -50,6 +55,11 @@ export class DistributionWizardPage {
     this.backButton = page.getByRole('button', { name: /back|previous/i });
     this.submitButton = page.getByRole('button', { name: /submit|create|save/i });
     this.cancelButton = page.getByRole('button', { name: /cancel/i });
+    this.waterfallIntegrationHeading = page.getByText('Waterfall Integration');
+    this.waterfallScenarioSelect = page.getByLabel(/waterfall scenario/i);
+    this.fundDefaultBadge = page.getByText('Fund Default');
+    this.lockedBadge = page.getByText('Locked', { exact: true });
+    this.quickPreviewSection = page.getByText('Quick Preview');
   }
 
   async goto() {

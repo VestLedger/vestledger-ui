@@ -26,7 +26,8 @@ export function useDashboardData(): DashboardData {
       .then((resolved) => {
         if (active && resolved) setData(resolved);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error('Failed to load dashboard data', error);
         if (active) setData(createEmptyDashboardData());
       });
     return () => {

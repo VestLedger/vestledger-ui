@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Input, Modal, Select, Textarea, useToast } from '@/ui';
 import type { CreateFundParams } from '@/store/slices/fundSlice';
 import { findFirstMissingRequiredField } from '@/utils/forms/required';
+import { fetchWaterfallScenarios } from '@/services/analytics/waterfallService';
 
 const STATUS_OPTIONS = [
   { value: 'active', label: 'Active' },
@@ -18,6 +19,28 @@ const STRATEGY_OPTIONS = [
   { value: 'multi-stage', label: 'Multi Stage' },
   { value: 'sector-specific', label: 'Sector Specific' },
 ];
+
+const DATE_INPUT_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+function normalizeDateInputValue(value?: string): string {
+  if (!value) return '';
+  if (DATE_INPUT_PATTERN.test(value)) return value;
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return '';
+  return parsed.toISOString().slice(0, 10);
+}
+
+function normalizeFormValues(values: CreateFundParams): CreateFundParams {
+  const normalizedStartDate = normalizeDateInputValue(values.startDate);
+  const normalizedEndDate = normalizeDateInputValue(values.endDate);
+
+  return {
+    ...values,
+    startDate: normalizedStartDate || values.startDate,
+    endDate: normalizedEndDate || undefined,
+  };
+}
 
 export interface FundSetupFormProps {
   isOpen: boolean;
@@ -47,6 +70,7 @@ function getDefaultFormValues(): CreateFundParams {
     targetSectors: ['AI/ML'],
     targetStages: ['Seed', 'Series A'],
     managers: [''],
+    activeWaterfallId: '',
     startDate: `${year}-01-01`,
     endDate: `${year + 10}-01-01`,
     description: '',
@@ -67,12 +91,57 @@ export function FundSetupForm({
   const defaults = useMemo(getDefaultFormValues, []);
   const [form, setForm] = useState<CreateFundParams>(defaults);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [waterfallOptions, setWaterfallOptions] = useState<Array<{ value: string; label: string }>>([]);
+  const [isLoadingWaterfallOptions, setIsLoadingWaterfallOptions] = useState(false);
   const toast = useToast();
+  const hasLoadedWaterfallOptionsRef = useRef(false);
 
   useEffect(() => {
     if (!isOpen) return;
-    setForm(initialValues ?? defaults);
+    setForm(normalizeFormValues(initialValues ?? defaults));
   }, [defaults, initialValues, isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      hasLoadedWaterfallOptionsRef.current = false;
+      return;
+    }
+    if (hasLoadedWaterfallOptionsRef.current) return;
+
+    let cancelled = false;
+    setIsLoadingWaterfallOptions(true);
+    hasLoadedWaterfallOptionsRef.current = true;
+
+    void fetchWaterfallScenarios()
+      .then((scenarios) => {
+        if (cancelled) return;
+
+        const options = scenarios.map((scenario) => ({
+          value: scenario.id,
+          label: scenario.name,
+        }));
+        setWaterfallOptions(options);
+
+        setForm((current) => {
+          if (current.activeWaterfallId || options.length === 0) return current;
+          return { ...current, activeWaterfallId: options[0].value };
+        });
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        console.error('Failed to load waterfall scenarios for fund setup', error);
+        toast.warning('Unable to load waterfall scenarios.', 'Try again');
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoadingWaterfallOptions(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+    // useToast can return a new object on each render; fetch should run once per modal open.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   const setNumber = (field: keyof CreateFundParams, value: string) => {
     const parsed = Number(value);
@@ -95,11 +164,14 @@ export function FundSetupForm({
   };
 
   const submit = () => {
-    const missingField = findFirstMissingRequiredField([
+    const requiredFields = [
       { key: 'name', label: 'Fund Name', value: form.name },
       { key: 'displayName', label: 'Display Name', value: form.displayName },
       { key: 'startDate', label: 'Start Date', value: form.startDate },
-    ]);
+      { key: 'activeWaterfallId', label: 'Waterfall Scenario', value: form.activeWaterfallId },
+    ];
+
+    const missingField = findFirstMissingRequiredField(requiredFields);
 
     if (missingField) {
       toast.warning(`${missingField.label} is required.`, 'Missing information');
@@ -186,6 +258,17 @@ export function FundSetupForm({
             }))
           }
           options={STRATEGY_OPTIONS}
+        />
+        <Select
+          label="Waterfall Scenario"
+          selectedKeys={form.activeWaterfallId ? [form.activeWaterfallId] : []}
+          onChange={(event) =>
+            setForm((current) => ({ ...current, activeWaterfallId: event.target.value }))
+          }
+          options={waterfallOptions}
+          isLoading={isLoadingWaterfallOptions}
+          isRequired
+          disallowEmptySelection
         />
         <Input
           label="Total Commitment"

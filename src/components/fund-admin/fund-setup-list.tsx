@@ -157,6 +157,7 @@ export function FundSetupList({ canMutate, createSignal = 0 }: FundSetupListProp
         targetSectors: editTarget.targetSectors,
         targetStages: editTarget.targetStages,
         managers: editTarget.managers,
+        activeWaterfallId: editTarget.activeWaterfallId ?? '',
         startDate: editTarget.startDate,
         endDate: editTarget.endDate,
         description: editTarget.description,

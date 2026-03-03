@@ -486,7 +486,7 @@ export function Settings() {
                 <Button
                   color={twoFactorEnabled ? "default" : "primary"}
                   variant={twoFactorEnabled ? "bordered" : "solid"}
-                  onClick={() => patchSettingsUI({ twoFactorEnabled: !twoFactorEnabled })}
+                  onPress={() => patchSettingsUI({ twoFactorEnabled: !twoFactorEnabled })}
                 >
                   {twoFactorEnabled ? 'Disable' : 'Enable'} 2FA
                 </Button>
@@ -765,7 +765,7 @@ export function Settings() {
                           color="primary"
                           className="w-full"
                           startContent={<Plus className="w-4 h-4" />}
-                          onClick={handleTeamInvite}
+                          onPress={handleTeamInvite}
                         >
                           Invite Member
                         </Button>
@@ -815,7 +815,7 @@ export function Settings() {
                         }
                       />
                       <div className="flex items-end">
-                        <Button color="primary" className="w-full" onClick={handleTeamCreateUser}>
+                        <Button color="primary" className="w-full" onPress={handleTeamCreateUser}>
                           Create User
                         </Button>
                       </div>
@@ -853,7 +853,7 @@ export function Settings() {
                           variant="ghost"
                           size="sm"
                           color={member.status === 'active' ? 'danger' : 'success'}
-                          onClick={() => handleTeamStatusToggle(member)}
+                          onPress={() => handleTeamStatusToggle(member)}
                           isDisabled={!teamSnapshot?.canManageTeam || member.isLastOrgAdmin}
                         >
                           {member.status === 'active' ? 'Disable' : 'Activate'}
@@ -879,7 +879,7 @@ export function Settings() {
                           <Button
                             variant="bordered"
                             size="sm"
-                            onClick={() => handleTeamResendInvite(invite.id)}
+                            onPress={() => handleTeamResendInvite(invite.id)}
                             isDisabled={!teamSnapshot?.canManageTeam || invite.status !== 'pending'}
                           >
                             Resend

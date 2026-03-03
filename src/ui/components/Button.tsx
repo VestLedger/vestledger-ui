@@ -30,8 +30,22 @@ function describeButtonChildren(children: ButtonProps['children']): string {
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
-  const { variant = 'solid', color = 'primary', size = 'md', ...rest } = props;
-  const hasHandler = typeof rest.onPress === 'function' || typeof rest.onClick === 'function';
+  const {
+    variant = 'solid',
+    color = 'primary',
+    size = 'md',
+    onPress,
+    onClick,
+    ...rest
+  } = props;
+
+  const normalizedOnPress = typeof onPress === 'function'
+    ? onPress
+    : typeof onClick === 'function'
+      ? () => onClick(new MouseEvent('click') as never)
+      : undefined;
+
+  const hasHandler = typeof normalizedOnPress === 'function';
   const hasHref = typeof (rest as { href?: unknown }).href === 'string';
   const type = (rest as { type?: string }).type;
   const disabled = Boolean((rest as { isDisabled?: boolean; disabled?: boolean }).isDisabled || (rest as { disabled?: boolean }).disabled);
@@ -51,7 +65,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) =>
           route: typeof window !== 'undefined' ? window.location.pathname : undefined,
         });
       }
-    : rest.onPress;
+    : normalizedOnPress;
 
   return (
     <NextUIButton

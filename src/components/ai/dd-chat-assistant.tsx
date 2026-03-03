@@ -20,7 +20,11 @@ export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealNam
   const conversationKey = (dealId ?? dealName ?? 'default').toString();
 
   // Load conversation from Redux using selectors
-  const conversation = useAppSelector(ddChatSelectors.selectConversation(conversationKey));
+  const selectConversation = useMemo(
+    () => ddChatSelectors.selectConversation(conversationKey),
+    [conversationKey]
+  );
+  const conversation = useAppSelector(selectConversation);
 
   // Load conversation on mount if not already loaded
   useEffect(() => {

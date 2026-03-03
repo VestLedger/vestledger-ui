@@ -112,7 +112,10 @@ async function postAuth(path: string, body: Record<string, unknown>): Promise<Au
     body: JSON.stringify(body),
   });
 
-  const payload = (await response.json().catch(() => ({}))) as Partial<AuthResponse> & {
+  const payload = (await response.json().catch((error) => {
+    console.error('Failed to parse auth response payload', error);
+    return {};
+  })) as Partial<AuthResponse> & {
     message?: string | string[];
   };
 
