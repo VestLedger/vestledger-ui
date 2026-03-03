@@ -9,13 +9,11 @@ export interface CopilotMessage {
   type: 'user' | 'ai';
   content: string;
   timestamp: Date;
-  confidence?: number;
 }
 
 export type ExternalCopilotMessage = {
   content: string;
   type?: 'user' | 'ai';
-  confidence?: number;
 };
 
 export type CopilotContextValue =
@@ -61,7 +59,6 @@ const initialState: CopilotState = {
       content:
         "Hi! I'm Vesta, your AI assistant. I'm here to help you navigate VestLedger, analyze data, and automate tasks. What would you like to do today?",
       timestamp: new Date(),
-      confidence: 0.95,
     },
   ],
   inputValue: '',
@@ -106,7 +103,6 @@ const copilotSlice = createSlice({
           type: action.payload.type || 'ai',
           content: action.payload.content,
           timestamp: new Date(),
-          confidence: action.payload.confidence,
         },
       ];
     },

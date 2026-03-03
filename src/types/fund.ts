@@ -44,6 +44,7 @@ export interface Fund {
   // Metadata
   description?: string;
   managers: string[];
+  activeWaterfallId?: string;
   createdAt: string;
   updatedAt: string;
 }

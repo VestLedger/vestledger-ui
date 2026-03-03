@@ -170,7 +170,6 @@ export function CollaborationWorkspace() {
             icon: MessageSquare,
             aiSummary: {
               text: `${unreadThreadsCount} threads need review and ${openTasksCount} tasks are still open. ${blockedTasksCount} tasks are blocked and should be escalated first.`,
-              confidence: 0.9,
             },
           }}
         >

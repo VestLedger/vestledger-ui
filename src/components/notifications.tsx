@@ -137,7 +137,6 @@ export function Notifications() {
         icon: Bell,
         aiSummary: {
           text: aiSummaryText,
-          confidence: 0.86,
         },
         actionContent: (
           <div className="flex items-center gap-2">

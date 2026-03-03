@@ -360,7 +360,6 @@ export function FundAdmin() {
               icon: Building2,
               aiSummary: {
                 text: `${activeCallsCount} active capital calls with ${formatCurrency(totalOutstanding)} outstanding. ${pendingLPs} LPs require follow-up across active workflows.`,
-                confidence: 0.91,
               },
               primaryAction,
               secondaryActions: [

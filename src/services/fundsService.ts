@@ -2,7 +2,8 @@ import type { Fund } from '@/types/fund';
 import type { CreateFundParams, GetFundsParams } from '@/store/slices/fundSlice';
 import { isMockMode } from '@/config/data-mode';
 import { mockFunds } from '@/data/mocks/funds';
-import { apiClient } from '@/api/client';
+import { apiClient, getAccessToken } from '@/api/client';
+import { getApiBaseUrl } from '@/api/config';
 import { unwrapApiResult } from '@/api/unwrap';
 import type { components } from '@/api/generated/openapi';
 
@@ -42,6 +43,7 @@ function mapApiFundToFund(apiFund: ApiFund): Fund {
     targetStages: apiFund.targetStages,
     description: apiFund.description,
     managers: apiFund.managers,
+    activeWaterfallId: (apiFund as Record<string, unknown>).activeWaterfallId as string | undefined,
     createdAt: apiFund.createdAt,
     updatedAt: apiFund.updatedAt,
   };
@@ -211,4 +213,45 @@ export async function unarchiveFundLocal(
     fundId,
     archivedAt: new Date().toISOString(),
   };
+}
+
+export async function getActiveWaterfall(
+  fundId: string
+): Promise<{ waterfallScenarioId: string | null }> {
+  if (isMockMode('funds')) {
+    const fund = mockFunds.find((f) => f.id === fundId);
+    return { waterfallScenarioId: fund?.activeWaterfallId ?? null };
+  }
+
+  const token = getAccessToken();
+  const res = await fetch(`${getApiBaseUrl()}/funds/${fundId}/active-waterfall`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) throw new Error('Failed to fetch active waterfall');
+  const data = await res.json();
+  return { waterfallScenarioId: data?.waterfallScenarioId ?? null };
+}
+
+export async function setActiveWaterfall(
+  fundId: string,
+  waterfallScenarioId: string
+): Promise<void> {
+  if (isMockMode('funds')) {
+    const fund = mockFunds.find((f) => f.id === fundId);
+    if (fund) {
+      fund.activeWaterfallId = waterfallScenarioId;
+    }
+    return;
+  }
+
+  const token = getAccessToken();
+  const res = await fetch(`${getApiBaseUrl()}/funds/${fundId}/active-waterfall`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify({ waterfallScenarioId }),
+  });
+  if (!res.ok) throw new Error('Failed to set active waterfall');
 }

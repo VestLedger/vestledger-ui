@@ -393,6 +393,7 @@ export interface Distribution {
   waterfallScenarioId?: string;
   waterfallScenarioName?: string;
   waterfallResults?: WaterfallResults;
+  gpCarryAmount?: number;
 
   // LP allocations
   lpAllocations: LPAllocation[];

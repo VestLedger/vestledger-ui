@@ -34,13 +34,6 @@ export function CompanySearch() {
   const stages = data?.stages || [];
   const companies = data?.companies || [];
 
-  const getMatchScoreColor = (score: number) => {
-    if (score >= 90) return 'var(--app-success)';
-    if (score >= 80) return 'var(--app-primary)';
-    if (score >= 70) return 'var(--app-warning)';
-    return 'var(--app-text-muted)';
-  };
-
   const filteredCompanies = companies.filter(company => {
     if (searchQuery && !company.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
         !company.description.toLowerCase().includes(searchQuery.toLowerCase())) return false;
@@ -142,15 +135,9 @@ export function CompanySearch() {
                   </div>
                 </div>
               </div>
-              <div className="text-right">
-                <div
-                  className="text-2xl font-bold"
-                  style={{ color: getMatchScoreColor(company.aiMatchScore) }}
-                >
-                  {company.aiMatchScore}%
-                </div>
-                <div className="text-xs text-[var(--app-text-muted)]">AI Match</div>
-              </div>
+              <Badge size="sm" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">
+                AI Ranked
+              </Badge>
             </div>
 
             {/* Description */}

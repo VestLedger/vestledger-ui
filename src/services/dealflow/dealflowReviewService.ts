@@ -131,7 +131,7 @@ function mapPipelineDealToReviewDeal(apiDeal: PipelineApiDeal, index: number): D
     growth,
     founderName: apiDeal.founder,
     location: demoLocations[index % demoLocations.length],
-    oneLiner: `${apiDeal.sector} company at ${apiDeal.stage} with ${Math.round(probability)}% IC confidence.`,
+    oneLiner: `${apiDeal.sector} company at ${apiDeal.stage}.`,
   };
 }
 

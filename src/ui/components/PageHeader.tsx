@@ -29,14 +29,12 @@ export interface PageHeaderProps {
   icon?: LucideIcon;
   aiSummary?: {
     text: string;
-    confidence: number;
   };
   actionContent?: ReactNode;
   primaryAction?: {
     label: string;
     onClick: () => void;
     aiSuggested?: boolean;
-    confidence?: number;
   };
   secondaryActions?: Array<{
     label: string;
@@ -133,16 +131,7 @@ export function PageHeader({
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-[var(--app-text-subtle)]">Confidence:</span>
-                        <div className="flex-1 h-1.5 bg-[var(--app-surface-hover)] rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-[var(--app-primary)] rounded-full"
-                            style={{ width: `${aiSummary.confidence * 100}%` }}
-                          />
-                        </div>
-                        <span className="text-xs font-bold text-[var(--app-primary)]">
-                          {Math.round(aiSummary.confidence * 100)}%
-                        </span>
+                        <span className="text-xs text-[var(--app-text-subtle)]">AI-generated summary</span>
                       </div>
                     </div>
                   </div>
@@ -185,13 +174,6 @@ export function PageHeader({
                   )}
                 </Button>
 
-                {primaryAction.aiSuggested && primaryAction.confidence && (
-                  <div className="absolute -top-2 -right-2">
-                    <div className="px-1.5 py-0.5 rounded-full bg-[var(--app-primary)] text-white text-xs font-bold shadow-lg">
-                      {Math.round(primaryAction.confidence * 100)}%
-                    </div>
-                  </div>
-                )}
               </div>
             )}
           </div>

@@ -9,20 +9,24 @@ export interface FundSetupDetailProps {
   fund: Fund | null;
   isArchived: boolean;
   canMutate: boolean;
+  activeWaterfallName?: string;
   onEdit: () => void;
   onCloseFund: () => void;
   onArchive: () => void;
   onUnarchive: () => void;
+  onChangeActiveWaterfall?: () => void;
 }
 
 export function FundSetupDetail({
   fund,
   isArchived,
   canMutate,
+  activeWaterfallName,
   onEdit,
   onCloseFund,
   onArchive,
   onUnarchive,
+  onChangeActiveWaterfall,
 }: FundSetupDetailProps) {
   if (!fund) {
     return (
@@ -116,6 +120,17 @@ export function FundSetupDetail({
           <div className="text-[var(--app-text-muted)]">Performance</div>
           <div>
             IRR {fund.irr.toFixed(2)}% | TVPI {fund.tvpi.toFixed(2)}x | DPI {fund.dpi.toFixed(2)}x
+          </div>
+        </div>
+        <div>
+          <div className="text-[var(--app-text-muted)]">Active Waterfall</div>
+          <div className="flex items-center gap-2">
+            <span>{activeWaterfallName || 'None set'}</span>
+            {canMutate && onChangeActiveWaterfall && (
+              <Button size="sm" variant="light" onPress={onChangeActiveWaterfall}>
+                Change
+              </Button>
+            )}
           </div>
         </div>
       </div>

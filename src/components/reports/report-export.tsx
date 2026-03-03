@@ -102,7 +102,6 @@ export function ReportExport() {
         icon: FileDown,
         aiSummary: {
           text: `${reportTemplates.length} report templates available. ${exportJobs.filter(j => j.status === 'completed').length} reports completed, ${exportJobs.filter(j => j.status === 'processing').length} currently processing.`,
-          confidence: 0.90,
         },
         secondaryActions: [
           {

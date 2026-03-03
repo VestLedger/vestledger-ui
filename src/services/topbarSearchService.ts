@@ -192,11 +192,7 @@ export async function searchTopbar(query: string): Promise<TopbarSearchResult[]>
     });
   }
 
-  const aiAndActions = getMockTopbarSearchResults(trimmedQuery).filter(
-    (result) => result.type === 'ai-suggestion' || result.type === 'action'
-  );
-
-  const merged = dedupeResults([...aiAndActions, ...mappedResults]);
+  const merged = dedupeResults(mappedResults);
   if (merged.length > 0) {
     return merged.slice(0, MAX_RESULTS);
   }

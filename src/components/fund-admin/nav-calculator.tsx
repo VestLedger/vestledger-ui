@@ -282,19 +282,6 @@ export function NAVCalculator({
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-sm font-medium">{component.description}</span>
                         {getValuationMethodBadge(component.valuationMethod)}
-                        <Badge
-                          size="sm"
-                          variant="flat"
-                          className={
-                            component.confidence === 'high'
-                              ? 'bg-[var(--app-success-bg)] text-[var(--app-success)]'
-                              : component.confidence === 'medium'
-                              ? 'bg-[var(--app-warning-bg)] text-[var(--app-warning)]'
-                              : 'bg-[var(--app-danger-bg)] text-[var(--app-danger)]'
-                          }
-                        >
-                          {component.confidence} confidence
-                        </Badge>
                       </div>
                       <p className="text-xs text-[var(--app-text-muted)]">
                         Last valued: {component.lastValuationDate.toLocaleDateString()}

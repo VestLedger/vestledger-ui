@@ -41,7 +41,7 @@ function mapDealToCompany(apiDeal: PipelineApiDeal, index: number): Company {
   return {
     id: apiDeal.id,
     name: apiDeal.name,
-    description: `${apiDeal.sector} company currently at ${apiDeal.stage} with ${Math.round(probability)}% pipeline confidence.`,
+    description: `${apiDeal.sector} company currently at ${apiDeal.stage}.`,
     industry: apiDeal.sector,
     subIndustry: `${apiDeal.stage} Opportunity`,
     location: demoLocations[index % demoLocations.length],

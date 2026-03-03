@@ -146,7 +146,6 @@ export function TaxCenter() {
             icon: Receipt,
             aiSummary: {
               text: `${k1sIssued} K-1s issued out of ${k1sTotal}. ${form1099Issued} 1099s issued. ${readyDocuments} documents ready to send. Filing deadline: ${formatDate(filingDeadline, { month: 'long', day: 'numeric', year: 'numeric' })}. AI recommends prioritizing the ${readyDocuments} ready documents for immediate distribution.`,
-              confidence: 0.92,
             },
             primaryAction: {
               label: 'Generate K-1s',

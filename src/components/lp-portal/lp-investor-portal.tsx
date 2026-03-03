@@ -98,7 +98,6 @@ export function LPInvestorPortal() {
               badges: headerBadges,
               aiSummary: {
                 text: aiSummaryText,
-                confidence: 0.84,
               },
             }}
           >

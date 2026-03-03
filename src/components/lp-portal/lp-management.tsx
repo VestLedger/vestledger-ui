@@ -271,7 +271,6 @@ export function LPManagement() {
             icon: UserCheck,
             aiSummary: {
               text: `${totalLPs} Limited Partners with ${formatCurrency(totalCommitments)} in commitments. Average IRR: ${averageIRR}%. ${pendingCapitalCalls} pending capital call(s), ${publishedReports} published report(s).`,
-              confidence: 0.88,
             },
             primaryAction: {
               label: 'Generate Report',
@@ -279,7 +278,6 @@ export function LPManagement() {
                 void handleGenerateReport();
               },
               aiSuggested: true,
-              confidence: 0.82,
             },
 	            secondaryActions: [
 	              {

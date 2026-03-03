@@ -250,7 +250,6 @@ export function DashboardV2() {
           icon: LayoutDashboard,
           aiSummary: {
             text: morningBrief.summary,
-            confidence: morningBrief.confidence,
           },
           actionContent: (
             <HomeBlockerBeacon blockers={blockers} onBlockerClick={openBlocker} />
@@ -385,7 +384,6 @@ export function DashboardV2() {
         icon: LayoutDashboard,
         aiSummary: {
           text: `${formatCurrency(selectedFund.totalCommitment)} committed across ${formatCountLabel(selectedFund.portfolioCount, 'portfolio company', 'portfolio companies')}. ${((selectedFund.deployedCapital / selectedFund.totalCommitment) * DASHBOARD_PERCENT_SCALE).toFixed(0)}% deployed. IRR ${selectedFund.irr.toFixed(1)}%, TVPI ${selectedFund.tvpi.toFixed(2)}x, DPI ${selectedFund.dpi.toFixed(2)}x.`,
-          confidence: 0.96,
         },
         actionContent: <FundSelector />,
         children: (

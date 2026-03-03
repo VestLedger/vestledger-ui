@@ -64,7 +64,6 @@ export function Portfolio() {
         icon: Briefcase,
         aiSummary: {
           text: aiSummaryText,
-          confidence: 0.89,
         },
         actionContent: <FundSelector />,
       }}

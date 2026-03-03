@@ -20,13 +20,10 @@ interface QuickActionsProps {
 }
 
 export function QuickActions({ actions }: QuickActionsProps) {
-  // Sort: AI-suggested first, then by confidence
+  // Sort: AI-suggested actions first
   const sortedActions = [...actions].sort((a, b) => {
     if (a.aiSuggested && !b.aiSuggested) return -1;
     if (!a.aiSuggested && b.aiSuggested) return 1;
-    if (a.aiSuggested && b.aiSuggested) {
-      return (b.confidence || 0) - (a.confidence || 0);
-    }
     return 0;
   });
 
@@ -77,11 +74,6 @@ export function QuickActions({ actions }: QuickActionsProps) {
                   <div className="absolute top-2 right-2">
                     <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[var(--app-primary)]/20">
                       <Sparkles className="w-3 h-3 text-[var(--app-primary)]" />
-                      {action.confidence && (
-                        <span className="text-xs font-bold text-[var(--app-primary)]">
-                          {Math.round(action.confidence * 100)}%
-                        </span>
-                      )}
                     </div>
                   </div>
                 )}
@@ -149,7 +141,6 @@ export const createQuickAction = {
     description: 'Email overdue LPs',
     icon: Send,
     aiSuggested: true,
-    confidence: 0.92,
     onClick,
   }),
 
@@ -159,7 +150,6 @@ export const createQuickAction = {
     description: 'Generate call notice',
     icon: DollarSign,
     aiSuggested: true,
-    confidence: 0.88,
     onClick,
   }),
 

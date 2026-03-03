@@ -203,6 +203,8 @@ export interface WaterfallScenario {
   updatedAt: string;
   createdBy: string;
   tags?: string[];
+  isLocked?: boolean;
+  lockedAt?: string;
 }
 
 // ============================================================================

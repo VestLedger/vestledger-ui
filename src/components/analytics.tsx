@@ -53,7 +53,6 @@ export function Analytics() {
         icon: BarChart3,
 	        aiSummary: {
 	          text: 'Portfolio performing 12% above target. J-curve trending positively. 3 high-potential outliers detected in cohort analysis.',
-	          confidence: 0.88,
 	        },
 	        actionContent: (
 	          <div className="w-full sm:w-64">

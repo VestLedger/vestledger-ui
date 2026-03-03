@@ -23,7 +23,6 @@ import {
 import { normalizeError } from '@/store/utils/normalizeError';
 import { errorTracking } from '@/lib/errorTracking';
 
-const randomConfidence = () => Math.random() * 0.2 + 0.75;
 const nextId = () => Date.now().toString();
 
 export function* openWithQueryWorker(action: ReturnType<typeof openWithQueryRequested>) {
@@ -48,7 +47,6 @@ export function* openWithQueryWorker(action: ReturnType<typeof openWithQueryRequ
       type: 'ai',
       content: responseContent,
       timestamp: new Date(),
-      confidence: randomConfidence(),
     };
 
     yield put(addMessage(aiMessage));
@@ -87,7 +85,6 @@ export function* sendMessageWorker(action: ReturnType<typeof sendMessageRequeste
       type: 'ai',
       content: responseContent,
       timestamp: new Date(),
-      confidence: randomConfidence(),
     };
 
     yield put(addMessage(aiMessage));
@@ -124,7 +121,6 @@ export function* quickActionWorker(action: ReturnType<typeof quickActionInvoked>
       type: 'ai',
       content: `I'm working on "${actionText}". This will take a moment...`,
       timestamp: new Date(),
-      confidence: quickAction.confidence ?? 0.88,
     };
 
     yield put(addMessage(aiMessage));
@@ -159,7 +155,6 @@ export function* suggestionWorker(action: ReturnType<typeof suggestionInvoked>) 
       type: 'ai',
       content: `Great choice! I'm ${suggestion.reasoning.toLowerCase()}. Let me prepare that for you...`,
       timestamp: new Date(),
-      confidence: suggestion.confidence,
     };
 
     yield put(addMessage(aiMessage));

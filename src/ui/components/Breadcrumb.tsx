@@ -13,7 +13,6 @@ export interface AISuggestion {
   label: string;
   href: string;
   reasoning: string;
-  confidence: number;
 }
 
 export interface BreadcrumbProps {
@@ -78,17 +77,6 @@ export function Breadcrumb({ items, aiSuggestion }: BreadcrumbProps) {
                   <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted mb-2">
                     {aiSuggestion.reasoning}
                   </p>
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 h-1 bg-app-surface-hover dark:bg-app-dark-surface-hover rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-app-primary dark:bg-app-dark-primary rounded-full"
-                        style={{ width: `${aiSuggestion.confidence * 100}%` }}
-                      />
-                    </div>
-                    <span className="text-xs font-bold text-app-primary dark:text-app-dark-primary">
-                      {Math.round(aiSuggestion.confidence * 100)}%
-                    </span>
-                  </div>
                 </div>
               </div>
               <Link

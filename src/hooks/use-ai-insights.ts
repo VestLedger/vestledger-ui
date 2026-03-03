@@ -98,22 +98,8 @@ export function useAIInsights(data: DashboardData): AIInsight {
       summary = `Priority update: ${insights.join(', ')}, and ${lastInsight}.`;
     }
 
-    // Calculate confidence score
-    // Higher confidence when we have more complete data
-    const dataCompleteness = [
-      data.overdueCapitalCalls !== undefined,
-      data.upcomingDeadlines !== undefined,
-      data.atRiskCompanies !== undefined,
-      data.totalTasks !== undefined,
-    ].filter(Boolean).length / 4;
-
-    // Adjust confidence based on data quality
-    const baseConfidence = 0.85;
-    const confidence = Math.min(baseConfidence + (dataCompleteness * 0.1), 0.95);
-
     return {
       summary,
-      confidence,
       details,
       timestamp: new Date(),
     };

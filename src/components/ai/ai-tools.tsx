@@ -38,7 +38,6 @@ export function AITools() {
         icon: Sparkles,
         aiSummary: {
           text: '3 AI copilots available to streamline investment decision-making and due diligence processes',
-          confidence: 0.9,
         },
       }}
     >

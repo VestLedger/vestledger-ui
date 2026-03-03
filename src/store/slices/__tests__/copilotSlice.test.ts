@@ -31,7 +31,6 @@ const quickActions: QuickAction[] = [
     label: 'Generate report',
     icon: Sparkles,
     aiSuggested: true,
-    confidence: 0.88,
   },
 ];
 
@@ -47,7 +46,6 @@ const suggestions: Suggestion[] = [
 const externalMessage = {
   type: 'ai' as const,
   content: 'Pipeline now prioritized by close probability.',
-  confidence: 0.84,
 };
 
 const chatMessage: CopilotMessage = {

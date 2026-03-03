@@ -110,7 +110,6 @@ export function BlockchainAuditTrail() {
               icon: Database,
               aiSummary: {
                 text: `${auditEvents.length} blockchain events recorded. ${auditEvents.filter(e => e.verificationStatus === 'verified').length} verified transactions across ${new Set(auditEvents.map(e => e.eventType)).size} event types. Latest block: ${Math.max(...auditEvents.map(e => e.blockNumber)).toLocaleString()}`,
-                confidence: 0.95,
               },
             }}
           >

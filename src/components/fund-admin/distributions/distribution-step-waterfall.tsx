@@ -8,7 +8,7 @@ import type { WaterfallScenario, WaterfallResults } from "@/types/waterfall";
 import { formatCurrencyCompact } from "@/utils/formatting";
 import { performWaterfallCalculation } from "@/services/analytics/waterfallService";
 import { ROUTE_PATHS } from "@/config/routes";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Lock } from "lucide-react";
 
 type WaterfallPreviewUIState = {
   scenarioId: string;
@@ -23,6 +23,7 @@ const getModelLabel = (model: WaterfallScenario["model"]) =>
 export interface DistributionStepWaterfallProps {
   scenarios: WaterfallScenario[];
   selectedScenarioId?: string;
+  fundActiveWaterfallId?: string;
   grossProceeds?: number;
   previewResults?: WaterfallResults | null;
   error?: string;
@@ -39,6 +40,7 @@ export interface DistributionStepWaterfallProps {
 export function DistributionStepWaterfall({
   scenarios,
   selectedScenarioId,
+  fundActiveWaterfallId,
   grossProceeds,
   previewResults,
   error,
@@ -53,7 +55,7 @@ export function DistributionStepWaterfall({
     () =>
       scenarios.map((scenario) => ({
         value: scenario.id,
-        label: scenario.name,
+        label: scenario.isLocked ? `${scenario.name} (Locked)` : scenario.name,
       })),
     [scenarios]
   );
@@ -87,6 +89,17 @@ export function DistributionStepWaterfall({
       patchUI({ exitValue: grossProceeds });
     }
   }, [grossProceeds, patchUI, selectedScenario, ui.exitValue]);
+
+  useEffect(() => {
+    if (!selectedScenarioId && fundActiveWaterfallId) {
+      const exists = scenarios.some((s) => s.id === fundActiveWaterfallId);
+      if (exists) {
+        onChange(fundActiveWaterfallId);
+      }
+    }
+  }, [fundActiveWaterfallId, scenarios, selectedScenarioId, onChange]);
+
+  const isFundDefault = selectedScenarioId != null && selectedScenarioId === fundActiveWaterfallId;
 
   const handleRunPreview = async () => {
     if (!selectedScenario || !onPreview) return;
@@ -152,6 +165,17 @@ export function DistributionStepWaterfall({
               <span className="text-[var(--app-text-muted)]">
                 {selectedScenario.investorClasses.length} classes
               </span>
+              {isFundDefault && (
+                <Badge size="sm" variant="flat" color="primary">
+                  Fund Default
+                </Badge>
+              )}
+              {selectedScenario.isLocked && (
+                <Badge size="sm" variant="flat" color="warning">
+                  <Lock className="h-3 w-3 mr-1 inline" />
+                  Locked
+                </Badge>
+              )}
               {previewResults ? (
                 <Badge size="sm" variant="flat" color="warning">
                   Preview
@@ -194,6 +218,7 @@ export function DistributionStepWaterfall({
             </div>
           </div>
 
+          {!selectedScenario.isLocked && (
           <Card padding="md" className="space-y-3">
             <div>
               <div className="text-sm font-semibold">Quick Preview</div>
@@ -244,6 +269,7 @@ export function DistributionStepWaterfall({
               )}
             </div>
           </Card>
+          )}
         </div>
       ) : (
         <div className="rounded-lg border border-dashed border-[var(--app-border)] p-4 text-sm text-[var(--app-text-muted)]">

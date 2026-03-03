@@ -148,12 +148,6 @@ export function AlertBar({ alerts, maxVisible = 3 }: AlertBarProps) {
                       {alert.prediction.value}
                     </p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-xs text-[var(--app-text-subtle)]">Confidence</p>
-                    <p className="text-sm font-bold text-[var(--app-primary)]">
-                      {Math.round(alert.prediction.confidence * 100)}%
-                    </p>
-                  </div>
                 </div>
               )}
 

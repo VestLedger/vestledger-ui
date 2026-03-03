@@ -206,13 +206,11 @@ export function Pipeline() {
         icon: GitBranch,
         aiSummary: {
           text: `${highProbabilityDeals.length} high-probability deals (≥70%) detected. ${stalledDeals.length} deals need follow-up (inactive >1 week). Total pipeline value: $${(filteredDeals.reduce((sum, d) => sum + parseFloat(d.amount.replace(/[$M]/g, '')), 0)).toFixed(1)}M.`,
-          confidence: 0.92,
         },
         primaryAction: {
           label: 'Add Deal',
           onClick: openCreateDealModal,
           aiSuggested: true,
-          confidence: 0.78,
         },
         children: (
           <div className="flex flex-wrap items-center gap-3 mt-4">

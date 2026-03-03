@@ -442,14 +442,39 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
     [dispatch, primeSpeechSynthesis]
   );
 
+  const handleToggleTts = useCallback(() => {
+    const nextEnabled = !resolvedVestaShellUI.ttsEnabled;
+
+    if (typeof window !== 'undefined' && !nextEnabled) {
+      window.speechSynthesis.cancel();
+    }
+
+    if (nextEnabled) {
+      // Do not replay older assistant responses when unmuting.
+      const latestAiMessage = [...messages].reverse().find((message) => message.type === 'ai');
+      if (latestAiMessage) {
+        lastSpokenMessageIdRef.current = latestAiMessage.id;
+      }
+      primeSpeechSynthesis();
+    }
+
+    patchVestaShellUI({ ttsEnabled: nextEnabled });
+  }, [
+    messages,
+    patchVestaShellUI,
+    primeSpeechSynthesis,
+    resolvedVestaShellUI.ttsEnabled,
+  ]);
+
   const handleMessageSpeech = useCallback(
     (content: string, type: 'user' | 'ai') => {
       if (type !== 'ai') return;
+      if (!resolvedVestaShellUI.ttsEnabled) return;
       const trimmed = content.trim();
       if (!trimmed) return;
       speakAssistantReply(trimmed);
     },
-    [speakAssistantReply]
+    [resolvedVestaShellUI.ttsEnabled, speakAssistantReply]
   );
 
   const startVoiceCapture = useCallback(() => {
@@ -597,7 +622,7 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
         </div>
         <div className="flex items-center gap-1">
           <button
-            onClick={() => patchVestaShellUI({ ttsEnabled: !resolvedVestaShellUI.ttsEnabled })}
+            onClick={handleToggleTts}
             className="p-1.5 rounded-lg hover:bg-[var(--app-surface-hover)] transition-colors"
             aria-label={resolvedVestaShellUI.ttsEnabled ? 'Disable spoken replies' : 'Enable spoken replies'}
             title={resolvedVestaShellUI.ttsEnabled ? 'Disable spoken replies' : 'Enable spoken replies'}
@@ -662,14 +687,6 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
                 <p className="text-sm text-[var(--app-text)] mb-1">{suggestion.text}</p>
                 <div className="flex items-center justify-between">
                   <p className="text-xs text-[var(--app-text-subtle)]">{suggestion.reasoning}</p>
-                  <span
-                    className={`
-                      text-xs font-semibold
-                      ${suggestion.confidence >= 0.8 ? 'text-[var(--app-success)]' : suggestion.confidence >= 0.6 ? 'text-[var(--app-warning)]' : 'text-[var(--app-danger)]'}
-                    `}
-                  >
-                    {Math.round(suggestion.confidence * 100)}%
-                  </span>
                 </div>
               </button>
             ))}
@@ -715,9 +732,6 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
                 className="max-w-[85%] rounded-lg bg-[var(--app-surface-hover)] px-3 py-2 text-left text-[var(--app-text)] transition-colors hover:bg-[var(--app-border)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--app-primary)]"
               >
                 <p className="text-sm">{message.content}</p>
-                {message.confidence && (
-                  <p className="mt-1 text-xs opacity-70">Confidence: {Math.round(message.confidence * 100)}%</p>
-                )}
               </button>
             ) : (
               <div className="max-w-[85%] rounded-lg bg-[var(--app-primary)] px-3 py-2 text-white">

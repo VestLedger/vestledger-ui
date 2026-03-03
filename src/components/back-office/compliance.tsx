@@ -162,7 +162,6 @@ export function Compliance() {
             icon: Shield,
             aiSummary: {
               text: `${overdueItems} overdue items require immediate attention. ${inProgressItems} items in progress. ${upcomingHighPriority} high-priority deadlines approaching. AI recommends prioritizing Form ADV and annual certification.`,
-              confidence: 0.94,
             },
             primaryAction: {
               label: 'Upload Document',

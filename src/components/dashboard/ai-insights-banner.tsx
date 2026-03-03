@@ -1,14 +1,13 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, ChevronDown, Info, TrendingUp, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Sparkles, ChevronDown, Info, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Button } from '@/ui';
 import { useUIKey } from '@/store/ui';
 import { useDashboardDensity } from '@/contexts/dashboard-density-context';
 
 export interface AIInsight {
   summary: string;
-  confidence: number;
   details: InsightDetail[];
   timestamp: Date;
 }
@@ -31,18 +30,6 @@ export function AIInsightsBanner({ insight }: AIInsightsBannerProps) {
   const density = useDashboardDensity();
   const { isExpanded } = ui;
   const compact = density.mode === 'compact';
-
-  const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 0.9) return 'text-[var(--app-success)]';
-    if (confidence >= 0.75) return 'text-[var(--app-warning)]';
-    return 'text-[var(--app-danger)]';
-  };
-
-  const getConfidenceBg = (confidence: number) => {
-    if (confidence >= 0.9) return 'bg-[var(--app-success-bg)] border-[var(--app-success)]/20';
-    if (confidence >= 0.75) return 'bg-[var(--app-warning-bg)] border-[var(--app-warning)]/20';
-    return 'bg-[var(--app-danger-bg)] border-[var(--app-danger)]/20';
-  };
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
@@ -95,14 +82,6 @@ export function AIInsightsBanner({ insight }: AIInsightsBannerProps) {
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Confidence Score */}
-            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border ${getConfidenceBg(insight.confidence)}`}>
-              <TrendingUp className={`w-4 h-4 ${getConfidenceColor(insight.confidence)}`} />
-              <span className={`text-sm font-bold ${getConfidenceColor(insight.confidence)}`}>
-                {Math.round(insight.confidence * 100)}%
-              </span>
-            </div>
-
             {/* Expand/Collapse Button */}
             <Button
               size="sm"
@@ -171,15 +150,6 @@ export function AIInsightsBanner({ insight }: AIInsightsBannerProps) {
                     </div>
                   </div>
                 ))}
-
-                {/* Confidence Explanation */}
-                <div className="p-3 rounded-lg bg-[var(--app-surface)]/50 border border-[var(--app-border)]">
-                  <p className="text-xs text-[var(--app-text-subtle)]">
-                    <span className="font-semibold text-[var(--app-text-muted)]">Confidence Score: </span>
-                    This {Math.round(insight.confidence * 100)}% score reflects fund data quality, trend consistency,
-                    and the breadth of available inputs. Higher scores indicate stronger model reliability.
-                  </p>
-                </div>
               </div>
             </motion.div>
           )}

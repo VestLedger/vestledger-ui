@@ -475,6 +475,7 @@ export async function createScenarioFromTemplate(
       managementFees: scenarioData.managementFees,
       isFavorite: false,
       isTemplate: false,
+      isLocked: false,
       version: 1,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -509,6 +510,7 @@ export async function createScenarioFromTemplate(
     managementFees: scenarioData.managementFees,
     isFavorite: false,
     isTemplate: false,
+    isLocked: false,
     createdBy: scenarioData.createdBy,
     tags: [template.name.toLowerCase().replace(/\s+/g, '-')],
   });

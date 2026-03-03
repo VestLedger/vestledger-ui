@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { Search, ChevronDown, LogOut, Sparkles, Moon, Sun, Mic } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
-import { Button, Badge, Card, Input } from '@/ui';
+import { Button, Card, Input } from '@/ui';
 import { useRouter } from 'next/navigation';
 import { useAICopilot } from './ai-copilot-sidebar';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
@@ -204,11 +204,6 @@ export function Topbar() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-sm font-medium truncate">{result.title}</span>
-                          {result.confidence && (
-                            <Badge size="sm" variant="flat" className="bg-app-primary/10 dark:bg-app-dark-primary/15 text-app-primary dark:text-app-dark-primary text-xs">
-                              {Math.round(result.confidence * 100)}% match
-                            </Badge>
-                          )}
                         </div>
                         {result.description && (
                           <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted truncate">{result.description}</p>

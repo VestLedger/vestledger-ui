@@ -908,7 +908,6 @@ export function Settings() {
         icon: SettingsIcon,
         aiSummary: {
           text: aiSummaryText,
-          confidence: 0.83,
         },
         badges: headerBadges,
       }}

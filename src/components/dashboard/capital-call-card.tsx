@@ -132,17 +132,6 @@ export const CapitalCallCard = memo(function CapitalCallCard({ call, index }: Ca
                 )}
               </p>
             </div>
-            <div className="flex items-center gap-2 mt-1">
-              <div className="flex-1 h-1 bg-[var(--app-surface-hover)] rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-[var(--app-primary)] rounded-full"
-                  style={{ width: `${call.prediction.confidence * 100}%` }}
-                />
-              </div>
-              <span className="text-xs font-bold text-[var(--app-primary)]">
-                {Math.round(call.prediction.confidence * 100)}%
-              </span>
-            </div>
           </div>
         </div>
 

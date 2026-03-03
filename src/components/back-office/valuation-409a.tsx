@@ -101,7 +101,6 @@ export function Valuation409A() {
             icon: Calculator,
             aiSummary: {
               text: `${valuations.length} portfolio companies tracked. ${valuations.filter(v => v.status === 'current').length} current valuations, ${valuations.filter(v => v.status === 'expiring-soon').length} expiring soon. ${strikePrices.filter(sp => sp.status === 'active').length} active option grants.`,
-              confidence: 0.92,
             },
             primaryAction: {
               label: 'Request New Valuation',

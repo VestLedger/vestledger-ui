@@ -593,7 +593,6 @@ export function WaterfallModeling() {
           text: selectedScenario
             ? `${selectedScenario.investorClasses.length} classes, ${formatCurrencyCompact(totalInvested)} invested. ${scenarios.length} scenarios modeled. Current model: ${modelSummary} waterfall.`
             : 'No active scenario selected.',
-          confidence: 0.9,
         },
         secondaryActions: [
           {

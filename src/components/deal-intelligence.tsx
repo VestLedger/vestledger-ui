@@ -99,7 +99,6 @@ export function DealIntelligence() {
                 icon: Brain,
                 aiSummary: {
                   text: `${dealsReadyForIC} deals ready for IC. ${overdueDocuments} overdue documents need immediate attention. ${dealsInProgress} deals in active DD. Average DD completion: ${fundAnalytics.ddProgress.avgCompletion}%.`,
-                  confidence: 0.93,
                 },
               }}
             >

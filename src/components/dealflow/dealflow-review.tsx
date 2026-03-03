@@ -443,7 +443,6 @@ export function DealflowReview() {
                 text: totalVotes > 0
                   ? `${consensusPercentage}% consensus for proceeding (${yesVotes}/${totalVotes} votes in favor). ${maybeVotes} votes requiring more due diligence. Reviewing: ${selectedDeal.companyName}.`
                   : `Ready to review ${selectedDeal.companyName}. No votes cast yet. Waiting for team feedback on ${currentSlide?.title ?? 'the deck'}.`,
-                confidence: totalVotes > 0 ? 0.88 : 0.72,
               },
               primaryAction: {
                 label: isPresenting ? 'Stop Presenting' : 'Start Presentation',

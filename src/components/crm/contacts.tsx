@@ -352,7 +352,6 @@ export function Contacts() {
               icon: Users,
               aiSummary: {
                 text: `${contacts.length} total contacts. ${contacts.filter(c => c.starred).length} starred. ${contacts.filter(c => c.nextFollowUp).length} pending follow-ups.`,
-                confidence: 0.91,
               },
               primaryAction: {
                 label: 'Add Contact',

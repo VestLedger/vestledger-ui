@@ -11,6 +11,7 @@ import {
   Archive,
   Copy,
   Layers,
+  Lock,
   RotateCcw,
   Star,
   Trash2,
@@ -285,6 +286,12 @@ export function ScenarioManager({
         badges={(
           <div className="flex flex-wrap items-center gap-2">
             <Badge size="sm" variant="flat">{getModelLabel(scenario.model)}</Badge>
+            {scenario.isLocked && (
+              <Badge size="sm" variant="flat" color="warning">
+                <Lock className="h-3 w-3 mr-1 inline" />
+                Locked
+              </Badge>
+            )}
             {tags.slice(0, 2).map((tag) => (
               <Badge key={tag} size="sm" variant="flat">
                 {tag}
@@ -353,7 +360,8 @@ export function ScenarioManager({
                 size="sm"
                 variant="light"
                 isIconOnly
-                aria-label="Archive scenario"
+                aria-label={scenario.isLocked ? 'Locked scenarios cannot be archived' : 'Archive scenario'}
+                isDisabled={scenario.isLocked}
                 onPress={() => handleArchiveToggle(scenario.id, true)}
               >
                 <Archive className="h-4 w-4" />
@@ -363,7 +371,8 @@ export function ScenarioManager({
               size="sm"
               variant="light"
               isIconOnly
-              aria-label="Delete scenario"
+              aria-label={scenario.isLocked ? 'Locked scenarios cannot be deleted' : 'Delete scenario'}
+              isDisabled={scenario.isLocked}
               onPress={() => onDeleteScenario(scenario.id)}
             >
               <Trash2 className="h-4 w-4 text-[var(--app-danger)]" />
