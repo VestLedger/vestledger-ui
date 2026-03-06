@@ -1,12 +1,10 @@
-import { getApiBaseUrl } from '@/api/config';
-import { ApiError } from '@/api/errors';
-import type { DataMode } from '@/config/data-mode';
-import { createMockUser } from '@/data/mocks/auth';
-import type { User, UserRole } from '@/types/auth';
-import {
-  MOCK_DEMO_PROFILE,
-} from '@/config/auth';
-import type { OperatingRegion } from '@/types/regulatory';
+import { getApiBaseUrl } from "@/api/config";
+import { ApiError } from "@/api/errors";
+import type { DataMode } from "@/config/data-mode";
+import { createMockUser } from "@/data/mocks/auth";
+import type { User, UserRole } from "@/types/auth";
+import { MOCK_DEMO_PROFILE } from "@/config/auth";
+import type { OperatingRegion } from "@/types/regulatory";
 
 type AuthResponse = {
   access_token: string;
@@ -28,7 +26,7 @@ export type AuthResult = {
 type JwtPayload = {
   sub: string;
   email: string;
-  username: string;
+  name?: string;
   role: UserRole;
   orgId?: string;
   tenantId?: string;
@@ -52,12 +50,12 @@ function getPasswordVariants(value: string): string[] {
     variants.push(current);
 
     // Support escaped-dollar variants from env interpolation layers.
-    if (current.includes('$$')) {
-      queue.push(current.replace(/\$\$/g, '$'));
+    if (current.includes("$$")) {
+      queue.push(current.replace(/\$\$/g, "$"));
     }
 
     // Support dotenv-style expansion side-effects (e.g. Pa$$w0rd -> Pa$).
-    const dotenvExpanded = current.replace(/\$[A-Za-z_][A-Za-z0-9_]*/g, '$');
+    const dotenvExpanded = current.replace(/\$[A-Za-z_][A-Za-z0-9_]*/g, "$");
     if (dotenvExpanded !== current) {
       queue.push(dotenvExpanded);
     }
@@ -77,27 +75,35 @@ export function isDemoCredentials(email: string, password: string): boolean {
   if (!DEMO_EMAIL || !DEMO_PASSWORD) {
     return false;
   }
-  return email.trim().toLowerCase() === DEMO_EMAIL && passwordMatches(password, DEMO_PASSWORD);
+  return (
+    email.trim().toLowerCase() === DEMO_EMAIL &&
+    passwordMatches(password, DEMO_PASSWORD)
+  );
 }
 
 function decodeJwt(token: string): JwtPayload {
-  const parts = token.split('.');
+  const parts = token.split(".");
   if (parts.length !== 3) {
-    throw new Error('Invalid JWT format');
+    throw new Error("Invalid JWT format");
   }
   const payload = parts[1];
-  const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+  const decoded = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
   return JSON.parse(decoded) as JwtPayload;
 }
 
-function userFromJwt(token: string, responseUser?: AuthResponse['user']): User {
+function userFromJwt(token: string, responseUser?: AuthResponse["user"]): User {
   const payload = decodeJwt(token);
   return {
     id: payload.sub,
-    name: payload.username,
+    name: payload.name ?? payload.email,
     email: payload.email,
     role: payload.role,
-    tenantId: payload.tenantId ?? payload.orgId ?? responseUser?.tenantId ?? responseUser?.orgId ?? undefined,
+    tenantId:
+      payload.tenantId ??
+      payload.orgId ??
+      responseUser?.tenantId ??
+      responseUser?.orgId ??
+      undefined,
     isAdmin: payload.isAdmin ?? responseUser?.isAdmin ?? false,
     operatingRegion:
       payload.operatingRegion ?? responseUser?.operatingRegion ?? null,
@@ -108,16 +114,19 @@ function userFromJwt(token: string, responseUser?: AuthResponse['user']): User {
   };
 }
 
-async function postAuth(path: string, body: Record<string, unknown>): Promise<AuthResponse> {
-  const baseUrl = getApiBaseUrl().replace(/\/$/, '');
+async function postAuth(
+  path: string,
+  body: Record<string, unknown>,
+): Promise<AuthResponse> {
+  const baseUrl = getApiBaseUrl().replace(/\/$/, "");
   const response = await fetch(`${baseUrl}${path}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
 
   const payload = (await response.json().catch((error) => {
-    console.error('Failed to parse auth response payload', error);
+    console.error("Failed to parse auth response payload", error);
     return {};
   })) as Partial<AuthResponse> & {
     message?: string | string[];
@@ -125,7 +134,7 @@ async function postAuth(path: string, body: Record<string, unknown>): Promise<Au
 
   if (!response.ok) {
     const message = Array.isArray(payload.message)
-      ? payload.message.join(', ')
+      ? payload.message.join(", ")
       : payload.message || response.statusText;
     throw new ApiError({
       message,
@@ -136,7 +145,7 @@ async function postAuth(path: string, body: Record<string, unknown>): Promise<Au
 
   if (!payload.access_token) {
     throw new ApiError({
-      message: 'No access token in response',
+      message: "No access token in response",
       status: 500,
       details: payload,
     });
@@ -147,11 +156,11 @@ async function postAuth(path: string, body: Record<string, unknown>): Promise<Au
 
 export async function authenticateUser(
   email: string,
-  password: string
+  password: string,
 ): Promise<AuthResult> {
   if (isDemoCredentials(email, password)) {
     return {
-      user: createMockUser(DEMO_EMAIL!, 'gp', {
+      user: createMockUser(DEMO_EMAIL!, "gp", {
         id: MOCK_DEMO_PROFILE.id,
         tenantId: MOCK_DEMO_PROFILE.tenantId,
         isAdmin: false,
@@ -159,16 +168,16 @@ export async function authenticateUser(
         organizationConfigured: MOCK_DEMO_PROFILE.organizationConfigured,
       }),
       accessToken: MOCK_DEMO_PROFILE.accessToken,
-      dataModeOverride: 'mock',
+      dataModeOverride: "mock",
     };
   }
 
   // Login-only flow: users must be pre-created by a superuser
   // Role comes from JWT, not from client
-  const response = await postAuth('/auth/login', { email, password });
+  const response = await postAuth("/auth/login", { email, password });
   return {
     user: userFromJwt(response.access_token, response.user),
     accessToken: response.access_token,
-    dataModeOverride: 'api',
+    dataModeOverride: "api",
   };
 }

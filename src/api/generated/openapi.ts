@@ -2507,8 +2507,6 @@ export interface components {
         SignupDto: {
             /** @example user@example.com */
             email: string;
-            /** @example jdoe */
-            username: string;
             /** @example Jane Doe */
             name: string;
             /** @example Str0ngP@ssword! */
@@ -2530,8 +2528,6 @@ export interface components {
             id: string;
             /** @example user@example.com */
             email: string;
-            /** @example jdoe */
-            username: string;
             /** @example Jane Doe */
             name: string;
             /** @example +1-555-123-4567 */
@@ -2551,6 +2547,11 @@ export interface components {
              */
             role: string;
             /**
+             * @description Whether the user is an admin of their current organization
+             * @example true
+             */
+            isAdmin: boolean;
+            /**
              * @description Operating region configured for the current organization
              * @example india
              */
@@ -2564,7 +2565,7 @@ export interface components {
         AuthResponseDto: {
             user: components["schemas"]["UserResponseDto"];
             /**
-             * @description JWT access token containing sub, email, username, orgId, tenantId, role, and organization region claims
+             * @description JWT access token containing sub, email, name, orgId, tenantId, role, isAdmin, and organization region claims
              * @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
              */
             access_token: string;
@@ -2578,6 +2579,10 @@ export interface components {
         UpdateProfileDto: {
             /** @example Jane Doe */
             name?: string;
+            /** @example Jane */
+            firstName?: string;
+            /** @example Doe */
+            lastName?: string;
             /** @example user@example.com */
             email?: string;
             /** @example +1-555-123-4567 */
@@ -2594,6 +2599,10 @@ export interface components {
         UpdateUserDto: {
             /** @example Jane Doe */
             name?: string;
+            /** @example Jane */
+            firstName?: string;
+            /** @example Doe */
+            lastName?: string;
             /** @example user@example.com */
             email?: string;
             /** @example +1-555-123-4567 */
@@ -4065,7 +4074,7 @@ export interface operations {
                     "application/json": components["schemas"]["AuthResponseDto"];
                 };
             };
-            /** @description Email or username already exists */
+            /** @description Email already exists */
             409: {
                 headers: {
                     [name: string]: unknown;

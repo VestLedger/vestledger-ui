@@ -1,16 +1,16 @@
-import type { Page } from '@playwright/test';
+import type { Page } from "@playwright/test";
 
 export type TestUserRole =
-  | 'superadmin'
-  | 'gp'
-  | 'analyst'
-  | 'ops'
-  | 'ir'
-  | 'researcher'
-  | 'lp'
-  | 'auditor'
-  | 'service_provider'
-  | 'strategic_partner';
+  | "superadmin"
+  | "gp"
+  | "analyst"
+  | "ops"
+  | "ir"
+  | "researcher"
+  | "lp"
+  | "auditor"
+  | "service_provider"
+  | "strategic_partner";
 
 type TestUserCredentials = {
   email: string;
@@ -34,7 +34,6 @@ type ApiAuthSession = {
 type JwtPayload = {
   sub?: string;
   email?: string;
-  username?: string;
   name?: string;
   role?: string;
   orgId?: string;
@@ -43,24 +42,24 @@ type JwtPayload = {
 };
 
 const TEST_USER_ROLES: readonly TestUserRole[] = [
-  'superadmin',
-  'gp',
-  'analyst',
-  'ops',
-  'ir',
-  'researcher',
-  'lp',
-  'auditor',
-  'service_provider',
-  'strategic_partner',
+  "superadmin",
+  "gp",
+  "analyst",
+  "ops",
+  "ir",
+  "researcher",
+  "lp",
+  "auditor",
+  "service_provider",
+  "strategic_partner",
 ] as const;
 
-const AUTH_STORAGE_KEY = 'isAuthenticated';
-const USER_STORAGE_KEY = 'user';
-const TOKEN_STORAGE_KEY = 'accessToken';
-const DATA_MODE_OVERRIDE_KEY = 'dataModeOverride';
+const AUTH_STORAGE_KEY = "isAuthenticated";
+const USER_STORAGE_KEY = "user";
+const TOKEN_STORAGE_KEY = "accessToken";
+const DATA_MODE_OVERRIDE_KEY = "dataModeOverride";
 
-const RETRYABLE_NAVIGATION_ERRORS = ['ERR_ABORTED', 'frame was detached'];
+const RETRYABLE_NAVIGATION_ERRORS = ["ERR_ABORTED", "frame was detached"];
 const NAVIGATION_RETRY_DELAY_MS = 250;
 const NAVIGATION_ATTEMPT_TIMEOUT_MS = 20_000;
 
@@ -75,46 +74,50 @@ function requireEnv(primaryName: string, fallbackNames: string[] = []): string {
       return value;
     }
   }
-  throw new Error(`Missing required env var(s): ${names.join(' or ')}`);
+  throw new Error(`Missing required env var(s): ${names.join(" or ")}`);
 }
 
-function parseRole(value: string, source = 'role'): TestUserRole {
+function parseRole(value: string, source = "role"): TestUserRole {
   const normalized = value.trim();
   if ((TEST_USER_ROLES as readonly string[]).includes(normalized)) {
     return normalized as TestUserRole;
   }
   throw new Error(
-    `Invalid ${source}: ${value}. Expected one of: ${TEST_USER_ROLES.join(', ')}`
+    `Invalid ${source}: ${value}. Expected one of: ${TEST_USER_ROLES.join(", ")}`,
   );
 }
 
 function isNonEmptyString(value: unknown): value is string {
-  return typeof value === 'string' && value.trim().length > 0;
+  return typeof value === "string" && value.trim().length > 0;
 }
 
 function ensureTrailingSlash(value: string): string {
-  return value.endsWith('/') ? value : `${value}/`;
+  return value.endsWith("/") ? value : `${value}/`;
 }
 
 function normalizePath(path: string): string {
-  if (!path.startsWith('/')) {
+  if (!path.startsWith("/")) {
     return `/${path}`;
   }
   return path;
 }
 
-function getPathVariants(path: string): { full: string; pathname: string; hasSearch: boolean } {
+function getPathVariants(path: string): {
+  full: string;
+  pathname: string;
+  hasSearch: boolean;
+} {
   const normalized = normalizePath(path);
-  const [pathname] = normalized.split('?');
+  const [pathname] = normalized.split("?");
   return {
     full: normalized,
     pathname,
-    hasSearch: normalized.includes('?'),
+    hasSearch: normalized.includes("?"),
   };
 }
 
 function getRoleCredentialPrefix(role: TestUserRole): string {
-  return role.toUpperCase().replace(/[^A-Z0-9]+/g, '_');
+  return role.toUpperCase().replace(/[^A-Z0-9]+/g, "_");
 }
 
 type RoleCredentialEnvNames = {
@@ -122,7 +125,9 @@ type RoleCredentialEnvNames = {
   passwordVar: string;
 };
 
-export function getRoleCredentialEnvNames(role: TestUserRole): RoleCredentialEnvNames {
+export function getRoleCredentialEnvNames(
+  role: TestUserRole,
+): RoleCredentialEnvNames {
   const prefix = getRoleCredentialPrefix(role);
   return {
     emailVar: `TEST_USER_${prefix}_EMAIL`,
@@ -144,54 +149,59 @@ export function hasRoleCredentials(role: TestUserRole): boolean {
   if (readRoleCredentialEnv(role)) {
     return true;
   }
-  if (role === 'gp') {
-    return Boolean(process.env.TEST_USER_EMAIL?.trim() && process.env.TEST_USER_PASSWORD?.trim());
+  if (role === "gp") {
+    return Boolean(
+      process.env.TEST_USER_EMAIL?.trim() &&
+      process.env.TEST_USER_PASSWORD?.trim(),
+    );
   }
   return false;
 }
 
 function decodeJwtPayload(token: string): JwtPayload {
-  const parts = token.split('.');
+  const parts = token.split(".");
   if (parts.length !== 3) {
-    throw new Error('Invalid JWT token format');
+    throw new Error("Invalid JWT token format");
   }
 
   const payload = parts[1];
-  const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
-  const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=');
+  const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
 
-  const decoded = Buffer.from(padded, 'base64').toString('utf8');
+  const decoded = Buffer.from(padded, "base64").toString("utf8");
   return JSON.parse(decoded) as JwtPayload;
 }
 
 function resolveBaseUrlFromPageOrEnv(page: Page): string {
   const currentUrl = page.url();
-  if (currentUrl && currentUrl !== 'about:blank') {
+  if (currentUrl && currentUrl !== "about:blank") {
     return new URL(currentUrl).origin;
   }
 
-  return requireEnv('APP_BASE_URL', ['BASE_URL']);
+  return requireEnv("APP_BASE_URL", ["BASE_URL"]);
 }
 
 function resolveApiBaseUrl(appBaseUrlHint?: string): string {
-  const configured = requireEnv('PLAYWRIGHT_API_BASE_URL', ['NEXT_PUBLIC_API_BASE_URL']);
+  const configured = requireEnv("PLAYWRIGHT_API_BASE_URL", [
+    "NEXT_PUBLIC_API_BASE_URL",
+  ]);
 
   if (/^https?:\/\//i.test(configured)) {
     return configured;
   }
 
-  if (!configured.startsWith('/')) {
+  if (!configured.startsWith("/")) {
     throw new Error(
-      `Invalid API base URL: ${configured}. Use absolute URL or root-relative path (e.g. /api).`
+      `Invalid API base URL: ${configured}. Use absolute URL or root-relative path (e.g. /api).`,
     );
   }
 
-  const appBaseUrl = appBaseUrlHint ?? requireEnv('APP_BASE_URL', ['BASE_URL']);
+  const appBaseUrl = appBaseUrlHint ?? requireEnv("APP_BASE_URL", ["BASE_URL"]);
   return new URL(configured, ensureTrailingSlash(appBaseUrl)).toString();
 }
 
 function buildAuthLoginUrl(apiBaseUrl: string): string {
-  return new URL('auth/login', ensureTrailingSlash(apiBaseUrl)).toString();
+  return new URL("auth/login", ensureTrailingSlash(apiBaseUrl)).toString();
 }
 
 function buildSessionFromToken(accessToken: string): ApiAuthSession {
@@ -200,20 +210,16 @@ function buildSessionFromToken(accessToken: string): ApiAuthSession {
   const email = isNonEmptyString(payload.email)
     ? payload.email.trim()
     : (() => {
-        throw new Error('JWT payload missing email claim');
+        throw new Error("JWT payload missing email claim");
       })();
 
   const role = isNonEmptyString(payload.role)
-    ? parseRole(payload.role, 'JWT role claim')
+    ? parseRole(payload.role, "JWT role claim")
     : (() => {
-        throw new Error('JWT payload missing role claim');
+        throw new Error("JWT payload missing role claim");
       })();
 
-  const nameFromToken = isNonEmptyString(payload.username)
-    ? payload.username
-    : isNonEmptyString(payload.name)
-      ? payload.name
-      : email;
+  const nameFromToken = isNonEmptyString(payload.name) ? payload.name : email;
 
   return {
     accessToken,
@@ -227,14 +233,15 @@ function buildSessionFromToken(accessToken: string): ApiAuthSession {
         : isNonEmptyString(payload.orgId)
           ? payload.orgId
           : undefined,
-      isAdmin: typeof payload.isAdmin === 'boolean' ? payload.isAdmin : undefined,
+      isAdmin:
+        typeof payload.isAdmin === "boolean" ? payload.isAdmin : undefined,
     },
   };
 }
 
 async function authenticateViaApi(
   credentials: TestUserCredentials,
-  appBaseUrlHint?: string
+  appBaseUrlHint?: string,
 ): Promise<ApiAuthSession> {
   const apiBaseUrl = resolveApiBaseUrl(appBaseUrlHint);
   const cacheKey = `${apiBaseUrl}|${credentials.email}|${credentials.password}`;
@@ -245,8 +252,8 @@ async function authenticateViaApi(
 
   const endpoint = buildAuthLoginUrl(apiBaseUrl);
   const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       email: credentials.email,
       password: credentials.password,
@@ -260,9 +267,11 @@ async function authenticateViaApi(
 
   if (!response.ok) {
     const message = Array.isArray(payload.message)
-      ? payload.message.join(', ')
+      ? payload.message.join(", ")
       : payload.message || response.statusText;
-    throw new Error(`API login failed (${response.status}) at ${endpoint}: ${message}`);
+    throw new Error(
+      `API login failed (${response.status}) at ${endpoint}: ${message}`,
+    );
   }
 
   if (!isNonEmptyString(payload.access_token)) {
@@ -281,7 +290,9 @@ function resolveCredentials(options?: {
 }): TestUserCredentials {
   if (options?.email !== undefined || options?.password !== undefined) {
     if (!options?.email || !options?.password) {
-      throw new Error('When overriding credentials, both email and password are required.');
+      throw new Error(
+        "When overriding credentials, both email and password are required.",
+      );
     }
 
     return {
@@ -296,31 +307,35 @@ function resolveCredentials(options?: {
       return roleCredentials;
     }
 
-    if (options.role === 'gp') {
+    if (options.role === "gp") {
       return getTestUser();
     }
 
     const { emailVar, passwordVar } = getRoleCredentialEnvNames(options.role);
     throw new Error(
-      `Missing ${emailVar} / ${passwordVar} for role override '${options.role}'.`
+      `Missing ${emailVar} / ${passwordVar} for role override '${options.role}'.`,
     );
   }
 
   return getTestUser();
 }
 
-function getCookieShape(baseUrl: string): { origin: string; domain: string; secure: boolean } {
+function getCookieShape(baseUrl: string): {
+  origin: string;
+  domain: string;
+  secure: boolean;
+} {
   const parsed = new URL(baseUrl);
   const hostname = parsed.hostname;
   const domain =
-    hostname === 'localhost' || hostname.endsWith('.localhost')
+    hostname === "localhost" || hostname.endsWith(".localhost")
       ? hostname
-      : hostname.replace(/^www\./, '').replace(/^(app|admin)\./, '');
+      : hostname.replace(/^www\./, "").replace(/^(app|admin)\./, "");
 
   return {
     origin: parsed.origin,
     domain,
-    secure: parsed.protocol === 'https:',
+    secure: parsed.protocol === "https:",
   };
 }
 
@@ -332,53 +347,53 @@ function buildStorageState(baseUrl: string, session: ApiAuthSession) {
     cookies: [
       {
         name: AUTH_STORAGE_KEY,
-        value: 'true',
+        value: "true",
         domain,
-        path: '/',
+        path: "/",
         expires,
         httpOnly: false,
         secure,
-        sameSite: 'Lax' as const,
+        sameSite: "Lax" as const,
       },
       {
-        name: 'user',
+        name: "user",
         value: encodeURIComponent(JSON.stringify(session.user)),
         domain,
-        path: '/',
+        path: "/",
         expires,
         httpOnly: false,
         secure,
-        sameSite: 'Lax' as const,
+        sameSite: "Lax" as const,
       },
       {
         name: DATA_MODE_OVERRIDE_KEY,
-        value: 'api',
+        value: "api",
         domain,
-        path: '/',
+        path: "/",
         expires,
         httpOnly: false,
         secure,
-        sameSite: 'Lax' as const,
+        sameSite: "Lax" as const,
       },
       {
         name: TOKEN_STORAGE_KEY,
         value: encodeURIComponent(session.accessToken),
         domain,
-        path: '/',
+        path: "/",
         expires,
         httpOnly: false,
         secure,
-        sameSite: 'Lax' as const,
+        sameSite: "Lax" as const,
       },
     ],
     origins: [
       {
         origin,
         localStorage: [
-          { name: AUTH_STORAGE_KEY, value: 'true' },
+          { name: AUTH_STORAGE_KEY, value: "true" },
           { name: USER_STORAGE_KEY, value: JSON.stringify(session.user) },
           { name: TOKEN_STORAGE_KEY, value: session.accessToken },
-          { name: DATA_MODE_OVERRIDE_KEY, value: 'api' },
+          { name: DATA_MODE_OVERRIDE_KEY, value: "api" },
         ],
       },
     ],
@@ -387,7 +402,7 @@ function buildStorageState(baseUrl: string, session: ApiAuthSession) {
 
 export async function createApiStorageState(
   baseUrl: string,
-  credentials: TestUserCredentials
+  credentials: TestUserCredentials,
 ) {
   const session = await authenticateViaApi(credentials, baseUrl);
   return buildStorageState(baseUrl, session);
@@ -395,24 +410,30 @@ export async function createApiStorageState(
 
 export function getTestUser(): TestUserCredentials {
   return {
-    email: requireEnv('TEST_USER_EMAIL'),
-    password: requireEnv('TEST_USER_PASSWORD'),
+    email: requireEnv("TEST_USER_EMAIL"),
+    password: requireEnv("TEST_USER_PASSWORD"),
   };
 }
 
-async function waitForTargetPath(page: Page, targetPath: string, timeoutMs = 20_000) {
+async function waitForTargetPath(
+  page: Page,
+  targetPath: string,
+  timeoutMs = 20_000,
+) {
   const variants = getPathVariants(targetPath);
   await page.waitForURL(
-    (url) => `${url.pathname}${url.search}` === variants.full || url.pathname === variants.pathname,
-    { timeout: timeoutMs }
+    (url) =>
+      `${url.pathname}${url.search}` === variants.full ||
+      url.pathname === variants.pathname,
+    { timeout: timeoutMs },
   );
 }
 
 async function gotoWithRetry(
   page: Page,
   targetPath: string,
-  options: Parameters<Page['goto']>[1],
-  maxAttempts = 3
+  options: Parameters<Page["goto"]>[1],
+  maxAttempts = 3,
 ) {
   let lastError: unknown;
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
@@ -426,7 +447,7 @@ async function gotoWithRetry(
       lastError = error;
       const message = error instanceof Error ? error.message : String(error);
       const isRetryable = RETRYABLE_NAVIGATION_ERRORS.some((fragment) =>
-        message.includes(fragment)
+        message.includes(fragment),
       );
       if (!isRetryable || attempt === maxAttempts) {
         throw error;
@@ -440,7 +461,7 @@ async function gotoWithRetry(
 
 async function clearAuthState(page: Page) {
   await page.context().clearCookies();
-  await page.goto('/login', { waitUntil: 'domcontentloaded' });
+  await page.goto("/login", { waitUntil: "domcontentloaded" });
   await page.evaluate(
     ({ authKey, userKey, tokenKey, dataModeKey }) => {
       window.localStorage.removeItem(authKey);
@@ -454,26 +475,51 @@ async function clearAuthState(page: Page) {
       userKey: USER_STORAGE_KEY,
       tokenKey: TOKEN_STORAGE_KEY,
       dataModeKey: DATA_MODE_OVERRIDE_KEY,
-    }
+    },
   );
 }
 
-async function applySessionToPage(page: Page, baseUrl: string, session: ApiAuthSession) {
+async function applySessionToPage(
+  page: Page,
+  baseUrl: string,
+  session: ApiAuthSession,
+) {
   const { domain, secure } = getCookieShape(baseUrl);
   const encodedUser = encodeURIComponent(JSON.stringify(session.user));
 
   await page.context().addCookies([
-    { name: AUTH_STORAGE_KEY, value: 'true', domain, path: '/', sameSite: 'Lax', secure },
-    { name: 'user', value: encodedUser, domain, path: '/', sameSite: 'Lax', secure },
-    { name: DATA_MODE_OVERRIDE_KEY, value: 'api', domain, path: '/', sameSite: 'Lax', secure },
+    {
+      name: AUTH_STORAGE_KEY,
+      value: "true",
+      domain,
+      path: "/",
+      sameSite: "Lax",
+      secure,
+    },
+    {
+      name: "user",
+      value: encodedUser,
+      domain,
+      path: "/",
+      sameSite: "Lax",
+      secure,
+    },
+    {
+      name: DATA_MODE_OVERRIDE_KEY,
+      value: "api",
+      domain,
+      path: "/",
+      sameSite: "Lax",
+      secure,
+    },
   ]);
 
   await page.addInitScript(
     ({ authKey, userKey, tokenKey, dataModeKey, userValue, tokenValue }) => {
-      window.localStorage.setItem(authKey, 'true');
+      window.localStorage.setItem(authKey, "true");
       window.localStorage.setItem(userKey, userValue);
       window.localStorage.setItem(tokenKey, tokenValue);
-      window.localStorage.setItem(dataModeKey, 'api');
+      window.localStorage.setItem(dataModeKey, "api");
     },
     {
       authKey: AUTH_STORAGE_KEY,
@@ -482,15 +528,15 @@ async function applySessionToPage(page: Page, baseUrl: string, session: ApiAuthS
       dataModeKey: DATA_MODE_OVERRIDE_KEY,
       userValue: JSON.stringify(session.user),
       tokenValue: session.accessToken,
-    }
+    },
   );
 
   await page.evaluate(
     ({ authKey, userKey, tokenKey, dataModeKey, userValue, tokenValue }) => {
-      window.localStorage.setItem(authKey, 'true');
+      window.localStorage.setItem(authKey, "true");
       window.localStorage.setItem(userKey, userValue);
       window.localStorage.setItem(tokenKey, tokenValue);
-      window.localStorage.setItem(dataModeKey, 'api');
+      window.localStorage.setItem(dataModeKey, "api");
     },
     {
       authKey: AUTH_STORAGE_KEY,
@@ -499,11 +545,14 @@ async function applySessionToPage(page: Page, baseUrl: string, session: ApiAuthS
       dataModeKey: DATA_MODE_OVERRIDE_KEY,
       userValue: JSON.stringify(session.user),
       tokenValue: session.accessToken,
-    }
+    },
   );
 }
 
-async function seedAuthenticatedState(page: Page, credentials: TestUserCredentials) {
+async function seedAuthenticatedState(
+  page: Page,
+  credentials: TestUserCredentials,
+) {
   const baseUrl = resolveBaseUrlFromPageOrEnv(page);
   const session = await authenticateViaApi(credentials, baseUrl);
   await applySessionToPage(page, baseUrl, session);
@@ -511,10 +560,13 @@ async function seedAuthenticatedState(page: Page, credentials: TestUserCredentia
 
 async function verifyUnauthenticatedRedirectOnce(
   page: Page,
-  targetPath: string
+  targetPath: string,
 ) {
   const variants = getPathVariants(targetPath);
-  if (variants.pathname === '/login' || unauthRouteChecks.has(variants.pathname)) {
+  if (
+    variants.pathname === "/login" ||
+    unauthRouteChecks.has(variants.pathname)
+  ) {
     return;
   }
 
@@ -528,17 +580,19 @@ async function verifyUnauthenticatedRedirectOnce(
     baseURL: baseUrl,
     storageState: { cookies: [], origins: [] },
     ignoreHTTPSErrors:
-      process.env.PLAYWRIGHT_IGNORE_HTTPS_ERRORS === '1' ||
-      process.env.NODE_TLS_REJECT_UNAUTHORIZED === '0',
+      process.env.PLAYWRIGHT_IGNORE_HTTPS_ERRORS === "1" ||
+      process.env.NODE_TLS_REJECT_UNAUTHORIZED === "0",
   });
 
   try {
     const probePage = await probeContext.newPage();
-    await gotoWithRetry(probePage, variants.full, { waitUntil: 'domcontentloaded' });
+    await gotoWithRetry(probePage, variants.full, {
+      waitUntil: "domcontentloaded",
+    });
     const unauthPathname = new URL(probePage.url()).pathname;
-    if (unauthPathname !== '/login') {
+    if (unauthPathname !== "/login") {
       throw new Error(
-        `Expected unauthenticated access to ${variants.full} to redirect to /login but landed on ${unauthPathname}`
+        `Expected unauthenticated access to ${variants.full} to redirect to /login but landed on ${unauthPathname}`,
       );
     }
     unauthRouteChecks.add(variants.pathname);
@@ -554,16 +608,17 @@ export async function loginViaRedirect(
     email?: string;
     password?: string;
     role?: TestUserRole;
-    waitForLoadState?: 'load' | 'domcontentloaded' | 'networkidle';
+    waitForLoadState?: "load" | "domcontentloaded" | "networkidle";
     timeoutMs?: number;
     requireLoginRedirect?: boolean;
     forceFreshAuth?: boolean;
-  }
+  },
 ) {
-  const waitForLoadState = options?.waitForLoadState ?? 'domcontentloaded';
+  const waitForLoadState = options?.waitForLoadState ?? "domcontentloaded";
   const timeoutMs = options?.timeoutMs ?? 20_000;
   const requireLoginRedirect =
-    options?.requireLoginRedirect ?? process.env.PLAYWRIGHT_VERIFY_UNAUTH_ROUTE === '1';
+    options?.requireLoginRedirect ??
+    process.env.PLAYWRIGHT_VERIFY_UNAUTH_ROUTE === "1";
   const forceFreshAuth = options?.forceFreshAuth ?? false;
   const variants = getPathVariants(targetPath);
 
@@ -583,13 +638,19 @@ export async function loginViaRedirect(
     await seedAuthenticatedState(page, credentials);
   }
 
-  await gotoWithRetry(page, variants.full, { waitUntil: 'domcontentloaded' });
+  await gotoWithRetry(page, variants.full, { waitUntil: "domcontentloaded" });
 
-  if (variants.pathname !== '/login') {
+  if (variants.pathname !== "/login") {
     // Recover from stale sessions by reseeding auth and retrying navigation.
-    for (let attempt = 0; attempt < 3 && new URL(page.url()).pathname === '/login'; attempt += 1) {
+    for (
+      let attempt = 0;
+      attempt < 3 && new URL(page.url()).pathname === "/login";
+      attempt += 1
+    ) {
       await seedAuthenticatedState(page, credentials);
-      await gotoWithRetry(page, variants.full, { waitUntil: 'domcontentloaded' });
+      await gotoWithRetry(page, variants.full, {
+        waitUntil: "domcontentloaded",
+      });
     }
   }
 
@@ -597,16 +658,19 @@ export async function loginViaRedirect(
 
   const finalUrl = new URL(page.url());
   const atPathnameOnly =
-    finalUrl.pathname === variants.pathname && finalUrl.search === '';
+    finalUrl.pathname === variants.pathname && finalUrl.search === "";
 
   if (variants.hasSearch && atPathnameOnly) {
-    await gotoWithRetry(page, variants.full, { waitUntil: 'domcontentloaded' });
+    await gotoWithRetry(page, variants.full, { waitUntil: "domcontentloaded" });
     await waitForTargetPath(page, variants.full, timeoutMs).catch(() => {});
   }
 
-  if (variants.pathname !== '/login' && new URL(page.url()).pathname === '/login') {
+  if (
+    variants.pathname !== "/login" &&
+    new URL(page.url()).pathname === "/login"
+  ) {
     throw new Error(
-      `Authenticated navigation to ${variants.full} kept redirecting to /login`
+      `Authenticated navigation to ${variants.full} kept redirecting to /login`,
     );
   }
 
