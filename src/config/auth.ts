@@ -1,3 +1,5 @@
+import type { OperatingRegion } from '@/types/regulatory';
+
 const ONE_DAY_IN_SECONDS = 24 * 60 * 60;
 const FIVE_SECONDS_IN_MS = 5 * 1000;
 
@@ -17,6 +19,31 @@ function parsePositiveInt(value: string | undefined, fallback: number): number {
 function normalizeValue(value: string | undefined, fallback: string): string {
   const normalized = value?.trim();
   return normalized && normalized.length > 0 ? normalized : fallback;
+}
+
+function parseBoolean(value: string | undefined, fallback: boolean): boolean {
+  if (!value) {
+    return fallback;
+  }
+
+  const normalized = value.trim().toLowerCase();
+  if (normalized === 'true') return true;
+  if (normalized === 'false') return false;
+
+  return fallback;
+}
+
+function normalizeOperatingRegion(
+  value: string | undefined,
+  fallback: OperatingRegion | null
+): OperatingRegion | null {
+  const normalized = value?.trim().toLowerCase();
+
+  if (normalized === 'india' || normalized === 'eu' || normalized === 'us') {
+    return normalized;
+  }
+
+  return fallback;
 }
 
 export const AUTH_COOKIE_MAX_AGE_SECONDS = parsePositiveInt(
@@ -44,10 +71,26 @@ export const MOCK_SUPERADMIN_PROFILE = Object.freeze({
     process.env.NEXT_PUBLIC_SUPERADMIN_ACCESS_TOKEN,
     'mock-superadmin-token'
   ),
+  operatingRegion: normalizeOperatingRegion(
+    process.env.NEXT_PUBLIC_SUPERADMIN_OPERATING_REGION,
+    null
+  ),
+  organizationConfigured: parseBoolean(
+    process.env.NEXT_PUBLIC_SUPERADMIN_ORGANIZATION_CONFIGURED,
+    true
+  ),
 });
 
 export const MOCK_DEMO_PROFILE = Object.freeze({
   id: normalizeValue(process.env.NEXT_PUBLIC_DEMO_USER_ID, 'user_demo_gp_001'),
   tenantId: normalizeValue(process.env.NEXT_PUBLIC_DEMO_TENANT_ID, 'org_summit_vc'),
   accessToken: normalizeValue(process.env.NEXT_PUBLIC_DEMO_ACCESS_TOKEN, 'mock-token'),
+  operatingRegion: normalizeOperatingRegion(
+    process.env.NEXT_PUBLIC_DEMO_OPERATING_REGION,
+    'us'
+  ),
+  organizationConfigured: parseBoolean(
+    process.env.NEXT_PUBLIC_DEMO_ORGANIZATION_CONFIGURED,
+    true
+  ),
 });

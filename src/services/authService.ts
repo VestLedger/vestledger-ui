@@ -8,9 +8,16 @@ import {
   MOCK_DEMO_PROFILE,
   MOCK_SUPERADMIN_PROFILE,
 } from '@/config/auth';
+import type { OperatingRegion } from '@/types/regulatory';
 
 type AuthResponse = {
   access_token: string;
+  user?: {
+    orgId?: string | null;
+    tenantId?: string | null;
+    operatingRegion?: OperatingRegion | null;
+    organizationConfigured?: boolean;
+  };
 };
 
 export type AuthResult = {
@@ -24,9 +31,12 @@ type JwtPayload = {
   email: string;
   username: string;
   role: UserRole;
+  orgId?: string;
   tenantId?: string;
   organizationRole?: 'org_admin' | 'member';
   isPlatformAdmin?: boolean;
+  operatingRegion?: OperatingRegion | null;
+  organizationConfigured?: boolean;
 };
 
 const DEMO_EMAIL = process.env.NEXT_PUBLIC_DEMO_EMAIL?.trim().toLowerCase();
@@ -91,16 +101,22 @@ function decodeJwt(token: string): JwtPayload {
   return JSON.parse(decoded) as JwtPayload;
 }
 
-function userFromJwt(token: string): User {
+function userFromJwt(token: string, responseUser?: AuthResponse['user']): User {
   const payload = decodeJwt(token);
   return {
     id: payload.sub,
     name: payload.username,
     email: payload.email,
     role: payload.role,
-    tenantId: payload.tenantId,
+    tenantId: payload.tenantId ?? payload.orgId ?? responseUser?.tenantId ?? responseUser?.orgId ?? undefined,
     organizationRole: payload.organizationRole,
     isPlatformAdmin: payload.isPlatformAdmin,
+    operatingRegion:
+      payload.operatingRegion ?? responseUser?.operatingRegion ?? null,
+    organizationConfigured:
+      payload.organizationConfigured ??
+      responseUser?.organizationConfigured ??
+      true,
   };
 }
 
@@ -153,6 +169,8 @@ export async function authenticateUser(
         tenantId: INTERNAL_TENANT_ID,
         organizationRole: 'org_admin',
         isPlatformAdmin: true,
+        operatingRegion: MOCK_SUPERADMIN_PROFILE.operatingRegion,
+        organizationConfigured: MOCK_SUPERADMIN_PROFILE.organizationConfigured,
       }),
       accessToken: MOCK_SUPERADMIN_PROFILE.accessToken,
       dataModeOverride: 'mock',
@@ -166,6 +184,8 @@ export async function authenticateUser(
         tenantId: MOCK_DEMO_PROFILE.tenantId,
         organizationRole: 'org_admin',
         isPlatformAdmin: false,
+        operatingRegion: MOCK_DEMO_PROFILE.operatingRegion,
+        organizationConfigured: MOCK_DEMO_PROFILE.organizationConfigured,
       }),
       accessToken: MOCK_DEMO_PROFILE.accessToken,
       dataModeOverride: 'mock',
@@ -176,7 +196,7 @@ export async function authenticateUser(
   // Role comes from JWT, not from client
   const response = await postAuth('/auth/login', { email, password });
   return {
-    user: userFromJwt(response.access_token),
+    user: userFromJwt(response.access_token, response.user),
     accessToken: response.access_token,
     dataModeOverride: 'api',
   };

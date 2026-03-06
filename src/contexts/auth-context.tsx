@@ -13,6 +13,7 @@ import type { NormalizedError } from '@/store/types/AsyncState';
 import type { User, UserRole } from '@/types/auth';
 import { PERSONA_CONFIG } from '@/types/auth';
 import { useToast } from '@/ui';
+import { OrganizationSetupGate } from '@/components/organization-setup-gate';
 import { getAuthErrorMessage } from '@/utils/auth-error-message';
 
 export type { User, UserRole };
@@ -34,6 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <>
       <AuthErrorToast />
+      <OrganizationSetupGate />
       {children}
     </>
   );

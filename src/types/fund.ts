@@ -4,6 +4,11 @@
  * Defines the structure for managing multiple VC funds
  */
 
+import type {
+  FundRegulatoryProfile,
+  FundRegulatoryRegime,
+} from '@/types/regulatory';
+
 export type FundStatus = 'active' | 'closed' | 'fundraising';
 export type FundStrategy = 'early-stage' | 'growth' | 'late-stage' | 'multi-stage' | 'sector-specific';
 
@@ -45,6 +50,8 @@ export interface Fund {
   description?: string;
   managers: string[];
   activeWaterfallId?: string;
+  regulatoryRegime?: FundRegulatoryRegime | null;
+  regulatoryProfile?: FundRegulatoryProfile;
   createdAt: string;
   updatedAt: string;
 }

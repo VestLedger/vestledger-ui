@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useUIKey } from '@/store/ui';
-import { Card, Button, Input, Badge, Checkbox, Select, RadioGroup } from '@/ui';
+import { Card, Button, Input, Badge, Checkbox, Select, RadioGroup, useToast } from '@/ui';
 import type { PageHeaderBadge } from '@/ui';
 import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys';
 import {
@@ -27,6 +27,15 @@ import type { LucideIcon } from 'lucide-react';
 import { PageScaffold, SectionHeader, StatusBadge } from '@/ui/composites';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useAuth } from '@/contexts/auth-context';
+import { useAppDispatch } from '@/store/hooks';
+import { authUserUpdated } from '@/store/slices/authSlice';
+import {
+  OPERATING_REGION_OPTIONS,
+  getDefaultFundRegulatoryRegime,
+  getFundRegimeLabel,
+  getOperatingRegionLabel,
+} from '@/lib/regulatory-regions';
+import { updateCurrentOrgSettings } from '@/services/orgSettingsService';
 import {
   createTeamUser,
   getTeamAccessSnapshot,
@@ -39,6 +48,8 @@ import {
   type TeamMember,
 } from '@/services/internal/teamAccessService';
 import type { AssignableAppRole, OrganizationRole } from '@/data/seeds/internal/superadmin';
+import type { OperatingRegion } from '@/types/regulatory';
+import { persistAuthenticatedUser } from '@/utils/auth/persist-authenticated-user';
 
 interface SettingsSection {
   id: string;
@@ -138,6 +149,8 @@ const teamAppRoleOptions: Array<{ value: AssignableAppRole; label: string }> = [
 
 export function Settings() {
   const { user } = useAuth();
+  const dispatch = useAppDispatch();
+  const toast = useToast();
   const { value: settingsUI, patch: patchSettingsUI } = useUIKey('settings', {
     activeSection: 'profile',
     showPassword: false,
@@ -165,9 +178,15 @@ export function Settings() {
   const activeSectionConfig = settingsSections.find((section) => section.id === activeSection);
   const activeSectionLabel = activeSectionConfig?.title ?? 'Settings';
   const resolvedTenantId = useMemo(() => resolveTenantIdForUser(user), [user]);
+  const canManageOrgSettings =
+    Boolean(user) && !user?.isPlatformAdmin && user?.organizationRole !== 'member';
   const [teamSnapshot, setTeamSnapshot] = useState<TeamAccessSnapshot | null>(null);
   const [teamError, setTeamError] = useState<string | null>(null);
   const [teamNotice, setTeamNotice] = useState<string | null>(null);
+  const [orgRegion, setOrgRegion] = useState<OperatingRegion | ''>(
+    user?.operatingRegion ?? ''
+  );
+  const [isSavingOrgRegion, setIsSavingOrgRegion] = useState(false);
   const [teamInviteForm, setTeamInviteForm] = useState<{
     email: string;
     targetAppRole: AssignableAppRole;
@@ -216,13 +235,55 @@ export function Settings() {
     }
   }, [activeSection, refreshTeamSnapshot]);
 
+  useEffect(() => {
+    setOrgRegion(user?.operatingRegion ?? '');
+  }, [user?.operatingRegion]);
+
   const aiSummaryText = activeSection === 'security'
     ? `Security status: 2FA is ${twoFactorEnabled ? 'enabled' : 'disabled'}. Review active sessions and update your password regularly.`
     : activeSection === 'notifications'
     ? 'Tune email and push alerts to keep signal high. Prioritize compliance and capital call updates.'
     : activeSection === 'team'
     ? 'Review member roles and access to keep permissions aligned with fund operations.'
+    : activeSection === 'preferences' && user
+    ? `Organization region: ${getOperatingRegionLabel(user.operatingRegion)}. Update locale and reporting defaults for your workspace here.`
     : `You are viewing ${activeSectionLabel}. Adjust preferences to keep your workspace aligned with your team.`;
+
+  const saveOrgRegion = async () => {
+    if (!orgRegion) {
+      toast.warning('Select an operating region before saving.', 'Region required');
+      return;
+    }
+
+    setIsSavingOrgRegion(true);
+    try {
+      const settings = await updateCurrentOrgSettings({ operatingRegion: orgRegion });
+      if (!user) {
+        return;
+      }
+
+      const nextUser = {
+        ...user,
+        tenantId: settings.orgId,
+        operatingRegion: settings.operatingRegion,
+        organizationConfigured: settings.organizationConfigured,
+      };
+      persistAuthenticatedUser(nextUser);
+      dispatch(authUserUpdated(nextUser));
+      toast.success(
+        `Organization updated for ${getOperatingRegionLabel(settings.operatingRegion)}.`,
+        'Organization settings saved'
+      );
+    } catch (error) {
+      console.error('Failed to save organization settings', error);
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to update organization settings',
+        'Save failed'
+      );
+    } finally {
+      setIsSavingOrgRegion(false);
+    }
+  };
 
   const headerBadges: PageHeaderBadge[] = [
     {
@@ -578,6 +639,54 @@ export function Settings() {
       case 'preferences':
         return (
           <div className="space-y-4">
+            {canManageOrgSettings && (
+              <div>
+                <SectionHeader title="Organization Region" className="mb-4" />
+                <Card padding="md" className="max-w-2xl">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Operating Region</label>
+                      <Select
+                        options={OPERATING_REGION_OPTIONS.map((option) => ({
+                          value: option.value,
+                          label: option.label,
+                        }))}
+                        selectedKeys={orgRegion ? [orgRegion] : []}
+                        onChange={(event) => setOrgRegion(event.target.value as OperatingRegion)}
+                      />
+                      <p className="mt-2 text-sm text-[var(--app-text-muted)]">
+                        This sets the default regulatory regime for new funds and controls which
+                        back-office surfaces appear across the workspace.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                      <div className="rounded-lg border border-[var(--app-border)] p-3">
+                        <div className="text-[var(--app-text-muted)] mb-1">Current Region</div>
+                        <div className="font-medium">
+                          {getOperatingRegionLabel(user?.operatingRegion)}
+                        </div>
+                      </div>
+                      <div className="rounded-lg border border-[var(--app-border)] p-3">
+                        <div className="text-[var(--app-text-muted)] mb-1">Default Fund Regime</div>
+                        <div className="font-medium">
+                          {getFundRegimeLabel(
+                            getDefaultFundRegulatoryRegime(orgRegion || user?.operatingRegion || null)
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3">
+                      <Button color="primary" isLoading={isSavingOrgRegion} onPress={saveOrgRegion}>
+                        Save Organization Region
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              </div>
+            )}
+
             <div>
               <SectionHeader title="Regional Settings" className="mb-4" />
               <div className="space-y-4 max-w-md">

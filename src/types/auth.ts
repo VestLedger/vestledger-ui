@@ -1,4 +1,5 @@
 import { ROUTE_PATHS } from '@/config/routes';
+import type { OperatingRegion } from '@/types/regulatory';
 
 export type UserRole =
   | 'superadmin'
@@ -104,4 +105,6 @@ export interface User {
   tenantId?: string;
   organizationRole?: 'org_admin' | 'member';
   isPlatformAdmin?: boolean;
+  operatingRegion?: OperatingRegion | null;
+  organizationConfigured?: boolean;
 }

@@ -14,6 +14,10 @@ import { BrandLogo } from './brand-logo';
 import { useDashboardDensity } from '@/contexts/dashboard-density-context';
 import { ROUTE_PATHS } from '@/config/routes';
 import {
+  getTaxCenterLabel,
+  getValuationsLabel,
+} from '@/lib/regulatory-regions';
+import {
   DEFAULT_FUND_ADMIN_TAB_ID,
   FUND_ADMIN_TAB_IDS,
 } from '@/config/fund-admin-tabs';
@@ -290,6 +294,17 @@ export function SidebarGrouped() {
     if (!allowedRoles) return true; // Accessible by all if not defined
     if (!user) return true; // Default to showing if no user (should rely on auth guard, but safe fallback)
     return allowedRoles.includes(user.role);
+  };
+
+  const getNavLabel = (itemId: string, fallback: string) => {
+    switch (itemId) {
+      case '409a-valuations':
+        return getValuationsLabel(user?.operatingRegion);
+      case 'tax-center':
+        return getTaxCenterLabel(user?.operatingRegion);
+      default:
+        return fallback;
+    }
   };
 
   // Auto-collapse by default, expand only while hovered.
@@ -645,7 +660,7 @@ export function SidebarGrouped() {
 	                    key={item.id}
 	                    id={item.id}
 	                    href={item.href}
-	                    label={item.label}
+	                    label={getNavLabel(item.id, item.label)}
 	                    icon={item.icon}
 	                    isCollapsed={effectivelyCollapsed}
 	                    onClick={contextualTarget ? openContextualMenu(contextualTarget) : undefined}
@@ -669,7 +684,7 @@ export function SidebarGrouped() {
 	                      key={item.id}
 	                      id={item.id}
 	                      href={item.href}
-	                      label={item.label}
+	                      label={getNavLabel(item.id, item.label)}
 	                      icon={item.icon}
 	                      isCollapsed={effectivelyCollapsed}
 	                      onClick={contextualTarget ? openContextualMenu(contextualTarget) : undefined}
@@ -694,7 +709,7 @@ export function SidebarGrouped() {
 	                      key={item.id}
 	                      id={item.id}
 	                      href={item.href}
-	                      label={item.label}
+	                      label={getNavLabel(item.id, item.label)}
 	                      icon={item.icon}
 	                      isCollapsed={effectivelyCollapsed}
 	                      onClick={contextualTarget ? openContextualMenu(contextualTarget) : undefined}
@@ -719,7 +734,7 @@ export function SidebarGrouped() {
 	                      key={item.id}
 	                      id={item.id}
 	                      href={item.href}
-	                      label={item.label}
+	                      label={getNavLabel(item.id, item.label)}
 	                      icon={item.icon}
 	                      isCollapsed={effectivelyCollapsed}
 	                      onClick={contextualTarget ? openContextualMenu(contextualTarget) : undefined}
@@ -744,7 +759,7 @@ export function SidebarGrouped() {
 	                      key={item.id}
 	                      id={item.id}
 	                      href={item.href}
-	                      label={item.label}
+	                      label={getNavLabel(item.id, item.label)}
 	                      icon={item.icon}
 	                      isCollapsed={effectivelyCollapsed}
 	                      onClick={contextualTarget ? openContextualMenu(contextualTarget) : undefined}
@@ -769,7 +784,7 @@ export function SidebarGrouped() {
 	                      key={item.id}
 	                      id={item.id}
 	                      href={item.href}
-	                      label={item.label}
+	                      label={getNavLabel(item.id, item.label)}
 	                      icon={item.icon}
 	                      isCollapsed={effectivelyCollapsed}
 	                      onClick={contextualTarget ? openContextualMenu(contextualTarget) : undefined}

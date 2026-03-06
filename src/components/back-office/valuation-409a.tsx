@@ -5,6 +5,11 @@ import { Card, Button, Badge } from '@/ui';
 import { getRouteConfig, ROUTE_PATHS } from '@/config/routes';
 import { Download, Calendar, DollarSign, AlertCircle, CheckCircle, Clock, Building2, ChevronRight, Calculator } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
+import { useAuth } from '@/contexts/auth-context';
+import {
+  getOperatingRegionLabel,
+  getValuationsLabel,
+} from '@/lib/regulatory-regions';
 import { DEFAULT_VALUATION_409A_TAB_ID, VALUATION_409A_TAB_IDS } from '@/config/valuation-409a-tabs';
 import { valuation409aRequested, valuation409aSelectors } from '@/store/slices/backOfficeSlice';
 import { AsyncStateRenderer } from '@/ui/async-states';
@@ -14,10 +19,15 @@ import type { MetricsGridItem } from '@/ui/composites';
 import { useAsyncData } from '@/hooks/useAsyncData';
 
 export function Valuation409A() {
+  const { user } = useAuth();
   const { data, isLoading, error, refetch } = useAsyncData(valuation409aRequested, valuation409aSelectors.selectState);
   const { value: ui, patch: patchUI } = useUIKey('back-office-valuation-409a', { selectedTab: DEFAULT_VALUATION_409A_TAB_ID });
   const { selectedTab } = ui;
   const routeConfig = getRouteConfig(ROUTE_PATHS.valuations409a);
+  const operatingRegion = user?.operatingRegion ?? null;
+  const valuationsLabel = getValuationsLabel(operatingRegion);
+  const isNonUsRegion =
+    operatingRegion === 'india' || operatingRegion === 'eu';
 
   useEffect(() => {
     if (!VALUATION_409A_TAB_IDS.has(selectedTab)) {
@@ -91,12 +101,40 @@ export function Valuation409A() {
       isEmpty={() => false}
     >
       {() => (
+        isNonUsRegion ? (
+          <PageScaffold
+            breadcrumbs={routeConfig?.breadcrumbs}
+            aiSuggestion={routeConfig?.aiSuggestion}
+            containerProps={{ className: 'space-y-4' }}
+            header={{
+              title: valuationsLabel,
+              description: `Region-specific valuation workflows for ${getOperatingRegionLabel(operatingRegion)} are active for this organization.`,
+              icon: Calculator,
+              aiSummary: {
+                text: `US-only 409A workflows are hidden because this organization is configured for ${getOperatingRegionLabel(operatingRegion)}.`,
+              },
+            }}
+          >
+            <Card padding="lg">
+              <div className="space-y-3">
+                <Badge variant="flat">{getOperatingRegionLabel(operatingRegion)}</Badge>
+                <h3 className="text-lg font-semibold">Region-aware valuations are enabled</h3>
+                <p className="text-sm text-[var(--app-text-muted)]">
+                  This workspace no longer surfaces the US 409A detail view. Use the
+                  fund regulatory profile to capture the valuation context relevant to
+                  this region, and extend the valuation workflow from here as those
+                  region-specific processes are implemented.
+                </p>
+              </div>
+            </Card>
+          </PageScaffold>
+        ) : (
         <PageScaffold
           breadcrumbs={routeConfig?.breadcrumbs}
           aiSuggestion={routeConfig?.aiSuggestion}
           containerProps={{ className: 'space-y-4' }}
           header={{
-            title: '409A Valuations',
+            title: valuationsLabel,
             description: 'Manage IRS-compliant fair market value determinations for stock options',
             icon: Calculator,
             aiSummary: {
@@ -292,6 +330,7 @@ export function Valuation409A() {
         </div>
       </Card>
         </PageScaffold>
+        )
       )}
     </AsyncStateRenderer>
   );

@@ -125,6 +125,24 @@ export interface paths {
         patch: operations["UsersController_update"];
         trace?: never;
     };
+    "/orgs/current/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get settings for the current organization */
+        get: operations["OrgsController_getCurrentSettings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update settings for the current organization */
+        patch: operations["OrgsController_updateCurrentSettings"];
+        trace?: never;
+    };
     "/funds": {
         parameters: {
             query?: never;
@@ -2500,6 +2518,12 @@ export interface components {
              * @enum {string}
              */
             role?: "gp" | "analyst" | "ops" | "ir" | "researcher" | "lp" | "auditor" | "service_provider" | "strategic_partner";
+            /**
+             * @description Optional operating region for the organization created with this user
+             * @example india
+             * @enum {string}
+             */
+            operatingRegion?: "india" | "eu" | "us";
         };
         UserResponseDto: {
             /** @example 123e4567-e89b-12d3-a456-426614174000 */
@@ -2517,15 +2541,30 @@ export interface components {
             /** @example 65f0d2c6a2d4b8746a1f91de */
             orgId?: Record<string, never> | null;
             /**
+             * @description Tenant alias for the current organization
+             * @example 65f0d2c6a2d4b8746a1f91de
+             */
+            tenantId?: Record<string, never> | null;
+            /**
              * @description User role for authorization
              * @example user
              */
             role: string;
+            /**
+             * @description Operating region configured for the current organization
+             * @example india
+             */
+            operatingRegion?: Record<string, never> | null;
+            /**
+             * @description Whether the organization has completed its regional setup
+             * @example false
+             */
+            organizationConfigured: boolean;
         };
         AuthResponseDto: {
             user: components["schemas"]["UserResponseDto"];
             /**
-             * @description JWT access token containing sub, email, username, orgId, and role claims
+             * @description JWT access token containing sub, email, username, orgId, tenantId, role, and organization region claims
              * @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
              */
             access_token: string;
@@ -2561,6 +2600,14 @@ export interface components {
             phone?: string;
             /** @example Fund Manager */
             jobTitle?: string;
+        };
+        UpdateOrgSettingsDto: {
+            /**
+             * @description Primary operating region for this organization
+             * @example india
+             * @enum {string}
+             */
+            operatingRegion: "india" | "eu" | "us";
         };
         CreateFundDto: {
             /** @example Venture Fund I */
@@ -2635,6 +2682,26 @@ export interface components {
             endDate?: string;
             /** @example Early-stage venture fund focused on B2B SaaS */
             description?: string;
+            /**
+             * @example aif
+             * @enum {string}
+             */
+            vehicleType?: "aif" | "spv" | "co_invest";
+            /**
+             * @description Parent fund or vehicle ID when this fund is nested under another vehicle
+             * @example 65f0d2c6a2d4b8746a1f91de
+             */
+            parentFundId?: string;
+            /**
+             * @description Fund regulatory regime. Defaults from the current organization when omitted.
+             * @example india_sebi_aif
+             * @enum {string}
+             */
+            regulatoryRegime?: "india_sebi_aif" | "eu_aifmd" | "us_private_fund";
+            /** @description Region-aware regulatory metadata for this fund */
+            regulatoryProfile?: {
+                [key: string]: unknown;
+            };
             /**
              * @description Waterfall scenario ID to attach as active for this fund
              * @example 507f1f77bcf86cd799439099
@@ -2714,6 +2781,26 @@ export interface components {
             endDate?: string;
             /** @example Early-stage venture fund focused on B2B SaaS */
             description?: string;
+            /**
+             * @example aif
+             * @enum {string}
+             */
+            vehicleType?: "aif" | "spv" | "co_invest";
+            /**
+             * @description Parent fund or vehicle ID when this fund is nested under another vehicle
+             * @example 65f0d2c6a2d4b8746a1f91de
+             */
+            parentFundId?: string;
+            /**
+             * @description Fund regulatory regime. Defaults from the current organization when omitted.
+             * @example india_sebi_aif
+             * @enum {string}
+             */
+            regulatoryRegime?: "india_sebi_aif" | "eu_aifmd" | "us_private_fund";
+            /** @description Region-aware regulatory metadata for this fund */
+            regulatoryProfile?: {
+                [key: string]: unknown;
+            };
             /**
              * @description Waterfall scenario ID to attach as active for this fund
              * @example 507f1f77bcf86cd799439099
@@ -4197,6 +4284,46 @@ export interface operations {
             };
             /** @description User not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    OrgsController_getCurrentSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Organization settings */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    OrgsController_updateCurrentSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateOrgSettingsDto"];
+            };
+        };
+        responses: {
+            /** @description Organization settings updated */
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };

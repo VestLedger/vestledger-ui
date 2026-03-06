@@ -78,6 +78,10 @@ const authSlice = createSlice({
       state.error = undefined;
     },
 
+    authUserUpdated: (state, action: PayloadAction<User>) => {
+      state.user = action.payload;
+    },
+
     loginFailed: (state, action: PayloadAction<NormalizedError>) => {
       state.isAuthenticated = false;
       state.user = null;
@@ -113,6 +117,7 @@ export const {
   authHydrated,
   loginRequested,
   loginSucceeded,
+  authUserUpdated,
   loginFailed,
   logoutRequested,
   loggedOut,

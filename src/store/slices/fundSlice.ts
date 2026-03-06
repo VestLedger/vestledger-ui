@@ -5,6 +5,10 @@ import { createAsyncSelectors } from '@/store/utils/createAsyncSelectors';
 import type { Fund, FundStatus, FundStrategy, FundViewMode } from '@/types/fund';
 import type { StandardQueryParams } from '@/types/serviceParams';
 import type { RootState } from '@/store/rootReducer';
+import type {
+  FundRegulatoryProfile,
+  FundRegulatoryRegime,
+} from '@/types/regulatory';
 
 export interface FundsData {
   funds: Fund[];
@@ -30,6 +34,8 @@ export interface CreateFundParams {
   targetStages: string[];
   managers: string[];
   activeWaterfallId: string;
+  regulatoryRegime?: FundRegulatoryRegime | null;
+  regulatoryProfile?: FundRegulatoryProfile;
   startDate: string;
   endDate?: string;
   description?: string;

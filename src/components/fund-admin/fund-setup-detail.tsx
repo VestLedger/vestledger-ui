@@ -4,6 +4,7 @@ import { Badge, Button, Card } from '@/ui';
 import { formatCurrency } from '@/utils/formatting';
 import type { Fund } from '@/types/fund';
 import { SectionHeader } from '@/ui/composites';
+import { getFundRegimeLabel } from '@/lib/regulatory-regions';
 
 export interface FundSetupDetailProps {
   fund: Fund | null;
@@ -115,6 +116,10 @@ export function FundSetupDetail({
         <div>
           <div className="text-[var(--app-text-muted)]">Managers</div>
           <div>{fund.managers.join(', ') || 'N/A'}</div>
+        </div>
+        <div>
+          <div className="text-[var(--app-text-muted)]">Regulatory Regime</div>
+          <div>{getFundRegimeLabel(fund.regulatoryRegime)}</div>
         </div>
         <div>
           <div className="text-[var(--app-text-muted)]">Performance</div>

@@ -6,6 +6,10 @@ import { apiClient, getAccessToken } from '@/api/client';
 import { getApiBaseUrl } from '@/api/config';
 import { unwrapApiResult } from '@/api/unwrap';
 import type { components } from '@/api/generated/openapi';
+import type {
+  FundRegulatoryProfile,
+  FundRegulatoryRegime,
+} from '@/types/regulatory';
 
 type ApiFund = components['schemas']['CreateFundDto'] & {
   id: string;
@@ -44,6 +48,11 @@ function mapApiFundToFund(apiFund: ApiFund): Fund {
     description: apiFund.description,
     managers: apiFund.managers,
     activeWaterfallId: (apiFund as Record<string, unknown>).activeWaterfallId as string | undefined,
+    regulatoryRegime: (apiFund as Record<string, unknown>).regulatoryRegime as
+      | FundRegulatoryRegime
+      | undefined,
+    regulatoryProfile: (apiFund as Record<string, unknown>)
+      .regulatoryProfile as FundRegulatoryProfile | undefined,
     createdAt: apiFund.createdAt,
     updatedAt: apiFund.updatedAt,
   };
@@ -51,7 +60,11 @@ function mapApiFundToFund(apiFund: ApiFund): Fund {
 
 function toCreateFundDto(
   data: CreateFundParams
-): components['schemas']['CreateFundDto'] & { activeWaterfallId: string } {
+): components['schemas']['CreateFundDto'] & {
+  activeWaterfallId: string;
+  regulatoryRegime?: FundRegulatoryRegime | null;
+  regulatoryProfile?: FundRegulatoryProfile;
+} {
   return {
     name: data.name,
     displayName: data.displayName,
@@ -74,6 +87,10 @@ function toCreateFundDto(
     targetStages: data.targetStages,
     managers: data.managers,
     activeWaterfallId: data.activeWaterfallId,
+    regulatoryRegime: data.regulatoryRegime ?? undefined,
+    regulatoryProfile: data.regulatoryProfile as
+      | ({ [key: string]: unknown } & FundRegulatoryProfile)
+      | undefined,
     startDate: data.startDate,
     endDate: data.endDate,
     description: data.description,
@@ -145,6 +162,8 @@ export async function createFund(data: CreateFundParams): Promise<Fund> {
       description: data.description,
       managers: data.managers,
       activeWaterfallId: data.activeWaterfallId,
+      regulatoryRegime: data.regulatoryRegime,
+      regulatoryProfile: data.regulatoryProfile,
       createdAt: now,
       updatedAt: now,
     };
@@ -189,6 +208,10 @@ export async function updateFund(
       params: { path: { id: fundId } },
       body: {
         ...data,
+        regulatoryRegime: data.regulatoryRegime ?? undefined,
+        regulatoryProfile: data.regulatoryProfile as
+          | ({ [key: string]: unknown } & FundRegulatoryProfile)
+          | undefined,
       },
     }),
     { fallbackMessage: 'Failed to update fund' }

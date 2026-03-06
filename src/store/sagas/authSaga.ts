@@ -68,6 +68,8 @@ function normalizeUser(user: Partial<User> & Pick<User, 'email' | 'name' | 'role
     tenantId: user.tenantId,
     organizationRole: user.organizationRole,
     isPlatformAdmin: user.isPlatformAdmin,
+    operatingRegion: user.operatingRegion,
+    organizationConfigured: user.organizationConfigured,
   };
 }
 

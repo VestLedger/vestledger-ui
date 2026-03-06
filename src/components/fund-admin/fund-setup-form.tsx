@@ -5,6 +5,17 @@ import { Button, Input, Modal, Select, Textarea, useToast } from '@/ui';
 import type { CreateFundParams } from '@/store/slices/fundSlice';
 import { findFirstMissingRequiredField } from '@/utils/forms/required';
 import { fetchWaterfallScenarios } from '@/services/analytics/waterfallService';
+import { useAuth } from '@/contexts/auth-context';
+import {
+  FUND_REGIME_OPTIONS,
+  getDefaultFundRegulatoryRegime,
+  getFundRegimeLabel,
+  getOperatingRegionLabel,
+} from '@/lib/regulatory-regions';
+import type {
+  FundRegulatoryProfile,
+  FundRegulatoryRegime,
+} from '@/types/regulatory';
 
 const STATUS_OPTIONS = [
   { value: 'active', label: 'Active' },
@@ -21,6 +32,12 @@ const STRATEGY_OPTIONS = [
 ];
 
 const DATE_INPUT_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+const INDIA_CATEGORY_OPTIONS = [
+  { value: 'cat_i', label: 'Category I' },
+  { value: 'cat_ii', label: 'Category II' },
+  { value: 'cat_iii', label: 'Category III' },
+];
 
 function normalizeDateInputValue(value?: string): string {
   if (!value) return '';
@@ -71,6 +88,8 @@ function getDefaultFormValues(): CreateFundParams {
     targetStages: ['Seed', 'Series A'],
     managers: [''],
     activeWaterfallId: '',
+    regulatoryRegime: null,
+    regulatoryProfile: {},
     startDate: `${year}-01-01`,
     endDate: `${year + 10}-01-01`,
     description: '',
@@ -88,6 +107,7 @@ export function FundSetupForm({
   onClose,
   onSubmit,
 }: FundSetupFormProps) {
+  const { user } = useAuth();
   const defaults = useMemo(getDefaultFormValues, []);
   const [form, setForm] = useState<CreateFundParams>(defaults);
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -95,6 +115,26 @@ export function FundSetupForm({
   const [isLoadingWaterfallOptions, setIsLoadingWaterfallOptions] = useState(false);
   const toast = useToast();
   const hasLoadedWaterfallOptionsRef = useRef(false);
+  const defaultOrgRegime = useMemo(
+    () => getDefaultFundRegulatoryRegime(user?.operatingRegion ?? null),
+    [user?.operatingRegion]
+  );
+  const effectiveRegime = form.regulatoryRegime ?? defaultOrgRegime;
+  const regulatoryOptions = useMemo(
+    () => [
+      {
+        value: '',
+        label: defaultOrgRegime
+          ? `Use organization default (${getFundRegimeLabel(defaultOrgRegime)})`
+          : 'Use organization default',
+      },
+      ...FUND_REGIME_OPTIONS.map((option) => ({
+        value: option.value,
+        label: option.label,
+      })),
+    ],
+    [defaultOrgRegime]
+  );
 
   useEffect(() => {
     if (!isOpen) return;
@@ -163,6 +203,39 @@ export function FundSetupForm({
     }));
   };
 
+  const setRegulatoryProfile = (
+    updater: (current: FundRegulatoryProfile) => FundRegulatoryProfile
+  ) => {
+    setForm((current) => ({
+      ...current,
+      regulatoryProfile: updater(current.regulatoryProfile ?? {}),
+    }));
+  };
+
+  const setRegulatoryField = (
+    field: keyof FundRegulatoryProfile,
+    value: string
+  ) => {
+    setRegulatoryProfile((current) => ({
+      ...current,
+      [field]: value || undefined,
+    }));
+  };
+
+  const setRegulatoryBranchField = (
+    branch: 'india' | 'eu' | 'us',
+    field: string,
+    value: string | number | boolean | string[] | undefined
+  ) => {
+    setRegulatoryProfile((current) => ({
+      ...current,
+      [branch]: {
+        ...(current[branch] ?? {}),
+        [field]: value,
+      },
+    }));
+  };
+
   const submit = () => {
     const requiredFields = [
       { key: 'name', label: 'Fund Name', value: form.name },
@@ -180,6 +253,7 @@ export function FundSetupForm({
 
     onSubmit({
       ...form,
+      regulatoryRegime: form.regulatoryRegime || undefined,
       name: form.name.trim(),
       displayName: form.displayName.trim(),
       description: form.description?.trim() || '',
@@ -270,6 +344,43 @@ export function FundSetupForm({
           isRequired
           disallowEmptySelection
         />
+        <Select
+          label="Fund Regulatory Regime"
+          selectedKeys={[
+            form.regulatoryRegime ? form.regulatoryRegime : '',
+          ]}
+          onChange={(event) =>
+            setForm((current) => ({
+              ...current,
+              regulatoryRegime: (event.target.value || null) as
+                | FundRegulatoryRegime
+                | null,
+            }))
+          }
+          options={regulatoryOptions}
+        />
+        <Input
+          label="Regulator"
+          value={form.regulatoryProfile?.regulator ?? ''}
+          onChange={(event) => setRegulatoryField('regulator', event.target.value)}
+          description={
+            user?.operatingRegion
+              ? `Organization region: ${getOperatingRegionLabel(user.operatingRegion)}`
+              : 'Set the organization region in Settings to enable a default regime.'
+          }
+        />
+        <Input
+          label="Registration Number"
+          value={form.regulatoryProfile?.registrationNumber ?? ''}
+          onChange={(event) =>
+            setRegulatoryField('registrationNumber', event.target.value)
+          }
+        />
+        <Input
+          label="Domicile"
+          value={form.regulatoryProfile?.domicile ?? ''}
+          onChange={(event) => setRegulatoryField('domicile', event.target.value)}
+        />
         <Input
           label="Total Commitment"
           type="number"
@@ -328,11 +439,120 @@ export function FundSetupForm({
         />
       </div>
 
+      {effectiveRegime === 'india_sebi_aif' && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+          <Select
+            label="AIF Category"
+            selectedKeys={[
+              form.regulatoryProfile?.india?.category
+                ? form.regulatoryProfile.india.category
+                : '',
+            ]}
+            onChange={(event) =>
+              setRegulatoryBranchField(
+                'india',
+                'category',
+                event.target.value || undefined,
+              )
+            }
+            options={[{ value: '', label: 'Select category' }, ...INDIA_CATEGORY_OPTIONS]}
+          />
+          <Input
+            label="Scheme Name"
+            value={form.regulatoryProfile?.india?.schemeName ?? ''}
+            onChange={(event) =>
+              setRegulatoryBranchField('india', 'schemeName', event.target.value || undefined)
+            }
+          />
+          <Input
+            label="Sponsor Name"
+            value={form.regulatoryProfile?.india?.sponsorName ?? ''}
+            onChange={(event) =>
+              setRegulatoryBranchField('india', 'sponsorName', event.target.value || undefined)
+            }
+          />
+        </div>
+      )}
+
+      {effectiveRegime === 'eu_aifmd' && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+          <Input
+            label="Home Member State"
+            value={form.regulatoryProfile?.eu?.homeMemberState ?? ''}
+            onChange={(event) =>
+              setRegulatoryBranchField('eu', 'homeMemberState', event.target.value || undefined)
+            }
+          />
+          <Input
+            label="AIFM Name"
+            value={form.regulatoryProfile?.eu?.aifmName ?? ''}
+            onChange={(event) =>
+              setRegulatoryBranchField('eu', 'aifmName', event.target.value || undefined)
+            }
+          />
+          <Input
+            label="Marketing Countries (comma separated)"
+            value={(form.regulatoryProfile?.eu?.marketingCountries ?? []).join(', ')}
+            onChange={(event) =>
+              setRegulatoryBranchField(
+                'eu',
+                'marketingCountries',
+                event.target.value
+                  .split(',')
+                  .map((entry) => entry.trim())
+                  .filter(Boolean),
+              )
+            }
+          />
+        </div>
+      )}
+
+      {effectiveRegime === 'us_private_fund' && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+          <Input
+            label="Adviser Type"
+            value={form.regulatoryProfile?.us?.adviserType ?? ''}
+            onChange={(event) =>
+              setRegulatoryBranchField('us', 'adviserType', event.target.value || undefined)
+            }
+          />
+          <Input
+            label="Exemption Type"
+            value={form.regulatoryProfile?.us?.exemptionType ?? ''}
+            onChange={(event) =>
+              setRegulatoryBranchField('us', 'exemptionType', event.target.value || undefined)
+            }
+          />
+          <Input
+            label="Filing References (comma separated)"
+            value={(form.regulatoryProfile?.us?.filingReferences ?? []).join(', ')}
+            onChange={(event) =>
+              setRegulatoryBranchField(
+                'us',
+                'filingReferences',
+                event.target.value
+                  .split(',')
+                  .map((entry) => entry.trim())
+                  .filter(Boolean),
+              )
+            }
+          />
+        </div>
+      )}
+
       <Textarea
         className="mt-3"
         label="Description"
         value={form.description ?? ''}
         onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
+        minRows={2}
+      />
+
+      <Textarea
+        className="mt-3"
+        label="Regulatory Notes"
+        value={form.regulatoryProfile?.reportingNotes ?? ''}
+        onChange={(event) => setRegulatoryField('reportingNotes', event.target.value)}
         minRows={2}
       />
 

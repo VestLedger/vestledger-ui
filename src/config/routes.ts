@@ -269,12 +269,12 @@ export const routes: Record<string, RouteConfig> = {
 
   valuations409a: {
     path: '/409a-valuations',
-    label: '409A Valuations',
+    label: 'Valuations',
     icon: Receipt,
     breadcrumbs: [
       { label: 'Home', href: '/home' },
       { label: 'Back Office', href: '/home' },
-      { label: '409A Valuations' },
+      { label: 'Valuations' },
     ],
     aiSuggestion: {
       label: 'Tax Center',
@@ -286,12 +286,12 @@ export const routes: Record<string, RouteConfig> = {
 
   taxCenter: {
     path: '/tax-center',
-    label: 'Tax Center',
+    label: 'Tax & Reporting',
     icon: Scale,
     breadcrumbs: [
       { label: 'Home', href: '/home' },
       { label: 'Back Office', href: '/home' },
-      { label: 'Tax Center' },
+      { label: 'Tax & Reporting' },
     ],
     aiSuggestion: {
       label: 'Reports',
