@@ -8,6 +8,19 @@ const STORAGE_TOKEN_KEY = 'accessToken';
 const STORAGE_AUTH_KEY = 'isAuthenticated';
 const STORAGE_USER_KEY = 'user';
 
+function getCookieValue(name: string): string | null {
+  if (typeof document === 'undefined') return null;
+  const prefix = `${name}=`;
+  const entries = document.cookie.split(';');
+  for (const entry of entries) {
+    const trimmed = entry.trim();
+    if (trimmed.startsWith(prefix)) {
+      return trimmed.slice(prefix.length);
+    }
+  }
+  return null;
+}
+
 function getAuthCookieDomain(hostname?: string | null): string | null {
   if (!hostname) return null;
   if (hostname === 'localhost' || hostname.endsWith('.localhost')) return null;
@@ -28,10 +41,12 @@ function clearAuthCookies() {
   const domain = getAuthCookieDomain(window.location.hostname);
   clearCookie(STORAGE_AUTH_KEY);
   clearCookie(STORAGE_USER_KEY);
+  clearCookie(STORAGE_TOKEN_KEY);
   clearCookie(DATA_MODE_OVERRIDE_KEY);
   if (domain) {
     clearCookie(STORAGE_AUTH_KEY, domain);
     clearCookie(STORAGE_USER_KEY, domain);
+    clearCookie(STORAGE_TOKEN_KEY, domain);
     clearCookie(DATA_MODE_OVERRIDE_KEY, domain);
   }
 }
@@ -41,7 +56,7 @@ function clearAuthCookies() {
  */
 const authMiddleware: Middleware = {
   async onRequest({ request }) {
-    const token = safeLocalStorage.getItem(STORAGE_TOKEN_KEY);
+    const token = getAccessToken();
     if (token) {
       request.headers.set('Authorization', `Bearer ${token}`);
     }
@@ -80,7 +95,19 @@ apiClient.use(authMiddleware);
  * Get the current access token from storage
  */
 export function getAccessToken(): string | null {
-  return safeLocalStorage.getItem(STORAGE_TOKEN_KEY);
+  const storedToken = safeLocalStorage.getItem(STORAGE_TOKEN_KEY);
+  if (storedToken) {
+    return storedToken;
+  }
+
+  const cookieToken = getCookieValue(STORAGE_TOKEN_KEY);
+  if (!cookieToken) {
+    return null;
+  }
+
+  const decodedToken = decodeURIComponent(cookieToken);
+  safeLocalStorage.setItem(STORAGE_TOKEN_KEY, decodedToken);
+  return decodedToken;
 }
 
 /**

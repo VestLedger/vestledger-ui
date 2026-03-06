@@ -103,8 +103,7 @@ export interface User {
   role: UserRole;
   avatar?: string;
   tenantId?: string;
-  organizationRole?: 'org_admin' | 'member';
-  isPlatformAdmin?: boolean;
+  isAdmin?: boolean;
   operatingRegion?: OperatingRegion | null;
   organizationConfigured?: boolean;
 }

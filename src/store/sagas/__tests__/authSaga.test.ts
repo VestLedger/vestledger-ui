@@ -48,6 +48,7 @@ describe('authSaga', () => {
     vi.clearAllMocks();
     process.env.NEXT_PUBLIC_DEMO_EMAIL = 'demo@vestledger.com';
     process.env.NEXT_PUBLIC_DEMO_PASSWORD = 'Pa$$w0rd';
+    document.cookie = '';
   });
 
   describe('loginWorker', () => {
@@ -112,7 +113,7 @@ describe('authSaga', () => {
         email: 'superadmin@vestledger.com',
         role: 'superadmin',
         tenantId: 'org_vestledger_management',
-        isPlatformAdmin: true,
+        isAdmin: false,
       };
       vi.mocked(authService.authenticateUser).mockResolvedValue({
         user: superadminUser,
@@ -140,6 +141,7 @@ describe('authSaga', () => {
         DATA_MODE_OVERRIDE_KEY,
         'api'
       );
+      expect(document.cookie).toContain('accessToken=superadmin-jwt-token');
       expect(dispatched).toContainEqual(
         loginSucceeded({ user: superadminUser, accessToken: 'superadmin-jwt-token' })
       );

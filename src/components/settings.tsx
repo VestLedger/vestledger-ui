@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useUIKey } from '@/store/ui';
 import { Card, Button, Input, Badge, Checkbox, Select, RadioGroup, useToast } from '@/ui';
 import type { PageHeaderBadge } from '@/ui';
@@ -37,17 +37,14 @@ import {
 } from '@/lib/regulatory-regions';
 import { updateCurrentOrgSettings } from '@/services/orgSettingsService';
 import {
-  createTeamUser,
   getTeamAccessSnapshot,
   inviteTeamMember,
   resendTeamInvite,
-  resolveTenantIdForUser,
-  updateTeamMemberRole,
-  updateTeamMemberStatus,
+  updateTeamMember,
+  type AssignableAppRole,
   type TeamAccessSnapshot,
   type TeamMember,
-} from '@/services/internal/teamAccessService';
-import type { AssignableAppRole, OrganizationRole } from '@/data/seeds/internal/superadmin';
+} from '@/services/internal/teamAccessApiService';
 import type { OperatingRegion } from '@/types/regulatory';
 import { persistAuthenticatedUser } from '@/utils/auth/persist-authenticated-user';
 
@@ -130,11 +127,6 @@ const currencyOptions = [
   { value: 'jpy', label: 'JPY (¥)' },
 ];
 
-const teamRoleOptions = [
-  { value: 'org_admin', label: 'Org Admin' },
-  { value: 'member', label: 'Member' },
-];
-
 const teamAppRoleOptions: Array<{ value: AssignableAppRole; label: string }> = [
   { value: 'gp', label: 'GP' },
   { value: 'analyst', label: 'Analyst' },
@@ -177,9 +169,9 @@ export function Settings() {
   const currency = settingsUI.currency;
   const activeSectionConfig = settingsSections.find((section) => section.id === activeSection);
   const activeSectionLabel = activeSectionConfig?.title ?? 'Settings';
-  const resolvedTenantId = useMemo(() => resolveTenantIdForUser(user), [user]);
+  const resolvedTenantId = user?.tenantId ?? null;
   const canManageOrgSettings =
-    Boolean(user) && !user?.isPlatformAdmin && user?.organizationRole !== 'member';
+    Boolean(user) && user?.role !== 'superadmin' && user?.isAdmin === true;
   const [teamSnapshot, setTeamSnapshot] = useState<TeamAccessSnapshot | null>(null);
   const [teamError, setTeamError] = useState<string | null>(null);
   const [teamNotice, setTeamNotice] = useState<string | null>(null);
@@ -190,49 +182,37 @@ export function Settings() {
   const [teamInviteForm, setTeamInviteForm] = useState<{
     email: string;
     targetAppRole: AssignableAppRole;
-    targetOrgRole: OrganizationRole;
+    targetIsAdmin: boolean;
   }>({
     email: '',
     targetAppRole: 'analyst',
-    targetOrgRole: 'member',
-  });
-  const [teamCreateForm, setTeamCreateForm] = useState<{
-    name: string;
-    email: string;
-    appRole: AssignableAppRole;
-    organizationRole: OrganizationRole;
-  }>({
-    name: '',
-    email: '',
-    appRole: 'analyst',
-    organizationRole: 'member',
+    targetIsAdmin: false,
   });
 
-  const refreshTeamSnapshot = useCallback(() => {
-    if (!resolvedTenantId) {
+  const refreshTeamSnapshot = useCallback(async () => {
+    if (!resolvedTenantId || !canManageOrgSettings) {
       setTeamSnapshot(null);
       return null;
     }
 
-    const snapshot = getTeamAccessSnapshot(resolvedTenantId, {
-      userId: user?.id,
-      email: user?.email,
-    });
+    const snapshot = await getTeamAccessSnapshot();
     setTeamSnapshot(snapshot);
     return snapshot;
-  }, [resolvedTenantId, user?.email, user?.id]);
+  }, [canManageOrgSettings, resolvedTenantId]);
 
   useEffect(() => {
     if (activeSection !== 'team') {
       return;
     }
 
-    try {
-      refreshTeamSnapshot();
-      setTeamError(null);
-    } catch (error) {
-      setTeamError(error instanceof Error ? error.message : 'Failed to load team access data');
-    }
+    void (async () => {
+      try {
+        await refreshTeamSnapshot();
+        setTeamError(null);
+      } catch (error) {
+        setTeamError(error instanceof Error ? error.message : 'Failed to load team access data');
+      }
+    })();
   }, [activeSection, refreshTeamSnapshot]);
 
   useEffect(() => {
@@ -311,10 +291,13 @@ export function Settings() {
     });
   }
 
-  const runTeamMutation = (mutation: () => void, successMessage: string) => {
+  const runTeamMutation = async (
+    mutation: () => Promise<unknown>,
+    successMessage: string,
+  ) => {
     try {
-      mutation();
-      refreshTeamSnapshot();
+      await mutation();
+      await refreshTeamSnapshot();
       setTeamError(null);
       setTeamNotice(successMessage);
     } catch (error) {
@@ -323,91 +306,77 @@ export function Settings() {
     }
   };
 
-  const handleTeamRoleUpdate = (member: TeamMember, role: OrganizationRole) => {
-    if (!resolvedTenantId || !teamSnapshot?.actorUserId || !teamSnapshot.canManageTeam) {
+  const handleTeamRoleUpdate = async (
+    member: TeamMember,
+    role: AssignableAppRole,
+  ) => {
+    if (!resolvedTenantId || !canManageOrgSettings) {
       return;
     }
 
-    runTeamMutation(() => {
-      updateTeamMemberRole({
-        tenantId: resolvedTenantId,
+    await runTeamMutation(() => {
+      return updateTeamMember({
         userId: member.id,
-        organizationRole: role,
-        actorUserId: teamSnapshot.actorUserId ?? undefined,
+        role,
       });
     }, 'Team member role updated.');
   };
 
-  const handleTeamStatusToggle = (member: TeamMember) => {
-    if (!resolvedTenantId || !teamSnapshot?.actorUserId || !teamSnapshot.canManageTeam) {
+  const handleTeamAdminToggle = async (member: TeamMember, isAdmin: boolean) => {
+    if (!resolvedTenantId || !canManageOrgSettings) {
+      return;
+    }
+
+    await runTeamMutation(() => {
+      return updateTeamMember({
+        userId: member.id,
+        isAdmin,
+      });
+    }, `Team member ${isAdmin ? 'granted' : 'removed from'} org admin access.`);
+  };
+
+  const handleTeamStatusToggle = async (member: TeamMember) => {
+    if (!resolvedTenantId || !canManageOrgSettings) {
       return;
     }
 
     const nextStatus = member.status === 'active' ? 'disabled' : 'active';
 
-    runTeamMutation(() => {
-      updateTeamMemberStatus({
-        tenantId: resolvedTenantId,
+    await runTeamMutation(() => {
+      return updateTeamMember({
         userId: member.id,
         status: nextStatus,
-        actorUserId: teamSnapshot.actorUserId ?? undefined,
       });
     }, `Team member ${nextStatus === 'active' ? 'activated' : 'disabled'}.`);
   };
 
-  const handleTeamInvite = () => {
-    if (!resolvedTenantId || !teamSnapshot?.actorUserId || !teamSnapshot.canManageTeam) {
+  const handleTeamInvite = async () => {
+    if (!resolvedTenantId || !canManageOrgSettings) {
       return;
     }
 
-    runTeamMutation(() => {
-      inviteTeamMember({
-        tenantId: resolvedTenantId,
+    await runTeamMutation(() => {
+      return inviteTeamMember({
         email: teamInviteForm.email,
         targetAppRole: teamInviteForm.targetAppRole,
-        targetOrgRole: teamInviteForm.targetOrgRole,
-        invitedByUserId: teamSnapshot.actorUserId ?? undefined,
+        targetIsAdmin: teamInviteForm.targetIsAdmin,
       });
     }, 'Invitation sent.');
 
     setTeamInviteForm({
       email: '',
       targetAppRole: 'analyst',
-      targetOrgRole: 'member',
+      targetIsAdmin: false,
     });
   };
 
-  const handleTeamCreateUser = () => {
-    if (!resolvedTenantId || !teamSnapshot?.actorUserId || !teamSnapshot.canManageTeam) {
+  const handleTeamResendInvite = async (inviteId: string) => {
+    if (!resolvedTenantId || !canManageOrgSettings) {
       return;
     }
 
-    runTeamMutation(() => {
-      createTeamUser({
-        tenantId: resolvedTenantId,
-        name: teamCreateForm.name,
-        email: teamCreateForm.email,
-        appRole: teamCreateForm.appRole,
-        organizationRole: teamCreateForm.organizationRole,
-        actorUserId: teamSnapshot.actorUserId ?? undefined,
-      });
-    }, 'User created.');
-
-    setTeamCreateForm({
-      name: '',
-      email: '',
-      appRole: 'analyst',
-      organizationRole: 'member',
-    });
-  };
-
-  const handleTeamResendInvite = (inviteId: string) => {
-    if (!resolvedTenantId || !teamSnapshot?.actorUserId || !teamSnapshot.canManageTeam) {
-      return;
-    }
-
-    runTeamMutation(() => {
-      resendTeamInvite(resolvedTenantId, inviteId, teamSnapshot.actorUserId ?? undefined);
+    await runTeamMutation(() => {
+      return resendTeamInvite(inviteId);
     }, 'Invitation resent.');
   };
 
@@ -819,7 +788,7 @@ export function Settings() {
                   className="mb-4"
                   action={(
                     <Badge variant="bordered">
-                      {teamSnapshot?.canManageTeam ? 'Org Admin Access' : 'Read Only'}
+                      {canManageOrgSettings ? 'Org Admin Access' : 'Admin Only'}
                     </Badge>
                   )}
                 />
@@ -836,7 +805,15 @@ export function Settings() {
                   </Card>
                 )}
 
-                {teamSnapshot?.canManageTeam && (
+                {!canManageOrgSettings && (
+                  <Card padding="sm" className="mb-3 border-[var(--app-warning)]">
+                    <div className="text-sm text-[var(--app-warning)]">
+                      Only tenant org admins can manage team access.
+                    </div>
+                  </Card>
+                )}
+
+                {canManageOrgSettings && (
                   <div className="mb-4 rounded-lg border border-[var(--app-border)] p-4">
                     <SectionHeader title="Invite User" className="mb-3" />
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
@@ -858,17 +835,16 @@ export function Settings() {
                           }))
                         }
                       />
-                      <Select
-                        label="Org Role"
-                        options={teamRoleOptions}
-                        selectedKeys={[teamInviteForm.targetOrgRole]}
-                        onChange={(event) =>
-                          setTeamInviteForm((prev) => ({
-                            ...prev,
-                            targetOrgRole: event.target.value as OrganizationRole,
-                          }))
-                        }
-                      />
+                      <div className="flex items-center rounded-lg border border-[var(--app-border)] px-3">
+                        <Checkbox
+                          isSelected={teamInviteForm.targetIsAdmin}
+                          onValueChange={(value) =>
+                            setTeamInviteForm((prev) => ({ ...prev, targetIsAdmin: value }))
+                          }
+                        >
+                          Org Admin
+                        </Checkbox>
+                      </div>
                       <div className="flex items-end">
                         <Button
                           color="primary"
@@ -877,55 +853,6 @@ export function Settings() {
                           onPress={handleTeamInvite}
                         >
                           Invite Member
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {teamSnapshot?.canManageTeam && (
-                  <div className="mb-4 rounded-lg border border-[var(--app-border)] p-4">
-                    <SectionHeader title="Create User (Shared Mode)" className="mb-3" />
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
-                      <Input
-                        label="Name"
-                        value={teamCreateForm.name}
-                        onChange={(event) =>
-                          setTeamCreateForm((prev) => ({ ...prev, name: event.target.value }))
-                        }
-                      />
-                      <Input
-                        label="Email"
-                        value={teamCreateForm.email}
-                        onChange={(event) =>
-                          setTeamCreateForm((prev) => ({ ...prev, email: event.target.value }))
-                        }
-                      />
-                      <Select
-                        label="App Persona"
-                        options={teamAppRoleOptions}
-                        selectedKeys={[teamCreateForm.appRole]}
-                        onChange={(event) =>
-                          setTeamCreateForm((prev) => ({
-                            ...prev,
-                            appRole: event.target.value as AssignableAppRole,
-                          }))
-                        }
-                      />
-                      <Select
-                        label="Org Role"
-                        options={teamRoleOptions}
-                        selectedKeys={[teamCreateForm.organizationRole]}
-                        onChange={(event) =>
-                          setTeamCreateForm((prev) => ({
-                            ...prev,
-                            organizationRole: event.target.value as OrganizationRole,
-                          }))
-                        }
-                      />
-                      <div className="flex items-end">
-                        <Button color="primary" className="w-full" onPress={handleTeamCreateUser}>
-                          Create User
                         </Button>
                       </div>
                     </div>
@@ -946,24 +873,34 @@ export function Settings() {
                       </div>
                       <div className="flex items-center gap-4">
                         <StatusBadge status={member.status === 'active' ? 'Active' : 'Disabled'} domain="general" size="sm" />
-                        <Badge variant="bordered">{member.appRole}</Badge>
                         <Select
-                          aria-label={`${member.name} org role`}
-                          options={teamRoleOptions}
-                          selectedKeys={[member.organizationRole]}
+                          aria-label={`${member.name} app role`}
+                          options={teamAppRoleOptions}
+                          selectedKeys={[member.role]}
                           size="sm"
                           className="min-w-[160px]"
                           onChange={(event) =>
-                            handleTeamRoleUpdate(member, event.target.value as OrganizationRole)
+                            void handleTeamRoleUpdate(member, event.target.value as AssignableAppRole)
                           }
-                          isDisabled={!teamSnapshot?.canManageTeam || member.isLastOrgAdmin}
+                          isDisabled={!canManageOrgSettings}
                         />
+                        <Checkbox
+                          isSelected={member.isAdmin}
+                          onValueChange={(value) => {
+                            void handleTeamAdminToggle(member, value);
+                          }}
+                          isDisabled={!canManageOrgSettings}
+                        >
+                          Admin
+                        </Checkbox>
                         <Button
                           variant="ghost"
                           size="sm"
                           color={member.status === 'active' ? 'danger' : 'success'}
-                          onPress={() => handleTeamStatusToggle(member)}
-                          isDisabled={!teamSnapshot?.canManageTeam || member.isLastOrgAdmin}
+                          onPress={() => {
+                            void handleTeamStatusToggle(member);
+                          }}
+                          isDisabled={!canManageOrgSettings}
                         >
                           {member.status === 'active' ? 'Disable' : 'Activate'}
                         </Button>
@@ -980,7 +917,7 @@ export function Settings() {
                         <div>
                           <div className="font-medium">{invite.email}</div>
                           <div className="text-sm text-[var(--app-text-muted)]">
-                            {invite.targetOrgRole} · {invite.targetAppRole}
+                            {invite.targetIsAdmin ? 'Admin' : 'Member'} · {invite.targetAppRole}
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
@@ -988,8 +925,10 @@ export function Settings() {
                           <Button
                             variant="bordered"
                             size="sm"
-                            onPress={() => handleTeamResendInvite(invite.id)}
-                            isDisabled={!teamSnapshot?.canManageTeam || invite.status !== 'pending'}
+                            onPress={() => {
+                              void handleTeamResendInvite(invite.id);
+                            }}
+                            isDisabled={!canManageOrgSettings || invite.status !== 'pending'}
                           >
                             Resend
                           </Button>

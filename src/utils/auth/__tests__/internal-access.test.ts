@@ -21,14 +21,14 @@ describe('internal-access helpers', () => {
     ).toBe(true);
   });
 
-  it('recognizes platform admin flag as superadmin', () => {
+  it('does not treat tenant org admins as superadmin users', () => {
     expect(
       isSuperadminUser({
         tenantId: 'org_external',
         role: 'gp',
-        isPlatformAdmin: true,
+        isAdmin: true,
       })
-    ).toBe(true);
+    ).toBe(false);
   });
 
   it('routes superadmin users to admin domain and others to app', () => {

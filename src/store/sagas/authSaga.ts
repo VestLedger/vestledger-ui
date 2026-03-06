@@ -64,8 +64,7 @@ function normalizeUser(user: Partial<User> & Pick<User, 'email' | 'name' | 'role
     role: user.role,
     avatar: user.avatar,
     tenantId: user.tenantId,
-    organizationRole: user.organizationRole,
-    isPlatformAdmin: user.isPlatformAdmin,
+    isAdmin: user.isAdmin,
     operatingRegion: user.operatingRegion,
     organizationConfigured: user.organizationConfigured,
   };
@@ -107,12 +106,15 @@ function getAuthCookieDomain(hostname?: string | null) {
   return `.${baseHost}`;
 }
 
-function setAuthCookies(user: User) {
+function setAuthCookies(user: User, accessToken?: string | null) {
   if (typeof document === 'undefined') return;
   const domain = getAuthCookieDomain(window.location.hostname);
   const domainAttribute = domain ? `; domain=${domain}` : '';
   document.cookie = `isAuthenticated=true; path=/${domainAttribute}; max-age=${AUTH_COOKIE_MAX_AGE_SECONDS}; SameSite=Lax`;
   document.cookie = `user=${encodeURIComponent(JSON.stringify(user))}; path=/${domainAttribute}; max-age=${AUTH_COOKIE_MAX_AGE_SECONDS}; SameSite=Lax`;
+  if (accessToken) {
+    document.cookie = `accessToken=${encodeURIComponent(accessToken)}; path=/${domainAttribute}; max-age=${AUTH_COOKIE_MAX_AGE_SECONDS}; SameSite=Lax`;
+  }
 }
 
 function setDataModeCookie(mode: DataMode) {
@@ -128,6 +130,7 @@ function clearAuthCookies() {
   const domainAttribute = domain ? `; domain=${domain}` : '';
   document.cookie = `isAuthenticated=; path=/${domainAttribute}; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
   document.cookie = `user=; path=/${domainAttribute}; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+  document.cookie = `accessToken=; path=/${domainAttribute}; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
 }
 
 function clearDataModeCookie() {
@@ -139,6 +142,7 @@ function clearDataModeCookie() {
 
 function* hydrateAuthWorker() {
   const savedToken = safeLocalStorage.getItem(STORAGE_TOKEN_KEY);
+  const cookieToken = getCookieValue(STORAGE_TOKEN_KEY);
   const savedDataMode = safeLocalStorage.getItem(DATA_MODE_OVERRIDE_KEY);
   const cookieDataMode = getCookieValue(DATA_MODE_OVERRIDE_KEY);
   const cookieAuth = getCookieValue('isAuthenticated');
@@ -147,6 +151,7 @@ function* hydrateAuthWorker() {
   const hasValidCookieSession = cookieAuth === 'true' && isValidPersistedUser(cookieUser);
   if (hasValidCookieSession) {
     const normalizedUser = normalizeUser(cookieUser);
+    const resolvedToken = savedToken ?? cookieToken;
     const hydratedMode = resolveHydratedDataMode(
       savedDataMode,
       cookieDataMode,
@@ -156,6 +161,11 @@ function* hydrateAuthWorker() {
     // Keep local storage aligned with the shared cross-subdomain cookie session.
     safeLocalStorage.setItem(STORAGE_AUTH_KEY, 'true');
     safeLocalStorage.setJSON(STORAGE_USER_KEY, normalizedUser);
+    if (resolvedToken) {
+      safeLocalStorage.setItem(STORAGE_TOKEN_KEY, resolvedToken);
+    } else {
+      safeLocalStorage.removeItem(STORAGE_TOKEN_KEY);
+    }
     if (hydratedMode) {
       safeLocalStorage.setItem(DATA_MODE_OVERRIDE_KEY, hydratedMode);
       setDataModeCookie(hydratedMode);
@@ -167,7 +177,7 @@ function* hydrateAuthWorker() {
       clearDataModeCookie();
     }
 
-    yield put(authHydrated({ isAuthenticated: true, user: normalizedUser, accessToken: savedToken }));
+    yield put(authHydrated({ isAuthenticated: true, user: normalizedUser, accessToken: resolvedToken }));
     return;
   }
 
@@ -217,7 +227,7 @@ export function* loginWorker(action: ReturnType<typeof loginRequested>) {
     }
 
     // Sync to cookies for middleware access
-    setAuthCookies(result.user);
+    setAuthCookies(result.user, result.accessToken);
 
     // Mark auth state as successful only after storage and cookies are synced
     // so middleware sees the authenticated session on immediate redirects.

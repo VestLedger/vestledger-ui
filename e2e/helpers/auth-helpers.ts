@@ -23,8 +23,7 @@ type AuthenticatedUser = {
   email: string;
   role: TestUserRole;
   tenantId?: string;
-  organizationRole?: 'org_admin' | 'member';
-  isPlatformAdmin?: boolean;
+  isAdmin?: boolean;
 };
 
 type ApiAuthSession = {
@@ -38,9 +37,9 @@ type JwtPayload = {
   username?: string;
   name?: string;
   role?: string;
+  orgId?: string;
   tenantId?: string;
-  organizationRole?: string;
-  isPlatformAdmin?: boolean;
+  isAdmin?: boolean;
 };
 
 const TEST_USER_ROLES: readonly TestUserRole[] = [
@@ -216,11 +215,6 @@ function buildSessionFromToken(accessToken: string): ApiAuthSession {
       ? payload.name
       : email;
 
-  const organizationRole =
-    payload.organizationRole === 'org_admin' || payload.organizationRole === 'member'
-      ? payload.organizationRole
-      : undefined;
-
   return {
     accessToken,
     user: {
@@ -228,10 +222,12 @@ function buildSessionFromToken(accessToken: string): ApiAuthSession {
       name: nameFromToken,
       email,
       role,
-      tenantId: isNonEmptyString(payload.tenantId) ? payload.tenantId : undefined,
-      organizationRole,
-      isPlatformAdmin:
-        typeof payload.isPlatformAdmin === 'boolean' ? payload.isPlatformAdmin : undefined,
+      tenantId: isNonEmptyString(payload.tenantId)
+        ? payload.tenantId
+        : isNonEmptyString(payload.orgId)
+          ? payload.orgId
+          : undefined,
+      isAdmin: typeof payload.isAdmin === 'boolean' ? payload.isAdmin : undefined,
     },
   };
 }
@@ -315,9 +311,15 @@ function resolveCredentials(options?: {
 
 function getCookieShape(baseUrl: string): { origin: string; domain: string; secure: boolean } {
   const parsed = new URL(baseUrl);
+  const hostname = parsed.hostname;
+  const domain =
+    hostname === 'localhost' || hostname.endsWith('.localhost')
+      ? hostname
+      : hostname.replace(/^www\./, '').replace(/^(app|admin)\./, '');
+
   return {
     origin: parsed.origin,
-    domain: parsed.hostname,
+    domain,
     secure: parsed.protocol === 'https:',
   };
 }
@@ -351,6 +353,16 @@ function buildStorageState(baseUrl: string, session: ApiAuthSession) {
       {
         name: DATA_MODE_OVERRIDE_KEY,
         value: 'api',
+        domain,
+        path: '/',
+        expires,
+        httpOnly: false,
+        secure,
+        sameSite: 'Lax' as const,
+      },
+      {
+        name: TOKEN_STORAGE_KEY,
+        value: encodeURIComponent(session.accessToken),
         domain,
         path: '/',
         expires,

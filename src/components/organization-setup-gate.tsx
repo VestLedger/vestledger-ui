@@ -27,7 +27,7 @@ export function OrganizationSetupGate() {
   const isOpen =
     isAuthenticated &&
     Boolean(user) &&
-    !user?.isPlatformAdmin &&
+    user?.role !== 'superadmin' &&
     user?.organizationConfigured === false;
 
   if (!isOpen || !user) {

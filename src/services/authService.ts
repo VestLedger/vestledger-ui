@@ -13,6 +13,7 @@ type AuthResponse = {
   user?: {
     orgId?: string | null;
     tenantId?: string | null;
+    isAdmin?: boolean;
     operatingRegion?: OperatingRegion | null;
     organizationConfigured?: boolean;
   };
@@ -31,7 +32,7 @@ type JwtPayload = {
   role: UserRole;
   orgId?: string;
   tenantId?: string;
-  isPlatformAdmin?: boolean;
+  isAdmin?: boolean;
   operatingRegion?: OperatingRegion | null;
   organizationConfigured?: boolean;
 };
@@ -97,7 +98,7 @@ function userFromJwt(token: string, responseUser?: AuthResponse['user']): User {
     email: payload.email,
     role: payload.role,
     tenantId: payload.tenantId ?? payload.orgId ?? responseUser?.tenantId ?? responseUser?.orgId ?? undefined,
-    isPlatformAdmin: payload.isPlatformAdmin ?? payload.role === 'superadmin',
+    isAdmin: payload.isAdmin ?? responseUser?.isAdmin ?? false,
     operatingRegion:
       payload.operatingRegion ?? responseUser?.operatingRegion ?? null,
     organizationConfigured:
@@ -153,7 +154,7 @@ export async function authenticateUser(
       user: createMockUser(DEMO_EMAIL!, 'gp', {
         id: MOCK_DEMO_PROFILE.id,
         tenantId: MOCK_DEMO_PROFILE.tenantId,
-        isPlatformAdmin: false,
+        isAdmin: false,
         operatingRegion: MOCK_DEMO_PROFILE.operatingRegion,
         organizationConfigured: MOCK_DEMO_PROFILE.organizationConfigured,
       }),

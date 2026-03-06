@@ -10,7 +10,7 @@ import {
   UserPlus,
   Users,
 } from 'lucide-react';
-import { Badge, Button, Card, Input, Select } from '@/ui';
+import { Badge, Button, Card, Checkbox, Input, Select } from '@/ui';
 import {
   createTenantInvitation,
   getTenantDetail,
@@ -55,6 +55,7 @@ const EMPTY_INVITE_FORM = {
   name: '',
   email: '',
   appRole: 'analyst' as AssignableAppRole,
+  isAdmin: false,
 };
 
 export function SuperadminConsole() {
@@ -174,6 +175,7 @@ export function SuperadminConsole() {
         name: inviteForm.name,
         email: inviteForm.email,
         targetAppRole: inviteForm.appRole,
+        targetIsAdmin: inviteForm.isAdmin,
       });
 
       setInviteForm(EMPTY_INVITE_FORM);
@@ -306,7 +308,8 @@ export function SuperadminConsole() {
         <Card padding="lg">
           <h2 className="mb-1 text-lg font-semibold">Onboard Organization</h2>
           <p className="mb-4 text-sm text-[var(--app-text-muted)]">
-            Create a tenant and its first-user invitation.
+            Create a tenant and its first-user invitation. The first invited user
+            is always an org admin.
           </p>
 
           <div className="space-y-3">
@@ -377,14 +380,14 @@ export function SuperadminConsole() {
             <h2 className="text-lg font-semibold">
               {selectedTenant?.displayName ?? 'Tenant'}: Users & Invites
             </h2>
-            <p className="text-sm text-[var(--app-text-muted)]">
-              Invite users into the selected tenant with a single assigned role.
+          <p className="text-sm text-[var(--app-text-muted)]">
+              Invite users into the selected tenant with an app role and admin flag.
             </p>
           </div>
           <Badge variant="bordered">{selectedTenantId || 'No tenant selected'}</Badge>
         </div>
 
-        <div className="mb-6 grid grid-cols-1 gap-3 rounded-lg border border-[var(--app-border)] p-4 lg:grid-cols-4">
+        <div className="mb-6 grid grid-cols-1 gap-3 rounded-lg border border-[var(--app-border)] p-4 lg:grid-cols-5">
           <Input
             label="User Name"
             value={inviteForm.name}
@@ -410,7 +413,17 @@ export function SuperadminConsole() {
               }))
             }
           />
-          <div className="flex items-end">
+          <div className="flex items-center rounded-lg border border-[var(--app-border)] px-3">
+            <Checkbox
+              isSelected={inviteForm.isAdmin}
+              onValueChange={(value) =>
+                setInviteForm((prev) => ({ ...prev, isAdmin: value }))
+              }
+            >
+              Org Admin
+            </Checkbox>
+          </div>
+          <div className="flex items-end lg:col-span-1">
             <Button
               color="primary"
               className="w-full"
@@ -451,6 +464,9 @@ export function SuperadminConsole() {
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge variant="bordered">{user.appRole}</Badge>
+                      <Badge variant="bordered">
+                        {user.isAdmin ? 'Admin' : 'Member'}
+                      </Badge>
                       <Badge color={user.status === 'active' ? 'success' : 'warning'}>
                         {user.status}
                       </Badge>
@@ -493,7 +509,7 @@ export function SuperadminConsole() {
                       </Badge>
                     </div>
                     <p className="mb-3 text-xs text-[var(--app-text-muted)]">
-                      Role: {invite.targetAppRole}
+                      Role: {invite.targetAppRole} · {invite.targetIsAdmin ? 'Admin' : 'Member'}
                     </p>
                     <Button
                       size="sm"

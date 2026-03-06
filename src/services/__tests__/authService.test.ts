@@ -31,7 +31,7 @@ function createMockJwt(payload: {
   role: UserRole;
   tenantId?: string;
   orgId?: string;
-  isPlatformAdmin?: boolean;
+  isAdmin?: boolean;
 }): string {
   const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
   const body = btoa(JSON.stringify(payload));
@@ -94,7 +94,7 @@ describe('authService', () => {
         username: 'Platform Superadmin',
         role: 'superadmin',
         tenantId: 'org_vestledger_management',
-        isPlatformAdmin: true,
+        isAdmin: false,
       });
 
       mockFetch.mockResolvedValueOnce({
@@ -126,12 +126,12 @@ describe('authService', () => {
       expect(result.user.email).toBe('superadmin@vestledger.com');
       expect(result.user.role).toBe('superadmin');
       expect(result.user.tenantId).toBe('org_vestledger_management');
-      expect(result.user.isPlatformAdmin).toBe(true);
+      expect(result.user.isAdmin).toBe(false);
       expect(result.accessToken).toBe(mockJwt);
       expect(result.dataModeOverride).toBe('api');
     });
 
-    it('derives platform-admin state from the JWT when logging in as superadmin', async () => {
+    it('treats superadmin as role-based access without a special platform flag', async () => {
       const mockJwt = createMockJwt({
         sub: 'user-superadmin-1',
         email: 'superadmin@vestledger.com',
@@ -152,7 +152,7 @@ describe('authService', () => {
       const result = await authenticateUser('superadmin@vestledger.com', 'Pa$$w0rd');
 
       expect(result.user.role).toBe('superadmin');
-      expect(result.user.isPlatformAdmin).toBe(true);
+      expect(result.user.isAdmin).toBe(false);
       expect(result.user.tenantId).toBe('org_vestledger_management');
       expect(result.dataModeOverride).toBe('api');
     });
