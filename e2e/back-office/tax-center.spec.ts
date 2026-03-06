@@ -47,7 +47,10 @@ test.describe('Tax Center - K-1 Metrics', () => {
     await loginViaRedirect(page, '/tax-center');
     await page.waitForLoadState('networkidle');
 
-    const k1Card = page.locator('[class*="card"]').filter({ hasText: 'K-1s Issued' });
+    const k1Card = page
+      .locator('p', { hasText: /^K-1s Issued$/i })
+      .locator('xpath=ancestor::div[contains(@class,"rounded-lg")][1]')
+      .first();
     const subtitle = k1Card.locator('text=/of \\d+ total/i');
 
     if (await subtitle.isVisible()) {
@@ -169,7 +172,7 @@ test.describe('Tax Center - Interactions - Data Verification', () => {
     const taxCenter = new TaxCenterPage(page);
     await taxCenter.goto();
 
-    const dataSelector = '[class*="card"], [data-testid="k1-item"], table tbody tr';
+    const dataSelector = 'div.rounded-lg, [data-testid="k1-item"], table tbody tr';
 
     if (await taxCenter.yearFilter.isVisible()) {
       const result = await selectDifferentOption(
@@ -192,7 +195,7 @@ test.describe('Tax Center - Interactions - Data Verification', () => {
     const taxCenter = new TaxCenterPage(page);
     await taxCenter.goto();
 
-    const dataSelector = '[class*="card"], [data-testid="tax-document"], table tbody tr';
+    const dataSelector = 'div.rounded-lg, [data-testid="tax-document"], table tbody tr';
 
     if (await taxCenter.statusFilter.isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -223,7 +226,7 @@ test.describe('Tax Center - Interactions - Data Verification', () => {
     const taxCenter = new TaxCenterPage(page);
     await taxCenter.goto();
 
-    const contentSelector = '[class*="card"], table, [class*="rounded-lg"]';
+    const contentSelector = 'div.rounded-lg, table, [class*="rounded-lg"]';
     const before = await captureDataSnapshot(page, contentSelector);
 
     // Switch to K-1 Generator tab
@@ -243,7 +246,7 @@ test.describe('Tax Center - Interactions - Data Verification', () => {
     const taxCenter = new TaxCenterPage(page);
     await taxCenter.goto();
 
-    const dataSelector = '[class*="card"], [data-testid="tax-document"], table tbody tr';
+    const dataSelector = 'div.rounded-lg, [data-testid="tax-document"], table tbody tr';
     const initialSnapshot = await captureDataSnapshot(page, dataSelector);
 
     // Apply year filter first
@@ -251,7 +254,7 @@ test.describe('Tax Center - Interactions - Data Verification', () => {
       await selectDifferentOption(page, taxCenter.yearFilter, dataSelector);
     }
 
-    const afterYearFilter = await captureDataSnapshot(page, dataSelector);
+    await captureDataSnapshot(page, dataSelector);
 
     // Apply status filter second
     if (await taxCenter.statusFilter.isVisible()) {
@@ -283,7 +286,7 @@ test.describe('Tax Center - Interactions - Data Verification', () => {
 
     // Apply year filter
     if (await taxCenter.yearFilter.isVisible() && initialK1Count > 0) {
-      const metricsSelector = '[class*="card"]:has-text("K-1s Issued")';
+      const metricsSelector = 'p.text-2xl, p[class*="text-2xl"]';
       const result = await selectDifferentOption(
         page,
         taxCenter.yearFilter,

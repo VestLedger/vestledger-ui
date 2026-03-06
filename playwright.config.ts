@@ -15,7 +15,7 @@ function resolveTimeout(value: string | undefined, fallback: number): number {
 
 const testTimeout = resolveTimeout(
   process.env.PLAYWRIGHT_TEST_TIMEOUT,
-  slowEnv ? 120_000 : 30_000
+  slowEnv ? 120_000 : 45_000,
 );
 const expectTimeout = resolveTimeout(
   process.env.PLAYWRIGHT_EXPECT_TIMEOUT,

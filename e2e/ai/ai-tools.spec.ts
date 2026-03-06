@@ -3,6 +3,11 @@ import {
   captureDataSnapshot,
   verifyDataChanged,
 } from '../helpers/interaction-helpers';
+import {
+  clickContextualTab,
+  getContextualTab,
+  openContextualMenu,
+} from '../helpers/navigation-helpers';
 
 test.describe('AI Tools - Page Load', () => {
   test('should load AI tools page', async ({ page }) => {
@@ -14,10 +19,11 @@ test.describe('AI Tools - Page Load', () => {
 
   test('should display AI tools content', async ({ page }) => {
     await loginViaRedirect(page, '/ai-tools');
+    await openContextualMenu(page, /ai tools/i);
 
     // Look for stable UI elements instead of CSS class names
     await expect(
-      page.getByRole('tab', { name: /ai decision writer/i })
+      getContextualTab(page, /ai decision writer/i)
     ).toBeVisible({ timeout: 10000 });
 
     await expect(
@@ -30,7 +36,7 @@ test.describe('AI Tools - Available Tools', () => {
   test('should display available AI tool cards', async ({ page }) => {
     await loginViaRedirect(page, '/ai-tools');
 
-    const toolCards = page.locator('[data-testid="ai-tool"], [class*="card"], [class*="tool"]');
+    const toolCards = page.locator('[data-testid="ai-tool"], div.rounded-lg, [class*="tool"]');
     const count = await toolCards.count();
     expect(count).toBeGreaterThanOrEqual(0);
   });
@@ -59,7 +65,9 @@ test.describe('AI Tools - Copilot', () => {
   test('should have launch copilot button', async ({ page }) => {
     await loginViaRedirect(page, '/ai-tools');
 
-    const launchButton = page.getByRole('button', { name: /launch|open|start.*copilot|chat/i });
+    const launchButton = page.getByRole('button', {
+      name: /launch.*copilot|start.*copilot|open ai copilot|open vesta and start voice capture/i,
+    });
     if (await launchButton.first().isVisible()) {
       await expect(launchButton.first()).toBeEnabled();
     }
@@ -191,7 +199,7 @@ test.describe('AI Tools - Interactions - Data Verification', () => {
       .or(page.locator('[data-testid="category-filter"]'))
       .or(page.locator('select').filter({ hasText: /category|all|type/i }));
 
-    const dataSelector = '[class*="card"], [data-testid="ai-tool"], [class*="tool"]';
+    const dataSelector = 'div.rounded-lg, [data-testid="ai-tool"], [class*="tool"]';
 
     if (await categoryFilter.first().isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -220,7 +228,7 @@ test.describe('AI Tools - Interactions - Data Verification', () => {
   test('clicking AI tool card should show tool details or launch', async ({ page }) => {
     await loginViaRedirect(page, '/ai-tools');
 
-    const toolCards = page.locator('[class*="card"], [data-testid="ai-tool"]');
+    const toolCards = page.locator('div.rounded-lg, [data-testid="ai-tool"]');
 
     if (await toolCards.count() > 0) {
       const detailsSelector = '[role="dialog"], [class*="drawer"], [class*="detail"], [class*="panel"], [class*="modal"], [class*="chat"]';
@@ -245,39 +253,36 @@ test.describe('AI Tools - Interactions - Data Verification', () => {
   test('launch copilot button should open chat interface', async ({ page }) => {
     await loginViaRedirect(page, '/ai-tools');
 
-    const launchButton = page.getByRole('button', { name: /launch|open|start.*copilot|chat/i });
+    const launchButton = page.getByRole('button', {
+      name: /launch.*copilot|start.*copilot|open ai copilot|open vesta and start voice capture/i,
+    });
 
     if (await launchButton.first().isVisible()) {
-      const dataSelector = '[class*="chat"], [class*="copilot"], [class*="dialog"], [class*="panel"], [role="dialog"]';
-      const before = await captureDataSnapshot(page, dataSelector);
-
       await launchButton.first().click();
       await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(500);
+      const chatInterface = page
+        .getByPlaceholder(/ask me anything/i)
+        .or(page.getByRole('heading', { name: /^vesta$/i }))
+        .or(page.getByText(/voice mode:/i));
 
-      const after = await captureDataSnapshot(page, dataSelector);
-      const changed = verifyDataChanged(before, after);
-
-      expect(
-        changed,
+      await expect(
+        chatInterface.first(),
         'Launch copilot button should open chat interface'
-      ).toBe(true);
+      ).toBeVisible({ timeout: 10000 });
     }
   });
 
   test('tab navigation should update AI tools view', async ({ page }) => {
     await loginViaRedirect(page, '/ai-tools');
+    await openContextualMenu(page, /ai tools/i);
 
-    const tabs = page.getByRole('tab')
-      .or(page.locator('[role="tablist"] button'));
+    const dataSelector = 'div.rounded-lg, [class*="content"], [class*="tool"]';
 
-    const dataSelector = '[class*="card"], [class*="content"], [class*="tool"]';
-
-    if (await tabs.count() > 1) {
+    const decisionWriterTab = getContextualTab(page, /ai decision writer/i);
+    const pitchDeckTab = getContextualTab(page, /ai pitch deck reader/i);
+    if (await decisionWriterTab.count() > 0 && await pitchDeckTab.count() > 0) {
       const before = await captureDataSnapshot(page, dataSelector);
-
-      await tabs.nth(1).click();
-      await page.waitForLoadState('networkidle');
+      await clickContextualTab(page, /ai pitch deck reader/i);
 
       const after = await captureDataSnapshot(page, dataSelector);
       const changed = verifyDataChanged(before, after);
@@ -292,7 +297,7 @@ test.describe('AI Tools - Interactions - Data Verification', () => {
     const searchInput = page.getByPlaceholder(/search/i)
       .or(page.getByRole('searchbox'));
 
-    const dataSelector = '[class*="card"], [data-testid="ai-tool"], [class*="tool"]';
+    const dataSelector = 'div.rounded-lg, [data-testid="ai-tool"], [class*="tool"]';
 
     if (await searchInput.first().isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);

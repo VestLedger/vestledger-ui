@@ -48,11 +48,11 @@ export class DocumentsPage {
 
     // Document manager
     this.documentManager = page.locator('[class*="document-manager"], [class*="DocumentManager"]').or(
-      page.locator('[class*="grid"]').filter({ has: page.locator('[class*="card"]') })
+      page.locator('[class*="grid"]').filter({ has: page.locator('div.rounded-lg') })
     );
     this.documentList = page.locator('[class*="document-list"], [class*="grid"]');
-    this.documentCards = page.locator('[class*="card"]').filter({ has: page.locator('svg') });
-    this.folderCards = page.locator('[class*="card"]').filter({ has: page.locator('[class*="folder" i]') });
+    this.documentCards = page.locator('div.rounded-lg').filter({ has: page.locator('svg') });
+    this.folderCards = page.locator('div.rounded-lg').filter({ has: page.locator('[class*="folder" i]') });
 
     // Search and filters
     this.searchInput = page.getByPlaceholder(/search.*document/i).or(page.getByRole('searchbox'));
@@ -128,7 +128,7 @@ export class DocumentsPage {
   }
 
   async selectDocumentByName(name: string) {
-    const doc = this.page.locator('[class*="card"]').filter({ hasText: name }).first();
+    const doc = this.documentCards.filter({ hasText: name }).first();
     await doc.click();
     await this.page.waitForLoadState('networkidle');
   }
@@ -139,13 +139,13 @@ export class DocumentsPage {
   }
 
   async openDocumentByName(name: string) {
-    const doc = this.page.locator('[class*="card"]').filter({ hasText: name }).first();
+    const doc = this.documentCards.filter({ hasText: name }).first();
     await doc.dblclick();
     await this.page.waitForLoadState('networkidle');
   }
 
   async downloadDocument(name: string) {
-    const doc = this.page.locator('[class*="card"]').filter({ hasText: name }).first();
+    const doc = this.documentCards.filter({ hasText: name }).first();
     await doc.hover();
     const downloadBtn = doc.getByRole('button', { name: /download/i });
     if (await downloadBtn.isVisible()) {
@@ -154,7 +154,7 @@ export class DocumentsPage {
   }
 
   async deleteDocument(name: string) {
-    const doc = this.page.locator('[class*="card"]').filter({ hasText: name }).first();
+    const doc = this.documentCards.filter({ hasText: name }).first();
     await doc.hover();
     const deleteBtn = doc.getByRole('button', { name: /delete/i });
     if (await deleteBtn.isVisible()) {
@@ -163,7 +163,7 @@ export class DocumentsPage {
   }
 
   async toggleFavorite(name: string) {
-    const doc = this.page.locator('[class*="card"]').filter({ hasText: name }).first();
+    const doc = this.documentCards.filter({ hasText: name }).first();
     await doc.hover();
     const favBtn = doc.getByRole('button', { name: /favorite|star/i });
     if (await favBtn.isVisible()) {
@@ -204,6 +204,6 @@ export class DocumentsPage {
   }
 
   getRecentDocuments(): Locator {
-    return this.page.locator('text=/Recent|Recently/i').locator('..').locator('[class*="card"]');
+    return this.page.locator('text=/Recent|Recently/i').locator('..').locator('div.rounded-lg');
   }
 }

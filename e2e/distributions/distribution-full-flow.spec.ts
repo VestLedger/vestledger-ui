@@ -1,6 +1,7 @@
 import { test, expect, loginViaRedirect } from '../fixtures/auth.fixture';
 import { DistributionsPage, DistributionWizardPage } from '../pages/distributions.page';
 import { DistributionDetailPage } from '../pages/distribution-detail.page';
+import { clickContextualTab, openContextualMenu } from '../helpers/navigation-helpers';
 
 test.describe('Distribution Full Flow', () => {
   test.describe('Wizard Navigation', () => {
@@ -348,7 +349,7 @@ test.describe('Distribution Full Flow', () => {
       await page.waitForLoadState('networkidle');
 
       // The warnings card should exist (may or may not have content initially)
-      const warningsSection = page.locator('[class*="card"]').filter({ hasText: /warning|reconcile|exceed/i });
+      const warningsSection = page.locator('div.rounded-lg').filter({ hasText: /warning|reconcile|exceed/i });
       // May or may not be visible depending on data state
       const warningsCount = await warningsSection.count();
       expect(warningsCount).toBeGreaterThanOrEqual(0);
@@ -376,16 +377,13 @@ test.describe('Distribution Detail View', () => {
     // First go to distributions list
     await loginViaRedirect(page, '/fund-admin');
     await page.waitForLoadState('networkidle');
+    await openContextualMenu(page, /fund admin/i);
 
     // Click distributions tab
-    const distributionsTab = page.getByRole('tab', { name: /distributions/i });
-    if (await distributionsTab.isVisible()) {
-      await distributionsTab.click();
-      await page.waitForLoadState('networkidle');
-    }
+    await clickContextualTab(page, /distributions/i);
 
     // Look for a distribution item to click
-    const distributionItem = page.locator('table tbody tr, [class*="card"]').filter({ hasText: /distribution|Q\d/i }).first();
+    const distributionItem = page.locator('table tbody tr, div.rounded-lg').filter({ hasText: /distribution|Q\d/i }).first();
 
     if (await distributionItem.isVisible()) {
       await distributionItem.click();

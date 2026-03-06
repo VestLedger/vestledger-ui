@@ -336,7 +336,7 @@ test.describe('Contacts - Interactions - Data Verification', () => {
       .or(page.locator('select'))
       .or(page.locator('[class*="dropdown"]'));
 
-    const dataSelector = '[class*="card"], [data-testid="contact-card"], [class*="rounded-lg"]';
+    const dataSelector = 'div.rounded-lg, [data-testid="contact-card"], [class*="rounded-lg"]';
 
     if (await roleFilter.first().isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -367,7 +367,7 @@ test.describe('Contacts - Interactions - Data Verification', () => {
     const contacts = new ContactsPage(page);
     await contacts.goto();
 
-    const dataSelector = '[class*="card"], [data-testid="contact-card"], [class*="rounded-lg"]';
+    const dataSelector = 'div.rounded-lg, [data-testid="contact-card"], [class*="rounded-lg"]';
     const before = await captureDataSnapshot(page, dataSelector);
 
     // Only test if there's data to filter
@@ -388,7 +388,7 @@ test.describe('Contacts - Interactions - Data Verification', () => {
     const contacts = new ContactsPage(page);
     await contacts.goto();
 
-    const dataSelector = '[class*="card"], [data-testid="contact-card"], [class*="rounded-lg"]';
+    const dataSelector = 'div.rounded-lg, [data-testid="contact-card"], [class*="rounded-lg"]';
     const before = await captureDataSnapshot(page, dataSelector);
 
     if (before.count > 0) {
@@ -412,7 +412,7 @@ test.describe('Contacts - Interactions - Data Verification', () => {
     await contacts.goto();
 
     const smartListsSection = page.locator('text=/Smart Lists/i');
-    const dataSelector = '[class*="card"], [data-testid="contact-card"], [class*="rounded-lg"]';
+    const dataSelector = 'div.rounded-lg, [data-testid="contact-card"], [class*="rounded-lg"]';
 
     if (await smartListsSection.isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);

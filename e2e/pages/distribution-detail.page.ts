@@ -54,6 +54,15 @@ export class DistributionDetailPage {
   constructor(page: Page) {
     this.page = page;
 
+    const metricCard = (title: string) =>
+      page
+        .locator('p', { hasText: new RegExp(`^${title}$`, 'i') })
+        .locator('xpath=ancestor::div[contains(@class,"rounded-lg")][1]')
+        .first();
+
+    const panelByTitle = (title: string | RegExp) =>
+      page.locator('div.rounded-lg').filter({ hasText: title }).first();
+
     // Header
     this.pageTitle = page.getByRole('heading', { level: 1 });
     this.statusBadge = page.locator('[class*="badge"]').filter({ hasText: /(draft|pending|approved|processing|completed|rejected)/i }).first();
@@ -62,13 +71,13 @@ export class DistributionDetailPage {
     this.calendarButton = page.getByRole('button', { name: /calendar/i });
 
     // Summary metrics
-    this.grossProceedsMetric = page.locator('[class*="card"]').filter({ hasText: 'Gross Proceeds' });
-    this.netProceedsMetric = page.locator('[class*="card"]').filter({ hasText: 'Net Proceeds' });
-    this.distributedMetric = page.locator('[class*="card"]').filter({ hasText: 'Distributed' });
-    this.taxWithheldMetric = page.locator('[class*="card"]').filter({ hasText: 'Tax Withheld' });
+    this.grossProceedsMetric = metricCard('Gross Proceeds');
+    this.netProceedsMetric = metricCard('Net Proceeds');
+    this.distributedMetric = metricCard('Distributed');
+    this.taxWithheldMetric = metricCard('Tax Withheld');
 
     // Distribution Overview
-    this.overviewCard = page.locator('[class*="card"]').filter({ hasText: 'Distribution Overview' });
+    this.overviewCard = panelByTitle(/distribution overview/i);
     this.fundName = page.locator('text=Fund').locator('..').locator('p.font-medium').first();
     this.eventType = page.locator('text=Event Type').locator('..').locator('p.font-medium');
     this.eventDate = page.locator('text=Event Date').locator('..').locator('p.font-medium');
@@ -77,28 +86,28 @@ export class DistributionDetailPage {
     this.currentApprover = page.locator('text=Current Approver').locator('..').locator('p.font-medium');
 
     // Approval Stepper
-    this.approvalStepper = page.locator('[class*="card"]').filter({ hasText: /approval/i });
+    this.approvalStepper = panelByTitle(/approval/i);
     this.approveButton = page.getByRole('button', { name: /approve/i });
     this.rejectButton = page.getByRole('button', { name: /reject/i });
     this.returnForRevisionButton = page.getByRole('button', { name: /return for revision/i });
 
     // LP Allocations
-    this.allocationsCard = page.locator('[class*="card"]').filter({ hasText: 'LP Allocation Breakdown' });
+    this.allocationsCard = panelByTitle(/lp allocation breakdown/i);
     this.allocationsTable = page.locator('table').filter({ hasText: /LP.*Pro-Rata.*Gross/i });
     this.allocationsSearchInput = page.getByPlaceholder(/search lps/i);
     this.allocationsCount = page.locator('[class*="badge"]').filter({ hasText: /\d+ allocations/ });
 
     // Lifecycle Timeline
-    this.lifecycleTimeline = page.locator('[class*="card"]').filter({ hasText: 'Lifecycle Timeline' });
+    this.lifecycleTimeline = panelByTitle(/lifecycle timeline/i);
 
     // Statements
-    this.statementsCard = page.locator('[class*="card"]').filter({ hasText: 'Statements & Documents' });
+    this.statementsCard = panelByTitle(/statements\s*&\s*documents/i);
     this.generateStatementsButton = page.getByRole('button', { name: /generate/i });
-    this.statementsList = this.statementsCard.locator('[class*="card"], [class*="list-item"]');
+    this.statementsList = this.statementsCard.locator('div.rounded-lg, [class*="list-item"]');
     this.downloadPdfButtons = page.getByRole('button', { name: /download pdf/i });
 
     // Internal Notes
-    this.notesCard = page.locator('[class*="card"]').filter({ hasText: 'Internal Notes' });
+    this.notesCard = panelByTitle(/internal notes/i);
     this.notesList = this.notesCard.locator('[class*="rounded-lg"]').filter({ hasText: /\w+\s+-\s+\d/ });
   }
 
@@ -116,23 +125,19 @@ export class DistributionDetailPage {
 
   // Metrics helpers
   async getGrossProceeds() {
-    const text = await this.grossProceedsMetric.locator('[class*="font-"]').first().textContent();
-    return text?.trim();
+    return this.extractMetricText(this.grossProceedsMetric);
   }
 
   async getNetProceeds() {
-    const text = await this.netProceedsMetric.locator('[class*="font-"]').first().textContent();
-    return text?.trim();
+    return this.extractMetricText(this.netProceedsMetric);
   }
 
   async getDistributedAmount() {
-    const text = await this.distributedMetric.locator('[class*="font-"]').first().textContent();
-    return text?.trim();
+    return this.extractMetricText(this.distributedMetric);
   }
 
   async getTaxWithheld() {
-    const text = await this.taxWithheldMetric.locator('[class*="font-"]').first().textContent();
-    return text?.trim();
+    return this.extractMetricText(this.taxWithheldMetric);
   }
 
   // Overview helpers
@@ -236,7 +241,7 @@ export class DistributionDetailPage {
   }
 
   async downloadStatementForLP(lpName: string) {
-    const statementCard = this.statementsCard.locator('[class*="card"], [class*="list-item"]').filter({ hasText: lpName });
+    const statementCard = this.statementsCard.locator('div.rounded-lg, [class*="list-item"]').filter({ hasText: lpName });
     await statementCard.getByRole('button', { name: /download pdf/i }).click();
   }
 
@@ -250,6 +255,11 @@ export class DistributionDetailPage {
     const author = await note.locator('[class*="text-xs"]').textContent();
     const content = await note.locator('div:last-child').textContent();
     return { author: author?.trim(), content: content?.trim() };
+  }
+
+  private async extractMetricText(metricCard: Locator): Promise<string | undefined> {
+    const text = await metricCard.locator('p.text-2xl, p[class*="text-2xl"]').first().textContent();
+    return text?.trim() || undefined;
   }
 
   // Navigation

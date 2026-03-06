@@ -1,5 +1,6 @@
 import { Page, Locator } from '@playwright/test';
 import { loginViaRedirect } from '../helpers/auth-helpers';
+import { clickContextualTab, getContextualTab, openContextualMenu } from '../helpers/navigation-helpers';
 
 export class Valuation409APage {
   readonly page: Page;
@@ -26,60 +27,61 @@ export class Valuation409APage {
     this.page = page;
 
     // Header
-    this.pageTitle = page.getByRole('heading', { name: /409a valuation/i });
+    this.pageTitle = page.getByRole('heading', { level: 1, name: /409a valuations?/i });
     this.requestNewValuationButton = page.getByRole('button', { name: /request new valuation/i });
 
     // Tabs
-    this.valuationsTab = page.getByRole('tab', { name: /valuations/i }).first();
-    this.strikePricesTab = page.getByRole('tab', { name: /strike prices/i });
-    this.historyTab = page.getByRole('tab', { name: /valuation history/i });
+    this.valuationsTab = getContextualTab(page, /valuations/i).first();
+    this.strikePricesTab = getContextualTab(page, /strike prices/i);
+    this.historyTab = getContextualTab(page, /valuation history/i);
+
+    const metricCard = (title: string) =>
+      page
+        .locator('p', { hasText: new RegExp(`^${title}$`, 'i') })
+        .locator('xpath=ancestor::div[contains(@class,"rounded-lg")][1]')
+        .first();
 
     // Summary metrics
-    this.activeValuationsMetric = page.locator('[class*="card"]').filter({ hasText: 'Active Valuations' });
-    this.expiringSoonMetric = page.locator('[class*="card"]').filter({ hasText: 'Expiring Soon' });
-    this.portfolioCompaniesMetric = page.locator('[class*="card"]').filter({ hasText: 'Portfolio Companies' });
-    this.avgFmvMetric = page.locator('[class*="card"]').filter({ hasText: 'Avg. FMV' });
+    this.activeValuationsMetric = metricCard('Active Valuations');
+    this.expiringSoonMetric = metricCard('Expiring Soon');
+    this.portfolioCompaniesMetric = metricCard('Portfolio Companies');
+    this.avgFmvMetric = metricCard('Avg. FMV');
 
     // Valuations list
-    this.valuationCards = page.locator('[class*="card"]').filter({ hasText: /fair market value|FMV|valuation date/i });
+    this.valuationCards = page.locator('div.rounded-lg').filter({ hasText: /fair market value|FMV|valuation date/i });
   }
 
   async goto() {
     await loginViaRedirect(this.page, '/409a-valuations');
+    await openContextualMenu(this.page, /409A valuations/i);
   }
 
   async selectValuationsTab() {
-    await this.valuationsTab.click();
-    await this.page.waitForLoadState('networkidle');
+    await clickContextualTab(this.page, /valuations/i);
   }
 
   async selectStrikePricesTab() {
-    await this.strikePricesTab.click();
-    await this.page.waitForLoadState('networkidle');
+    await clickContextualTab(this.page, /strike prices/i);
   }
 
   async selectHistoryTab() {
-    await this.historyTab.click();
-    await this.page.waitForLoadState('networkidle');
+    await clickContextualTab(this.page, /valuation history/i);
   }
 
   async getActiveValuationsCount() {
-    const text = await this.activeValuationsMetric.locator('[class*="font-bold"], [class*="text-2xl"]').first().textContent();
-    return text ? parseInt(text) : 0;
+    return this.extractMetricValue(this.activeValuationsMetric);
   }
 
   async getExpiringSoonCount() {
-    const text = await this.expiringSoonMetric.locator('[class*="font-bold"], [class*="text-2xl"]').first().textContent();
-    return text ? parseInt(text) : 0;
+    return this.extractMetricValue(this.expiringSoonMetric);
   }
 
   async getPortfolioCompaniesCount() {
-    const text = await this.portfolioCompaniesMetric.locator('[class*="font-bold"], [class*="text-2xl"]').first().textContent();
-    return text ? parseInt(text) : 0;
+    return this.extractMetricValue(this.portfolioCompaniesMetric);
   }
 
   async getAvgFmv() {
-    return this.avgFmvMetric.locator('[class*="font-bold"], [class*="text-2xl"]').first().textContent();
+    return this.avgFmvMetric.locator('p.text-2xl, p[class*="text-2xl"]').first().textContent();
   }
 
   async getValuationCount() {
@@ -88,11 +90,11 @@ export class Valuation409APage {
 
   async clickRequestNewValuation() {
     await this.requestNewValuationButton.click();
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('domcontentloaded');
   }
 
   async getValuationByCompany(companyName: string) {
-    return this.page.locator('[class*="card"]').filter({ hasText: companyName });
+    return this.page.locator('div.rounded-lg').filter({ hasText: companyName });
   }
 
   async getValuationStatus(companyName: string) {
@@ -120,6 +122,13 @@ export class Valuation409APage {
   }
 
   async getExpiringValuations() {
-    return this.page.locator('[class*="card"]').filter({ hasText: /expiring|expires/i });
+    return this.page.locator('div.rounded-lg').filter({ hasText: /expiring|expires/i });
+  }
+
+  private async extractMetricValue(metricCard: Locator): Promise<number> {
+    const text = await metricCard.locator('p.text-2xl, p[class*="text-2xl"]').first().textContent();
+    if (!text) return 0;
+    const normalized = text.replace(/[^\d-]/g, '');
+    return normalized ? parseInt(normalized, 10) : 0;
   }
 }

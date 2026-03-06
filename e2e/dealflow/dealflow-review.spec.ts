@@ -441,7 +441,7 @@ test.describe('Dealflow Review - Interactions - Data Verification', () => {
 
     const totalDeals = await dealflowReview.getTotalDeals();
     if (totalDeals > 1) {
-      const dataSelector = '[class*="card"], [class*="slide"], [class*="content"], h2, h3';
+      const dataSelector = 'div.rounded-lg, [class*="slide"], [class*="content"], h2, h3';
       const before = await captureDataSnapshot(page, dataSelector);
 
       await dealflowReview.nextDeal();
@@ -465,7 +465,7 @@ test.describe('Dealflow Review - Interactions - Data Verification', () => {
     if (totalDeals > 0) {
       const totalSlides = await dealflowReview.getTotalSlides();
       if (totalSlides > 1) {
-        const dataSelector = '[class*="slide"], [class*="content"], h2, h3, [class*="card"]';
+        const dataSelector = '[class*="slide"], [class*="content"], h2, h3, div.rounded-lg';
         const before = await captureDataSnapshot(page, dataSelector);
 
         await dealflowReview.nextSlide();
@@ -608,7 +608,7 @@ test.describe('Dealflow Review - Interactions - Data Verification', () => {
 
     const totalDeals = await dealflowReview.getTotalDeals();
     if (totalDeals > 1) {
-      const dataSelector = '[class*="card"], [class*="slide"], [class*="content"], [class*="vote"], h2, h3';
+      const dataSelector = 'div.rounded-lg, [class*="slide"], [class*="content"], [class*="vote"], h2, h3';
       const deal1Snapshot = await captureDataSnapshot(page, dataSelector);
 
       await dealflowReview.selectDeal(1);

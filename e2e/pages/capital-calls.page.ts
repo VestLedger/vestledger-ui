@@ -1,5 +1,6 @@
 import { Page, Locator } from '@playwright/test';
 import { loginViaRedirect } from '../helpers/auth-helpers';
+import { clickContextualTab, getContextualTab, openContextualMenu } from '../helpers/navigation-helpers';
 
 export class CapitalCallsPage {
   readonly page: Page;
@@ -38,9 +39,9 @@ export class CapitalCallsPage {
     this.fundSelector = page.locator('[data-testid="fund-selector"]').or(page.getByRole('combobox', { name: /fund/i }));
 
     // Tabs
-    this.capitalCallsTab = page.getByRole('tab', { name: /capital calls/i });
-    this.distributionsTab = page.getByRole('tab', { name: /distributions/i });
-    this.lpResponsesTab = page.getByRole('tab', { name: /lp responses/i });
+    this.capitalCallsTab = getContextualTab(page, /capital calls/i);
+    this.distributionsTab = getContextualTab(page, /distributions/i);
+    this.lpResponsesTab = getContextualTab(page, /lp responses/i);
 
     // Summary metrics - use text content matching
     this.activeCallsMetric = page.locator('text=Active Calls').locator('..').locator('..');
@@ -49,7 +50,7 @@ export class CapitalCallsPage {
     this.totalLPsMetric = page.locator('text=Total LPs').locator('..').locator('..');
 
     // Capital Calls list - cards containing capital call info
-    this.capitalCallCards = page.locator('[class*="card"]').filter({ hasText: /Capital Call #/i });
+    this.capitalCallCards = page.locator('div.rounded-lg').filter({ hasText: /Capital Call #/i });
 
     // LP Responses
     this.lpResponsesList = page.locator('[class*="rounded-lg"]').filter({ hasText: /Commitment:/i });
@@ -58,22 +59,20 @@ export class CapitalCallsPage {
 
   async goto() {
     await loginViaRedirect(this.page, '/fund-admin');
+    await openContextualMenu(this.page, /fund admin/i);
     await this.selectCapitalCallsTab();
   }
 
   async selectCapitalCallsTab() {
-    await this.capitalCallsTab.click();
-    await this.page.waitForLoadState('networkidle');
+    await clickContextualTab(this.page, /capital calls/i);
   }
 
   async selectDistributionsTab() {
-    await this.distributionsTab.click();
-    await this.page.waitForLoadState('networkidle');
+    await clickContextualTab(this.page, /distributions/i);
   }
 
   async selectLPResponsesTab() {
-    await this.lpResponsesTab.click();
-    await this.page.waitForLoadState('networkidle');
+    await clickContextualTab(this.page, /lp responses/i);
   }
 
   async getCapitalCallCount() {
@@ -81,7 +80,7 @@ export class CapitalCallsPage {
   }
 
   async getCapitalCallByNumber(callNumber: number) {
-    return this.page.locator(`text=Capital Call #${callNumber}`).locator('..').locator('..');
+    return this.page.locator('div.rounded-lg').filter({ hasText: new RegExp(`Capital Call #${callNumber}\\b`, 'i') }).first();
   }
 
   async getCapitalCallStatus(callNumber: number) {
@@ -128,7 +127,7 @@ export class CapitalCallsPage {
     await this.statusFilter.click();
     const optionName = status === 'all' ? 'All Statuses' : status.charAt(0).toUpperCase() + status.slice(1);
     await this.page.getByRole('option', { name: new RegExp(optionName, 'i') }).click();
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('domcontentloaded');
   }
 
   async getLPResponsesCount() {
@@ -152,15 +151,16 @@ export class CapitalCallsPage {
 
   // Metric helpers
   async getActiveCallsCount() {
-    const metricCard = this.page.locator('[class*="card"]').filter({ hasText: 'Active Calls' });
-    const valueText = await metricCard.locator('[class*="font-"]').first().textContent();
-    return valueText ? parseInt(valueText) : 0;
+    if ((await this.activeCallsMetric.count()) === 0) return 0;
+    const valueText = await this.activeCallsMetric.locator('.text-2xl, .text-3xl, [class*="font-"]').first().textContent();
+    const normalized = valueText?.replace(/[^\d-]/g, '') ?? '';
+    return normalized ? parseInt(normalized, 10) : 0;
   }
 
   async getOutstandingAmount() {
-    const metricCard = this.page.locator('[class*="card"]').filter({ hasText: 'Outstanding' });
-    const valueText = await metricCard.locator('[class*="font-"]').first().textContent();
-    return valueText || '$0';
+    if ((await this.outstandingMetric.count()) === 0) return '$0';
+    const valueText = await this.outstandingMetric.locator('.text-2xl, .text-3xl, [class*="font-"]').first().textContent();
+    return valueText?.trim() || '$0';
   }
 
   // Capital call card data extraction

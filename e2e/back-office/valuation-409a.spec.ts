@@ -109,7 +109,7 @@ test.describe('409A Valuations - Valuation List', () => {
     await loginViaRedirect(page, '/409a-valuations');
     await page.waitForLoadState('networkidle');
 
-    const companyName = page.locator('[class*="card"]').filter({ hasText: /company|inc|corp|llc/i });
+    const companyName = page.locator('div.rounded-lg').filter({ hasText: /company|inc|corp|llc/i });
     if (await companyName.count() > 0) {
       await expect(companyName.first()).toBeVisible();
     }
@@ -191,7 +191,7 @@ test.describe('409A Valuations - Interactions - Data Verification', () => {
     const valuation = new Valuation409APage(page);
     await valuation.goto();
 
-    const dataSelector = '[class*="card"], table, [class*="content"], [class*="panel"]';
+    const dataSelector = 'div.rounded-lg, table, [class*="content"], [class*="panel"]';
     const before = await captureDataSnapshot(page, dataSelector);
 
     await valuation.selectStrikePricesTab();
@@ -207,7 +207,7 @@ test.describe('409A Valuations - Interactions - Data Verification', () => {
     const valuation = new Valuation409APage(page);
     await valuation.goto();
 
-    const dataSelector = '[class*="card"], table, [class*="content"]';
+    const dataSelector = 'div.rounded-lg, table, [class*="content"]';
     const valuationsTabSnapshot = await captureDataSnapshot(page, dataSelector);
 
     await valuation.selectHistoryTab();
@@ -227,7 +227,7 @@ test.describe('409A Valuations - Interactions - Data Verification', () => {
       .or(page.locator('[data-testid="company-filter"]'))
       .or(page.locator('select').filter({ hasText: /company|all companies/i }));
 
-    const dataSelector = '[class*="card"], [data-testid="valuation-item"], table tbody tr';
+    const dataSelector = 'div.rounded-lg, [data-testid="valuation-item"], table tbody tr';
 
     if (await companyFilter.first().isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -261,7 +261,7 @@ test.describe('409A Valuations - Interactions - Data Verification', () => {
       .or(page.locator('[data-testid="status-filter"]'))
       .or(page.locator('select').filter({ hasText: /status|all status|current|expiring/i }));
 
-    const dataSelector = '[class*="card"], [data-testid="valuation-item"], table tbody tr';
+    const dataSelector = 'div.rounded-lg, [data-testid="valuation-item"], table tbody tr';
 
     if (await statusFilter.first().isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -294,7 +294,7 @@ test.describe('409A Valuations - Interactions - Data Verification', () => {
     const searchInput = page.getByPlaceholder(/search/i)
       .or(page.getByRole('searchbox'));
 
-    const dataSelector = '[class*="card"], [data-testid="valuation-item"], table tbody tr';
+    const dataSelector = 'div.rounded-lg, [data-testid="valuation-item"], table tbody tr';
 
     if (await searchInput.first().isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -316,7 +316,7 @@ test.describe('409A Valuations - Interactions - Data Verification', () => {
     await loginViaRedirect(page, '/409a-valuations');
     await page.waitForLoadState('networkidle');
 
-    const valuationCards = page.locator('[data-testid="valuation-card"], [class*="card"]').filter({ hasText: /valuation|FMV|\$/i });
+    const valuationCards = page.locator('[data-testid="valuation-card"], div.rounded-lg').filter({ hasText: /valuation|FMV|\$/i });
 
     if (await valuationCards.count() > 0) {
       const detailsSelector = '[role="dialog"], [class*="drawer"], [class*="detail"], [class*="panel"], [class*="modal"]';

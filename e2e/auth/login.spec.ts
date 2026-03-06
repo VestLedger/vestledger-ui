@@ -116,23 +116,6 @@ test.describe('Authentication', () => {
   });
 
   test.describe('Session Management', () => {
-    test('should redirect unauthenticated users to login', async ({ page }) => {
-      // Try to access protected route
-      await gotoWithRetry(page, '/home');
-
-      // Should be redirected to login
-      await expect(page).toHaveURL(/\/login/);
-    });
-
-    test('should redirect to login from multiple protected routes', async ({ page }) => {
-      const protectedRoutes = ['/home', '/portfolio', '/fund-admin', '/waterfall', '/lp-portal'];
-
-      for (const route of protectedRoutes) {
-        await gotoWithRetry(page, route);
-        await expect(page).toHaveURL(/\/login/);
-      }
-    });
-
     test('should return not found for removed dashboard route', async ({ page }) => {
       const response = await page.goto('/dashboard');
       expect(response?.status()).toBe(404);

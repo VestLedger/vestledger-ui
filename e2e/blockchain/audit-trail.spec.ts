@@ -269,7 +269,7 @@ test.describe('Audit Trail - Interactions - Data Verification', () => {
     const auditTrail = new AuditTrailPage(page);
     await auditTrail.goto();
 
-    const dataSelector = '[class*="card"], [data-testid="audit-event"], table tbody tr';
+    const dataSelector = 'div.rounded-lg, [data-testid="audit-event"], table tbody tr';
 
     if (await auditTrail.eventTypeFilter.isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -293,7 +293,7 @@ test.describe('Audit Trail - Interactions - Data Verification', () => {
     const auditTrail = new AuditTrailPage(page);
     await auditTrail.goto();
 
-    const dataSelector = '[class*="card"], [data-testid="audit-event"], table tbody tr';
+    const dataSelector = 'div.rounded-lg, [data-testid="audit-event"], table tbody tr';
     const before = await captureDataSnapshot(page, dataSelector);
 
     if (before.count > 0 && await auditTrail.searchInput.isVisible()) {
@@ -313,7 +313,7 @@ test.describe('Audit Trail - Interactions - Data Verification', () => {
     const auditTrail = new AuditTrailPage(page);
     await auditTrail.goto();
 
-    const dataSelector = '[class*="card"], [data-testid="audit-event"], table tbody tr';
+    const dataSelector = 'div.rounded-lg, [data-testid="audit-event"], table tbody tr';
     const before = await captureDataSnapshot(page, dataSelector);
 
     if (before.count > 0 && await auditTrail.searchInput.isVisible()) {
@@ -339,7 +339,7 @@ test.describe('Audit Trail - Interactions - Data Verification', () => {
     const dateFilter = page.getByRole('combobox', { name: /date|period/i })
       .or(page.locator('select').filter({ hasText: /date|period|today|week/i }));
 
-    const dataSelector = '[class*="card"], [data-testid="audit-event"], table tbody tr';
+    const dataSelector = 'div.rounded-lg, [data-testid="audit-event"], table tbody tr';
 
     if (await dateFilter.first().isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -371,7 +371,7 @@ test.describe('Audit Trail - Interactions - Data Verification', () => {
     await page.waitForLoadState('networkidle');
 
     const entityFilter = page.getByRole('combobox', { name: /entity|fund/i });
-    const dataSelector = '[class*="card"], [data-testid="audit-event"], table tbody tr';
+    const dataSelector = 'div.rounded-lg, [data-testid="audit-event"], table tbody tr';
 
     if (await entityFilter.isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -402,7 +402,7 @@ test.describe('Audit Trail - Interactions - Data Verification', () => {
     const auditTrail = new AuditTrailPage(page);
     await auditTrail.goto();
 
-    const dataSelector = '[class*="card"], [data-testid="audit-event"], table tbody tr';
+    const dataSelector = 'div.rounded-lg, [data-testid="audit-event"], table tbody tr';
     const initialSnapshot = await captureDataSnapshot(page, dataSelector);
 
     // Apply event type filter

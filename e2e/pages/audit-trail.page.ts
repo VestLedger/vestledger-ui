@@ -24,20 +24,26 @@ export class AuditTrailPage {
     this.page = page;
 
     // Header
-    this.pageTitle = page.getByRole('heading', { name: /audit trail|on-chain/i });
+    this.pageTitle = page.getByRole('heading', { level: 1, name: /on-chain audit trail|audit trail/i });
+
+    const metricCard = (label: string) =>
+      page
+        .locator('div', { hasText: new RegExp(`^${label}$`, 'i') })
+        .locator('xpath=ancestor::div[contains(@class,"rounded-lg")][1]')
+        .first();
 
     // Summary stats
-    this.totalEventsCard = page.locator('[class*="card"]').filter({ hasText: 'Total Events' });
-    this.verifiedCard = page.locator('[class*="card"]').filter({ hasText: 'Verified' });
-    this.latestBlockCard = page.locator('[class*="card"]').filter({ hasText: 'Latest Block' });
-    this.integrityCard = page.locator('[class*="card"]').filter({ hasText: 'Integrity' });
+    this.totalEventsCard = metricCard('Total Events');
+    this.verifiedCard = metricCard('Verified');
+    this.latestBlockCard = metricCard('Latest Block');
+    this.integrityCard = metricCard('Integrity');
 
     // Search and filter
     this.searchInput = page.getByPlaceholder(/search.*description.*hash/i).or(page.getByPlaceholder(/search/i));
     this.eventTypeFilter = page.getByRole('combobox', { name: /type|filter/i }).or(page.locator('select').first());
 
     // Event list
-    this.eventCards = page.locator('[class*="card"]').filter({ hasText: /0x[a-fA-F0-9]+|block/i });
+    this.eventCards = page.locator('div.rounded-lg.border').filter({ hasText: /0x[a-fA-F0-9]+|block/i });
   }
 
   async goto() {
@@ -45,21 +51,19 @@ export class AuditTrailPage {
   }
 
   async getTotalEventsCount() {
-    const text = await this.totalEventsCard.locator('[class*="font-bold"], [class*="text-2xl"]').first().textContent();
-    return text ? parseInt(text) : 0;
+    return this.extractMetricValue(this.totalEventsCard);
   }
 
   async getVerifiedCount() {
-    const text = await this.verifiedCard.locator('[class*="font-bold"], [class*="text-2xl"]').first().textContent();
-    return text ? parseInt(text) : 0;
+    return this.extractMetricValue(this.verifiedCard);
   }
 
   async getLatestBlock() {
-    return this.latestBlockCard.locator('[class*="font-bold"], [class*="text-2xl"]').first().textContent();
+    return this.latestBlockCard.locator('div.text-2xl, [class*="text-2xl"]').first().textContent();
   }
 
   async getIntegrityPercentage() {
-    return this.integrityCard.locator('[class*="font-bold"], [class*="text-2xl"]').first().textContent();
+    return this.integrityCard.locator('div.text-2xl, [class*="text-2xl"]').first().textContent();
   }
 
   async searchEvents(query: string) {
@@ -78,7 +82,7 @@ export class AuditTrailPage {
   }
 
   async getEventByHash(txHash: string) {
-    return this.page.locator('[class*="card"]').filter({ hasText: txHash });
+    return this.eventCards.filter({ hasText: txHash });
   }
 
   async copyTransactionHash(eventIndex: number) {
@@ -107,7 +111,7 @@ export class AuditTrailPage {
       'document_hash': 'Document Hash',
       'compliance_attestation': 'Compliance',
     };
-    return this.page.locator('[class*="card"]').filter({ hasText: labelMap[eventType] });
+    return this.eventCards.filter({ hasText: labelMap[eventType] });
   }
 
   async verifyBlockchainHash(eventIndex: number) {
@@ -121,5 +125,12 @@ export class AuditTrailPage {
     if (await exportButton.isVisible()) {
       await exportButton.click();
     }
+  }
+
+  private async extractMetricValue(metricCard: Locator): Promise<number> {
+    const text = await metricCard.locator('div.text-2xl, [class*="text-2xl"]').first().textContent();
+    if (!text) return 0;
+    const normalized = text.replace(/[^\d-]/g, '');
+    return normalized ? parseInt(normalized, 10) : 0;
   }
 }

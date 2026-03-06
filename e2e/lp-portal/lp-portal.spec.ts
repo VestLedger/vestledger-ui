@@ -4,6 +4,7 @@ import {
   captureDataSnapshot,
   verifyDataChanged,
 } from '../helpers/interaction-helpers';
+import { clickContextualTab, openContextualMenu } from '../helpers/navigation-helpers';
 
 test.describe('LP Portal', () => {
   test('should load LP portal page', async ({ page }) => {
@@ -118,7 +119,7 @@ test.describe('LP Portal - Interactions - Data Verification', () => {
       .or(page.locator('[data-testid="fund-selector"]'))
       .or(page.locator('select').filter({ hasText: /fund/i }));
 
-    const dataSelector = '[class*="card"], [data-testid="investment"], table tbody tr';
+    const dataSelector = 'div.rounded-lg, [data-testid="investment"], table tbody tr';
 
     if (await fundSelector.first().isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -144,23 +145,16 @@ test.describe('LP Portal - Interactions - Data Verification', () => {
   test('tab navigation should update displayed content', async ({ page }) => {
     await loginViaRedirect(page, '/lp-portal');
     await page.waitForLoadState('networkidle');
+    await openContextualMenu(page, /lp portal/i);
 
-    const tabs = page.getByRole('tab')
-      .or(page.locator('[role="tablist"] button'));
+    const dataSelector = 'div.rounded-lg, table, [class*="content"]';
 
-    const dataSelector = '[class*="card"], table, [class*="content"]';
+    const before = await captureDataSnapshot(page, dataSelector);
+    await clickContextualTab(page, /portfolio/i);
+    const after = await captureDataSnapshot(page, dataSelector);
+    const changed = verifyDataChanged(before, after);
 
-    if (await tabs.count() > 1) {
-      const before = await captureDataSnapshot(page, dataSelector);
-
-      await tabs.nth(1).click();
-      await page.waitForLoadState('networkidle');
-
-      const after = await captureDataSnapshot(page, dataSelector);
-      const changed = verifyDataChanged(before, after);
-
-      expect(changed, 'Tab navigation should update displayed content').toBe(true);
-    }
+    expect(changed, 'Tab navigation should update displayed content').toBe(true);
   });
 
   test('period selector should update performance metrics', async ({ page }) => {

@@ -1,5 +1,10 @@
 import { expect, test, type Page } from '@playwright/test';
-import { loginViaRedirect, type TestUserRole } from '../helpers/auth-helpers';
+import {
+  loginViaRedirect,
+  hasRoleCredentials,
+  getRoleCredentialEnvNames,
+  type TestUserRole,
+} from '../helpers/auth-helpers';
 
 type VisualRoute = {
   path: string;
@@ -32,6 +37,11 @@ async function stabilizeForSnapshot(page: Page): Promise<void> {
 test.describe('Non-DeFi Visual Regression', () => {
   for (const route of VISUAL_ROUTES) {
     test(`matches baseline for ${route.snapshot}`, async ({ page }) => {
+      test.skip(
+        !hasRoleCredentials(route.role),
+        `Missing ${Object.values(getRoleCredentialEnvNames(route.role)).join(' / ')}`
+      );
+
       await page.setViewportSize({ width: 1440, height: 900 });
       await loginViaRedirect(page, route.path, {
         role: route.role,

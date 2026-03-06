@@ -83,7 +83,7 @@ test.describe('Pipeline - Interactions - Data Verification', () => {
       .or(page.locator('[data-testid="stage-filter"]'))
       .or(page.locator('select').filter({ hasText: /stage|all stages/i }));
 
-    const dataSelector = '[class*="card"], [data-testid="deal"], table tbody tr, [class*="column"]';
+    const dataSelector = 'div.rounded-lg, [data-testid="deal"], table tbody tr, [class*="column"]';
 
     if (await stageFilter.first().isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -116,7 +116,7 @@ test.describe('Pipeline - Interactions - Data Verification', () => {
     const searchInput = page.getByPlaceholder(/search/i)
       .or(page.getByRole('searchbox'));
 
-    const dataSelector = '[class*="card"], [data-testid="deal"], table tbody tr';
+    const dataSelector = 'div.rounded-lg, [data-testid="deal"], table tbody tr';
 
     if (await searchInput.first().isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -141,7 +141,7 @@ test.describe('Pipeline - Interactions - Data Verification', () => {
     const viewToggle = page.getByRole('button', { name: /list|grid|kanban|table/i })
       .or(page.locator('[data-testid="view-toggle"]'));
 
-    const dataSelector = '[class*="card"], [class*="column"], table, [class*="kanban"], [class*="list"]';
+    const dataSelector = 'div.rounded-lg, [class*="column"], table, [class*="kanban"], [class*="list"]';
 
     if (await viewToggle.first().isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -168,7 +168,7 @@ test.describe('Pipeline - Interactions - Data Verification', () => {
       .or(page.locator('[data-testid="status-filter"]'))
       .or(page.locator('select').filter({ hasText: /status|active|closed/i }));
 
-    const dataSelector = '[class*="card"], [data-testid="deal"], table tbody tr';
+    const dataSelector = 'div.rounded-lg, [data-testid="deal"], table tbody tr';
 
     if (await statusFilter.first().isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -198,7 +198,7 @@ test.describe('Pipeline - Interactions - Data Verification', () => {
     await loginViaRedirect(page, '/pipeline');
     await page.waitForLoadState('networkidle');
 
-    const dealCards = page.locator('[class*="card"], [data-testid="deal"]');
+    const dealCards = page.locator('div.rounded-lg, [data-testid="deal"]');
 
     if (await dealCards.count() > 0) {
       const detailsSelector = '[role="dialog"], [class*="drawer"], [class*="detail"], [class*="panel"], [class*="modal"]';

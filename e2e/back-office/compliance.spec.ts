@@ -227,7 +227,7 @@ test.describe('Compliance - Interactions - Data Verification', () => {
     const compliance = new CompliancePage(page);
     await compliance.goto();
 
-    const dataSelector = '[class*="card"], [data-testid="compliance-item"], table tbody tr';
+    const dataSelector = 'div.rounded-lg, [data-testid="compliance-item"], table tbody tr';
 
     if (await compliance.statusFilter.isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -251,7 +251,7 @@ test.describe('Compliance - Interactions - Data Verification', () => {
     const compliance = new CompliancePage(page);
     await compliance.goto();
 
-    const dataSelector = '[class*="card"], [data-testid="compliance-item"], table tbody tr';
+    const dataSelector = 'div.rounded-lg, [data-testid="compliance-item"], table tbody tr';
 
     if (await compliance.priorityFilter.isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -275,7 +275,7 @@ test.describe('Compliance - Interactions - Data Verification', () => {
     const compliance = new CompliancePage(page);
     await compliance.goto();
 
-    const dataSelector = '[class*="card"], [class*="content"], table';
+    const dataSelector = 'div.rounded-lg, [class*="content"], table';
     const before = await captureDataSnapshot(page, dataSelector);
 
     await compliance.selectRegulatoryFilingsTab();
@@ -291,7 +291,7 @@ test.describe('Compliance - Interactions - Data Verification', () => {
     const compliance = new CompliancePage(page);
     await compliance.goto();
 
-    const dataSelector = '[class*="card"], [class*="content"], table, [class*="panel"]';
+    const dataSelector = 'div.rounded-lg, [class*="content"], table, [class*="panel"]';
 
     // Start on overview tab
     const overviewSnapshot = await captureDataSnapshot(page, dataSelector);
@@ -320,7 +320,7 @@ test.describe('Compliance - Interactions - Data Verification', () => {
     const compliance = new CompliancePage(page);
     await compliance.goto();
 
-    const dataSelector = '[class*="card"], [data-testid="compliance-item"], table tbody tr';
+    const dataSelector = 'div.rounded-lg, [data-testid="compliance-item"], table tbody tr';
     const initialSnapshot = await captureDataSnapshot(page, dataSelector);
 
     // Apply status filter

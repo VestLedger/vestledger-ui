@@ -60,20 +60,20 @@ export class DealflowReviewPage {
     this.exportButton = page.getByRole('button', { name: /export/i });
 
     // Deal selector
-    this.dealSelectorCard = page.locator('[class*="card"]').filter({ has: page.locator('text=/Reviewing deal \\d+ of \\d+/i') });
+    this.dealSelectorCard = page.locator('div.rounded-lg').filter({ has: page.locator('text=/Reviewing deal \\d+ of \\d+/i') });
     this.previousDealButton = page.getByRole('button', { name: /previous/i }).first();
     this.nextDealButton = page.getByRole('button', { name: /next/i }).first();
     this.dealButtons = page.locator('button').filter({ has: page.locator('text=/•/') });
     this.currentDealIndicator = page.locator('text=/Reviewing deal \\d+ of \\d+/i');
 
     // Slide navigation
-    this.slidesPanel = page.locator('[class*="card"]').filter({ hasText: 'Slides' }).first();
+    this.slidesPanel = page.locator('div.rounded-lg').filter({ hasText: 'Slides' }).first();
     this.slideButtons = this.slidesPanel.locator('button').filter({ has: page.locator('text=/Slide \\d+/i') });
     this.addSlideButton = page.getByRole('button', { name: /add slide/i });
 
     // Voting panel
-    this.votingPanel = page.locator('[class*="card"]').filter({ hasText: /^Vote$/i }).or(
-      page.locator('[class*="card"]').filter({ has: page.locator('text=/Yes.*Proceed/i') })
+    this.votingPanel = page.locator('div.rounded-lg').filter({ hasText: /^Vote$/i }).or(
+      page.locator('div.rounded-lg').filter({ has: page.locator('text=/Yes.*Proceed/i') })
     );
     this.yesVoteButton = page.getByRole('button', { name: /yes.*proceed/i });
     this.maybeVoteButton = page.getByRole('button', { name: /maybe.*more dd/i });
@@ -81,7 +81,7 @@ export class DealflowReviewPage {
     this.votesCastSection = page.locator('text=/Votes Cast/i').locator('..');
 
     // Main slide display
-    this.slideCard = page.locator('[class*="card"]').filter({ has: page.locator('text=/Slide \\d+ of \\d+/i') }).first();
+    this.slideCard = page.locator('div.rounded-lg').filter({ has: page.locator('text=/Slide \\d+ of \\d+/i') }).first();
     this.slideNumber = page.locator('[class*="badge"]').filter({ hasText: /Slide \\d+ of \\d+/i });
     this.slideTitle = this.slideCard.locator('h3').first();
     this.slideContent = this.slideCard.locator('[class*="space-y"]').first();
@@ -93,13 +93,13 @@ export class DealflowReviewPage {
     this.slideNavigationDots = page.locator('[role="navigation"][aria-label*="Slide navigation"]').locator('button');
 
     // Discussion section
-    this.discussionSection = page.locator('[class*="card"]').filter({ hasText: 'Discussion' });
+    this.discussionSection = page.locator('div.rounded-lg').filter({ hasText: 'Discussion' });
     this.discussionTextarea = page.locator('textarea[aria-label*="Discussion"]').or(
       page.getByPlaceholder(/add your thoughts/i)
     );
 
     // Partner scoring
-    this.partnerScoringSection = page.locator('[class*="card"]').filter({ hasText: 'Partner Scoring' });
+    this.partnerScoringSection = page.locator('div.rounded-lg').filter({ hasText: 'Partner Scoring' });
   }
 
   async goto() {

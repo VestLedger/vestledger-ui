@@ -197,7 +197,7 @@ test.describe('Reports - Interactions - Data Verification', () => {
       .or(page.locator('[data-testid="report-type-filter"]'))
       .or(page.locator('select').filter({ hasText: /report|all types/i }));
 
-    const dataSelector = 'table tbody tr, [class*="card"], [data-testid="report-item"]';
+    const dataSelector = 'table tbody tr, div.rounded-lg, [data-testid="report-item"]';
 
     if (await reportTypeFilter.first().isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -230,7 +230,7 @@ test.describe('Reports - Interactions - Data Verification', () => {
     const dateFilter = page.getByRole('combobox', { name: /date|period/i })
       .or(page.locator('input[type="date"]'));
 
-    const dataSelector = 'table tbody tr, [class*="card"], [data-testid="report-item"]';
+    const dataSelector = 'table tbody tr, div.rounded-lg, [data-testid="report-item"]';
 
     if (await dateFilter.first().isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -263,7 +263,7 @@ test.describe('Reports - Interactions - Data Verification', () => {
     const searchInput = page.getByPlaceholder(/search/i)
       .or(page.getByRole('searchbox'));
 
-    const dataSelector = 'table tbody tr, [class*="card"], [data-testid="report-item"]';
+    const dataSelector = 'table tbody tr, div.rounded-lg, [data-testid="report-item"]';
 
     if (await searchInput.first().isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);

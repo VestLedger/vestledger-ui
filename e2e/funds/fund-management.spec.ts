@@ -4,14 +4,20 @@ import {
   captureDataSnapshot,
   verifyDataChanged,
 } from '../helpers/interaction-helpers';
+import {
+  clickContextualTab,
+  getSidebarNav,
+  openContextualMenu,
+} from '../helpers/navigation-helpers';
 
 test.describe('Fund Management', () => {
   test('should load fund admin page', async ({ page }) => {
     const fundAdmin = new FundAdminPage(page);
     await fundAdmin.goto();
+    await openContextualMenu(page, /fund admin/i);
 
     await expect(fundAdmin.pageTitle).toBeVisible();
-    await expect(page.getByRole('tab', { name: /fund setup/i })).toBeVisible();
+    await expect(getSidebarNav(page).getByRole('link', { name: /fund setup/i })).toBeVisible();
   });
 
   test('should display funds list', async ({ page }) => {
@@ -151,7 +157,7 @@ test.describe('Fund Management - Interactions - Data Verification', () => {
     const searchInput = page.getByPlaceholder(/search/i)
       .or(page.getByRole('searchbox'));
 
-    const dataSelector = 'table tbody tr, [data-testid="fund-item"], [class*="card"]';
+    const dataSelector = 'table tbody tr, [data-testid="fund-item"], div.rounded-lg';
 
     if (await searchInput.first().isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -177,7 +183,7 @@ test.describe('Fund Management - Interactions - Data Verification', () => {
       .or(page.locator('[data-testid="type-filter"]'))
       .or(page.locator('select').filter({ hasText: /type|all types/i }));
 
-    const dataSelector = 'table tbody tr, [data-testid="fund-item"], [class*="card"]';
+    const dataSelector = 'table tbody tr, [data-testid="fund-item"], div.rounded-lg';
 
     if (await typeFilter.first().isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -211,7 +217,7 @@ test.describe('Fund Management - Interactions - Data Verification', () => {
       .or(page.locator('[data-testid="status-filter"]'))
       .or(page.locator('select').filter({ hasText: /status|active|closed/i }));
 
-    const dataSelector = 'table tbody tr, [data-testid="fund-item"], [class*="card"]';
+    const dataSelector = 'table tbody tr, [data-testid="fund-item"], div.rounded-lg';
 
     if (await statusFilter.first().isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -266,23 +272,15 @@ test.describe('Fund Management - Interactions - Data Verification', () => {
   test('tab navigation should update fund admin view', async ({ page }) => {
     const fundAdmin = new FundAdminPage(page);
     await fundAdmin.goto();
+    await openContextualMenu(page, /fund admin/i);
 
-    const tabs = page.getByRole('tab')
-      .or(page.locator('[role="tablist"] button'));
+    const dataSelector = 'table, div.rounded-lg, [class*="content"], [class*="panel"]';
+    const before = await captureDataSnapshot(page, dataSelector);
+    await clickContextualTab(page, /capital calls/i);
+    const after = await captureDataSnapshot(page, dataSelector);
+    const changed = verifyDataChanged(before, after);
 
-    const dataSelector = 'table, [class*="card"], [class*="content"], [class*="panel"]';
-
-    if (await tabs.count() > 1) {
-      const before = await captureDataSnapshot(page, dataSelector);
-
-      await tabs.nth(1).click();
-      await page.waitForLoadState('networkidle');
-
-      const after = await captureDataSnapshot(page, dataSelector);
-      const changed = verifyDataChanged(before, after);
-
-      expect(changed, 'Tab navigation should update fund admin view').toBe(true);
-    }
+    expect(changed, 'Tab navigation should update fund admin view').toBe(true);
   });
 
   test('sorting should reorder funds list', async ({ page }) => {

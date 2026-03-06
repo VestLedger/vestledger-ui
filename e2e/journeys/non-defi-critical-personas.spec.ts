@@ -1,4 +1,10 @@
-import { expect, test, loginViaRedirect } from '../fixtures/auth.fixture';
+import {
+  expect,
+  test,
+  loginViaRedirect,
+  hasRoleCredentials,
+  getRoleCredentialEnvNames,
+} from '../fixtures/auth.fixture';
 
 type PersonaRoute = {
   role: 'gp' | 'analyst' | 'ops' | 'ir' | 'researcher' | 'lp' | 'auditor';
@@ -20,6 +26,11 @@ test.describe('Non-DeFi Critical Persona Journeys @critical', () => {
 
   for (const persona of CRITICAL_PERSONA_ROUTES) {
     test(`${persona.role} reaches default route shell`, async ({ page }) => {
+      test.skip(
+        !hasRoleCredentials(persona.role),
+        `Missing ${Object.values(getRoleCredentialEnvNames(persona.role)).join(' / ')}`
+      );
+
       await loginViaRedirect(page, persona.defaultPath, {
         role: persona.role,
         waitForLoadState: 'domcontentloaded',
@@ -37,6 +48,11 @@ test.describe('Non-DeFi Critical Persona Journeys @critical', () => {
   }
 
   test('lp persona cannot access fund-admin route', async ({ page }) => {
+    test.skip(
+      !hasRoleCredentials('lp'),
+      `Missing ${Object.values(getRoleCredentialEnvNames('lp')).join(' / ')}`
+    );
+
     await loginViaRedirect(page, '/fund-admin', {
       role: 'lp',
       waitForLoadState: 'domcontentloaded',
@@ -45,6 +61,11 @@ test.describe('Non-DeFi Critical Persona Journeys @critical', () => {
   });
 
   test('analyst persona cannot access tax center route', async ({ page }) => {
+    test.skip(
+      !hasRoleCredentials('analyst'),
+      `Missing ${Object.values(getRoleCredentialEnvNames('analyst')).join(' / ')}`
+    );
+
     await loginViaRedirect(page, '/tax-center', {
       role: 'analyst',
       waitForLoadState: 'domcontentloaded',
@@ -53,6 +74,11 @@ test.describe('Non-DeFi Critical Persona Journeys @critical', () => {
   });
 
   test('auditor persona cannot access deal intelligence route', async ({ page }) => {
+    test.skip(
+      !hasRoleCredentials('auditor'),
+      `Missing ${Object.values(getRoleCredentialEnvNames('auditor')).join(' / ')}`
+    );
+
     await loginViaRedirect(page, '/deal-intelligence', {
       role: 'auditor',
       waitForLoadState: 'domcontentloaded',

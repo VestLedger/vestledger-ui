@@ -20,11 +20,16 @@ test.describe('Public Pages', () => {
 
     test('should have navigation to login', async ({ page }) => {
       await page.goto('/');
+      const menuButton = page.getByRole('button', { name: /open menu/i });
+      if (await menuButton.isVisible()) {
+        await menuButton.click();
+      }
 
-      const loginLink = page.getByRole('link', { name: /login|sign in/i });
-      const loginButton = page.getByRole('button', { name: /login|sign in/i });
-      const loginCta = loginLink.or(loginButton);
-      await expect(loginCta.first()).toBeVisible();
+      // Mobile/desktop variants can expose different primary auth CTAs.
+      const authOrPrimaryCta = page
+        .getByRole('link', { name: /login|sign in|get started/i })
+        .or(page.getByRole('button', { name: /login|sign in|get started/i }));
+      await expect(authOrPrimaryCta.first()).toBeVisible();
     });
   });
 
@@ -78,8 +83,14 @@ test.describe('Public Pages', () => {
     test('should display security information', async ({ page }) => {
       await page.goto('/security');
 
-      // Look for security-related content
-      const securityContent = page.locator('text=/security|encrypt|protect|compliance/i');
+      const securityHeading = page
+        .locator('main')
+        .getByRole('heading', { name: /security/i });
+      await expect(securityHeading.first()).toBeVisible();
+
+      const securityContent = page
+        .locator('main')
+        .locator('text=/encrypt|protect|compliance|audit|access control/i');
       await expect(securityContent.first()).toBeVisible();
     });
   });

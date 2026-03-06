@@ -1,5 +1,6 @@
 import { Page, Locator } from '@playwright/test';
 import { loginViaRedirect } from '../helpers/auth-helpers';
+import { clickContextualTab, getContextualTab, openContextualMenu } from '../helpers/navigation-helpers';
 
 export class DealIntelligencePage {
   readonly page: Page;
@@ -50,24 +51,30 @@ export class DealIntelligencePage {
 
   constructor(page: Page) {
     this.page = page;
-    this.pageTitle = page.locator('h1, [class*="title"]').filter({ hasText: /Deal Intelligence/i }).first();
+    this.pageTitle = page.getByRole('heading', { level: 1, name: /deal intelligence/i });
+
+    const metricCard = (title: string) =>
+      page
+        .locator('div', { hasText: new RegExp(`^${title}$`, 'i') })
+        .locator('xpath=ancestor::div[contains(@class,"rounded-lg")][1]')
+        .first();
 
     // Fund Analytics metrics
-    this.activeDealsMetric = page.locator('[class*="card"]').filter({ hasText: 'Active Deals' }).filter({ hasText: /in due diligence/i });
-    this.avgTimeInDDMetric = page.locator('[class*="card"]').filter({ hasText: 'Avg Time in DD' });
-    this.ddToICRateMetric = page.locator('[class*="card"]').filter({ hasText: 'DD-to-IC Rate' });
-    this.readyForICMetric = page.locator('[class*="card"]').filter({ hasText: 'Ready for IC' }).filter({ hasText: /deals$/i });
+    this.activeDealsMetric = metricCard('Active Deals');
+    this.avgTimeInDDMetric = metricCard('Avg Time in DD');
+    this.ddToICRateMetric = metricCard('DD-to-IC Rate');
+    this.readyForICMetric = metricCard('Ready for IC');
 
     // DD Status Summary
-    this.readyForICCard = page.locator('[class*="card"]').filter({ hasText: 'Ready for IC' }).first();
-    this.ddInProgressCard = page.locator('[class*="card"]').filter({ hasText: 'DD In Progress' });
-    this.overdueDocumentsCard = page.locator('[class*="card"]').filter({ hasText: 'Overdue Documents' });
-    this.pendingReviewsCard = page.locator('[class*="card"]').filter({ hasText: 'Pending Reviews' });
+    this.readyForICCard = page.locator('div.rounded-lg').filter({ hasText: /ready for ic/i }).first();
+    this.ddInProgressCard = page.locator('div.rounded-lg').filter({ hasText: /dd in progress/i }).first();
+    this.overdueDocumentsCard = page.locator('div.rounded-lg').filter({ hasText: /overdue documents/i }).first();
+    this.pendingReviewsCard = page.locator('div.rounded-lg').filter({ hasText: /pending reviews/i }).first();
 
     // Deal Distribution
-    this.dealsByStageSection = page.locator('[class*="card"]').filter({ hasText: 'Deals by Stage' });
-    this.dealsBySectorSection = page.locator('[class*="card"]').filter({ hasText: 'Deals by Sector' });
-    this.ddProgressOverview = page.locator('[class*="card"]').filter({ hasText: 'DD Progress Overview' });
+    this.dealsByStageSection = page.locator('div.rounded-lg').filter({ hasText: /deals by stage/i }).first();
+    this.dealsBySectorSection = page.locator('div.rounded-lg').filter({ hasText: /deals by sector/i }).first();
+    this.ddProgressOverview = page.locator('div.rounded-lg').filter({ hasText: /dd progress overview/i }).first();
 
     // AI Deal Sourcing
     this.companySearchSection = page.locator('text=AI Deal Sourcing').locator('..').locator('..');
@@ -75,7 +82,7 @@ export class DealIntelligencePage {
 
     // Active Deals
     this.uploadDocumentButton = page.getByRole('button', { name: /upload document/i });
-    this.dealCards = page.locator('[class*="card"]').filter({ has: page.locator('text=/DD Progress/i') });
+    this.dealCards = page.locator('div.rounded-lg').filter({ hasText: /document completion:/i });
 
     // Per-Deal View
     this.backToFundViewButton = page.getByRole('button', { name: /back to fund view/i });
@@ -83,51 +90,46 @@ export class DealIntelligencePage {
     this.dealProgressBar = page.locator('[role="progressbar"]').first();
 
     // Tabs (in per-deal view)
-    this.overviewTab = page.getByRole('tab', { name: /overview|status/i });
-    this.analyticsTab = page.getByRole('tab', { name: /analytics/i });
-    this.documentsTab = page.getByRole('tab', { name: /documents/i });
-    this.analysisTab = page.getByRole('tab', { name: /analysis|insights/i });
-    this.icMaterialsTab = page.getByRole('tab', { name: /IC Materials/i });
+    this.overviewTab = getContextualTab(page, /overview.*status/i);
+    this.analyticsTab = getContextualTab(page, /deal analytics/i);
+    this.documentsTab = getContextualTab(page, /dd documents/i);
+    this.analysisTab = getContextualTab(page, /analysis.*insights/i);
+    this.icMaterialsTab = getContextualTab(page, /ic materials/i);
 
     // Documents tab
     this.documentSearchInput = page.getByPlaceholder(/search documents/i);
     this.filterByCategoryButton = page.getByRole('button', { name: /filter by category/i });
-    this.documentLibrary = page.locator('[class*="card"]').filter({ hasText: 'Document Library' });
+    this.documentLibrary = page.locator('div.rounded-lg').filter({ hasText: /document library/i }).first();
     this.exportButton = page.getByRole('button', { name: /export/i });
   }
 
   async goto() {
     await loginViaRedirect(this.page, '/deal-intelligence');
+    await openContextualMenu(this.page, /deal intelligence/i);
   }
 
   async getActiveDealsCount(): Promise<number> {
-    const text = await this.activeDealsMetric.locator('text=/\\d+/').first().textContent();
-    return parseInt(text || '0', 10);
+    return this.extractCardNumber(this.activeDealsMetric);
   }
 
   async getAvgTimeInDD(): Promise<number> {
-    const text = await this.avgTimeInDDMetric.locator('text=/\\d+/').first().textContent();
-    return parseInt(text || '0', 10);
+    return this.extractCardNumber(this.avgTimeInDDMetric);
   }
 
   async getDDToICRate(): Promise<number> {
-    const text = await this.ddToICRateMetric.locator('text=/\\d+/').first().textContent();
-    return parseInt(text || '0', 10);
+    return this.extractCardNumber(this.ddToICRateMetric);
   }
 
   async getReadyForICCount(): Promise<number> {
-    const text = await this.readyForICCard.locator('text=/\\d+/').first().textContent();
-    return parseInt(text || '0', 10);
+    return this.extractCardNumber(this.readyForICCard);
   }
 
   async getOverdueDocumentsCount(): Promise<number> {
-    const text = await this.overdueDocumentsCard.locator('text=/\\d+/').first().textContent();
-    return parseInt(text || '0', 10);
+    return this.extractCardNumber(this.overdueDocumentsCard);
   }
 
   async getPendingReviewsCount(): Promise<number> {
-    const text = await this.pendingReviewsCard.locator('text=/\\d+/').first().textContent();
-    return parseInt(text || '0', 10);
+    return this.extractCardNumber(this.pendingReviewsCard);
   }
 
   async getDealCardCount(): Promise<number> {
@@ -136,54 +138,49 @@ export class DealIntelligencePage {
 
   async clickDeal(index: number = 0) {
     await this.dealCards.nth(index).click();
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('domcontentloaded');
   }
 
   async selectDealByName(name: string) {
     const deal = this.dealCards.filter({ hasText: name }).first();
     await deal.click();
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('domcontentloaded');
   }
 
   async backToFundView() {
     await this.backToFundViewButton.click();
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('domcontentloaded');
   }
 
   async selectOverviewTab() {
-    await this.overviewTab.click();
-    await this.page.waitForLoadState('networkidle');
+    await clickContextualTab(this.page, /overview.*status/i);
   }
 
   async selectAnalyticsTab() {
-    await this.analyticsTab.click();
-    await this.page.waitForLoadState('networkidle');
+    await clickContextualTab(this.page, /deal analytics/i);
   }
 
   async selectDocumentsTab() {
-    await this.documentsTab.click();
-    await this.page.waitForLoadState('networkidle');
+    await clickContextualTab(this.page, /dd documents/i);
   }
 
   async selectAnalysisTab() {
-    await this.analysisTab.click();
-    await this.page.waitForLoadState('networkidle');
+    await clickContextualTab(this.page, /analysis.*insights/i);
   }
 
   async selectICMaterialsTab() {
-    await this.icMaterialsTab.click();
-    await this.page.waitForLoadState('networkidle');
+    await clickContextualTab(this.page, /ic materials/i);
   }
 
   async searchDocuments(query: string) {
     await this.documentSearchInput.fill(query);
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('domcontentloaded');
   }
 
   async searchCompanies(query: string) {
     if (await this.companySearchInput.isVisible()) {
       await this.companySearchInput.fill(query);
-      await this.page.waitForLoadState('networkidle');
+      await this.page.waitForLoadState('domcontentloaded');
     }
   }
 
@@ -196,10 +193,24 @@ export class DealIntelligencePage {
   }
 
   getFinancialMetrics(): Locator {
-    return this.page.locator('text=/Financial Metrics/i').locator('..').locator('[class*="card"]');
+    return this.page
+      .locator('text=/Financial Metrics/i')
+      .locator('xpath=ancestor::div[contains(@class,"rounded-lg")][1]');
   }
 
   getMarketAnalytics(): Locator {
-    return this.page.locator('text=/Market Analytics/i').locator('..').locator('[class*="card"]');
+    return this.page
+      .locator('text=/Market Analytics/i')
+      .locator('xpath=ancestor::div[contains(@class,"rounded-lg")][1]');
+  }
+
+  private async extractCardNumber(card: Locator): Promise<number> {
+    const text = await card
+      .locator('.text-3xl, .text-2xl, p.text-2xl, div.text-2xl, text=/\\d+/')
+      .first()
+      .textContent();
+    if (!text) return 0;
+    const normalized = text.replace(/[^\d-]/g, '');
+    return normalized ? parseInt(normalized, 10) : 0;
   }
 }

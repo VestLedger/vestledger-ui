@@ -1,6 +1,7 @@
 import { test, expect, loginViaRedirect } from '../fixtures/auth.fixture';
 import { LPPortalPage } from '../pages/lp-portal.page';
 import { PortfolioPage } from '../pages/portfolio.page';
+import { clickContextualTab, openContextualMenu } from '../helpers/navigation-helpers';
 
 /**
  * LP Investor Flow Journey Tests
@@ -91,20 +92,15 @@ test.describe('LP Investor Flow - Distributions', () => {
   test('should view distributions history', async ({ page }) => {
     const lpPortal = new LPPortalPage(page);
     await lpPortal.goto();
+    await openContextualMenu(page, /lp portal/i);
 
     // Navigate to distributions tab/section
-    const distributionsTab = page.getByRole('tab', { name: /distribution/i }).or(
-      page.locator('button, a').filter({ hasText: /distribution/i })
-    );
-    if (await distributionsTab.first().isVisible()) {
-      await distributionsTab.first().click();
-      await page.waitForLoadState('networkidle');
+    await clickContextualTab(page, /distributions/i);
 
-      // Verify distributions content
-      const distributionContent = page.locator('text=/Distribution|Amount|Date/i');
-      if (await distributionContent.count() > 0) {
-        await expect(distributionContent.first()).toBeVisible();
-      }
+    // Verify distributions content
+    const distributionContent = page.locator('text=/Distribution|Amount|Date/i');
+    if (await distributionContent.count() > 0) {
+      await expect(distributionContent.first()).toBeVisible();
     }
   });
 
@@ -113,7 +109,7 @@ test.describe('LP Investor Flow - Distributions', () => {
     await lpPortal.goto();
 
     // Look for distribution details
-    const distributionCard = page.locator('[class*="card"]').filter({ hasText: /Distribution/i });
+    const distributionCard = page.locator('div.rounded-lg').filter({ hasText: /Distribution/i });
     if (await distributionCard.count() > 0) {
       await distributionCard.first().click();
       await page.waitForLoadState('networkidle');
@@ -141,15 +137,10 @@ test.describe('LP Investor Flow - Capital Calls', () => {
   test('should view capital calls', async ({ page }) => {
     const lpPortal = new LPPortalPage(page);
     await lpPortal.goto();
+    await openContextualMenu(page, /lp portal/i);
 
     // Navigate to capital calls
-    const capitalCallsTab = page.getByRole('tab', { name: /capital.*call/i }).or(
-      page.locator('button, a').filter({ hasText: /capital.*call/i })
-    );
-    if (await capitalCallsTab.first().isVisible()) {
-      await capitalCallsTab.first().click();
-      await page.waitForLoadState('networkidle');
-    }
+    await clickContextualTab(page, /transactions/i);
 
     // Check for capital call content
     const capitalCallContent = page.locator('text=/Capital Call|Due Date|Amount/i');
@@ -183,15 +174,10 @@ test.describe('LP Investor Flow - Documents', () => {
   test('should view documents section', async ({ page }) => {
     const lpPortal = new LPPortalPage(page);
     await lpPortal.goto();
+    await openContextualMenu(page, /lp portal/i);
 
     // Navigate to documents
-    const documentsTab = page.getByRole('tab', { name: /document/i }).or(
-      page.locator('button, a').filter({ hasText: /document/i })
-    );
-    if (await documentsTab.first().isVisible()) {
-      await documentsTab.first().click();
-      await page.waitForLoadState('networkidle');
-    }
+    await clickContextualTab(page, /reports/i);
   });
 
   test('should have K-1 documents available', async ({ page }) => {

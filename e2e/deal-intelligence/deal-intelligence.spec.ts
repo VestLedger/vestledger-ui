@@ -396,7 +396,7 @@ test.describe('Deal Intelligence - Interactions - Data Verification', () => {
     const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
-    const dataSelector = '[class*="card"], [class*="content"], [class*="panel"], h2, h3';
+    const dataSelector = 'div.rounded-lg, [class*="content"], [class*="panel"], h2, h3';
     const before = await captureDataSnapshot(page, dataSelector);
 
     const count = await dealIntel.getDealCardCount();
@@ -423,7 +423,7 @@ test.describe('Deal Intelligence - Interactions - Data Verification', () => {
       await dealIntel.clickDeal(0);
       await page.waitForLoadState('networkidle');
 
-      const dataSelector = '[class*="card"], table, [class*="content"], [class*="panel"]';
+      const dataSelector = 'div.rounded-lg, table, [class*="content"], [class*="panel"]';
       const overviewSnapshot = await captureDataSnapshot(page, dataSelector);
 
       // Switch to Analytics tab
@@ -454,7 +454,7 @@ test.describe('Deal Intelligence - Interactions - Data Verification', () => {
       .or(page.locator('[data-testid="stage-filter"]'))
       .or(page.locator('select').filter({ hasText: /stage|all stages/i }));
 
-    const dataSelector = '[class*="card"], [data-testid="deal-card"], table tbody tr';
+    const dataSelector = 'div.rounded-lg, [data-testid="deal-card"], table tbody tr';
 
     if (await stageFilter.first().isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -488,7 +488,7 @@ test.describe('Deal Intelligence - Interactions - Data Verification', () => {
       .or(page.locator('[data-testid="sector-filter"]'))
       .or(page.locator('select').filter({ hasText: /sector|all sectors/i }));
 
-    const dataSelector = '[class*="card"], [data-testid="deal-card"], table tbody tr';
+    const dataSelector = 'div.rounded-lg, [data-testid="deal-card"], table tbody tr';
 
     if (await sectorFilter.first().isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -521,7 +521,7 @@ test.describe('Deal Intelligence - Interactions - Data Verification', () => {
     const searchInput = page.getByPlaceholder(/search/i)
       .or(page.getByRole('searchbox'));
 
-    const dataSelector = '[class*="card"], [class*="result"], [class*="suggestion"]';
+    const dataSelector = 'div.rounded-lg, [class*="result"], [class*="suggestion"]';
 
     if (await searchInput.first().isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -571,7 +571,7 @@ test.describe('Deal Intelligence - Interactions - Data Verification', () => {
     const dealIntel = new DealIntelligencePage(page);
     await dealIntel.goto();
 
-    const dataSelector = '[class*="card"], h1, h2, [class*="section"]';
+    const dataSelector = 'div.rounded-lg, h1, h2, [class*="section"]';
     const fundViewSnapshot = await captureDataSnapshot(page, dataSelector);
 
     const count = await dealIntel.getDealCardCount();

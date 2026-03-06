@@ -50,13 +50,19 @@ export class ContactsPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.pageTitle = page.locator('h1, [class*="title"]').filter({ hasText: /Contacts|CRM/i }).first();
+    this.pageTitle = page.getByRole('heading', { level: 1, name: /contacts\s*&\s*crm|contacts/i });
+
+    const metricCard = (title: string) =>
+      page
+        .locator('p', { hasText: new RegExp(`^${title}$`, 'i') })
+        .locator('xpath=ancestor::div[contains(@class,"rounded-lg")][1]')
+        .first();
 
     // Summary metrics
-    this.totalContactsMetric = page.locator('[class*="card"]').filter({ hasText: 'Total Contacts' });
-    this.foundersMetric = page.locator('[class*="card"]').filter({ hasText: 'Founders' });
-    this.starredMetric = page.locator('[class*="card"]').filter({ hasText: 'Starred' });
-    this.followUpsDueMetric = page.locator('[class*="card"]').filter({ hasText: 'Follow-ups Due' });
+    this.totalContactsMetric = metricCard('Total Contacts');
+    this.foundersMetric = metricCard('Founders');
+    this.starredMetric = metricCard('Starred');
+    this.followUpsDueMetric = metricCard('Follow-ups Due');
 
     // Actions
     this.addContactButton = page.getByRole('button', { name: /add contact/i });
@@ -74,8 +80,13 @@ export class ContactsPage {
     this.clearFilterButton = page.getByRole('button', { name: /clear/i });
 
     // Contact list
-    this.contactCards = page.locator('[class*="card"]').filter({ has: page.locator('[class*="rounded-full"]') });
-    this.contactListContainer = page.locator('.max-h-\\[600px\\]').or(page.locator('[class*="overflow-y-auto"]'));
+    this.contactListContainer = page
+      .locator('div.max-h-\\[600px\\].overflow-y-auto')
+      .or(page.locator('div').filter({ has: page.locator('p.font-medium') }).locator('xpath=ancestor::div[contains(@class,"overflow-y-auto")][1]'))
+      .first();
+    this.contactCards = this.contactListContainer
+      .locator(':scope > div')
+      .filter({ has: page.locator('p.font-medium') });
 
     // Contact detail drawer
     this.contactDrawer = page.locator('[role="dialog"], [class*="drawer"], [class*="Drawer"]');
@@ -103,23 +114,19 @@ export class ContactsPage {
   }
 
   async getTotalContactsCount(): Promise<number> {
-    const text = await this.totalContactsMetric.locator('text=/\\d+/').first().textContent();
-    return parseInt(text || '0', 10);
+    return this.extractMetricValue(this.totalContactsMetric);
   }
 
   async getFoundersCount(): Promise<number> {
-    const text = await this.foundersMetric.locator('text=/\\d+/').first().textContent();
-    return parseInt(text || '0', 10);
+    return this.extractMetricValue(this.foundersMetric);
   }
 
   async getStarredCount(): Promise<number> {
-    const text = await this.starredMetric.locator('text=/\\d+/').first().textContent();
-    return parseInt(text || '0', 10);
+    return this.extractMetricValue(this.starredMetric);
   }
 
   async getFollowUpsDueCount(): Promise<number> {
-    const text = await this.followUpsDueMetric.locator('text=/\\d+/').first().textContent();
-    return parseInt(text || '0', 10);
+    return this.extractMetricValue(this.followUpsDueMetric);
   }
 
   async searchContacts(query: string) {
@@ -143,7 +150,7 @@ export class ContactsPage {
   }
 
   async selectContactByName(name: string) {
-    const contact = this.page.locator('[class*="card"]').filter({ hasText: name }).first();
+    const contact = this.contactCards.filter({ hasText: name }).first();
     await contact.click();
     await this.page.waitForLoadState('networkidle');
   }
@@ -194,5 +201,12 @@ export class ContactsPage {
 
   getLinkedDeals(): Locator {
     return this.page.locator('text=/Associated Deals/i').locator('..').locator('[class*="rounded-lg"]');
+  }
+
+  private async extractMetricValue(metricCard: Locator): Promise<number> {
+    const text = await metricCard.locator('p.text-2xl, p[class*="text-2xl"]').first().textContent();
+    if (!text) return 0;
+    const normalized = text.replace(/[^\d-]/g, '');
+    return normalized ? parseInt(normalized, 10) : 0;
   }
 }

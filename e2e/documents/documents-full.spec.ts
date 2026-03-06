@@ -38,7 +38,7 @@ test.describe('Documents - Document List', () => {
     await loginViaRedirect(page, '/documents');
     await page.waitForLoadState('networkidle');
 
-    const documentCards = page.locator('[class*="card"]');
+    const documentCards = page.locator('div.rounded-lg');
     if (await documentCards.count() > 0) {
       await expect(documentCards.first()).toBeVisible();
     }
@@ -136,7 +136,7 @@ test.describe('Documents - Document Actions', () => {
     await loginViaRedirect(page, '/documents');
     await page.waitForLoadState('networkidle');
 
-    const documentCard = page.locator('[class*="card"]').first();
+    const documentCard = page.locator('div.rounded-lg').first();
     if (await documentCard.isVisible()) {
       await documentCard.hover();
 
@@ -151,7 +151,7 @@ test.describe('Documents - Document Actions', () => {
     await loginViaRedirect(page, '/documents');
     await page.waitForLoadState('networkidle');
 
-    const documentCard = page.locator('[class*="card"]').first();
+    const documentCard = page.locator('div.rounded-lg').first();
     if (await documentCard.isVisible()) {
       await documentCard.hover();
 
@@ -166,7 +166,7 @@ test.describe('Documents - Document Actions', () => {
     await loginViaRedirect(page, '/documents');
     await page.waitForLoadState('networkidle');
 
-    const documentCard = page.locator('[class*="card"]').first();
+    const documentCard = page.locator('div.rounded-lg').first();
     if (await documentCard.isVisible()) {
       await documentCard.hover();
 
@@ -183,7 +183,7 @@ test.describe('Documents - Preview', () => {
     const documents = new DocumentsPage(page);
     await documents.goto();
 
-    const documentCards = page.locator('[class*="card"]');
+    const documentCards = page.locator('div.rounded-lg');
     if (await documentCards.count() > 0) {
       await documentCards.first().dblclick();
 
@@ -199,7 +199,7 @@ test.describe('Documents - Preview', () => {
     const documents = new DocumentsPage(page);
     await documents.goto();
 
-    const documentCards = page.locator('[class*="card"]');
+    const documentCards = page.locator('div.rounded-lg');
     if (await documentCards.count() > 0) {
       await documentCards.first().dblclick();
 
@@ -231,7 +231,7 @@ test.describe('Documents - Favorites', () => {
     await loginViaRedirect(page, '/documents');
     await page.waitForLoadState('networkidle');
 
-    const documentCard = page.locator('[class*="card"]').first();
+    const documentCard = page.locator('div.rounded-lg').first();
     if (await documentCard.isVisible()) {
       await documentCard.hover();
 
@@ -312,7 +312,7 @@ test.describe('Documents - Folders', () => {
 
     const folderCount = await documents.getFolderCount();
     if (folderCount > 0) {
-      const folder = page.locator('[class*="card"]').filter({ has: page.locator('[class*="folder" i]') }).first();
+      const folder = page.locator('div.rounded-lg').filter({ has: page.locator('[class*="folder" i]') }).first();
       if (await folder.isVisible()) {
         await folder.dblclick();
         await page.waitForLoadState('networkidle');
@@ -397,7 +397,7 @@ test.describe('Documents - Interactions - Data Verification', () => {
     const categoryFilter = page.getByRole('combobox', { name: /category/i })
       .or(page.locator('select, [class*="dropdown"]').filter({ hasText: /category/i }));
 
-    const dataSelector = '[class*="card"], [data-testid="document-item"]';
+    const dataSelector = 'div.rounded-lg, [data-testid="document-item"]';
 
     if (await categoryFilter.first().isVisible()) {
       const result = await selectDifferentOption(
@@ -423,7 +423,7 @@ test.describe('Documents - Interactions - Data Verification', () => {
     const fundFilter = page.getByRole('combobox', { name: /fund/i })
       .or(page.locator('select, [class*="dropdown"]').filter({ hasText: /fund/i }));
 
-    const dataSelector = '[class*="card"], [data-testid="document-item"]';
+    const dataSelector = 'div.rounded-lg, [data-testid="document-item"]';
 
     if (await fundFilter.first().isVisible()) {
       const result = await selectDifferentOption(
@@ -447,7 +447,7 @@ test.describe('Documents - Interactions - Data Verification', () => {
     await documents.goto();
 
     const searchInput = page.getByPlaceholder(/search/i).first();
-    const dataSelector = '[class*="card"], [data-testid="document-item"]';
+    const dataSelector = 'div.rounded-lg, [data-testid="document-item"]';
 
     if (await searchInput.isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -472,7 +472,7 @@ test.describe('Documents - Interactions - Data Verification', () => {
     await documents.goto();
 
     const searchInput = page.getByPlaceholder(/search/i).first();
-    const dataSelector = '[class*="card"], [data-testid="document-item"]';
+    const dataSelector = 'div.rounded-lg, [data-testid="document-item"]';
 
     if (await searchInput.isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -499,7 +499,7 @@ test.describe('Documents - Interactions - Data Verification', () => {
     await documents.goto();
 
     const searchInput = page.getByPlaceholder(/search/i).first();
-    const dataSelector = '[class*="card"], [data-testid="document-item"]';
+    const dataSelector = 'div.rounded-lg, [data-testid="document-item"]';
 
     if (await searchInput.isVisible()) {
       const initialSnapshot = await captureDataSnapshot(page, dataSelector);
@@ -531,7 +531,7 @@ test.describe('Documents - Interactions - Data Verification', () => {
 
     const categoryFilter = page.getByRole('combobox', { name: /category/i }).first();
     const fundFilter = page.getByRole('combobox', { name: /fund/i }).first();
-    const dataSelector = '[class*="card"], [data-testid="document-item"]';
+    const dataSelector = 'div.rounded-lg, [data-testid="document-item"]';
 
     const initialSnapshot = await captureDataSnapshot(page, dataSelector);
 

@@ -18,7 +18,7 @@ test.describe('Integrations - Page Load', () => {
     await page.waitForLoadState('networkidle');
 
     // Look for integration-related content
-    const content = page.locator('[class*="card"], [data-testid="integration"], [class*="integration"]');
+    const content = page.locator('div.rounded-lg, [data-testid="integration"], [class*="integration"]');
     await expect(content.first()).toBeVisible({ timeout: 10000 });
   });
 });
@@ -28,7 +28,7 @@ test.describe('Integrations - Available Integrations', () => {
     await loginViaRedirect(page, '/integrations');
     await page.waitForLoadState('networkidle');
 
-    const integrationCards = page.locator('[data-testid="integration-card"], [class*="card"]');
+    const integrationCards = page.locator('[data-testid="integration-card"], div.rounded-lg');
     const count = await integrationCards.count();
     expect(count).toBeGreaterThanOrEqual(0);
   });
@@ -138,7 +138,7 @@ test.describe('Integrations - Search', () => {
       await page.waitForTimeout(500);
 
       // Results should be filtered
-      const results = page.locator('[class*="card"], [data-testid="integration"]');
+      const results = page.locator('div.rounded-lg, [data-testid="integration"]');
       const count = await results.count();
       expect(count).toBeGreaterThanOrEqual(0);
     }
@@ -220,7 +220,7 @@ test.describe('Integrations - Interactions - Data Verification', () => {
       .or(page.locator('[data-testid="category-filter"]'))
       .or(page.locator('select').filter({ hasText: /category|all categories/i }));
 
-    const dataSelector = '[class*="card"], [data-testid="integration"], [data-testid="integration-card"]';
+    const dataSelector = 'div.rounded-lg, [data-testid="integration"], [data-testid="integration-card"]';
 
     if (await categoryFilter.first().isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -253,7 +253,7 @@ test.describe('Integrations - Interactions - Data Verification', () => {
     const searchInput = page.getByPlaceholder(/search/i)
       .or(page.getByRole('searchbox'));
 
-    const dataSelector = '[class*="card"], [data-testid="integration"], [data-testid="integration-card"]';
+    const dataSelector = 'div.rounded-lg, [data-testid="integration"], [data-testid="integration-card"]';
 
     if (await searchInput.first().isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -279,7 +279,7 @@ test.describe('Integrations - Interactions - Data Verification', () => {
       .or(page.locator('[data-testid="status-filter"]'))
       .or(page.locator('select').filter({ hasText: /status|connected|all/i }));
 
-    const dataSelector = '[class*="card"], [data-testid="integration"], [data-testid="integration-card"]';
+    const dataSelector = 'div.rounded-lg, [data-testid="integration"], [data-testid="integration-card"]';
 
     if (await statusFilter.first().isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -309,7 +309,7 @@ test.describe('Integrations - Interactions - Data Verification', () => {
     await loginViaRedirect(page, '/integrations');
     await page.waitForLoadState('networkidle');
 
-    const integrationCards = page.locator('[class*="card"], [data-testid="integration-card"]');
+    const integrationCards = page.locator('div.rounded-lg, [data-testid="integration-card"]');
 
     if (await integrationCards.count() > 0) {
       const detailsSelector = '[role="dialog"], [class*="drawer"], [class*="detail"], [class*="panel"], [class*="modal"]';
@@ -338,7 +338,7 @@ test.describe('Integrations - Interactions - Data Verification', () => {
     const tabs = page.getByRole('tab')
       .or(page.locator('[role="tablist"] button'));
 
-    const dataSelector = '[class*="card"], [class*="content"], table';
+    const dataSelector = 'div.rounded-lg, [class*="content"], table';
 
     if (await tabs.count() > 1) {
       const before = await captureDataSnapshot(page, dataSelector);
@@ -358,7 +358,7 @@ test.describe('Integrations - Interactions - Data Verification', () => {
     await page.waitForLoadState('networkidle');
 
     const syncButton = page.getByRole('button', { name: /sync|refresh/i });
-    const dataSelector = '[class*="card"], [data-testid="integration"], [class*="status"], [class*="sync"]';
+    const dataSelector = 'div.rounded-lg, [data-testid="integration"], [class*="status"], [class*="sync"]';
 
     if (await syncButton.first().isVisible()) {
       const before = await captureDataSnapshot(page, dataSelector);
