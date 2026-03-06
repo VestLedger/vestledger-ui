@@ -13,7 +13,7 @@ export function isInternalTenantUser(user: UserLike): boolean {
 export function isSuperadminUser(user: UserLike): boolean {
   if (!user) return false;
   if (user.isPlatformAdmin === true) return true;
-  return user.role === 'superadmin' && isInternalTenantUser(user);
+  return user.role === 'superadmin';
 }
 
 export function resolveUserDomainTarget(user: UserLike): DomainTarget {

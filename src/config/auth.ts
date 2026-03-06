@@ -61,26 +61,6 @@ export const INTERNAL_TENANT_ID = normalizeValue(
   'org_vestledger_internal'
 );
 
-export const MOCK_SUPERADMIN_PROFILE = Object.freeze({
-  id: normalizeValue(process.env.NEXT_PUBLIC_SUPERADMIN_USER_ID, 'user_superadmin_001'),
-  displayName: normalizeValue(
-    process.env.NEXT_PUBLIC_SUPERADMIN_DISPLAY_NAME,
-    'Platform Superadmin'
-  ),
-  accessToken: normalizeValue(
-    process.env.NEXT_PUBLIC_SUPERADMIN_ACCESS_TOKEN,
-    'mock-superadmin-token'
-  ),
-  operatingRegion: normalizeOperatingRegion(
-    process.env.NEXT_PUBLIC_SUPERADMIN_OPERATING_REGION,
-    null
-  ),
-  organizationConfigured: parseBoolean(
-    process.env.NEXT_PUBLIC_SUPERADMIN_ORGANIZATION_CONFIGURED,
-    true
-  ),
-});
-
 export const MOCK_DEMO_PROFILE = Object.freeze({
   id: normalizeValue(process.env.NEXT_PUBLIC_DEMO_USER_ID, 'user_demo_gp_001'),
   tenantId: normalizeValue(process.env.NEXT_PUBLIC_DEMO_TENANT_ID, 'org_summit_vc'),

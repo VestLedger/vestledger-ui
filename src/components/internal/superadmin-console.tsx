@@ -1,20 +1,29 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { AlertCircle, CheckCircle2, Copy, Mail, Plus, RefreshCw, UserPlus, Users } from 'lucide-react';
-import { Badge, Button, Card, Input, Select } from '@/ui';
-import type { AssignableAppRole, Invitation, OrganizationRole, TenantStatus } from '@/data/mocks/internal/superadmin';
 import {
-  buildInviteSetupLink,
-  createTenantUser,
+  AlertCircle,
+  CheckCircle2,
+  Mail,
+  Plus,
+  RefreshCw,
+  UserPlus,
+  Users,
+} from 'lucide-react';
+import { Badge, Button, Card, Input, Select } from '@/ui';
+import {
+  createTenantInvitation,
   getTenantDetail,
   listTenants,
   onboardTenant,
-  resendInvite,
+  resendInvitation,
   setTenantStatus,
+  type AssignableAppRole,
+  type Invitation,
+  type TenantDetail,
+  type TenantStatus,
   type TenantSummary,
-} from '@/services/internal/superadminService';
-import { buildAppWebUrl } from '@/config/env';
+} from '@/services/internal/superadminApiService';
 
 const APP_ROLE_OPTIONS: Array<{ value: AssignableAppRole; label: string }> = [
   { value: 'gp', label: 'GP' },
@@ -28,90 +37,97 @@ const APP_ROLE_OPTIONS: Array<{ value: AssignableAppRole; label: string }> = [
   { value: 'strategic_partner', label: 'Strategic Partner' },
 ];
 
-const ORG_ROLE_OPTIONS: Array<{ value: OrganizationRole; label: string }> = [
-  { value: 'org_admin', label: 'Org Admin' },
-  { value: 'member', label: 'Member' },
-];
-
 type NoticeState = {
   type: 'success' | 'error';
   message: string;
 } | null;
 
+const EMPTY_TENANT_FORM = {
+  displayName: '',
+  legalName: '',
+  primaryDomain: '',
+  firstAdminName: '',
+  firstAdminEmail: '',
+  firstAdminAppRole: 'gp' as AssignableAppRole,
+};
+
+const EMPTY_INVITE_FORM = {
+  name: '',
+  email: '',
+  appRole: 'analyst' as AssignableAppRole,
+};
+
 export function SuperadminConsole() {
   const [tenants, setTenants] = useState<TenantSummary[]>([]);
   const [selectedTenantId, setSelectedTenantId] = useState<string>('');
-  const [detail, setDetail] = useState<ReturnType<typeof getTenantDetail> | null>(null);
+  const [detail, setDetail] = useState<TenantDetail | null>(null);
   const [notice, setNotice] = useState<NoticeState>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isMutating, setIsMutating] = useState(false);
 
-  const [tenantForm, setTenantForm] = useState({
-    displayName: '',
-    legalName: '',
-    primaryDomain: '',
-    firstAdminName: '',
-    firstAdminEmail: '',
-    firstAdminAppRole: 'gp' as AssignableAppRole,
-  });
-
-  const [userForm, setUserForm] = useState({
-    tenantId: '',
-    name: '',
-    email: '',
-    appRole: 'analyst' as AssignableAppRole,
-    organizationRole: 'member' as OrganizationRole,
-  });
+  const [tenantForm, setTenantForm] = useState(EMPTY_TENANT_FORM);
+  const [inviteForm, setInviteForm] = useState(EMPTY_INVITE_FORM);
 
   const selectedTenant = useMemo(
     () => tenants.find((tenant) => tenant.id === selectedTenantId) ?? null,
     [selectedTenantId, tenants]
   );
 
-  const refresh = useCallback(
-    (requestedTenantId?: string) => {
-      const tenantList = listTenants();
-      setTenants(tenantList);
-
-      if (tenantList.length === 0) {
-        setSelectedTenantId('');
-        setDetail(null);
-        return;
-      }
-
-      const resolvedTenantId =
-        requestedTenantId && tenantList.some((tenant) => tenant.id === requestedTenantId)
-          ? requestedTenantId
-          : selectedTenantId && tenantList.some((tenant) => tenant.id === selectedTenantId)
-            ? selectedTenantId
-            : tenantList[0].id;
-
-      setSelectedTenantId(resolvedTenantId);
-      setDetail(getTenantDetail(resolvedTenantId));
-      setUserForm((prev) => ({ ...prev, tenantId: resolvedTenantId }));
-    },
-    [selectedTenantId]
-  );
-
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
-
-  const showError = (error: unknown) => {
+  const showError = useCallback((error: unknown) => {
     setNotice({
       type: 'error',
       message: error instanceof Error ? error.message : 'Unexpected error',
     });
-  };
+  }, []);
 
-  const showSuccess = (message: string) => {
+  const showSuccess = useCallback((message: string) => {
     setNotice({
       type: 'success',
       message,
     });
-  };
+  }, []);
 
-  const handleOnboardTenant = () => {
+  const refresh = useCallback(
+    async (requestedTenantId?: string) => {
+      setIsRefreshing(true);
+
+      try {
+        const tenantList = await listTenants();
+        setTenants(tenantList);
+
+        if (tenantList.length === 0) {
+          setSelectedTenantId('');
+          setDetail(null);
+          return;
+        }
+
+        const resolvedTenantId =
+          requestedTenantId && tenantList.some((tenant) => tenant.id === requestedTenantId)
+            ? requestedTenantId
+            : selectedTenantId && tenantList.some((tenant) => tenant.id === selectedTenantId)
+              ? selectedTenantId
+              : tenantList[0].id;
+
+        setSelectedTenantId(resolvedTenantId);
+        setDetail(await getTenantDetail(resolvedTenantId));
+      } catch (error) {
+        showError(error);
+      } finally {
+        setIsRefreshing(false);
+      }
+    },
+    [selectedTenantId, showError]
+  );
+
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
+  const handleOnboardTenant = async () => {
+    setIsMutating(true);
+
     try {
-      const result = onboardTenant({
+      const result = await onboardTenant({
         displayName: tenantForm.displayName,
         legalName: tenantForm.legalName,
         primaryDomain: tenantForm.primaryDomain,
@@ -120,85 +136,81 @@ export function SuperadminConsole() {
         firstAdminAppRole: tenantForm.firstAdminAppRole,
       });
 
-      setTenantForm({
-        displayName: '',
-        legalName: '',
-        primaryDomain: '',
-        firstAdminName: '',
-        firstAdminEmail: '',
-        firstAdminAppRole: 'gp',
-      });
-
-      refresh(result.tenant.id);
-      showSuccess('Tenant onboarded and first-admin invitation created.');
+      setTenantForm(EMPTY_TENANT_FORM);
+      await refresh(result.tenant.id);
+      showSuccess('Tenant onboarded and first-user invitation created.');
     } catch (error) {
       showError(error);
+    } finally {
+      setIsMutating(false);
     }
   };
 
-  const handleToggleTenantStatus = (tenantId: string, status: TenantStatus) => {
+  const handleToggleTenantStatus = async (
+    tenantId: string,
+    status: TenantStatus
+  ) => {
+    setIsMutating(true);
+
     try {
-      setTenantStatus(tenantId, status);
-      refresh(tenantId);
+      await setTenantStatus(tenantId, status);
+      await refresh(tenantId);
       showSuccess(`Tenant ${status === 'active' ? 'reactivated' : 'suspended'}.`);
     } catch (error) {
       showError(error);
+    } finally {
+      setIsMutating(false);
     }
   };
 
-  const handleCreateUser = () => {
+  const handleInviteUser = async () => {
+    if (!selectedTenantId) return;
+
+    setIsMutating(true);
+
     try {
-      createTenantUser({
-        tenantId: userForm.tenantId,
-        name: userForm.name,
-        email: userForm.email,
-        appRole: userForm.appRole,
-        organizationRole: userForm.organizationRole,
+      await createTenantInvitation({
+        tenantId: selectedTenantId,
+        name: inviteForm.name,
+        email: inviteForm.email,
+        targetAppRole: inviteForm.appRole,
       });
 
-      setUserForm((prev) => ({
-        ...prev,
-        name: '',
-        email: '',
-        appRole: 'analyst',
-        organizationRole: 'member',
-      }));
-
-      refresh(userForm.tenantId);
-      showSuccess('User created successfully.');
+      setInviteForm(EMPTY_INVITE_FORM);
+      await refresh(selectedTenantId);
+      showSuccess('Invitation created successfully.');
     } catch (error) {
       showError(error);
+    } finally {
+      setIsMutating(false);
     }
   };
 
-  const handleResendInvite = (inviteId: string) => {
+  const handleResendInvite = async (inviteId: string) => {
+    setIsMutating(true);
+
     try {
-      resendInvite(inviteId);
-      refresh(selectedTenantId);
+      await resendInvitation(inviteId);
+      await refresh(selectedTenantId);
       showSuccess('Invitation resent.');
     } catch (error) {
       showError(error);
-    }
-  };
-
-  const handleCopySetupLink = async (invitation: Invitation) => {
-    try {
-      const setupUrl = `${buildAppWebUrl(window.location.hostname)}${buildInviteSetupLink(invitation.id)}`;
-
-      if (navigator?.clipboard?.writeText) {
-        await navigator.clipboard.writeText(setupUrl);
-      }
-
-      showSuccess('Setup link copied to clipboard.');
-    } catch (error) {
-      showError(error);
+    } finally {
+      setIsMutating(false);
     }
   };
 
   return (
     <div className="space-y-6">
       {notice && (
-        <Card padding="sm" className={notice.type === 'error' ? 'border-[var(--app-danger)]' : 'border-[var(--app-success)]'}>
+        <Card
+          padding="sm"
+          className={
+            notice.type === 'error'
+              ? 'border-[var(--app-danger)]'
+              : 'border-[var(--app-success)]'
+          }
+        >
           <div className="flex items-start gap-3 text-sm">
             {notice.type === 'error' ? (
               <AlertCircle className="mt-0.5 h-4 w-4 text-[var(--app-danger)]" />
@@ -219,7 +231,14 @@ export function SuperadminConsole() {
                 Onboard, suspend, reactivate, and inspect tenant access state.
               </p>
             </div>
-            <Button variant="bordered" startContent={<RefreshCw className="h-4 w-4" />} onPress={() => refresh()}>
+            <Button
+              variant="bordered"
+              startContent={<RefreshCw className="h-4 w-4" />}
+              onPress={() => {
+                void refresh();
+              }}
+              isLoading={isRefreshing}
+            >
               Refresh
             </Button>
           </div>
@@ -233,12 +252,16 @@ export function SuperadminConsole() {
                     ? 'border-[var(--app-primary)] bg-[var(--app-primary-bg)]'
                     : 'border-[var(--app-border)] hover:bg-[var(--app-surface-hover)]'
                 }`}
-                onClick={() => refresh(tenant.id)}
+                onClick={() => {
+                  void refresh(tenant.id);
+                }}
               >
                 <div className="mb-2 flex items-center justify-between gap-2">
                   <div>
                     <p className="font-semibold">{tenant.displayName}</p>
-                    <p className="text-xs text-[var(--app-text-muted)]">{tenant.primaryDomain}</p>
+                    <p className="text-xs text-[var(--app-text-muted)]">
+                      {tenant.primaryDomain}
+                    </p>
                   </div>
                   <Badge color={tenant.status === 'active' ? 'success' : 'warning'}>
                     {tenant.status}
@@ -246,7 +269,6 @@ export function SuperadminConsole() {
                 </div>
                 <div className="mb-3 flex flex-wrap gap-2 text-xs text-[var(--app-text-muted)]">
                   <span>{tenant.totalUsers} users</span>
-                  <span>{tenant.totalAdmins} admins</span>
                   <span>{tenant.pendingInvites} pending invites</span>
                 </div>
                 <div className="flex gap-2">
@@ -256,8 +278,9 @@ export function SuperadminConsole() {
                       variant="bordered"
                       color="warning"
                       onPress={() => {
-                        handleToggleTenantStatus(tenant.id, 'suspended');
+                        void handleToggleTenantStatus(tenant.id, 'suspended');
                       }}
+                      isLoading={isMutating}
                     >
                       Suspend
                     </Button>
@@ -267,8 +290,9 @@ export function SuperadminConsole() {
                       variant="bordered"
                       color="success"
                       onPress={() => {
-                        handleToggleTenantStatus(tenant.id, 'active');
+                        void handleToggleTenantStatus(tenant.id, 'active');
                       }}
+                      isLoading={isMutating}
                     >
                       Reactivate
                     </Button>
@@ -281,36 +305,48 @@ export function SuperadminConsole() {
 
         <Card padding="lg">
           <h2 className="mb-1 text-lg font-semibold">Onboard Organization</h2>
-          <p className="mb-4 text-sm text-[var(--app-text-muted)]">Create tenant and first-admin invite.</p>
+          <p className="mb-4 text-sm text-[var(--app-text-muted)]">
+            Create a tenant and its first-user invitation.
+          </p>
 
           <div className="space-y-3">
             <Input
               label="Display Name"
               value={tenantForm.displayName}
-              onChange={(event) => setTenantForm((prev) => ({ ...prev, displayName: event.target.value }))}
+              onChange={(event) =>
+                setTenantForm((prev) => ({ ...prev, displayName: event.target.value }))
+              }
             />
             <Input
               label="Legal Name"
               value={tenantForm.legalName}
-              onChange={(event) => setTenantForm((prev) => ({ ...prev, legalName: event.target.value }))}
+              onChange={(event) =>
+                setTenantForm((prev) => ({ ...prev, legalName: event.target.value }))
+              }
             />
             <Input
               label="Primary Domain"
               value={tenantForm.primaryDomain}
-              onChange={(event) => setTenantForm((prev) => ({ ...prev, primaryDomain: event.target.value }))}
+              onChange={(event) =>
+                setTenantForm((prev) => ({ ...prev, primaryDomain: event.target.value }))
+              }
             />
             <Input
-              label="First Admin Name"
+              label="First User Name"
               value={tenantForm.firstAdminName}
-              onChange={(event) => setTenantForm((prev) => ({ ...prev, firstAdminName: event.target.value }))}
+              onChange={(event) =>
+                setTenantForm((prev) => ({ ...prev, firstAdminName: event.target.value }))
+              }
             />
             <Input
-              label="First Admin Email"
+              label="First User Email"
               value={tenantForm.firstAdminEmail}
-              onChange={(event) => setTenantForm((prev) => ({ ...prev, firstAdminEmail: event.target.value }))}
+              onChange={(event) =>
+                setTenantForm((prev) => ({ ...prev, firstAdminEmail: event.target.value }))
+              }
             />
             <Select
-              label="First Admin App Persona"
+              label="First User Role"
               options={APP_ROLE_OPTIONS}
               selectedKeys={[tenantForm.firstAdminAppRole]}
               onChange={(event) =>
@@ -320,7 +356,15 @@ export function SuperadminConsole() {
                 }))
               }
             />
-            <Button color="primary" className="w-full" startContent={<Plus className="h-4 w-4" />} onPress={handleOnboardTenant}>
+            <Button
+              color="primary"
+              className="w-full"
+              startContent={<Plus className="h-4 w-4" />}
+              onPress={() => {
+                void handleOnboardTenant();
+              }}
+              isLoading={isMutating}
+            >
               Onboard Tenant
             </Button>
           </div>
@@ -334,42 +378,50 @@ export function SuperadminConsole() {
               {selectedTenant?.displayName ?? 'Tenant'}: Users & Invites
             </h2>
             <p className="text-sm text-[var(--app-text-muted)]">
-              Shared user creation mode. Role assignment remains org-admin owned.
+              Invite users into the selected tenant with a single assigned role.
             </p>
           </div>
-          <Badge variant="bordered">{selectedTenantId}</Badge>
+          <Badge variant="bordered">{selectedTenantId || 'No tenant selected'}</Badge>
         </div>
 
-        <div className="mb-6 grid grid-cols-1 gap-3 rounded-lg border border-[var(--app-border)] p-4 lg:grid-cols-5">
+        <div className="mb-6 grid grid-cols-1 gap-3 rounded-lg border border-[var(--app-border)] p-4 lg:grid-cols-4">
           <Input
             label="User Name"
-            value={userForm.name}
-            onChange={(event) => setUserForm((prev) => ({ ...prev, name: event.target.value }))}
+            value={inviteForm.name}
+            onChange={(event) =>
+              setInviteForm((prev) => ({ ...prev, name: event.target.value }))
+            }
           />
           <Input
             label="Email"
-            value={userForm.email}
-            onChange={(event) => setUserForm((prev) => ({ ...prev, email: event.target.value }))}
-          />
-          <Select
-            label="App Persona"
-            options={APP_ROLE_OPTIONS}
-            selectedKeys={[userForm.appRole]}
+            value={inviteForm.email}
             onChange={(event) =>
-              setUserForm((prev) => ({ ...prev, appRole: event.target.value as AssignableAppRole }))
+              setInviteForm((prev) => ({ ...prev, email: event.target.value }))
             }
           />
           <Select
-            label="Org Role"
-            options={ORG_ROLE_OPTIONS}
-            selectedKeys={[userForm.organizationRole]}
+            label="Role"
+            options={APP_ROLE_OPTIONS}
+            selectedKeys={[inviteForm.appRole]}
             onChange={(event) =>
-              setUserForm((prev) => ({ ...prev, organizationRole: event.target.value as OrganizationRole }))
+              setInviteForm((prev) => ({
+                ...prev,
+                appRole: event.target.value as AssignableAppRole,
+              }))
             }
           />
           <div className="flex items-end">
-            <Button color="primary" className="w-full" startContent={<UserPlus className="h-4 w-4" />} onPress={handleCreateUser}>
-              Create User
+            <Button
+              color="primary"
+              className="w-full"
+              startContent={<UserPlus className="h-4 w-4" />}
+              onPress={() => {
+                void handleInviteUser();
+              }}
+              isDisabled={!selectedTenantId}
+              isLoading={isMutating}
+            >
+              Invite User
             </Button>
           </div>
         </div>
@@ -381,18 +433,31 @@ export function SuperadminConsole() {
               <h3 className="font-semibold">Users</h3>
             </div>
             <div className="space-y-2">
-              {(detail?.users ?? []).map((user) => (
-                <div key={user.id} className="flex items-center justify-between rounded-lg border border-[var(--app-border)] p-3">
-                  <div>
-                    <p className="font-medium">{user.name}</p>
-                    <p className="text-xs text-[var(--app-text-muted)]">{user.email}</p>
+              {(detail?.users ?? []).length === 0 ? (
+                <p className="rounded-lg border border-dashed border-[var(--app-border)] p-3 text-sm text-[var(--app-text-muted)]">
+                  No users have been activated for this tenant yet.
+                </p>
+              ) : (
+                (detail?.users ?? []).map((user) => (
+                  <div
+                    key={user.id}
+                    className="flex items-center justify-between rounded-lg border border-[var(--app-border)] p-3"
+                  >
+                    <div>
+                      <p className="font-medium">{user.name}</p>
+                      <p className="text-xs text-[var(--app-text-muted)]">
+                        {user.email}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="bordered">{user.appRole}</Badge>
+                      <Badge color={user.status === 'active' ? 'success' : 'warning'}>
+                        {user.status}
+                      </Badge>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="bordered">{user.appRole}</Badge>
-                    <Badge color={user.status === 'active' ? 'success' : 'warning'}>{user.status}</Badge>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
 
@@ -402,36 +467,49 @@ export function SuperadminConsole() {
               <h3 className="font-semibold">Invitations</h3>
             </div>
             <div className="space-y-2">
-              {(detail?.invitations ?? []).map((invite) => (
-                <div key={invite.id} className="rounded-lg border border-[var(--app-border)] p-3">
-                  <div className="mb-2 flex items-center justify-between gap-3">
-                    <p className="text-sm font-medium">{invite.email}</p>
-                    <Badge color={invite.status === 'pending' ? 'warning' : 'primary'}>{invite.status}</Badge>
-                  </div>
-                  <p className="mb-3 text-xs text-[var(--app-text-muted)]">
-                    Org role: {invite.targetOrgRole} · App role: {invite.targetAppRole}
-                  </p>
-                  <div className="flex gap-2">
+              {(detail?.invitations ?? []).length === 0 ? (
+                <p className="rounded-lg border border-dashed border-[var(--app-border)] p-3 text-sm text-[var(--app-text-muted)]">
+                  No invitations have been created for this tenant yet.
+                </p>
+              ) : (
+                (detail?.invitations ?? []).map((invite: Invitation) => (
+                  <div
+                    key={invite.id}
+                    className="rounded-lg border border-[var(--app-border)] p-3"
+                  >
+                    <div className="mb-2 flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-medium">
+                          {invite.inviteeName || invite.email}
+                        </p>
+                        <p className="text-xs text-[var(--app-text-muted)]">
+                          {invite.email}
+                        </p>
+                      </div>
+                      <Badge
+                        color={invite.status === 'pending' ? 'warning' : 'primary'}
+                      >
+                        {invite.status}
+                      </Badge>
+                    </div>
+                    <p className="mb-3 text-xs text-[var(--app-text-muted)]">
+                      Role: {invite.targetAppRole}
+                    </p>
                     <Button
                       size="sm"
                       variant="bordered"
                       startContent={<RefreshCw className="h-3.5 w-3.5" />}
-                      onPress={() => handleResendInvite(invite.id)}
+                      onPress={() => {
+                        void handleResendInvite(invite.id);
+                      }}
                       isDisabled={invite.status !== 'pending'}
+                      isLoading={isMutating}
                     >
                       Resend
                     </Button>
-                    <Button
-                      size="sm"
-                      variant="bordered"
-                      startContent={<Copy className="h-3.5 w-3.5" />}
-                      onPress={() => void handleCopySetupLink(invite)}
-                    >
-                      Copy Setup Link
-                    </Button>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </div>

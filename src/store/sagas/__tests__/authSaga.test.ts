@@ -105,6 +105,46 @@ describe('authSaga', () => {
       );
     });
 
+    it('keeps superadmin sessions in api mode', async () => {
+      const superadminUser: User = {
+        id: 'user-superadmin-1',
+        name: 'Platform Superadmin',
+        email: 'superadmin@vestledger.com',
+        role: 'superadmin',
+        tenantId: 'org_vestledger_management',
+        isPlatformAdmin: true,
+      };
+      vi.mocked(authService.authenticateUser).mockResolvedValue({
+        user: superadminUser,
+        accessToken: 'superadmin-jwt-token',
+        dataModeOverride: 'api',
+      });
+
+      const dispatched: unknown[] = [];
+      const action = loginRequested({
+        email: 'superadmin@vestledger.com',
+        password: 'Pa$$w0rd',
+        role: 'superadmin',
+      });
+
+      await runSaga(
+        {
+          dispatch: (action: unknown) => dispatched.push(action),
+          getState: () => ({}),
+        },
+        loginWorker,
+        action
+      ).toPromise();
+
+      expect(vi.mocked(safeLocalStorage.setItem)).toHaveBeenCalledWith(
+        DATA_MODE_OVERRIDE_KEY,
+        'api'
+      );
+      expect(dispatched).toContainEqual(
+        loginSucceeded({ user: superadminUser, accessToken: 'superadmin-jwt-token' })
+      );
+    });
+
     it('should dispatch loginFailed on error', async () => {
       vi.mocked(authService.authenticateUser).mockRejectedValue(new Error('Login error'));
 

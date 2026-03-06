@@ -12,10 +12,10 @@ describe('internal-access helpers', () => {
     expect(isInternalTenantUser({ tenantId: 'org_summit_vc' })).toBe(false);
   });
 
-  it('recognizes superadmin user by tenant + role', () => {
+  it('recognizes superadmin user by role alone', () => {
     expect(
       isSuperadminUser({
-        tenantId: INTERNAL_TENANT_ID,
+        tenantId: 'org_external',
         role: 'superadmin',
       })
     ).toBe(true);

@@ -4,9 +4,7 @@ import type { DataMode } from '@/config/data-mode';
 import { createMockUser } from '@/data/mocks/auth';
 import type { User, UserRole } from '@/types/auth';
 import {
-  INTERNAL_TENANT_ID,
   MOCK_DEMO_PROFILE,
-  MOCK_SUPERADMIN_PROFILE,
 } from '@/config/auth';
 import type { OperatingRegion } from '@/types/regulatory';
 
@@ -33,7 +31,6 @@ type JwtPayload = {
   role: UserRole;
   orgId?: string;
   tenantId?: string;
-  organizationRole?: 'org_admin' | 'member';
   isPlatformAdmin?: boolean;
   operatingRegion?: OperatingRegion | null;
   organizationConfigured?: boolean;
@@ -41,8 +38,6 @@ type JwtPayload = {
 
 const DEMO_EMAIL = process.env.NEXT_PUBLIC_DEMO_EMAIL?.trim().toLowerCase();
 const DEMO_PASSWORD = process.env.NEXT_PUBLIC_DEMO_PASSWORD;
-const SUPERADMIN_EMAIL = process.env.NEXT_PUBLIC_SUPERADMIN_EMAIL?.trim().toLowerCase();
-const SUPERADMIN_PASSWORD = process.env.NEXT_PUBLIC_SUPERADMIN_PASSWORD;
 
 function getPasswordVariants(value: string): string[] {
   const variants: string[] = [];
@@ -84,13 +79,6 @@ export function isDemoCredentials(email: string, password: string): boolean {
   return email.trim().toLowerCase() === DEMO_EMAIL && passwordMatches(password, DEMO_PASSWORD);
 }
 
-export function isSuperadminCredentials(email: string, password: string): boolean {
-  if (!SUPERADMIN_EMAIL || !SUPERADMIN_PASSWORD) {
-    return false;
-  }
-  return email.trim().toLowerCase() === SUPERADMIN_EMAIL && passwordMatches(password, SUPERADMIN_PASSWORD);
-}
-
 function decodeJwt(token: string): JwtPayload {
   const parts = token.split('.');
   if (parts.length !== 3) {
@@ -109,8 +97,7 @@ function userFromJwt(token: string, responseUser?: AuthResponse['user']): User {
     email: payload.email,
     role: payload.role,
     tenantId: payload.tenantId ?? payload.orgId ?? responseUser?.tenantId ?? responseUser?.orgId ?? undefined,
-    organizationRole: payload.organizationRole,
-    isPlatformAdmin: payload.isPlatformAdmin,
+    isPlatformAdmin: payload.isPlatformAdmin ?? payload.role === 'superadmin',
     operatingRegion:
       payload.operatingRegion ?? responseUser?.operatingRegion ?? null,
     organizationConfigured:
@@ -161,28 +148,11 @@ export async function authenticateUser(
   email: string,
   password: string
 ): Promise<AuthResult> {
-  if (isSuperadminCredentials(email, password)) {
-    return {
-      user: createMockUser(SUPERADMIN_EMAIL!, 'superadmin', {
-        id: MOCK_SUPERADMIN_PROFILE.id,
-        name: MOCK_SUPERADMIN_PROFILE.displayName,
-        tenantId: INTERNAL_TENANT_ID,
-        organizationRole: 'org_admin',
-        isPlatformAdmin: true,
-        operatingRegion: MOCK_SUPERADMIN_PROFILE.operatingRegion,
-        organizationConfigured: MOCK_SUPERADMIN_PROFILE.organizationConfigured,
-      }),
-      accessToken: MOCK_SUPERADMIN_PROFILE.accessToken,
-      dataModeOverride: 'mock',
-    };
-  }
-
   if (isDemoCredentials(email, password)) {
     return {
       user: createMockUser(DEMO_EMAIL!, 'gp', {
         id: MOCK_DEMO_PROFILE.id,
         tenantId: MOCK_DEMO_PROFILE.tenantId,
-        organizationRole: 'org_admin',
         isPlatformAdmin: false,
         operatingRegion: MOCK_DEMO_PROFILE.operatingRegion,
         organizationConfigured: MOCK_DEMO_PROFILE.organizationConfigured,

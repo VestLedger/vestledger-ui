@@ -24,7 +24,15 @@ const mockFetch = vi.fn();
 global.fetch = mockFetch;
 
 // Helper to create a mock JWT token with the given payload
-function createMockJwt(payload: { sub: string; email: string; username: string; role: UserRole }): string {
+function createMockJwt(payload: {
+  sub: string;
+  email: string;
+  username: string;
+  role: UserRole;
+  tenantId?: string;
+  orgId?: string;
+  isPlatformAdmin?: boolean;
+}): string {
   const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
   const body = btoa(JSON.stringify(payload));
   const signature = 'mock-signature';
@@ -37,8 +45,6 @@ describe('authService', () => {
     vi.resetModules();
     process.env.NEXT_PUBLIC_DEMO_EMAIL = 'demo@vestledger.com';
     process.env.NEXT_PUBLIC_DEMO_PASSWORD = 'Pa$$w0rd';
-    process.env.NEXT_PUBLIC_SUPERADMIN_EMAIL = 'superadmin@vestledger.com';
-    process.env.NEXT_PUBLIC_SUPERADMIN_PASSWORD = 'SuperPa$$w0rd';
   });
 
   describe('authenticateUser', () => {
@@ -81,33 +87,74 @@ describe('authService', () => {
       expect(mockFetch).not.toHaveBeenCalled();
     });
 
-    it('should return internal superadmin user with mock override when superadmin credentials are used', async () => {
-      const { authenticateUser } = await import('@/services/authService');
-      const result = await authenticateUser(
-        process.env.NEXT_PUBLIC_SUPERADMIN_EMAIL!,
-        process.env.NEXT_PUBLIC_SUPERADMIN_PASSWORD!
-      );
+    it('authenticates superadmin credentials through the API', async () => {
+      const mockJwt = createMockJwt({
+        sub: 'user-superadmin-1',
+        email: 'superadmin@vestledger.com',
+        username: 'Platform Superadmin',
+        role: 'superadmin',
+        tenantId: 'org_vestledger_management',
+        isPlatformAdmin: true,
+      });
 
-      expect(result.user.email).toBe(process.env.NEXT_PUBLIC_SUPERADMIN_EMAIL);
-      expect(result.user.role).toBe('superadmin');
-      expect(result.user.tenantId).toBe('org_vestledger_internal');
-      expect(result.user.isPlatformAdmin).toBe(true);
-      expect(result.accessToken).toBe('mock-superadmin-token');
-      expect(result.dataModeOverride).toBe('mock');
-      expect(mockFetch).not.toHaveBeenCalled();
-    });
-
-    it('accepts superadmin credentials when env password is dotenv-expanded', async () => {
-      process.env.NEXT_PUBLIC_SUPERADMIN_PASSWORD = 'Pa$';
-      vi.resetModules();
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            access_token: mockJwt,
+            user: {
+              orgId: 'org_vestledger_management',
+            },
+          }),
+      });
 
       const { authenticateUser } = await import('@/services/authService');
       const result = await authenticateUser('superadmin@vestledger.com', 'Pa$$w0rd');
 
+      expect(mockFetch).toHaveBeenCalledWith(
+        'http://localhost:3001/auth/login',
+        expect.objectContaining({
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: 'superadmin@vestledger.com',
+            password: 'Pa$$w0rd',
+          }),
+        })
+      );
+
       expect(result.user.email).toBe('superadmin@vestledger.com');
       expect(result.user.role).toBe('superadmin');
-      expect(result.dataModeOverride).toBe('mock');
-      expect(mockFetch).not.toHaveBeenCalled();
+      expect(result.user.tenantId).toBe('org_vestledger_management');
+      expect(result.user.isPlatformAdmin).toBe(true);
+      expect(result.accessToken).toBe(mockJwt);
+      expect(result.dataModeOverride).toBe('api');
+    });
+
+    it('derives platform-admin state from the JWT when logging in as superadmin', async () => {
+      const mockJwt = createMockJwt({
+        sub: 'user-superadmin-1',
+        email: 'superadmin@vestledger.com',
+        username: 'Platform Superadmin',
+        role: 'superadmin',
+        orgId: 'org_vestledger_management',
+      });
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            access_token: mockJwt,
+          }),
+      });
+
+      const { authenticateUser } = await import('@/services/authService');
+      const result = await authenticateUser('superadmin@vestledger.com', 'Pa$$w0rd');
+
+      expect(result.user.role).toBe('superadmin');
+      expect(result.user.isPlatformAdmin).toBe(true);
+      expect(result.user.tenantId).toBe('org_vestledger_management');
+      expect(result.dataModeOverride).toBe('api');
     });
 
     it('should return demo user with mock data override when demo credentials are used', async () => {

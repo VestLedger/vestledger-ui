@@ -21,7 +21,6 @@ import {
   AUTH_COOKIE_MAX_AGE_SECONDS,
   AUTH_HYDRATION_TIMEOUT_MS,
   MOCK_DEMO_PROFILE,
-  MOCK_SUPERADMIN_PROFILE,
 } from "@/config/auth";
 
 const STORAGE_AUTH_KEY = 'isAuthenticated';
@@ -29,7 +28,6 @@ const STORAGE_USER_KEY = 'user';
 const STORAGE_TOKEN_KEY = 'accessToken';
 const STORAGE_ARCHIVED_FUND_IDS = 'vestledger-archived-fund-ids';
 const DEFAULT_DEMO_EMAIL = 'demo@vestledger.com';
-const DEFAULT_SUPERADMIN_EMAIL = 'superadmin@vestledger.com';
 
 function getCookieValue(name: string): string | null {
   if (typeof document === 'undefined') return null;
@@ -77,18 +75,10 @@ function isKnownMockUser(user: User): boolean {
   const demoEmail =
     process.env.NEXT_PUBLIC_DEMO_EMAIL?.trim().toLowerCase()
     || DEFAULT_DEMO_EMAIL;
-  const superadminEmail =
-    process.env.NEXT_PUBLIC_SUPERADMIN_EMAIL?.trim().toLowerCase()
-    || DEFAULT_SUPERADMIN_EMAIL;
   const normalizedUserEmail = user.email.trim().toLowerCase();
 
   if (demoEmail && normalizedUserEmail === demoEmail) return true;
-  if (superadminEmail && normalizedUserEmail === superadminEmail) return true;
-  if (
-    user.id &&
-    (user.id === MOCK_DEMO_PROFILE.id || user.id === MOCK_SUPERADMIN_PROFILE.id)
-  )
-    return true;
+  if (user.id && user.id === MOCK_DEMO_PROFILE.id) return true;
 
   return false;
 }
