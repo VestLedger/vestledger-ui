@@ -13,7 +13,7 @@ import {
 import { DEFAULT_VALUATION_409A_TAB_ID, VALUATION_409A_TAB_IDS } from '@/config/valuation-409a-tabs';
 import { valuation409aSelectors } from '@/store/slices/backOfficeSlice';
 import { AsyncStateRenderer } from '@/ui/async-states';
-import { formatCurrency } from '@/utils/formatting';
+import { formatCurrency, formatDate, formatNumber } from '@/utils/formatting';
 import { MetricsGrid, PageScaffold, SectionHeader, StatusBadge } from '@/ui/composites';
 import type { MetricsGridItem } from '@/ui/composites';
 import { useAsyncData } from '@/hooks/useAsyncData';
@@ -200,7 +200,7 @@ export function Valuation409A() {
                         <div className="flex items-center gap-4 text-sm text-[var(--app-text-muted)]">
                           <div className="flex items-center gap-1">
                             <Calendar className="w-4 h-4" />
-                            <span>Issued: {new Date(valuation.valuationDate).toLocaleDateString()}</span>
+                            <span>Issued: {formatDate(valuation.valuationDate)}</span>
                           </div>
                           <span>•</span>
                           <span>Provider: {valuation.provider}</span>
@@ -253,7 +253,7 @@ export function Valuation409A() {
                         <div className="grid grid-cols-4 gap-4 text-sm">
                           <div>
                             <p className="text-[var(--app-text-muted)]">Grant Date</p>
-                            <p className="font-medium">{new Date(grant.grantDate).toLocaleDateString()}</p>
+                            <p className="font-medium">{formatDate(grant.grantDate)}</p>
                           </div>
                           <div>
                             <p className="text-[var(--app-text-muted)]">Strike Price</p>
@@ -261,7 +261,7 @@ export function Valuation409A() {
                           </div>
                           <div>
                             <p className="text-[var(--app-text-muted)]">Shares</p>
-                            <p className="font-medium">{grant.sharesGranted.toLocaleString()}</p>
+                            <p className="font-medium">{formatNumber(grant.sharesGranted)}</p>
                           </div>
                           <div>
                             <p className="text-[var(--app-text-muted)]">Vesting</p>
@@ -297,7 +297,7 @@ export function Valuation409A() {
                           <div>
                             <p className="font-semibold">{formatCurrency(item.fmv)} per share</p>
                             <p className="text-sm text-[var(--app-text-muted)]">
-                              {new Date(item.date).toLocaleDateString()}
+                              {formatDate(item.date)}
                             </p>
                           </div>
                           {item.change !== 0 && (

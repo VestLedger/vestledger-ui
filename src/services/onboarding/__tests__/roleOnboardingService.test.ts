@@ -26,14 +26,15 @@ describe('roleOnboardingService', () => {
     expect(plan).toEqual(mockRoleOnboardingPlans.gp);
   });
 
-  it('falls back to mock plan in API mode when endpoint fails', async () => {
+  it('returns an empty onboarding plan in API mode when endpoint fails', async () => {
     isMockMode.mockReturnValue(false);
     requestJson.mockRejectedValue(new Error('network down'));
 
     const service = await import('@/services/onboarding/roleOnboardingService');
     const plan = await service.getRoleOnboardingPlan('ops');
     expect(plan.role).toBe('ops');
-    expect(plan.steps.length).toBeGreaterThan(0);
+    expect(plan.title).toBe('Ops Onboarding');
+    expect(plan.steps).toEqual([]);
   });
 
   it('maps API payload when endpoint is available', async () => {

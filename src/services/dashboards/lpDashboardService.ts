@@ -11,6 +11,8 @@ import { apiClient } from '@/api/client';
 import { unwrapApiResult } from '@/api/unwrap';
 import { logger } from '@/lib/logger';
 import type { LPDashboardData } from '@/store/slices/dashboardsSlice';
+import { formatDate } from '@/utils/formatting/date';
+import { formatCurrencyCompact } from '@/utils/formatting/currency';
 
 function clone<T>(value: T): T {
   return structuredClone(value);
@@ -41,15 +43,6 @@ function parseDate(value: unknown): Date {
   return new Date();
 }
 
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    notation: 'compact',
-    maximumFractionDigits: 1,
-  }).format(value);
-}
-
 function buildMetrics({
   capitalAccount,
   distributions,
@@ -62,13 +55,13 @@ function buildMetrics({
   const metrics = clone(lpDashboardMetrics);
 
   if (metrics[0]) {
-    metrics[0].value = formatCurrency(capitalAccount);
+    metrics[0].value = formatCurrencyCompact(capitalAccount);
   }
   if (metrics[1]) {
-    metrics[1].value = formatCurrency(distributions);
+    metrics[1].value = formatCurrencyCompact(distributions);
   }
   if (metrics[2]) {
-    metrics[2].value = formatCurrency(nav);
+    metrics[2].value = formatCurrencyCompact(nav);
   }
 
   return metrics;
@@ -82,6 +75,24 @@ function buildFallbackSnapshot(): LPDashboardData {
     pendingCalls: clone(pendingCalls),
     pendingSignatures: clone(pendingSignatures),
     commitment: clone(lpDashboardCommitment),
+  };
+}
+
+function buildEmptySnapshot(): LPDashboardData {
+  return {
+    metrics: buildMetrics({
+      capitalAccount: 0,
+      distributions: 0,
+      nav: 0,
+    }),
+    documents: [],
+    capitalActivity: [],
+    pendingCalls: [],
+    pendingSignatures: [],
+    commitment: {
+      totalCommitment: 0,
+      calledAmount: 0,
+    },
   };
 }
 
@@ -114,20 +125,20 @@ function normalizeApiSnapshot(data: unknown): LPDashboardData | null {
           .map((item) => ({
             name: readString(item.name, 'Document'),
             type: readString(item.type, 'Document'),
-            date: readString(item.date, new Date().toLocaleDateString()),
+            date: readString(item.date, formatDate(new Date())),
           }))
-      : clone(lpDashboardDocuments);
+      : [];
 
     const normalizedCapitalActivity = Array.isArray(data.capitalActivity)
       ? data.capitalActivity
           .filter(isRecord)
           .map((item) => ({
             type: readString(item.type, 'Distribution'),
-            amount: formatCurrency(readNumber(item.amount)),
-            date: readString(item.date, new Date().toLocaleDateString()),
+            amount: formatCurrencyCompact(readNumber(item.amount)),
+            date: readString(item.date, formatDate(new Date())),
             status: readString(item.status, 'Processed'),
           }))
-      : clone(lpDashboardCapitalActivity);
+      : [];
 
     const normalizedPendingCalls = Array.isArray(data.pendingCalls)
       ? data.pendingCalls
@@ -141,7 +152,7 @@ function normalizeApiSnapshot(data: unknown): LPDashboardData | null {
             status: normalizePendingCallStatus(item.status),
             paidAmount: readNumber(item.paidAmount),
           }))
-      : clone(pendingCalls);
+      : [];
 
     const normalizedPendingSignatures = Array.isArray(data.pendingSignatures)
       ? data.pendingSignatures
@@ -153,7 +164,7 @@ function normalizeApiSnapshot(data: unknown): LPDashboardData | null {
             requestedDate: parseDate(item.requestedDate),
             urgency: normalizePendingSignatureUrgency(item.urgency),
           }))
-      : clone(pendingSignatures);
+      : [];
 
     return {
       metrics: buildMetrics({
@@ -199,11 +210,11 @@ function normalizeApiSnapshot(data: unknown): LPDashboardData | null {
           .filter(isRecord)
           .map((item) => ({
             type: 'Distribution',
-            amount: formatCurrency(readNumber(item.amount)),
-            date: readString(item.date, new Date().toLocaleDateString()),
+            amount: formatCurrencyCompact(readNumber(item.amount)),
+            date: readString(item.date, formatDate(new Date())),
             status: 'Received',
           }))
-      : clone(lpDashboardCapitalActivity);
+      : [];
 
     return {
       metrics: buildMetrics({
@@ -211,10 +222,10 @@ function normalizeApiSnapshot(data: unknown): LPDashboardData | null {
         distributions: distributionsAmount,
         nav: navAmount,
       }),
-      documents: clone(lpDashboardDocuments),
+      documents: [],
       capitalActivity: normalizedCapitalActivity,
       pendingCalls: normalizedPendingCalls,
-      pendingSignatures: clone(pendingSignatures),
+      pendingSignatures: [],
       commitment: {
         totalCommitment,
         calledAmount,
@@ -231,7 +242,7 @@ export async function getLPDashboardSnapshot(lpId?: string) {
   }
 
   if (!lpId) {
-    return buildFallbackSnapshot();
+    return buildEmptySnapshot();
   }
 
   try {
@@ -252,13 +263,13 @@ export async function getLPDashboardSnapshot(lpId?: string) {
       lpId,
       result,
     });
-    return buildFallbackSnapshot();
+    return buildEmptySnapshot();
   } catch (error) {
-    logger.warn('Failed to fetch LP dashboard. Falling back to defaults.', {
+    logger.warn('Failed to fetch LP dashboard.', {
       component: 'lpDashboardService',
       lpId,
       error,
     });
-    return buildFallbackSnapshot();
+    throw error;
   }
 }

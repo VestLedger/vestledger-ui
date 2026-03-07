@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { Badge, Button, Card } from "@/ui";
+import { isMockMode } from "@/config/data-mode";
 import { ListItemCard, SectionHeader, StatusBadge } from '@/ui/composites';
 import type { LPDistributionStatement } from "@/data/seeds/lp-portal/lp-investor-portal";
 import { formatCurrency, formatDate } from "@/utils/formatting";
@@ -22,7 +23,8 @@ export interface DistributionStatementsProps {
 export function DistributionStatements({ statements }: DistributionStatementsProps) {
   const resolveStatementUrl = (statement: LPDistributionStatement) => {
     const url = statement.pdfUrl;
-    return url && url !== "#" ? url : getMockDocumentUrl("pdf");
+    if (url && url !== "#") return url;
+    return isMockMode("lpPortal") ? getMockDocumentUrl("pdf") : undefined;
   };
 
   const previewDocs = useMemo<PreviewDocument[]>(
@@ -32,8 +34,8 @@ export function DistributionStatements({ statements }: DistributionStatementsPro
         .map((statement) => ({
           id: statement.id,
           name: statement.distributionName,
-          type: "pdf",
-          url: resolveStatementUrl(statement),
+          type: resolveStatementUrl(statement) ? "pdf" : "other",
+          url: resolveStatementUrl(statement) ?? "",
           category: "Distribution Statement",
         })),
     [statements]

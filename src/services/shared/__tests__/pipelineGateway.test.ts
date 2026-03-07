@@ -78,7 +78,7 @@ describe('pipelineGateway', () => {
     const stages = await gateway.fetchPipelineStagesFromApi();
 
     expect(deals).toEqual([{ id: 'a', name: 'A' }]);
-    expect(stages).toEqual(['Sourced', 'First Meeting', 'Due Diligence', 'Term Sheet', 'Closed']);
+    expect(stages).toEqual([]);
     expect(requestJson).toHaveBeenNthCalledWith(
       1,
       '/pipeline/deals',

@@ -18,7 +18,13 @@ import type { AuditEvent } from '@/services/blockchain/auditTrailService';
 import { useUIKey } from '@/store/ui';
 import { auditTrailSelectors } from '@/store/slices/miscSlice';
 import { AsyncStateRenderer, EmptyState } from '@/ui/async-states';
-import { formatCurrencyCompact, formatTimestamp, truncateHash } from '@/utils/formatting';
+import {
+  formatCurrencyCompact,
+  formatDateTime,
+  formatNumber,
+  formatTimestamp,
+  truncateHash,
+} from '@/utils/formatting';
 import { writeToClipboard } from '@/utils/clipboard';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { PageScaffold, SearchToolbar, SectionHeader } from '@/ui/composites';
@@ -40,6 +46,15 @@ export function BlockchainAuditTrail() {
   const { searchQuery, selectedEvent, filter } = ui;
 
   const auditEvents = data?.events || [];
+  const latestBlockNumber = auditEvents.length
+    ? Math.max(...auditEvents.map((event) => event.blockNumber))
+    : 0;
+  const verifiedEventCount = auditEvents.filter(
+    (event) => event.verificationStatus === 'verified'
+  ).length;
+  const integrityPercentage = auditEvents.length
+    ? Math.round((verifiedEventCount / auditEvents.length) * 100)
+    : 0;
 
   const copyToClipboard = (text: string) => {
     void writeToClipboard(text);
@@ -110,7 +125,7 @@ export function BlockchainAuditTrail() {
               title: 'On-Chain Audit Trail',
               icon: Database,
               aiSummary: {
-                text: `${auditEvents.length} blockchain events recorded. ${auditEvents.filter(e => e.verificationStatus === 'verified').length} verified transactions across ${new Set(auditEvents.map(e => e.eventType)).size} event types. Latest block: ${Math.max(...auditEvents.map(e => e.blockNumber)).toLocaleString()}`,
+                text: `${auditEvents.length} blockchain events recorded. ${verifiedEventCount} verified transactions across ${new Set(auditEvents.map(e => e.eventType)).size} event types. Latest block: ${formatNumber(latestBlockNumber)}`,
               },
             }}
           >
@@ -132,13 +147,13 @@ export function BlockchainAuditTrail() {
         </Card>
         <Card padding="md">
           <div className="text-center">
-            <div className="text-2xl font-bold">18.2M</div>
+            <div className="text-2xl font-bold">{formatNumber(latestBlockNumber)}</div>
             <div className="text-xs text-[var(--app-text-muted)]">Latest Block</div>
           </div>
         </Card>
         <Card padding="md">
           <div className="text-center">
-            <div className="text-2xl font-bold text-[var(--app-secondary)]">100%</div>
+            <div className="text-2xl font-bold text-[var(--app-secondary)]">{integrityPercentage}%</div>
             <div className="text-xs text-[var(--app-text-muted)]">Integrity</div>
           </div>
         </Card>
@@ -236,7 +251,7 @@ export function BlockchainAuditTrail() {
                   </div>
                   <div className="flex items-center gap-1">
                     <Layers className="w-3 h-3" />
-                    <span>Block #{event.blockNumber.toLocaleString()}</span>
+                    <span>Block #{formatNumber(event.blockNumber)}</span>
                   </div>
                   <Button size="sm" variant="light" className="ml-auto text-xs gap-1">
                     <ExternalLink className="w-3 h-3" />
@@ -285,11 +300,11 @@ export function BlockchainAuditTrail() {
             <div className="space-y-3">
               <div>
                 <div className="text-xs text-[var(--app-text-muted)] mb-1">Block Number</div>
-                <div className="font-medium">{selectedEvent.blockNumber.toLocaleString()}</div>
+                <div className="font-medium">{formatNumber(selectedEvent.blockNumber)}</div>
               </div>
               <div>
                 <div className="text-xs text-[var(--app-text-muted)] mb-1">Timestamp</div>
-                <div className="font-medium">{selectedEvent.timestamp.toLocaleString()}</div>
+                <div className="font-medium">{formatDateTime(selectedEvent.timestamp)}</div>
               </div>
               <div>
                 <div className="text-xs text-[var(--app-text-muted)] mb-1">Parties</div>

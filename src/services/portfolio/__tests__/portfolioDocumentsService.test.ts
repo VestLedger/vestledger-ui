@@ -69,7 +69,7 @@ describe('portfolioDocumentsService', () => {
     expect(snapshot.companies.some((company) => company.pendingCount > 0)).toBe(true);
   });
 
-  it('falls back to cached snapshot when api returns no documents', async () => {
+  it('returns an explicit empty document state when api returns no documents', async () => {
     isMockMode.mockReturnValue(false);
     fetchPortfolioSnapshot.mockResolvedValue({
       companies: [{ id: 'co-1', companyName: 'Axiom Health', sector: 'HealthTech', stage: 'Series A' }],
@@ -88,10 +88,11 @@ describe('portfolioDocumentsService', () => {
 
     requestJson.mockResolvedValue([]);
     const second = await service.fetchPortfolioDocumentsSnapshot('fund-b');
-    expect(second.documents).toHaveLength(1);
+    expect(second.documents).toEqual([]);
+    expect(second.companies).toHaveLength(1);
   });
 
-  it('clears cache and exposes snapshot accessor in api mode', async () => {
+  it('clears cache and exposes an empty snapshot accessor in api mode', async () => {
     isMockMode.mockReturnValue(false);
     fetchPortfolioSnapshot.mockResolvedValue({
       companies: [{ id: 'co-1', companyName: 'Axiom Health', sector: 'HealthTech', stage: 'Series A' }],
@@ -100,10 +101,10 @@ describe('portfolioDocumentsService', () => {
 
     const service = await import('@/services/portfolio/portfolioDocumentsService');
     const fallback = await service.fetchPortfolioDocumentsSnapshot('fund-fail');
-    expect(fallback.documents.length).toBeGreaterThan(0);
+    expect(fallback.documents).toEqual([]);
 
     service.clearPortfolioDocumentsSnapshotCache();
     const fromAccessor = service.getPortfolioDocumentsSnapshot();
-    expect(fromAccessor.documents.length).toBeGreaterThan(0);
+    expect(fromAccessor.documents).toEqual([]);
   });
 });

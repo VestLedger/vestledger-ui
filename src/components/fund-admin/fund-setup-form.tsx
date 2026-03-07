@@ -18,28 +18,13 @@ import type {
 } from '@/types/regulatory';
 import { scenariosSelectors } from '@/store/slices/waterfallSlice';
 import { loadWaterfallScenariosOperation } from '@/store/async/waterfallOperations';
-
-const STATUS_OPTIONS = [
-  { value: 'active', label: 'Active' },
-  { value: 'fundraising', label: 'Fundraising' },
-  { value: 'closed', label: 'Closed' },
-];
-
-const STRATEGY_OPTIONS = [
-  { value: 'early-stage', label: 'Early Stage' },
-  { value: 'growth', label: 'Growth' },
-  { value: 'late-stage', label: 'Late Stage' },
-  { value: 'multi-stage', label: 'Multi Stage' },
-  { value: 'sector-specific', label: 'Sector Specific' },
-];
+import {
+  FUND_STATUS_OPTIONS,
+  FUND_STRATEGY_OPTIONS,
+  INDIA_CATEGORY_OPTIONS,
+} from '@/config/fund-options';
 
 const DATE_INPUT_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
-
-const INDIA_CATEGORY_OPTIONS = [
-  { value: 'cat_i', label: 'Category I' },
-  { value: 'cat_ii', label: 'Category II' },
-  { value: 'cat_iii', label: 'Category III' },
-];
 
 function normalizeDateInputValue(value?: string): string {
   if (!value) return '';
@@ -307,7 +292,7 @@ export function FundSetupForm({
               status: event.target.value as CreateFundParams['status'],
             }))
           }
-          options={STATUS_OPTIONS}
+                  options={FUND_STATUS_OPTIONS}
         />
         <Select
           label="Strategy"
@@ -318,7 +303,7 @@ export function FundSetupForm({
               strategy: event.target.value as CreateFundParams['strategy'],
             }))
           }
-          options={STRATEGY_OPTIONS}
+                  options={FUND_STRATEGY_OPTIONS}
         />
         <Select
           label="Waterfall Scenario"

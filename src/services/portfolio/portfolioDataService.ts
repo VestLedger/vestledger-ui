@@ -10,6 +10,7 @@ import {
   type PortfolioUpdate,
 } from '@/data/seeds/mock-portfolio-data';
 import { requestJson } from '@/services/shared/httpClient';
+import { formatCurrency, formatDate } from '@/utils/formatting';
 
 export type {
   AssetAllocation,
@@ -203,7 +204,7 @@ function derivePortfolioPerformance(companies: PortfolioCompanyMetrics[]): Portf
     const date = new Date(end.getFullYear(), end.getMonth() - monthOffset, 1);
     const progress = (11 - monthOffset) / 11;
     points.push({
-      month: date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+      month: formatDate(date, { month: 'short', year: 'numeric' }),
       portfolioValue: Math.round(totalCurrentValue * (0.72 + progress * 0.28)),
       deployed: Math.round(deployed * (0.63 + progress * 0.37)),
     });
@@ -233,9 +234,7 @@ function derivePortfolioUpdates(companies: PortfolioCompanyMetrics[]): Portfolio
     } else if (company.moic >= 2.2) {
       type = 'funding';
       title = `${company.companyName}: Valuation Expansion`;
-      description = `Current valuation now ${company.currentValuation.toLocaleString('en-US', {
-        style: 'currency',
-        currency: 'USD',
+      description = `Current valuation now ${formatCurrency(company.currentValuation, {
         maximumFractionDigits: 0,
       })}.`;
     } else if (company.headcount >= 80) {
@@ -309,6 +308,36 @@ function buildSeedPortfolioSnapshot(): PortfolioSnapshot {
   };
 }
 
+function buildEmptyPortfolioSnapshot(
+  healthSummary?: ApiPortfolioHealth['summary']
+): PortfolioSnapshot {
+  const totalCompanies = healthSummary?.totalCompanies ?? 0;
+  const atRiskCompanies = healthSummary?.atRiskCount ?? 0;
+  const healthyCompanies = healthSummary?.healthyCount ?? Math.max(0, totalCompanies - atRiskCompanies);
+
+  return {
+    companies: [],
+    updates: [],
+    summary: {
+      totalCompanies,
+      totalInvested: 0,
+      totalCurrentValue: 0,
+      averageMOIC: 0,
+      averageIRR: 0,
+      activeCompanies: 0,
+      averageHealthScore: 0,
+    },
+    performance: [],
+    allocation: [],
+    pageMetrics: {
+      totalCompanies,
+      atRiskCompanies,
+      pendingUpdates: 0,
+    },
+    healthyCompanies,
+  };
+}
+
 async function fetchApiPortfolioCompanies(fundId: string): Promise<ApiPortfolioCompany[]> {
   const response = await requestJson<ApiPortfolioResponse>(`/funds/${fundId}/portfolio`, {
     method: 'GET',
@@ -347,7 +376,7 @@ export async function fetchPortfolioSnapshot(fundId?: string | null): Promise<Po
 
   const normalizedFundId = fundId?.trim();
   if (!normalizedFundId) {
-    const fallback = apiPortfolioSnapshotCache ?? buildSeedPortfolioSnapshot();
+    const fallback = apiPortfolioSnapshotCache ?? buildEmptyPortfolioSnapshot();
     return clone(fallback);
   }
 
@@ -358,11 +387,14 @@ export async function fetchPortfolioSnapshot(fundId?: string | null): Promise<Po
     ]);
 
     const companies = apiCompanies.map(mapApiToPortfolioCompanyMetrics);
-    const snapshot = buildPortfolioSnapshot(companies, health?.summary);
+    const snapshot =
+      companies.length > 0
+        ? buildPortfolioSnapshot(companies, health?.summary)
+        : buildEmptyPortfolioSnapshot(health?.summary);
     apiPortfolioSnapshotCache = snapshot;
     return clone(snapshot);
   } catch {
-    const fallback = apiPortfolioSnapshotCache ?? buildSeedPortfolioSnapshot();
+    const fallback = apiPortfolioSnapshotCache ?? buildEmptyPortfolioSnapshot();
     return clone(fallback);
   }
 }
@@ -376,37 +408,37 @@ export async function fetchPortfolioCompanies(
 
 export function getPortfolioCompanies(): PortfolioCompanyMetrics[] {
   if (isMockMode('portfolio')) return clone(portfolioCompanies);
-  return clone(apiPortfolioSnapshotCache?.companies ?? portfolioCompanies);
+  return clone(apiPortfolioSnapshotCache?.companies ?? []);
 }
 
 export function getPortfolioUpdates(): PortfolioUpdate[] {
   if (isMockMode('portfolio')) return clone(portfolioUpdates);
-  return clone(apiPortfolioSnapshotCache?.updates ?? portfolioUpdates);
+  return clone(apiPortfolioSnapshotCache?.updates ?? []);
 }
 
 export function getPortfolioSummary(): PortfolioSummary {
   if (isMockMode('portfolio')) return clone(portfolioSummary);
-  return clone(apiPortfolioSnapshotCache?.summary ?? portfolioSummary);
+  return clone(apiPortfolioSnapshotCache?.summary ?? buildEmptyPortfolioSnapshot().summary);
 }
 
 export function getPortfolioPerformanceData(): PortfolioPerformancePoint[] {
   if (isMockMode('portfolio')) return clone(performanceData);
-  return clone(apiPortfolioSnapshotCache?.performance ?? performanceData);
+  return clone(apiPortfolioSnapshotCache?.performance ?? []);
 }
 
 export function getPortfolioAssetAllocation(): AssetAllocation[] {
   if (isMockMode('portfolio')) return clone(assetAllocation);
-  return clone(apiPortfolioSnapshotCache?.allocation ?? assetAllocation);
+  return clone(apiPortfolioSnapshotCache?.allocation ?? []);
 }
 
 export function getPortfolioPageMetricsSnapshot(): PortfolioPageMetricsSnapshot {
   if (isMockMode('portfolio')) return buildSeedPortfolioSnapshot().pageMetrics;
-  return clone(apiPortfolioSnapshotCache?.pageMetrics ?? buildSeedPortfolioSnapshot().pageMetrics);
+  return clone(apiPortfolioSnapshotCache?.pageMetrics ?? buildEmptyPortfolioSnapshot().pageMetrics);
 }
 
 export function getPortfolioHealthyCompaniesCount(): number {
   if (isMockMode('portfolio')) return buildSeedPortfolioSnapshot().healthyCompanies;
-  return apiPortfolioSnapshotCache?.healthyCompanies ?? buildSeedPortfolioSnapshot().healthyCompanies;
+  return apiPortfolioSnapshotCache?.healthyCompanies ?? 0;
 }
 
 export function clearPortfolioSnapshotCache(): void {

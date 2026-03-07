@@ -13,6 +13,7 @@ import {
 import { requestJson } from '@/services/shared/httpClient';
 import type { Fund, FundViewMode } from '@/types/fund';
 import { ROUTE_PATHS } from '@/config/routes';
+import { formatDate } from '@/utils/formatting/date';
 
 export type DashboardData = MockDashboardData;
 
@@ -608,7 +609,7 @@ function deriveTrendPoints(
 
   for (let index = 0; index < RECENT_MONTHS; index += 1) {
     const monthDate = new Date(now.getFullYear(), now.getMonth() - (RECENT_MONTHS - 1 - index), 1);
-    const month = monthDate.toLocaleString('en-US', { month: 'short' });
+    const month = formatDate(monthDate, { month: 'short' });
     const arr = Math.round((startArr + (((currentArr - startArr) * index) / Math.max(RECENT_MONTHS - 1, 1))) * 10) / 10;
     points.push({ month, arr });
   }

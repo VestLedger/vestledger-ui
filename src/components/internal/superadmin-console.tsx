@@ -24,18 +24,7 @@ import {
   type TenantStatus,
   type TenantSummary,
 } from '@/services/internal/superadminApiService';
-
-const APP_ROLE_OPTIONS: Array<{ value: AssignableAppRole; label: string }> = [
-  { value: 'gp', label: 'GP' },
-  { value: 'analyst', label: 'Analyst' },
-  { value: 'ops', label: 'Operations' },
-  { value: 'ir', label: 'Investor Relations' },
-  { value: 'researcher', label: 'Researcher' },
-  { value: 'lp', label: 'LP' },
-  { value: 'auditor', label: 'Auditor' },
-  { value: 'service_provider', label: 'Service Provider' },
-  { value: 'strategic_partner', label: 'Strategic Partner' },
-];
+import { TEAM_APP_ROLE_OPTIONS } from '@/config/settings-options';
 
 type NoticeState = {
   type: 'success' | 'error';
@@ -350,7 +339,7 @@ export function SuperadminConsole() {
             />
             <Select
               label="First User Role"
-              options={APP_ROLE_OPTIONS}
+                  options={TEAM_APP_ROLE_OPTIONS}
               selectedKeys={[tenantForm.firstAdminAppRole]}
               onChange={(event) =>
                 setTenantForm((prev) => ({
@@ -404,7 +393,7 @@ export function SuperadminConsole() {
           />
           <Select
             label="Role"
-            options={APP_ROLE_OPTIONS}
+                    options={TEAM_APP_ROLE_OPTIONS}
             selectedKeys={[inviteForm.appRole]}
             onChange={(event) =>
               setInviteForm((prev) => ({

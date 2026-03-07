@@ -262,12 +262,21 @@ function getSeedSnapshot(): LPManagementSnapshot {
   };
 }
 
+function getEmptySnapshot(): LPManagementSnapshot {
+  return {
+    lps: [],
+    reports: [],
+    capitalCalls: [],
+    distributions: [],
+  };
+}
+
 function setCachedSnapshot(snapshot: LPManagementSnapshot): void {
   apiLPManagementSnapshotCache = clone(snapshot);
 }
 
 function getCachedSnapshot(): LPManagementSnapshot {
-  return clone(apiLPManagementSnapshotCache ?? getSeedSnapshot());
+  return clone(apiLPManagementSnapshotCache ?? getEmptySnapshot());
 }
 
 function upsertReport(report: Report): void {
@@ -311,10 +320,10 @@ export async function getLPManagementSnapshot(): Promise<LPManagementSnapshot> {
     ]);
 
     const snapshot: LPManagementSnapshot = {
-      lps: lps.length > 0 ? lps : previous.lps,
+      lps,
       reports: previous.reports,
-      capitalCalls: capitalCalls.length > 0 ? capitalCalls : previous.capitalCalls,
-      distributions: distributions.length > 0 ? distributions : previous.distributions,
+      capitalCalls,
+      distributions,
     };
 
     setCachedSnapshot(snapshot);
@@ -341,6 +350,9 @@ export function getLPDistributions(): Distribution[] {
 }
 
 export async function sendReportToLPs(selectedLPIds?: string[]): Promise<BulkSendResult> {
+  if (!isMockMode('lpPortal')) {
+    throw new Error('Sending LP reports in live mode requires an API implementation.');
+  }
   const recipientCount = resolveTargetLPIds(selectedLPIds).length;
   return {
     recipientCount,
@@ -349,6 +361,9 @@ export async function sendReportToLPs(selectedLPIds?: string[]): Promise<BulkSen
 }
 
 export async function sendCapitalCallToLPs(selectedLPIds?: string[]): Promise<BulkSendResult> {
+  if (!isMockMode('lpPortal')) {
+    throw new Error('Sending capital calls in live mode requires an API implementation.');
+  }
   const recipientCount = resolveTargetLPIds(selectedLPIds).length;
   return {
     recipientCount,
@@ -357,6 +372,9 @@ export async function sendCapitalCallToLPs(selectedLPIds?: string[]): Promise<Bu
 }
 
 export async function exportLPData(selectedLPIds?: string[]): Promise<ExportLPDataResult> {
+  if (!isMockMode('lpPortal')) {
+    throw new Error('Exporting LP data in live mode requires an API implementation.');
+  }
   const recordCount = resolveTargetLPIds(selectedLPIds).length;
   const exportedAt = new Date().toISOString();
 
@@ -368,6 +386,9 @@ export async function exportLPData(selectedLPIds?: string[]): Promise<ExportLPDa
 }
 
 export async function generateLPReport(selectedLPIds?: string[]): Promise<Report> {
+  if (!isMockMode('lpPortal')) {
+    throw new Error('Generating LP reports in live mode requires an API implementation.');
+  }
   const recipientCount = resolveTargetLPIds(selectedLPIds).length;
   const now = new Date();
   const quarter = `Q${Math.floor(now.getMonth() / 3) + 1}`;
@@ -388,6 +409,9 @@ export async function generateLPReport(selectedLPIds?: string[]): Promise<Report
 }
 
 export async function sendLPUpdate(selectedLPIds?: string[]): Promise<BulkSendResult> {
+  if (!isMockMode('lpPortal')) {
+    throw new Error('Sending LP updates in live mode requires an API implementation.');
+  }
   const recipientCount = resolveTargetLPIds(selectedLPIds).length;
   return {
     recipientCount,

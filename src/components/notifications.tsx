@@ -11,6 +11,8 @@ import { EmptyState, ErrorState, LoadingState } from '@/ui/async-states';
 import { useUIKey } from '@/store/ui';
 import { ROUTE_PATHS } from '@/config/routes';
 import { fetchAlertsOperation } from '@/store/async/dataOperations';
+import { getNotificationFilterOptions } from '@/config/notification-options';
+import { formatDateTime } from '@/utils/formatting';
 
 type NotificationFilter = 'all' | 'unread' | 'alert' | 'deal' | 'report' | 'system';
 
@@ -149,14 +151,14 @@ export function Notifications() {
               selectedKeys={[selectedFilter]}
               onChange={(event) => patchUI({ selectedFilter: event.target.value as NotificationFilter })}
               disallowEmptySelection
-              options={[
-                { value: 'all', label: `All notifications (${totalCount})` },
-                { value: 'unread', label: `Unread (${unreadCount})` },
-                { value: 'alert', label: `Alerts (${alertCount})` },
-                { value: 'deal', label: `Deals (${dealCount})` },
-                { value: 'report', label: `Reports (${reportCount})` },
-                { value: 'system', label: `System (${systemCount})` },
-              ]}
+              options={getNotificationFilterOptions({
+                total: totalCount,
+                unread: unreadCount,
+                alert: alertCount,
+                deal: dealCount,
+                report: reportCount,
+                system: systemCount,
+              })}
             />
           </div>
         ),
@@ -187,7 +189,7 @@ export function Notifications() {
             icon={getIcon(notification.type)}
             title={notification.title}
             description={notification.message}
-            meta={notification.timestamp.toLocaleString()}
+            meta={formatDateTime(notification.timestamp)}
             badges={
               !notification.read ? (
                 <Badge size="sm" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">

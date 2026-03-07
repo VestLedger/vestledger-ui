@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { isMockMode } from "@/config/data-mode";
 import { Badge, Button, Card, Checkbox, Input, Select } from "@/ui";
 import { AsyncStateRenderer } from '@/ui/async-states';
 import { ListItemCard, SectionHeader } from '@/ui/composites';
@@ -98,22 +99,22 @@ export function StatementGenerator({ distribution }: StatementGeneratorProps) {
     distribution.lpAllocations?.[0]?.lpName ||
     "First LP";
   const statementName = `${firstLPName} - ${selectedTemplate?.name ?? "Statement"}`;
-  const statementUrl = getMockDocumentUrl("pdf");
+  const statementUrl = isMockMode("backOffice") ? getMockDocumentUrl("pdf") : undefined;
 
   const taxFormDocs = useMemo<PreviewDocument[]>(
     () => [
       {
         id: "tax-k1",
         name: "K-1 Preview",
-        type: "pdf",
-        url: getMockDocumentUrl("pdf"),
+        type: isMockMode("backOffice") ? "pdf" : "other",
+        url: isMockMode("backOffice") ? getMockDocumentUrl("pdf") : "",
         category: "Tax Form",
       },
       {
         id: "tax-1099",
         name: "1099 Preview",
-        type: "pdf",
-        url: getMockDocumentUrl("pdf"),
+        type: isMockMode("backOffice") ? "pdf" : "other",
+        url: isMockMode("backOffice") ? getMockDocumentUrl("pdf") : "",
         category: "Tax Form",
       },
     ],

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react';
+import { isMockMode } from '@/config/data-mode';
 import { Card, Button, Badge, Progress } from '@/ui';
 import { Upload, FileText, Sparkles, CheckCircle2, Clock, Download, Eye } from 'lucide-react';
 import { DocumentPreviewModal, useDocumentPreview, getMockDocumentUrl } from '@/components/documents/preview';
@@ -10,6 +11,7 @@ import { pitchDeckSelectors } from '@/store/slices/aiSlice';
 import { EmptyState, ErrorState, LoadingState } from '@/ui/async-states';
 import { SectionHeader, StatusBadge } from '@/ui/composites';
 import { loadPitchDeckAnalysesOperation } from '@/store/async/dataOperations';
+import { formatDate } from '@/utils/formatting';
 
 const defaultPitchDeckReaderState = {
   selectedAnalysisId: null as string | null,
@@ -105,7 +107,7 @@ export function PitchDeckReader() {
               </Badge>
               <StatusBadge status={selectedAnalysis.status} domain="general" size="sm" showIcon />
               <span className="text-xs text-[var(--app-text-muted)]">
-                Analyzed on {new Date(selectedAnalysis.uploadDate).toLocaleDateString()}
+                Analyzed on {formatDate(selectedAnalysis.uploadDate)}
               </span>
             </div>
           </div>
@@ -119,8 +121,8 @@ export function PitchDeckReader() {
                   preview.openPreview({
                     id: selectedAnalysis.id,
                     name: selectedAnalysis.fileName,
-                    type: 'pdf',
-                    url: getMockDocumentUrl('pdf'),
+                    type: isMockMode('ai') ? 'pdf' : 'other',
+                    url: isMockMode('ai') ? getMockDocumentUrl('pdf') : '',
                     metadata: {
                       aiInsights: selectedAnalysis.aiInsights ?? [],
                       summary: selectedAnalysis.summary ?? null,
@@ -385,7 +387,7 @@ export function PitchDeckReader() {
               </div>
               <div className="text-right">
                 <p className="text-xs text-[var(--app-text-muted)]">
-                  {new Date(analysis.uploadDate).toLocaleDateString()}
+                  {formatDate(analysis.uploadDate)}
                 </p>
               </div>
             </div>

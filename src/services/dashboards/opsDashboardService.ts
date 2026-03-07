@@ -6,6 +6,8 @@ import {
 } from '@/data/seeds/dashboards/ops-dashboard';
 import { apiClient } from '@/api/client';
 import { unwrapApiResult } from '@/api/unwrap';
+import { formatDate } from '@/utils/formatting/date';
+import { formatCurrencyCompact } from '@/utils/formatting/currency';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -22,12 +24,7 @@ function readNumber(value: unknown, fallback = 0): number {
 function formatCurrency(value: unknown): string {
   const amount = readNumber(value, Number.NaN);
   if (!Number.isFinite(amount)) return '$0';
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    notation: 'compact',
-    maximumFractionDigits: 1,
-  }).format(amount);
+  return formatCurrencyCompact(amount);
 }
 
 function normalizeSeverity(value: unknown): 'High' | 'Medium' | 'Low' {
@@ -41,12 +38,12 @@ function toDisplayDate(value: unknown): string {
   if (typeof value === 'string' || typeof value === 'number') {
     const parsed = new Date(value);
     if (!Number.isNaN(parsed.getTime())) {
-      return parsed.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      return formatDate(parsed, { month: 'short', day: 'numeric' });
     }
     return readString(value);
   }
   if (value instanceof Date && !Number.isNaN(value.getTime())) {
-    return value.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return formatDate(value, { month: 'short', day: 'numeric' });
   }
   return 'TBD';
 }
@@ -113,7 +110,7 @@ export async function getOpsDashboardSnapshot() {
 
   return {
     metrics,
-    complianceAlerts: normalizedComplianceAlerts.length > 0 ? normalizedComplianceAlerts : opsComplianceAlerts,
-    upcomingDistributions: normalizedUpcomingDistributions.length > 0 ? normalizedUpcomingDistributions : opsUpcomingDistributions,
+    complianceAlerts: normalizedComplianceAlerts,
+    upcomingDistributions: normalizedUpcomingDistributions,
   };
 }

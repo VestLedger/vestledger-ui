@@ -3,7 +3,7 @@
 import { Card, Button, Badge, Select } from '@/ui';
 import { FileText, Download, Settings, RefreshCw, Send, Eye, CheckCircle, AlertCircle } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
-import { formatCurrency as formatCurrencyBase } from '@/utils/formatting';
+import { formatCurrency as formatCurrencyBase, formatDate } from '@/utils/formatting';
 import { SearchToolbar, SectionHeader, StatusBadge } from '@/ui/composites';
 
 export type K1IncomeType =
@@ -467,7 +467,7 @@ export function K1Generator({
                         <span>•</span>
                         <span>{doc.partnerType === 'individual' ? 'Individual' : 'Entity'}</span>
                         <span>•</span>
-                        <span>Generated {doc.generatedDate.toLocaleDateString()}</span>
+                        <span>Generated {formatDate(doc.generatedDate)}</span>
                       </div>
                     </div>
                     <div className="text-right">

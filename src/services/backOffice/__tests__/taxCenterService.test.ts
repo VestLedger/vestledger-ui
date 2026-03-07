@@ -39,7 +39,7 @@ describe('taxCenterService', () => {
     expect(portfolioTax).toEqual(mockPortfolioTax);
   });
 
-  it('falls back to cached mock tax data in API mode when requests fail', async () => {
+  it('returns empty tax-center data in API mode when requests fail before any API cache exists', async () => {
     isMockMode.mockReturnValue(false);
     requestJson.mockRejectedValue(new Error('network down'));
 
@@ -50,10 +50,10 @@ describe('taxCenterService', () => {
     const summaries = await service.getTaxSummaries();
     const portfolioTax = await service.getPortfolioTax();
 
-    expect(filingDeadline.getTime()).toBe(mockFilingDeadline.getTime());
-    expect(documents).toEqual(mockTaxDocuments);
-    expect(summaries).toEqual(mockTaxSummaries);
-    expect(portfolioTax).toEqual(mockPortfolioTax);
+    expect(filingDeadline).toBeInstanceOf(Date);
+    expect(documents).toEqual([]);
+    expect(summaries).toEqual([]);
+    expect(portfolioTax).toEqual([]);
   });
 
   it('maps API tax payloads when endpoints are available', async () => {

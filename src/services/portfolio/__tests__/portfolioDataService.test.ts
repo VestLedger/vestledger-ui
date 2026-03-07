@@ -130,14 +130,14 @@ describe('portfolioDataService', () => {
     expect(second.summary.totalCompanies).toBe(1);
   });
 
-  it('clears cache and returns mock fallback when no fund id provided', async () => {
+  it('clears cache and returns an explicit empty snapshot when no fund id is provided', async () => {
     isMockMode.mockReturnValue(false);
 
     const service = await import('@/services/portfolio/portfolioDataService');
     service.clearPortfolioSnapshotCache();
 
     const fallback = await service.fetchPortfolioSnapshot('');
-    expect(fallback.companies.length).toBeGreaterThan(0);
-    expect(fallback.summary.totalCompanies).toBeGreaterThan(0);
+    expect(fallback.companies).toEqual([]);
+    expect(fallback.summary.totalCompanies).toBe(0);
   });
 });

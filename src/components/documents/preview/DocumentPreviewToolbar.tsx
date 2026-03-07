@@ -3,6 +3,7 @@
 import { Button } from '@/ui';
 import { Download, Share2, Printer, X } from 'lucide-react';
 import { PreviewDocument } from './types';
+import { formatDate } from '@/utils/formatting';
 
 interface DocumentPreviewToolbarProps {
   document: PreviewDocument;
@@ -48,7 +49,7 @@ export function DocumentPreviewToolbar({
         {document.uploadedBy && (
           <p className="text-sm text-[var(--app-text-muted)]">
             Uploaded by {document.uploadedBy}
-            {document.uploadedDate && ` on ${new Date(document.uploadedDate).toLocaleDateString()}`}
+            {document.uploadedDate && ` on ${formatDate(document.uploadedDate)}`}
           </p>
         )}
       </div>

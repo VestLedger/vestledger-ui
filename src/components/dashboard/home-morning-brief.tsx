@@ -2,7 +2,7 @@
 
 import { Clock3, Sparkles } from 'lucide-react';
 import type { MorningBrief } from '@/data/mocks/hooks/dashboard-data';
-import { DEFAULT_LOCALE } from '@/config/i18n';
+import { formatTime } from '@/utils/formatting';
 import { KpiChip } from '@/ui/composites';
 
 interface HomeMorningBriefProps {
@@ -10,7 +10,7 @@ interface HomeMorningBriefProps {
 }
 
 export function HomeMorningBrief({ brief }: HomeMorningBriefProps) {
-  const asOfLabel = brief.asOf.toLocaleTimeString(DEFAULT_LOCALE, {
+  const asOfLabel = formatTime(brief.asOf, {
     hour: '2-digit',
     minute: '2-digit',
   });

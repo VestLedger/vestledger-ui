@@ -18,18 +18,17 @@ import { normalizeError } from "@/store/utils/normalizeError";
 import { logger } from "@/lib/logger";
 import { clearAuthenticatedAppCaches } from "@/services/internal/clearAuthenticatedAppCaches";
 import { DATA_MODE_OVERRIDE_KEY, type DataMode } from "@/config/data-mode";
+import { isDemoUser } from "@/config/demo-session";
 import {
   AUTH_COOKIE_MAX_AGE_SECONDS,
   AUTH_HYDRATION_TIMEOUT_MS,
-  MOCK_DEMO_PROFILE,
 } from "@/config/auth";
+import { getAuthCookieDomain } from "@/utils/auth/cookie-domain";
 
 const STORAGE_AUTH_KEY = "isAuthenticated";
 const STORAGE_USER_KEY = "user";
 const STORAGE_TOKEN_KEY = "accessToken";
 const STORAGE_ARCHIVED_FUND_IDS = "vestledger-archived-fund-ids";
-const DEFAULT_DEMO_EMAIL = "demo@vestledger.com";
-
 function getCookieValue(name: string): string | null {
   if (typeof document === "undefined") return null;
   const prefix = `${name}=`;
@@ -76,15 +75,7 @@ function normalizeUser(
 }
 
 function isKnownMockUser(user: User): boolean {
-  const demoEmail =
-    process.env.NEXT_PUBLIC_DEMO_EMAIL?.trim().toLowerCase() ||
-    DEFAULT_DEMO_EMAIL;
-  const normalizedUserEmail = user.email.trim().toLowerCase();
-
-  if (demoEmail && normalizedUserEmail === demoEmail) return true;
-  if (user.id && user.id === MOCK_DEMO_PROFILE.id) return true;
-
-  return false;
+  return isDemoUser(user);
 }
 
 function resolveHydratedDataMode(
@@ -100,15 +91,6 @@ function resolveHydratedDataMode(
   void storageModeRaw;
   void cookieModeRaw;
   return "api";
-}
-
-function getAuthCookieDomain(hostname?: string | null) {
-  if (!hostname) return null;
-  if (hostname === "localhost" || hostname.endsWith(".localhost")) return null;
-  if (/^\d{1,3}(?:\.\d{1,3}){3}$/.test(hostname)) return null;
-  const baseHost = hostname.replace(/^www\./, "").replace(/^(app|admin)\./, "");
-  if (baseHost === "localhost") return null;
-  return `.${baseHost}`;
 }
 
 function setAuthCookies(user: User, accessToken?: string | null) {
@@ -229,14 +211,19 @@ export function* loginWorker(action: ReturnType<typeof loginRequested>) {
       safeLocalStorage.removeItem(STORAGE_ARCHIVED_FUND_IDS);
     }
     const result: AuthResult = yield call(authenticateUser, email, password);
-    const resolvedModeOverride: DataMode = isKnownMockUser(result.user)
-      ? "mock"
-      : (result.dataModeOverride ?? modeOverride);
+    const resolvedModeOverride: DataMode =
+      result.sessionType === "demo" || isKnownMockUser(result.user)
+        ? "mock"
+        : (result.dataModeOverride ?? modeOverride);
 
     // Persist to localStorage
     safeLocalStorage.setItem(STORAGE_AUTH_KEY, "true");
     safeLocalStorage.setJSON(STORAGE_USER_KEY, result.user);
-    safeLocalStorage.setItem(STORAGE_TOKEN_KEY, result.accessToken);
+    if (result.accessToken) {
+      safeLocalStorage.setItem(STORAGE_TOKEN_KEY, result.accessToken);
+    } else {
+      safeLocalStorage.removeItem(STORAGE_TOKEN_KEY);
+    }
     safeLocalStorage.setItem(DATA_MODE_OVERRIDE_KEY, resolvedModeOverride);
     setDataModeCookie(resolvedModeOverride);
     if (resolvedModeOverride === "mock") {

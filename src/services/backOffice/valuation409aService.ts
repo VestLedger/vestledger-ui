@@ -109,7 +109,7 @@ function mapApiValuation(record: ApiValuationRecord, index: number): Valuation40
     preferredStock: asNumber(record.preferredStock, fairMarketValue),
     status: normalizeValuationStatus(record.status),
     provider: record.provider ?? 'Valuation Provider',
-    reportUrl: record.reportUrl ?? '#',
+    reportUrl: record.reportUrl ?? '',
     methodology: record.methodology ?? 'OPM',
   };
 }
@@ -181,12 +181,23 @@ function getBaseMockSnapshot(): ValuationSnapshot {
   };
 }
 
+function getEmptySnapshot(): ValuationSnapshot {
+  return {
+    valuations: [],
+    strikePrices: [],
+    history: [],
+  };
+}
+
 function setCachedSnapshot(snapshot: ValuationSnapshot): void {
   apiValuationSnapshotCache = clone(snapshot);
 }
 
-function getCachedOrMockSnapshot(): ValuationSnapshot {
-  return clone(apiValuationSnapshotCache ?? getBaseMockSnapshot());
+function getCachedSnapshot(): ValuationSnapshot {
+  return clone(
+    apiValuationSnapshotCache ??
+      (isMockMode('backOffice') ? getBaseMockSnapshot() : getEmptySnapshot())
+  );
 }
 
 async function getValuationSnapshot(): Promise<ValuationSnapshot> {
@@ -194,10 +205,10 @@ async function getValuationSnapshot(): Promise<ValuationSnapshot> {
     if (!apiValuationSnapshotCache) {
       setCachedSnapshot(getBaseMockSnapshot());
     }
-    return getCachedOrMockSnapshot();
+    return getCachedSnapshot();
   }
 
-  const previous = getCachedOrMockSnapshot();
+  const previous = getCachedSnapshot();
 
   try {
     const current = await fetchValuationSnapshotFromApi();

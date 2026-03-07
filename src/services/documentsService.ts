@@ -93,7 +93,8 @@ export type UploadDocumentParams = {
 
 let documentsSnapshotCache: ListDocumentsResponse | null = null;
 
-const DEFAULT_USER_NAME = "Demo User";
+const DEFAULT_MOCK_USER_NAME = "Demo User";
+const EMPTY_USER_NAME = "";
 const clone = <T>(value: T): T => structuredClone(value);
 const getSeedDocumentUrl = (type: DocumentType): string => {
   const accessor = (documentPreviewSeeds as Record<string, unknown>)[
@@ -214,7 +215,7 @@ function mapVersionHistory(
       uploadedBy:
         typeof entry.uploadedBy === "string"
           ? entry.uploadedBy
-          : DEFAULT_USER_NAME,
+          : EMPTY_USER_NAME,
       uploadedDate: parseDate(
         typeof entry.uploadedDate === "string" ||
           entry.uploadedDate instanceof Date
@@ -224,8 +225,7 @@ function mapVersionHistory(
       changeNote:
         typeof entry.changeNote === "string" ? entry.changeNote : undefined,
       size: typeof entry.size === "number" ? entry.size : 0,
-      url:
-        typeof entry.url === "string" ? entry.url : getSeedDocumentUrl("other"),
+      url: typeof entry.url === "string" ? entry.url : "",
     }));
 
   return mapped;
@@ -251,11 +251,11 @@ function mapApiDocument(apiDocument: ApiDocument): Document {
     size: typeof apiDocument.size === "number" ? apiDocument.size : 0,
     folderId: apiDocument.folderId ?? null,
     folderPath: apiDocument.folderPath,
-    uploadedBy: apiDocument.uploadedBy ?? DEFAULT_USER_NAME,
+    uploadedBy: apiDocument.uploadedBy ?? EMPTY_USER_NAME,
     uploadedDate,
     lastModified,
     lastModifiedBy:
-      apiDocument.lastModifiedBy ?? apiDocument.uploadedBy ?? DEFAULT_USER_NAME,
+      apiDocument.lastModifiedBy ?? apiDocument.uploadedBy ?? EMPTY_USER_NAME,
     version: typeof apiDocument.version === "number" ? apiDocument.version : 1,
     versionHistory: mapVersionHistory(apiDocument.versionHistory),
     tags: Array.isArray(apiDocument.tags) ? apiDocument.tags : [],
@@ -279,7 +279,7 @@ function mapApiDocument(apiDocument: ApiDocument): Document {
         ? parseDate(apiDocument.expirationDate)
         : undefined,
     isArchived: Boolean(apiDocument.isArchived),
-    url: apiDocument.url ?? getSeedDocumentUrl(documentType),
+    url: apiDocument.url,
     thumbnailUrl: apiDocument.thumbnailUrl,
     checksum: apiDocument.checksum,
   };
@@ -294,7 +294,7 @@ function mapApiFolder(apiFolder: ApiDocumentFolder): DocumentFolder {
     color: apiFolder.color,
     icon: apiFolder.icon,
     description: apiFolder.description,
-    createdBy: apiFolder.createdBy ?? DEFAULT_USER_NAME,
+    createdBy: apiFolder.createdBy ?? EMPTY_USER_NAME,
     createdDate: parseDate(apiFolder.createdDate),
     documentCount:
       typeof apiFolder.documentCount === "number" ? apiFolder.documentCount : 0,
@@ -376,8 +376,18 @@ function getSeedSnapshot(): ListDocumentsResponse {
   };
 }
 
+function getEmptySnapshot(): ListDocumentsResponse {
+  return {
+    documents: [],
+    folders: [],
+  };
+}
+
 function getCachedSnapshot(): ListDocumentsResponse {
-  return clone(documentsSnapshotCache ?? getSeedSnapshot());
+  return clone(
+    documentsSnapshotCache ??
+      (isMockMode("documents") ? getSeedSnapshot() : getEmptySnapshot()),
+  );
 }
 
 function updateCachedDocument(
@@ -452,7 +462,7 @@ export async function listDocuments(
     });
 
     const snapshot: ListDocumentsResponse = {
-      documents: withMockUrls((response.documents ?? []).map(mapApiDocument)),
+      documents: (response.documents ?? []).map(mapApiDocument),
       folders: (response.folders ?? []).map(mapApiFolder),
     };
 
@@ -465,12 +475,15 @@ export async function listDocuments(
 }
 
 export function getDocumentPreviewUrl(type: DocumentType, id?: string): string {
-  if (!isMockMode("documents") && id) {
-    // In API mode, use the document's stored URL via GET /documents/:id
-    // Callers with an ID should use getDocument(id).then(d => d.url) for async access.
-    // This sync overload falls back to mock until callers are migrated to async.
+  if (isMockMode("documents")) {
+    return getSeedDocumentUrl(type);
   }
-  return getSeedDocumentUrl(type);
+
+  if (id) {
+    // In API mode, callers with an ID should use the async lookup to resolve
+    // the document's stored URL from the backend.
+  }
+  return "";
 }
 
 export async function getDocumentPreviewUrlAsync(id: string): Promise<string> {
@@ -481,7 +494,7 @@ export async function getDocumentPreviewUrlAsync(id: string): Promise<string> {
   const doc = await requestJson<{ url?: string }>(`/documents/${id}`, {
     fallbackMessage: "Failed to load document preview URL",
   });
-  return doc?.url ?? getSeedDocumentUrl("pdf");
+  return doc?.url ?? "";
 }
 
 export async function uploadDocument(
@@ -491,7 +504,7 @@ export async function uploadDocument(
   const documentName =
     params.name ?? `Uploaded Document ${now.toISOString().slice(0, 10)}.pdf`;
   const documentType = params.type ?? "pdf";
-  const uploader = params.uploadedBy ?? DEFAULT_USER_NAME;
+  const uploader = params.uploadedBy ?? DEFAULT_MOCK_USER_NAME;
 
   if (isMockMode("documents")) {
     const document: Document = {
@@ -531,13 +544,12 @@ export async function uploadDocument(
         category: params.category ?? "other",
         size: params.size ?? 245_000,
         folderId: params.folderId ?? undefined,
-        uploadedBy: uploader,
-        lastModifiedBy: uploader,
+        uploadedBy: params.uploadedBy ?? undefined,
+        lastModifiedBy: params.uploadedBy ?? undefined,
         tags: ["uploaded"],
         accessLevel: "internal",
         fundId: params.fundId ?? undefined,
         requiresSignature: false,
-        url: getSeedDocumentUrl(documentType),
       },
       fallbackMessage: "Failed to upload document",
     });
@@ -546,8 +558,6 @@ export async function uploadDocument(
     upsertCachedDocument(mapped);
     return clone(mapped);
   } catch {
-    const fallback = getCachedSnapshot().documents[0];
-    if (fallback) return clone(fallback);
     throw new Error("Failed to upload document");
   }
 }
@@ -571,7 +581,7 @@ export async function createDocumentFolder(
       name: folderName,
       parentId: params.parentId ?? null,
       path: folderPath,
-      createdBy: params.createdBy ?? DEFAULT_USER_NAME,
+      createdBy: params.createdBy ?? DEFAULT_MOCK_USER_NAME,
       createdDate: new Date(),
       documentCount: 0,
       accessLevel: params.accessLevel ?? "internal",
@@ -589,7 +599,7 @@ export async function createDocumentFolder(
         name: folderName,
         parentId: params.parentId ?? undefined,
         path: folderPath,
-        createdBy: params.createdBy ?? DEFAULT_USER_NAME,
+        createdBy: params.createdBy ?? undefined,
         accessLevel: params.accessLevel ?? "internal",
       },
       fallbackMessage: "Failed to create folder",
@@ -599,8 +609,6 @@ export async function createDocumentFolder(
     upsertCachedFolder(mapped);
     return clone(mapped);
   } catch {
-    const fallback = getCachedSnapshot().folders[0];
-    if (fallback) return clone(fallback);
     throw new Error("Failed to create folder");
   }
 }
@@ -625,7 +633,7 @@ export async function downloadDocument(
       );
       const mapped = mapApiDocument(response);
       upsertCachedDocument(mapped);
-      return mapped.url ?? getSeedDocumentUrl(mapped.type);
+      return mapped.url ?? null;
     } catch {
       return null;
     }
@@ -666,7 +674,7 @@ export async function moveDocument(
       folderId,
       folderPath: targetFolder?.path,
       lastModified: new Date(),
-      lastModifiedBy: DEFAULT_USER_NAME,
+      lastModifiedBy: DEFAULT_MOCK_USER_NAME,
     }));
     return;
   }
@@ -675,7 +683,6 @@ export async function moveDocument(
     method: "PATCH",
     body: {
       folderId,
-      lastModifiedBy: DEFAULT_USER_NAME,
     },
     fallbackMessage: "Failed to move document",
   });
@@ -685,7 +692,7 @@ export async function moveDocument(
     folderId,
     folderPath: targetFolder?.path,
     lastModified: new Date(),
-    lastModifiedBy: DEFAULT_USER_NAME,
+    lastModifiedBy: document.lastModifiedBy,
   }));
 }
 
@@ -698,7 +705,7 @@ export async function updateDocumentAccess(
       ...document,
       accessLevel,
       lastModified: new Date(),
-      lastModifiedBy: DEFAULT_USER_NAME,
+      lastModifiedBy: DEFAULT_MOCK_USER_NAME,
     }));
     return;
   }
@@ -713,7 +720,7 @@ export async function updateDocumentAccess(
     ...document,
     accessLevel,
     lastModified: new Date(),
-    lastModifiedBy: DEFAULT_USER_NAME,
+    lastModifiedBy: document.lastModifiedBy,
   }));
 }
 

@@ -5,6 +5,11 @@ import { Card, Button, Badge, Select } from '@/ui';
 import { DollarSign, Plus, PieChart, Download } from 'lucide-react';
 import { formatCurrency, formatDate } from '@/utils/formatting';
 import { SearchToolbar, SectionHeader, StatusBadge } from '@/ui/composites';
+import {
+  EXPENSE_DATE_RANGE_OPTIONS,
+  EXPENSE_STATUS_FILTER_OPTIONS,
+  EXPENSE_TYPE_FILTER_OPTIONS,
+} from '@/config/fund-options';
 
 export type ExpenseType =
   | 'management-fee'
@@ -262,13 +267,7 @@ export function ExpenseTracker({
                 className="min-w-[170px]"
                 selectedKeys={[filterType]}
                 onChange={(e) => patchUI({ filterType: e.target.value as ExpenseType | 'all' })}
-                options={[
-                  { value: 'all', label: 'All Types' },
-                  ...expenseTypes.map((type) => ({
-                    value: type,
-                    label: getExpenseTypeConfig(type).label,
-                  })),
-                ]}
+                options={EXPENSE_TYPE_FILTER_OPTIONS}
               />
               <Select
                 aria-label="Expense status filter"
@@ -276,13 +275,7 @@ export function ExpenseTracker({
                 className="min-w-[150px]"
                 selectedKeys={[filterStatus]}
                 onChange={(e) => patchUI({ filterStatus: e.target.value })}
-                options={[
-                  { value: 'all', label: 'All Status' },
-                  { value: 'pending', label: 'Pending' },
-                  { value: 'approved', label: 'Approved' },
-                  { value: 'paid', label: 'Paid' },
-                  { value: 'rejected', label: 'Rejected' },
-                ]}
+                options={EXPENSE_STATUS_FILTER_OPTIONS}
               />
               <Select
                 aria-label="Date range filter"
@@ -290,11 +283,7 @@ export function ExpenseTracker({
                 className="min-w-[140px]"
                 selectedKeys={[dateRange]}
                 onChange={(e) => patchUI({ dateRange: e.target.value as typeof dateRange })}
-                options={[
-                  { value: 'month', label: 'This Month' },
-                  { value: 'quarter', label: 'This Quarter' },
-                  { value: 'year', label: 'This Year' },
-                ]}
+                options={EXPENSE_DATE_RANGE_OPTIONS}
               />
             </div>
           )}

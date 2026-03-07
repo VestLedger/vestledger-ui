@@ -5,6 +5,7 @@ import {
   type TopbarSearchResult,
 } from '@/data/mocks/topbar/search';
 import { requestJson } from '@/services/shared/httpClient';
+import { formatDate } from '@/utils/formatting/date';
 
 type ApiPipelineDeal = {
   id: string;
@@ -68,7 +69,7 @@ function formatUploadedDate(value?: string): string | undefined {
   if (!value) return undefined;
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return undefined;
-  return parsed.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return formatDate(parsed, { month: 'short', day: 'numeric' });
 }
 
 async function safeRequest<T>(

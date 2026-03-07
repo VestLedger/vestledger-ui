@@ -1,9 +1,10 @@
 const fs = require('fs');
 const path = require('path');
+const { lhciAuthBaseUrl } = require('../config/runtime-hosts.cjs');
 
 const OUTPUT_DIR = path.resolve('.lighthouseci', 'auth');
 const LOG_PREFIX = '[LHCI Auth]';
-const BASE_URL = process.env.LHCI_AUTH_BASE_URL || 'http://localhost:3000';
+const BASE_URL = lhciAuthBaseUrl;
 
 function ensureOutputDir() {
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });

@@ -7,6 +7,10 @@ import { getInitialExportJobs, getReportTemplates, type ExportJob, type ReportTe
 import { useUIKey } from '@/store/ui';
 import { PageScaffold, SectionHeader, StatusBadge } from '@/ui/composites';
 import { ROUTE_PATHS } from '@/config/routes';
+import { REPORT_SCHEDULE_FREQUENCY_OPTIONS } from '@/config/report-options';
+import { formatDateTime } from '@/utils/formatting';
+
+const currentYear = new Date().getFullYear();
 
 const defaultReportExportState: {
   selectedTemplate: ReportTemplate | null;
@@ -19,18 +23,12 @@ const defaultReportExportState: {
 } = {
   selectedTemplate: null,
   exportFormat: 'pdf',
-  dateRange: { start: '2024-01-01', end: '2024-12-31' },
+  dateRange: { start: `${currentYear}-01-01`, end: `${currentYear}-12-31` },
   selectedSections: [],
   exportJobs: [],
   scheduleEnabled: false,
   scheduleFrequency: 'weekly',
 };
-
-const scheduleFrequencyOptions = [
-  { value: 'weekly', label: 'Weekly' },
-  { value: 'monthly', label: 'Monthly' },
-  { value: 'quarterly', label: 'Quarterly' },
-];
 
 const VALID_EXPORT_FORMATS = ['pdf', 'excel', 'csv', 'ppt'] as const;
 
@@ -106,7 +104,7 @@ export function ReportExport() {
               ...job,
               status: 'completed' as const,
               progress: 100,
-              downloadUrl: '#',
+              downloadUrl: undefined,
             };
           }
 
@@ -235,7 +233,7 @@ export function ReportExport() {
                         <div>
                           <p className="font-medium">{job.reportName}</p>
                           <p className="text-xs text-[var(--app-text-muted)]">
-                            {new Date(job.createdAt).toLocaleString()}
+                            {formatDateTime(job.createdAt)}
                           </p>
                         </div>
                       </div>
@@ -367,7 +365,7 @@ export function ReportExport() {
                     <div className="space-y-2">
                       <Select
                         aria-label="Schedule frequency"
-                        options={scheduleFrequencyOptions}
+                    options={REPORT_SCHEDULE_FREQUENCY_OPTIONS}
                         selectedKeys={[scheduleFrequency]}
                         onChange={(event) => patchUI({ scheduleFrequency: event.target.value as 'weekly' | 'monthly' | 'quarterly' })}
                         size="sm"

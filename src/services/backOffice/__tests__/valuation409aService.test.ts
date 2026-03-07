@@ -32,7 +32,7 @@ describe('valuation409aService', () => {
     await expect(service.getValuationHistory()).resolves.toEqual(mockHistory);
   });
 
-  it('falls back to cached mock data in API mode when requests fail', async () => {
+  it('returns empty valuation data in API mode when requests fail before any API cache exists', async () => {
     isMockMode.mockReturnValue(false);
     requestJson.mockRejectedValue(new Error('network down'));
 
@@ -42,9 +42,9 @@ describe('valuation409aService', () => {
     const strikePrices = await service.getStrikePrices();
     const history = await service.getValuationHistory();
 
-    expect(valuations).toEqual(mockValuations);
-    expect(strikePrices).toEqual(mockStrikePrices);
-    expect(history).toEqual(mockHistory);
+    expect(valuations).toEqual([]);
+    expect(strikePrices).toEqual([]);
+    expect(history).toEqual([]);
   });
 
   it('maps API valuation payloads when endpoints are available', async () => {

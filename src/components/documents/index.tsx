@@ -1,5 +1,6 @@
 'use client';
 
+import { isMockMode } from '@/config/data-mode';
 import { PageScaffold } from '@/ui/composites';
 import { DocumentManager, type AccessLevel } from './document-manager';
 import { DocumentPreviewModal, useDocumentPreview, getMockDocumentUrl, type PreviewDocument } from './preview';
@@ -23,6 +24,34 @@ import {
   updateDocumentAccessOperation,
   uploadDocumentOperation,
 } from '@/store/async/documentsOperations';
+
+function toPreviewDocument(
+  doc: {
+    id: string;
+    name: string;
+    type: PreviewDocument['type'];
+    url?: string;
+    size?: number;
+    uploadedBy?: string;
+    uploadedDate?: Date;
+    category?: string;
+    tags?: string[];
+  },
+): PreviewDocument {
+  const resolvedUrl = doc.url || (isMockMode('documents') ? getMockDocumentUrl(doc.type) : '');
+
+  return {
+    id: doc.id,
+    name: doc.name,
+    type: resolvedUrl ? doc.type : 'other',
+    url: resolvedUrl,
+    size: doc.size,
+    uploadedBy: doc.uploadedBy,
+    uploadedDate: doc.uploadedDate,
+    category: doc.category,
+    tags: doc.tags,
+  };
+}
 
 export function Documents() {
   const dispatch = useAppDispatch();
@@ -69,30 +98,10 @@ export function Documents() {
   const handleOpenDocument = (documentId: string) => {
     const doc = documents.find((d) => d.id === documentId);
     if (doc) {
-      const previewDoc: PreviewDocument = {
-        id: doc.id,
-        name: doc.name,
-        type: doc.type,
-        url: doc.url ?? getMockDocumentUrl(doc.type),
-        size: doc.size,
-        uploadedBy: doc.uploadedBy,
-        uploadedDate: doc.uploadedDate,
-        category: doc.category,
-        tags: doc.tags,
-      };
+      const previewDoc = toPreviewDocument(doc);
 
       // Map all documents for navigation
-      const allPreviewDocs: PreviewDocument[] = documents.map((d) => ({
-        id: d.id,
-        name: d.name,
-        type: d.type,
-        url: d.url ?? getMockDocumentUrl(d.type),
-        size: d.size,
-        uploadedBy: d.uploadedBy,
-        uploadedDate: d.uploadedDate,
-        category: d.category,
-        tags: d.tags,
-      }));
+      const allPreviewDocs: PreviewDocument[] = documents.map((d) => toPreviewDocument(d));
 
       preview.openPreview(previewDoc, allPreviewDocs);
     }

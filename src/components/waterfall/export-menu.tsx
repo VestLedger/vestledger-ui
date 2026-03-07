@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { Badge, Button, Card, Checkbox, Input, Modal, Select } from '@/ui';
 import type { ExportFormat, ExportTemplate, WaterfallScenario } from '@/types/waterfall';
 import { writeToClipboard } from '@/utils/clipboard';
-import { formatCurrencyCompact } from '@/utils/formatting';
+import { formatCurrencyCompact, formatDateTime } from '@/utils/formatting';
 import { useUIKey } from '@/store/ui';
 import { FileText, File, Table, Image as ImageIcon, Printer } from 'lucide-react';
 import { SectionHeader } from '@/ui/composites';
@@ -205,7 +205,7 @@ export function ExportMenu({ scenario, onPrint }: ExportMenuProps) {
 
         {ui.lastRequestedAt && (
           <div className="text-xs text-[var(--app-text-muted)]">
-            Last request: {new Date(ui.lastRequestedAt).toLocaleString()}
+            Last request: {formatDateTime(ui.lastRequestedAt)}
           </div>
         )}
       </div>

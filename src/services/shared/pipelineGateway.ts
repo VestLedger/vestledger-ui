@@ -2,6 +2,7 @@ import type { GetPipelineParams } from '@/store/slices/pipelineSlice';
 import type { PipelineDeal, PipelineDealOutcome } from '@/data/seeds/pipeline';
 import { logger } from '@/lib/logger';
 import { requestJson, type ApiQueryParams } from './httpClient';
+import { PIPELINE_DEAL_OUTCOMES } from '@/config/pipeline-options';
 
 export interface PipelineApiDeal {
   id: string;
@@ -44,21 +45,9 @@ type PipelineDealsResponse =
       data?: PipelineApiDeal[];
     };
 
-const VALID_OUTCOMES: ReadonlySet<PipelineDealOutcome> = new Set<PipelineDealOutcome>([
-  'active',
-  'won',
-  'lost',
-  'withdrawn',
-  'passed',
-]);
-
-const DEFAULT_STAGES = [
-  'Sourced',
-  'First Meeting',
-  'Due Diligence',
-  'Term Sheet',
-  'Closed',
-];
+const VALID_OUTCOMES: ReadonlySet<PipelineDealOutcome> = new Set<PipelineDealOutcome>(
+  PIPELINE_DEAL_OUTCOMES
+);
 
 function normalizeOptionalNumber(value: unknown): number | undefined {
   if (typeof value === 'number' && Number.isFinite(value)) {
@@ -174,16 +163,16 @@ export async function fetchPipelineStagesFromApi(): Promise<string[]> {
   });
 
   if (!stages) {
-    logger.warn('Empty pipeline stages payload from API; using default stages', {
+    logger.warn('Empty pipeline stages payload from API.', {
       component: 'pipelineGateway',
     });
-    return DEFAULT_STAGES;
+    return [];
   }
   if (!Array.isArray(stages) || stages.length === 0) {
-    logger.warn('Malformed pipeline stages payload from API; using default stages', {
+    logger.warn('Malformed pipeline stages payload from API.', {
       component: 'pipelineGateway',
     });
-    return DEFAULT_STAGES;
+    return [];
   }
 
   return stages;

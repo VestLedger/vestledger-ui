@@ -42,6 +42,7 @@ describe('authSaga', () => {
   const mockAuthResult: AuthResult = {
     user: mockUser,
     accessToken: 'mock-jwt-token',
+    sessionType: 'authenticated',
   };
 
   beforeEach(() => {
@@ -59,7 +60,6 @@ describe('authSaga', () => {
       const action = loginRequested({
         email: 'test@example.com',
         password: 'password123',
-        role: 'gp',
       });
 
       await runSaga(
@@ -80,6 +80,7 @@ describe('authSaga', () => {
       const resultWithOverride: AuthResult = {
         user: mockUser,
         accessToken: 'mock-jwt-token',
+        sessionType: 'demo',
         dataModeOverride: 'mock',
       };
       vi.mocked(authService.authenticateUser).mockResolvedValue(resultWithOverride);
@@ -88,7 +89,6 @@ describe('authSaga', () => {
       const action = loginRequested({
         email: process.env.NEXT_PUBLIC_DEMO_EMAIL!,
         password: process.env.NEXT_PUBLIC_DEMO_PASSWORD!,
-        role: 'gp',
       });
 
       await runSaga(
@@ -118,6 +118,7 @@ describe('authSaga', () => {
       vi.mocked(authService.authenticateUser).mockResolvedValue({
         user: superadminUser,
         accessToken: 'superadmin-jwt-token',
+        sessionType: 'authenticated',
         dataModeOverride: 'api',
       });
 
@@ -125,7 +126,6 @@ describe('authSaga', () => {
       const action = loginRequested({
         email: 'superadmin@vestledger.com',
         password: 'Pa$$w0rd',
-        role: 'superadmin',
       });
 
       await runSaga(
@@ -154,7 +154,6 @@ describe('authSaga', () => {
       const action = loginRequested({
         email: 'test@example.com',
         password: 'password123',
-        role: 'gp',
       });
 
       await runSaga(
@@ -178,6 +177,7 @@ describe('authSaga', () => {
       const resultWithoutToken: AuthResult = {
         user: mockUser,
         accessToken: null,
+        sessionType: 'authenticated',
       };
       vi.mocked(authService.authenticateUser).mockResolvedValue(resultWithoutToken);
 
@@ -185,7 +185,6 @@ describe('authSaga', () => {
       const action = loginRequested({
         email: 'test@example.com',
         password: 'password123',
-        role: 'gp',
       });
 
       await runSaga(

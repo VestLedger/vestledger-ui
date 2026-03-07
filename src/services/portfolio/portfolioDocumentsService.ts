@@ -9,6 +9,7 @@ import {
 } from '@/data/seeds/portfolio/documents';
 import { fetchPortfolioSnapshot } from '@/services/portfolio/portfolioDataService';
 import { requestJson } from '@/services/shared/httpClient';
+import { formatDate } from '@/utils/formatting';
 
 export type {
   PortfolioDocument,
@@ -56,6 +57,7 @@ export type PortfolioDocumentsSnapshot = {
 };
 
 let apiPortfolioDocumentsSnapshotCache: PortfolioDocumentsSnapshot | null = null;
+const UNASSIGNED_COMPANY_ID = 0;
 
 const clone = <T>(value: T): T => structuredClone(value);
 
@@ -87,7 +89,7 @@ function formatDateLabel(value?: string): string | undefined {
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return undefined;
 
-  return parsed.toLocaleDateString('en-US', {
+  return formatDate(parsed, {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
@@ -97,7 +99,7 @@ function formatDateLabel(value?: string): string | undefined {
 function formatDateOffset(baseDate: Date, offsetDays: number): string {
   const dueDate = new Date(baseDate);
   dueDate.setDate(baseDate.getDate() + offsetDays);
-  return dueDate.toLocaleDateString('en-US', {
+  return formatDate(dueDate, {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
@@ -248,21 +250,52 @@ function normalizeText(value: string): string {
   return value.toLowerCase().replace(/\s+/g, ' ').trim();
 }
 
-function buildFallbackCompanies(): DerivedPortfolioDocumentCompany[] {
-  return clone(portfolioDocumentCompanies).map((company) => ({
-    ...company,
-    sourceId: `mock-company-${company.id}`,
-  }));
+function buildUnassignedCompany(): DerivedPortfolioDocumentCompany {
+  return {
+    id: UNASSIGNED_COMPANY_ID,
+    sourceId: 'unassigned',
+    name: 'Unassigned',
+    sector: 'Unspecified',
+    stage: 'Unknown',
+    overdueCount: 0,
+    pendingCount: 0,
+  };
+}
+
+function buildCompaniesFromApiDocuments(
+  apiDocuments: ApiDocument[]
+): DerivedPortfolioDocumentCompany[] {
+  const companies = new Map<string, DerivedPortfolioDocumentCompany>();
+
+  apiDocuments.forEach((document, index) => {
+    const dealName = document.dealName?.trim();
+    if (!dealName) {
+      return;
+    }
+
+    const key = normalizeText(dealName);
+    if (companies.has(key)) {
+      return;
+    }
+
+    companies.set(key, {
+      id: companies.size + 1,
+      sourceId: document.id || `derived-company-${index + 1}`,
+      name: dealName,
+      sector: 'Unspecified',
+      stage: 'Unknown',
+      overdueCount: 0,
+      pendingCount: 0,
+    });
+  });
+
+  return Array.from(companies.values());
 }
 
 async function buildCompaniesFromPortfolio(
   fundId: string
 ): Promise<DerivedPortfolioDocumentCompany[]> {
   const portfolioSnapshot = await fetchPortfolioSnapshot(fundId);
-  if (portfolioSnapshot.companies.length === 0) {
-    return buildFallbackCompanies();
-  }
-
   return portfolioSnapshot.companies.map((company, index) => ({
     id: index + 1,
     sourceId: company.id,
@@ -279,7 +312,7 @@ function pickCompanyForDocument(
   companies: DerivedPortfolioDocumentCompany[]
 ): DerivedPortfolioDocumentCompany {
   if (companies.length === 0) {
-    return buildFallbackCompanies()[0];
+    return buildUnassignedCompany();
   }
 
   const nameCandidates = normalizeText(
@@ -371,6 +404,14 @@ function buildSeedPortfolioDocumentsSnapshot(): PortfolioDocumentsSnapshot {
   };
 }
 
+function buildEmptyPortfolioDocumentsSnapshot(): PortfolioDocumentsSnapshot {
+  return {
+    companies: [],
+    documents: [],
+    categories: clone(portfolioDocumentCategories),
+  };
+}
+
 export async function fetchPortfolioDocumentsSnapshot(
   fundId?: string | null
 ): Promise<PortfolioDocumentsSnapshot> {
@@ -382,7 +423,7 @@ export async function fetchPortfolioDocumentsSnapshot(
 
   const normalizedFundId = fundId?.trim();
   if (!normalizedFundId) {
-    const fallback = apiPortfolioDocumentsSnapshotCache ?? buildSeedPortfolioDocumentsSnapshot();
+    const fallback = apiPortfolioDocumentsSnapshotCache ?? buildEmptyPortfolioDocumentsSnapshot();
     return clone(fallback);
   }
 
@@ -392,16 +433,26 @@ export async function fetchPortfolioDocumentsSnapshot(
       fetchApiDocuments(normalizedFundId),
     ]);
 
+    const derivedCompanies =
+      companies.length > 0 ? companies : buildCompaniesFromApiDocuments(apiDocuments);
+    const resolvedCompanies =
+      derivedCompanies.length > 0 ? derivedCompanies : [buildUnassignedCompany()];
+
     if (apiDocuments.length === 0) {
-      const fallback = apiPortfolioDocumentsSnapshotCache ?? buildSeedPortfolioDocumentsSnapshot();
-      return clone(fallback);
+      const snapshot: PortfolioDocumentsSnapshot = {
+        companies: applyCompanyStatusCounts(companies, []),
+        documents: [],
+        categories: clone(portfolioDocumentCategories),
+      };
+      apiPortfolioDocumentsSnapshotCache = snapshot;
+      return clone(snapshot);
     }
 
     const mappedDocuments = apiDocuments.map((document, index) =>
-      mapApiDocument(document, index, companies)
+      mapApiDocument(document, index, resolvedCompanies)
     );
     const snapshot: PortfolioDocumentsSnapshot = {
-      companies: applyCompanyStatusCounts(companies, mappedDocuments),
+      companies: applyCompanyStatusCounts(resolvedCompanies, mappedDocuments),
       documents: mappedDocuments,
       categories: clone(portfolioDocumentCategories),
     };
@@ -409,14 +460,15 @@ export async function fetchPortfolioDocumentsSnapshot(
     apiPortfolioDocumentsSnapshotCache = snapshot;
     return clone(snapshot);
   } catch {
-    const fallback = apiPortfolioDocumentsSnapshotCache ?? buildSeedPortfolioDocumentsSnapshot();
+    const fallback =
+      apiPortfolioDocumentsSnapshotCache ?? buildEmptyPortfolioDocumentsSnapshot();
     return clone(fallback);
   }
 }
 
 export function getPortfolioDocumentsSnapshot(): PortfolioDocumentsSnapshot {
   if (shouldUseMockMode()) return buildSeedPortfolioDocumentsSnapshot();
-  return clone(apiPortfolioDocumentsSnapshotCache ?? buildSeedPortfolioDocumentsSnapshot());
+  return clone(apiPortfolioDocumentsSnapshotCache ?? buildEmptyPortfolioDocumentsSnapshot());
 }
 
 export function clearPortfolioDocumentsSnapshotCache(): void {

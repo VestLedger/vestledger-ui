@@ -93,10 +93,7 @@ function normalizeParties(rawParties?: string[] | string): string[] {
 function mapApiEvent(record: ApiAuditEventRecord, index: number): AuditEvent {
   return {
     id: record.id ?? `audit-event-${index + 1}`,
-    txHash:
-      record.txHash ??
-      record.transactionHash ??
-      `0xmocktx${(index + 1).toString().padStart(4, '0')}`,
+    txHash: record.txHash ?? record.transactionHash ?? '',
     blockNumber:
       typeof record.blockNumber === 'number' && Number.isFinite(record.blockNumber)
         ? record.blockNumber
@@ -107,7 +104,7 @@ function mapApiEvent(record: ApiAuditEventRecord, index: number): AuditEvent {
     parties: normalizeParties(record.parties),
     ...(typeof record.amount === 'number' ? { amount: record.amount } : {}),
     verificationStatus: normalizeVerificationStatus(record.verificationStatus),
-    proofHash: record.proofHash ?? `0xproof${(index + 1).toString().padStart(6, '0')}`,
+    proofHash: record.proofHash ?? '',
   };
 }
 
@@ -124,8 +121,8 @@ function setCache(events: AuditEvent[]): void {
   apiAuditEventsCache = clone(events);
 }
 
-function getCachedOrMockEvents(): AuditEvent[] {
-  return clone(apiAuditEventsCache ?? mockAuditEvents);
+function getCachedOrEmptyEvents(): AuditEvent[] {
+  return clone(apiAuditEventsCache ?? []);
 }
 
 export async function getAuditEvents(): Promise<AuditEvent[]> {
@@ -133,17 +130,17 @@ export async function getAuditEvents(): Promise<AuditEvent[]> {
     if (!apiAuditEventsCache) {
       setCache(mockAuditEvents);
     }
-    return getCachedOrMockEvents();
+    return clone(apiAuditEventsCache ?? mockAuditEvents);
   }
 
   try {
-    const previous = getCachedOrMockEvents();
+    const previous = getCachedOrEmptyEvents();
     const events = await fetchAuditEventsFromApi();
     const resolved = events.length > 0 ? events : previous;
     setCache(resolved);
     return clone(resolved);
   } catch {
-    return getCachedOrMockEvents();
+    return getCachedOrEmptyEvents();
   }
 }
 

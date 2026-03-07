@@ -10,6 +10,7 @@ import type { GetDealIntelligenceParams } from '@/store/slices/dealIntelligenceS
 import type { PipelineApiDeal } from '@/services/shared/pipelineGateway';
 import { fetchPipelineDealsFromApi, formatAmountToMillions } from '@/services/shared/pipelineGateway';
 import { requestJson } from '@/services/shared/httpClient';
+import { formatDate } from '@/utils/formatting/date';
 
 type DealIntelCategoryProgress = {
   category: DocumentCategory;
@@ -104,7 +105,7 @@ function formatUploadedDate(value?: string): string | undefined {
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return undefined;
 
-  return parsed.toLocaleDateString('en-US', {
+  return formatDate(parsed, {
     month: 'short',
     day: 'numeric',
     year: 'numeric',

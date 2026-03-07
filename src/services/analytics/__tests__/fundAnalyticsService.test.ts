@@ -74,7 +74,6 @@ describe('fundAnalyticsService', () => {
   describe('getConcentrationRiskMetrics', () => {
     it('returns "all" risk metrics when fundId is undefined', () => {
       const result = service.getConcentrationRiskMetrics(undefined);
-      expect(result.fromCompany).not.toBeDefined(); // Safety check
       expect(result.byCompany).toBeDefined();
       expect(result.bySector).toBeDefined();
       

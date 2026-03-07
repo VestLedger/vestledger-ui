@@ -33,6 +33,8 @@ import {
   toggleCRMEmailAutoCaptureOperation,
   updateCRMInteractionOperation,
 } from '@/store/async/crmOperations';
+import { CONTACT_ROLE_FILTER_OPTIONS } from '@/config/crm-options';
+import { formatDate } from '@/utils/formatting';
 
 interface ContactsUIState {
   contacts: Contact[];
@@ -421,13 +423,7 @@ export function Contacts() {
                   label: 'Role',
                   selectedValue: filterRole,
                   onChange: (value) => patchUI({ filterRole: value }),
-                  options: [
-                    { value: 'all', label: 'All Roles' },
-                    { value: 'founder', label: 'Founders' },
-                    { value: 'ceo', label: 'CEOs' },
-                    { value: 'investor', label: 'Investors' },
-                    { value: 'advisor', label: 'Advisors' },
-                  ],
+                  options: CONTACT_ROLE_FILTER_OPTIONS,
                 }}
               />
             </div>
@@ -674,7 +670,7 @@ export function Contacts() {
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4 text-[var(--app-warning)]" />
                       <span className="text-sm font-medium text-[var(--app-warning)]">
-                        Follow-up scheduled: {new Date(selectedContact.nextFollowUp).toLocaleDateString()}
+                        Follow-up scheduled: {formatDate(selectedContact.nextFollowUp)}
                       </span>
                     </div>
                   </div>
@@ -696,7 +692,7 @@ export function Contacts() {
                               <span className="text-sm font-medium">{interaction.subject}</span>
                             </div>
                             <span className="text-xs text-[var(--app-text-subtle)]">
-                              {new Date(interaction.date).toLocaleDateString()}
+                              {formatDate(interaction.date)}
                             </span>
                           </div>
                           {interaction.notes && (

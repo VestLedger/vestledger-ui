@@ -196,6 +196,27 @@ function formatQuarterLabel(value?: string, fallback?: string): string {
   return `Q${quarter} ${parsed.getFullYear()}`;
 }
 
+function getEmptyFundMetrics(fundId: string): FundMetrics {
+  return {
+    fundId,
+    fundName: fundId === 'all' ? 'All Funds' : 'Fund',
+    vintage: 0,
+    fundSize: 0,
+    deployed: 0,
+    reserved: 0,
+    tvpi: 0,
+    dpi: 0,
+    rvpi: 0,
+    irr: 0,
+    moic: 0,
+    numberOfInvestments: 0,
+    averageInvestmentSize: 0,
+    deploymentRate: 0,
+    fundStatus: 'investing',
+    remainingLife: 0,
+  };
+}
+
 function getSeedSnapshot(fundId?: string | null): FundAnalyticsSnapshot {
   const key = normalizeFundId(fundId);
 
@@ -216,11 +237,31 @@ function getSeedSnapshot(fundId?: string | null): FundAnalyticsSnapshot {
   };
 }
 
+function getEmptySnapshot(fundId?: string | null): FundAnalyticsSnapshot {
+  const key = normalizeFundId(fundId);
+
+  return {
+    fundMetrics: getEmptyFundMetrics(key),
+    benchmark: [],
+    jCurve: [],
+    valuationTrends: [],
+    deploymentPacing: [],
+    concentration: {
+      byCompany: [],
+      bySector: [],
+      byStage: [],
+    },
+    cohortsVintage: [],
+    cohortsSector: [],
+    cohortsStage: [],
+  };
+}
+
 function mapFundMetricsResponse(
   fundId: string,
   response: ApiFundPerformance
 ): FundMetrics {
-  const fallback = fundMetricsData[fundId] ?? currentFund;
+  const fallback = getEmptyFundMetrics(fundId);
 
   return {
     fundId,
@@ -258,9 +299,7 @@ function mapBenchmarkResponse(
   response: ApiBenchmarkResponse,
   fundMetrics: FundMetrics
 ): BenchmarkComparison[] {
-  if (!response.benchmarks || response.benchmarks.length === 0) {
-    return clone(benchmarkData);
-  }
+  if (!response.benchmarks || response.benchmarks.length === 0) return [];
 
   return response.benchmarks.map((benchmark) => {
     const metric = benchmark.metric ?? 'Unknown';
@@ -280,7 +319,7 @@ function mapBenchmarkResponse(
 }
 
 function mapJCurveResponse(points: ApiJCurvePoint[]): JCurveDataPoint[] {
-  if (points.length === 0) return clone(jCurveData);
+  if (points.length === 0) return [];
 
   return points.map((point, index) => {
     const tvpi = point.tvpi ?? 1;
@@ -343,29 +382,23 @@ function mapConcentrationEntries(
 
 function mapConcentrationResponse(
   response: ApiConcentrationResponse,
-  fundId: string
+  _fundId: string
 ): ConcentrationRiskSnapshot {
-  const fallbackByCompany = concentrationByCompanyByFund[fundId] ?? concentrationByCompany;
-  const fallbackBySector = concentrationBySectorByFund[fundId] ?? concentrationBySector;
-  const fallbackByStage = concentrationByStageByFund[fundId] ?? concentrationByStage;
-
   const byCompany = mapConcentrationEntries(response.byCompany, 'Company');
   const bySector = mapConcentrationEntries(response.bySector, 'Sector');
   const byStage = mapConcentrationEntries(response.byStage, 'Stage');
 
   return {
-    byCompany: byCompany.length > 0 ? byCompany : clone(fallbackByCompany),
-    bySector: bySector.length > 0 ? bySector : clone(fallbackBySector),
-    byStage: byStage.length > 0 ? byStage : clone(fallbackByStage),
+    byCompany,
+    bySector,
+    byStage,
   };
 }
 
 function mapDeploymentResponse(
   response: ApiDeploymentResponse
 ): DeploymentPacing[] {
-  if (!response.pacing || response.pacing.length === 0) {
-    return clone(deploymentPacing);
-  }
+  if (!response.pacing || response.pacing.length === 0) return [];
 
   return response.pacing.map((entry) => {
     const deployed = Math.max(entry.invested ?? 0, 0);
@@ -386,9 +419,7 @@ function mapDeploymentResponse(
 function mapValuationTrendsResponse(
   response: ApiValuationTrendsResponse
 ): ValuationTrend[] {
-  if (!response.trends || response.trends.length === 0) {
-    return clone(valuationTrends);
-  }
+  if (!response.trends || response.trends.length === 0) return [];
 
   const realizedTotal = Math.max(response.totalExitValue ?? 0, 0);
   const deployedTotal = Math.max(response.totalInvested ?? 0, 0);
@@ -419,7 +450,7 @@ function getSnapshotForReads(fundId?: string | null): FundAnalyticsSnapshot {
   return clone(
     apiFundAnalyticsSnapshotCache.get(key)
     ?? latestApiFundAnalyticsSnapshot
-    ?? getSeedSnapshot(key)
+    ?? getEmptySnapshot(key)
   );
 }
 
@@ -435,7 +466,7 @@ export async function fetchFundAnalyticsSnapshot(
   }
 
   if (key === 'all') {
-    const fallback = apiFundAnalyticsSnapshotCache.get(key) ?? getSeedSnapshot(key);
+    const fallback = apiFundAnalyticsSnapshotCache.get(key) ?? getEmptySnapshot(key);
     return clone(fallback);
   }
 
@@ -512,7 +543,7 @@ export async function fetchFundAnalyticsSnapshot(
     const fallback = clone(
       apiFundAnalyticsSnapshotCache.get(key)
       ?? latestApiFundAnalyticsSnapshot
-      ?? getSeedSnapshot(key)
+      ?? getEmptySnapshot(key)
     );
     return fallback;
   }

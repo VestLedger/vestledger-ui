@@ -31,6 +31,7 @@ import { useDashboardDensity } from '@/contexts/dashboard-density-context';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useUIKey } from '@/store/ui';
 import { UI_STATE_DEFAULTS, UI_STATE_KEYS } from '@/store/constants/uiStateKeys';
+import { DEFAULT_LOCALE } from '@/config/i18n';
 import {
   invokeCopilotQuickAction,
   invokeCopilotSuggestion,
@@ -622,7 +623,7 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
       const recognition = new SpeechRecognitionCtor();
       recognition.continuous = false;
       recognition.interimResults = true;
-      recognition.lang = 'en-US';
+      recognition.lang = DEFAULT_LOCALE;
 
       recognition.onresult = (event: SpeechRecognitionEventLike) => {
         let finalTranscript = '';

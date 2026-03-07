@@ -3,6 +3,7 @@
 import { Button, Badge } from '@/ui';
 import { FileQuestion, Download, File } from 'lucide-react';
 import { UnsupportedViewerProps } from '../types';
+import { formatDate } from '@/utils/formatting';
 
 export function UnsupportedViewer({ document, onDownload }: UnsupportedViewerProps) {
   const formatFileSize = (bytes?: number) => {
@@ -50,7 +51,7 @@ export function UnsupportedViewer({ document, onDownload }: UnsupportedViewerPro
             <div className="text-xs text-[var(--app-text-muted)] flex items-center gap-2">
               <span>Uploaded by {document.uploadedBy}</span>
               {document.uploadedDate && (
-                <span>on {new Date(document.uploadedDate).toLocaleDateString()}</span>
+                <span>on {formatDate(document.uploadedDate)}</span>
               )}
             </div>
           )}

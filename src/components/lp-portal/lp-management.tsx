@@ -26,6 +26,7 @@ import {
   sendLPReportOperation,
   sendLPUpdateOperation,
 } from '@/store/async/miscMutationOperations';
+import { formatDate } from '@/utils/formatting';
 
 export function LPManagement() {
   const dispatch = useAppDispatch();
@@ -418,7 +419,7 @@ export function LPManagement() {
 
                   <h4 className="font-semibold mb-2">{report.title}</h4>
                   <p className="text-sm text-[var(--app-text-muted)] mb-4">
-                    Published: {new Date(report.publishedDate).toLocaleDateString()}
+                    Published: {formatDate(report.publishedDate)}
                   </p>
 
                   <div className="flex items-center gap-2">
@@ -468,7 +469,7 @@ export function LPManagement() {
                       <div>
                         <p className="font-medium">Call #{call.callNumber}</p>
                         <p className="text-xs text-[var(--app-text-muted)]">
-                          Due: {new Date(call.dueDate).toLocaleDateString()}
+                          Due: {formatDate(call.dueDate)}
                         </p>
                       </div>
                       <StatusBadge status={call.status} domain="fund-admin" size="sm" />
@@ -499,7 +500,7 @@ export function LPManagement() {
                       <div>
                         <p className="font-medium">Distribution #{dist.distributionNumber}</p>
                         <p className="text-xs text-[var(--app-text-muted)]">
-                          {new Date(dist.paymentDate).toLocaleDateString()}
+                          {formatDate(dist.paymentDate)}
                         </p>
                       </div>
                       <StatusBadge status={dist.status} domain="fund-admin" size="sm" />

@@ -22,6 +22,7 @@ import {
 import type { Notification, NotificationCategory, NotificationType } from '@/types/notification';
 import { useUIKey } from '@/store/ui';
 import { ROUTE_PATHS } from '@/config/routes';
+import { formatDate } from '@/utils/formatting';
 
 export interface NotificationCenterProps {
   notifications?: Notification[];
@@ -76,7 +77,7 @@ const getRelativeTime = (timestamp: Date) => {
   if (minutes < 60) return `${minutes}m ago`;
   if (hours < 24) return `${hours}h ago`;
   if (days < 7) return `${days}d ago`;
-  return timestamp.toLocaleDateString();
+  return formatDate(timestamp);
 };
 
 export function NotificationCenter({

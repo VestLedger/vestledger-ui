@@ -19,7 +19,7 @@ export function getInitialDDChatConversation(_params: GetDDChatConversationParam
     return mockConversations;
   }
 
-  return mockConversations;
+  return [];
 }
 
 /**
@@ -27,5 +27,11 @@ export function getInitialDDChatConversation(_params: GetDDChatConversationParam
  */
 export function getDDChatAssistantResponse(query: string, dealName?: string): Message {
   if (isMockMode('ai')) return getMockDDChatResponse(query, dealName);
-  return getMockDDChatResponse(query, dealName);
+  return {
+    id: `unavailable-${Date.now()}`,
+    role: 'assistant',
+    content:
+      'AI due diligence assistant is unavailable in API mode until the backend chat integration is implemented.',
+    timestamp: new Date(),
+  };
 }

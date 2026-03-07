@@ -1,6 +1,5 @@
 import { isMockMode } from '@/config/data-mode';
 import { mockFundExpenses } from '@/data/seeds/back-office/fund-admin-ops';
-import { logger } from '@/lib/logger';
 import { requestJson } from '@/services/shared/httpClient';
 import type { FundExpense } from '@/types/fundAdminOps';
 
@@ -14,49 +13,6 @@ function findExpense(id: string) {
     throw new Error(`Expense not found: ${id}`);
   }
   return index;
-}
-
-function buildFallbackExpense(overrides: Partial<FundExpense> = {}): FundExpense {
-  const now = new Date();
-  const template = mockFundExpenses[0];
-  const base: FundExpense = template
-    ? {
-        ...clone(template),
-        date: now,
-        paidDate: undefined,
-      }
-    : {
-        id: `expense-${Date.now()}`,
-        fundId: '',
-        fundName: 'Unknown fund',
-        type: 'other',
-        category: 'General',
-        description: 'Fallback expense',
-        amount: 0,
-        date: now,
-        payee: 'Unknown payee',
-        status: 'pending',
-        isRecurring: false,
-        allocatedToLPs: false,
-      };
-
-  return {
-    ...base,
-    ...overrides,
-    id: overrides.id ?? base.id ?? `expense-${Date.now()}`,
-    fundId: overrides.fundId ?? base.fundId ?? '',
-    fundName: overrides.fundName ?? base.fundName ?? 'Unknown fund',
-    date: overrides.date ?? base.date ?? now,
-  };
-}
-
-function upsertExpense(next: FundExpense) {
-  const index = expenseStore.findIndex((item) => item.id === next.id);
-  if (index === -1) {
-    expenseStore = [next, ...expenseStore];
-    return;
-  }
-  expenseStore[index] = next;
 }
 
 export async function getFundExpenses(fundId?: string): Promise<FundExpense[]> {
@@ -84,19 +40,6 @@ export async function addFundExpense(payload: Omit<FundExpense, 'id'>): Promise<
     body: payload,
     fallbackMessage: 'Failed to create expense',
   });
-  if (!result) {
-    logger.warn('Empty create expense payload from API; using fallback', {
-      component: 'expenseService',
-      fundId: payload.fundId,
-    });
-    const fallback = buildFallbackExpense({
-      ...payload,
-      id: `expense-${Date.now()}`,
-      status: payload.status ?? 'pending',
-    });
-    upsertExpense(fallback);
-    return clone(fallback);
-  }
   return result;
 }
 
@@ -112,22 +55,6 @@ export async function approveFundExpense(id: string, approver: string): Promise<
     body: { approver },
     fallbackMessage: 'Failed to approve expense',
   });
-  if (!payload) {
-    logger.warn('Empty approve expense payload from API; using fallback', {
-      component: 'expenseService',
-      expenseId: id,
-      approver,
-    });
-    const existing = expenseStore.find((item) => item.id === id);
-    const fallback = buildFallbackExpense({
-      ...(existing ?? {}),
-      id,
-      status: 'approved',
-      approvedBy: approver,
-    });
-    upsertExpense(fallback);
-    return clone(fallback);
-  }
   return payload;
 }
 
@@ -142,20 +69,6 @@ export async function rejectFundExpense(id: string): Promise<FundExpense> {
     method: 'POST',
     fallbackMessage: 'Failed to reject expense',
   });
-  if (!payload) {
-    logger.warn('Empty reject expense payload from API; using fallback', {
-      component: 'expenseService',
-      expenseId: id,
-    });
-    const existing = expenseStore.find((item) => item.id === id);
-    const fallback = buildFallbackExpense({
-      ...(existing ?? {}),
-      id,
-      status: 'rejected',
-    });
-    upsertExpense(fallback);
-    return clone(fallback);
-  }
   return payload;
 }
 
@@ -170,21 +83,6 @@ export async function markFundExpensePaid(id: string): Promise<FundExpense> {
     method: 'POST',
     fallbackMessage: 'Failed to mark expense as paid',
   });
-  if (!payload) {
-    logger.warn('Empty pay expense payload from API; using fallback', {
-      component: 'expenseService',
-      expenseId: id,
-    });
-    const existing = expenseStore.find((item) => item.id === id);
-    const fallback = buildFallbackExpense({
-      ...(existing ?? {}),
-      id,
-      status: 'paid',
-      paidDate: new Date(),
-    });
-    upsertExpense(fallback);
-    return clone(fallback);
-  }
   return payload;
 }
 
@@ -201,13 +99,5 @@ export async function exportFundExpenses(
     query: { format },
     fallbackMessage: 'Failed to export expenses',
   });
-  if (!payload) {
-    logger.warn('Empty expense export payload from API; using fallback metadata', {
-      component: 'expenseService',
-      format,
-      fundId,
-    });
-    return { format, fundId, exportedAt: new Date().toISOString() };
-  }
   return payload;
 }

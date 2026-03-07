@@ -10,6 +10,7 @@ import {
 } from '@/data/seeds/collaboration';
 import type { UserRole } from '@/types/auth';
 import { requestJson } from '@/services/shared/httpClient';
+import { ROUTE_PATHS } from '@/config/routes';
 
 export type {
   CollaborationMessage,
@@ -83,12 +84,23 @@ function getSeedSnapshot(): CollaborationSnapshot {
   return clone(seedCollaborationSnapshot);
 }
 
+function getEmptySnapshot(): CollaborationSnapshot {
+  return {
+    threads: [],
+    messages: [],
+    tasks: [],
+  };
+}
+
 function setCachedSnapshot(snapshot: CollaborationSnapshot): void {
   collaborationCache = clone(snapshot);
 }
 
 function getCachedSnapshot(): CollaborationSnapshot {
-  return clone(collaborationCache ?? getSeedSnapshot());
+  return clone(
+    collaborationCache ??
+      (isMockMode('collaboration') ? getSeedSnapshot() : getEmptySnapshot())
+  );
 }
 
 function extractApiList<TItem>(response: ApiListResponse<TItem>): TItem[] {
@@ -140,7 +152,7 @@ function mapApiTask(record: ApiTaskRecord, index: number): CollaborationTask {
     priority: record.priority ?? 'medium',
     status: record.status ?? 'todo',
     dueDate: record.dueDate ?? new Date().toISOString().slice(0, 10),
-    route: record.route ?? '/home',
+    route: record.route ?? ROUTE_PATHS.dashboard,
   };
 }
 
@@ -197,6 +209,10 @@ export async function getCollaborationSnapshot(): Promise<CollaborationSnapshot>
 export async function addCollaborationMessage(
   input: CreateCollaborationMessageInput
 ): Promise<CollaborationMessage> {
+  if (!isMockMode('collaboration')) {
+    throw new Error('Adding collaboration messages in live mode requires an API implementation.');
+  }
+
   const snapshot = getCachedSnapshot();
   const nextMessage: CollaborationMessage = {
     id: `message-${Date.now()}`,
@@ -226,6 +242,10 @@ export async function addCollaborationMessage(
 export async function createCollaborationTask(
   input: CreateCollaborationTaskInput
 ): Promise<CollaborationTask> {
+  if (!isMockMode('collaboration')) {
+    throw new Error('Creating collaboration tasks in live mode requires an API implementation.');
+  }
+
   const snapshot = getCachedSnapshot();
   const task: CollaborationTask = {
     id: `task-${Date.now()}`,
@@ -248,6 +268,10 @@ export async function updateCollaborationTaskStatus(
   taskId: string,
   status: CollaborationTaskStatus
 ): Promise<CollaborationTask> {
+  if (!isMockMode('collaboration')) {
+    throw new Error('Updating collaboration tasks in live mode requires an API implementation.');
+  }
+
   const snapshot = getCachedSnapshot();
   const index = snapshot.tasks.findIndex((task) => task.id === taskId);
   if (index === -1) {

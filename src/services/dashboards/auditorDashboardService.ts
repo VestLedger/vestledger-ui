@@ -6,6 +6,7 @@ import {
 } from '@/data/seeds/dashboards/auditor-dashboard';
 import { apiClient } from '@/api/client';
 import { unwrapApiResult } from '@/api/unwrap';
+import { formatDate } from '@/utils/formatting/date';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -23,12 +24,12 @@ function toDisplayDate(value: unknown): string {
   if (typeof value === 'string' || typeof value === 'number') {
     const parsed = new Date(value);
     if (!Number.isNaN(parsed.getTime())) {
-      return parsed.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      return formatDate(parsed, { month: 'short', day: 'numeric' });
     }
     return readString(value);
   }
   if (value instanceof Date && !Number.isNaN(value.getTime())) {
-    return value.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return formatDate(value, { month: 'short', day: 'numeric' });
   }
   return 'N/A';
 }
@@ -59,10 +60,10 @@ export async function getAuditorDashboardSnapshot() {
   const lastAuditDate = readString(metricsSource.lastAuditDate, '');
 
   const metrics = auditorDashboardMetrics.map((metric) => ({ ...metric }));
-  if (metrics[0]) metrics[0].value = String(totalFundsAudited || auditorAuditTrail.length);
+  if (metrics[0]) metrics[0].value = String(totalFundsAudited);
   if (metrics[1]) metrics[1].value = String(openFindings);
-  if (metrics[2]) metrics[2].value = `${Math.max(0, Math.min(100, Math.round(complianceScore || 95)))}%`;
-  if (metrics[3]) metrics[3].value = toDisplayDate(lastAuditDate || new Date().toISOString());
+  if (metrics[2]) metrics[2].value = `${Math.max(0, Math.min(100, Math.round(complianceScore)))}%`;
+  if (metrics[3]) metrics[3].value = toDisplayDate(lastAuditDate);
 
   const normalizedAuditTrail = auditTrailApi
     .map((item) => ({
@@ -83,7 +84,7 @@ export async function getAuditorDashboardSnapshot() {
 
   return {
     metrics,
-    auditTrail: normalizedAuditTrail.length > 0 ? normalizedAuditTrail : auditorAuditTrail,
-    complianceItems: normalizedComplianceItems.length > 0 ? normalizedComplianceItems : auditorComplianceItems,
+    auditTrail: normalizedAuditTrail,
+    complianceItems: normalizedComplianceItems,
   };
 }

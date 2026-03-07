@@ -67,7 +67,18 @@ export function LPInvestorPortal() {
       isEmpty={() => false}
     >
       {() => {
-        if (!investor) {
+        const hasInvestorData = Boolean(
+          investor &&
+            (
+              investor.name.trim().length > 0 ||
+              investor.fundName.trim().length > 0 ||
+              investor.commitmentAmount > 0 ||
+              reports.length > 0 ||
+              transactions.length > 0
+            )
+        );
+
+        if (!hasInvestorData || !investor) {
           return <EmptyState icon={PieChart} title="No investor data available" message="Try again in a moment." />;
         }
 

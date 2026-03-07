@@ -24,6 +24,7 @@ import {
   type LPFAQItem,
 } from "@/data/seeds/lp-portal/lp-investor-portal";
 import { requestJson } from "@/services/shared/httpClient";
+import { DEFAULT_CURRENCY } from "@/config/i18n";
 
 export interface LPInvestorSnapshot {
   investor: InvestorData;
@@ -61,6 +62,57 @@ function getSeedSnapshot(): LPInvestorSnapshot {
     notificationPreferences: clone(mockNotificationPreferences),
     emailPreview: clone(mockEmailPreview),
     faqItems: clone(mockFAQItems),
+  };
+}
+
+function getEmptySnapshot(): LPInvestorSnapshot {
+  return {
+    investor: {
+      name: '',
+      fundName: '',
+      commitmentAmount: 0,
+      calledCapital: 0,
+      distributedCapital: 0,
+      navValue: 0,
+      dpi: 0,
+      tvpi: 0,
+      rvpi: 0,
+      irr: 0,
+      moic: 0,
+      joinDate: '',
+      lastUpdate: '',
+    },
+    reports: [],
+    transactions: [],
+    distributionStatements: [],
+    upcomingDistributions: [],
+    distributionConfirmations: [],
+    distributionElections: [],
+    bankDetails: {
+      accountName: '',
+      bankName: '',
+      accountNumber: '',
+      routingNumber: '',
+      accountType: 'checking',
+      currency: DEFAULT_CURRENCY,
+      country: '',
+      lastUpdated: '',
+      verified: false,
+    },
+    notificationPreferences: {
+      statementReady: false,
+      distributionReminders: false,
+      taxDocumentAlerts: false,
+      marketingUpdates: false,
+      reminderDaysBefore: [],
+      emailAddress: '',
+    },
+    emailPreview: {
+      subject: '',
+      body: '',
+      footer: '',
+    },
+    faqItems: [],
   };
 }
 
@@ -125,7 +177,7 @@ function normalizeSnapshot(
 }
 
 function getCachedSnapshot(): LPInvestorSnapshot {
-  return clone(apiInvestorSnapshotCache ?? getSeedSnapshot());
+  return clone(apiInvestorSnapshotCache ?? getEmptySnapshot());
 }
 
 export async function getInvestorSnapshot(): Promise<LPInvestorSnapshot> {

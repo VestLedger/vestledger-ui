@@ -58,6 +58,7 @@ import {
   WATERFALL_QUICK_SCENARIO_VALUES,
   WATERFALL_STARTER_SCENARIO_DEFAULTS,
 } from '@/config/calculation-defaults';
+import { WATERFALL_CHART_OPTIONS } from '@/config/waterfall-options';
 import { mockInvestorClasses, mockWaterfallTemplates } from '@/data/seeds/analytics/waterfall';
 import { ROUTE_PATHS } from '@/config/routes';
 import { loadDistributionsOperation } from '@/store/async/distributionOperations';
@@ -71,13 +72,7 @@ import {
   updateWaterfallScenarioOperation,
 } from '@/store/async/waterfallOperations';
 
-const chartOptions = [
-  { id: 'waterfall', label: 'Waterfall Flow', icon: BarChart3 },
-  { id: 'scenario', label: 'Scenario Comparison', icon: Layers },
-  { id: 'lp', label: 'LP Detail', icon: Users },
-] as const;
-
-type ChartOptionId = typeof chartOptions[number]['id'];
+type ChartOptionId = (typeof WATERFALL_CHART_OPTIONS)[number]['id'];
 
 const BLENDED_MODEL_TEMPLATE_WEIGHTS = { europeanWeight: 60, americanWeight: 40 } as const;
 const BLENDED_MODEL_DEFAULT_WEIGHTS = { europeanWeight: 50, americanWeight: 50 } as const;
@@ -647,7 +642,7 @@ export function WaterfallModeling() {
                 />
 
                 <div className="flex flex-wrap gap-2 mb-4 print:hidden">
-                  {chartOptions.map((option) => {
+                  {WATERFALL_CHART_OPTIONS.map((option) => {
                     const Icon = option.icon;
                     const isActive = activeChart === option.id;
                     return (

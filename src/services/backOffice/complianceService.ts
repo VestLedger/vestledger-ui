@@ -223,12 +223,23 @@ function getBaseMockSnapshot(): ComplianceSnapshot {
   };
 }
 
+function getEmptySnapshot(): ComplianceSnapshot {
+  return {
+    complianceItems: [],
+    regulatoryFilings: [],
+    auditSchedule: [],
+  };
+}
+
 function setCachedSnapshot(snapshot: ComplianceSnapshot): void {
   apiComplianceSnapshotCache = clone(snapshot);
 }
 
-function getCachedOrMockSnapshot(): ComplianceSnapshot {
-  return clone(apiComplianceSnapshotCache ?? getBaseMockSnapshot());
+function getCachedSnapshot(): ComplianceSnapshot {
+  return clone(
+    apiComplianceSnapshotCache ??
+      (isMockMode('backOffice') ? getBaseMockSnapshot() : getEmptySnapshot())
+  );
 }
 
 async function getComplianceSnapshot(): Promise<ComplianceSnapshot> {
@@ -236,10 +247,10 @@ async function getComplianceSnapshot(): Promise<ComplianceSnapshot> {
     if (!apiComplianceSnapshotCache) {
       setCachedSnapshot(getBaseMockSnapshot());
     }
-    return getCachedOrMockSnapshot();
+    return getCachedSnapshot();
   }
 
-  const previous = getCachedOrMockSnapshot();
+  const previous = getCachedSnapshot();
   const [itemsResult, filingsResult, auditsResult] = await Promise.allSettled([
     fetchComplianceItemsFromApi(),
     fetchRegulatoryFilingsFromApi(),

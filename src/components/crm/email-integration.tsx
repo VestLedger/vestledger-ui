@@ -4,6 +4,7 @@ import { Card, Button, Badge, Select, SafeHtml } from '@/ui';
 import { Mail, RefreshCw, X, AlertCircle, Calendar, Paperclip, ExternalLink, ChevronDown, ChevronUp, Users, Briefcase } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
 import { SearchToolbar, SectionHeader, StatusBadge } from '@/ui/composites';
+import { formatDate, formatDateTime, formatNumber } from '@/utils/formatting';
 
 export interface EmailAccount {
   id: string;
@@ -135,10 +136,10 @@ export function EmailIntegration({
                       <div className="flex items-center gap-4 mb-3 text-xs text-[var(--app-text-muted)]">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
-                          Last sync: {account.lastSync.toLocaleString()}
+                          Last sync: {formatDateTime(account.lastSync)}
                         </span>
                         {account.syncedEmails !== undefined && (
-                          <span>{account.syncedEmails.toLocaleString()} emails synced</span>
+                          <span>{formatNumber(account.syncedEmails)} emails synced</span>
                         )}
                       </div>
                     )}
@@ -319,7 +320,7 @@ export function EmailThreadViewer({
                       <Paperclip className="w-3 h-3 text-[var(--app-text-muted)]" />
                     )}
                     <span className="text-xs text-[var(--app-text-subtle)]">
-                      {thread.lastMessageDate.toLocaleDateString()}
+                      {formatDate(thread.lastMessageDate)}
                     </span>
                   </div>
                 </div>
@@ -399,7 +400,7 @@ export function EmailMessageDetail({
             <div className="flex items-start gap-2">
               <span className="text-[var(--app-text-muted)] min-w-[60px]">Date:</span>
               <span className="text-[var(--app-text-muted)]">
-                {message.date.toLocaleString()}
+                {formatDateTime(message.date)}
               </span>
             </div>
           </div>

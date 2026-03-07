@@ -3,7 +3,7 @@
 import { useUIKey } from '@/store/ui';
 import { Card, Button, Badge } from '@/ui';
 import { Calculator, TrendingUp, TrendingDown, Calendar, Download, RefreshCw, AlertCircle } from 'lucide-react';
-import { formatCurrency, formatDate, formatPercent } from '@/utils/formatting';
+import { formatCurrency, formatDate, formatNumber, formatPercent } from '@/utils/formatting';
 import { SectionHeader, StatusBadge } from '@/ui/composites';
 
 export interface NAVCalculation {
@@ -185,7 +185,7 @@ export function NAVCalculator({
                     })}
                   </p>
                   <p className="text-xs text-[var(--app-text-subtle)]">
-                    Calculated on {selectedCalculation.calculationDate.toLocaleDateString()}
+                    Calculated on {formatDate(selectedCalculation.calculationDate)}
                   </p>
                 </div>
 
@@ -253,7 +253,7 @@ export function NAVCalculator({
                     {formatCurrency(selectedCalculation.netAssets, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                   <p className="text-xs text-[var(--app-text-subtle)] mt-1">
-                    {selectedCalculation.outstandingShares.toLocaleString()} shares
+                    {formatNumber(selectedCalculation.outstandingShares)} shares
                   </p>
                 </div>
 
@@ -284,7 +284,7 @@ export function NAVCalculator({
                         {getValuationMethodBadge(component.valuationMethod)}
                       </div>
                       <p className="text-xs text-[var(--app-text-muted)]">
-                        Last valued: {component.lastValuationDate.toLocaleDateString()}
+                        Last valued: {formatDate(component.lastValuationDate)}
                       </p>
                     </div>
                     <div className="text-right">

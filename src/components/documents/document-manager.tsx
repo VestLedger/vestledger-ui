@@ -22,6 +22,12 @@ import {
   Archive,
 } from 'lucide-react';
 import { SearchToolbar, SectionHeader } from '@/ui/composites';
+import {
+  DOCUMENT_ACCESS_FILTER_OPTIONS,
+  DOCUMENT_CATEGORY_FILTER_OPTIONS,
+  DOCUMENT_SORT_OPTIONS,
+} from '@/config/documents-options';
+import { formatDate } from '@/utils/formatting';
 
 export type DocumentCategory =
   | 'legal'
@@ -364,17 +370,7 @@ export function DocumentManager({
                   className="min-w-[180px]"
                   selectedKeys={[filterCategory]}
                   onChange={(e) => patchUI({ filterCategory: e.target.value as DocumentCategory | 'all' })}
-                  options={[
-                    { value: 'all', label: 'All Categories' },
-                    { value: 'legal', label: 'Legal' },
-                    { value: 'financial', label: 'Financial' },
-                    { value: 'tax', label: 'Tax' },
-                    { value: 'compliance', label: 'Compliance' },
-                    { value: 'investor-relations', label: 'Investor Relations' },
-                    { value: 'due-diligence', label: 'Due Diligence' },
-                    { value: 'portfolio', label: 'Portfolio' },
-                    { value: 'other', label: 'Other' },
-                  ]}
+                  options={DOCUMENT_CATEGORY_FILTER_OPTIONS}
                 />
                 <Select
                   aria-label="Access level filter"
@@ -384,13 +380,7 @@ export function DocumentManager({
                   onChange={(e) =>
                     patchUI({ filterAccessLevel: e.target.value as AccessLevel | 'all' })
                   }
-                  options={[
-                    { value: 'all', label: 'All Access' },
-                    { value: 'private', label: 'Private' },
-                    { value: 'internal', label: 'Internal' },
-                    { value: 'investor', label: 'Investor' },
-                    { value: 'public', label: 'Public' },
-                  ]}
+                  options={DOCUMENT_ACCESS_FILTER_OPTIONS}
                 />
                 <Select
                   aria-label="Sort documents by"
@@ -398,11 +388,7 @@ export function DocumentManager({
                   className="min-w-[150px]"
                   selectedKeys={[sortBy]}
                   onChange={(e) => patchUI({ sortBy: e.target.value as 'name' | 'date' | 'size' })}
-                  options={[
-                    { value: 'date', label: 'Sort by Date' },
-                    { value: 'name', label: 'Sort by Name' },
-                    { value: 'size', label: 'Sort by Size' },
-                  ]}
+                  options={DOCUMENT_SORT_OPTIONS}
                 />
                 <div className="flex gap-1">
                   <Button
@@ -538,7 +524,7 @@ export function DocumentManager({
                         <span>•</span>
                         <span>v{doc.version}</span>
                         <span>•</span>
-                        <span>Modified {doc.lastModified.toLocaleDateString()}</span>
+                        <span>Modified {formatDate(doc.lastModified)}</span>
                         <span>•</span>
                         <span>by {doc.lastModifiedBy}</span>
                         {doc.fundName && (

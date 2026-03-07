@@ -1,5 +1,11 @@
 import { isMockMode } from '@/config/data-mode';
 import {
+  DEFAULT_REPORT_TEMPLATE_SECTION,
+  REPORT_FORMATS,
+  REPORT_JOB_STATUSES,
+  REPORT_TEMPLATE_TYPES,
+} from '@/config/report-options';
+import {
   mockExportJobs as seedExportJobs,
   reportTemplates as seedReportTemplates,
   type ExportJob,
@@ -11,10 +17,6 @@ import { logger } from '@/lib/logger';
 export type { ExportJob, ReportTemplate };
 
 const clone = <T>(value: T): T => structuredClone(value);
-const DEFAULT_TEMPLATE_SECTION = 'Overview';
-const REPORT_FORMATS = ['pdf', 'excel', 'csv', 'ppt'] as const;
-const TEMPLATE_TYPES = ['quarterly', 'annual', 'custom', 'monthly'] as const;
-const JOB_STATUSES = ['queued', 'processing', 'completed', 'failed'] as const;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -31,7 +33,7 @@ function normalizeReportFormat(value: unknown): ReportTemplate['format'] {
 function normalizeTemplateType(value: unknown): ReportTemplate['type'] {
   if (typeof value === 'string') {
     const normalized = value.trim().toLowerCase();
-    if ((TEMPLATE_TYPES as readonly string[]).includes(normalized)) {
+    if ((REPORT_TEMPLATE_TYPES as readonly string[]).includes(normalized)) {
       return normalized as ReportTemplate['type'];
     }
   }
@@ -39,9 +41,9 @@ function normalizeTemplateType(value: unknown): ReportTemplate['type'] {
 }
 
 function normalizeTemplateSections(value: unknown): string[] {
-  if (!Array.isArray(value)) return [DEFAULT_TEMPLATE_SECTION];
+  if (!Array.isArray(value)) return [DEFAULT_REPORT_TEMPLATE_SECTION];
   const sections = value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
-  return sections.length > 0 ? sections : [DEFAULT_TEMPLATE_SECTION];
+  return sections.length > 0 ? sections : [DEFAULT_REPORT_TEMPLATE_SECTION];
 }
 
 function normalizeTemplate(raw: unknown, index: number): ReportTemplate {
@@ -52,7 +54,7 @@ function normalizeTemplate(raw: unknown, index: number): ReportTemplate {
       type: 'custom',
       description: '',
       format: 'pdf',
-      sections: [DEFAULT_TEMPLATE_SECTION],
+      sections: [DEFAULT_REPORT_TEMPLATE_SECTION],
     };
   }
 
@@ -73,7 +75,7 @@ function normalizeTemplate(raw: unknown, index: number): ReportTemplate {
 function normalizeJobStatus(value: unknown): ExportJob['status'] {
   if (typeof value !== 'string') return 'queued';
   const normalized = value.trim().toLowerCase();
-  return (JOB_STATUSES as readonly string[]).includes(normalized)
+  return (REPORT_JOB_STATUSES as readonly string[]).includes(normalized)
     ? (normalized as ExportJob['status'])
     : 'queued';
 }

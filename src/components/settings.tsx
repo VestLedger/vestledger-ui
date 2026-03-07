@@ -47,6 +47,13 @@ import {
 } from '@/services/internal/teamAccessApiService';
 import type { OperatingRegion } from '@/types/regulatory';
 import { persistAuthenticatedUser } from '@/utils/auth/persist-authenticated-user';
+import {
+  CURRENCY_OPTIONS,
+  DATE_FORMAT_OPTIONS,
+  LANGUAGE_OPTIONS,
+  TEAM_APP_ROLE_OPTIONS,
+  TIMEZONE_OPTIONS,
+} from '@/config/settings-options';
 
 interface SettingsSection {
   id: string;
@@ -98,45 +105,6 @@ const settingsSections: SettingsSection[] = [
     icon: Users,
     description: 'Manage team members and access permissions'
   }
-];
-
-const languageOptions = [
-  { value: 'en-us', label: 'English (US)' },
-  { value: 'en-uk', label: 'English (UK)' },
-  { value: 'es', label: 'Spanish' },
-  { value: 'fr', label: 'French' },
-];
-
-const timezoneOptions = [
-  { value: 'pt', label: 'Pacific Time (PT)' },
-  { value: 'mt', label: 'Mountain Time (MT)' },
-  { value: 'ct', label: 'Central Time (CT)' },
-  { value: 'et', label: 'Eastern Time (ET)' },
-];
-
-const dateFormatOptions = [
-  { value: 'mm-dd-yyyy', label: 'MM/DD/YYYY' },
-  { value: 'dd-mm-yyyy', label: 'DD/MM/YYYY' },
-  { value: 'yyyy-mm-dd', label: 'YYYY-MM-DD' },
-];
-
-const currencyOptions = [
-  { value: 'usd', label: 'USD ($)' },
-  { value: 'eur', label: 'EUR (€)' },
-  { value: 'gbp', label: 'GBP (£)' },
-  { value: 'jpy', label: 'JPY (¥)' },
-];
-
-const teamAppRoleOptions: Array<{ value: AssignableAppRole; label: string }> = [
-  { value: 'gp', label: 'GP' },
-  { value: 'analyst', label: 'Analyst' },
-  { value: 'ops', label: 'Operations' },
-  { value: 'ir', label: 'Investor Relations' },
-  { value: 'researcher', label: 'Researcher' },
-  { value: 'lp', label: 'LP' },
-  { value: 'auditor', label: 'Auditor' },
-  { value: 'service_provider', label: 'Service Provider' },
-  { value: 'strategic_partner', label: 'Strategic Partner' },
 ];
 
 export function Settings() {
@@ -662,7 +630,7 @@ export function Settings() {
                 <div>
                   <label className="block text-sm font-medium mb-2">Language</label>
                   <Select
-                    options={languageOptions}
+                    options={LANGUAGE_OPTIONS}
                     selectedKeys={[language]}
                     onChange={(event) => patchSettingsUI({ language: event.target.value })}
                   />
@@ -670,7 +638,7 @@ export function Settings() {
                 <div>
                   <label className="block text-sm font-medium mb-2">Timezone</label>
                   <Select
-                    options={timezoneOptions}
+                    options={TIMEZONE_OPTIONS}
                     selectedKeys={[timezone]}
                     onChange={(event) => patchSettingsUI({ timezone: event.target.value })}
                   />
@@ -678,7 +646,7 @@ export function Settings() {
                 <div>
                   <label className="block text-sm font-medium mb-2">Date Format</label>
                   <Select
-                    options={dateFormatOptions}
+                    options={DATE_FORMAT_OPTIONS}
                     selectedKeys={[dateFormat]}
                     onChange={(event) => patchSettingsUI({ dateFormat: event.target.value })}
                   />
@@ -686,7 +654,7 @@ export function Settings() {
                 <div>
                   <label className="block text-sm font-medium mb-2">Currency</label>
                   <Select
-                    options={currencyOptions}
+                    options={CURRENCY_OPTIONS}
                     selectedKeys={[currency]}
                     onChange={(event) => patchSettingsUI({ currency: event.target.value })}
                   />
@@ -826,7 +794,7 @@ export function Settings() {
                       />
                       <Select
                         label="App Persona"
-                        options={teamAppRoleOptions}
+                    options={TEAM_APP_ROLE_OPTIONS}
                         selectedKeys={[teamInviteForm.targetAppRole]}
                         onChange={(event) =>
                           setTeamInviteForm((prev) => ({
@@ -875,7 +843,7 @@ export function Settings() {
                         <StatusBadge status={member.status === 'active' ? 'Active' : 'Disabled'} domain="general" size="sm" />
                         <Select
                           aria-label={`${member.name} app role`}
-                          options={teamAppRoleOptions}
+                          options={TEAM_APP_ROLE_OPTIONS}
                           selectedKeys={[member.role]}
                           size="sm"
                           className="min-w-[160px]"

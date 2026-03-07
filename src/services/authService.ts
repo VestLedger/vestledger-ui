@@ -1,6 +1,7 @@
 import { getApiBaseUrl } from "@/api/config";
 import { ApiError } from "@/api/errors";
 import type { DataMode } from "@/config/data-mode";
+import { getDemoEmail, getDemoPassword } from "@/config/demo-session";
 import { createMockUser } from "@/data/mocks/auth";
 import type { User, UserRole } from "@/types/auth";
 import { MOCK_DEMO_PROFILE } from "@/config/auth";
@@ -19,7 +20,8 @@ type AuthResponse = {
 
 export type AuthResult = {
   user: User;
-  accessToken: string;
+  accessToken: string | null;
+  sessionType: "demo" | "authenticated";
   dataModeOverride?: DataMode;
 };
 
@@ -35,8 +37,8 @@ type JwtPayload = {
   organizationConfigured?: boolean;
 };
 
-const DEMO_EMAIL = process.env.NEXT_PUBLIC_DEMO_EMAIL?.trim().toLowerCase();
-const DEMO_PASSWORD = process.env.NEXT_PUBLIC_DEMO_PASSWORD;
+const DEMO_EMAIL = getDemoEmail();
+const DEMO_PASSWORD = getDemoPassword();
 
 function getPasswordVariants(value: string): string[] {
   const variants: string[] = [];
@@ -72,7 +74,7 @@ function passwordMatches(input: string, expected: string): boolean {
 }
 
 export function isDemoCredentials(email: string, password: string): boolean {
-  if (!DEMO_EMAIL || !DEMO_PASSWORD) {
+  if (!DEMO_PASSWORD) {
     return false;
   }
   return (
@@ -168,6 +170,7 @@ export async function authenticateUser(
         organizationConfigured: MOCK_DEMO_PROFILE.organizationConfigured,
       }),
       accessToken: MOCK_DEMO_PROFILE.accessToken,
+      sessionType: "demo",
       dataModeOverride: "mock",
     };
   }
@@ -178,6 +181,7 @@ export async function authenticateUser(
   return {
     user: userFromJwt(response.access_token, response.user),
     accessToken: response.access_token,
+    sessionType: "authenticated",
     dataModeOverride: "api",
   };
 }

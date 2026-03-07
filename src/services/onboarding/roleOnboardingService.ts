@@ -5,6 +5,7 @@ import {
 } from '@/data/mocks/onboarding/role-onboarding';
 import { requestJson } from '@/services/shared/httpClient';
 import type { UserRole } from '@/types/auth';
+import { ROUTE_PATHS } from '@/config/routes';
 
 export type { RoleOnboardingPlan, RoleOnboardingStep } from '@/data/mocks/onboarding/role-onboarding';
 
@@ -25,23 +26,43 @@ const clone = <T>(value: T): T => structuredClone(value);
 
 let roleOnboardingCache: Partial<Record<UserRole, RoleOnboardingPlan>> = {};
 
-function mapApiPlan(role: UserRole, payload: ApiOnboardingPlan): RoleOnboardingPlan {
-  const fallback = mockRoleOnboardingPlans[role];
+function formatRoleLabel(role: UserRole): string {
+  return role
+    .split('_')
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(' ');
+}
+
+function buildEmptyPlan(role: UserRole): RoleOnboardingPlan {
+  const roleLabel = formatRoleLabel(role);
+
   return {
     role,
-    title: payload.title ?? fallback.title,
-    description: payload.description ?? fallback.description,
+    title: `${roleLabel} Onboarding`,
+    description: `Onboarding guidance for the ${roleLabel.toLowerCase()} role is not available yet.`,
+    steps: [],
+  };
+}
+
+function mapApiPlan(role: UserRole, payload: ApiOnboardingPlan): RoleOnboardingPlan {
+  const roleLabel = formatRoleLabel(role);
+  return {
+    role,
+    title: payload.title ?? `${roleLabel} Onboarding`,
+    description:
+      payload.description
+      ?? `Guided onboarding steps for the ${roleLabel.toLowerCase()} role.`,
     steps:
       payload.steps?.map((step, index) => ({
         id: step.id ?? `${role}-step-${index + 1}`,
         title: step.title ?? `Step ${index + 1}`,
         description: step.description ?? 'Complete this onboarding step.',
-        route: step.route ?? fallback.steps[Math.min(index, fallback.steps.length - 1)]?.route ?? '/home',
+        route: step.route ?? ROUTE_PATHS.home,
         estimatedMinutes:
           typeof step.estimatedMinutes === 'number' && Number.isFinite(step.estimatedMinutes)
             ? step.estimatedMinutes
             : 5,
-      })) ?? clone(fallback.steps),
+      })) ?? [],
   };
 }
 
@@ -65,9 +86,9 @@ export async function getRoleOnboardingPlan(role: UserRole): Promise<RoleOnboard
     roleOnboardingCache[role] = plan;
     return clone(plan);
   } catch {
-    const fallback = clone(mockRoleOnboardingPlans[role]);
+    const fallback = roleOnboardingCache[role] ?? buildEmptyPlan(role);
     roleOnboardingCache[role] = fallback;
-    return fallback;
+    return clone(fallback);
   }
 }
 

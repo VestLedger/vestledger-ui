@@ -40,7 +40,7 @@ import {
   secondaryTransferOpsSelectors,
 } from '@/store/slices/secondaryTransferOpsSlice';
 import { AsyncStateRenderer } from '@/ui/async-states';
-import { formatCurrency } from '@/utils/formatting';
+import { formatCurrency, formatDate } from '@/utils/formatting';
 import { KeyValueRow, StatusBadge, PageScaffold, SectionHeader } from '@/ui/composites';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import type { CreateCapitalCallParams } from '@/services/backOffice/fundAdminService';
@@ -451,11 +451,11 @@ export function FundAdmin() {
                             </div>
                             <div>
                               <p className="text-xs text-[var(--app-text-muted)] mb-1">Call Date</p>
-                              <p className="font-semibold">{new Date(call.callDate).toLocaleDateString()}</p>
+                              <p className="font-semibold">{formatDate(call.callDate)}</p>
                             </div>
                             <div>
                               <p className="text-xs text-[var(--app-text-muted)] mb-1">Due Date</p>
-                              <p className="font-semibold">{new Date(call.dueDate).toLocaleDateString()}</p>
+                              <p className="font-semibold">{formatDate(call.dueDate)}</p>
                             </div>
                           </div>
 
@@ -545,7 +545,7 @@ export function FundAdmin() {
                                 {formatCurrency(response.amountPaid)} / {formatCurrency(response.callAmount)}
                               </p>
                               <p className="text-xs text-[var(--app-text-muted)]">
-                                Due: {new Date(response.dueDate).toLocaleDateString()}
+                                Due: {formatDate(response.dueDate)}
                               </p>
                             </div>
                           </div>

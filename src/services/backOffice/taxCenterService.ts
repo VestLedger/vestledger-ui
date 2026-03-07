@@ -114,7 +114,7 @@ function asOptionalDateOnly(value?: string | null): string | null {
   return asDateOnly(value);
 }
 
-function asDateValue(value?: string | null, fallback = mockFilingDeadline): Date {
+function asDateValue(value?: string | null, fallback = new Date()): Date {
   if (!value) return new Date(fallback);
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return new Date(fallback);
@@ -187,7 +187,7 @@ function mapApiPortfolioTax(
     k1ReceivedDate: k1Received
       ? asOptionalDateOnly(record.k1ReceivedDate ?? record.receivedDate)
       : null,
-    contactEmail: record.contactEmail ?? `tax-contact-${index + 1}@example.com`,
+    contactEmail: record.contactEmail ?? '',
   };
 }
 
@@ -241,12 +241,24 @@ function getBaseMockSnapshot(): TaxCenterSnapshot {
   };
 }
 
+function getEmptySnapshot(): TaxCenterSnapshot {
+  return {
+    filingDeadline: new Date(),
+    taxDocuments: [],
+    taxSummaries: [],
+    portfolioTax: [],
+  };
+}
+
 function setCachedSnapshot(snapshot: TaxCenterSnapshot): void {
   apiTaxCenterSnapshotCache = clone(snapshot);
 }
 
-function getCachedOrMockSnapshot(): TaxCenterSnapshot {
-  return clone(apiTaxCenterSnapshotCache ?? getBaseMockSnapshot());
+function getCachedSnapshot(): TaxCenterSnapshot {
+  return clone(
+    apiTaxCenterSnapshotCache ??
+      (isMockMode('backOffice') ? getBaseMockSnapshot() : getEmptySnapshot())
+  );
 }
 
 async function getTaxCenterSnapshot(): Promise<TaxCenterSnapshot> {
@@ -254,10 +266,10 @@ async function getTaxCenterSnapshot(): Promise<TaxCenterSnapshot> {
     if (!apiTaxCenterSnapshotCache) {
       setCachedSnapshot(getBaseMockSnapshot());
     }
-    return getCachedOrMockSnapshot();
+    return getCachedSnapshot();
   }
 
-  const previous = getCachedOrMockSnapshot();
+  const previous = getCachedSnapshot();
   const [deadlineResult, documentsResult, summariesResult, portfolioResult] = await Promise.allSettled([
     fetchTaxDeadlineFromApi(),
     fetchTaxDocumentsFromApi(),

@@ -3,6 +3,7 @@ import type { paths } from './generated/openapi';
 import { getApiBaseUrl } from './config';
 import { safeLocalStorage } from '@/lib/storage/safeLocalStorage';
 import { DATA_MODE_OVERRIDE_KEY } from '@/config/data-mode';
+import { getAuthCookieDomain } from '@/utils/auth/cookie-domain';
 
 const STORAGE_TOKEN_KEY = 'accessToken';
 const STORAGE_AUTH_KEY = 'isAuthenticated';
@@ -19,15 +20,6 @@ function getCookieValue(name: string): string | null {
     }
   }
   return null;
-}
-
-function getAuthCookieDomain(hostname?: string | null): string | null {
-  if (!hostname) return null;
-  if (hostname === 'localhost' || hostname.endsWith('.localhost')) return null;
-  if (/^\d{1,3}(?:\.\d{1,3}){3}$/.test(hostname)) return null;
-  const baseHost = hostname.replace(/^www\./, '').replace(/^(app|admin)\./, '');
-  if (baseHost === 'localhost') return null;
-  return `.${baseHost}`;
 }
 
 function clearCookie(name: string, domain?: string | null) {

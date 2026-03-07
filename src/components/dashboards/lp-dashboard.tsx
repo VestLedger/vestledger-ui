@@ -6,7 +6,7 @@ import { KeyValueRow, ListItemCard, RoleDashboardLayout, SectionHeader } from '@
 import type { MetricsGridItem } from '@/ui/composites';
 import { lpDashboardSelectors } from '@/store/slices/dashboardsSlice';
 import { AsyncStateRenderer } from '@/ui/async-states';
-import { formatCurrencyCompact } from '@/utils/formatting';
+import { formatCurrencyCompact, formatDate } from '@/utils/formatting';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { loadLPDashboardOperation } from '@/store/async/dataOperations';
 
@@ -32,6 +32,8 @@ export function LPDashboard() {
   const totalCommitment = commitment.totalCommitment;
   const calledAmount = commitment.calledAmount;
   const unfundedCommitment = totalCommitment - calledAmount;
+  const capitalCalledPercent =
+    totalCommitment > 0 ? (calledAmount / totalCommitment) * 100 : 0;
 
   const metricItems: MetricsGridItem[] = metrics.map((metric) => ({
     type: 'metric',
@@ -117,11 +119,11 @@ export function LPDashboard() {
         <div>
           <KeyValueRow
             label="Capital Called"
-            value={`${((calledAmount / totalCommitment) * 100).toFixed(0)}%`}
+            value={`${capitalCalledPercent.toFixed(0)}%`}
             className="mb-2"
             paddingYClassName=""
           />
-          <Progress value={(calledAmount / totalCommitment) * 100} maxValue={100} className="h-3" aria-label={`Capital called ${((calledAmount / totalCommitment) * 100).toFixed(0)}%`} />
+          <Progress value={capitalCalledPercent} maxValue={100} className="h-3" aria-label={`Capital called ${capitalCalledPercent.toFixed(0)}%`} />
         </div>
       </Card>
 
@@ -159,7 +161,7 @@ export function LPDashboard() {
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="text-2xl font-bold">{formatCurrencyCompact(call.amount)}</div>
-                      <div className="text-xs text-[var(--app-text-muted)]">Due: {call.dueDate.toLocaleDateString()}</div>
+                      <div className="text-xs text-[var(--app-text-muted)]">Due: {formatDate(call.dueDate)}</div>
                     </div>
                     <Button color="primary" startContent={<CreditCard className="w-4 h-4" />}>
                       Pay Now
@@ -212,7 +214,7 @@ export function LPDashboard() {
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="text-xs text-[var(--app-text-muted)]">
-                      Requested: {sig.requestedDate.toLocaleDateString()}
+                      Requested: {formatDate(sig.requestedDate)}
                     </div>
                     <Button size="sm" color="primary" startContent={<Pen className="w-3 h-3" />}>
                       Sign Document

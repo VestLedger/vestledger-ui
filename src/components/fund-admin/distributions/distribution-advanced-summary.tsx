@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { Badge, Card } from "@/ui";
 import { ListItemCard, SectionHeader, StatusBadge } from '@/ui/composites';
 import type { Distribution } from "@/types/distribution";
-import { formatCurrencyCompact, formatDate, formatPercent } from "@/utils/formatting";
+import { formatCurrencyCompact, formatDate, formatNumber, formatPercent } from "@/utils/formatting";
 
 export interface DistributionAdvancedSummaryProps {
   distribution: Distribution;
@@ -86,7 +86,7 @@ export function DistributionAdvancedSummary({ distribution }: DistributionAdvanc
                 <ListItemCard
                   key={asset.id}
                   title={asset.name}
-                  description={`${asset.totalShares.toLocaleString()} shares @ ${formatCurrencyCompact(asset.perShareValue)} (${formatCurrencyCompact(asset.totalValue)} total)`}
+                  description={`${formatNumber(asset.totalShares)} shares @ ${formatCurrencyCompact(asset.perShareValue)} (${formatCurrencyCompact(asset.totalValue)} total)`}
                   meta={`Custody ${asset.custodyAccount ?? "TBD"} • Settlement ${formatOptionalDate(asset.settlementDate)}`}
                   padding="sm"
                   badges={<Badge size="sm" variant="flat">{asset.assetType}</Badge>}
@@ -113,7 +113,7 @@ export function DistributionAdvancedSummary({ distribution }: DistributionAdvanc
                   <ListItemCard
                     key={allocation.id}
                     title={allocation.lpName}
-                    description={`${assetName} • ${allocation.sharesAllocated.toLocaleString()} shares`}
+                    description={`${assetName} • ${formatNumber(allocation.sharesAllocated)} shares`}
                     meta={`Fractional ${allocation.fractionalShares.toFixed(2)} • Cash-in-lieu ${formatCurrencyCompact(allocation.cashInLieuAmount)}`}
                     padding="sm"
                     badges={<Badge size="sm" variant="flat">{allocation.electionType}</Badge>}

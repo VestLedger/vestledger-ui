@@ -5,6 +5,7 @@ import { Star, TrendingUp, Target, Users, Lightbulb, CheckCircle2, Edit3 } from 
 import { useUIKey } from '@/store/ui';
 import { getCompanyScoreData } from '@/services/dealflow/companyScoringService';
 import { SectionHeader } from '@/ui/composites';
+import { formatDate } from '@/utils/formatting';
 // import { useAppDispatch, useAppSelector } from '@/store/hooks';
 // import { companyScoringRequested } from '@/store/slices/dealflowSlice';
 
@@ -231,7 +232,7 @@ export function CompanyScoring({ companyId, companyName }: { companyId: number; 
                   <div>
                     <p className="font-medium">{partnerScore.partnerName}</p>
                     <p className="text-xs text-[var(--app-text-muted)]">
-                      {new Date(partnerScore.submittedAt).toLocaleDateString()}
+                      {formatDate(partnerScore.submittedAt)}
                     </p>
                   </div>
                 </div>

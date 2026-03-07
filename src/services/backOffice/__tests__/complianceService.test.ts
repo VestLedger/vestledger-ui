@@ -32,7 +32,7 @@ describe('complianceService', () => {
     await expect(service.getAuditSchedule()).resolves.toEqual(mockAuditSchedule);
   });
 
-  it('falls back to cached mock data in API mode when requests fail', async () => {
+  it('returns empty compliance data in API mode when requests fail before any API cache exists', async () => {
     isMockMode.mockReturnValue(false);
     requestJson.mockRejectedValue(new Error('network down'));
 
@@ -42,9 +42,9 @@ describe('complianceService', () => {
     const filings = await service.getRegulatoryFilings();
     const schedule = await service.getAuditSchedule();
 
-    expect(items).toEqual(mockComplianceItems);
-    expect(filings).toEqual(mockRegulatoryFilings);
-    expect(schedule).toEqual(mockAuditSchedule);
+    expect(items).toEqual([]);
+    expect(filings).toEqual([]);
+    expect(schedule).toEqual([]);
   });
 
   it('maps API payloads when endpoints are available', async () => {

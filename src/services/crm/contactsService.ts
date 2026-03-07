@@ -11,6 +11,7 @@ import {
 } from "@/data/seeds/crm/contacts";
 import { requestJson } from "@/services/shared/httpClient";
 import type { GetCRMDataParams } from "@/store/slices/crmSlice";
+import { formatTime } from "@/utils/formatting/date";
 
 type ApiListResponse<T> = {
   data?: T[];
@@ -101,7 +102,7 @@ type CRMSnapshot = {
   timelineInteractions: TimelineInteraction[];
 };
 
-const DEFAULT_PROVIDER_EMAIL = "investor@vestledger.com";
+const DEFAULT_MOCK_PROVIDER_EMAIL = "investor@vestledger.com";
 
 let crmSnapshotCache: CRMSnapshot | null = null;
 
@@ -265,6 +266,15 @@ function buildSeedSnapshot(): CRMSnapshot {
   };
 }
 
+function createEmptySnapshot(): CRMSnapshot {
+  return {
+    contacts: [],
+    emailAccounts: [],
+    interactions: [],
+    timelineInteractions: [],
+  };
+}
+
 function applyContactFilters(
   contacts: Contact[],
   params: GetCRMDataParams,
@@ -294,7 +304,9 @@ function buildSeedSnapshotForParams(params: GetCRMDataParams): CRMSnapshot {
 function getCachedSnapshot(params: GetCRMDataParams): CRMSnapshot {
   const snapshot = crmSnapshotCache
     ? clone(crmSnapshotCache)
-    : buildSeedSnapshotForParams(params);
+    : isMockMode("crm")
+      ? buildSeedSnapshotForParams(params)
+      : createEmptySnapshot();
 
   snapshot.contacts = applyContactFilters(snapshot.contacts, params);
   return snapshot;
@@ -380,7 +392,7 @@ async function fetchApiEmailAccounts(): Promise<EmailAccount[]> {
 
   return accounts.map((account) => ({
     id: account.id,
-    email: account.email ?? DEFAULT_PROVIDER_EMAIL,
+    email: account.email ?? "",
     provider: normalizeEmailProvider(account.provider),
     status: normalizeEmailStatus(account.status),
     lastSync:
@@ -453,8 +465,7 @@ export async function getCRMEmailAccounts(
   try {
     const emailAccounts = await fetchApiEmailAccounts();
     const snapshot = getCachedSnapshot(params);
-    snapshot.emailAccounts =
-      emailAccounts.length > 0 ? emailAccounts : clone(mockEmailAccounts);
+    snapshot.emailAccounts = emailAccounts;
     crmSnapshotCache = snapshot;
     return clone(snapshot.emailAccounts);
   } catch {
@@ -544,7 +555,7 @@ export async function toggleCRMContactStar(contactId: string): Promise<void> {
 
 export async function createCRMContact(): Promise<void> {
   const now = new Date();
-  const generatedName = `New Contact ${now.toLocaleTimeString("en-US", {
+  const generatedName = `New Contact ${formatTime(now, {
     hour: "2-digit",
     minute: "2-digit",
   })}`;
@@ -572,18 +583,9 @@ export async function createCRMContact(): Promise<void> {
     return;
   }
 
-  await requestJson("/contacts", {
-    method: "POST",
-    body: {
-      name: generatedName,
-      email: generatedEmail,
-      role: "other",
-      tags: ["new"],
-      linkedCompanies: [],
-      deals: [],
-    },
-    fallbackMessage: "Failed to create contact",
-  });
+  throw new Error(
+    "Creating CRM contacts in live mode requires user-provided form input and an API implementation.",
+  );
 }
 
 export async function createCRMInteraction(
@@ -651,6 +653,12 @@ export async function createCRMInteraction(
 export async function updateCRMInteraction(
   interactionId: string,
 ): Promise<void> {
+  if (!isMockMode("crm")) {
+    throw new Error(
+      "Updating CRM interactions in live mode requires an API implementation.",
+    );
+  }
+
   updateCachedSnapshot((snapshot) => ({
     ...snapshot,
     timelineInteractions: snapshot.timelineInteractions.map((interaction) =>
@@ -667,6 +675,12 @@ export async function updateCRMInteraction(
 export async function deleteCRMInteraction(
   interactionId: string,
 ): Promise<void> {
+  if (!isMockMode("crm")) {
+    throw new Error(
+      "Deleting CRM interactions in live mode requires an API implementation.",
+    );
+  }
+
   updateCachedSnapshot((snapshot) => ({
     ...snapshot,
     interactions: snapshot.interactions.filter(
@@ -682,6 +696,12 @@ export async function linkCRMInteractionToDeal(
   interactionId: string,
   linkedDeal: string,
 ): Promise<void> {
+  if (!isMockMode("crm")) {
+    throw new Error(
+      "Linking CRM interactions to deals in live mode requires an API implementation.",
+    );
+  }
+
   updateCachedSnapshot((snapshot) => ({
     ...snapshot,
     timelineInteractions: snapshot.timelineInteractions.map((interaction) =>
@@ -704,7 +724,7 @@ export async function connectCRMEmailAccount(
           id: `mock-email-${Date.now()}`,
           email:
             provider === "gmail"
-              ? DEFAULT_PROVIDER_EMAIL
+              ? DEFAULT_MOCK_PROVIDER_EMAIL
               : `outlook-${Date.now()}@example.com`,
           provider,
           status: "connected",
@@ -717,25 +737,10 @@ export async function connectCRMEmailAccount(
     return;
   }
 
-  await updateEmailIntegrationStatus("connected");
-
-  updateCachedSnapshot((snapshot) => ({
-    ...snapshot,
-    emailAccounts:
-      snapshot.emailAccounts.length > 0
-        ? snapshot.emailAccounts
-        : [
-            {
-              id: `email-${Date.now()}`,
-              email: DEFAULT_PROVIDER_EMAIL,
-              provider,
-              status: "connected",
-              lastSync: new Date(),
-              syncedEmails: 0,
-              autoCapture: true,
-            },
-          ],
-  }));
+  void provider;
+  throw new Error(
+    "Connecting CRM email accounts in live mode requires an API implementation.",
+  );
 }
 
 export async function disconnectCRMEmailAccount(
@@ -757,14 +762,12 @@ export async function disconnectCRMEmailAccount(
 
 export async function syncCRMEmailAccount(accountId: string): Promise<void> {
   if (!isMockMode("crm")) {
-    try {
-      await requestJson("/integrations/calendar/events", {
-        method: "GET",
-        fallbackMessage: "Failed to sync email account",
-      });
-    } catch {
-      // No-op: sync UX remains available even if API endpoint is unavailable.
-    }
+    await requestJson("/integrations/calendar/events", {
+      method: "GET",
+      fallbackMessage: "Failed to sync email account",
+    });
+    void accountId;
+    return;
   }
 
   updateCachedSnapshot((snapshot) => ({
@@ -781,6 +784,14 @@ export async function toggleCRMEmailAutoCapture(
   accountId: string,
   enabled: boolean,
 ): Promise<void> {
+  if (!isMockMode("crm")) {
+    void accountId;
+    void enabled;
+    throw new Error(
+      "Toggling CRM email auto-capture in live mode requires an API implementation.",
+    );
+  }
+
   updateCachedSnapshot((snapshot) => ({
     ...snapshot,
     emailAccounts: snapshot.emailAccounts.map((account) =>

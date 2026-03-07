@@ -16,7 +16,7 @@ import type {
   SideLetterTerm,
   SpecialDistributionDetails,
 } from "@/types/distribution";
-import { formatCurrencyCompact, formatDate } from "@/utils/formatting";
+import { formatCurrencyCompact, formatDate, formatNumber } from "@/utils/formatting";
 import { Plus, ShieldCheck, Shuffle, FileText } from "lucide-react";
 
 type AdvancedData = {
@@ -334,7 +334,7 @@ export function DistributionStepAdvanced({ data, eventType, onChange }: Distribu
               <ListItemCard
                 key={allocation.id}
                 title={allocation.lpName}
-                description={`${allocation.sharesAllocated.toLocaleString()} shares`}
+                description={`${formatNumber(allocation.sharesAllocated)} shares`}
                 meta={`Fractional: ${allocation.fractionalShares.toFixed(2)} • Cash-in-lieu ${formatCurrencyCompact(allocation.cashInLieuAmount)}`}
                 padding="sm"
                 badges={<Badge size="sm" variant="flat">{allocation.electionType}</Badge>}

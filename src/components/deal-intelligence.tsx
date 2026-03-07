@@ -17,6 +17,7 @@ import {
   type Document,
 } from '@/services/dealIntelligence/dealIntelligenceService';
 import { loadDealIntelligenceOperation } from '@/store/async/dataOperations';
+import { formatNumber } from '@/utils/formatting';
 
 export function DealIntelligence() {
   const { data, isLoading, error, refetch } = useAsyncData(loadDealIntelligenceOperation, dealIntelligenceSelectors.selectState, { params: {} });
@@ -658,7 +659,7 @@ export function DealIntelligence() {
                         <div className="space-y-3">
                           <KeyValueRow
                             label="Total Customers"
-                            value={analytics.market.customers.totalCustomers.toLocaleString()}
+                            value={formatNumber(analytics.market.customers.totalCustomers)}
                             paddingYClassName=""
                             valueClassName="text-xl text-[var(--app-primary)]"
                           />

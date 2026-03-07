@@ -187,8 +187,7 @@ function normalizeAttendees(value: unknown): EventAttendee[] {
         Boolean(entry) && typeof entry === "object",
     )
     .map((entry) => ({
-      email:
-        typeof entry.email === "string" ? entry.email : "unknown@example.com",
+      email: typeof entry.email === "string" ? entry.email : "",
       name: typeof entry.name === "string" ? entry.name : undefined,
       responseStatus:
         entry.responseStatus === "accepted" ||
@@ -280,7 +279,7 @@ function mapApiIntegration(item: ApiIntegrationSummary): IntegrationSummary {
 function mapApiAccount(item: ApiCalendarAccount): CalendarAccount {
   return {
     id: item.id,
-    email: item.email ?? "unknown@example.com",
+    email: item.email ?? "",
     provider: normalizeProvider(item.provider),
     status:
       item.status === "connected" ||
@@ -342,7 +341,7 @@ function mapApiEvent(item: ApiCalendarEvent): CalendarEvent {
     location: item.location,
     isVirtual: Boolean(item.isVirtual),
     meetingUrl: item.meetingUrl,
-    organizer: item.organizer ?? "unknown@example.com",
+    organizer: item.organizer ?? "",
     attendees: normalizeAttendees(item.attendees),
     captureStatus: normalizeCaptureStatus(item.captureStatus),
     capturedDate:
@@ -386,12 +385,23 @@ function getSeedSnapshot(): IntegrationsSnapshot {
   };
 }
 
+function getEmptySnapshot(): IntegrationsSnapshot {
+  return {
+    accounts: [],
+    events: [],
+    integrations: [],
+  };
+}
+
 function getCachedSnapshot(): IntegrationsSnapshot {
-  return clone(integrationsSnapshotCache ?? getSeedSnapshot());
+  return clone(
+    integrationsSnapshotCache ??
+      (isMockMode("integrations") ? getSeedSnapshot() : getEmptySnapshot()),
+  );
 }
 
 function setSnapshot(snapshot: IntegrationsSnapshot): void {
-  integrationsSnapshotCache = snapshot;
+  integrationsSnapshotCache = clone(snapshot);
 }
 
 function updateSnapshot(
@@ -410,6 +420,12 @@ async function updateIntegrationStatusApi(
     body: { status },
     fallbackMessage: "Failed to update integration status",
   });
+}
+
+function requireMockCalendarMutation(action: string): void {
+  if (!isMockMode("integrations")) {
+    throw new Error(`${action} in live mode requires an API implementation.`);
+  }
 }
 
 export async function getIntegrationsSnapshot(): Promise<IntegrationsSnapshot> {
@@ -434,10 +450,9 @@ export async function getIntegrationsSnapshot(): Promise<IntegrationsSnapshot> {
     const integrations = (response.integrations ?? []).map(mapApiIntegration);
 
     const snapshot: IntegrationsSnapshot = {
-      accounts: accounts.length > 0 ? accounts : clone(mockCalendarAccounts),
-      events: events.length > 0 ? events : clone(mockCalendarEvents),
-      integrations:
-        integrations.length > 0 ? integrations : clone(mockIntegrations),
+      accounts,
+      events,
+      integrations,
     };
 
     setSnapshot(snapshot);
@@ -482,6 +497,7 @@ export async function disconnectIntegration(
 export async function connectCalendar(
   provider: CalendarProvider,
 ): Promise<void> {
+  requireMockCalendarMutation("Connecting calendar accounts");
   const snapshot = getCachedSnapshot();
   const existingAccount = snapshot.accounts.find(
     (account) => account.provider === provider,
@@ -517,6 +533,7 @@ export async function connectCalendar(
 }
 
 export async function disconnectCalendar(accountId: string): Promise<void> {
+  requireMockCalendarMutation("Disconnecting calendar accounts");
   updateSnapshot((snapshot) => ({
     ...snapshot,
     accounts: snapshot.accounts.map((account) =>
@@ -529,14 +546,11 @@ export async function disconnectCalendar(accountId: string): Promise<void> {
 
 export async function syncCalendar(accountId: string): Promise<void> {
   if (!isMockMode("integrations")) {
-    try {
-      await requestJson<ApiCalendarEvent[]>("/integrations/calendar/events", {
-        method: "GET",
-        fallbackMessage: "Failed to sync calendar",
-      });
-    } catch {
-      // Sync failures do not block UI-first flows.
-    }
+    await requestJson<ApiCalendarEvent[]>("/integrations/calendar/events", {
+      method: "GET",
+      fallbackMessage: "Failed to sync calendar",
+    });
+    return;
   }
 
   updateSnapshot((snapshot) => ({
@@ -552,12 +566,13 @@ export async function syncCalendar(accountId: string): Promise<void> {
 export async function configureCalendarRules(
   _accountId: string,
 ): Promise<void> {
-  // Reserved for API-backed rules editor; no-op in UI-first mode.
+  requireMockCalendarMutation("Configuring calendar rules");
 }
 
 export async function toggleCalendarAutoCapture(
   accountId: string,
 ): Promise<void> {
+  requireMockCalendarMutation("Toggling calendar auto-capture");
   updateSnapshot((snapshot) => ({
     ...snapshot,
     accounts: snapshot.accounts.map((account) =>
@@ -569,6 +584,7 @@ export async function toggleCalendarAutoCapture(
 }
 
 export async function captureCalendarEvent(eventId: string): Promise<void> {
+  requireMockCalendarMutation("Capturing calendar events");
   updateSnapshot((snapshot) => ({
     ...snapshot,
     events: snapshot.events.map((event) =>
@@ -580,6 +596,7 @@ export async function captureCalendarEvent(eventId: string): Promise<void> {
 }
 
 export async function ignoreCalendarEvent(eventId: string): Promise<void> {
+  requireMockCalendarMutation("Ignoring calendar events");
   updateSnapshot((snapshot) => ({
     ...snapshot,
     events: snapshot.events.map((event) =>
@@ -589,6 +606,7 @@ export async function ignoreCalendarEvent(eventId: string): Promise<void> {
 }
 
 export async function editCalendarEvent(eventId: string): Promise<void> {
+  requireMockCalendarMutation("Editing calendar events");
   updateSnapshot((snapshot) => ({
     ...snapshot,
     events: snapshot.events.map((event) =>
@@ -603,6 +621,7 @@ export async function editCalendarEvent(eventId: string): Promise<void> {
 }
 
 export async function createCalendarEvent(): Promise<void> {
+  requireMockCalendarMutation("Creating calendar events");
   const now = new Date();
   const startTime = new Date(now.getTime() + 60 * 60 * 1000);
   const endTime = new Date(startTime.getTime() + 30 * 60 * 1000);

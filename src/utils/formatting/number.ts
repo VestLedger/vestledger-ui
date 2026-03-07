@@ -1,3 +1,5 @@
+import { DEFAULT_LOCALE } from '@/config/i18n';
+
 /**
  * Format percentage with configurable decimals
  * @example formatPercent(45.67, 1) => "45.7%"
@@ -19,4 +21,16 @@ export function formatNumberCompact(value: number): string {
   if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
   if (value >= 1_000) return `${(value / 1_000).toFixed(0)}K`;
   return value.toString();
+}
+
+/**
+ * Format a number using the default locale-aware grouping rules.
+ */
+export function formatNumber(
+  value: number,
+  options?: Intl.NumberFormatOptions,
+  locale: string = DEFAULT_LOCALE
+): string {
+  if (!Number.isFinite(value)) return '';
+  return value.toLocaleString(locale, options);
 }

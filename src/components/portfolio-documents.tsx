@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react';
+import { isMockMode } from '@/config/data-mode';
 import { Filter, Upload, Download, Eye, FileText, AlertCircle } from 'lucide-react';
 import { Button, Card, Badge } from '@/ui';
 import { ListItemCard, SearchToolbar, SectionHeader, StatusBadge } from '@/ui/composites';
@@ -271,11 +272,14 @@ export function PortfolioDocuments() {
                                 isIconOnly
                                 aria-label={`Preview ${doc.name}`}
                                 onPress={() => {
+                                  const previewUrl = isMockMode('portfolio')
+                                    ? getMockDocumentUrl(inferDocumentType(doc.name))
+                                    : '';
                                   preview.openPreview({
                                     id: doc.id.toString(),
                                     name: doc.name,
-                                    type: inferDocumentType(doc.name),
-                                    url: getMockDocumentUrl(inferDocumentType(doc.name)),
+                                    type: previewUrl ? inferDocumentType(doc.name) : 'other',
+                                    url: previewUrl,
                                     uploadedBy: doc.uploadedBy,
                                     uploadedDate: doc.uploadedDate ? new Date(doc.uploadedDate) : undefined,
                                     size: doc.size ? parseInt(doc.size.replace(/[^0-9]/g, '')) * 1024 : undefined,

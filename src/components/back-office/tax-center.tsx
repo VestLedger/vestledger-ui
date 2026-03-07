@@ -241,12 +241,12 @@ export function TaxCenter() {
                         )}
                         {doc.generatedDate && (
                           <>
-                            <span>Generated: {new Date(doc.generatedDate).toLocaleDateString()}</span>
+                            <span>Generated: {formatDate(doc.generatedDate)}</span>
                             <span>•</span>
                           </>
                         )}
                         {doc.sentDate && (
-                          <span>Sent: {new Date(doc.sentDate).toLocaleDateString()}</span>
+                          <span>Sent: {formatDate(doc.sentDate)}</span>
                         )}
                       </div>
                     </div>
@@ -330,7 +330,7 @@ export function TaxCenter() {
                       </div>
                       <div className="text-right">
                         <p className="text-sm text-[var(--app-text-muted)]">Filing Deadline</p>
-                        <p className="font-semibold">{new Date(summary.filingDeadline).toLocaleDateString()}</p>
+                        <p className="font-semibold">{formatDate(summary.filingDeadline)}</p>
                       </div>
                     </div>
 
@@ -428,7 +428,7 @@ export function TaxCenter() {
                           <div>
                             <p className="text-[var(--app-text-muted)]">K-1 Received</p>
                             <p className="font-medium">
-                              {company.k1ReceivedDate ? new Date(company.k1ReceivedDate).toLocaleDateString() : 'N/A'}
+                              {company.k1ReceivedDate ? formatDate(company.k1ReceivedDate) : 'N/A'}
                             </p>
                           </div>
                         </div>

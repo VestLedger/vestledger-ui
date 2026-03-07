@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef } from 'react';
+import { isMockMode } from '@/config/data-mode';
 import { Card, Button, Input, Badge } from '@/ui';
 import { Send, Sparkles, User, Bot, Lightbulb, TrendingUp, AlertCircle, FileText } from 'lucide-react';
 import { DocumentPreviewModal, useDocumentPreview, getMockDocumentUrl } from '@/components/documents/preview';
@@ -15,6 +16,7 @@ import {
   type Message,
 } from '@/services/ai/ddChatService';
 import { loadDDChatConversationOperation } from '@/store/async/dataOperations';
+import { formatTime } from '@/utils/formatting';
 
 const defaultDDChatAssistantState = {
   inputValue: '',
@@ -194,8 +196,8 @@ export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealNam
                             preview.openPreview({
                               id: doc.name,
                               name: doc.name,
-                              type: doc.category === 'Pitch Deck' ? 'pdf' : 'pdf',
-                              url: getMockDocumentUrl('pdf'),
+                              type: isMockMode('ai') ? 'pdf' : 'other',
+                              url: isMockMode('ai') ? getMockDocumentUrl('pdf') : '',
                               category: doc.category,
                             });
                           }}
@@ -227,7 +229,7 @@ export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealNam
                 )}
 
                 <p className="text-xs text-[var(--app-text-subtle)] mt-1">
-                  {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  {formatTime(message.timestamp, { hour: '2-digit', minute: '2-digit' })}
                 </p>
               </div>
             </div>

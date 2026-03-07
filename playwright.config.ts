@@ -1,7 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { appBaseUrl, publicBaseUrl, playwrightDevServerUrl } = require('./config/runtime-hosts.cjs');
 
-const appBaseURL = process.env.APP_BASE_URL || process.env.BASE_URL || 'http://localhost:3000';
-const publicBaseURL = process.env.PUBLIC_BASE_URL || 'https://vestledger.com';
+const appBaseURL = appBaseUrl;
+const publicBaseURL = publicBaseUrl;
 const useExternalServer = process.env.PLAYWRIGHT_EXTERNAL_SERVER === '1';
 const ignoreHTTPSErrors = process.env.PLAYWRIGHT_IGNORE_HTTPS_ERRORS === '1';
 const slowEnv = process.env.PLAYWRIGHT_SLOW_ENV === '1';
@@ -162,7 +164,7 @@ export default defineConfig({
     ? undefined
     : {
         command: 'NEXT_DIST_DIR=.next-playwright pnpm exec next dev -H 127.0.0.1 -p 3000',
-        url: 'http://127.0.0.1:3000',
+        url: playwrightDevServerUrl,
         reuseExistingServer: !process.env.CI,
         timeout: webServerTimeout,
       },

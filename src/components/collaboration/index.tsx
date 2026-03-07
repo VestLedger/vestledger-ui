@@ -24,6 +24,8 @@ import {
   createCollaborationTaskOperation,
   updateCollaborationTaskStatusOperation,
 } from '@/store/async/miscMutationOperations';
+import { COLLABORATION_TASK_STATUS_FILTER_OPTIONS } from '@/config/collaboration-options';
+import { formatDateTime } from '@/utils/formatting';
 
 type CollaborationUIState = {
   searchQuery: string;
@@ -234,7 +236,7 @@ export function CollaborationWorkspace() {
                             {message.authorName} ({message.authorRole})
                           </p>
                           <span className="text-xs text-[var(--app-text-muted)]">
-                            {new Date(message.createdAt).toLocaleString()}
+                            {formatDateTime(message.createdAt)}
                           </span>
                         </div>
                         <p className="text-sm">{message.message}</p>
@@ -276,13 +278,7 @@ export function CollaborationWorkspace() {
                     onChange={(event) =>
                       patchUI({ taskStatusFilter: event.target.value as CollaborationUIState['taskStatusFilter'] })
                     }
-                    options={[
-                      { value: 'all', label: 'All statuses' },
-                      { value: 'todo', label: 'Todo' },
-                      { value: 'in-progress', label: 'In Progress' },
-                      { value: 'blocked', label: 'Blocked' },
-                      { value: 'done', label: 'Done' },
-                    ]}
+                    options={COLLABORATION_TASK_STATUS_FILTER_OPTIONS}
                     className="w-full"
                   />
                 </div>

@@ -15,5 +15,5 @@ export function getPitchDeckAnalyses(_params: GetPitchDeckAnalysesParams): Pitch
     return mockAnalyses;
   }
 
-  return mockAnalyses;
+  return [];
 }
