@@ -66,7 +66,7 @@ vi.mock('@/ui', () => ({
   Progress: () => <div />,
   Select: () => <div />,
   Modal: ({ children }: { children?: ReactNode }) => <div>{children}</div>,
-  Input: () => <input />,
+  Input: () => <div />,
 }));
 
 vi.mock('@/ui/composites', () => ({
