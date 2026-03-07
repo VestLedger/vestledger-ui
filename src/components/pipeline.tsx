@@ -7,19 +7,20 @@ import { Button, Card, Badge, Progress, ToggleButtonGroup, Modal, Input, Select,
 import { KanbanBoard } from '@/components/kanban-board';
 import { useAppDispatch } from '@/store/hooks';
 import { setSuggestionsOverride } from '@/store/slices/copilotSlice';
-import { pipelineDataRequested, dealStageUpdated, pipelineSelectors } from '@/store/slices/pipelineSlice';
+import { pipelineSelectors } from '@/store/slices/pipelineSlice';
 import { useUIKey } from '@/store/ui';
 import { ErrorState, LoadingState } from '@/ui/async-states';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { dealOutcomeClasses } from '@/utils/styling';
 import { PageScaffold } from '@/ui/composites';
 import { ROUTE_PATHS } from '@/config/routes';
-import { isMockMode } from '@/config/data-mode';
 import {
-  createPipelineDeal,
-  updatePipelineDealStage,
-  type PipelineDeal,
-} from '@/services/pipelineService';
+  loadPipelineDataOperation,
+} from '@/store/async/dataOperations';
+import {
+  createPipelineDealOperation,
+  updatePipelineDealStageOperation,
+} from '@/store/async/pipelineMutationOperations';
 
 type CreateDealDraft = {
   name: string;
@@ -44,7 +45,7 @@ function getInitialCreateDealDraft(defaultStage: string): CreateDealDraft {
 export function Pipeline() {
   const dispatch = useAppDispatch();
   const toast = useToast();
-  const { data, isLoading, error, refetch } = useAsyncData(pipelineDataRequested, pipelineSelectors.selectState, { params: {} });
+  const { data, isLoading, error, refetch } = useAsyncData(loadPipelineDataOperation, pipelineSelectors.selectState, { params: {} });
 
   const pipelineStages = data?.stages || [];
   const pipelineDeals = data?.deals || [];
@@ -57,16 +58,13 @@ export function Pipeline() {
 
   const { value: createDealUI, patch: patchCreateDealUI } = useUIKey<{
     isOpen: boolean;
-    createdDeals: PipelineDeal[];
     draft: CreateDealDraft;
   }>('pipeline-create-deal', {
     isOpen: false,
-    createdDeals: [],
     draft: getInitialCreateDealDraft(defaultStage),
   });
 
-  const pipelineDealsAll = [...pipelineDeals, ...createDealUI.createdDeals];
-  const usesMockPipeline = isMockMode('pipeline');
+  const pipelineDealsAll = pipelineDeals;
   const viewMode = pipelineUI.viewMode;
   const showClosedDeals = pipelineUI.showClosedDeals;
 
@@ -76,29 +74,11 @@ export function Pipeline() {
   const viewModeSelection = new Set([viewMode]);
 
   const handleItemMove = async (itemId: number | string, newStage: string) => {
-    const localIndex = createDealUI.createdDeals.findIndex((deal) => deal.id === itemId);
-    if (localIndex >= 0) {
-      const nextCreatedDeals = [...createDealUI.createdDeals];
-      nextCreatedDeals[localIndex] = {
-        ...nextCreatedDeals[localIndex],
-        stage: newStage,
-      };
-      patchCreateDealUI({ createdDeals: nextCreatedDeals });
-      return;
-    }
-
-    dispatch(dealStageUpdated({ dealId: itemId, newStage }));
-
-    if (usesMockPipeline) {
-      return;
-    }
-
     try {
-      await updatePipelineDealStage(itemId, newStage);
+      await dispatch(updatePipelineDealStageOperation({ dealId: itemId, newStage })).unwrap();
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unable to update stage';
       toast.error(message, 'Stage Update Failed');
-      refetch();
     }
   };
 
@@ -167,28 +147,19 @@ export function Pipeline() {
       : defaultStage;
 
     try {
-      const createdDeal = await createPipelineDeal({
+      const createdDeal = await dispatch(createPipelineDealOperation({
         name,
         stage,
         sector,
         founder,
         amount: amountMillions * 1_000_000,
         probability,
-      });
+      })).unwrap();
 
-      if (usesMockPipeline) {
-        patchCreateDealUI({
-          isOpen: false,
-          createdDeals: [createdDeal, ...createDealUI.createdDeals],
-          draft: getInitialCreateDealDraft(defaultStage),
-        });
-      } else {
-        patchCreateDealUI({
-          isOpen: false,
-          draft: getInitialCreateDealDraft(defaultStage),
-        });
-        refetch();
-      }
+      patchCreateDealUI({
+        isOpen: false,
+        draft: getInitialCreateDealDraft(defaultStage),
+      });
 
       toast.success(`${createdDeal.name} added to ${stage}.`, 'Deal Created');
     } catch (error) {

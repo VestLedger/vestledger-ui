@@ -85,7 +85,7 @@ type ApiIntegrationsSnapshot = {
   integrations?: ApiIntegrationSummary[];
 };
 
-type CreateCRMInteractionParams = {
+export type CreateCRMInteractionParams = {
   type: Interaction["type"];
   subject?: string;
   notes?: string;

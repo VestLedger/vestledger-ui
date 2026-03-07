@@ -49,14 +49,34 @@ const pipelineSlice = createSlice({
         }
       }
     },
+    pipelineDealUpserted: (state, action: PayloadAction<PipelineDeal>) => {
+      if (!state.data) {
+        state.data = {
+          stages: [],
+          deals: [],
+          copilotSuggestions: [],
+        };
+      }
+
+      if (!state.data.stages.includes(action.payload.stage)) {
+        state.data.stages = [...state.data.stages, action.payload.stage];
+      }
+
+      const existingIndex = state.data.deals.findIndex((deal) => deal.id === action.payload.id);
+      if (existingIndex === -1) {
+        state.data.deals = [action.payload, ...state.data.deals];
+      } else {
+        state.data.deals[existingIndex] = action.payload;
+      }
+    },
   },
 });
 
 export const {
-  pipelineDataRequested,
   pipelineDataLoaded,
   pipelineDataFailed,
   dealStageUpdated,
+  pipelineDealUpserted,
 } = pipelineSlice.actions;
 
 // Centralized selectors

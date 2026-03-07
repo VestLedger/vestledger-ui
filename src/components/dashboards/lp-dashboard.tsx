@@ -4,13 +4,14 @@ import { FileText, DollarSign, Download, Calendar, CheckCircle2, AlertCircle, Cl
 import { Card, Button, Badge, Progress } from '@/ui';
 import { KeyValueRow, ListItemCard, RoleDashboardLayout, SectionHeader } from '@/ui/composites';
 import type { MetricsGridItem } from '@/ui/composites';
-import { lpDashboardRequested, lpDashboardSelectors } from '@/store/slices/dashboardsSlice';
+import { lpDashboardSelectors } from '@/store/slices/dashboardsSlice';
 import { AsyncStateRenderer } from '@/ui/async-states';
 import { formatCurrencyCompact } from '@/utils/formatting';
 import { useAsyncData } from '@/hooks/useAsyncData';
+import { loadLPDashboardOperation } from '@/store/async/dataOperations';
 
 export function LPDashboard() {
-  const { data, isLoading, error, refetch } = useAsyncData(lpDashboardRequested, lpDashboardSelectors.selectState);
+  const { data, isLoading, error, refetch } = useAsyncData(loadLPDashboardOperation, lpDashboardSelectors.selectState);
 
   // Extract data with defaults
   const metrics = data?.metrics || [];

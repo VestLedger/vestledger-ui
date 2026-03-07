@@ -1,22 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import {
   miscReducer,
-  integrationsRequested,
   integrationsLoaded,
   integrationsFailed,
-  lpPortalRequested,
   lpPortalLoaded,
   lpPortalFailed,
-  lpManagementRequested,
   lpManagementLoaded,
   lpManagementFailed,
-  auditTrailRequested,
   auditTrailLoaded,
   auditTrailFailed,
-  companySearchRequested,
   companySearchLoaded,
   companySearchFailed,
-  collaborationRequested,
   collaborationLoaded,
   collaborationFailed,
   integrationsSelectors,
@@ -51,6 +45,10 @@ import {
 import { mockAuditEvents } from '@/data/mocks/blockchain/audit-trail';
 import { industries, mockCompanies, stages } from '@/data/mocks/deal-intelligence/company-search';
 import { mockCollaborationSnapshot } from '@/data/mocks/collaboration';
+
+function request<T>(type: string, payload?: T) {
+  return { type, payload };
+}
 
 const integrationsPayload = {
   accounts: mockCalendarAccounts,
@@ -116,7 +114,7 @@ describe('miscSlice', () => {
   });
 
   it('handles integrations lifecycle and selectors', () => {
-    let state = miscReducer(undefined, integrationsRequested());
+    let state = miscReducer(undefined, request('misc/integrationsRequested'));
     expect(state.integrations.status).toBe('loading');
 
     state = miscReducer(state, integrationsLoaded(integrationsPayload));
@@ -134,7 +132,7 @@ describe('miscSlice', () => {
   });
 
   it('handles LP portal lifecycle and selectors', () => {
-    let state = miscReducer(undefined, lpPortalRequested());
+    let state = miscReducer(undefined, request('misc/lpPortalRequested'));
     expect(state.lpPortal.status).toBe('loading');
 
     state = miscReducer(state, lpPortalLoaded(lpPortalPayload));
@@ -152,7 +150,7 @@ describe('miscSlice', () => {
   });
 
   it('handles LP management lifecycle and selectors', () => {
-    let state = miscReducer(undefined, lpManagementRequested());
+    let state = miscReducer(undefined, request('misc/lpManagementRequested'));
     expect(state.lpManagement.status).toBe('loading');
 
     state = miscReducer(state, lpManagementLoaded(lpManagementPayload));
@@ -170,7 +168,7 @@ describe('miscSlice', () => {
   });
 
   it('handles audit trail lifecycle and selectors', () => {
-    let state = miscReducer(undefined, auditTrailRequested());
+    let state = miscReducer(undefined, request('misc/auditTrailRequested'));
     expect(state.auditTrail.status).toBe('loading');
 
     state = miscReducer(state, auditTrailLoaded(auditTrailPayload));
@@ -188,7 +186,7 @@ describe('miscSlice', () => {
   });
 
   it('handles company search lifecycle and selectors', () => {
-    let state = miscReducer(undefined, companySearchRequested());
+    let state = miscReducer(undefined, request('misc/companySearchRequested'));
     expect(state.companySearch.status).toBe('loading');
 
     state = miscReducer(state, companySearchLoaded(companySearchPayload));
@@ -206,7 +204,7 @@ describe('miscSlice', () => {
   });
 
   it('handles collaboration lifecycle and selectors', () => {
-    let state = miscReducer(undefined, collaborationRequested());
+    let state = miscReducer(undefined, request('misc/collaborationRequested'));
     expect(state.collaboration.status).toBe('loading');
 
     state = miscReducer(state, collaborationLoaded(collaborationPayload));

@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Button, Input, Modal, Select, Textarea, useToast } from '@/ui';
 import type { CreateFundParams } from '@/store/slices/fundSlice';
 import { findFirstMissingRequiredField } from '@/utils/forms/required';
-import { fetchWaterfallScenarios } from '@/services/analytics/waterfallService';
 import { useAuth } from '@/contexts/auth-context';
+import { useAsyncData } from '@/hooks/useAsyncData';
 import {
   FUND_REGIME_OPTIONS,
   getDefaultFundRegulatoryRegime,
@@ -16,6 +16,8 @@ import type {
   FundRegulatoryProfile,
   FundRegulatoryRegime,
 } from '@/types/regulatory';
+import { scenariosSelectors } from '@/store/slices/waterfallSlice';
+import { loadWaterfallScenariosOperation } from '@/store/async/waterfallOperations';
 
 const STATUS_OPTIONS = [
   { value: 'active', label: 'Active' },
@@ -111,10 +113,7 @@ export function FundSetupForm({
   const defaults = useMemo(getDefaultFormValues, []);
   const [form, setForm] = useState<CreateFundParams>(defaults);
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [waterfallOptions, setWaterfallOptions] = useState<Array<{ value: string; label: string }>>([]);
-  const [isLoadingWaterfallOptions, setIsLoadingWaterfallOptions] = useState(false);
   const toast = useToast();
-  const hasLoadedWaterfallOptionsRef = useRef(false);
   const defaultOrgRegime = useMemo(
     () => getDefaultFundRegulatoryRegime(user?.operatingRegion ?? null),
     [user?.operatingRegion]
@@ -141,47 +140,35 @@ export function FundSetupForm({
     setForm(normalizeFormValues(initialValues ?? defaults));
   }, [defaults, initialValues, isOpen]);
 
-  useEffect(() => {
-    if (!isOpen) {
-      hasLoadedWaterfallOptionsRef.current = false;
-      return;
-    }
-    if (hasLoadedWaterfallOptionsRef.current) return;
-
-    let cancelled = false;
-    setIsLoadingWaterfallOptions(true);
-    hasLoadedWaterfallOptionsRef.current = true;
-
-    void fetchWaterfallScenarios()
-      .then((scenarios) => {
-        if (cancelled) return;
-
-        const options = scenarios.map((scenario) => ({
-          value: scenario.id,
-          label: scenario.name,
-        }));
-        setWaterfallOptions(options);
-
-        setForm((current) => {
-          if (current.activeWaterfallId || options.length === 0) return current;
-          return { ...current, activeWaterfallId: options[0].value };
-        });
-      })
-      .catch((error) => {
-        if (cancelled) return;
-        console.error('Failed to load waterfall scenarios for fund setup', error);
+  const { data: waterfallData, isLoading: isLoadingWaterfallOptions } = useAsyncData(
+    loadWaterfallScenariosOperation,
+    scenariosSelectors.selectState,
+    {
+      fetchOnMount: isOpen,
+      dependencies: [isOpen],
+      onError: () => {
         toast.warning('Unable to load waterfall scenarios.', 'Try again');
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoadingWaterfallOptions(false);
-      });
+      },
+    }
+  );
 
-    return () => {
-      cancelled = true;
-    };
-    // useToast can return a new object on each render; fetch should run once per modal open.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen]);
+  const waterfallOptions = useMemo(
+    () =>
+      (waterfallData?.scenarios ?? []).map((scenario) => ({
+        value: scenario.id,
+        label: scenario.name,
+      })),
+    [waterfallData?.scenarios]
+  );
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    setForm((current) => {
+      if (current.activeWaterfallId || waterfallOptions.length === 0) return current;
+      return { ...current, activeWaterfallId: waterfallOptions[0]?.value ?? '' };
+    });
+  }, [isOpen, waterfallOptions]);
 
   const setNumber = (field: keyof CreateFundParams, value: string) => {
     const parsed = Number(value);

@@ -2,7 +2,8 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { AsyncState, NormalizedError } from '@/store/types/AsyncState';
 import { createInitialAsyncState } from '@/store/types/AsyncState';
 import { createAsyncSelectors } from '@/store/utils/createAsyncSelectors';
-import type { PortfolioUpdate } from '@/services/portfolio/portfolioDataService';
+import type { PortfolioSnapshot } from '@/services/portfolio/portfolioDataService';
+import type { PortfolioDocumentsSnapshot } from '@/services/portfolio/portfolioDocumentsService';
 import type { StandardQueryParams } from '@/types/serviceParams';
 
 export interface PortfolioPageMetrics {
@@ -11,17 +12,19 @@ export interface PortfolioPageMetrics {
   pendingUpdates: number;
 }
 
-export interface PortfolioUpdatesData {
-  updates: PortfolioUpdate[];
-}
+export type PortfolioData = PortfolioSnapshot & {
+  documents: PortfolioDocumentsSnapshot;
+};
+
+export type PortfolioUpdatesData = PortfolioData;
 
 export interface GetPortfolioUpdatesParams extends Partial<StandardQueryParams> {
   fundId?: string | null;
 }
 
-type PortfolioState = AsyncState<PortfolioUpdatesData>;
+type PortfolioState = AsyncState<PortfolioData>;
 
-const initialState: PortfolioState = createInitialAsyncState<PortfolioUpdatesData>();
+const initialState: PortfolioState = createInitialAsyncState<PortfolioData>();
 
 const portfolioSlice = createSlice({
   name: 'portfolio',
@@ -44,12 +47,11 @@ const portfolioSlice = createSlice({
 });
 
 export const {
-  portfolioUpdatesRequested,
   portfolioUpdatesLoaded,
   portfolioUpdatesFailed,
 } = portfolioSlice.actions;
 
 // Centralized selectors
-export const portfolioSelectors = createAsyncSelectors<PortfolioUpdatesData>('portfolio');
+export const portfolioSelectors = createAsyncSelectors<PortfolioData>('portfolio');
 
 export const portfolioReducer = portfolioSlice.reducer;

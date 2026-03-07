@@ -38,7 +38,6 @@ const dealflowSlice = createSlice({
 });
 
 export const {
-  dealflowDealsRequested,
   dealflowDealsLoaded,
   dealflowDealsFailed,
 } = dealflowSlice.actions;

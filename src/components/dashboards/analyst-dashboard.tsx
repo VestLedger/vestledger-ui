@@ -5,12 +5,13 @@ import { Search, CheckCircle2, Clock } from 'lucide-react';
 import { Card, Button, Badge } from '@/ui';
 import { ListItemCard, RoleDashboardLayout, SectionHeader } from '@/ui/composites';
 import type { MetricsGridItem } from '@/ui/composites';
-import { analystDashboardRequested, analystDashboardSelectors } from '@/store/slices/dashboardsSlice';
+import { analystDashboardSelectors } from '@/store/slices/dashboardsSlice';
 import { AsyncStateRenderer } from '@/ui/async-states';
 import { useAsyncData } from '@/hooks/useAsyncData';
+import { loadAnalystDashboardOperation } from '@/store/async/dataOperations';
 
 export function AnalystDashboard() {
-  const { data, isLoading, error, refetch } = useAsyncData(analystDashboardRequested, analystDashboardSelectors.selectState);
+  const { data, isLoading, error, refetch } = useAsyncData(loadAnalystDashboardOperation, analystDashboardSelectors.selectState);
 
   // Extract data with defaults
   const metrics = data?.metrics || [];

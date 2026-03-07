@@ -86,12 +86,6 @@ const waterfallSlice = createSlice({
       state.scenarios.status = 'failed';
       state.scenarios.error = action.payload;
     },
-
-    // Single scenario
-    scenarioRequested: (state, _action: PayloadAction<string>) => {
-      state.scenarios.status = 'loading';
-      state.scenarios.error = undefined;
-    },
     scenarioUpdated: (state, action: PayloadAction<WaterfallScenario>) => {
       if (state.scenarios.data?.scenarios) {
         const index = state.scenarios.data.scenarios.findIndex((s) => s.id === action.payload.id);
@@ -300,34 +294,24 @@ const waterfallSlice = createSlice({
 // ============================================================================
 
 export const {
-  scenariosRequested,
   scenariosLoaded,
   scenariosFailed,
-  scenarioRequested,
   scenarioUpdated,
   scenarioDeleted,
-  createScenarioRequested,
   createScenarioSucceeded,
   createScenarioFailed,
-  updateScenarioRequested,
   updateScenarioSucceeded,
   updateScenarioFailed,
-  deleteScenarioRequested,
   deleteScenarioSucceeded,
   deleteScenarioFailed,
-  duplicateScenarioRequested,
   duplicateScenarioSucceeded,
   duplicateScenarioFailed,
-  templatesRequested,
   templatesLoaded,
   templatesFailed,
-  calculateWaterfallRequested,
   calculateWaterfallSucceeded,
   calculateWaterfallFailed,
-  sensitivityAnalysisRequested,
   sensitivityAnalysisSucceeded,
   sensitivityAnalysisFailed,
-  toggleFavoriteRequested,
   toggleFavoriteSucceeded,
   toggleFavoriteFailed,
   setSelectedScenario,

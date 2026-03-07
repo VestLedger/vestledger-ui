@@ -6,15 +6,16 @@ import { Shield, FileText, AlertTriangle, CheckCircle, Clock, Download, Calendar
 import { AMLKYCWorkflow } from '../compliance/aml-kyc-workflow';
 import { useUIKey } from '@/store/ui';
 import { COMPLIANCE_TAB_IDS, DEFAULT_COMPLIANCE_TAB_ID } from '@/config/compliance-tabs';
-import { complianceRequested, complianceSelectors } from '@/store/slices/backOfficeSlice';
+import { complianceSelectors } from '@/store/slices/backOfficeSlice';
 import { AsyncStateRenderer } from '@/ui/async-states';
 import { PageScaffold, SectionHeader, StatusBadge, MetricsGrid } from '@/ui/composites';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { ROUTE_PATHS } from '@/config/routes';
+import { loadComplianceOperation } from '@/store/async/backOfficeOperations';
 
 export function Compliance() {
   const toast = useToast();
-  const { data, isLoading, error, refetch } = useAsyncData(complianceRequested, complianceSelectors.selectState);
+  const { data, isLoading, error, refetch } = useAsyncData(loadComplianceOperation, complianceSelectors.selectState);
   const { value: ui, patch: patchUI } = useUIKey('back-office-compliance', { selectedTab: DEFAULT_COMPLIANCE_TAB_ID });
   const { selectedTab } = ui;
 

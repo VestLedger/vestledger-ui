@@ -8,7 +8,6 @@ import { StatementPreviewModal } from "./statement-preview-modal";
 import { useUIKey } from "@/store/ui";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import {
-  statementTemplatesRequested,
   statementTemplatesSelectors,
 } from "@/store/slices/distributionSlice";
 import type {
@@ -28,6 +27,7 @@ import {
   STATEMENT_TEMPLATE_OPTIONS,
   type IlpaChecklistItem,
 } from "./statement-template-constants";
+import { loadStatementTemplatesOperation } from '@/store/async/distributionOperations';
 
 type StatementGeneratorUIState = {
   template: StatementTemplate;
@@ -49,7 +49,7 @@ const mergeBranding = (current: StatementBranding, next?: StatementBranding) => 
 
 export function StatementGenerator({ distribution }: StatementGeneratorProps) {
   const { data: templatesData, isLoading, error, refetch, status } = useAsyncData(
-    statementTemplatesRequested,
+    loadStatementTemplatesOperation,
     statementTemplatesSelectors.selectState
   );
   const isTemplatesLoading = isLoading || status === "idle";

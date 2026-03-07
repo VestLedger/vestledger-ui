@@ -116,16 +116,8 @@ const secondaryTransferOpsSlice = createSlice({
 });
 
 export const {
-  secondaryTransfersRequested,
   secondaryTransfersLoaded,
   secondaryTransfersFailed,
-  secondaryTransferInitiateRequested,
-  secondaryTransferReviewRequested,
-  secondaryTransferApproveRequested,
-  secondaryTransferRejectRequested,
-  secondaryTransferCompleteRequested,
-  secondaryTransferUploadDocumentRequested,
-  secondaryTransferExerciseROFRRequested,
   secondaryTransferUpserted,
   secondaryTransferROFRAdded,
 } = secondaryTransferOpsSlice.actions;

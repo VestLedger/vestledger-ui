@@ -50,7 +50,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <DashboardProviders>
+    <DashboardProviders runtime="admin">
       <AdminLayoutContent>{children}</AdminLayoutContent>
     </DashboardProviders>
   );

@@ -106,28 +106,7 @@ const copilotSlice = createSlice({
         },
       ];
     },
-    openWithQueryRequested: (
-      state,
-      _action: PayloadAction<{ pathname: string; query: string }>
-    ) => {
-      state.error = null;
-    },
-    sendMessageRequested: (
-      state,
-      _action: PayloadAction<{ pathname: string; content: string }>
-    ) => {
-      state.error = null;
-    },
-    quickActionInvoked: (
-      state,
-      _action: PayloadAction<{ pathname: string; action: QuickAction }>
-    ) => {
-      state.error = null;
-    },
-    suggestionInvoked: (
-      state,
-      _action: PayloadAction<{ suggestion: Suggestion }>
-    ) => {
+    clearCopilotError: (state) => {
       state.error = null;
     },
     copilotError: (state, action: PayloadAction<string>) => {
@@ -161,12 +140,8 @@ export const {
   setQuickActionsOverride,
   setSuggestionsOverride,
   pushExternalMessage,
-  openWithQueryRequested,
-  sendMessageRequested,
-  quickActionInvoked,
-  suggestionInvoked,
+  clearCopilotError,
   copilotError,
-  copilotSuggestionsRequested,
   copilotSuggestionsLoaded,
   copilotSuggestionsFailed,
 } = copilotSlice.actions;

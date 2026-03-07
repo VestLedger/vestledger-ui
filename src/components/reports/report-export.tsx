@@ -1,12 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Card, Button, Badge, Progress, Input, Select, Switch } from '@/ui';
 import { Download, FileText, File, Table, Image as ImageIcon, Calendar, Filter, Check, Mail, Clock, Repeat , FileDown} from 'lucide-react';
 import { getInitialExportJobs, getReportTemplates, type ExportJob, type ReportTemplate } from '@/services/reports/reportExportService';
 import { useUIKey } from '@/store/ui';
-import { useAppDispatch } from '@/store/hooks';
-import { reportExportRequested } from '@/store/slices/uiEffectsSlice';
 import { PageScaffold, SectionHeader, StatusBadge } from '@/ui/composites';
 import { ROUTE_PATHS } from '@/config/routes';
 
@@ -49,15 +47,20 @@ function formatDisplayLabel(format: unknown): string {
 }
 
 export function ReportExport() {
-  const dispatch = useAppDispatch();
   const { value: ui, patch: patchUI } = useUIKey('report-export', defaultReportExportState);
   const { selectedTemplate, exportFormat, dateRange, selectedSections, exportJobs, scheduleEnabled, scheduleFrequency } = ui;
   const [reportTemplates, setReportTemplates] = useState<ReportTemplate[]>([]);
+  const exportJobsRef = useRef(exportJobs);
+  const timeoutIdsRef = useRef<number[]>([]);
   const formatOptions: ReportTemplate['format'][] = ['pdf', 'excel', 'csv', 'ppt'];
   const safeSelectedSections = Array.isArray(selectedSections) ? selectedSections : [];
   const selectedTemplateSections = Array.isArray(selectedTemplate?.sections)
     ? selectedTemplate.sections.filter((section) => typeof section === 'string')
     : [];
+
+  useEffect(() => {
+    exportJobsRef.current = exportJobs;
+  }, [exportJobs]);
 
   useEffect(() => {
     let active = true;
@@ -70,9 +73,61 @@ export function ReportExport() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    return () => {
+      timeoutIdsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
+      timeoutIdsRef.current = [];
+    };
+  }, []);
+
   const handleExport = () => {
     if (!selectedTemplate) return;
-    dispatch(reportExportRequested());
+    const newJob: ExportJob = {
+      id: Date.now().toString(),
+      reportName: selectedTemplate.name,
+      format: normalizeFormat(exportFormat).toUpperCase(),
+      status: 'processing',
+      progress: 0,
+      createdAt: new Date().toISOString(),
+    };
+
+    const nextJobs = [newJob, ...exportJobsRef.current];
+    exportJobsRef.current = nextJobs;
+    patchUI({ exportJobs: nextJobs });
+
+    const updateJobProgress = (jobId: string, progress: number) => {
+      const nextProgress = progress + 20;
+      const timeoutId = window.setTimeout(() => {
+        const updatedJobs: ExportJob[] = exportJobsRef.current.map((job) => {
+          if (job.id !== jobId) return job;
+
+          if (nextProgress >= 100) {
+            return {
+              ...job,
+              status: 'completed' as const,
+              progress: 100,
+              downloadUrl: '#',
+            };
+          }
+
+          return {
+            ...job,
+            progress: nextProgress,
+          };
+        });
+
+        exportJobsRef.current = updatedJobs;
+        patchUI({ exportJobs: updatedJobs });
+
+        if (nextProgress < 100) {
+          updateJobProgress(jobId, nextProgress);
+        }
+      }, 500);
+
+      timeoutIdsRef.current.push(timeoutId);
+    };
+
+    updateJobProgress(newJob.id, 0);
   };
 
   const toggleSection = (section: string) => {

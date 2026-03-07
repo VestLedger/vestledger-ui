@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
   crmReducer,
-  crmDataRequested,
   crmDataLoaded,
   crmDataFailed,
   type CRMData,
@@ -9,6 +8,10 @@ import {
 } from '../crmSlice';
 import { getSliceTestExpectations } from '../../__tests__/sliceTestHarness';
 import type { NormalizedError } from '@/store/types/AsyncState';
+
+function request<T>(type: string, payload?: T) {
+  return { type, payload };
+}
 
 describe('crmSlice', () => {
   const mockCRMData: CRMData = {
@@ -63,7 +66,7 @@ describe('crmSlice', () => {
       const params: GetCRMDataParams = {};
       const state = crmReducer(
         expectations.initialState,
-        crmDataRequested(params)
+        request('crm/crmDataRequested', params)
       );
       expect(state.status).toBe('loading');
       expect(state.error).toBeUndefined();
@@ -73,7 +76,7 @@ describe('crmSlice', () => {
       const params: GetCRMDataParams = { fundId: 'fund-1' };
       const state = crmReducer(
         expectations.initialState,
-        crmDataRequested(params)
+        request('crm/crmDataRequested', params)
       );
       expect(state.status).toBe('loading');
     });
@@ -82,7 +85,7 @@ describe('crmSlice', () => {
       const params: GetCRMDataParams = { contactType: 'founder' };
       const state = crmReducer(
         expectations.initialState,
-        crmDataRequested(params)
+        request('crm/crmDataRequested', params)
       );
       expect(state.status).toBe('loading');
     });
@@ -92,7 +95,7 @@ describe('crmSlice', () => {
         ...expectations.initialState,
         error: { message: 'Previous error', code: 'PREV_ERROR' },
       };
-      const state = crmReducer(stateWithError, crmDataRequested({}));
+      const state = crmReducer(stateWithError, request('crm/crmDataRequested', {}));
       expect(state.error).toBeUndefined();
     });
   });

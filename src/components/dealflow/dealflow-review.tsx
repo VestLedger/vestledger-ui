@@ -5,7 +5,7 @@ import { ThumbsUp, ThumbsDown, MinusCircle, MessageSquare, Users, Building2, Tar
 import { CompanyScoring } from './company-scoring';
 import { getDealflowReviewSlides, type DealflowReviewSlide } from '@/services/dealflow/dealflowReviewService';
 import { useUIKey } from '@/store/ui';
-import { dealflowDealsRequested, dealflowSelectors } from '@/store/slices/dealflowSlice';
+import { dealflowSelectors } from '@/store/slices/dealflowSlice';
 import { AsyncStateRenderer } from '@/ui/async-states';
 import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys';
 import { formatCurrencyCompact } from '@/utils/formatting';
@@ -13,6 +13,7 @@ import { useAsyncData } from '@/hooks/useAsyncData';
 import { PageScaffold, SectionHeader } from '@/ui/composites';
 import { ROUTE_PATHS } from '@/config/routes';
 import { writeToClipboard } from '@/utils/clipboard';
+import { loadDealflowDealsOperation } from '@/store/async/dataOperations';
 
 interface Vote {
   partnerId: string;
@@ -29,7 +30,7 @@ function toSafeFilePart(value: string): string {
 
 export function DealflowReview() {
   const toast = useToast();
-  const { data, isLoading, error, refetch } = useAsyncData(dealflowDealsRequested, dealflowSelectors.selectState, { params: {} });
+  const { data, isLoading, error, refetch } = useAsyncData(loadDealflowDealsOperation, dealflowSelectors.selectState, { params: {} });
 
   // Use centralized UI state defaults
   const { value: ui, patch: patchUI } = useUIKey(

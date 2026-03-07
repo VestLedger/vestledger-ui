@@ -56,7 +56,6 @@ const alertsSlice = createSlice({
 });
 
 export const {
-  alertsRequested,
   alertsLoaded,
   alertsFailed,
   markAlertRead,

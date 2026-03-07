@@ -22,20 +22,22 @@ import { AICopilotBubble } from './ai-copilot-bubble';
 import { useNavigation } from '@/contexts/navigation-context';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
-  copilotSuggestionsRequested,
   copilotSuggestionsSelectors,
-  openWithQueryRequested,
-  quickActionInvoked,
-  sendMessageRequested,
   setInputValue,
   setShowSuggestions,
-  suggestionInvoked,
 } from '@/store/slices/copilotSlice';
 import type { QuickAction, Suggestion } from '@/services/ai/copilotService';
 import { useDashboardDensity } from '@/contexts/dashboard-density-context';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useUIKey } from '@/store/ui';
 import { UI_STATE_DEFAULTS, UI_STATE_KEYS } from '@/store/constants/uiStateKeys';
+import {
+  invokeCopilotQuickAction,
+  invokeCopilotSuggestion,
+  openCopilotWithQuery,
+  sendCopilotMessage,
+} from '@/hooks/use-copilot-controller';
+import { loadCopilotSuggestionsOperation } from '@/store/async/dataOperations';
 
 type UITabState = {
   activeTab?: string;
@@ -269,7 +271,7 @@ export function useAICopilot() {
       if (sidebarState.rightCollapsed) {
         toggleRightSidebar();
       }
-      dispatch(openWithQueryRequested({ pathname, query }));
+      void openCopilotWithQuery(dispatch, pathname, query);
     },
     [dispatch, pathname, patchVestaShellUI, sidebarState.rightCollapsed, toggleRightSidebar]
   );
@@ -544,20 +546,20 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
   }, [currentTab, patchVestaShellUI, pathname]);
 
   useEffect(() => {
-    dispatch(copilotSuggestionsRequested({ pathname, tab: currentTab }));
+    dispatch(loadCopilotSuggestionsOperation({ pathname, tab: currentTab }));
     dispatch(setShowSuggestions(true));
   }, [dispatch, pathname, currentTab]);
 
   const handleSendMessage = useCallback(() => {
     primeSpeechSynthesis();
-    dispatch(sendMessageRequested({ pathname, content: inputValue }));
+    void sendCopilotMessage(dispatch, pathname, inputValue);
   }, [dispatch, inputValue, pathname, primeSpeechSynthesis]);
 
   const handleQuickAction = useCallback(
     (action: QuickAction) => {
       primeSpeechSynthesis();
       action.onClick?.();
-      dispatch(quickActionInvoked({ pathname, action }));
+      void invokeCopilotQuickAction(dispatch, pathname, action);
     },
     [dispatch, pathname, primeSpeechSynthesis]
   );
@@ -565,7 +567,7 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
   const handleSuggestionClick = useCallback(
     (suggestion: Suggestion) => {
       primeSpeechSynthesis();
-      dispatch(suggestionInvoked({ suggestion }));
+      void invokeCopilotSuggestion(dispatch, suggestion);
     },
     [dispatch, primeSpeechSynthesis]
   );
@@ -649,7 +651,7 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
         const transcript = transcriptBufferRef.current.trim();
         transcriptBufferRef.current = '';
         if (!transcript) return;
-        dispatch(sendMessageRequested({ pathname, content: transcript }));
+        void sendCopilotMessage(dispatch, pathname, transcript);
       };
 
       speechRef.current = recognition;

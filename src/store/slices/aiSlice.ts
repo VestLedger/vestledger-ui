@@ -65,7 +65,21 @@ const aiSlice = createSlice({
       if (!state.ddChatState.data) {
         state.ddChatState.data = { conversations: {} };
       }
-      state.ddChatState.data.conversations[action.payload.dealId.toString()] = action.payload.messages;
+      const conversationKey = action.payload.dealId.toString();
+      const existingMessages = state.ddChatState.data.conversations[conversationKey] ?? [];
+      const loadedMessageIds = new Set(action.payload.messages.map((message) => message.id));
+      state.ddChatState.data.conversations[conversationKey] = [
+        ...action.payload.messages,
+        ...existingMessages.filter((message) => !loadedMessageIds.has(message.id)),
+      ];
+      state.ddChatState.status = 'succeeded';
+      state.ddChatState.error = undefined;
+    },
+    ddChatConversationSet: (state, action: PayloadAction<{ conversationKey: string; messages: Message[] }>) => {
+      if (!state.ddChatState.data) {
+        state.ddChatState.data = { conversations: {} };
+      }
+      state.ddChatState.data.conversations[action.payload.conversationKey] = action.payload.messages;
       state.ddChatState.status = 'succeeded';
       state.ddChatState.error = undefined;
     },
@@ -77,11 +91,10 @@ const aiSlice = createSlice({
 });
 
 export const {
-  pitchDeckAnalysesRequested,
   pitchDeckAnalysesLoaded,
   pitchDeckAnalysesFailed,
-  ddChatConversationRequested,
   ddChatConversationLoaded,
+  ddChatConversationSet,
   ddChatConversationFailed,
 } = aiSlice.actions;
 

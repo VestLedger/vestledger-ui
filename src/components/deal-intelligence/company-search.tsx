@@ -12,14 +12,15 @@ import {
   Zap
 } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
-import { companySearchRequested, companySearchSelectors } from '@/store/slices/miscSlice';
+import { companySearchSelectors } from '@/store/slices/miscSlice';
 import { AsyncStateRenderer, EmptyState } from '@/ui/async-states';
 import { formatCurrencyCompact } from '@/utils/formatting';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { SearchToolbar } from '@/ui/composites';
+import { loadCompanySearchOperation } from '@/store/async/dataOperations';
 
 export function CompanySearch() {
-  const { data, isLoading, error, refetch, status } = useAsyncData(companySearchRequested, companySearchSelectors.selectState);
+  const { data, isLoading, error, refetch, status } = useAsyncData(loadCompanySearchOperation, companySearchSelectors.selectState);
 
   // UI state MUST be called before any early returns (Rules of Hooks)
   const { value: ui, patch: patchUI } = useUIKey('company-search', {

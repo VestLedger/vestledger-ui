@@ -44,21 +44,13 @@ import type {
 import {
   addComparisonScenario,
   clearComparisonScenarios,
-  createScenarioRequested,
-  deleteScenarioRequested,
-  duplicateScenarioRequested,
   removeComparisonScenario,
-  scenariosRequested,
   scenariosSelectors,
   setSelectedScenario,
-  templatesRequested,
   templatesSelectors,
-  toggleFavoriteRequested,
-  updateScenarioRequested,
   waterfallUISelectors,
 } from '@/store/slices/waterfallSlice';
 import {
-  distributionsRequested,
   distributionsSelectors,
 } from '@/store/slices/distributionSlice';
 import { useAsyncData } from '@/hooks/useAsyncData';
@@ -68,6 +60,16 @@ import {
 } from '@/config/calculation-defaults';
 import { mockInvestorClasses, mockWaterfallTemplates } from '@/data/seeds/analytics/waterfall';
 import { ROUTE_PATHS } from '@/config/routes';
+import { loadDistributionsOperation } from '@/store/async/distributionOperations';
+import {
+  createWaterfallScenarioOperation,
+  deleteWaterfallScenarioOperation,
+  duplicateWaterfallScenarioOperation,
+  loadWaterfallScenariosOperation,
+  loadWaterfallTemplatesOperation,
+  toggleWaterfallScenarioFavoriteOperation,
+  updateWaterfallScenarioOperation,
+} from '@/store/async/waterfallOperations';
 
 const chartOptions = [
   { id: 'waterfall', label: 'Waterfall Flow', icon: BarChart3 },
@@ -142,7 +144,7 @@ export function WaterfallModeling() {
   const selectedScenarioId = useAppSelector(waterfallUISelectors.selectSelectedScenarioId);
   const comparisonScenarioIds = useAppSelector(waterfallUISelectors.selectComparisonScenarioIds);
   const { data: scenariosData, isLoading, error, refetch } = useAsyncData(
-    scenariosRequested,
+    loadWaterfallScenariosOperation,
     scenariosSelectors.selectState
   );
   const {
@@ -151,7 +153,7 @@ export function WaterfallModeling() {
     error: templatesError,
     refetch: refetchTemplates,
   } = useAsyncData(
-    templatesRequested,
+    loadWaterfallTemplatesOperation,
     templatesSelectors.selectState
   );
   const {
@@ -160,7 +162,7 @@ export function WaterfallModeling() {
     error: distributionsError,
     refetch: refetchDistributions,
   } = useAsyncData(
-    distributionsRequested,
+    loadDistributionsOperation,
     distributionsSelectors.selectState
   );
 
@@ -322,7 +324,7 @@ export function WaterfallModeling() {
   };
 
   const updateScenario = (nextScenario: WaterfallScenario) => {
-    dispatch(updateScenarioRequested({ id: nextScenario.id, data: nextScenario }));
+    dispatch(updateWaterfallScenarioOperation({ id: nextScenario.id, data: nextScenario }));
   };
 
   const handleScenarioPatch = (patch: Partial<WaterfallScenario>) => {
@@ -339,15 +341,15 @@ export function WaterfallModeling() {
   };
 
   const handleToggleFavorite = (id: string) => {
-    dispatch(toggleFavoriteRequested(id));
+    dispatch(toggleWaterfallScenarioFavoriteOperation(id));
   };
 
   const handleDuplicateScenario = (id: string) => {
-    dispatch(duplicateScenarioRequested({ id }));
+    dispatch(duplicateWaterfallScenarioOperation({ id }));
   };
 
   const handleDeleteScenario = (id: string) => {
-    dispatch(deleteScenarioRequested(id));
+    dispatch(deleteWaterfallScenarioOperation(id));
   };
 
   const handleToggleComparison = (id: string) => {
@@ -431,14 +433,14 @@ export function WaterfallModeling() {
     };
 
     const { id: _id, createdAt: _createdAt, updatedAt: _updatedAt, version: _version, ...payload } = scenarioWithResults;
-    dispatch(createScenarioRequested(payload));
+    dispatch(createWaterfallScenarioOperation(payload));
     patchUI({ pendingScenarioSelection: true });
   };
 
   const handleCreateStarterScenario = () => {
     const template = templates[0] ?? mockWaterfallTemplates[0];
     const payload = buildStarterScenario(template);
-    dispatch(createScenarioRequested(payload));
+    dispatch(createWaterfallScenarioOperation(payload));
     patchUI({ pendingScenarioSelection: true });
   };
 

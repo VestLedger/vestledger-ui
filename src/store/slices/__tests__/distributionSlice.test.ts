@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
   distributionReducer,
-  distributionsRequested,
   distributionsLoaded,
   distributionsFailed,
   distributionUpdated,
@@ -13,13 +12,10 @@ import {
   submitForApprovalSucceeded,
   approveDistributionSucceeded,
   rejectDistributionSucceeded,
-  summaryRequested,
   summaryLoaded,
   summaryFailed,
-  calendarEventsRequested,
   calendarEventsLoaded,
   calendarEventsFailed,
-  feeTemplatesRequested,
   feeTemplatesLoaded,
   feeTemplatesFailed,
   setSelectedDistribution,
@@ -32,6 +28,10 @@ import {
 } from '../distributionSlice';
 import type { NormalizedError } from '@/store/types/AsyncState';
 import type { Distribution, DistributionCalendarEvent, FeeTemplate } from '@/types/distribution';
+
+function request<T>(type: string, payload?: T) {
+  return { type, payload };
+}
 
 describe('distributionSlice', () => {
   const mockDistribution: Distribution = {
@@ -147,7 +147,7 @@ describe('distributionSlice', () => {
 
   describe('distributions', () => {
     it('distributionsRequested should set status to loading', () => {
-      const state = distributionReducer(initialState, distributionsRequested(undefined));
+      const state = distributionReducer(initialState, request('distribution/distributionsRequested'));
       expect(state.distributions.status).toBe('loading');
       expect(state.distributions.error).toBeUndefined();
     });
@@ -312,7 +312,7 @@ describe('distributionSlice', () => {
 
   describe('summary', () => {
     it('summaryRequested should set status to loading', () => {
-      const state = distributionReducer(initialState, summaryRequested());
+      const state = distributionReducer(initialState, request('distribution/summaryRequested'));
       expect(state.summary.status).toBe('loading');
     });
 
@@ -349,7 +349,7 @@ describe('distributionSlice', () => {
 
   describe('calendar events', () => {
     it('calendarEventsRequested should set status to loading', () => {
-      const state = distributionReducer(initialState, calendarEventsRequested());
+      const state = distributionReducer(initialState, request('distribution/calendarEventsRequested'));
       expect(state.calendarEvents.status).toBe('loading');
     });
 
@@ -370,7 +370,7 @@ describe('distributionSlice', () => {
 
   describe('fee templates', () => {
     it('feeTemplatesRequested should set status to loading', () => {
-      const state = distributionReducer(initialState, feeTemplatesRequested());
+      const state = distributionReducer(initialState, request('distribution/feeTemplatesRequested'));
       expect(state.feeTemplates.status).toBe('loading');
     });
 

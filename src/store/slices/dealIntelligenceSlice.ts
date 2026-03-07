@@ -52,7 +52,6 @@ const dealIntelligenceSlice = createSlice({
 });
 
 export const {
-  dealIntelligenceRequested,
   dealIntelligenceLoaded,
   dealIntelligenceFailed,
 } = dealIntelligenceSlice.actions;

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import type { RootState } from '@/store/rootReducer';
-import type { PayloadAction } from '@reduxjs/toolkit';
+import type { AsyncThunkAction, PayloadAction } from '@reduxjs/toolkit';
 import type { AsyncState, NormalizedError } from '@/store/types/AsyncState';
 import { emitRecoverableErrorToast } from '@/utils/errors/recoverableToast';
 
@@ -57,16 +57,16 @@ export interface UseAsyncDataReturn<T> {
  * const error = useAppSelector(crmSelectors.selectError);
  *
  * useEffect(() => {
- *   dispatch(crmDataRequested());
+ *   dispatch(loadCRMDataOperation({ fundId }));
  * }, [dispatch]);
  *
  * if (status === 'loading') return <LoadingState />;
- * if (status === 'failed') return <ErrorState error={error} onRetry={() => dispatch(crmDataRequested())} />;
+ * if (status === 'failed') return <ErrorState error={error} onRetry={() => dispatch(loadCRMDataOperation({ fundId }))} />;
  * ```
  *
  * **After (3 lines):**
  * ```tsx
- * const { data, isLoading, error, refetch } = useAsyncData(crmDataRequested, crmSelectors.select);
+ * const { data, isLoading, error, refetch } = useAsyncData(loadCRMDataOperation, crmSelectors.select);
  * if (isLoading) return <LoadingState />;
  * if (error) return <ErrorState error={error} onRetry={refetch} />;
  * ```
@@ -74,11 +74,12 @@ export interface UseAsyncDataReturn<T> {
  * @example
  * ```tsx
  * // Simple usage
- * import { crmDataRequested, crmSelectors } from '@/store/slices/crmSlice';
+ * import { loadCRMDataOperation } from '@/store/async/dataOperations';
+ * import { crmSelectors } from '@/store/slices/crmSlice';
  *
  * function ContactsList() {
  *   const { data, isLoading, error, refetch } = useAsyncData(
- *     crmDataRequested,
+ *     loadCRMDataOperation,
  *     crmSelectors.select
  *   );
  *
@@ -93,11 +94,12 @@ export interface UseAsyncDataReturn<T> {
  * @example
  * ```tsx
  * // With parameters
- * import { fundAdminRequested, fundAdminSelectors } from '@/store/slices/backOfficeSlice';
+ * import { loadFundAdminOperation } from '@/store/async/backOfficeOperations';
+ * import { fundAdminSelectors } from '@/store/slices/backOfficeSlice';
  *
  * function FundAdmin({ fundId }: { fundId: string }) {
  *   const { data, status } = useAsyncData(
- *     fundAdminRequested,
+ *     loadFundAdminOperation,
  *     fundAdminSelectors.select,
  *     {
  *       params: { fundId },
@@ -108,7 +110,7 @@ export interface UseAsyncDataReturn<T> {
  * ```
  */
 export function useAsyncData<T, TParams = void>(
-  requestAction: (params: TParams) => PayloadAction<TParams>,
+  operation: (params: TParams) => PayloadAction<TParams> | AsyncThunkAction<unknown, TParams, never> | unknown,
   selector: (state: RootState) => AsyncState<T>,
   options: UseAsyncDataOptions<T, TParams> = {}
 ): UseAsyncDataReturn<T> {
@@ -125,14 +127,23 @@ export function useAsyncData<T, TParams = void>(
 
   // Fetch function that can be called manually or automatically
   const fetchData = () => {
-    dispatch(requestAction(params as TParams));
+    const request = dispatch(operation(params as TParams) as never) as {
+      abort?: () => void;
+    };
+    return request;
   };
 
   // Auto-fetch on mount and when dependencies change
   useEffect(() => {
+    let request: { abort?: () => void } | undefined;
+
     if (fetchOnMount) {
-      fetchData();
+      request = fetchData();
     }
+
+    return () => {
+      request?.abort?.();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchOnMount, ...dependencies]);
 

@@ -1,13 +1,12 @@
 'use client'
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { Card, Button, Input, Textarea } from '@/ui';
 import { Sparkles, Send, Copy, Download, ThumbsDown, AlertCircle, Check, FileText, Edit3, RefreshCw, Wand2, MessageSquare } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
-import { useAppDispatch } from '@/store/hooks';
-import { decisionWriterCopyRequested, decisionWriterGenerateRequested } from '@/store/slices/uiEffectsSlice';
 import { SectionHeader } from '@/ui/composites';
 import {
+  generateRejectionLetter,
   getDecisionWriterRejectionReasons,
   getDecisionWriterSeedDealInfo,
   getDecisionWriterToneOptions,
@@ -15,6 +14,7 @@ import {
   type DecisionWriterTone,
   type RejectionReason,
 } from '@/services/ai/decisionWriterService';
+import { writeToClipboard } from '@/utils/clipboard';
 
 const emptyDealInfo: DealInfo = {
   companyName: '',
@@ -59,11 +59,23 @@ const buildDefaultDecisionWriterState = (): {
 };
 
 export function DecisionWriter() {
-  const dispatch = useAppDispatch();
   const defaultState = useMemo(buildDefaultDecisionWriterState, []);
+  const generateTimeoutRef = useRef<number | null>(null);
+  const copyTimeoutRef = useRef<number | null>(null);
   const { value: ui, patch: patchUI } = useUIKey('decision-writer', defaultState);
   const { dealInfo, reasons, customReason, tone, generatedLetter, isGenerating, letterCopied } = ui;
   const toneOptions = getDecisionWriterToneOptions();
+
+  useEffect(() => {
+    return () => {
+      if (generateTimeoutRef.current !== null) {
+        window.clearTimeout(generateTimeoutRef.current);
+      }
+      if (copyTimeoutRef.current !== null) {
+        window.clearTimeout(copyTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const toggleReason = (reasonId: string) => {
     patchUI({
@@ -74,11 +86,31 @@ export function DecisionWriter() {
   };
 
   const generateLetter = () => {
-    dispatch(decisionWriterGenerateRequested());
+    if (isGenerating) return;
+
+    patchUI({ isGenerating: true });
+    if (generateTimeoutRef.current !== null) {
+      window.clearTimeout(generateTimeoutRef.current);
+    }
+    generateTimeoutRef.current = window.setTimeout(() => {
+      const selectedReasons = reasons.filter((reason) => reason.selected);
+      const letter = generateRejectionLetter(dealInfo, selectedReasons, customReason, tone);
+      patchUI({ generatedLetter: letter, isGenerating: false });
+    }, 2000);
   };
 
   const copyToClipboard = () => {
-    dispatch(decisionWriterCopyRequested());
+    const text = generatedLetter.trim();
+    if (!text) return;
+
+    void writeToClipboard(text).catch(() => undefined);
+    patchUI({ letterCopied: true });
+    if (copyTimeoutRef.current !== null) {
+      window.clearTimeout(copyTimeoutRef.current);
+    }
+    copyTimeoutRef.current = window.setTimeout(() => {
+      patchUI({ letterCopied: false });
+    }, 2000);
   };
 
   return (

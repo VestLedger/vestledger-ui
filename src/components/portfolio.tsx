@@ -14,12 +14,9 @@ import { useFund } from '@/contexts/fund-context';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import {
   portfolioSelectors,
-  portfolioUpdatesRequested,
 } from '@/store/slices/portfolioSlice';
-import {
-  getPortfolioHealthyCompanies,
-  getPortfolioPageMetrics,
-} from '@/services/portfolio/portfolioPageMetricsService';
+import { AsyncStateRenderer } from '@/ui/async-states';
+import { loadPortfolioUpdatesOperation } from '@/store/async/dataOperations';
 
 export function Portfolio() {
   const { value: ui, patch: patchUI } = useUIKey('portfolio', { selected: DEFAULT_PORTFOLIO_TAB_ID });
@@ -36,8 +33,8 @@ export function Portfolio() {
   // Get route config for breadcrumbs and AI suggestions
   const routeConfig = getRouteConfig(ROUTE_PATHS.portfolio);
 
-  const { isLoading } = useAsyncData(
-    portfolioUpdatesRequested,
+  const { data, isLoading, error, refetch } = useAsyncData(
+    loadPortfolioUpdatesOperation,
     portfolioSelectors.selectState,
     {
       params: { fundId },
@@ -45,9 +42,13 @@ export function Portfolio() {
     }
   );
 
-  const pageMetrics = getPortfolioPageMetrics();
+  const pageMetrics = data?.pageMetrics ?? {
+    totalCompanies: 0,
+    atRiskCompanies: 0,
+    pendingUpdates: 0,
+  };
   const totalCompanies = pageMetrics.totalCompanies;
-  const healthyCompanies = getPortfolioHealthyCompanies();
+  const healthyCompanies = data?.healthyCompanies ?? 0;
   const atRiskCompanies = pageMetrics.atRiskCompanies;
   const pendingUpdates = pageMetrics.pendingUpdates;
   const aiSummaryText = isLoading
@@ -68,13 +69,23 @@ export function Portfolio() {
         actionContent: <FundSelector />,
       }}
     >
-
-      {/* Tab Content */}
-      <div className="mt-4">
-        {selected === 'overview' && <PortfolioDashboard />}
-        {selected === 'updates' && <PortfolioUpdates />}
-        {selected === 'documents' && <PortfolioDocuments />}
-      </div>
+      <AsyncStateRenderer
+        data={data}
+        isLoading={isLoading}
+        error={error}
+        onRetry={refetch}
+        loadingMessage="Loading portfolio data..."
+        errorTitle="Failed to Load Portfolio"
+        isEmpty={() => false}
+      >
+        {() => (
+          <div className="mt-4">
+            {selected === 'overview' && <PortfolioDashboard />}
+            {selected === 'updates' && <PortfolioUpdates />}
+            {selected === 'documents' && <PortfolioDocuments />}
+          </div>
+        )}
+      </AsyncStateRenderer>
     </PageScaffold>
   );
 }

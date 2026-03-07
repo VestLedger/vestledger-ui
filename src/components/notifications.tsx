@@ -6,10 +6,11 @@ import { Badge, Select } from '@/ui';
 import type { PageHeaderBadge } from '@/ui';
 import { ListItemCard, PageScaffold } from '@/ui/composites';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { alertsRequested, alertsSelectors, markAlertRead } from '@/store/slices/alertsSlice';
+import { alertsSelectors, markAlertRead } from '@/store/slices/alertsSlice';
 import { EmptyState, ErrorState, LoadingState } from '@/ui/async-states';
 import { useUIKey } from '@/store/ui';
 import { ROUTE_PATHS } from '@/config/routes';
+import { fetchAlertsOperation } from '@/store/async/dataOperations';
 
 type NotificationFilter = 'all' | 'unread' | 'alert' | 'deal' | 'report' | 'system';
 
@@ -43,7 +44,7 @@ export function Notifications() {
   const selectedFilter = (ui.selectedFilter ?? ui.selectedTab ?? 'all') as NotificationFilter;
 
   useEffect(() => {
-    dispatch(alertsRequested({}));
+    dispatch(fetchAlertsOperation({}));
   }, [dispatch]);
 
   const notifications = reduxNotifications.map((alert) => {
@@ -170,7 +171,7 @@ export function Notifications() {
           <ErrorState
             error={alertsError}
             title="Failed to load notifications"
-            onRetry={() => dispatch(alertsRequested({}))}
+            onRetry={() => dispatch(fetchAlertsOperation({}))}
           />
         )}
         {alertsStatus === 'succeeded' && filteredNotifications.length === 0 && (

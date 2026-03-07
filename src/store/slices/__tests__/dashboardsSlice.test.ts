@@ -2,22 +2,16 @@ import { describe, expect, it } from 'vitest';
 import { Activity } from 'lucide-react';
 import {
   dashboardsReducer,
-  lpDashboardRequested,
   lpDashboardLoaded,
   lpDashboardFailed,
-  analystDashboardRequested,
   analystDashboardLoaded,
   analystDashboardFailed,
-  opsDashboardRequested,
   opsDashboardLoaded,
   opsDashboardFailed,
-  auditorDashboardRequested,
   auditorDashboardLoaded,
   auditorDashboardFailed,
-  irDashboardRequested,
   irDashboardLoaded,
   irDashboardFailed,
-  researcherDashboardRequested,
   researcherDashboardLoaded,
   researcherDashboardFailed,
   lpDashboardSelectors,
@@ -104,6 +98,10 @@ function asRootState(state: ReturnType<typeof dashboardsReducer>): RootState {
   return { dashboards: state } as unknown as RootState;
 }
 
+function request(type: string) {
+  return { type };
+}
+
 describe('dashboardsSlice', () => {
   it('returns expected initial state', () => {
     const state = dashboardsReducer(undefined, { type: '@@INIT' });
@@ -118,7 +116,7 @@ describe('dashboardsSlice', () => {
   const cases = [
     {
       key: 'lp',
-      request: lpDashboardRequested,
+      requestType: 'dashboards/lpDashboardRequested',
       loaded: lpDashboardLoaded,
       failed: lpDashboardFailed,
       payload: lpPayload,
@@ -126,7 +124,7 @@ describe('dashboardsSlice', () => {
     },
     {
       key: 'analyst',
-      request: analystDashboardRequested,
+      requestType: 'dashboards/analystDashboardRequested',
       loaded: analystDashboardLoaded,
       failed: analystDashboardFailed,
       payload: analystPayload,
@@ -134,7 +132,7 @@ describe('dashboardsSlice', () => {
     },
     {
       key: 'ops',
-      request: opsDashboardRequested,
+      requestType: 'dashboards/opsDashboardRequested',
       loaded: opsDashboardLoaded,
       failed: opsDashboardFailed,
       payload: opsPayload,
@@ -142,7 +140,7 @@ describe('dashboardsSlice', () => {
     },
     {
       key: 'auditor',
-      request: auditorDashboardRequested,
+      requestType: 'dashboards/auditorDashboardRequested',
       loaded: auditorDashboardLoaded,
       failed: auditorDashboardFailed,
       payload: auditorPayload,
@@ -150,7 +148,7 @@ describe('dashboardsSlice', () => {
     },
     {
       key: 'ir',
-      request: irDashboardRequested,
+      requestType: 'dashboards/irDashboardRequested',
       loaded: irDashboardLoaded,
       failed: irDashboardFailed,
       payload: irPayload,
@@ -158,7 +156,7 @@ describe('dashboardsSlice', () => {
     },
     {
       key: 'researcher',
-      request: researcherDashboardRequested,
+      requestType: 'dashboards/researcherDashboardRequested',
       loaded: researcherDashboardLoaded,
       failed: researcherDashboardFailed,
       payload: researcherPayload,
@@ -168,7 +166,7 @@ describe('dashboardsSlice', () => {
 
   for (const suite of cases) {
     it(`${suite.key} handles request/success/failure and selectors`, () => {
-      let state = dashboardsReducer(undefined, suite.request());
+      let state = dashboardsReducer(undefined, request(suite.requestType));
       expect((state as Record<string, { status: string }>)[suite.key].status).toBe('loading');
 
       state = dashboardsReducer(state, suite.loaded(suite.payload));

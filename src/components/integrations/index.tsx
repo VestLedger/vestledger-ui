@@ -5,26 +5,30 @@ import type { LucideIcon } from 'lucide-react';
 import { Plug, Calendar, Mail, Slack, Github, Settings } from 'lucide-react';
 import { CalendarIntegration } from './calendar-integration';
 import { useUIKey } from '@/store/ui';
-import { integrationsRequested, integrationsSelectors } from '@/store/slices/miscSlice';
+import { useAppDispatch } from '@/store/hooks';
+import { integrationsSelectors } from '@/store/slices/miscSlice';
 import type { IntegrationSummary } from '@/types/integrations';
 import { AsyncStateRenderer, EmptyState } from '@/ui/async-states';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { PageScaffold, StatusBadge } from '@/ui/composites';
 import { ROUTE_PATHS } from '@/config/routes';
 import {
-  captureCalendarEvent,
-  configureCalendarRules,
-  connectCalendar,
-  connectIntegration,
-  createCalendarEvent,
-  disconnectCalendar,
-  disconnectIntegration,
-  editCalendarEvent,
-  exportCalendarEvents,
-  ignoreCalendarEvent,
-  syncCalendar,
-  toggleCalendarAutoCapture,
-} from '@/services/integrationsService';
+  loadIntegrationsOperation,
+} from '@/store/async/dataOperations';
+import {
+  captureCalendarEventOperation,
+  configureCalendarRulesOperation,
+  connectCalendarOperation,
+  connectIntegrationOperation,
+  createCalendarEventOperation,
+  disconnectCalendarOperation,
+  disconnectIntegrationOperation,
+  editCalendarEventOperation,
+  exportCalendarEventsOperation,
+  ignoreCalendarEventOperation,
+  syncCalendarOperation,
+  toggleCalendarAutoCaptureOperation,
+} from '@/store/async/integrationsOperations';
 
 const integrationIconMap = {
   calendar: Calendar,
@@ -34,8 +38,9 @@ const integrationIconMap = {
 } as const satisfies Record<IntegrationSummary['icon'], LucideIcon>;
 
 export function Integrations() {
+  const dispatch = useAppDispatch();
   const toast = useToast();
-  const { data, isLoading, error, refetch } = useAsyncData(integrationsRequested, integrationsSelectors.selectState);
+  const { data, isLoading, error, refetch } = useAsyncData(loadIntegrationsOperation, integrationsSelectors.selectState);
 
   // UI state MUST be called before any early returns (Rules of Hooks)
   const { value: ui, patch: patchUI } = useUIKey('integrations', { selectedCategory: 'all' });
@@ -54,12 +59,11 @@ export function Integrations() {
     error instanceof Error ? error.message : fallback;
 
   const runRefreshAction = async (
-    action: () => Promise<void>,
+    action: { unwrap: () => Promise<unknown> },
     successMessage: string
   ) => {
     try {
-      await action();
-      refetch();
+      await action.unwrap();
       toast.success(successMessage);
     } catch (error) {
       toast.error(getErrorMessage(error, 'Unable to update integration.'));
@@ -68,7 +72,7 @@ export function Integrations() {
 
   const handleExportEvents = async (format: 'csv' | 'ical') => {
     try {
-      const content = await exportCalendarEvents(format);
+      const content = await dispatch(exportCalendarEventsOperation(format)).unwrap();
       const mimeType = format === 'csv' ? 'text/csv' : 'text/calendar';
       const extension = format === 'csv' ? 'csv' : 'ics';
       const blob = new Blob([content], { type: `${mimeType};charset=utf-8` });
@@ -157,7 +161,7 @@ export function Integrations() {
                         color="danger"
                         onPress={() => {
                           void runRefreshAction(
-                            () => disconnectIntegration(integration.id),
+                            dispatch(disconnectIntegrationOperation(integration.id)),
                             `${integration.name} disconnected.`
                           );
                         }}
@@ -172,7 +176,7 @@ export function Integrations() {
                       fullWidth
                       onPress={() => {
                         void runRefreshAction(
-                          () => connectIntegration(integration.id),
+                          dispatch(connectIntegrationOperation(integration.id)),
                           `${integration.name} connected.`
                         );
                       }}
@@ -198,55 +202,55 @@ export function Integrations() {
             events={calendarEvents}
             onConnectCalendar={(provider) => {
               void runRefreshAction(
-                () => connectCalendar(provider),
+                dispatch(connectCalendarOperation(provider)),
                 `${provider.charAt(0).toUpperCase()}${provider.slice(1)} calendar connected.`
               );
             }}
             onDisconnectCalendar={(accountId) => {
               void runRefreshAction(
-                () => disconnectCalendar(accountId),
+                dispatch(disconnectCalendarOperation(accountId)),
                 'Calendar disconnected.'
               );
             }}
             onSyncCalendar={(accountId) => {
               void runRefreshAction(
-                () => syncCalendar(accountId),
+                dispatch(syncCalendarOperation(accountId)),
                 'Calendar sync complete.'
               );
             }}
             onConfigureRules={(accountId) => {
               void runRefreshAction(
-                () => configureCalendarRules(accountId),
+                dispatch(configureCalendarRulesOperation(accountId)),
                 'Calendar capture rules updated.'
               );
             }}
             onToggleAutoCapture={(accountId) => {
               void runRefreshAction(
-                () => toggleCalendarAutoCapture(accountId),
+                dispatch(toggleCalendarAutoCaptureOperation(accountId)),
                 'Auto-capture setting updated.'
               );
             }}
             onCaptureEvent={(eventId) => {
               void runRefreshAction(
-                () => captureCalendarEvent(eventId),
+                dispatch(captureCalendarEventOperation(eventId)),
                 'Calendar event captured.'
               );
             }}
             onIgnoreEvent={(eventId) => {
               void runRefreshAction(
-                () => ignoreCalendarEvent(eventId),
+                dispatch(ignoreCalendarEventOperation(eventId)),
                 'Calendar event ignored.'
               );
             }}
             onEditEvent={(eventId) => {
               void runRefreshAction(
-                () => editCalendarEvent(eventId),
+                dispatch(editCalendarEventOperation(eventId)),
                 'Calendar event updated.'
               );
             }}
             onCreateEvent={() => {
               void runRefreshAction(
-                () => createCalendarEvent(),
+                dispatch(createCalendarEventOperation()),
                 'Calendar event created.'
               );
             }}

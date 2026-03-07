@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react';
 import { Filter, Upload, Download, Eye, FileText, AlertCircle } from 'lucide-react';
 import { Button, Card, Badge } from '@/ui';
 import { ListItemCard, SearchToolbar, SectionHeader, StatusBadge } from '@/ui/composites';
@@ -7,24 +8,46 @@ import { DocumentPreviewModal, useDocumentPreview, getMockDocumentUrl, inferDocu
 import { useUIKey } from '@/store/ui';
 import { PortfolioTabHeader } from '@/components/portfolio-tab-header';
 import {
-  getPortfolioDocumentsSnapshot,
   type PortfolioDocumentCompany as PortfolioCompany,
   type PortfolioDocumentCategory as DocumentCategory,
 } from '@/services/portfolio/portfolioDocumentsService';
+import { useAppSelector } from '@/store/hooks';
+import { portfolioSelectors } from '@/store/slices/portfolioSlice';
 
 export function PortfolioDocuments() {
-  const { companies: portfolioCompanies, documents, categories: documentCategories } = getPortfolioDocumentsSnapshot();
+  const portfolioData = useAppSelector(portfolioSelectors.selectData);
+  const portfolioCompanies = portfolioData?.documents.companies ?? [];
+  const documents = portfolioData?.documents.documents ?? [];
+  const documentCategories = portfolioData?.documents.categories ?? [];
   const { value: ui, patch: patchUI } = useUIKey<{
     selectedCompany: PortfolioCompany | null;
     selectedCategory: DocumentCategory | 'all';
     searchQuery: string;
   }>('portfolio-documents', {
-    selectedCompany: portfolioCompanies[0] ?? null,
+    selectedCompany: null,
     selectedCategory: 'all',
     searchQuery: '',
   });
   const { selectedCompany, selectedCategory, searchQuery } = ui;
   const preview = useDocumentPreview();
+
+  useEffect(() => {
+    if (portfolioCompanies.length === 0) {
+      if (selectedCompany !== null) {
+        patchUI({ selectedCompany: null });
+      }
+      return;
+    }
+
+    if (!selectedCompany) {
+      patchUI({ selectedCompany: portfolioCompanies[0] ?? null });
+      return;
+    }
+
+    if (!portfolioCompanies.some((company) => company.id === selectedCompany.id)) {
+      patchUI({ selectedCompany: portfolioCompanies[0] ?? null });
+    }
+  }, [patchUI, portfolioCompanies, selectedCompany]);
 
   const filteredDocuments = documents.filter(doc => {
     const matchesCompany = !selectedCompany || doc.companyId === selectedCompany.id;

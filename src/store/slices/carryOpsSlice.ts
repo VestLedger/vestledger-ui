@@ -80,13 +80,8 @@ const carryOpsSlice = createSlice({
 });
 
 export const {
-  carryRequested,
   carryLoaded,
   carryFailed,
-  carryCalculateRequested,
-  carryApproveRequested,
-  carryDistributeRequested,
-  carryExportRequested,
   carryAccrualUpserted,
   carryExportSucceeded,
 } = carryOpsSlice.actions;

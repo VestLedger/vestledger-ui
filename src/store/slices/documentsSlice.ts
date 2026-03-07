@@ -24,6 +24,20 @@ type DocumentsState = AsyncState<DocumentsData>;
 
 const initialState: DocumentsState = createInitialAsyncState<DocumentsData>();
 
+function adjustFolderCount(
+  folders: DocumentFolder[],
+  folderId: string | null | undefined,
+  delta: number
+) {
+  if (!folderId) return folders;
+
+  return folders.map((folder) =>
+    folder.id === folderId
+      ? { ...folder, documentCount: Math.max(0, folder.documentCount + delta) }
+      : folder
+  );
+}
+
 const documentsSlice = createSlice({
   name: 'documents',
   initialState,
@@ -41,12 +55,54 @@ const documentsSlice = createSlice({
       state.status = 'failed';
       state.error = action.payload;
     },
+    documentUpserted: (state, action: PayloadAction<Document>) => {
+      if (!state.data) {
+        state.data = {
+          documents: [],
+          folders: [],
+        };
+      }
+
+      const nextDocument = action.payload;
+      const existingIndex = state.data.documents.findIndex((document) => document.id === nextDocument.id);
+      const existingDocument = existingIndex === -1 ? null : state.data.documents[existingIndex];
+
+      if (existingIndex === -1) {
+        state.data.documents = [nextDocument, ...state.data.documents];
+        state.data.folders = adjustFolderCount(state.data.folders, nextDocument.folderId, 1);
+      } else {
+        state.data.documents[existingIndex] = nextDocument;
+        if (existingDocument?.folderId !== nextDocument.folderId) {
+          state.data.folders = adjustFolderCount(state.data.folders, existingDocument?.folderId, -1);
+          state.data.folders = adjustFolderCount(state.data.folders, nextDocument.folderId, 1);
+        }
+      }
+    },
+    folderUpserted: (state, action: PayloadAction<DocumentFolder>) => {
+      if (!state.data) {
+        state.data = {
+          documents: [],
+          folders: [],
+        };
+      }
+
+      const nextFolder = action.payload;
+      const existingIndex = state.data.folders.findIndex((folder) => folder.id === nextFolder.id);
+
+      if (existingIndex === -1) {
+        state.data.folders = [nextFolder, ...state.data.folders];
+      } else {
+        state.data.folders[existingIndex] = nextFolder;
+      }
+    },
 
     // Local mutations (optimistic updates)
     documentDeleted: (state, action: PayloadAction<string>) => {
       if (state.data) {
         const id = action.payload;
+        const existingDocument = state.data.documents.find((doc) => doc.id === id);
         state.data.documents = state.data.documents.filter((doc) => doc.id !== id);
+        state.data.folders = adjustFolderCount(state.data.folders, existingDocument?.folderId, -1);
       }
     },
     documentFavoriteToggled: (state, action: PayloadAction<string>) => {
@@ -63,9 +119,14 @@ const documentsSlice = createSlice({
     ) => {
       if (state.data) {
         const { documentId, newFolderId } = action.payload;
+        const existingDocument = state.data.documents.find((doc) => doc.id === documentId);
         state.data.documents = state.data.documents.map((doc) =>
           doc.id === documentId ? { ...doc, folderId: newFolderId } : doc
         );
+        if (existingDocument?.folderId !== newFolderId) {
+          state.data.folders = adjustFolderCount(state.data.folders, existingDocument?.folderId, -1);
+          state.data.folders = adjustFolderCount(state.data.folders, newFolderId, 1);
+        }
       }
     },
     documentAccessUpdated: (
@@ -83,9 +144,10 @@ const documentsSlice = createSlice({
 });
 
 export const {
-  documentsRequested,
   documentsLoaded,
   documentsFailed,
+  documentUpserted,
+  folderUpserted,
   documentDeleted,
   documentFavoriteToggled,
   documentMoved,

@@ -11,24 +11,28 @@ import { EmailIntegration, type EmailAccount } from '@/components/crm/email-inte
 import { InteractionTimeline } from '@/components/crm/interaction-timeline';
 import { NetworkGraph } from './network-graph';
 import {
-  connectCRMEmailAccount,
-  createCRMContact,
-  createCRMInteraction,
-  deleteCRMInteraction,
-  disconnectCRMEmailAccount,
-  linkCRMInteractionToDeal,
-  syncCRMEmailAccount,
-  toggleCRMContactStar,
-  toggleCRMEmailAutoCapture,
-  updateCRMInteraction,
   type Contact,
 } from '@/services/crm/contactsService';
 import { useUIKey } from '@/store/ui';
-import { crmDataRequested, crmSelectors } from '@/store/slices/crmSlice';
+import { useAppDispatch } from '@/store/hooks';
+import { crmSelectors } from '@/store/slices/crmSlice';
 import { AsyncStateRenderer, EmptyState } from '@/ui/async-states';
 import { MetricsGrid, PageScaffold, SearchToolbar } from '@/ui/composites';
 import type { MetricsGridItem } from '@/ui/composites';
 import { useAsyncData } from '@/hooks/useAsyncData';
+import { loadCRMDataOperation } from '@/store/async/dataOperations';
+import {
+  connectCRMEmailAccountOperation,
+  createCRMContactOperation,
+  createCRMInteractionOperation,
+  deleteCRMInteractionOperation,
+  disconnectCRMEmailAccountOperation,
+  linkCRMInteractionToDealOperation,
+  syncCRMEmailAccountOperation,
+  toggleCRMContactStarOperation,
+  toggleCRMEmailAutoCaptureOperation,
+  updateCRMInteractionOperation,
+} from '@/store/async/crmOperations';
 
 interface ContactsUIState {
   contacts: Contact[];
@@ -46,7 +50,9 @@ interface ContactsUIState {
 export function Contacts() {
   const routeConfig = getRouteConfig(ROUTE_PATHS.contacts);
   const toast = useToast();
-  const { data, isLoading, error, refetch } = useAsyncData(crmDataRequested, crmSelectors.selectState, { params: {} });
+  const dispatch = useAppDispatch();
+  const crmQueryParams = {};
+  const { data, isLoading, error, refetch } = useAsyncData(loadCRMDataOperation, crmSelectors.selectState, { params: crmQueryParams });
 
   const mockContacts = data?.contacts || [];
   const mockEmailAccounts = data?.emailAccounts || [];
@@ -177,10 +183,9 @@ export function Contacts() {
   const getErrorMessage = (error: unknown, fallback: string) =>
     error instanceof Error ? error.message : fallback;
 
-  const runCRMAction = async (action: () => Promise<void>, successMessage?: string) => {
+  const runCRMAction = async (action: { unwrap: () => Promise<unknown> }, successMessage?: string) => {
     try {
-      await action();
-      refetch();
+      await action.unwrap();
       if (successMessage) {
         toast.success(successMessage);
       }
@@ -191,14 +196,14 @@ export function Contacts() {
 
   const toggleStar = async (contactId: string) => {
     await runCRMAction(
-      () => toggleCRMContactStar(contactId),
+      dispatch(toggleCRMContactStarOperation({ contactId, params: crmQueryParams })),
       'Contact star updated.'
     );
   };
 
   const handleCreateContact = async () => {
     await runCRMAction(
-      () => createCRMContact(),
+      dispatch(createCRMContactOperation(crmQueryParams)),
       'Contact created.'
     );
   };
@@ -210,21 +215,25 @@ export function Contacts() {
     }
 
     await runCRMAction(
-      () => createCRMInteraction(selectedContact.id, { type, direction: 'outbound' }),
+      dispatch(createCRMInteractionOperation({
+        contactId: selectedContact.id,
+        input: { type, direction: 'outbound' },
+        params: crmQueryParams,
+      })),
       'Interaction added.'
     );
   };
 
   const handleEditInteraction = async (interactionId: string) => {
     await runCRMAction(
-      () => updateCRMInteraction(interactionId),
+      dispatch(updateCRMInteractionOperation({ interactionId, params: crmQueryParams })),
       'Interaction updated.'
     );
   };
 
   const handleDeleteInteraction = async (interactionId: string) => {
     await runCRMAction(
-      () => deleteCRMInteraction(interactionId),
+      dispatch(deleteCRMInteractionOperation({ interactionId, params: crmQueryParams })),
       'Interaction deleted.'
     );
   };
@@ -232,35 +241,35 @@ export function Contacts() {
   const handleLinkInteractionToDeal = async (interactionId: string) => {
     const linkedDeal = selectedContact?.deals[0] ?? 'Deal Follow-up';
     await runCRMAction(
-      () => linkCRMInteractionToDeal(interactionId, linkedDeal),
+      dispatch(linkCRMInteractionToDealOperation({ interactionId, linkedDeal, params: crmQueryParams })),
       'Interaction linked to deal.'
     );
   };
 
   const handleConnectEmail = async (provider: 'gmail' | 'outlook') => {
     await runCRMAction(
-      () => connectCRMEmailAccount(provider),
+      dispatch(connectCRMEmailAccountOperation({ provider, params: crmQueryParams })),
       'Email account connected.'
     );
   };
 
   const handleDisconnectEmail = async (accountId: string) => {
     await runCRMAction(
-      () => disconnectCRMEmailAccount(accountId),
+      dispatch(disconnectCRMEmailAccountOperation({ accountId, params: crmQueryParams })),
       'Email account disconnected.'
     );
   };
 
   const handleSyncEmail = async (accountId: string) => {
     await runCRMAction(
-      () => syncCRMEmailAccount(accountId),
+      dispatch(syncCRMEmailAccountOperation({ accountId, params: crmQueryParams })),
       'Email sync completed.'
     );
   };
 
   const handleToggleEmailAutoCapture = async (accountId: string, enabled: boolean) => {
     await runCRMAction(
-      () => toggleCRMEmailAutoCapture(accountId, enabled),
+      dispatch(toggleCRMEmailAutoCaptureOperation({ accountId, enabled, params: crmQueryParams })),
       'Auto-capture setting updated.'
     );
   };

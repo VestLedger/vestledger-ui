@@ -16,16 +16,17 @@ import {
 } from 'lucide-react';
 import type { AuditEvent } from '@/services/blockchain/auditTrailService';
 import { useUIKey } from '@/store/ui';
-import { auditTrailRequested, auditTrailSelectors } from '@/store/slices/miscSlice';
+import { auditTrailSelectors } from '@/store/slices/miscSlice';
 import { AsyncStateRenderer, EmptyState } from '@/ui/async-states';
 import { formatCurrencyCompact, formatTimestamp, truncateHash } from '@/utils/formatting';
 import { writeToClipboard } from '@/utils/clipboard';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { PageScaffold, SearchToolbar, SectionHeader } from '@/ui/composites';
 import { ROUTE_PATHS } from '@/config/routes';
+import { loadAuditTrailOperation } from '@/store/async/dataOperations';
 
 export function BlockchainAuditTrail() {
-  const { data, isLoading, error, refetch } = useAsyncData(auditTrailRequested, auditTrailSelectors.selectState);
+  const { data, isLoading, error, refetch } = useAsyncData(loadAuditTrailOperation, auditTrailSelectors.selectState);
   // UI state MUST be called before any early returns (Rules of Hooks)
   const { value: ui, patch: patchUI } = useUIKey<{
     searchQuery: string;

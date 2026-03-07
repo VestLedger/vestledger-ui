@@ -1,30 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import {
   backOfficeReducer,
-  complianceRequested,
   complianceLoaded,
   complianceFailed,
-  fundAdminRequested,
   fundAdminLoaded,
   fundAdminFailed,
-  capitalCallCreateRequested,
   capitalCallCreateSucceeded,
   capitalCallCreateFailed,
-  capitalCallUpdateRequested,
   capitalCallUpdateSucceeded,
   capitalCallUpdateFailed,
-  capitalCallSendRequested,
-  capitalCallReminderRequested,
-  lpReminderRequested,
-  lpResponseUpdateRequested,
   lpResponseUpdateSucceeded,
   lpResponseUpdateFailed,
-  fundAdminExportRequested,
   fundAdminExportSucceeded,
-  taxCenterRequested,
   taxCenterLoaded,
   taxCenterFailed,
-  valuation409aRequested,
   valuation409aLoaded,
   valuation409aFailed,
   complianceSelectors,
@@ -42,6 +31,10 @@ import { mockComplianceItems, mockRegulatoryFilings, mockAuditSchedule } from '@
 import { mockCapitalCalls, mockDistributions, mockLPResponses } from '@/data/mocks/back-office/fund-admin';
 import { mockFilingDeadline, mockPortfolioTax, mockTaxDocuments, mockTaxSummaries } from '@/data/mocks/back-office/tax-center';
 import { mockHistory, mockStrikePrices, mockValuations } from '@/data/mocks/back-office/valuation-409a';
+
+function request<T>(type: string, payload?: T) {
+  return { type, payload };
+}
 
 const compliancePayload: ComplianceData = {
   complianceItems: mockComplianceItems.slice(0, 2),
@@ -87,7 +80,7 @@ describe('backOfficeSlice', () => {
   });
 
   it('handles compliance lifecycle and selectors', () => {
-    let state = backOfficeReducer(undefined, complianceRequested());
+    let state = backOfficeReducer(undefined, request('backOffice/complianceRequested'));
     expect(state.compliance.status).toBe('loading');
 
     state = backOfficeReducer(state, complianceLoaded(compliancePayload));
@@ -105,13 +98,13 @@ describe('backOfficeSlice', () => {
   });
 
   it('handles fund admin lifecycle, upserts, and selectors', () => {
-    let state = backOfficeReducer(undefined, fundAdminRequested({ fundId: 'fund-1' }));
+    let state = backOfficeReducer(undefined, request('backOffice/fundAdminRequested', { fundId: 'fund-1' }));
     expect(state.fundAdmin.status).toBe('loading');
 
     state = backOfficeReducer(state, fundAdminLoaded(fundAdminPayload));
     expect(fundAdminSelectors.selectData(asRootState(state))?.capitalCalls).toHaveLength(2);
 
-    state = backOfficeReducer(state, capitalCallCreateRequested({
+    state = backOfficeReducer(state, request('backOffice/capitalCallCreateRequested', {
       fundId: 'fund-2',
       fundName: 'Fund II',
       totalAmount: 1_500_000,
@@ -128,7 +121,7 @@ describe('backOfficeSlice', () => {
     expect(state.fundAdmin.data?.capitalCalls).toHaveLength(2);
     expect(state.fundAdmin.data?.capitalCalls[0].purpose).toBe('Updated purpose');
 
-    state = backOfficeReducer(state, capitalCallUpdateRequested({
+    state = backOfficeReducer(state, request('backOffice/capitalCallUpdateRequested', {
       capitalCallId: mockCapitalCalls[0].id,
       patch: { status: 'completed' },
     }));
@@ -139,10 +132,10 @@ describe('backOfficeSlice', () => {
     );
     expect(state.fundAdmin.data?.capitalCalls[0].status).toBe('completed');
 
-    state = backOfficeReducer(state, capitalCallSendRequested({ capitalCallId: mockCapitalCalls[0].id }));
-    state = backOfficeReducer(state, capitalCallReminderRequested({ capitalCallId: mockCapitalCalls[0].id }));
-    state = backOfficeReducer(state, lpReminderRequested({ lpResponseId: mockLPResponses[0].id }));
-    state = backOfficeReducer(state, lpResponseUpdateRequested({
+    state = backOfficeReducer(state, request('backOffice/capitalCallSendRequested', { capitalCallId: mockCapitalCalls[0].id }));
+    state = backOfficeReducer(state, request('backOffice/capitalCallReminderRequested', { capitalCallId: mockCapitalCalls[0].id }));
+    state = backOfficeReducer(state, request('backOffice/lpReminderRequested', { lpResponseId: mockLPResponses[0].id }));
+    state = backOfficeReducer(state, request('backOffice/lpResponseUpdateRequested', {
       lpResponseId: mockLPResponses[0].id,
       amountPaid: 2_000_000,
     }));
@@ -154,7 +147,7 @@ describe('backOfficeSlice', () => {
     );
     expect(state.fundAdmin.data?.lpResponses[0].amountPaid).toBe(2_000_000);
 
-    state = backOfficeReducer(state, fundAdminExportRequested());
+    state = backOfficeReducer(state, request('backOffice/fundAdminExportRequested'));
     state = backOfficeReducer(state, fundAdminExportSucceeded({ exportedAt: '2026-02-14T00:00:00.000Z' }));
     expect(state.fundAdminLastExportAt).toBe('2026-02-14T00:00:00.000Z');
 
@@ -168,7 +161,7 @@ describe('backOfficeSlice', () => {
   });
 
   it('handles tax center lifecycle and selectors', () => {
-    let state = backOfficeReducer(undefined, taxCenterRequested());
+    let state = backOfficeReducer(undefined, request('backOffice/taxCenterRequested'));
     expect(state.taxCenter.status).toBe('loading');
 
     state = backOfficeReducer(state, taxCenterLoaded(taxCenterPayload));
@@ -186,7 +179,7 @@ describe('backOfficeSlice', () => {
   });
 
   it('handles valuation lifecycle and selectors', () => {
-    let state = backOfficeReducer(undefined, valuation409aRequested());
+    let state = backOfficeReducer(undefined, request('backOffice/valuation409aRequested'));
     expect(state.valuation409a.status).toBe('loading');
 
     state = backOfficeReducer(state, valuation409aLoaded(valuationPayload));

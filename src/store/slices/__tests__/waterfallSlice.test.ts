@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
   waterfallReducer,
-  scenariosRequested,
   scenariosLoaded,
   scenariosFailed,
   scenarioUpdated,
@@ -9,13 +8,10 @@ import {
   createScenarioSucceeded,
   deleteScenarioSucceeded,
   duplicateScenarioSucceeded,
-  templatesRequested,
   templatesLoaded,
   templatesFailed,
-  calculateWaterfallRequested,
   calculateWaterfallSucceeded,
   calculateWaterfallFailed,
-  sensitivityAnalysisRequested,
   sensitivityAnalysisSucceeded,
   sensitivityAnalysisFailed,
   toggleFavoriteSucceeded,
@@ -30,6 +26,10 @@ import {
 } from '../waterfallSlice';
 import type { NormalizedError } from '@/store/types/AsyncState';
 import type { WaterfallScenario, WaterfallTemplate } from '@/types/waterfall';
+
+function request<T>(type: string, payload?: T) {
+  return { type, payload };
+}
 
 describe('waterfallSlice', () => {
   const mockScenario: WaterfallScenario = {
@@ -103,7 +103,7 @@ describe('waterfallSlice', () => {
 
   describe('scenarios', () => {
     it('scenariosRequested should set status to loading', () => {
-      const state = waterfallReducer(initialState, scenariosRequested({}));
+      const state = waterfallReducer(initialState, request('waterfall/scenariosRequested', {}));
       expect(state.scenarios.status).toBe('loading');
       expect(state.scenarios.error).toBeUndefined();
     });
@@ -212,7 +212,7 @@ describe('waterfallSlice', () => {
 
   describe('templates', () => {
     it('templatesRequested should set status to loading', () => {
-      const state = waterfallReducer(initialState, templatesRequested());
+      const state = waterfallReducer(initialState, request('waterfall/templatesRequested'));
       expect(state.templates.status).toBe('loading');
     });
 
@@ -239,7 +239,7 @@ describe('waterfallSlice', () => {
     it('calculateWaterfallRequested should set status to loading', () => {
       const state = waterfallReducer(
         initialState,
-        calculateWaterfallRequested({ scenarioId: 'scenario-1' })
+        request('waterfall/calculateWaterfallRequested', { scenarioId: 'scenario-1' })
       );
       expect(state.calculation.status).toBe('loading');
     });
@@ -276,7 +276,7 @@ describe('waterfallSlice', () => {
     it('sensitivityAnalysisRequested should set status to loading', () => {
       const state = waterfallReducer(
         initialState,
-        sensitivityAnalysisRequested({
+        request('waterfall/sensitivityAnalysisRequested', {
           scenarioId: 'scenario-1',
           minExitValue: 50000000,
           maxExitValue: 150000000,

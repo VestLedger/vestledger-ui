@@ -74,14 +74,14 @@ type ApiDocumentsResponse = {
   folders?: ApiDocumentFolder[];
 };
 
-type CreateFolderParams = {
+export type CreateFolderParams = {
   parentId?: string | null;
   name?: string;
   createdBy?: string;
   accessLevel?: AccessLevel;
 };
 
-type UploadDocumentParams = {
+export type UploadDocumentParams = {
   folderId?: string | null;
   fundId?: string | null;
   name?: string;

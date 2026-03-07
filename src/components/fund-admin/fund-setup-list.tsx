@@ -6,14 +6,8 @@ import { useAsyncData } from '@/hooks/useAsyncData';
 import { useUIKey } from '@/store/ui';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
-  archiveFundRequested,
-  closeFundRequested,
-  createFundRequested,
-  fundsRequested,
   fundsSelectors,
   fundUISelectors,
-  unarchiveFundRequested,
-  updateFundRequested,
   type CreateFundParams,
 } from '@/store/slices/fundSlice';
 import { FundSetupForm } from './fund-setup-form';
@@ -21,6 +15,14 @@ import { FundSetupDetail } from './fund-setup-detail';
 import { FundSetupCloseArchiveDialog } from './fund-setup-close-archive-dialog';
 import { formatCurrencyCompact } from '@/utils/formatting';
 import type { Fund } from '@/types/fund';
+import {
+  archiveFundOperation,
+  closeFundOperation,
+  createFundOperation,
+  loadFundsOperation,
+  unarchiveFundOperation,
+  updateFundOperation,
+} from '@/store/async/fundOperations';
 
 type FundSetupUIState = {
   searchQuery: string;
@@ -45,7 +47,7 @@ type ConfirmAction = 'close' | 'archive' | 'unarchive';
 
 export function FundSetupList({ canMutate, createSignal = 0 }: FundSetupListProps) {
   const dispatch = useAppDispatch();
-  const { data, isLoading, error, refetch } = useAsyncData(fundsRequested, fundsSelectors.selectState, {
+  const { data, isLoading, error, refetch } = useAsyncData(loadFundsOperation, fundsSelectors.selectState, {
     params: {},
   });
 
@@ -116,9 +118,9 @@ export function FundSetupList({ canMutate, createSignal = 0 }: FundSetupListProp
 
   const submitForm = (values: CreateFundParams) => {
     if (editTarget) {
-      dispatch(updateFundRequested({ fundId: editTarget.id, data: values }));
+      dispatch(updateFundOperation({ fundId: editTarget.id, data: values }));
     } else {
-      dispatch(createFundRequested(values));
+      dispatch(createFundOperation(values));
     }
     setFormOpen(false);
   };
@@ -127,13 +129,13 @@ export function FundSetupList({ canMutate, createSignal = 0 }: FundSetupListProp
     if (!selectedFund || !confirmAction) return;
 
     if (confirmAction === 'close') {
-      dispatch(closeFundRequested({ fundId: selectedFund.id }));
+      dispatch(closeFundOperation({ fundId: selectedFund.id }));
     }
     if (confirmAction === 'archive') {
-      dispatch(archiveFundRequested({ fundId: selectedFund.id }));
+      dispatch(archiveFundOperation({ fundId: selectedFund.id }));
     }
     if (confirmAction === 'unarchive') {
-      dispatch(unarchiveFundRequested({ fundId: selectedFund.id }));
+      dispatch(unarchiveFundOperation({ fundId: selectedFund.id }));
     }
 
     setConfirmAction(null);

@@ -9,21 +9,26 @@ import { AdvancedTable, ColumnDef } from '@/components/data-table/advanced-table
 import { BulkActionsToolbar, useBulkSelection, BulkAction } from '@/components/bulk-actions-toolbar';
 import {
   type LP,
-  exportLPData,
-  generateLPReport,
-  sendCapitalCallToLPs,
-  sendLPUpdate,
-  sendReportToLPs,
 } from '@/services/lpPortal/lpManagementService';
 import { formatCurrency, formatPercent } from '@/utils/formatting';
 import { PageScaffold, SearchToolbar, SectionHeader, StatusBadge } from '@/ui/composites';
 import { ROUTE_PATHS } from '@/config/routes';
 import { DEFAULT_LP_MANAGEMENT_TAB_ID, LP_MANAGEMENT_TAB_IDS } from '@/config/lp-management-tabs';
 import { useAsyncData } from '@/hooks/useAsyncData';
-import { lpManagementRequested, lpManagementSelectors } from '@/store/slices/miscSlice';
+import { useAppDispatch } from '@/store/hooks';
+import { lpManagementSelectors } from '@/store/slices/miscSlice';
 import { AsyncStateRenderer } from '@/ui/async-states';
+import { loadLPManagementOperation } from '@/store/async/dataOperations';
+import {
+  exportLPDataOperation,
+  generateLPReportOperation,
+  sendLPCapitalCallOperation,
+  sendLPReportOperation,
+  sendLPUpdateOperation,
+} from '@/store/async/miscMutationOperations';
 
 export function LPManagement() {
+  const dispatch = useAppDispatch();
   const toast = useToast();
   const { value: ui, patch: patchUI } = useUIKey<{
     selectedTab: string;
@@ -33,7 +38,7 @@ export function LPManagement() {
     selectedLP: null,
   });
   const { data, isLoading, error, refetch } = useAsyncData(
-    lpManagementRequested,
+    loadLPManagementOperation,
     lpManagementSelectors.selectState
   );
   const { selectedTab } = ui;
@@ -63,9 +68,8 @@ export function LPManagement() {
 
   const handleGenerateReport = async () => {
     try {
-      const report = await generateLPReport(getSelectedLPIds());
+      const report = await dispatch(generateLPReportOperation(getSelectedLPIds())).unwrap();
       toast.success(`${report.title} saved as draft`, 'Report generated');
-      refetch();
     } catch {
       toast.error('Unable to generate report');
     }
@@ -73,7 +77,7 @@ export function LPManagement() {
 
   const handleSendUpdate = async () => {
     try {
-      const result = await sendLPUpdate(getSelectedLPIds());
+      const result = await dispatch(sendLPUpdateOperation(getSelectedLPIds())).unwrap();
       toast.success(`Update sent to ${result.recipientCount} LPs`, 'LP update delivered');
     } catch {
       toast.error('Unable to send LP update');
@@ -82,7 +86,7 @@ export function LPManagement() {
 
   const handleSendReport = async () => {
     try {
-      const result = await sendReportToLPs(getSelectedLPIds());
+      const result = await dispatch(sendLPReportOperation(getSelectedLPIds())).unwrap();
       toast.success(`Report sent to ${result.recipientCount} LPs`, 'Report sent');
     } catch {
       toast.error('Unable to send report');
@@ -91,7 +95,7 @@ export function LPManagement() {
 
   const handleSendCapitalCall = async () => {
     try {
-      const result = await sendCapitalCallToLPs(getSelectedLPIds());
+      const result = await dispatch(sendLPCapitalCallOperation(getSelectedLPIds())).unwrap();
       toast.success(`Capital call sent to ${result.recipientCount} LPs`, 'Capital call sent');
     } catch {
       toast.error('Unable to send capital call');
@@ -100,7 +104,7 @@ export function LPManagement() {
 
   const handleExport = async () => {
     try {
-      const result = await exportLPData(getSelectedLPIds());
+      const result = await dispatch(exportLPDataOperation(getSelectedLPIds())).unwrap();
       toast.success(`${result.recordCount} LP records prepared (${result.fileName})`, 'Export ready');
     } catch {
       toast.error('Unable to export LP data');

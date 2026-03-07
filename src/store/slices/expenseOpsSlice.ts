@@ -86,14 +86,8 @@ const expenseOpsSlice = createSlice({
 });
 
 export const {
-  expensesRequested,
   expensesLoaded,
   expensesFailed,
-  expenseAddRequested,
-  expenseApproveRequested,
-  expenseRejectRequested,
-  expenseMarkPaidRequested,
-  expenseExportRequested,
   expenseUpserted,
   expenseExportSucceeded,
 } = expenseOpsSlice.actions;

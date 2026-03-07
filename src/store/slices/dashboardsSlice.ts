@@ -250,22 +250,16 @@ const dashboardsSlice = createSlice({
 });
 
 export const {
-  lpDashboardRequested,
   lpDashboardLoaded,
   lpDashboardFailed,
-  analystDashboardRequested,
   analystDashboardLoaded,
   analystDashboardFailed,
-  opsDashboardRequested,
   opsDashboardLoaded,
   opsDashboardFailed,
-  auditorDashboardRequested,
   auditorDashboardLoaded,
   auditorDashboardFailed,
-  irDashboardRequested,
   irDashboardLoaded,
   irDashboardFailed,
-  researcherDashboardRequested,
   researcherDashboardLoaded,
   researcherDashboardFailed,
 } = dashboardsSlice.actions;

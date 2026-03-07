@@ -1,10 +1,9 @@
 'use client'
 
+import { useEffect, useRef } from 'react';
 import { Card, Button, Input, Select, Textarea, useToast } from '@/ui';
 import { Building2, User, Mail, Globe, DollarSign, Users, TrendingUp, FileText, CheckCircle2, Copy, Code } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
-import { useAppDispatch } from '@/store/hooks';
-import { startupApplicationSubmitRequested } from '@/store/slices/uiEffectsSlice';
 import { writeToClipboard } from '@/utils/clipboard';
 import { SectionHeader } from '@/ui/composites';
 import { CANONICAL_PUBLIC_WEB_URL } from '@/config/env';
@@ -49,8 +48,8 @@ const initialFormData: FormData = {
 };
 
 export function StartupApplicationForm({ embedded = false }: { embedded?: boolean }) {
-  const dispatch = useAppDispatch();
   const toast = useToast();
+  const submitTimeoutRef = useRef<number | null>(null);
   const { value: ui, patch: patchUI } = useUIKey<{
     formData: FormData;
     isSubmitting: boolean;
@@ -63,6 +62,14 @@ export function StartupApplicationForm({ embedded = false }: { embedded?: boolea
     showEmbedCode: false,
   });
   const { formData, isSubmitting, isSubmitted, showEmbedCode } = ui;
+
+  useEffect(() => {
+    return () => {
+      if (submitTimeoutRef.current !== null) {
+        window.clearTimeout(submitTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const missingRequiredField = findFirstMissingRequiredField([
     { key: 'companyName', label: 'Company Name', value: formData.companyName },
@@ -84,7 +91,15 @@ export function StartupApplicationForm({ embedded = false }: { embedded?: boolea
       toast.warning(`${missingRequiredField.label} is required.`, 'Missing information');
       return;
     }
-    dispatch(startupApplicationSubmitRequested());
+    if (isSubmitting) return;
+
+    patchUI({ isSubmitting: true });
+    if (submitTimeoutRef.current !== null) {
+      window.clearTimeout(submitTimeoutRef.current);
+    }
+    submitTimeoutRef.current = window.setTimeout(() => {
+      patchUI({ isSubmitting: false, isSubmitted: true });
+    }, 1500);
   };
 
 const embedCode = `<!-- VestLedger Startup Application Form -->

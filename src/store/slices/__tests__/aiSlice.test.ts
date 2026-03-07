@@ -1,11 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
   aiReducer,
-  pitchDeckAnalysesRequested,
   pitchDeckAnalysesLoaded,
   pitchDeckAnalysesFailed,
-  ddChatConversationRequested,
   ddChatConversationLoaded,
+  ddChatConversationSet,
   ddChatConversationFailed,
   pitchDeckSelectors,
   ddChatSelectors,
@@ -14,6 +13,10 @@ import type { RootState } from '@/store/rootReducer';
 import type { NormalizedError } from '@/store/types/AsyncState';
 import { mockAnalyses } from '@/data/mocks/ai/pitch-deck-reader';
 import type { Message } from '@/services/ai/ddChatService';
+
+function request<T>(type: string, payload?: T) {
+  return { type, payload };
+}
 
 const ddMessages: Message[] = [
   {
@@ -47,7 +50,7 @@ describe('aiSlice', () => {
   });
 
   it('handles pitch deck lifecycle and selectors', () => {
-    let state = aiReducer(undefined, pitchDeckAnalysesRequested({ dealId: 'deal-1' }));
+    let state = aiReducer(undefined, request('ai/pitchDeckAnalysesRequested', { dealId: 'deal-1' }));
     expect(state.pitchDeckState.status).toBe('loading');
 
     state = aiReducer(state, pitchDeckAnalysesLoaded({ analyses: mockAnalyses.slice(0, 2) }));
@@ -65,7 +68,7 @@ describe('aiSlice', () => {
   });
 
   it('handles DD chat lifecycle and selectors', () => {
-    let state = aiReducer(undefined, ddChatConversationRequested({ dealId: 42 }));
+    let state = aiReducer(undefined, request('ai/ddChatConversationRequested', { dealId: 42 }));
     expect(state.ddChatState.status).toBe('loading');
 
     state = aiReducer(state, ddChatConversationLoaded({ dealId: 42, messages: ddMessages.slice(0, 1) }));
@@ -73,6 +76,22 @@ describe('aiSlice', () => {
 
     state = aiReducer(state, ddChatConversationLoaded({ dealId: 42, messages: ddMessages }));
     expect(state.ddChatState.data?.conversations['42']).toEqual(ddMessages);
+
+    const localMessage: Message = {
+      id: 'local-1',
+      role: 'user',
+      content: 'Can you summarize the red flags?',
+      timestamp: new Date('2026-02-14T00:10:00.000Z'),
+    };
+    state = aiReducer(
+      state,
+      ddChatConversationSet({
+        conversationKey: '42',
+        messages: [...ddMessages, localMessage],
+      })
+    );
+    state = aiReducer(state, ddChatConversationLoaded({ dealId: 42, messages: ddMessages }));
+    expect(state.ddChatState.data?.conversations['42']).toEqual([...ddMessages, localMessage]);
 
     const root = asRootState(state);
     expect(ddChatSelectors.selectData(root)).toEqual(state.ddChatState.data);
@@ -82,7 +101,7 @@ describe('aiSlice', () => {
     expect(ddChatSelectors.selectIsSucceeded(root)).toBe(true);
     expect(ddChatSelectors.selectIsFailed(root)).toBe(false);
     expect(ddChatSelectors.selectState(root)).toEqual(state.ddChatState);
-    expect(ddChatSelectors.selectConversation('42')(root)).toEqual(ddMessages);
+    expect(ddChatSelectors.selectConversation('42')(root)).toEqual([...ddMessages, localMessage]);
     expect(ddChatSelectors.selectConversation('999')(root)).toEqual([]);
 
     state = aiReducer(state, ddChatConversationFailed(testError));

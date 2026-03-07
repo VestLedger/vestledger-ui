@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
   fundReducer,
-  fundsRequested,
   fundsLoaded,
   fundsFailed,
   fundHydrated,
@@ -11,6 +10,10 @@ import {
 } from '../fundSlice';
 import type { Fund, FundViewMode } from '@/types/fund';
 import type { NormalizedError } from '@/store/types/AsyncState';
+
+function request<T>(type: string, payload?: T) {
+  return { type, payload };
+}
 
 describe('fundSlice', () => {
   const mockFunds: Fund[] = [
@@ -101,14 +104,14 @@ describe('fundSlice', () => {
   describe('fundsRequested', () => {
     it('should set status to loading', () => {
       const params: GetFundsParams = {};
-      const state = fundReducer(initialState, fundsRequested(params));
+      const state = fundReducer(initialState, request('fund/fundsRequested', params));
       expect(state.status).toBe('loading');
       expect(state.error).toBeUndefined();
     });
 
     it('should accept filter parameters', () => {
       const params: GetFundsParams = { status: 'active' };
-      const state = fundReducer(initialState, fundsRequested(params));
+      const state = fundReducer(initialState, request('fund/fundsRequested', params));
       expect(state.status).toBe('loading');
     });
   });

@@ -1,13 +1,20 @@
 'use client'
 
-import { useRef, useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { Card, Button, Input, Badge } from '@/ui';
 import { Send, Sparkles, User, Bot, Lightbulb, TrendingUp, AlertCircle, FileText } from 'lucide-react';
 import { DocumentPreviewModal, useDocumentPreview, getMockDocumentUrl } from '@/components/documents/preview';
 import { useUIKey } from '@/store/ui';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { ddChatSendRequested } from '@/store/slices/uiEffectsSlice';
-import { ddChatConversationRequested, ddChatSelectors } from '@/store/slices/aiSlice';
+import {
+  ddChatConversationSet,
+  ddChatSelectors,
+} from '@/store/slices/aiSlice';
+import {
+  getDDChatAssistantResponse,
+  type Message,
+} from '@/services/ai/ddChatService';
+import { loadDDChatConversationOperation } from '@/store/async/dataOperations';
 
 const defaultDDChatAssistantState = {
   inputValue: '',
@@ -29,7 +36,7 @@ export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealNam
   // Load conversation on mount if not already loaded
   useEffect(() => {
     if (!conversation.length && dealId) {
-      dispatch(ddChatConversationRequested({ dealId }));
+      dispatch(loadDDChatConversationOperation({ dealId }));
     }
   }, [dispatch, dealId, conversation.length]);
 
@@ -40,7 +47,14 @@ export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealNam
   const { inputValue, isTyping } = ui;
   const messages = useMemo(() => conversation ?? [], [conversation]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef(messages);
+  const sendRequestIdRef = useRef(0);
+  const sendTimeoutRef = useRef<number | null>(null);
   const preview = useDocumentPreview();
+
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -50,11 +64,46 @@ export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealNam
     scrollToBottom();
   }, [messages]);
 
+  useEffect(() => {
+    return () => {
+      sendRequestIdRef.current += 1;
+      if (sendTimeoutRef.current !== null) {
+        window.clearTimeout(sendTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const handleSend = () => {
     if (isTyping) return;
     const trimmed = inputValue.trim();
     if (!trimmed) return;
-    dispatch(ddChatSendRequested({ key: stateKey, query: trimmed, dealName }));
+
+    const userMessage: Message = {
+      id: `${Date.now()}-user`,
+      role: 'user',
+      content: trimmed,
+      timestamp: new Date(),
+    };
+    const nextMessages = [...messagesRef.current, userMessage];
+    dispatch(ddChatConversationSet({ conversationKey, messages: nextMessages }));
+    patchUI({ inputValue: '', isTyping: true });
+
+    const requestId = sendRequestIdRef.current + 1;
+    sendRequestIdRef.current = requestId;
+    if (sendTimeoutRef.current !== null) {
+      window.clearTimeout(sendTimeoutRef.current);
+    }
+    sendTimeoutRef.current = window.setTimeout(() => {
+      if (sendRequestIdRef.current !== requestId) return;
+      const aiResponse = getDDChatAssistantResponse(trimmed, dealName);
+      dispatch(
+        ddChatConversationSet({
+          conversationKey,
+          messages: [...messagesRef.current, aiResponse],
+        })
+      );
+      patchUI({ isTyping: false });
+    }, 1500);
   };
 
   const handleSuggestedQuestion = (question: string) => {

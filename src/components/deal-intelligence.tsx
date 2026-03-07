@@ -5,7 +5,7 @@ import { useUIKey } from '@/store/ui';
 import { CheckCircle2, Clock, Eye, FileText, Users, DollarSign, BarChart, Upload, Download, Search, Filter, TrendingUp, AlertCircle, ArrowLeft, Brain } from 'lucide-react';
 import { Card, Badge, Progress, Button, PageContainer } from '@/ui';
 import { CompanySearch } from './deal-intelligence/company-search';
-import { dealIntelligenceRequested, dealIntelligenceSelectors } from '@/store/slices/dealIntelligenceSlice';
+import { dealIntelligenceSelectors } from '@/store/slices/dealIntelligenceSlice';
 import { AsyncStateRenderer } from '@/ui/async-states';
 import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys';
 import { useAsyncData } from '@/hooks/useAsyncData';
@@ -16,9 +16,10 @@ import {
   type ActiveDeal,
   type Document,
 } from '@/services/dealIntelligence/dealIntelligenceService';
+import { loadDealIntelligenceOperation } from '@/store/async/dataOperations';
 
 export function DealIntelligence() {
-  const { data, isLoading, error, refetch } = useAsyncData(dealIntelligenceRequested, dealIntelligenceSelectors.selectState, { params: {} });
+  const { data, isLoading, error, refetch } = useAsyncData(loadDealIntelligenceOperation, dealIntelligenceSelectors.selectState, { params: {} });
 
   // Use UI state constants
   const { value: ui, patch: patchUI } = useUIKey(

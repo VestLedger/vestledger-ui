@@ -10,12 +10,8 @@ import {
   setQuickActionsOverride,
   setSuggestionsOverride,
   pushExternalMessage,
-  openWithQueryRequested,
-  sendMessageRequested,
-  quickActionInvoked,
-  suggestionInvoked,
+  clearCopilotError,
   copilotError,
-  copilotSuggestionsRequested,
   copilotSuggestionsLoaded,
   copilotSuggestionsFailed,
   copilotSuggestionsSelectors,
@@ -24,6 +20,10 @@ import {
 import type { RootState } from '@/store/rootReducer';
 import type { NormalizedError } from '@/store/types/AsyncState';
 import type { QuickAction, Suggestion } from '@/services/ai/copilotService';
+
+function request<T>(type: string, payload?: T) {
+  return { type, payload };
+}
 
 const quickActions: QuickAction[] = [
   {
@@ -100,21 +100,16 @@ describe('copilotSlice', () => {
     expect(state.suggestionsOverride).toEqual(suggestions);
   });
 
-  it('keeps state stable for request-only chat actions and clears error', () => {
+  it('clears chat errors explicitly', () => {
     let state = copilotReducer(undefined, copilotError('stale'));
     expect(state.error).toBe('stale');
 
-    state = copilotReducer(state, openWithQueryRequested({ pathname: '/pipeline', query: 'New tasks' }));
-    expect(state.error).toBeNull();
-
-    state = copilotReducer(state, sendMessageRequested({ pathname: '/pipeline', content: 'Summarize risks' }));
-    state = copilotReducer(state, quickActionInvoked({ pathname: '/home', action: quickActions[0] }));
-    state = copilotReducer(state, suggestionInvoked({ suggestion: suggestions[0] }));
+    state = copilotReducer(state, clearCopilotError());
     expect(state.error).toBeNull();
   });
 
   it('handles async suggestions lifecycle and selectors', () => {
-    let state = copilotReducer(undefined, copilotSuggestionsRequested({ pathname: '/pipeline' }));
+    let state = copilotReducer(undefined, request('copilot/copilotSuggestionsRequested', { pathname: '/pipeline' }));
     expect(state.suggestionsState.status).toBe('loading');
 
     state = copilotReducer(state, copilotSuggestionsLoaded({ suggestions, quickActions }));

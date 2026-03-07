@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { BarChart3 } from 'lucide-react';
 import { FundPerformanceOverview } from './analytics/fund-performance-overview';
 import { JCurveChart } from './analytics/j-curve-chart';
@@ -14,29 +14,79 @@ import { useUIKey } from '@/store/ui';
 import { PageScaffold } from '@/ui/composites';
 import { useFund } from '@/contexts/fund-context';
 import { ROUTE_PATHS } from '@/config/routes';
-import { useAsyncData } from '@/hooks/useAsyncData';
 import { AsyncStateRenderer } from '@/ui/async-states';
-import {
-  analyticsRequested,
-  analyticsSelectors,
-} from '@/store/slices/analyticsSlice';
+import { fetchFundAnalyticsSnapshot } from '@/services/analytics/fundAnalyticsService';
+import type { NormalizedError } from '@/store/types/AsyncState';
+import { isMockMode } from '@/config/data-mode';
+import { normalizeError } from '@/store/utils/normalizeError';
+
+type AnalyticsLoadState = {
+  data: {
+    fundId: string | null;
+    loadedAt: string;
+    source: 'mock' | 'api';
+  } | null;
+  status: 'idle' | 'loading' | 'succeeded' | 'failed';
+  error: NormalizedError | undefined;
+};
 
 export function Analytics() {
   const { value: ui, patch: patchUI } = useUIKey('analytics', { selected: DEFAULT_ANALYTICS_TAB_ID });
   const { selected } = ui;
   const { selectedFund } = useFund();
   const fundId = selectedFund?.id ?? null;
-  const { data, isLoading, error, refetch } = useAsyncData(
-    analyticsRequested,
-    analyticsSelectors.selectState,
-    {
-      params: { fundId },
-      dependencies: [fundId],
-    }
-  );
+  const [loadState, setLoadState] = useState<AnalyticsLoadState>({
+    data: null,
+    status: 'idle',
+    error: undefined,
+  });
+  const latestRequestIdRef = useRef(0);
+  const loadAnalytics = useCallback(() => {
+    const requestId = latestRequestIdRef.current + 1;
+    latestRequestIdRef.current = requestId;
+
+    setLoadState((current) => ({
+      data: current.data,
+      status: 'loading',
+      error: undefined,
+    }));
+
+    void (async () => {
+      try {
+        await fetchFundAnalyticsSnapshot(fundId);
+        if (latestRequestIdRef.current !== requestId) return;
+
+        setLoadState({
+          data: {
+            fundId,
+            loadedAt: new Date().toISOString(),
+            source: isMockMode('analytics') ? 'mock' : 'api',
+          },
+          status: 'succeeded',
+          error: undefined,
+        });
+      } catch (error: unknown) {
+        if (latestRequestIdRef.current !== requestId) return;
+
+        setLoadState({
+          data: null,
+          status: 'failed',
+          error: normalizeError(error),
+        });
+      }
+    })();
+  }, [fundId]);
 
   // Use fund ID as key to force re-render when fund changes
   const fundKey = fundId || 'all';
+
+  useEffect(() => {
+    loadAnalytics();
+
+    return () => {
+      latestRequestIdRef.current += 1;
+    };
+  }, [loadAnalytics]);
 
   useEffect(() => {
     if (!ANALYTICS_TAB_IDS.has(selected)) {
@@ -62,10 +112,10 @@ export function Analytics() {
       }}
     >
       <AsyncStateRenderer
-        data={data}
-        isLoading={isLoading}
-        error={error}
-        onRetry={refetch}
+        data={loadState.data}
+        isLoading={loadState.status === 'loading'}
+        error={loadState.error}
+        onRetry={loadAnalytics}
         loadingMessage="Loading analytics..."
         errorTitle="Failed to Load Analytics"
         isEmpty={() => false}

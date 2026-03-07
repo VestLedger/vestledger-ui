@@ -1,15 +1,19 @@
 import { describe, it, expect } from 'vitest';
 import {
   pipelineReducer,
-  pipelineDataRequested,
   pipelineDataLoaded,
   pipelineDataFailed,
   dealStageUpdated,
+  pipelineDealUpserted,
   type PipelineData,
   type GetPipelineParams,
 } from '../pipelineSlice';
 import { getSliceTestExpectations } from '../../__tests__/sliceTestHarness';
 import type { NormalizedError } from '@/store/types/AsyncState';
+
+function request<T>(type: string, payload?: T) {
+  return { type, payload };
+}
 
 describe('pipelineSlice', () => {
   const mockPipelineData: PipelineData = {
@@ -64,7 +68,7 @@ describe('pipelineSlice', () => {
       const params: GetPipelineParams = {};
       const state = pipelineReducer(
         expectations.initialState,
-        pipelineDataRequested(params)
+        request('pipeline/pipelineDataRequested', params)
       );
       expect(state.status).toBe('loading');
       expect(state.error).toBeUndefined();
@@ -75,7 +79,7 @@ describe('pipelineSlice', () => {
         ...expectations.initialState,
         error: { message: 'Previous error', code: 'PREV_ERROR' },
       };
-      const state = pipelineReducer(stateWithError, pipelineDataRequested({}));
+      const state = pipelineReducer(stateWithError, request('pipeline/pipelineDataRequested', {}));
       expect(state.error).toBeUndefined();
     });
   });
@@ -178,6 +182,41 @@ describe('pipelineSlice', () => {
       );
       // Should not throw
       expect(state.data).toBeNull();
+    });
+  });
+
+  describe('pipelineDealUpserted', () => {
+    it('adds a new deal and stage when they do not exist', () => {
+      const state = pipelineReducer(
+        expectations.succeededState,
+        pipelineDealUpserted({
+          id: 3,
+          name: 'Fintech Labs',
+          stage: 'IC',
+          amount: '$3M',
+          probability: 80,
+          founder: 'Alex Roe',
+          lastContact: 'today',
+          sector: 'Fintech',
+          outcome: 'active',
+        })
+      );
+
+      expect(state.data?.stages).toContain('IC');
+      expect(state.data?.deals[0]?.id).toBe(3);
+    });
+
+    it('replaces an existing deal without duplicating it', () => {
+      const state = pipelineReducer(
+        expectations.succeededState,
+        pipelineDealUpserted({
+          ...mockPipelineData.deals[0],
+          stage: 'Negotiation',
+        })
+      );
+
+      expect(state.data?.deals).toHaveLength(mockPipelineData.deals.length);
+      expect(state.data?.deals.find((deal) => deal.id === 1)?.stage).toBe('Negotiation');
     });
   });
 });

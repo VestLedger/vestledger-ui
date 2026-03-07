@@ -5,12 +5,13 @@ import { DollarSign, AlertTriangle, Calendar, Download } from 'lucide-react';
 import { Card, Button, Badge } from '@/ui';
 import { RoleDashboardLayout, SectionHeader } from '@/ui/composites';
 import type { MetricsGridItem } from '@/ui/composites';
-import { opsDashboardRequested, opsDashboardSelectors } from '@/store/slices/dashboardsSlice';
+import { opsDashboardSelectors } from '@/store/slices/dashboardsSlice';
 import { AsyncStateRenderer } from '@/ui/async-states';
 import { useAsyncData } from '@/hooks/useAsyncData';
+import { loadOpsDashboardOperation } from '@/store/async/dataOperations';
 
 export function OpsDashboard() {
-  const { data, isLoading, error, refetch } = useAsyncData(opsDashboardRequested, opsDashboardSelectors.selectState);
+  const { data, isLoading, error, refetch } = useAsyncData(loadOpsDashboardOperation, opsDashboardSelectors.selectState);
 
   // Extract data with defaults
   const metrics = data?.metrics || [];

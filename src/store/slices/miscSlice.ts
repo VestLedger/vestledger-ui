@@ -23,13 +23,13 @@ import type { LPManagementSnapshot } from '@/services/lpPortal/lpManagementServi
 import type { CollaborationSnapshot } from '@/services/collaboration/collaborationService';
 
 // Types for each feature
-interface IntegrationsData {
+export interface IntegrationsData {
   accounts: CalendarAccount[];
   events: CalendarEvent[];
   integrations: IntegrationSummary[];
 }
 
-interface LPPortalData {
+export interface LPPortalData {
   investor: InvestorData;
   reports: QuarterlyReport[];
   transactions: Transaction[];
@@ -43,19 +43,19 @@ interface LPPortalData {
   faqItems: LPFAQItem[];
 }
 
-type LPManagementData = LPManagementSnapshot;
+export type LPManagementData = LPManagementSnapshot;
 
-interface AuditTrailData {
+export interface AuditTrailData {
   events: AuditEvent[];
 }
 
-interface CompanySearchData {
+export interface CompanySearchData {
   companies: Company[];
   industries: string[];
   stages: string[];
 }
 
-type CollaborationData = CollaborationSnapshot;
+export type CollaborationData = CollaborationSnapshot;
 
 interface MiscState {
   integrations: AsyncState<IntegrationsData>;
@@ -172,22 +172,16 @@ const miscSlice = createSlice({
 });
 
 export const {
-  integrationsRequested,
   integrationsLoaded,
   integrationsFailed,
-  lpPortalRequested,
   lpPortalLoaded,
   lpPortalFailed,
-  lpManagementRequested,
   lpManagementLoaded,
   lpManagementFailed,
-  auditTrailRequested,
   auditTrailLoaded,
   auditTrailFailed,
-  companySearchRequested,
   companySearchLoaded,
   companySearchFailed,
-  collaborationRequested,
   collaborationLoaded,
   collaborationFailed,
 } = miscSlice.actions;

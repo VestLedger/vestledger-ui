@@ -8,9 +8,7 @@ import { AsyncStateRenderer } from '@/ui/async-states';
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { useUIKey } from "@/store/ui";
 import {
-  calendarEventsRequested,
   calendarEventsSelectors,
-  distributionsRequested,
   distributionsSelectors,
 } from "@/store/slices/distributionSlice";
 import { useFund } from "@/contexts/fund-context";
@@ -44,6 +42,10 @@ import {
   Plus,
   Repeat,
 } from "lucide-react";
+import {
+  loadDistributionCalendarEventsOperation,
+  loadDistributionsOperation,
+} from '@/store/async/distributionOperations';
 
 type CalendarView = "calendar" | "list" | "timeline";
 type ListFilter = "upcoming" | "past" | "recurring";
@@ -166,7 +168,7 @@ export function DistributionCalendar() {
   );
 
   const { data, isLoading, error, refetch } = useAsyncData(
-    calendarEventsRequested,
+    loadDistributionCalendarEventsOperation,
     calendarEventsSelectors.selectState
   );
 
@@ -175,7 +177,7 @@ export function DistributionCalendar() {
     isLoading: distributionsLoading,
     error: distributionsError,
     refetch: refetchDistributions,
-  } = useAsyncData(distributionsRequested, distributionsSelectors.selectState, {
+  } = useAsyncData(loadDistributionsOperation, distributionsSelectors.selectState, {
     fetchOnMount: ui.view === "timeline",
     dependencies: [ui.view],
   });

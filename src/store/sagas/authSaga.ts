@@ -1,4 +1,4 @@
-import { call, delay, put, race, take, takeLatest } from "redux-saga/effects";
+import { call, put, takeLatest } from "redux-saga/effects";
 import {
   authenticateUser,
   isDemoCredentials,
@@ -13,7 +13,6 @@ import {
   loginSucceeded,
   logoutRequested,
 } from "@/store/slices/authSlice";
-import { clientMounted } from "@/store/slices/uiEffectsSlice";
 import { safeLocalStorage } from "@/lib/storage/safeLocalStorage";
 import { normalizeError } from "@/store/utils/normalizeError";
 import { logger } from "@/lib/logger";
@@ -273,13 +272,6 @@ export function* logoutWorker() {
 }
 
 export function* authSaga() {
-  if (typeof window !== "undefined") {
-    // Wait for clientMounted with a configurable timeout fallback
-    yield race({
-      mounted: take(clientMounted.type),
-      timeout: delay(AUTH_HYDRATION_TIMEOUT_MS),
-    });
-  }
   yield call(hydrateAuthWorker);
   yield takeLatest(loginRequested.type, loginWorker);
   yield takeLatest(logoutRequested.type, logoutWorker);

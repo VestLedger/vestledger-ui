@@ -12,17 +12,18 @@ import {
   getTaxCenterLabel,
 } from '@/lib/regulatory-regions';
 import { DEFAULT_TAX_CENTER_TAB_ID, TAX_CENTER_TAB_IDS } from '@/config/tax-center-tabs';
-import { taxCenterRequested, taxCenterSelectors } from '@/store/slices/backOfficeSlice';
+import { taxCenterSelectors } from '@/store/slices/backOfficeSlice';
 import { AsyncStateRenderer } from '@/ui/async-states';
 import { formatCurrency, formatDate } from '@/utils/formatting';
 import { KeyValueRow, StatusBadge, MetricsGrid, PageScaffold, SectionHeader } from '@/ui/composites';
 import type { MetricsGridItem } from '@/ui/composites';
 import { useAsyncData } from '@/hooks/useAsyncData';
+import { loadTaxCenterOperation } from '@/store/async/backOfficeOperations';
 
 export function TaxCenter() {
   const { user } = useAuth();
   const toast = useToast();
-  const { data, isLoading, error, refetch } = useAsyncData(taxCenterRequested, taxCenterSelectors.selectState);
+  const { data, isLoading, error, refetch } = useAsyncData(loadTaxCenterOperation, taxCenterSelectors.selectState);
   const { value: ui, patch: patchUI } = useUIKey('back-office-tax-center', { selectedTab: DEFAULT_TAX_CENTER_TAB_ID });
   const { selectedTab } = ui;
   const operatingRegion = user?.operatingRegion ?? null;

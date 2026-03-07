@@ -5,12 +5,13 @@ import { Shield, CheckCircle2, Search, Download } from 'lucide-react';
 import { Card, Button, Badge } from '@/ui';
 import { RoleDashboardLayout, SectionHeader } from '@/ui/composites';
 import type { MetricsGridItem } from '@/ui/composites';
-import { auditorDashboardRequested, auditorDashboardSelectors } from '@/store/slices/dashboardsSlice';
+import { auditorDashboardSelectors } from '@/store/slices/dashboardsSlice';
 import { AsyncStateRenderer } from '@/ui/async-states';
 import { useAsyncData } from '@/hooks/useAsyncData';
+import { loadAuditorDashboardOperation } from '@/store/async/dataOperations';
 
 export function AuditorDashboard() {
-  const { data, isLoading, error, refetch } = useAsyncData(auditorDashboardRequested, auditorDashboardSelectors.selectState);
+  const { data, isLoading, error, refetch } = useAsyncData(loadAuditorDashboardOperation, auditorDashboardSelectors.selectState);
 
   // Extract data with defaults
   const metrics = data?.metrics || [];

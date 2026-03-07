@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { DEFAULT_LP_PORTAL_TAB_ID, LP_PORTAL_TAB_IDS } from '@/config/lp-portal-tabs';
 import { useUIKey } from '@/store/ui';
-import { lpPortalRequested, lpPortalSelectors } from '@/store/slices/miscSlice';
+import { lpPortalSelectors } from '@/store/slices/miscSlice';
 import { AsyncStateRenderer, EmptyState } from '@/ui/async-states';
 import { PageScaffold, SectionHeader } from '@/ui/composites';
 import { formatCurrency, formatDate, formatPercent } from '@/utils/formatting';
@@ -28,9 +28,10 @@ import { BankDetailsForm } from './bank-details-form';
 import { DistributionEmailPreview } from './distribution-email-preview';
 import { DistributionFAQ } from './distribution-faq';
 import { ROUTE_PATHS } from '@/config/routes';
+import { loadLPPortalOperation } from '@/store/async/dataOperations';
 
 export function LPInvestorPortal() {
-  const { data, isLoading, error, refetch } = useAsyncData(lpPortalRequested, lpPortalSelectors.selectState);
+  const { data, isLoading, error, refetch } = useAsyncData(loadLPPortalOperation, lpPortalSelectors.selectState);
   const { value: ui, patch: patchUI } = useUIKey<{ selectedTab: string }>('lp-investor-portal', {
     selectedTab: DEFAULT_LP_PORTAL_TAB_ID,
   });

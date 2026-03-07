@@ -4,28 +4,25 @@ import { PageScaffold } from '@/ui/composites';
 import { DocumentManager, type AccessLevel } from './document-manager';
 import { DocumentPreviewModal, useDocumentPreview, getMockDocumentUrl, type PreviewDocument } from './preview';
 import { useFund } from '@/contexts/fund-context';
-import {
-  createDocumentFolder,
-  deleteDocument as deleteDocumentService,
-  downloadDocument,
-  moveDocument,
-  shareDocument,
-  updateDocumentAccess,
-  uploadDocument,
-} from '@/services/documentsService';
 import { useAppDispatch } from '@/store/hooks';
 import {
-  documentAccessUpdated,
-  documentDeleted,
   documentFavoriteToggled,
-  documentMoved,
-  documentsRequested,
   documentsSelectors,
 } from '@/store/slices/documentsSlice';
 import { useUIKey } from '@/store/ui';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useToast } from '@/ui';
+import { loadDocumentsOperation } from '@/store/async/dataOperations';
+import {
+  createDocumentFolderOperation,
+  deleteDocumentOperation,
+  downloadDocumentOperation,
+  moveDocumentOperation,
+  shareDocumentOperation,
+  updateDocumentAccessOperation,
+  uploadDocumentOperation,
+} from '@/store/async/documentsOperations';
 
 export function Documents() {
   const dispatch = useAppDispatch();
@@ -33,7 +30,7 @@ export function Documents() {
   const { selectedFund, viewMode } = useFund();
   const selectedFundId = viewMode === 'individual' ? selectedFund?.id ?? null : null;
 
-  const { data, refetch } = useAsyncData(documentsRequested, documentsSelectors.selectState, {
+  const { data } = useAsyncData(loadDocumentsOperation, documentsSelectors.selectState, {
     params: {
       fundId: selectedFundId,
     },
@@ -53,8 +50,7 @@ export function Documents() {
 
   const handleUpload = async (folderId?: string | null) => {
     try {
-      await uploadDocument({ folderId, fundId: selectedFundId });
-      refetch();
+      await dispatch(uploadDocumentOperation({ folderId, fundId: selectedFundId })).unwrap();
       toast.success('Document uploaded.', 'Upload Complete');
     } catch (error) {
       toast.error(getErrorMessage(error, 'Unable to upload document.'), 'Upload Failed');
@@ -63,8 +59,7 @@ export function Documents() {
 
   const handleCreateFolder = async (parentId?: string | null) => {
     try {
-      await createDocumentFolder({ parentId });
-      refetch();
+      await dispatch(createDocumentFolderOperation({ parentId })).unwrap();
       toast.success('Folder created.', 'Folder Added');
     } catch (error) {
       toast.error(getErrorMessage(error, 'Unable to create folder.'), 'Create Folder Failed');
@@ -105,7 +100,7 @@ export function Documents() {
 
   const handleDownloadDocument = async (documentId: string) => {
     try {
-      const url = await downloadDocument(documentId);
+      const url = await dispatch(downloadDocumentOperation(documentId)).unwrap();
       if (!url) {
         toast.warning('Download link unavailable for this document.');
         return;
@@ -126,8 +121,7 @@ export function Documents() {
 
   const handleShareDocument = async (documentId: string) => {
     try {
-      await shareDocument(documentId);
-      dispatch(documentAccessUpdated({ documentId, accessLevel: 'investor' }));
+      await dispatch(shareDocumentOperation(documentId)).unwrap();
       toast.success('Document shared with investor access.');
     } catch (error) {
       toast.error(getErrorMessage(error, 'Unable to share document.'), 'Share Failed');
@@ -136,8 +130,7 @@ export function Documents() {
 
   const handleDeleteDocument = async (documentId: string) => {
     try {
-      await deleteDocumentService(documentId);
-      dispatch(documentDeleted(documentId));
+      await dispatch(deleteDocumentOperation(documentId)).unwrap();
       toast.success('Document deleted.');
     } catch (error) {
       toast.error(getErrorMessage(error, 'Unable to delete document.'), 'Delete Failed');
@@ -150,8 +143,7 @@ export function Documents() {
 
   const handleMoveDocument = async (documentId: string, newFolderId: string | null) => {
     try {
-      await moveDocument(documentId, newFolderId);
-      dispatch(documentMoved({ documentId, newFolderId }));
+      await dispatch(moveDocumentOperation({ documentId, newFolderId })).unwrap();
       toast.success('Document moved.');
     } catch (error) {
       toast.error(getErrorMessage(error, 'Unable to move document.'), 'Move Failed');
@@ -160,8 +152,7 @@ export function Documents() {
 
   const handleUpdateAccess = async (documentId: string, accessLevel: AccessLevel) => {
     try {
-      await updateDocumentAccess(documentId, accessLevel);
-      dispatch(documentAccessUpdated({ documentId, accessLevel }));
+      await dispatch(updateDocumentAccessOperation({ documentId, accessLevel })).unwrap();
       toast.success('Document access updated.');
     } catch (error) {
       toast.error(getErrorMessage(error, 'Unable to update access.'), 'Access Update Failed');

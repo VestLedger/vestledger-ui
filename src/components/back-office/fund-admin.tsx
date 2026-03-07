@@ -25,50 +25,19 @@ import { TransferSecondary } from '../fund-admin/transfer-secondary';
 import { DistributionsList } from '../fund-admin/distributions/distributions-list';
 import { FundSetupList } from '../fund-admin/fund-setup-list';
 import {
-  capitalCallCreateRequested,
-  capitalCallReminderRequested,
-  capitalCallSendRequested,
-  fundAdminExportRequested,
-  fundAdminRequested,
   fundAdminSelectors,
-  lpReminderRequested,
-  lpResponseUpdateRequested,
 } from '@/store/slices/backOfficeSlice';
 import {
-  navCalculateRequested,
-  navExportRequested,
   navOpsSelectors,
-  navPublishRequested,
-  navRequested,
-  navReviewRequested,
 } from '@/store/slices/navOpsSlice';
 import {
-  carryApproveRequested,
-  carryCalculateRequested,
-  carryDistributeRequested,
-  carryExportRequested,
   carryOpsSelectors,
-  carryRequested,
 } from '@/store/slices/carryOpsSlice';
 import {
-  expenseAddRequested,
-  expenseApproveRequested,
-  expenseExportRequested,
-  expenseMarkPaidRequested,
   expenseOpsSelectors,
-  expenseRejectRequested,
-  expensesRequested,
 } from '@/store/slices/expenseOpsSlice';
 import {
-  secondaryTransferApproveRequested,
-  secondaryTransferCompleteRequested,
-  secondaryTransferExerciseROFRRequested,
-  secondaryTransferInitiateRequested,
   secondaryTransferOpsSelectors,
-  secondaryTransferRejectRequested,
-  secondaryTransferReviewRequested,
-  secondaryTransferUploadDocumentRequested,
-  secondaryTransfersRequested,
 } from '@/store/slices/secondaryTransferOpsSlice';
 import { AsyncStateRenderer } from '@/ui/async-states';
 import { formatCurrency } from '@/utils/formatting';
@@ -79,6 +48,41 @@ import {
   DEFAULT_FUND_ADMIN_TAB_ID,
   FUND_ADMIN_TAB_IDS,
 } from '@/config/fund-admin-tabs';
+import {
+  createCapitalCallOperation,
+  exportFundAdminActivityOperation,
+  loadFundAdminOperation,
+  sendCapitalCallOperation,
+  sendCapitalCallReminderOperation,
+  sendLPReminderOperation,
+  updateLPResponseOperation,
+} from '@/store/async/backOfficeOperations';
+import {
+  addExpenseOperation,
+  approveCarryOperation,
+  approveExpenseOperation,
+  approveSecondaryTransferOperation,
+  calculateCarryOperation,
+  calculateNAVOperation,
+  completeSecondaryTransferOperation,
+  distributeCarryOperation,
+  exerciseSecondaryTransferROFROperation,
+  exportCarryOperation,
+  exportExpenseOperation,
+  exportNAVOperation,
+  initiateSecondaryTransferOperation,
+  loadCarryOperation,
+  loadExpensesOperation,
+  loadNAVOperation,
+  loadSecondaryTransfersOperation,
+  markExpensePaidOperation,
+  publishNAVOperation,
+  rejectExpenseOperation,
+  rejectSecondaryTransferOperation,
+  reviewNAVOperation,
+  reviewSecondaryTransferOperation,
+  uploadSecondaryTransferDocumentOperation,
+} from '@/store/async/fundAdminOpsOperations';
 
 type FundAdminUIState = {
   selectedTab: string;
@@ -105,7 +109,7 @@ export function FundAdmin() {
   const targetFundId = viewMode === 'individual' ? selectedFund?.id : undefined;
 
   const { data, isLoading, error, refetch } = useAsyncData(
-    fundAdminRequested,
+    loadFundAdminOperation,
     fundAdminSelectors.selectState,
     {
       params: { fundId: targetFundId },
@@ -125,26 +129,26 @@ export function FundAdmin() {
     }
   }, [selectedTab, patchUI]);
 
-  const { data: navData } = useAsyncData(navRequested, navOpsSelectors.selectState, {
+  const { data: navData } = useAsyncData(loadNAVOperation, navOpsSelectors.selectState, {
     params: { fundId: targetFundId },
     dependencies: [targetFundId],
     fetchOnMount: selectedTab === 'nav-calculator',
   });
 
-  const { data: carryData } = useAsyncData(carryRequested, carryOpsSelectors.selectState, {
+  const { data: carryData } = useAsyncData(loadCarryOperation, carryOpsSelectors.selectState, {
     params: { fundId: targetFundId },
     dependencies: [targetFundId],
     fetchOnMount: selectedTab === 'carried-interest',
   });
 
-  const { data: expenseData } = useAsyncData(expensesRequested, expenseOpsSelectors.selectState, {
+  const { data: expenseData } = useAsyncData(loadExpensesOperation, expenseOpsSelectors.selectState, {
     params: { fundId: targetFundId },
     dependencies: [targetFundId],
     fetchOnMount: selectedTab === 'expenses',
   });
 
   const { data: transferData } = useAsyncData(
-    secondaryTransfersRequested,
+    loadSecondaryTransfersOperation,
     secondaryTransferOpsSelectors.selectState,
     {
       params: { fundId: targetFundId },
@@ -206,7 +210,7 @@ export function FundAdmin() {
       return;
     }
 
-    dispatch(capitalCallCreateRequested({
+    dispatch(createCapitalCallOperation({
       fundId: fund.id,
       fundName: fund.name,
       purpose: newCall.purpose,
@@ -220,7 +224,7 @@ export function FundAdmin() {
     const fund = resolveActionFund();
     if (!fund || !canMutate) return;
 
-    dispatch(expenseAddRequested({
+    dispatch(addExpenseOperation({
       expense: {
         fundId: fund.id,
         fundName: fund.name,
@@ -241,7 +245,7 @@ export function FundAdmin() {
     const fund = resolveActionFund();
     if (!fund || !canMutate) return;
 
-    dispatch(secondaryTransferInitiateRequested({
+    dispatch(initiateSecondaryTransferOperation({
       transfer: {
         fundId: fund.id,
         fundName: fund.name,
@@ -302,7 +306,7 @@ export function FundAdmin() {
         onClick: () => {
           const fund = resolveActionFund();
           if (!fund) return;
-          dispatch(navCalculateRequested({ fundId: fund.id, fundName: fund.name }));
+          dispatch(calculateNAVOperation({ fundId: fund.id, fundName: fund.name }));
         },
         aiSuggested: false,
       };
@@ -312,7 +316,7 @@ export function FundAdmin() {
         onClick: () => {
           const fund = resolveActionFund();
           if (!fund) return;
-          dispatch(carryCalculateRequested({ fundId: fund.id, fundName: fund.name }));
+          dispatch(calculateCarryOperation({ fundId: fund.id, fundName: fund.name }));
         },
         aiSuggested: false,
       };
@@ -365,7 +369,7 @@ export function FundAdmin() {
               secondaryActions: [
                 {
                   label: 'Export Activity',
-                  onClick: () => dispatch(fundAdminExportRequested()),
+                  onClick: () => dispatch(exportFundAdminActivityOperation()),
                 },
               ],
             }}
@@ -405,7 +409,7 @@ export function FundAdmin() {
                                     size="sm"
                                     className="bg-[var(--app-primary)] text-white"
                                     startContent={<Send className="w-4 h-4" />}
-                                    onPress={() => dispatch(capitalCallSendRequested({ capitalCallId: call.id }))}
+                                    onPress={() => dispatch(sendCapitalCallOperation({ capitalCallId: call.id }))}
                                   >
                                     Send to LPs
                                   </Button>
@@ -416,7 +420,7 @@ export function FundAdmin() {
                                       size="sm"
                                       variant="bordered"
                                       startContent={<Mail className="w-4 h-4" />}
-                                      onPress={() => dispatch(capitalCallReminderRequested({ capitalCallId: call.id }))}
+                                      onPress={() => dispatch(sendCapitalCallReminderOperation({ capitalCallId: call.id }))}
                                     >
                                       Send Reminder
                                     </Button>
@@ -424,7 +428,7 @@ export function FundAdmin() {
                                       size="sm"
                                       variant="flat"
                                       startContent={<Download className="w-4 h-4" />}
-                                      onPress={() => dispatch(fundAdminExportRequested())}
+                                      onPress={() => dispatch(exportFundAdminActivityOperation())}
                                     >
                                       Export
                                     </Button>
@@ -568,7 +572,7 @@ export function FundAdmin() {
                                     size="sm"
                                     variant="flat"
                                     startContent={<Mail className="w-4 h-4" />}
-                                    onPress={() => dispatch(lpReminderRequested({ lpResponseId: response.id }))}
+                                    onPress={() => dispatch(sendLPReminderOperation({ lpResponseId: response.id }))}
                                   >
                                     Send Reminder
                                   </Button>
@@ -579,7 +583,7 @@ export function FundAdmin() {
                                     variant="bordered"
                                     onPress={() =>
                                       dispatch(
-                                        lpResponseUpdateRequested({
+                                        updateLPResponseOperation({
                                           lpResponseId: response.id,
                                           amountPaid: response.callAmount,
                                         })
@@ -605,24 +609,24 @@ export function FundAdmin() {
                   onCalculate={canMutate ? (() => {
                     const fund = resolveActionFund();
                     if (!fund) return;
-                    dispatch(navCalculateRequested({ fundId: fund.id, fundName: fund.name }));
+                    dispatch(calculateNAVOperation({ fundId: fund.id, fundName: fund.name }));
                   }) : undefined}
                   onReview={canMutate ? ((calculationId) =>
                     dispatch(
-                      navReviewRequested({
+                      reviewNAVOperation({
                         calculationId,
                         reviewedBy: user?.email ?? 'ops@vestledger.ai',
                       })
                     )) : undefined}
                   onPublish={canMutate ? ((calculationId) =>
                     dispatch(
-                      navPublishRequested({
+                      publishNAVOperation({
                         calculationId,
                         publishedBy: user?.email ?? 'ops@vestledger.ai',
                       })
                     )) : undefined}
                   onExport={(calculationId, format) =>
-                    dispatch(navExportRequested({ calculationId, format }))
+                    dispatch(exportNAVOperation({ calculationId, format }))
                   }
                 />
               )}
@@ -633,17 +637,17 @@ export function FundAdmin() {
                   accruals={carryData?.accruals ?? []}
                   onCalculateAccrual={canMutate ? ((fundId) => {
                     const fund = visibleFunds.find((item) => item.id === fundId);
-                    dispatch(carryCalculateRequested({ fundId, fundName: fund?.name ?? 'Fund' }));
+                    dispatch(calculateCarryOperation({ fundId, fundName: fund?.name ?? 'Fund' }));
                   }) : undefined}
                   onEditTerms={canMutate ? (() => setFundSetupCreateSignal((value) => value + 1)) : undefined}
                   onApproveAccrual={canMutate ? ((accrualId) =>
-                    dispatch(carryApproveRequested({ accrualId }))
+                    dispatch(approveCarryOperation({ accrualId }))
                   ) : undefined}
                   onDistribute={canMutate ? ((accrualId) =>
-                    dispatch(carryDistributeRequested({ accrualId }))
+                    dispatch(distributeCarryOperation({ accrualId }))
                   ) : undefined}
                   onExport={(accrualId, format) =>
-                    dispatch(carryExportRequested({ accrualId, format }))
+                    dispatch(exportCarryOperation({ accrualId, format }))
                   }
                 />
               )}
@@ -653,15 +657,15 @@ export function FundAdmin() {
                   expenses={expenseData?.expenses ?? []}
                   onAddExpense={canMutate ? triggerExpenseCreate : undefined}
                   onApproveExpense={canMutate ? ((expenseId) =>
-                    dispatch(expenseApproveRequested({ expenseId, approver: user?.email ?? 'ops@vestledger.ai' }))
+                    dispatch(approveExpenseOperation({ expenseId, approver: user?.email ?? 'ops@vestledger.ai' }))
                   ) : undefined}
                   onRejectExpense={canMutate ? ((expenseId) =>
-                    dispatch(expenseRejectRequested({ expenseId }))
+                    dispatch(rejectExpenseOperation({ expenseId }))
                   ) : undefined}
                   onMarkPaid={canMutate ? ((expenseId) =>
-                    dispatch(expenseMarkPaidRequested({ expenseId }))
+                    dispatch(markExpensePaidOperation({ expenseId }))
                   ) : undefined}
-                  onExport={(format) => dispatch(expenseExportRequested({ format, fundId: targetFundId }))}
+                  onExport={(format) => dispatch(exportExpenseOperation({ format, fundId: targetFundId }))}
                 />
               )}
 
@@ -671,20 +675,20 @@ export function FundAdmin() {
                   rofrExercises={transferData?.rofrExercises ?? []}
                   onInitiateTransfer={canMutate ? triggerTransferCreate : undefined}
                   onReviewTransfer={canMutate ? ((transferId) =>
-                    dispatch(secondaryTransferReviewRequested({ transferId }))
+                    dispatch(reviewSecondaryTransferOperation({ transferId }))
                   ) : undefined}
                   onApproveTransfer={canMutate ? ((transferId) =>
-                    dispatch(secondaryTransferApproveRequested({ transferId }))
+                    dispatch(approveSecondaryTransferOperation({ transferId }))
                   ) : undefined}
                   onRejectTransfer={canMutate ? ((transferId, reason) =>
-                    dispatch(secondaryTransferRejectRequested({ transferId, reason }))
+                    dispatch(rejectSecondaryTransferOperation({ transferId, reason }))
                   ) : undefined}
                   onCompleteTransfer={canMutate ? ((transferId) =>
-                    dispatch(secondaryTransferCompleteRequested({ transferId }))
+                    dispatch(completeSecondaryTransferOperation({ transferId }))
                   ) : undefined}
                   onUploadDocument={canMutate ? ((transferId) =>
                     dispatch(
-                      secondaryTransferUploadDocumentRequested({
+                      uploadSecondaryTransferDocumentOperation({
                         transferId,
                         docName: `Supporting Document ${new Date().toISOString()}`,
                       })
@@ -692,7 +696,7 @@ export function FundAdmin() {
                   ) : undefined}
                   onExerciseROFR={canMutate ? ((transferId) =>
                     dispatch(
-                      secondaryTransferExerciseROFRRequested({
+                      exerciseSecondaryTransferROFROperation({
                         transferId,
                         exercisedByName: user?.name ?? 'Existing LP',
                       })

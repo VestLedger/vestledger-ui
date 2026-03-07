@@ -6,13 +6,11 @@ import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { DashboardProviders } from '../providers-dashboard'
 import { useAuth } from '@/contexts/auth-context'
-import { useRouteSagas } from '@/hooks/use-route-sagas'
 import { NavigationProvider, useNavigation } from '@/contexts/navigation-context'
 import { SidebarGrouped } from '@/components/sidebar-grouped'
 import { Topbar } from '@/components/topbar'
 import { CommandPalette } from '@/components/command-palette'
 import { useKeyboardShortcut } from '@/hooks/use-keyboard-shortcut'
-import { LoadingState } from '@/ui/async-states'
 import { useToast } from '@/ui'
 import { useUIKey } from '@/store/ui'
 import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys'
@@ -159,7 +157,6 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   // Always call hooks (rules of hooks) - but only use auth for protected pages
   const { hydrated, isAuthenticated, user, logout } = useAuth()
   const toast = useToast()
-  const sagasReady = useRouteSagas({ enabled: !isLoginPage })
 
   useSessionIdleGuard({
     enabled: !isLoginPage && hydrated && isAuthenticated,
@@ -221,16 +218,10 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     return null
   }
 
-  const resolvedChildren = sagasReady ? children : (
-    <div className="p-4">
-      <LoadingState message="Loading modules…" fullHeight={false} />
-    </div>
-  )
-
   return (
     <NavigationProvider>
       <DashboardLayoutInner isVestaRoute={isVestaRoute}>
-        {resolvedChildren}
+        {children}
       </DashboardLayoutInner>
     </NavigationProvider>
   )

@@ -5,12 +5,13 @@ import { TrendingUp, FileText, Search, Download } from 'lucide-react';
 import { Card, Button, Badge } from '@/ui';
 import { ListItemCard, RoleDashboardLayout, SectionHeader } from '@/ui/composites';
 import type { MetricsGridItem } from '@/ui/composites';
-import { researcherDashboardRequested, researcherDashboardSelectors } from '@/store/slices/dashboardsSlice';
+import { researcherDashboardSelectors } from '@/store/slices/dashboardsSlice';
 import { AsyncStateRenderer } from '@/ui/async-states';
 import { useAsyncData } from '@/hooks/useAsyncData';
+import { loadResearcherDashboardOperation } from '@/store/async/dataOperations';
 
 export function ResearcherDashboard() {
-  const { data, isLoading, error, refetch } = useAsyncData(researcherDashboardRequested, researcherDashboardSelectors.selectState);
+  const { data, isLoading, error, refetch } = useAsyncData(loadResearcherDashboardOperation, researcherDashboardSelectors.selectState);
 
   // Extract data with defaults
   const metrics = data?.metrics || [];

@@ -44,7 +44,6 @@ const crmSlice = createSlice({
 });
 
 export const {
-  crmDataRequested,
   crmDataLoaded,
   crmDataFailed,
 } = crmSlice.actions;

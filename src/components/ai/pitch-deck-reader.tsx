@@ -1,15 +1,15 @@
 'use client'
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Card, Button, Badge, Progress } from '@/ui';
 import { Upload, FileText, Sparkles, CheckCircle2, Clock, Download, Eye } from 'lucide-react';
 import { DocumentPreviewModal, useDocumentPreview, getMockDocumentUrl } from '@/components/documents/preview';
 import { useUIKey } from '@/store/ui';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { pitchDeckUploadRequested } from '@/store/slices/uiEffectsSlice';
-import { pitchDeckAnalysesRequested, pitchDeckSelectors } from '@/store/slices/aiSlice';
+import { pitchDeckSelectors } from '@/store/slices/aiSlice';
 import { EmptyState, ErrorState, LoadingState } from '@/ui/async-states';
 import { SectionHeader, StatusBadge } from '@/ui/composites';
+import { loadPitchDeckAnalysesOperation } from '@/store/async/dataOperations';
 
 const defaultPitchDeckReaderState = {
   selectedAnalysisId: null as string | null,
@@ -18,6 +18,7 @@ const defaultPitchDeckReaderState = {
 
 export function PitchDeckReader() {
   const dispatch = useAppDispatch();
+  const uploadTimeoutRef = useRef<number | null>(null);
   const data = useAppSelector(pitchDeckSelectors.selectData);
   const status = useAppSelector(pitchDeckSelectors.selectStatus);
   const error = useAppSelector(pitchDeckSelectors.selectError);
@@ -26,7 +27,7 @@ export function PitchDeckReader() {
 
   // Load pitch deck analyses on mount
   useEffect(() => {
-    dispatch(pitchDeckAnalysesRequested({}));
+    dispatch(loadPitchDeckAnalysesOperation({}));
   }, [dispatch]);
   const { value: ui, patch: patchUI } = useUIKey<{ selectedAnalysisId: string | null; isUploading: boolean }>(
     'pitch-deck-reader',
@@ -36,8 +37,23 @@ export function PitchDeckReader() {
   const selectedAnalysis = analyses.find((analysis) => analysis.id === selectedAnalysisId) ?? null;
   const preview = useDocumentPreview();
 
+  useEffect(() => {
+    return () => {
+      if (uploadTimeoutRef.current !== null) {
+        window.clearTimeout(uploadTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const handleFileUpload = () => {
-    dispatch(pitchDeckUploadRequested());
+    if (isUploading) return;
+    patchUI({ isUploading: true });
+    if (uploadTimeoutRef.current !== null) {
+      window.clearTimeout(uploadTimeoutRef.current);
+    }
+    uploadTimeoutRef.current = window.setTimeout(() => {
+      patchUI({ isUploading: false });
+    }, 2000);
   };
 
   if (status === 'idle' || status === 'loading') return <LoadingState message="Loading pitch deck analyses…" />;
@@ -46,7 +62,7 @@ export function PitchDeckReader() {
       <ErrorState
         error={error}
         title="Failed to load pitch deck analyses"
-        onRetry={() => dispatch(pitchDeckAnalysesRequested({}))}
+        onRetry={() => dispatch(loadPitchDeckAnalysesOperation({}))}
       />
     );
   }

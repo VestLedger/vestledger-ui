@@ -11,16 +11,17 @@ import {
   getValuationsLabel,
 } from '@/lib/regulatory-regions';
 import { DEFAULT_VALUATION_409A_TAB_ID, VALUATION_409A_TAB_IDS } from '@/config/valuation-409a-tabs';
-import { valuation409aRequested, valuation409aSelectors } from '@/store/slices/backOfficeSlice';
+import { valuation409aSelectors } from '@/store/slices/backOfficeSlice';
 import { AsyncStateRenderer } from '@/ui/async-states';
 import { formatCurrency } from '@/utils/formatting';
 import { MetricsGrid, PageScaffold, SectionHeader, StatusBadge } from '@/ui/composites';
 import type { MetricsGridItem } from '@/ui/composites';
 import { useAsyncData } from '@/hooks/useAsyncData';
+import { loadValuation409aOperation } from '@/store/async/backOfficeOperations';
 
 export function Valuation409A() {
   const { user } = useAuth();
-  const { data, isLoading, error, refetch } = useAsyncData(valuation409aRequested, valuation409aSelectors.selectState);
+  const { data, isLoading, error, refetch } = useAsyncData(loadValuation409aOperation, valuation409aSelectors.selectState);
   const { value: ui, patch: patchUI } = useUIKey('back-office-valuation-409a', { selectedTab: DEFAULT_VALUATION_409A_TAB_ID });
   const { selectedTab } = ui;
   const routeConfig = getRouteConfig(ROUTE_PATHS.valuations409a);

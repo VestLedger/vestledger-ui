@@ -79,13 +79,8 @@ const navOpsSlice = createSlice({
 });
 
 export const {
-  navRequested,
   navLoaded,
   navFailed,
-  navCalculateRequested,
-  navReviewRequested,
-  navPublishRequested,
-  navExportRequested,
   navCalculationUpserted,
   navExportSucceeded,
 } = navOpsSlice.actions;
