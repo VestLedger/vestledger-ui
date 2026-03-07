@@ -6,12 +6,12 @@ import type {
   DocumentType,
   DocumentVersion,
   SharedAccess,
-} from '@/components/documents/document-manager';
-import { isMockMode } from '@/config/data-mode';
-import { mockDocuments, mockFolders } from '@/data/seeds/documents';
-import * as documentPreviewSeeds from '@/data/seeds/documents/preview';
-import { requestJson } from '@/services/shared/httpClient';
-import type { GetDocumentsParams } from '@/store/slices/documentsSlice';
+} from "@/components/documents/document-manager";
+import { isMockMode } from "@/config/data-mode";
+import { mockDocuments, mockFolders } from "@/data/seeds/documents";
+import * as documentPreviewSeeds from "@/data/seeds/documents/preview";
+import { requestJson } from "@/services/shared/httpClient";
+import type { GetDocumentsParams } from "@/store/slices/documentsSlice";
 
 export type ListDocumentsResponse = {
   documents: Document[];
@@ -93,57 +93,64 @@ type UploadDocumentParams = {
 
 let documentsSnapshotCache: ListDocumentsResponse | null = null;
 
-const DEFAULT_USER_NAME = 'Demo User';
+const DEFAULT_USER_NAME = "Demo User";
 const clone = <T>(value: T): T => structuredClone(value);
 const getSeedDocumentUrl = (type: DocumentType): string => {
-  const accessor = (documentPreviewSeeds as Record<string, unknown>)['get' + 'MockDocumentUrl'];
-  if (typeof accessor === 'function') {
+  const accessor = (documentPreviewSeeds as Record<string, unknown>)[
+    "get" + "MockDocumentUrl"
+  ];
+  if (typeof accessor === "function") {
     return (accessor as (value: DocumentType) => string)(type);
   }
-  return '#';
+  return "#";
 };
 
 function normalizeAccessLevel(value?: string): AccessLevel {
-  if (value === 'private' || value === 'internal' || value === 'investor' || value === 'public') {
+  if (
+    value === "private" ||
+    value === "internal" ||
+    value === "investor" ||
+    value === "public"
+  ) {
     return value;
   }
-  return 'internal';
+  return "internal";
 }
 
 function normalizeDocumentType(value?: string): DocumentType {
   if (
-    value === 'pdf'
-    || value === 'word'
-    || value === 'excel'
-    || value === 'image'
-    || value === 'presentation'
-    || value === 'archive'
-    || value === 'other'
+    value === "pdf" ||
+    value === "word" ||
+    value === "excel" ||
+    value === "image" ||
+    value === "presentation" ||
+    value === "archive" ||
+    value === "other"
   ) {
     return value;
   }
-  return 'other';
+  return "other";
 }
 
 function normalizeDocumentCategory(value?: string): DocumentCategory {
   if (
-    value === 'legal'
-    || value === 'financial'
-    || value === 'tax'
-    || value === 'compliance'
-    || value === 'investor-relations'
-    || value === 'due-diligence'
-    || value === 'portfolio'
-    || value === 'other'
+    value === "legal" ||
+    value === "financial" ||
+    value === "tax" ||
+    value === "compliance" ||
+    value === "investor-relations" ||
+    value === "due-diligence" ||
+    value === "portfolio" ||
+    value === "other"
   ) {
     return value;
   }
-  return 'other';
+  return "other";
 }
 
 function parseDate(value?: string | Date | null, fallback?: Date): Date {
   if (value instanceof Date) return value;
-  if (typeof value === 'string') {
+  if (typeof value === "string") {
     const parsed = new Date(value);
     if (!Number.isNaN(parsed.getTime())) return parsed;
   }
@@ -154,26 +161,35 @@ function mapSharedWith(sharedWith: unknown): SharedAccess[] {
   if (!Array.isArray(sharedWith)) return [];
 
   const mapped = sharedWith
-    .filter((entry): entry is Record<string, unknown> => Boolean(entry) && typeof entry === 'object')
+    .filter(
+      (entry): entry is Record<string, unknown> =>
+        Boolean(entry) && typeof entry === "object",
+    )
     .map((entry, index) => {
       const access = entry.accessLevel;
       const accessLevel =
-        access === 'view' || access === 'comment' || access === 'edit'
+        access === "view" || access === "comment" || access === "edit"
           ? access
-          : 'view';
+          : "view";
 
       return {
-        userId: typeof entry.userId === 'string' ? entry.userId : `shared-${index}`,
-        userName: typeof entry.userName === 'string' ? entry.userName : 'External User',
-        userEmail: typeof entry.userEmail === 'string' ? entry.userEmail : `external-${index}@example.com`,
+        userId:
+          typeof entry.userId === "string" ? entry.userId : `shared-${index}`,
+        userName:
+          typeof entry.userName === "string" ? entry.userName : "External User",
+        userEmail:
+          typeof entry.userEmail === "string"
+            ? entry.userEmail
+            : `external-${index}@example.com`,
         accessLevel,
         sharedDate: parseDate(
-          typeof entry.sharedDate === 'string' || entry.sharedDate instanceof Date
+          typeof entry.sharedDate === "string" ||
+            entry.sharedDate instanceof Date
             ? entry.sharedDate
-            : undefined
+            : undefined,
         ),
         expiresAt:
-          typeof entry.expiresAt === 'string' || entry.expiresAt instanceof Date
+          typeof entry.expiresAt === "string" || entry.expiresAt instanceof Date
             ? parseDate(entry.expiresAt)
             : undefined,
       } satisfies SharedAccess;
@@ -182,25 +198,34 @@ function mapSharedWith(sharedWith: unknown): SharedAccess[] {
   return mapped;
 }
 
-function mapVersionHistory(versionHistory: unknown): DocumentVersion[] | undefined {
-  if (!Array.isArray(versionHistory) || versionHistory.length === 0) return undefined;
+function mapVersionHistory(
+  versionHistory: unknown,
+): DocumentVersion[] | undefined {
+  if (!Array.isArray(versionHistory) || versionHistory.length === 0)
+    return undefined;
 
   const mapped = versionHistory
-    .filter((entry): entry is Record<string, unknown> => Boolean(entry) && typeof entry === 'object')
+    .filter(
+      (entry): entry is Record<string, unknown> =>
+        Boolean(entry) && typeof entry === "object",
+    )
     .map((entry, index) => ({
-      version: typeof entry.version === 'number' ? entry.version : index + 1,
-      uploadedBy: typeof entry.uploadedBy === 'string' ? entry.uploadedBy : DEFAULT_USER_NAME,
+      version: typeof entry.version === "number" ? entry.version : index + 1,
+      uploadedBy:
+        typeof entry.uploadedBy === "string"
+          ? entry.uploadedBy
+          : DEFAULT_USER_NAME,
       uploadedDate: parseDate(
-        typeof entry.uploadedDate === 'string' || entry.uploadedDate instanceof Date
+        typeof entry.uploadedDate === "string" ||
+          entry.uploadedDate instanceof Date
           ? entry.uploadedDate
-          : undefined
+          : undefined,
       ),
-      changeNote: typeof entry.changeNote === 'string' ? entry.changeNote : undefined,
-      size: typeof entry.size === 'number' ? entry.size : 0,
+      changeNote:
+        typeof entry.changeNote === "string" ? entry.changeNote : undefined,
+      size: typeof entry.size === "number" ? entry.size : 0,
       url:
-        typeof entry.url === 'string'
-          ? entry.url
-          : getSeedDocumentUrl('other'),
+        typeof entry.url === "string" ? entry.url : getSeedDocumentUrl("other"),
     }));
 
   return mapped;
@@ -223,14 +248,15 @@ function mapApiDocument(apiDocument: ApiDocument): Document {
     name: apiDocument.name,
     type: documentType,
     category: normalizeDocumentCategory(apiDocument.category),
-    size: typeof apiDocument.size === 'number' ? apiDocument.size : 0,
+    size: typeof apiDocument.size === "number" ? apiDocument.size : 0,
     folderId: apiDocument.folderId ?? null,
     folderPath: apiDocument.folderPath,
     uploadedBy: apiDocument.uploadedBy ?? DEFAULT_USER_NAME,
     uploadedDate,
     lastModified,
-    lastModifiedBy: apiDocument.lastModifiedBy ?? apiDocument.uploadedBy ?? DEFAULT_USER_NAME,
-    version: typeof apiDocument.version === 'number' ? apiDocument.version : 1,
+    lastModifiedBy:
+      apiDocument.lastModifiedBy ?? apiDocument.uploadedBy ?? DEFAULT_USER_NAME,
+    version: typeof apiDocument.version === "number" ? apiDocument.version : 1,
     versionHistory: mapVersionHistory(apiDocument.versionHistory),
     tags: Array.isArray(apiDocument.tags) ? apiDocument.tags : [],
     description: apiDocument.description,
@@ -248,7 +274,8 @@ function mapApiDocument(apiDocument: ApiDocument): Document {
     requiresSignature: Boolean(apiDocument.requiresSignature),
     signedBy: Array.isArray(apiDocument.signedBy) ? apiDocument.signedBy : [],
     expirationDate:
-      typeof apiDocument.expirationDate === 'string' || apiDocument.expirationDate instanceof Date
+      typeof apiDocument.expirationDate === "string" ||
+      apiDocument.expirationDate instanceof Date
         ? parseDate(apiDocument.expirationDate)
         : undefined,
     isArchived: Boolean(apiDocument.isArchived),
@@ -269,7 +296,8 @@ function mapApiFolder(apiFolder: ApiDocumentFolder): DocumentFolder {
     description: apiFolder.description,
     createdBy: apiFolder.createdBy ?? DEFAULT_USER_NAME,
     createdDate: parseDate(apiFolder.createdDate),
-    documentCount: typeof apiFolder.documentCount === 'number' ? apiFolder.documentCount : 0,
+    documentCount:
+      typeof apiFolder.documentCount === "number" ? apiFolder.documentCount : 0,
     accessLevel: normalizeAccessLevel(apiFolder.accessLevel),
     isDefault: Boolean(apiFolder.isDefault),
   };
@@ -277,51 +305,58 @@ function mapApiFolder(apiFolder: ApiDocumentFolder): DocumentFolder {
 
 function applyFilters(
   snapshot: ListDocumentsResponse,
-  params?: GetDocumentsParams
+  params?: GetDocumentsParams,
 ): ListDocumentsResponse {
   if (!params) return clone(snapshot);
 
   let filteredDocuments = [...snapshot.documents];
 
   if (params.fundId) {
-    filteredDocuments = filteredDocuments.filter((document) => document.fundId === params.fundId);
+    filteredDocuments = filteredDocuments.filter(
+      (document) => document.fundId === params.fundId,
+    );
   }
 
   if (params.folderId !== undefined && params.folderId !== null) {
-    filteredDocuments = filteredDocuments.filter((document) => document.folderId === params.folderId);
+    filteredDocuments = filteredDocuments.filter(
+      (document) => document.folderId === params.folderId,
+    );
   }
 
   if (params.favoritesOnly) {
-    filteredDocuments = filteredDocuments.filter((document) => document.isFavorite);
+    filteredDocuments = filteredDocuments.filter(
+      (document) => document.isFavorite,
+    );
   }
 
   if (params.search && params.search.trim().length > 0) {
     const searchQuery = params.search.toLowerCase().trim();
-    filteredDocuments = filteredDocuments.filter((document) =>
-      document.name.toLowerCase().includes(searchQuery)
-      || document.tags.some((tag) => tag.toLowerCase().includes(searchQuery))
-      || document.description?.toLowerCase().includes(searchQuery)
-      || document.fundName?.toLowerCase().includes(searchQuery)
-      || document.dealName?.toLowerCase().includes(searchQuery)
+    filteredDocuments = filteredDocuments.filter(
+      (document) =>
+        document.name.toLowerCase().includes(searchQuery) ||
+        document.tags.some((tag) => tag.toLowerCase().includes(searchQuery)) ||
+        document.description?.toLowerCase().includes(searchQuery) ||
+        document.fundName?.toLowerCase().includes(searchQuery) ||
+        document.dealName?.toLowerCase().includes(searchQuery),
     );
   }
 
-  const sortBy = params.sortBy ?? 'uploadedDate';
-  const sortOrder = params.sortOrder ?? 'desc';
+  const sortBy = params.sortBy ?? "uploadedDate";
+  const sortOrder = params.sortOrder ?? "desc";
   filteredDocuments.sort((left, right) => {
     let comparison = 0;
 
-    if (sortBy === 'name') {
+    if (sortBy === "name") {
       comparison = left.name.localeCompare(right.name);
-    } else if (sortBy === 'size') {
+    } else if (sortBy === "size") {
       comparison = left.size - right.size;
-    } else if (sortBy === 'lastModified') {
+    } else if (sortBy === "lastModified") {
       comparison = left.lastModified.getTime() - right.lastModified.getTime();
     } else {
       comparison = left.uploadedDate.getTime() - right.uploadedDate.getTime();
     }
 
-    return sortOrder === 'asc' ? comparison : -comparison;
+    return sortOrder === "asc" ? comparison : -comparison;
   });
 
   const offset = params.offset ?? 0;
@@ -347,18 +382,20 @@ function getCachedSnapshot(): ListDocumentsResponse {
 
 function updateCachedDocument(
   documentId: string,
-  updater: (document: Document) => Document
+  updater: (document: Document) => Document,
 ): void {
   const snapshot = getCachedSnapshot();
   snapshot.documents = snapshot.documents.map((document) =>
-    document.id === documentId ? updater(document) : document
+    document.id === documentId ? updater(document) : document,
   );
   documentsSnapshotCache = snapshot;
 }
 
 function upsertCachedDocument(document: Document): void {
   const snapshot = getCachedSnapshot();
-  const existingIndex = snapshot.documents.findIndex((item) => item.id === document.id);
+  const existingIndex = snapshot.documents.findIndex(
+    (item) => item.id === document.id,
+  );
   if (existingIndex >= 0) {
     snapshot.documents[existingIndex] = document;
   } else {
@@ -369,7 +406,9 @@ function upsertCachedDocument(document: Document): void {
 
 function upsertCachedFolder(folder: DocumentFolder): void {
   const snapshot = getCachedSnapshot();
-  const existingIndex = snapshot.folders.findIndex((item) => item.id === folder.id);
+  const existingIndex = snapshot.folders.findIndex(
+    (item) => item.id === folder.id,
+  );
   if (existingIndex >= 0) {
     snapshot.folders[existingIndex] = folder;
   } else {
@@ -380,12 +419,16 @@ function upsertCachedFolder(folder: DocumentFolder): void {
 
 function removeCachedDocument(documentId: string): void {
   const snapshot = getCachedSnapshot();
-  snapshot.documents = snapshot.documents.filter((document) => document.id !== documentId);
+  snapshot.documents = snapshot.documents.filter(
+    (document) => document.id !== documentId,
+  );
   documentsSnapshotCache = snapshot;
 }
 
-export async function listDocuments(params?: GetDocumentsParams): Promise<ListDocumentsResponse> {
-  if (isMockMode('documents')) {
+export async function listDocuments(
+  params?: GetDocumentsParams,
+): Promise<ListDocumentsResponse> {
+  if (isMockMode("documents")) {
     if (!documentsSnapshotCache) {
       documentsSnapshotCache = getSeedSnapshot();
     }
@@ -393,8 +436,8 @@ export async function listDocuments(params?: GetDocumentsParams): Promise<ListDo
   }
 
   try {
-    const response = await requestJson<ApiDocumentsResponse>('/documents', {
-      method: 'GET',
+    const response = await requestJson<ApiDocumentsResponse>("/documents", {
+      method: "GET",
       query: {
         fundId: params?.fundId,
         folderId: params?.folderId,
@@ -405,7 +448,7 @@ export async function listDocuments(params?: GetDocumentsParams): Promise<ListDo
         sortBy: params?.sortBy,
         sortOrder: params?.sortOrder,
       },
-      fallbackMessage: 'Failed to fetch documents',
+      fallbackMessage: "Failed to fetch documents",
     });
 
     const snapshot: ListDocumentsResponse = {
@@ -422,7 +465,7 @@ export async function listDocuments(params?: GetDocumentsParams): Promise<ListDo
 }
 
 export function getDocumentPreviewUrl(type: DocumentType, id?: string): string {
-  if (!isMockMode('documents') && id) {
+  if (!isMockMode("documents") && id) {
     // In API mode, use the document's stored URL via GET /documents/:id
     // Callers with an ID should use getDocument(id).then(d => d.url) for async access.
     // This sync overload falls back to mock until callers are migrated to async.
@@ -431,30 +474,31 @@ export function getDocumentPreviewUrl(type: DocumentType, id?: string): string {
 }
 
 export async function getDocumentPreviewUrlAsync(id: string): Promise<string> {
-  if (isMockMode('documents')) {
-    return getSeedDocumentUrl('pdf');
+  if (isMockMode("documents")) {
+    return getSeedDocumentUrl("pdf");
   }
 
   const doc = await requestJson<{ url?: string }>(`/documents/${id}`, {
-    fallbackMessage: 'Failed to load document preview URL',
+    fallbackMessage: "Failed to load document preview URL",
   });
-  return doc?.url ?? getSeedDocumentUrl('pdf');
+  return doc?.url ?? getSeedDocumentUrl("pdf");
 }
 
 export async function uploadDocument(
-  params: UploadDocumentParams = {}
+  params: UploadDocumentParams = {},
 ): Promise<Document> {
   const now = new Date();
-  const documentName = params.name ?? `Uploaded Document ${now.toISOString().slice(0, 10)}.pdf`;
-  const documentType = params.type ?? 'pdf';
+  const documentName =
+    params.name ?? `Uploaded Document ${now.toISOString().slice(0, 10)}.pdf`;
+  const documentType = params.type ?? "pdf";
   const uploader = params.uploadedBy ?? DEFAULT_USER_NAME;
 
-  if (isMockMode('documents')) {
+  if (isMockMode("documents")) {
     const document: Document = {
       id: `mock-doc-${Date.now()}`,
       name: documentName,
       type: documentType,
-      category: params.category ?? 'other',
+      category: params.category ?? "other",
       size: params.size ?? 245_000,
       folderId: params.folderId ?? null,
       uploadedBy: uploader,
@@ -462,9 +506,9 @@ export async function uploadDocument(
       lastModified: now,
       lastModifiedBy: uploader,
       version: 1,
-      tags: ['uploaded'],
+      tags: ["uploaded"],
       isFavorite: false,
-      accessLevel: 'internal',
+      accessLevel: "internal",
       sharedWith: [],
       isLocked: false,
       requiresSignature: false,
@@ -479,23 +523,23 @@ export async function uploadDocument(
   }
 
   try {
-    const created = await requestJson<ApiDocument>('/documents', {
-      method: 'POST',
+    const created = await requestJson<ApiDocument>("/documents", {
+      method: "POST",
       body: {
         name: documentName,
         type: documentType,
-        category: params.category ?? 'other',
+        category: params.category ?? "other",
         size: params.size ?? 245_000,
         folderId: params.folderId ?? undefined,
         uploadedBy: uploader,
         lastModifiedBy: uploader,
-        tags: ['uploaded'],
-        accessLevel: 'internal',
+        tags: ["uploaded"],
+        accessLevel: "internal",
         fundId: params.fundId ?? undefined,
         requiresSignature: false,
         url: getSeedDocumentUrl(documentType),
       },
-      fallbackMessage: 'Failed to upload document',
+      fallbackMessage: "Failed to upload document",
     });
 
     const mapped = mapApiDocument(created);
@@ -504,21 +548,24 @@ export async function uploadDocument(
   } catch {
     const fallback = getCachedSnapshot().documents[0];
     if (fallback) return clone(fallback);
-    throw new Error('Failed to upload document');
+    throw new Error("Failed to upload document");
   }
 }
 
 export async function createDocumentFolder(
-  params: CreateFolderParams = {}
+  params: CreateFolderParams = {},
 ): Promise<DocumentFolder> {
   const snapshot = getCachedSnapshot();
   const parentFolder = params.parentId
     ? snapshot.folders.find((folder) => folder.id === params.parentId)
     : null;
-  const folderName = params.name ?? `New Folder ${new Date().toISOString().slice(0, 10)}`;
-  const folderPath = parentFolder ? `${parentFolder.path}/${folderName}` : `/${folderName}`;
+  const folderName =
+    params.name ?? `New Folder ${new Date().toISOString().slice(0, 10)}`;
+  const folderPath = parentFolder
+    ? `${parentFolder.path}/${folderName}`
+    : `/${folderName}`;
 
-  if (isMockMode('documents')) {
+  if (isMockMode("documents")) {
     const folder: DocumentFolder = {
       id: `mock-folder-${Date.now()}`,
       name: folderName,
@@ -527,7 +574,7 @@ export async function createDocumentFolder(
       createdBy: params.createdBy ?? DEFAULT_USER_NAME,
       createdDate: new Date(),
       documentCount: 0,
-      accessLevel: params.accessLevel ?? 'internal',
+      accessLevel: params.accessLevel ?? "internal",
       isDefault: false,
     };
 
@@ -536,16 +583,16 @@ export async function createDocumentFolder(
   }
 
   try {
-    const created = await requestJson<ApiDocumentFolder>('/documents/folders', {
-      method: 'POST',
+    const created = await requestJson<ApiDocumentFolder>("/documents/folders", {
+      method: "POST",
       body: {
         name: folderName,
         parentId: params.parentId ?? undefined,
         path: folderPath,
         createdBy: params.createdBy ?? DEFAULT_USER_NAME,
-        accessLevel: params.accessLevel ?? 'internal',
+        accessLevel: params.accessLevel ?? "internal",
       },
-      fallbackMessage: 'Failed to create folder',
+      fallbackMessage: "Failed to create folder",
     });
 
     const mapped = mapApiFolder(created);
@@ -554,21 +601,28 @@ export async function createDocumentFolder(
   } catch {
     const fallback = getCachedSnapshot().folders[0];
     if (fallback) return clone(fallback);
-    throw new Error('Failed to create folder');
+    throw new Error("Failed to create folder");
   }
 }
 
-export async function downloadDocument(documentId: string): Promise<string | null> {
+export async function downloadDocument(
+  documentId: string,
+): Promise<string | null> {
   const snapshot = getCachedSnapshot();
-  const cached = snapshot.documents.find((document) => document.id === documentId);
+  const cached = snapshot.documents.find(
+    (document) => document.id === documentId,
+  );
   if (cached?.url) return cached.url;
 
-  if (!isMockMode('documents')) {
+  if (!isMockMode("documents")) {
     try {
-      const response = await requestJson<ApiDocument>(`/documents/${documentId}`, {
-        method: 'GET',
-        fallbackMessage: 'Failed to fetch document',
-      });
+      const response = await requestJson<ApiDocument>(
+        `/documents/${documentId}`,
+        {
+          method: "GET",
+          fallbackMessage: "Failed to fetch document",
+        },
+      );
       const mapped = mapApiDocument(response);
       upsertCachedDocument(mapped);
       return mapped.url ?? getSeedDocumentUrl(mapped.type);
@@ -581,32 +635,32 @@ export async function downloadDocument(documentId: string): Promise<string | nul
 }
 
 export async function shareDocument(documentId: string): Promise<void> {
-  await updateDocumentAccess(documentId, 'investor');
+  await updateDocumentAccess(documentId, "investor");
 }
 
 export async function deleteDocument(documentId: string): Promise<void> {
-  if (isMockMode('documents')) {
+  if (isMockMode("documents")) {
     removeCachedDocument(documentId);
     return;
   }
 
   await requestJson<void>(`/documents/${documentId}`, {
-    method: 'DELETE',
-    fallbackMessage: 'Failed to delete document',
+    method: "DELETE",
+    fallbackMessage: "Failed to delete document",
   });
   removeCachedDocument(documentId);
 }
 
 export async function moveDocument(
   documentId: string,
-  folderId: string | null
+  folderId: string | null,
 ): Promise<void> {
   const snapshot = getCachedSnapshot();
   const targetFolder = folderId
     ? snapshot.folders.find((folder) => folder.id === folderId)
     : undefined;
 
-  if (isMockMode('documents')) {
+  if (isMockMode("documents")) {
     updateCachedDocument(documentId, (document) => ({
       ...document,
       folderId,
@@ -618,12 +672,12 @@ export async function moveDocument(
   }
 
   await requestJson<ApiDocument>(`/documents/${documentId}`, {
-    method: 'PATCH',
+    method: "PATCH",
     body: {
       folderId,
       lastModifiedBy: DEFAULT_USER_NAME,
     },
-    fallbackMessage: 'Failed to move document',
+    fallbackMessage: "Failed to move document",
   });
 
   updateCachedDocument(documentId, (document) => ({
@@ -637,9 +691,9 @@ export async function moveDocument(
 
 export async function updateDocumentAccess(
   documentId: string,
-  accessLevel: AccessLevel
+  accessLevel: AccessLevel,
 ): Promise<void> {
-  if (isMockMode('documents')) {
+  if (isMockMode("documents")) {
     updateCachedDocument(documentId, (document) => ({
       ...document,
       accessLevel,
@@ -650,9 +704,9 @@ export async function updateDocumentAccess(
   }
 
   await requestJson<void>(`/documents/${documentId}/access`, {
-    method: 'PATCH',
+    method: "PATCH",
     body: { accessLevel },
-    fallbackMessage: 'Failed to update document access',
+    fallbackMessage: "Failed to update document access",
   });
 
   updateCachedDocument(documentId, (document) => ({
@@ -661,4 +715,8 @@ export async function updateDocumentAccess(
     lastModified: new Date(),
     lastModifiedBy: DEFAULT_USER_NAME,
   }));
+}
+
+export function clearDocumentsSnapshotCache(): void {
+  documentsSnapshotCache = null;
 }

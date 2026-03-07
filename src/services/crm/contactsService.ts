@@ -1,6 +1,6 @@
-import type { EmailAccount } from '@/components/crm/email-integration';
-import type { TimelineInteraction } from '@/components/crm/interaction-timeline';
-import { isMockMode } from '@/config/data-mode';
+import type { EmailAccount } from "@/components/crm/email-integration";
+import type { TimelineInteraction } from "@/components/crm/interaction-timeline";
+import { isMockMode } from "@/config/data-mode";
 import {
   mockContacts,
   mockEmailAccounts,
@@ -8,9 +8,9 @@ import {
   mockTimelineInteractions,
   type Contact,
   type Interaction,
-} from '@/data/seeds/crm/contacts';
-import { requestJson } from '@/services/shared/httpClient';
-import type { GetCRMDataParams } from '@/store/slices/crmSlice';
+} from "@/data/seeds/crm/contacts";
+import { requestJson } from "@/services/shared/httpClient";
+import type { GetCRMDataParams } from "@/store/slices/crmSlice";
 
 type ApiListResponse<T> = {
   data?: T[];
@@ -86,11 +86,11 @@ type ApiIntegrationsSnapshot = {
 };
 
 type CreateCRMInteractionParams = {
-  type: Interaction['type'];
+  type: Interaction["type"];
   subject?: string;
   notes?: string;
   description?: string;
-  direction?: 'inbound' | 'outbound';
+  direction?: "inbound" | "outbound";
   linkedDeal?: string;
 };
 
@@ -101,7 +101,7 @@ type CRMSnapshot = {
   timelineInteractions: TimelineInteraction[];
 };
 
-const DEFAULT_PROVIDER_EMAIL = 'investor@vestledger.com';
+const DEFAULT_PROVIDER_EMAIL = "investor@vestledger.com";
 
 let crmSnapshotCache: CRMSnapshot | null = null;
 
@@ -109,7 +109,7 @@ const clone = <T>(value: T): T => structuredClone(value);
 
 function parseDate(value?: string | Date | null, fallback?: Date): Date {
   if (value instanceof Date) return value;
-  if (typeof value === 'string') {
+  if (typeof value === "string") {
     const parsed = new Date(value);
     if (!Number.isNaN(parsed.getTime())) return parsed;
   }
@@ -123,55 +123,63 @@ function toDateString(value?: string | Date | null): string | undefined {
   return parsed.toISOString().slice(0, 10);
 }
 
-function normalizeRole(value?: string): Contact['role'] {
+function normalizeRole(value?: string): Contact["role"] {
   if (
-    value === 'founder'
-    || value === 'co-founder'
-    || value === 'ceo'
-    || value === 'cto'
-    || value === 'investor'
-    || value === 'advisor'
-    || value === 'other'
+    value === "founder" ||
+    value === "co-founder" ||
+    value === "ceo" ||
+    value === "cto" ||
+    value === "investor" ||
+    value === "advisor" ||
+    value === "other"
   ) {
     return value;
   }
-  return 'other';
+  return "other";
 }
 
-function normalizeInteractionType(value?: string): Interaction['type'] {
-  if (value === 'email' || value === 'call' || value === 'meeting' || value === 'note') {
+function normalizeInteractionType(value?: string): Interaction["type"] {
+  if (
+    value === "email" ||
+    value === "call" ||
+    value === "meeting" ||
+    value === "note"
+  ) {
     return value;
   }
-  return 'note';
+  return "note";
 }
 
-function normalizeDirection(value?: string): 'inbound' | 'outbound' | undefined {
-  if (value === 'inbound' || value === 'outbound') return value;
+function normalizeDirection(
+  value?: string,
+): "inbound" | "outbound" | undefined {
+  if (value === "inbound" || value === "outbound") return value;
   return undefined;
 }
 
-function normalizeOutcome(value?: string): TimelineInteraction['outcome'] {
-  if (value === 'positive' || value === 'neutral' || value === 'negative') {
+function normalizeOutcome(value?: string): TimelineInteraction["outcome"] {
+  if (value === "positive" || value === "neutral" || value === "negative") {
     return value;
   }
   return undefined;
 }
 
-function normalizeEmailProvider(
-  value?: string
-): EmailAccount['provider'] {
-  if (value === 'gmail') return 'gmail';
-  if (value === 'outlook') return 'outlook';
-  return 'other';
+function normalizeEmailProvider(value?: string): EmailAccount["provider"] {
+  if (value === "gmail") return "gmail";
+  if (value === "outlook") return "outlook";
+  return "other";
 }
 
-function normalizeEmailStatus(
-  value?: string
-): EmailAccount['status'] {
-  if (value === 'connected' || value === 'disconnected' || value === 'syncing' || value === 'error') {
+function normalizeEmailStatus(value?: string): EmailAccount["status"] {
+  if (
+    value === "connected" ||
+    value === "disconnected" ||
+    value === "syncing" ||
+    value === "error"
+  ) {
     return value;
   }
-  return 'disconnected';
+  return "disconnected";
 }
 
 function mapApiContact(contact: ApiContact): Contact {
@@ -186,21 +194,26 @@ function mapApiContact(contact: ApiContact): Contact {
     tags: Array.isArray(contact.tags) ? contact.tags : [],
     lastContact: toDateString(contact.lastContact),
     nextFollowUp: toDateString(contact.nextFollowUp),
-    linkedCompanies: Array.isArray(contact.linkedCompanies) ? contact.linkedCompanies : [],
+    linkedCompanies: Array.isArray(contact.linkedCompanies)
+      ? contact.linkedCompanies
+      : [],
     notes: contact.notes,
     linkedin: contact.linkedin,
     twitter: contact.twitter,
     starred: Boolean(contact.starred),
     deals: Array.isArray(contact.deals) ? contact.deals : [],
     interactions:
-      typeof contact.interactions === 'number'
+      typeof contact.interactions === "number"
         ? contact.interactions
-        : typeof contact.interactionCount === 'number'
+        : typeof contact.interactionCount === "number"
           ? contact.interactionCount
           : 0,
-    responseRate: typeof contact.responseRate === 'number' ? contact.responseRate : undefined,
+    responseRate:
+      typeof contact.responseRate === "number"
+        ? contact.responseRate
+        : undefined,
     interactionFrequency:
-      typeof contact.interactionFrequency === 'number'
+      typeof contact.interactionFrequency === "number"
         ? contact.interactionFrequency
         : undefined,
   };
@@ -208,30 +221,33 @@ function mapApiContact(contact: ApiContact): Contact {
 
 function mapApiInteraction(
   interaction: ApiInteraction,
-  contactId: string
+  contactId: string,
 ): Interaction {
   return {
     id: interaction.id,
     contactId: interaction.contactId ?? contactId,
     type: normalizeInteractionType(interaction.type),
-    subject: interaction.subject ?? 'Interaction',
-    date: toDateString(interaction.date) ?? new Date().toISOString().slice(0, 10),
+    subject: interaction.subject ?? "Interaction",
+    date:
+      toDateString(interaction.date) ?? new Date().toISOString().slice(0, 10),
     notes: interaction.notes,
   };
 }
 
 function mapApiTimelineInteraction(
-  interaction: ApiInteraction
+  interaction: ApiInteraction,
 ): TimelineInteraction {
   return {
     id: interaction.id,
     type: normalizeInteractionType(interaction.type),
     direction: normalizeDirection(interaction.direction),
-    subject: interaction.subject ?? 'Interaction',
+    subject: interaction.subject ?? "Interaction",
     description: interaction.description ?? interaction.notes,
     date: parseDate(interaction.date),
     duration: interaction.duration,
-    participants: Array.isArray(interaction.participants) ? interaction.participants : undefined,
+    participants: Array.isArray(interaction.participants)
+      ? interaction.participants
+      : undefined,
     attachments: interaction.attachments,
     outcome: normalizeOutcome(interaction.outcome),
     tags: Array.isArray(interaction.tags) ? interaction.tags : undefined,
@@ -249,17 +265,21 @@ function buildSeedSnapshot(): CRMSnapshot {
   };
 }
 
-function applyContactFilters(contacts: Contact[], params: GetCRMDataParams): Contact[] {
+function applyContactFilters(
+  contacts: Contact[],
+  params: GetCRMDataParams,
+): Contact[] {
   const roleFilter = params.contactType?.toLowerCase();
   const searchFilter = params.search?.trim().toLowerCase();
 
   return contacts.filter((contact) => {
-    const matchesRole = !roleFilter || roleFilter === 'all' || contact.role === roleFilter;
+    const matchesRole =
+      !roleFilter || roleFilter === "all" || contact.role === roleFilter;
     const matchesSearch =
-      !searchFilter
-      || contact.name.toLowerCase().includes(searchFilter)
-      || contact.email.toLowerCase().includes(searchFilter)
-      || contact.company?.toLowerCase().includes(searchFilter);
+      !searchFilter ||
+      contact.name.toLowerCase().includes(searchFilter) ||
+      contact.email.toLowerCase().includes(searchFilter) ||
+      contact.company?.toLowerCase().includes(searchFilter);
     return matchesRole && matchesSearch;
   });
 }
@@ -280,24 +300,29 @@ function getCachedSnapshot(params: GetCRMDataParams): CRMSnapshot {
   return snapshot;
 }
 
-function updateCachedSnapshot(updater: (snapshot: CRMSnapshot) => CRMSnapshot): void {
+function updateCachedSnapshot(
+  updater: (snapshot: CRMSnapshot) => CRMSnapshot,
+): void {
   const snapshot = getCachedSnapshot({});
   crmSnapshotCache = updater(snapshot);
 }
 
 async function fetchApiContacts(params: GetCRMDataParams): Promise<Contact[]> {
-  const response = await requestJson<ApiListResponse<ApiContact>>('/contacts', {
-    method: 'GET',
+  const response = await requestJson<ApiListResponse<ApiContact>>("/contacts", {
+    method: "GET",
     query: {
       fundId: params.fundId,
-      role: params.contactType && params.contactType !== 'all' ? params.contactType : undefined,
+      role:
+        params.contactType && params.contactType !== "all"
+          ? params.contactType
+          : undefined,
       search: params.search,
       limit: params.limit ?? 100,
       offset: params.offset ?? 0,
-      sortBy: params.sortBy ?? 'lastContact',
-      sortOrder: params.sortOrder ?? 'desc',
+      sortBy: params.sortBy ?? "lastContact",
+      sortOrder: params.sortOrder ?? "desc",
     },
-    fallbackMessage: 'Failed to fetch CRM contacts',
+    fallbackMessage: "Failed to fetch CRM contacts",
   });
 
   return (response.data ?? []).map(mapApiContact);
@@ -305,7 +330,7 @@ async function fetchApiContacts(params: GetCRMDataParams): Promise<Contact[]> {
 
 async function fetchApiInteractionsForContacts(
   contacts: Contact[],
-  timelineMode: boolean
+  timelineMode: boolean,
 ): Promise<Array<Interaction | TimelineInteraction>> {
   const contactIds = contacts.map((contact) => contact.id).slice(0, 20);
   if (contactIds.length === 0) return [];
@@ -317,8 +342,8 @@ async function fetchApiInteractionsForContacts(
           ? `/contacts/${contactId}/timeline`
           : `/contacts/${contactId}/interactions`;
         const response = await requestJson<ApiInteraction[]>(endpoint, {
-          method: 'GET',
-          fallbackMessage: 'Failed to fetch contact interactions',
+          method: "GET",
+          fallbackMessage: "Failed to fetch contact interactions",
         });
 
         if (!Array.isArray(response)) return [];
@@ -328,16 +353,16 @@ async function fetchApiInteractionsForContacts(
       } catch {
         return [];
       }
-    })
+    }),
   );
 
   return interactionBatches.flat();
 }
 
 async function fetchApiEmailAccounts(): Promise<EmailAccount[]> {
-  const snapshot = await requestJson<ApiIntegrationsSnapshot>('/integrations', {
-    method: 'GET',
-    fallbackMessage: 'Failed to fetch integrations snapshot',
+  const snapshot = await requestJson<ApiIntegrationsSnapshot>("/integrations", {
+    method: "GET",
+    fallbackMessage: "Failed to fetch integrations snapshot",
   });
 
   const accounts = snapshot.accounts ?? [];
@@ -347,7 +372,10 @@ async function fetchApiEmailAccounts(): Promise<EmailAccount[]> {
   for (const event of events) {
     const accountId = event.calendarAccountId;
     if (!accountId) continue;
-    syncedCountByAccount.set(accountId, (syncedCountByAccount.get(accountId) ?? 0) + 1);
+    syncedCountByAccount.set(
+      accountId,
+      (syncedCountByAccount.get(accountId) ?? 0) + 1,
+    );
   }
 
   return accounts.map((account) => ({
@@ -356,7 +384,7 @@ async function fetchApiEmailAccounts(): Promise<EmailAccount[]> {
     provider: normalizeEmailProvider(account.provider),
     status: normalizeEmailStatus(account.status),
     lastSync:
-      typeof account.lastSync === 'string' || account.lastSync instanceof Date
+      typeof account.lastSync === "string" || account.lastSync instanceof Date
         ? parseDate(account.lastSync)
         : undefined,
     syncedEmails: syncedCountByAccount.get(account.id) ?? 0,
@@ -366,29 +394,35 @@ async function fetchApiEmailAccounts(): Promise<EmailAccount[]> {
 
 async function updateEmailIntegrationStatus(status: string): Promise<void> {
   try {
-    const snapshot = await requestJson<ApiIntegrationsSnapshot>('/integrations', {
-      method: 'GET',
-      fallbackMessage: 'Failed to fetch integrations snapshot',
-    });
+    const snapshot = await requestJson<ApiIntegrationsSnapshot>(
+      "/integrations",
+      {
+        method: "GET",
+        fallbackMessage: "Failed to fetch integrations snapshot",
+      },
+    );
 
-    const emailIntegration = (snapshot.integrations ?? []).find((integration) =>
-      integration.icon === 'email'
-      || integration.name?.toLowerCase().includes('email')
+    const emailIntegration = (snapshot.integrations ?? []).find(
+      (integration) =>
+        integration.icon === "email" ||
+        integration.name?.toLowerCase().includes("email"),
     );
     if (!emailIntegration) return;
 
     await requestJson(`/integrations/${emailIntegration.id}/status`, {
-      method: 'PATCH',
+      method: "PATCH",
       body: { status },
-      fallbackMessage: 'Failed to update integration status',
+      fallbackMessage: "Failed to update integration status",
     });
   } catch {
     // Ignore status-update failures to preserve UI-first flow in API mode.
   }
 }
 
-export async function getCRMContacts(params: GetCRMDataParams): Promise<Contact[]> {
-  if (isMockMode('crm')) {
+export async function getCRMContacts(
+  params: GetCRMDataParams,
+): Promise<Contact[]> {
+  if (isMockMode("crm")) {
     if (!crmSnapshotCache) {
       crmSnapshotCache = buildSeedSnapshot();
     }
@@ -407,9 +441,9 @@ export async function getCRMContacts(params: GetCRMDataParams): Promise<Contact[
 }
 
 export async function getCRMEmailAccounts(
-  params: GetCRMDataParams
+  params: GetCRMDataParams,
 ): Promise<EmailAccount[]> {
-  if (isMockMode('crm')) {
+  if (isMockMode("crm")) {
     if (!crmSnapshotCache) {
       crmSnapshotCache = buildSeedSnapshot();
     }
@@ -419,9 +453,8 @@ export async function getCRMEmailAccounts(
   try {
     const emailAccounts = await fetchApiEmailAccounts();
     const snapshot = getCachedSnapshot(params);
-    snapshot.emailAccounts = emailAccounts.length > 0
-      ? emailAccounts
-      : clone(mockEmailAccounts);
+    snapshot.emailAccounts =
+      emailAccounts.length > 0 ? emailAccounts : clone(mockEmailAccounts);
     crmSnapshotCache = snapshot;
     return clone(snapshot.emailAccounts);
   } catch {
@@ -430,9 +463,9 @@ export async function getCRMEmailAccounts(
 }
 
 export async function getCRMInteractions(
-  params: GetCRMDataParams
+  params: GetCRMDataParams,
 ): Promise<Interaction[]> {
-  if (isMockMode('crm')) {
+  if (isMockMode("crm")) {
     if (!crmSnapshotCache) {
       crmSnapshotCache = buildSeedSnapshot();
     }
@@ -441,7 +474,10 @@ export async function getCRMInteractions(
 
   try {
     const contacts = await fetchApiContacts(params);
-    const interactions = await fetchApiInteractionsForContacts(contacts, false) as Interaction[];
+    const interactions = (await fetchApiInteractionsForContacts(
+      contacts,
+      false,
+    )) as Interaction[];
     const snapshot = getCachedSnapshot(params);
     snapshot.contacts = contacts;
     snapshot.interactions = interactions;
@@ -453,9 +489,9 @@ export async function getCRMInteractions(
 }
 
 export async function getCRMTimelineInteractions(
-  params: GetCRMDataParams
+  params: GetCRMDataParams,
 ): Promise<TimelineInteraction[]> {
-  if (isMockMode('crm')) {
+  if (isMockMode("crm")) {
     if (!crmSnapshotCache) {
       crmSnapshotCache = buildSeedSnapshot();
     }
@@ -464,7 +500,10 @@ export async function getCRMTimelineInteractions(
 
   try {
     const contacts = await fetchApiContacts(params);
-    const timelineInteractions = await fetchApiInteractionsForContacts(contacts, true) as TimelineInteraction[];
+    const timelineInteractions = (await fetchApiInteractionsForContacts(
+      contacts,
+      true,
+    )) as TimelineInteraction[];
     const snapshot = getCachedSnapshot(params);
     snapshot.contacts = contacts;
     snapshot.timelineInteractions = timelineInteractions;
@@ -476,38 +515,42 @@ export async function getCRMTimelineInteractions(
 }
 
 export async function toggleCRMContactStar(contactId: string): Promise<void> {
-  if (isMockMode('crm')) {
+  if (isMockMode("crm")) {
     updateCachedSnapshot((snapshot) => ({
       ...snapshot,
       contacts: snapshot.contacts.map((contact) =>
-        contact.id === contactId ? { ...contact, starred: !contact.starred } : contact
+        contact.id === contactId
+          ? { ...contact, starred: !contact.starred }
+          : contact,
       ),
     }));
     return;
   }
 
   await requestJson(`/contacts/${contactId}/star`, {
-    method: 'POST',
-    fallbackMessage: 'Failed to toggle contact star',
+    method: "POST",
+    fallbackMessage: "Failed to toggle contact star",
   });
 
   updateCachedSnapshot((snapshot) => ({
     ...snapshot,
     contacts: snapshot.contacts.map((contact) =>
-      contact.id === contactId ? { ...contact, starred: !contact.starred } : contact
+      contact.id === contactId
+        ? { ...contact, starred: !contact.starred }
+        : contact,
     ),
   }));
 }
 
 export async function createCRMContact(): Promise<void> {
   const now = new Date();
-  const generatedName = `New Contact ${now.toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
+  const generatedName = `New Contact ${now.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
   })}`;
   const generatedEmail = `contact-${now.getTime()}@example.com`;
 
-  if (isMockMode('crm')) {
+  if (isMockMode("crm")) {
     updateCachedSnapshot((snapshot) => ({
       ...snapshot,
       contacts: [
@@ -515,8 +558,8 @@ export async function createCRMContact(): Promise<void> {
           id: `mock-contact-${Date.now()}`,
           name: generatedName,
           email: generatedEmail,
-          role: 'other',
-          tags: ['new'],
+          role: "other",
+          tags: ["new"],
           linkedCompanies: [],
           starred: false,
           deals: [],
@@ -529,28 +572,28 @@ export async function createCRMContact(): Promise<void> {
     return;
   }
 
-  await requestJson('/contacts', {
-    method: 'POST',
+  await requestJson("/contacts", {
+    method: "POST",
     body: {
       name: generatedName,
       email: generatedEmail,
-      role: 'other',
-      tags: ['new'],
+      role: "other",
+      tags: ["new"],
       linkedCompanies: [],
       deals: [],
     },
-    fallbackMessage: 'Failed to create contact',
+    fallbackMessage: "Failed to create contact",
   });
 }
 
 export async function createCRMInteraction(
   contactId: string,
-  params: CreateCRMInteractionParams
+  params: CreateCRMInteractionParams,
 ): Promise<void> {
   const now = new Date();
   const defaultSubject = `${params.type.charAt(0).toUpperCase()}${params.type.slice(1)} logged`;
 
-  if (isMockMode('crm')) {
+  if (isMockMode("crm")) {
     const interactionId = `mock-interaction-${Date.now()}`;
     updateCachedSnapshot((snapshot) => ({
       ...snapshot,
@@ -584,14 +627,14 @@ export async function createCRMInteraction(
               interactions: contact.interactions + 1,
               lastContact: now.toISOString().slice(0, 10),
             }
-          : contact
+          : contact,
       ),
     }));
     return;
   }
 
   await requestJson(`/contacts/${contactId}/interactions`, {
-    method: 'POST',
+    method: "POST",
     body: {
       type: params.type,
       subject: params.subject ?? defaultSubject,
@@ -601,56 +644,70 @@ export async function createCRMInteraction(
       direction: params.direction,
       linkedDeal: params.linkedDeal,
     },
-    fallbackMessage: 'Failed to create interaction',
+    fallbackMessage: "Failed to create interaction",
   });
 }
 
-export async function updateCRMInteraction(interactionId: string): Promise<void> {
+export async function updateCRMInteraction(
+  interactionId: string,
+): Promise<void> {
   updateCachedSnapshot((snapshot) => ({
     ...snapshot,
     timelineInteractions: snapshot.timelineInteractions.map((interaction) =>
       interaction.id === interactionId
-        ? { ...interaction, description: `${interaction.description ?? ''} (updated)` }
-        : interaction
+        ? {
+            ...interaction,
+            description: `${interaction.description ?? ""} (updated)`,
+          }
+        : interaction,
     ),
   }));
 }
 
-export async function deleteCRMInteraction(interactionId: string): Promise<void> {
+export async function deleteCRMInteraction(
+  interactionId: string,
+): Promise<void> {
   updateCachedSnapshot((snapshot) => ({
     ...snapshot,
-    interactions: snapshot.interactions.filter((interaction) => interaction.id !== interactionId),
+    interactions: snapshot.interactions.filter(
+      (interaction) => interaction.id !== interactionId,
+    ),
     timelineInteractions: snapshot.timelineInteractions.filter(
-      (interaction) => interaction.id !== interactionId
+      (interaction) => interaction.id !== interactionId,
     ),
   }));
 }
 
 export async function linkCRMInteractionToDeal(
   interactionId: string,
-  linkedDeal: string
+  linkedDeal: string,
 ): Promise<void> {
   updateCachedSnapshot((snapshot) => ({
     ...snapshot,
     timelineInteractions: snapshot.timelineInteractions.map((interaction) =>
-      interaction.id === interactionId ? { ...interaction, linkedDeal } : interaction
+      interaction.id === interactionId
+        ? { ...interaction, linkedDeal }
+        : interaction,
     ),
   }));
 }
 
 export async function connectCRMEmailAccount(
-  provider: 'gmail' | 'outlook'
+  provider: "gmail" | "outlook",
 ): Promise<void> {
-  if (isMockMode('crm')) {
+  if (isMockMode("crm")) {
     updateCachedSnapshot((snapshot) => ({
       ...snapshot,
       emailAccounts: [
         ...snapshot.emailAccounts,
         {
           id: `mock-email-${Date.now()}`,
-          email: provider === 'gmail' ? DEFAULT_PROVIDER_EMAIL : `outlook-${Date.now()}@example.com`,
+          email:
+            provider === "gmail"
+              ? DEFAULT_PROVIDER_EMAIL
+              : `outlook-${Date.now()}@example.com`,
           provider,
-          status: 'connected',
+          status: "connected",
           lastSync: new Date(),
           syncedEmails: 0,
           autoCapture: true,
@@ -660,45 +717,50 @@ export async function connectCRMEmailAccount(
     return;
   }
 
-  await updateEmailIntegrationStatus('connected');
+  await updateEmailIntegrationStatus("connected");
 
   updateCachedSnapshot((snapshot) => ({
     ...snapshot,
-    emailAccounts: snapshot.emailAccounts.length > 0
-      ? snapshot.emailAccounts
-      : [
-          {
-            id: `email-${Date.now()}`,
-            email: DEFAULT_PROVIDER_EMAIL,
-            provider,
-            status: 'connected',
-            lastSync: new Date(),
-            syncedEmails: 0,
-            autoCapture: true,
-          },
-        ],
+    emailAccounts:
+      snapshot.emailAccounts.length > 0
+        ? snapshot.emailAccounts
+        : [
+            {
+              id: `email-${Date.now()}`,
+              email: DEFAULT_PROVIDER_EMAIL,
+              provider,
+              status: "connected",
+              lastSync: new Date(),
+              syncedEmails: 0,
+              autoCapture: true,
+            },
+          ],
   }));
 }
 
-export async function disconnectCRMEmailAccount(accountId: string): Promise<void> {
-  if (!isMockMode('crm')) {
-    await updateEmailIntegrationStatus('available');
+export async function disconnectCRMEmailAccount(
+  accountId: string,
+): Promise<void> {
+  if (!isMockMode("crm")) {
+    await updateEmailIntegrationStatus("available");
   }
 
   updateCachedSnapshot((snapshot) => ({
     ...snapshot,
     emailAccounts: snapshot.emailAccounts.map((account) =>
-      account.id === accountId ? { ...account, status: 'disconnected' } : account
+      account.id === accountId
+        ? { ...account, status: "disconnected" }
+        : account,
     ),
   }));
 }
 
 export async function syncCRMEmailAccount(accountId: string): Promise<void> {
-  if (!isMockMode('crm')) {
+  if (!isMockMode("crm")) {
     try {
-      await requestJson('/integrations/calendar/events', {
-        method: 'GET',
-        fallbackMessage: 'Failed to sync email account',
+      await requestJson("/integrations/calendar/events", {
+        method: "GET",
+        fallbackMessage: "Failed to sync email account",
       });
     } catch {
       // No-op: sync UX remains available even if API endpoint is unavailable.
@@ -709,22 +771,26 @@ export async function syncCRMEmailAccount(accountId: string): Promise<void> {
     ...snapshot,
     emailAccounts: snapshot.emailAccounts.map((account) =>
       account.id === accountId
-        ? { ...account, status: 'connected', lastSync: new Date() }
-        : account
+        ? { ...account, status: "connected", lastSync: new Date() }
+        : account,
     ),
   }));
 }
 
 export async function toggleCRMEmailAutoCapture(
   accountId: string,
-  enabled: boolean
+  enabled: boolean,
 ): Promise<void> {
   updateCachedSnapshot((snapshot) => ({
     ...snapshot,
     emailAccounts: snapshot.emailAccounts.map((account) =>
-      account.id === accountId ? { ...account, autoCapture: enabled } : account
+      account.id === accountId ? { ...account, autoCapture: enabled } : account,
     ),
   }));
+}
+
+export function clearCRMSnapshotCache(): void {
+  crmSnapshotCache = null;
 }
 
 export type { Contact, Interaction };
