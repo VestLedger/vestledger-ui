@@ -1,7 +1,7 @@
 /*
  * GLOBAL STYLES
  * =============
- * Colors are defined in src/styles/colors.js
+ * Colors are defined in config/colors.cjs
  * Use Tailwind classes: bg-app-primary, text-app-muted, border-app-border
  * For dark mode: dark:bg-app-dark-primary, dark:text-app-dark-text
  *
@@ -13,7 +13,7 @@
 
 /* ============================================
    CSS Variables for third-party libraries
-   Keep in sync with src/styles/colors.js
+   Keep in sync with config/colors.cjs
    ============================================ */
 :root {
   /* Foundation colors */
