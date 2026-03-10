@@ -30,8 +30,8 @@ describe('portfolioDataService', () => {
 
   it('maps API portfolio data and stores cache in api mode', async () => {
     isMockMode.mockReturnValue(false);
-    requestJson.mockImplementation(async (path: string) => {
-      if (path === '/funds/fund-api/portfolio') {
+    requestJson.mockImplementation(async (path: string, options?: { query?: Record<string, unknown> }) => {
+      if (path === '/portfolio' && options?.query?.fundId === 'fund-api') {
         return [
           {
             id: 'co-1',
@@ -65,7 +65,7 @@ describe('portfolioDataService', () => {
         ];
       }
 
-      if (path === '/funds/fund-api/portfolio/health') {
+      if (path === '/portfolio/health' && options?.query?.fundId === 'fund-api') {
         return {
           summary: {
             totalCompanies: 2,
@@ -95,8 +95,8 @@ describe('portfolioDataService', () => {
 
   it('falls back to cached snapshot when api request fails', async () => {
     isMockMode.mockReturnValue(false);
-    requestJson.mockImplementation(async (path: string) => {
-      if (path === '/funds/fund-ok/portfolio') {
+    requestJson.mockImplementation(async (path: string, options?: { query?: Record<string, unknown> }) => {
+      if (path === '/portfolio' && options?.query?.fundId === 'fund-ok') {
         return [
           {
             id: 'co-ok',
@@ -112,7 +112,7 @@ describe('portfolioDataService', () => {
         ];
       }
 
-      if (path === '/funds/fund-ok/portfolio/health') {
+      if (path === '/portfolio/health' && options?.query?.fundId === 'fund-ok') {
         return { summary: { totalCompanies: 1, atRiskCount: 0, healthyCount: 1 } };
       }
 

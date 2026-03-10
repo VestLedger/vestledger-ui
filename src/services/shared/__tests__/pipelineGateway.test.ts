@@ -127,7 +127,7 @@ describe('pipelineGateway', () => {
       '/pipeline/deals/new-deal',
       expect.objectContaining({
         method: 'PATCH',
-        body: expect.objectContaining({ stage: 'Closed' }),
+        body: expect.objectContaining({ stage: 'closed' }),
       })
     );
   });

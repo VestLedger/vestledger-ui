@@ -39,13 +39,19 @@ describe('fundAnalyticsService API mode', () => {
     });
   });
 
-  it('keeps consolidated API reads empty until a real aggregated payload exists', async () => {
+  it('fetches consolidated analytics from API for all funds', async () => {
+    requestJson.mockResolvedValue([]);
+
     const service = await import('../fundAnalyticsService');
     const snapshot = await service.fetchFundAnalyticsSnapshot('all');
 
-    expect(requestJson).not.toHaveBeenCalled();
+    expect(requestJson).toHaveBeenCalled();
     expect(snapshot.fundMetrics.fundId).toBe('all');
     expect(snapshot.fundMetrics.fundName).toBe('All Funds');
-    expect(snapshot.cohortsVintage).toEqual([]);
+    // API calls use empty query (no fundId filter) for 'all'
+    expect(requestJson).toHaveBeenCalledWith(
+      '/analytics/performance',
+      expect.objectContaining({ query: {} })
+    );
   });
 });
