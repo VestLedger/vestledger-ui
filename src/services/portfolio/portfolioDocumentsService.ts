@@ -380,15 +380,17 @@ function applyCompanyStatusCounts(
   });
 }
 
-async function fetchApiDocuments(fundId: string): Promise<ApiDocument[]> {
+async function fetchApiDocuments(fundId?: string): Promise<ApiDocument[]> {
+  const query: Record<string, string | number> = {
+    limit: 200,
+    sortBy: 'uploadedDate',
+    sortOrder: 'desc',
+  };
+  if (fundId) query.fundId = fundId;
+
   const response = await requestJson<ApiDocumentsResponse>('/documents', {
     method: 'GET',
-    query: {
-      fundId,
-      limit: 200,
-      sortBy: 'uploadedDate',
-      sortOrder: 'desc',
-    },
+    query,
     fallbackMessage: 'Failed to fetch portfolio documents',
   });
 
@@ -421,15 +423,13 @@ export async function fetchPortfolioDocumentsSnapshot(
     return clone(snapshot);
   }
 
-  const normalizedFundId = fundId?.trim();
-  if (!normalizedFundId) {
-    const fallback = apiPortfolioDocumentsSnapshotCache ?? buildEmptyPortfolioDocumentsSnapshot();
-    return clone(fallback);
-  }
+  const normalizedFundId = fundId?.trim() || undefined;
 
   try {
     const [companies, apiDocuments] = await Promise.all([
-      buildCompaniesFromPortfolio(normalizedFundId),
+      normalizedFundId
+        ? buildCompaniesFromPortfolio(normalizedFundId)
+        : Promise.resolve([] as DerivedPortfolioDocumentCompany[]),
       fetchApiDocuments(normalizedFundId),
     ]);
 

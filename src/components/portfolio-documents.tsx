@@ -56,7 +56,7 @@ export function PortfolioDocuments() {
   }, [patchUI, portfolioCompanies, selectedCompany]);
 
   const filteredDocuments = documents.filter(doc => {
-    const matchesCompany = selectedCompany === 'all' || (selectedCompany && doc.companyId === selectedCompany.id);
+    const matchesCompany = !selectedCompany || selectedCompany === 'all' || doc.companyId === selectedCompany.id;
     const matchesCategory = selectedCategory === 'all' || doc.category === selectedCategory;
     const matchesSearch = searchQuery === '' ||
       doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
