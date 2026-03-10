@@ -2,7 +2,7 @@ import type { GetPipelineParams } from '@/store/slices/pipelineSlice';
 import type { PipelineDeal, PipelineDealOutcome } from '@/data/seeds/pipeline';
 import { logger } from '@/lib/logger';
 import { requestJson, type ApiQueryParams } from './httpClient';
-import { PIPELINE_DEAL_OUTCOMES } from '@/config/pipeline-options';
+import { PIPELINE_DEAL_OUTCOMES, PIPELINE_STAGE_DISPLAY_NAMES, PIPELINE_STAGE_API_VALUES } from '@/config/pipeline-options';
 
 export interface PipelineApiDeal {
   id: string;
@@ -178,12 +178,17 @@ export async function fetchPipelineStagesFromApi(): Promise<string[]> {
   return stages;
 }
 
+/** Convert a display stage name to its DB enum value before sending to API */
+function stageToApiValue(stage: string): string {
+  return PIPELINE_STAGE_API_VALUES[stage] ?? stage;
+}
+
 export async function createPipelineDealInApi(
   input: CreatePipelineDealApiInput
 ): Promise<PipelineApiDeal> {
   return requestJson<PipelineApiDeal>('/pipeline/deals', {
     method: 'POST',
-    body: input,
+    body: { ...input, stage: stageToApiValue(input.stage) },
     fallbackMessage: 'Failed to create pipeline deal',
   });
 }
@@ -192,9 +197,10 @@ export async function updatePipelineDealInApi(
   dealId: string,
   input: UpdatePipelineDealApiInput
 ): Promise<PipelineApiDeal> {
+  const body = input.stage ? { ...input, stage: stageToApiValue(input.stage) } : input;
   return requestJson<PipelineApiDeal>(`/pipeline/deals/${dealId}`, {
     method: 'PATCH',
-    body: input,
+    body,
     fallbackMessage: 'Failed to update pipeline deal',
   });
 }

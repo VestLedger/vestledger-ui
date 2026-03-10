@@ -197,6 +197,17 @@ export function LPManagement() {
       ),
     },
     {
+      key: 'fundCount',
+      label: 'Funds',
+      sortable: true,
+      align: 'center',
+      render: (lp) => (
+        <span className="text-sm text-[var(--app-text-muted)]">
+          {lp.fundCount ?? 1}
+        </span>
+      ),
+    },
+    {
       key: 'commitmentAmount',
       label: 'Commitment',
       sortable: true,
@@ -328,7 +339,7 @@ export function LPManagement() {
             </div>
             <div>
               <p className="text-2xl font-bold">
-                {formatPercent(lps.reduce((sum, lp) => sum + lp.irr, 0) / lps.length)}
+                {formatPercent(lps.length > 0 ? lps.reduce((sum, lp) => sum + lp.irr, 0) / lps.length : 0)}
               </p>
               <p className="text-xs text-[var(--app-text-muted)]">Average IRR</p>
             </div>
@@ -342,7 +353,7 @@ export function LPManagement() {
             </div>
             <div>
               <p className="text-2xl font-bold">
-                {(lps.reduce((sum, lp) => sum + lp.tvpi, 0) / lps.length).toFixed(2)}x
+                {(lps.length > 0 ? lps.reduce((sum, lp) => sum + lp.tvpi, 0) / lps.length : 0).toFixed(2)}x
               </p>
               <p className="text-xs text-[var(--app-text-muted)]">Average TVPI</p>
             </div>

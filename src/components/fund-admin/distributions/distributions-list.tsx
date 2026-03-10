@@ -225,7 +225,7 @@ export function DistributionsList() {
               columns={columns}
               searchable={false}
               exportable={false}
-              pageSize={8}
+              pageSize={10}
               searchKeys={['name', 'fundName', 'description', 'waterfallScenarioName']}
               onRowClick={(item) =>
                 router.push(

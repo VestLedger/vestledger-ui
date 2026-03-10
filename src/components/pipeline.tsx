@@ -12,6 +12,7 @@ import { useUIKey } from '@/store/ui';
 import { ErrorState, LoadingState } from '@/ui/async-states';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { dealOutcomeClasses } from '@/utils/styling';
+import { PIPELINE_STAGE_DISPLAY_NAMES } from '@/config/pipeline-options';
 import { PageScaffold } from '@/ui/composites';
 import { ROUTE_PATHS } from '@/config/routes';
 import {
@@ -49,7 +50,7 @@ export function Pipeline() {
 
   const pipelineStages = data?.stages || [];
   const pipelineDeals = data?.deals || [];
-  const defaultStage = pipelineStages[0] ?? 'Sourced';
+  const defaultStage = pipelineStages[0] ?? 'sourced';
 
   const { value: pipelineUI, patch: patchPipelineUI } = useUIKey('pipeline', {
     viewMode: 'kanban' as 'kanban' | 'list',
@@ -231,7 +232,7 @@ export function Pipeline() {
             label="Stage"
             selectedKeys={createDealUI.draft.stage ? [createDealUI.draft.stage] : []}
             onChange={(event) => updateCreateDealDraft({ stage: event.target.value })}
-            options={pipelineStages.map((stage) => ({ value: stage, label: stage }))}
+            options={pipelineStages.map((stage) => ({ value: stage, label: PIPELINE_STAGE_DISPLAY_NAMES[stage] ?? stage }))}
           />
           <Input
             label="Sector"
@@ -297,7 +298,7 @@ export function Pipeline() {
         <KanbanBoard
           columns={pipelineStages.map(stage => ({
             id: stage,
-            title: stage,
+            title: PIPELINE_STAGE_DISPLAY_NAMES[stage] ?? stage,
             items: filteredDeals.filter(deal => deal.stage === stage)
           }))}
           onItemMove={handleItemMove}
@@ -340,7 +341,7 @@ export function Pipeline() {
                     </td>
                     <td className="px-4 py-3">
                       <Badge size="sm" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">
-                        {deal.stage}
+                        {PIPELINE_STAGE_DISPLAY_NAMES[deal.stage] ?? deal.stage}
                       </Badge>
                     </td>
                     <td className="px-4 py-3 text-[var(--app-text-muted)] hidden md:table-cell">{deal.sector}</td>

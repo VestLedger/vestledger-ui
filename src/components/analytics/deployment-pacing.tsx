@@ -10,6 +10,27 @@ export function DeploymentPacing() {
   const { selectedFund } = useFund();
   const deploymentPacing = getDeploymentPacing(selectedFund?.id);
   const currentFund = getCurrentFundMetrics(selectedFund?.id);
+
+  if (deploymentPacing.length === 0) {
+    return (
+      <Card padding="lg">
+        <div className="mb-6">
+          <SectionHeader
+            title={
+              <span className="flex items-center gap-2">
+                <Activity className="w-5 h-5 text-[var(--app-primary)]" />
+                <span>Capital Deployment Pacing</span>
+              </span>
+            }
+          />
+        </div>
+        <div className="flex items-center justify-center h-64 text-[var(--app-text-muted)]">
+          <p>No deployment data available. Select a fund to view pacing.</p>
+        </div>
+      </Card>
+    );
+  }
+
   // Calculate dimensions for the chart
   const maxDeployed = Math.max(...deploymentPacing.map(d => d.deployed));
   const maxCumulative = Math.max(...deploymentPacing.map(d => d.cumulativeDeployed));

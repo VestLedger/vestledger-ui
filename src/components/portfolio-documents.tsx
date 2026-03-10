@@ -21,7 +21,7 @@ export function PortfolioDocuments() {
   const documents = portfolioData?.documents.documents ?? [];
   const documentCategories = portfolioData?.documents.categories ?? [];
   const { value: ui, patch: patchUI } = useUIKey<{
-    selectedCompany: PortfolioCompany | null;
+    selectedCompany: PortfolioCompany | 'all' | null;
     selectedCategory: DocumentCategory | 'all';
     searchQuery: string;
   }>('portfolio-documents', {
@@ -40,18 +40,23 @@ export function PortfolioDocuments() {
       return;
     }
 
-    if (!selectedCompany) {
+    // null = uninitialized; auto-select first company
+    if (selectedCompany === null) {
       patchUI({ selectedCompany: portfolioCompanies[0] ?? null });
       return;
     }
 
+    // 'all' = user explicitly chose consolidated view; leave it alone
+    if (selectedCompany === 'all') return;
+
+    // Validate that the selected company still exists in the list
     if (!portfolioCompanies.some((company) => company.id === selectedCompany.id)) {
       patchUI({ selectedCompany: portfolioCompanies[0] ?? null });
     }
   }, [patchUI, portfolioCompanies, selectedCompany]);
 
   const filteredDocuments = documents.filter(doc => {
-    const matchesCompany = !selectedCompany || doc.companyId === selectedCompany.id;
+    const matchesCompany = selectedCompany === 'all' || (selectedCompany && doc.companyId === selectedCompany.id);
     const matchesCategory = selectedCategory === 'all' || doc.category === selectedCategory;
     const matchesSearch = searchQuery === '' ||
       doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -115,10 +120,10 @@ export function PortfolioDocuments() {
           <div className="space-y-2">
             <Card
               isPressable
-              onPress={() => patchUI({ selectedCompany: null })}
+              onPress={() => patchUI({ selectedCompany: 'all' })}
               padding="sm"
               className={`cursor-pointer transition-all ${
-                !selectedCompany
+                selectedCompany === 'all'
                   ? 'bg-[var(--app-surface-hover)] border-[var(--app-primary)]'
                   : 'border-[var(--app-border)] hover:border-[var(--app-border-subtle)] hover:bg-[var(--app-surface-hover)]'
               }`}
@@ -135,7 +140,7 @@ export function PortfolioDocuments() {
                 onPress={() => patchUI({ selectedCompany: company })}
                 padding="sm"
                 className={`cursor-pointer transition-all ${
-                  selectedCompany?.id === company.id
+                  selectedCompany !== 'all' && selectedCompany?.id === company.id
                     ? 'bg-[var(--app-surface-hover)] border-[var(--app-primary)]'
                     : 'border-[var(--app-border)] hover:border-[var(--app-border-subtle)] hover:bg-[var(--app-surface-hover)]'
                 }`}
@@ -210,7 +215,7 @@ export function PortfolioDocuments() {
           <div>
             <SectionHeader
               className="mb-4"
-              title={selectedCompany ? `${selectedCompany.name} Documents` : 'All Documents'}
+              title={selectedCompany && selectedCompany !== 'all' ? `${selectedCompany.name} Documents` : 'All Documents'}
               titleClassName="text-lg font-medium"
               action={(
                 <Button variant="flat" size="sm" startContent={<Download className="w-4 h-4" />}>

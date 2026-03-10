@@ -108,7 +108,8 @@ export async function getCapitalCalls(fundId?: string): Promise<CapitalCall[]> {
     { fallbackMessage: 'Failed to fetch capital calls' }
   );
 
-  return ((result as unknown as ApiCapitalCall[]) ?? []).map((cc) =>
+  const list = Array.isArray(result) ? result : (result as unknown as { data?: unknown[] })?.data ?? [];
+  return ((list as unknown as ApiCapitalCall[]) ?? []).map((cc) =>
     mapApiToCapitalCall(cc, getFundName(cc.fundId || fundId))
   );
 }
@@ -225,7 +226,7 @@ export async function getDistributions(fundId?: string): Promise<Distribution[]>
       : apiClient.GET('/distributions' as never),
     { fallbackMessage: 'Failed to load distributions' }
   );
-  const list = Array.isArray(result) ? result : (result as { data?: unknown[] })?.data ?? [];
+  const list = Array.isArray(result) ? result : (result as unknown as { data?: unknown[] })?.data ?? [];
   return (list as Distribution[]);
 }
 

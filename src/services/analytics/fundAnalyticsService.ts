@@ -465,10 +465,7 @@ export async function fetchFundAnalyticsSnapshot(
     return clone(snapshot);
   }
 
-  if (key === 'all') {
-    const fallback = apiFundAnalyticsSnapshotCache.get(key) ?? getEmptySnapshot(key);
-    return clone(fallback);
-  }
+  const fundQuery = key === 'all' ? {} : { fundId: key };
 
   try {
     const [
@@ -482,43 +479,49 @@ export async function fetchFundAnalyticsSnapshot(
       deployment,
       valuationTrendsResponse,
     ] = await Promise.all([
-      requestJson<ApiFundPerformance>(`/funds/${key}/analytics/performance`, {
+      requestJson<ApiFundPerformance>('/analytics/performance', {
         method: 'GET',
+        query: fundQuery,
         fallbackMessage: 'Failed to fetch fund performance',
       }),
-      requestJson<ApiBenchmarkResponse>(`/funds/${key}/analytics/benchmark`, {
+      requestJson<ApiBenchmarkResponse>('/analytics/benchmark', {
         method: 'GET',
+        query: fundQuery,
         fallbackMessage: 'Failed to fetch benchmark data',
       }),
-      requestJson<ApiJCurvePoint[]>(`/funds/${key}/analytics/j-curve`, {
+      requestJson<ApiJCurvePoint[]>('/analytics/j-curve', {
         method: 'GET',
+        query: fundQuery,
         fallbackMessage: 'Failed to fetch J-curve data',
       }),
-      requestJson<ApiCohortPoint[]>(`/funds/${key}/analytics/cohorts`, {
+      requestJson<ApiCohortPoint[]>('/analytics/cohorts', {
         method: 'GET',
-        query: { groupBy: 'vintage' },
+        query: { ...fundQuery, groupBy: 'vintage' },
         fallbackMessage: 'Failed to fetch vintage cohorts',
       }),
-      requestJson<ApiCohortPoint[]>(`/funds/${key}/analytics/cohorts`, {
+      requestJson<ApiCohortPoint[]>('/analytics/cohorts', {
         method: 'GET',
-        query: { groupBy: 'sector' },
+        query: { ...fundQuery, groupBy: 'sector' },
         fallbackMessage: 'Failed to fetch sector cohorts',
       }),
-      requestJson<ApiCohortPoint[]>(`/funds/${key}/analytics/cohorts`, {
+      requestJson<ApiCohortPoint[]>('/analytics/cohorts', {
         method: 'GET',
-        query: { groupBy: 'stage' },
+        query: { ...fundQuery, groupBy: 'stage' },
         fallbackMessage: 'Failed to fetch stage cohorts',
       }),
-      requestJson<ApiConcentrationResponse>(`/funds/${key}/analytics/concentration`, {
+      requestJson<ApiConcentrationResponse>('/analytics/concentration', {
         method: 'GET',
+        query: fundQuery,
         fallbackMessage: 'Failed to fetch concentration metrics',
       }),
-      requestJson<ApiDeploymentResponse>(`/funds/${key}/analytics/deployment`, {
+      requestJson<ApiDeploymentResponse>('/analytics/deployment', {
         method: 'GET',
+        query: fundQuery,
         fallbackMessage: 'Failed to fetch deployment pacing',
       }),
-      requestJson<ApiValuationTrendsResponse>(`/funds/${key}/analytics/valuation-trends`, {
+      requestJson<ApiValuationTrendsResponse>('/analytics/valuation-trends', {
         method: 'GET',
+        query: fundQuery,
         fallbackMessage: 'Failed to fetch valuation trends',
       }),
     ]);

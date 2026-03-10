@@ -36,8 +36,10 @@ type ApiListResponse<TItem> =
 
 type ApiLPRecord = {
   id: string;
+  orgId?: string;
   name: string;
   type?: string;
+  classification?: string;
   email?: string;
   contactName?: string;
   createdAt?: string;
@@ -47,6 +49,7 @@ type ApiLPRecord = {
   capitalCalled?: number;
   distributedAmount?: number;
   capitalDistributed?: number;
+  fundCount?: number;
 };
 
 type ApiCapitalCallRecord = {
@@ -131,8 +134,9 @@ function mapApiLPToLP(record: ApiLPRecord, index: number): LP {
 
   return {
     id: record.id,
+    orgId: record.orgId,
     name: record.name,
-    type: normalizeLPType(record.type, record.name),
+    type: normalizeLPType(record.classification ?? record.type, record.name),
     commitmentAmount,
     calledCapital,
     distributedCapital,
@@ -143,6 +147,7 @@ function mapApiLPToLP(record: ApiLPRecord, index: number): LP {
     joinDate: asDate(record.createdAt),
     contactPerson: record.contactName ?? 'Investor Relations',
     email: record.email ?? `lp-${index + 1}@example.com`,
+    fundCount: record.fundCount ?? 1,
   };
 }
 
@@ -208,25 +213,12 @@ async function fetchLPsFromApi(): Promise<LP[]> {
       offset: 0,
       sortBy: 'name',
       sortOrder: 'asc',
+      groupBy: 'org',
     },
     fallbackMessage: 'Failed to fetch LP records',
   });
 
-  const list = extractApiList(response);
-  const detailedRecords = await Promise.all(
-    list.map(async (record) => {
-      try {
-        return await requestJson<ApiLPRecord>(`/lps/${record.id}`, {
-          method: 'GET',
-          fallbackMessage: 'Failed to fetch LP detail',
-        });
-      } catch {
-        return record;
-      }
-    })
-  );
-
-  return detailedRecords.map(mapApiLPToLP);
+  return extractApiList(response).map(mapApiLPToLP);
 }
 
 async function fetchCapitalCallsFromApi(): Promise<CapitalCall[]> {

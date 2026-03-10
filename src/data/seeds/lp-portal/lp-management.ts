@@ -1,5 +1,6 @@
 export interface LP {
   id: string;
+  orgId?: string;
   name: string;
   type: 'institution' | 'family-office' | 'individual' | 'corporate';
   commitmentAmount: number;
@@ -12,6 +13,7 @@ export interface LP {
   joinDate: string;
   contactPerson: string;
   email: string;
+  fundCount?: number;
 }
 
 export interface Report {

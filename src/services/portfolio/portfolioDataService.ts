@@ -9,7 +9,7 @@ import {
   type PortfolioCompanyMetrics,
   type PortfolioUpdate,
 } from '@/data/seeds/mock-portfolio-data';
-import { requestJson } from '@/services/shared/httpClient';
+import { requestJson, type ApiQueryParams } from '@/services/shared/httpClient';
 import { formatCurrency, formatDate } from '@/utils/formatting';
 
 export type {
@@ -338,14 +338,19 @@ function buildEmptyPortfolioSnapshot(
   };
 }
 
-async function fetchApiPortfolioCompanies(fundId: string): Promise<ApiPortfolioCompany[]> {
-  const response = await requestJson<ApiPortfolioResponse>(`/funds/${fundId}/portfolio`, {
+async function fetchApiPortfolioCompanies(fundId?: string): Promise<ApiPortfolioCompany[]> {
+  const query: ApiQueryParams = {
+    limit: 200,
+    sortBy: 'currentValue',
+    sortOrder: 'desc',
+  };
+  if (fundId) {
+    query.fundId = fundId;
+  }
+
+  const response = await requestJson<ApiPortfolioResponse>('/portfolio', {
     method: 'GET',
-    query: {
-      limit: 200,
-      sortBy: 'currentValue',
-      sortOrder: 'desc',
-    },
+    query,
     fallbackMessage: 'Failed to fetch portfolio companies',
   });
 
@@ -356,10 +361,15 @@ async function fetchApiPortfolioCompanies(fundId: string): Promise<ApiPortfolioC
   return response.data ?? [];
 }
 
-async function fetchApiPortfolioHealth(fundId: string): Promise<ApiPortfolioHealth | null> {
+async function fetchApiPortfolioHealth(fundId?: string): Promise<ApiPortfolioHealth | null> {
   try {
-    return await requestJson<ApiPortfolioHealth>(`/funds/${fundId}/portfolio/health`, {
+    const query: ApiQueryParams = {};
+    if (fundId) {
+      query.fundId = fundId;
+    }
+    return await requestJson<ApiPortfolioHealth>('/portfolio/health', {
       method: 'GET',
+      query,
       fallbackMessage: 'Failed to fetch portfolio health summary',
     });
   } catch {
@@ -374,11 +384,7 @@ export async function fetchPortfolioSnapshot(fundId?: string | null): Promise<Po
     return clone(snapshot);
   }
 
-  const normalizedFundId = fundId?.trim();
-  if (!normalizedFundId) {
-    const fallback = apiPortfolioSnapshotCache ?? buildEmptyPortfolioSnapshot();
-    return clone(fallback);
-  }
+  const normalizedFundId = fundId?.trim() || undefined;
 
   try {
     const [apiCompanies, health] = await Promise.all([
