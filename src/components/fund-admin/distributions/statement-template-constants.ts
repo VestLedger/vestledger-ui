@@ -23,7 +23,7 @@ export const STATEMENT_TEMPLATE_LABELS = STATEMENT_TEMPLATE_OPTIONS.reduce(
     acc[option.value] = option.label;
     return acc;
   },
-  {} as Record<StatementTemplate, string>
+  {} as Record<StatementTemplate, string>,
 );
 
 export const getStatementTemplateLabel = (template: StatementTemplate) =>

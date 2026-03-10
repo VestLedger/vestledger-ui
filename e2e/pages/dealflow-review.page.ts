@@ -1,5 +1,5 @@
-import { Page, Locator } from '@playwright/test';
-import { loginViaRedirect } from '../helpers/auth-helpers';
+import { Page, Locator } from "@playwright/test";
+import { loginViaRedirect } from "../helpers/auth-helpers";
 
 export class DealflowReviewPage {
   readonly page: Page;
@@ -51,59 +51,99 @@ export class DealflowReviewPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.pageTitle = page.locator('h1, [class*="title"]').filter({ hasText: /Dealflow Review/i }).first();
+    this.pageTitle = page
+      .locator('h1, [class*="title"]')
+      .filter({ hasText: /Dealflow Review/i })
+      .first();
 
     // Header actions
-    this.startPresentationButton = page.getByRole('button', { name: /start presentation/i });
-    this.stopPresentationButton = page.getByRole('button', { name: /stop presenting/i });
-    this.shareButton = page.getByRole('button', { name: /share/i });
-    this.exportButton = page.getByRole('button', { name: /export/i });
+    this.startPresentationButton = page.getByRole("button", {
+      name: /start presentation/i,
+    });
+    this.stopPresentationButton = page.getByRole("button", {
+      name: /stop presenting/i,
+    });
+    this.shareButton = page.getByRole("button", { name: /share/i });
+    this.exportButton = page.getByRole("button", { name: /export/i });
 
     // Deal selector
-    this.dealSelectorCard = page.locator('div.rounded-lg').filter({ has: page.locator('text=/Reviewing deal \\d+ of \\d+/i') });
-    this.previousDealButton = page.getByRole('button', { name: /previous/i }).first();
-    this.nextDealButton = page.getByRole('button', { name: /next/i }).first();
-    this.dealButtons = page.locator('button').filter({ has: page.locator('text=/•/') });
-    this.currentDealIndicator = page.locator('text=/Reviewing deal \\d+ of \\d+/i');
+    this.dealSelectorCard = page
+      .locator("div.rounded-lg")
+      .filter({ has: page.locator("text=/Reviewing deal \\d+ of \\d+/i") });
+    this.previousDealButton = page
+      .getByRole("button", { name: /previous/i })
+      .first();
+    this.nextDealButton = page.getByRole("button", { name: /next/i }).first();
+    this.dealButtons = page
+      .locator("button")
+      .filter({ has: page.locator("text=/•/") });
+    this.currentDealIndicator = page.locator(
+      "text=/Reviewing deal \\d+ of \\d+/i",
+    );
 
     // Slide navigation
-    this.slidesPanel = page.locator('div.rounded-lg').filter({ hasText: 'Slides' }).first();
-    this.slideButtons = this.slidesPanel.locator('button').filter({ has: page.locator('text=/Slide \\d+/i') });
-    this.addSlideButton = page.getByRole('button', { name: /add slide/i });
+    this.slidesPanel = page
+      .locator("div.rounded-lg")
+      .filter({ hasText: "Slides" })
+      .first();
+    this.slideButtons = this.slidesPanel
+      .locator("button")
+      .filter({ has: page.locator("text=/Slide \\d+/i") });
+    this.addSlideButton = page.getByRole("button", { name: /add slide/i });
 
     // Voting panel
-    this.votingPanel = page.locator('div.rounded-lg').filter({ hasText: /^Vote$/i }).or(
-      page.locator('div.rounded-lg').filter({ has: page.locator('text=/Yes.*Proceed/i') })
-    );
-    this.yesVoteButton = page.getByRole('button', { name: /yes.*proceed/i });
-    this.maybeVoteButton = page.getByRole('button', { name: /maybe.*more dd/i });
-    this.noVoteButton = page.getByRole('button', { name: /no.*pass/i });
-    this.votesCastSection = page.locator('text=/Votes Cast/i').locator('..');
+    this.votingPanel = page
+      .locator("div.rounded-lg")
+      .filter({ hasText: /^Vote$/i })
+      .or(
+        page
+          .locator("div.rounded-lg")
+          .filter({ has: page.locator("text=/Yes.*Proceed/i") }),
+      );
+    this.yesVoteButton = page.getByRole("button", { name: /yes.*proceed/i });
+    this.maybeVoteButton = page.getByRole("button", {
+      name: /maybe.*more dd/i,
+    });
+    this.noVoteButton = page.getByRole("button", { name: /no.*pass/i });
+    this.votesCastSection = page.locator("text=/Votes Cast/i").locator("..");
 
     // Main slide display
-    this.slideCard = page.locator('div.rounded-lg').filter({ has: page.locator('text=/Slide \\d+ of \\d+/i') }).first();
-    this.slideNumber = page.locator('[class*="badge"]').filter({ hasText: /Slide \\d+ of \\d+/i });
-    this.slideTitle = this.slideCard.locator('h3').first();
+    this.slideCard = page
+      .locator("div.rounded-lg")
+      .filter({ has: page.locator("text=/Slide \\d+ of \\d+/i") })
+      .first();
+    this.slideNumber = page
+      .locator('[class*="badge"]')
+      .filter({ hasText: /Slide \\d+ of \\d+/i });
+    this.slideTitle = this.slideCard.locator("h3").first();
     this.slideContent = this.slideCard.locator('[class*="space-y"]').first();
-    this.editSlideButton = page.getByRole('button', { name: /edit slide/i });
+    this.editSlideButton = page.getByRole("button", { name: /edit slide/i });
 
     // Slide navigation controls
-    this.previousSlideButton = page.getByRole('button', { name: /previous/i }).last();
-    this.nextSlideButton = page.getByRole('button', { name: /next/i }).last();
-    this.slideNavigationDots = page.locator('[role="navigation"][aria-label*="Slide navigation"]').locator('button');
+    this.previousSlideButton = page
+      .getByRole("button", { name: /previous/i })
+      .last();
+    this.nextSlideButton = page.getByRole("button", { name: /next/i }).last();
+    this.slideNavigationDots = page
+      .locator('[role="navigation"][aria-label*="Slide navigation"]')
+      .locator("button");
 
     // Discussion section
-    this.discussionSection = page.locator('div.rounded-lg').filter({ hasText: 'Discussion' });
-    this.discussionTextarea = page.locator('textarea[aria-label*="Discussion"]').or(
-      page.getByPlaceholder(/add your thoughts/i)
-    );
+    this.discussionSection = page
+      .locator("div.rounded-lg")
+      .filter({ hasText: "Discussion" });
+    this.discussionTextarea = page
+      .locator('textarea[aria-label*="Discussion"]')
+      .or(page.getByPlaceholder(/add your thoughts/i));
 
     // Partner scoring
-    this.partnerScoringSection = page.locator('div.rounded-lg').filter({ hasText: 'Partner Scoring' });
+    this.partnerScoringSection = page
+      .locator("div.rounded-lg")
+      .filter({ hasText: "Partner Scoring" });
   }
 
   async goto() {
-    await loginViaRedirect(this.page, '/dealflow-review');
+    await loginViaRedirect(this.page, "/dealflow-review");
   }
 
   async getSlideCount(): Promise<number> {
@@ -136,32 +176,32 @@ export class DealflowReviewPage {
 
   async selectSlide(index: number) {
     await this.slideButtons.nth(index).click();
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState("networkidle");
   }
 
   async nextSlide() {
     await this.nextSlideButton.click();
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState("networkidle");
   }
 
   async previousSlide() {
     await this.previousSlideButton.click();
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState("networkidle");
   }
 
   async selectDeal(index: number) {
     await this.dealButtons.nth(index).click();
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState("networkidle");
   }
 
   async nextDeal() {
     await this.nextDealButton.click();
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState("networkidle");
   }
 
   async previousDeal() {
     await this.previousDealButton.click();
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState("networkidle");
   }
 
   async voteYes() {
@@ -189,16 +229,20 @@ export class DealflowReviewPage {
   }
 
   getSlideByType(type: string): Locator {
-    return this.slideButtons.filter({ hasText: new RegExp(type, 'i') });
+    return this.slideButtons.filter({ hasText: new RegExp(type, "i") });
   }
 
   async getVotesCount(): Promise<number> {
-    const votesSection = this.votesCastSection.locator('[class*="flex items-center justify-between"]');
+    const votesSection = this.votesCastSection.locator(
+      '[class*="flex items-center justify-between"]',
+    );
     return votesSection.count();
   }
 
-  getVotesByType(voteType: 'yes' | 'no' | 'maybe'): Locator {
-    return this.votesCastSection.locator(`[class*="badge"]`).filter({ hasText: new RegExp(voteType, 'i') });
+  getVotesByType(voteType: "yes" | "no" | "maybe"): Locator {
+    return this.votesCastSection
+      .locator(`[class*="badge"]`)
+      .filter({ hasText: new RegExp(voteType, "i") });
   }
 
   async getSlideTitle(): Promise<string | null> {
@@ -207,26 +251,30 @@ export class DealflowReviewPage {
 
   // Slide content getters based on slide type
   getOverviewSlideContent(): Locator {
-    return this.page.locator('text=/Founder|Location|Sector|Stage/i').locator('..');
+    return this.page
+      .locator("text=/Founder|Location|Sector|Stage/i")
+      .locator("..");
   }
 
   getMarketSlideContent(): Locator {
-    return this.page.locator('text=/TAM|SAM|SOM/i').locator('..');
+    return this.page.locator("text=/TAM|SAM|SOM/i").locator("..");
   }
 
   getProductSlideContent(): Locator {
-    return this.page.locator('text=/Key Differentiators/i').locator('..');
+    return this.page.locator("text=/Key Differentiators/i").locator("..");
   }
 
   getFinancialsSlideContent(): Locator {
-    return this.page.locator('text=/ARR|YoY Growth|Monthly Burn|Runway/i').locator('..');
+    return this.page
+      .locator("text=/ARR|YoY Growth|Monthly Burn|Runway/i")
+      .locator("..");
   }
 
   getTeamSlideContent(): Locator {
-    return this.page.locator('text=/Leadership Team/i').locator('..');
+    return this.page.locator("text=/Leadership Team/i").locator("..");
   }
 
   getAskSlideContent(): Locator {
-    return this.page.locator('text=/Raising|Use of Funds/i').locator('..');
+    return this.page.locator("text=/Raising|Use of Funds/i").locator("..");
   }
 }

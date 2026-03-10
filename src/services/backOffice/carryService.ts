@@ -1,7 +1,10 @@
-import { isMockMode } from '@/config/data-mode';
-import { mockCarriedInterestTerms, mockCarryAccruals } from '@/data/seeds/back-office/fund-admin-ops';
-import { requestJson } from '@/services/shared/httpClient';
-import type { CarryAccrual, CarriedInterestTerm } from '@/types/fundAdminOps';
+import { isMockMode } from "@/config/data-mode";
+import {
+  mockCarriedInterestTerms,
+  mockCarryAccruals,
+} from "@/data/seeds/back-office/fund-admin-ops";
+import { requestJson } from "@/services/shared/httpClient";
+import type { CarryAccrual, CarriedInterestTerm } from "@/types/fundAdminOps";
 
 const clone = <T>(value: T): T => structuredClone(value);
 
@@ -16,40 +19,56 @@ function findAccrual(id: string) {
   return index;
 }
 
-export async function getCarriedInterestTerms(fundId?: string): Promise<CarriedInterestTerm[]> {
-  if (isMockMode('backOffice')) {
-    const values = fundId ? termsStore.filter((item) => item.fundId === fundId) : termsStore;
+export async function getCarriedInterestTerms(
+  fundId?: string,
+): Promise<CarriedInterestTerm[]> {
+  if (isMockMode("backOffice")) {
+    const values = fundId
+      ? termsStore.filter((item) => item.fundId === fundId)
+      : termsStore;
     return clone(values);
   }
 
   if (!fundId) return [];
-  const payload = await requestJson<CarriedInterestTerm[]>(`/funds/${fundId}/carry/terms`, {
-    fallbackMessage: 'Failed to load carry terms',
-  });
+  const payload = await requestJson<CarriedInterestTerm[]>(
+    `/funds/${fundId}/carry/terms`,
+    {
+      fallbackMessage: "Failed to load carry terms",
+    },
+  );
   return Array.isArray(payload) ? payload : [];
 }
 
-export async function getCarryAccruals(fundId?: string): Promise<CarryAccrual[]> {
-  if (isMockMode('backOffice')) {
-    const values = fundId ? accrualStore.filter((item) => item.fundId === fundId) : accrualStore;
+export async function getCarryAccruals(
+  fundId?: string,
+): Promise<CarryAccrual[]> {
+  if (isMockMode("backOffice")) {
+    const values = fundId
+      ? accrualStore.filter((item) => item.fundId === fundId)
+      : accrualStore;
     return clone(values);
   }
 
   if (!fundId) return [];
-  const payload = await requestJson<CarryAccrual[]>(`/funds/${fundId}/carry/accruals`, {
-    fallbackMessage: 'Failed to load carry accruals',
-  });
+  const payload = await requestJson<CarryAccrual[]>(
+    `/funds/${fundId}/carry/accruals`,
+    {
+      fallbackMessage: "Failed to load carry accruals",
+    },
+  );
   return Array.isArray(payload) ? payload : [];
 }
 
 export async function calculateCarryAccrual(
   fundId: string,
-  _fundName: string
+  _fundName: string,
 ): Promise<CarryAccrual> {
-  if (isMockMode('backOffice')) {
+  if (isMockMode("backOffice")) {
     const latest = accrualStore
       .filter((item) => item.fundId === fundId)
-      .sort((a, b) => b.calculationDate.getTime() - a.calculationDate.getTime())[0];
+      .sort(
+        (a, b) => b.calculationDate.getTime() - a.calculationDate.getTime(),
+      )[0];
 
     const next: CarryAccrual = {
       ...(latest ?? {
@@ -75,50 +94,58 @@ export async function calculateCarryAccrual(
         irr: 0,
         moic: 1,
         waterfall: [],
-        status: 'draft' as const,
+        status: "draft" as const,
       }),
       id: `carry-${Date.now()}`,
       asOfDate: new Date(),
       calculationDate: new Date(),
-      status: 'calculated',
+      status: "calculated",
     };
 
     accrualStore = [next, ...accrualStore];
     return clone(next);
   }
 
-  const payload = await requestJson<CarryAccrual>(`/funds/${fundId}/carry/accruals/calculate`, {
-    method: 'POST',
-    body: { fundId },
-    fallbackMessage: 'Failed to calculate carry accrual',
-  });
+  const payload = await requestJson<CarryAccrual>(
+    `/funds/${fundId}/carry/accruals/calculate`,
+    {
+      method: "POST",
+      body: { fundId },
+      fallbackMessage: "Failed to calculate carry accrual",
+    },
+  );
   return payload;
 }
 
 export async function approveCarryAccrual(id: string): Promise<CarryAccrual> {
-  if (isMockMode('backOffice')) {
+  if (isMockMode("backOffice")) {
     const index = findAccrual(id);
     accrualStore[index] = {
       ...accrualStore[index],
-      status: 'approved',
+      status: "approved",
       calculationDate: new Date(),
     };
     return clone(accrualStore[index]);
   }
 
-  const payload = await requestJson<CarryAccrual>(`/carry/accruals/${id}/approve`, {
-    method: 'POST',
-    fallbackMessage: 'Failed to approve carry accrual',
-  });
+  const payload = await requestJson<CarryAccrual>(
+    `/carry/accruals/${id}/approve`,
+    {
+      method: "POST",
+      fallbackMessage: "Failed to approve carry accrual",
+    },
+  );
   return payload;
 }
 
-export async function distributeCarryAccrual(id: string): Promise<CarryAccrual> {
-  if (isMockMode('backOffice')) {
+export async function distributeCarryAccrual(
+  id: string,
+): Promise<CarryAccrual> {
+  if (isMockMode("backOffice")) {
     const index = findAccrual(id);
     accrualStore[index] = {
       ...accrualStore[index],
-      status: 'distributed',
+      status: "distributed",
       distributedCarry: accrualStore[index].accruedCarry,
       remainingCarry: 0,
       calculationDate: new Date(),
@@ -126,25 +153,33 @@ export async function distributeCarryAccrual(id: string): Promise<CarryAccrual> 
     return clone(accrualStore[index]);
   }
 
-  const payload = await requestJson<CarryAccrual>(`/carry/accruals/${id}/distribute`, {
-    method: 'POST',
-    fallbackMessage: 'Failed to distribute carry accrual',
-  });
+  const payload = await requestJson<CarryAccrual>(
+    `/carry/accruals/${id}/distribute`,
+    {
+      method: "POST",
+      fallbackMessage: "Failed to distribute carry accrual",
+    },
+  );
   return payload;
 }
 
 export async function exportCarryAccrual(
   accrualId: string,
-  format: 'pdf' | 'excel'
-): Promise<{ accrualId: string; format: 'pdf' | 'excel'; exportedAt: string }> {
-  if (isMockMode('backOffice')) {
+  format: "pdf" | "excel",
+): Promise<{ accrualId: string; format: "pdf" | "excel"; exportedAt: string }> {
+  if (isMockMode("backOffice")) {
     findAccrual(accrualId);
     return { accrualId, format, exportedAt: new Date().toISOString() };
   }
 
-  const payload = await requestJson<{ accrualId: string; format: 'pdf' | 'excel'; exportedAt: string }>(
-    `/carry/accruals/${accrualId}/export`,
-    { method: 'POST', body: { format }, fallbackMessage: 'Failed to export carry accrual' }
-  );
+  const payload = await requestJson<{
+    accrualId: string;
+    format: "pdf" | "excel";
+    exportedAt: string;
+  }>(`/carry/accruals/${accrualId}/export`, {
+    method: "POST",
+    body: { format },
+    fallbackMessage: "Failed to export carry accrual",
+  });
   return payload;
 }

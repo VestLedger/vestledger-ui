@@ -1,22 +1,25 @@
-import { isMockMode } from '@/config/data-mode';
+import { isMockMode } from "@/config/data-mode";
 import {
   activeDeals,
   mockDocuments,
   documentCategories,
   fundAnalytics,
   dealAnalyticsData,
-} from '@/data/seeds/deal-intelligence/deal-intelligence';
-import type { GetDealIntelligenceParams } from '@/store/slices/dealIntelligenceSlice';
-import type { PipelineApiDeal } from '@/services/shared/pipelineGateway';
-import { fetchPipelineDealsFromApi, formatAmountToMillions } from '@/services/shared/pipelineGateway';
-import { requestJson } from '@/services/shared/httpClient';
-import { formatDate } from '@/utils/formatting/date';
+} from "@/data/seeds/deal-intelligence/deal-intelligence";
+import type { GetDealIntelligenceParams } from "@/store/slices/dealIntelligenceSlice";
+import type { PipelineApiDeal } from "@/services/shared/pipelineGateway";
+import {
+  fetchPipelineDealsFromApi,
+  formatAmountToMillions,
+} from "@/services/shared/pipelineGateway";
+import { requestJson } from "@/services/shared/httpClient";
+import { formatDate } from "@/utils/formatting/date";
 
 type DealIntelCategoryProgress = {
   category: DocumentCategory;
   completed: number;
   total: number;
-  status: 'completed' | 'in-progress' | 'overdue';
+  status: "completed" | "in-progress" | "overdue";
 };
 
 interface ApiDocument {
@@ -37,7 +40,7 @@ interface ApiDocumentsResponse {
 const clone = <T>(value: T): T => structuredClone(value);
 
 function cloneDocumentCategories(
-  categories: typeof documentCategories
+  categories: typeof documentCategories,
 ): typeof documentCategories {
   // `documentCategories` contains Lucide icons (React forwardRef components) which are not
   // structured-cloneable. We only need a shallow copy for immutability; keep icon refs as-is.
@@ -53,15 +56,22 @@ export type {
   DocumentCategory,
   DocumentStatus,
   ICStatus,
-} from '@/data/seeds/deal-intelligence/deal-intelligence';
+} from "@/data/seeds/deal-intelligence/deal-intelligence";
 
-type ActiveDeal = import('@/data/seeds/deal-intelligence/deal-intelligence').ActiveDeal;
-type Document = import('@/data/seeds/deal-intelligence/deal-intelligence').Document;
-type DealAnalytics = import('@/data/seeds/deal-intelligence/deal-intelligence').DealAnalytics;
-type FundAnalytics = import('@/data/seeds/deal-intelligence/deal-intelligence').FundAnalytics;
-type DocumentCategory = import('@/data/seeds/deal-intelligence/deal-intelligence').DocumentCategory;
-type DocumentStatus = import('@/data/seeds/deal-intelligence/deal-intelligence').DocumentStatus;
-type ICStatus = import('@/data/seeds/deal-intelligence/deal-intelligence').ICStatus;
+type ActiveDeal =
+  import("@/data/seeds/deal-intelligence/deal-intelligence").ActiveDeal;
+type Document =
+  import("@/data/seeds/deal-intelligence/deal-intelligence").Document;
+type DealAnalytics =
+  import("@/data/seeds/deal-intelligence/deal-intelligence").DealAnalytics;
+type FundAnalytics =
+  import("@/data/seeds/deal-intelligence/deal-intelligence").FundAnalytics;
+type DocumentCategory =
+  import("@/data/seeds/deal-intelligence/deal-intelligence").DocumentCategory;
+type DocumentStatus =
+  import("@/data/seeds/deal-intelligence/deal-intelligence").DocumentStatus;
+type ICStatus =
+  import("@/data/seeds/deal-intelligence/deal-intelligence").ICStatus;
 
 const categoryTargets: Record<DocumentCategory, number> = {
   financial: 5,
@@ -72,32 +82,42 @@ const categoryTargets: Record<DocumentCategory, number> = {
 };
 
 function normalizeName(value?: string | null): string {
-  return (value ?? '').trim().toLowerCase();
+  return (value ?? "").trim().toLowerCase();
 }
 
 function mapDocumentCategory(category?: string): DocumentCategory {
-  const normalized = (category ?? '').trim().toLowerCase();
+  const normalized = (category ?? "").trim().toLowerCase();
 
-  if (normalized === 'financial' || normalized === 'tax') return 'financial';
-  if (normalized === 'legal' || normalized === 'compliance') return 'legal';
-  if (normalized === 'market' || normalized === 'investor-relations') return 'market';
-  if (normalized === 'team') return 'team';
-  return 'technical';
+  if (normalized === "financial" || normalized === "tax") return "financial";
+  if (normalized === "legal" || normalized === "compliance") return "legal";
+  if (normalized === "market" || normalized === "investor-relations")
+    return "market";
+  if (normalized === "team") return "team";
+  return "technical";
 }
 
-function mapDocumentStatus(uploadedDate: string | undefined, index: number): DocumentStatus {
+function mapDocumentStatus(
+  uploadedDate: string | undefined,
+  index: number,
+): DocumentStatus {
   if (!uploadedDate) {
-    const fallbackStatuses: DocumentStatus[] = ['pending', 'in-progress', 'completed'];
+    const fallbackStatuses: DocumentStatus[] = [
+      "pending",
+      "in-progress",
+      "completed",
+    ];
     return fallbackStatuses[index % fallbackStatuses.length];
   }
 
   const uploadedAt = new Date(uploadedDate);
-  if (Number.isNaN(uploadedAt.getTime())) return 'pending';
+  if (Number.isNaN(uploadedAt.getTime())) return "pending";
 
-  const ageInDays = Math.floor((Date.now() - uploadedAt.getTime()) / (24 * 60 * 60 * 1000));
-  if (ageInDays > 45) return 'overdue';
-  if (ageInDays > 21) return 'in-progress';
-  return 'completed';
+  const ageInDays = Math.floor(
+    (Date.now() - uploadedAt.getTime()) / (24 * 60 * 60 * 1000),
+  );
+  if (ageInDays > 45) return "overdue";
+  if (ageInDays > 21) return "in-progress";
+  return "completed";
 }
 
 function formatUploadedDate(value?: string): string | undefined {
@@ -106,9 +126,9 @@ function formatUploadedDate(value?: string): string | undefined {
   if (Number.isNaN(parsed.getTime())) return undefined;
 
   return formatDate(parsed, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
+    month: "short",
+    day: "numeric",
+    year: "numeric",
   });
 }
 
@@ -124,47 +144,65 @@ function formatDocumentSize(size?: number): string | undefined {
 }
 
 function deriveICStatus(progress: number, overdueDocs: number): ICStatus {
-  if (progress >= 80 && overdueDocs === 0) return 'ready-for-ic';
-  if (overdueDocs > 0) return 'docs-overdue';
-  if (progress < 40) return 'blocked';
-  return 'dd-in-progress';
+  if (progress >= 80 && overdueDocs === 0) return "ready-for-ic";
+  if (overdueDocs > 0) return "docs-overdue";
+  if (progress < 40) return "blocked";
+  return "dd-in-progress";
 }
 
-function buildCategoryProgress(documents: Document[]): DealIntelCategoryProgress[] {
+function buildCategoryProgress(
+  documents: Document[],
+): DealIntelCategoryProgress[] {
   const byCategory = documents.reduce(
     (acc, document) => {
       acc[document.category] = (acc[document.category] ?? 0) + 1;
       return acc;
     },
-    {} as Record<DocumentCategory, number>
+    {} as Record<DocumentCategory, number>,
   );
 
-  return (Object.keys(categoryTargets) as DocumentCategory[]).map((category) => {
-    const completed = documents.filter(
-      (document) => document.category === category && document.status === 'completed'
-    ).length;
-    const total = Math.max(categoryTargets[category], byCategory[category] ?? 0);
-    const hasOverdue = documents.some(
-      (document) => document.category === category && document.status === 'overdue'
-    );
+  return (Object.keys(categoryTargets) as DocumentCategory[]).map(
+    (category) => {
+      const completed = documents.filter(
+        (document) =>
+          document.category === category && document.status === "completed",
+      ).length;
+      const total = Math.max(
+        categoryTargets[category],
+        byCategory[category] ?? 0,
+      );
+      const hasOverdue = documents.some(
+        (document) =>
+          document.category === category && document.status === "overdue",
+      );
 
-    return {
-      category,
-      completed,
-      total,
-      status: completed >= total ? 'completed' : hasOverdue ? 'overdue' : 'in-progress',
-    };
-  });
+      return {
+        category,
+        completed,
+        total,
+        status:
+          completed >= total
+            ? "completed"
+            : hasOverdue
+              ? "overdue"
+              : "in-progress",
+      };
+    },
+  );
 }
 
 function buildActiveDeal(
   apiDeal: PipelineApiDeal,
   dealId: number,
-  documentsForDeal: Document[]
+  documentsForDeal: Document[],
 ): ActiveDeal {
-  const probability = Number.isFinite(apiDeal.probability) ? apiDeal.probability : 0;
+  const probability = Number.isFinite(apiDeal.probability)
+    ? apiDeal.probability
+    : 0;
   const progress = Math.max(5, Math.min(100, Math.round(probability)));
-  const overdueDocs = documentsForDeal.filter((document) => document.status === 'overdue').length;
+  const overdueDocs = documentsForDeal.filter(
+    (document) => document.status === "overdue",
+  ).length;
 
   return {
     id: dealId,
@@ -180,15 +218,23 @@ function buildActiveDeal(
   };
 }
 
-function buildDealAnalyticsFromDeal(apiDeal: PipelineApiDeal, dealId: number): DealAnalytics {
+function buildDealAnalyticsFromDeal(
+  apiDeal: PipelineApiDeal,
+  dealId: number,
+): DealAnalytics {
   const amount = Math.max(apiDeal.amount, 500_000);
-  const probability = Number.isFinite(apiDeal.probability) ? Math.max(5, apiDeal.probability) : 50;
+  const probability = Number.isFinite(apiDeal.probability)
+    ? Math.max(5, apiDeal.probability)
+    : 50;
   const arr = Math.round(amount * 0.38);
   const mrr = Math.round(arr / 12);
   const growthRateYoY = Math.max(35, Math.round(probability * 2.1));
   const growthRateMoM = Math.max(4, Math.round(growthRateYoY / 12));
   const burnRate = Math.round(amount * 0.06);
-  const runway = Math.max(9, Math.round((amount * 0.8) / Math.max(burnRate, 1)));
+  const runway = Math.max(
+    9,
+    Math.round((amount * 0.8) / Math.max(burnRate, 1)),
+  );
   const cac = Math.max(300, Math.round((100 - probability + 20) * 20));
   const ltv = Math.round(cac * (2.5 + probability / 100));
   const totalCustomers = Math.max(40, Math.round(probability * 10));
@@ -211,34 +257,43 @@ function buildDealAnalyticsFromDeal(apiDeal: PipelineApiDeal, dealId: number): D
         ltvCacRatio: Number((ltv / cac).toFixed(1)),
       },
       unitEconomics: {
-        grossMargin: Math.max(45, Math.min(88, Math.round(55 + probability * 0.25))),
-        contributionMargin: Math.max(30, Math.min(75, Math.round(45 + probability * 0.2))),
+        grossMargin: Math.max(
+          45,
+          Math.min(88, Math.round(55 + probability * 0.25)),
+        ),
+        contributionMargin: Math.max(
+          30,
+          Math.min(75, Math.round(45 + probability * 0.2)),
+        ),
         paybackPeriod: Math.max(5, Math.round(18 - probability / 10)),
       },
     },
     market: {
       marketSize: {
-        tam: Number((Math.max(2, amount / 350_000_000)).toFixed(1)),
-        sam: Number((Math.max(1, amount / 1_000_000_000)).toFixed(1)),
+        tam: Number(Math.max(2, amount / 350_000_000).toFixed(1)),
+        sam: Number(Math.max(1, amount / 1_000_000_000).toFixed(1)),
         som: Math.round(Math.max(15, amount / 7_500_000)),
       },
       customers: {
         totalCustomers,
         nps: Math.max(20, Math.min(80, Math.round(probability * 0.75))),
-        churnRate: Number((Math.max(1.5, (110 - probability) / 12)).toFixed(1)),
+        churnRate: Number(Math.max(1.5, (110 - probability) / 12).toFixed(1)),
         nrr,
       },
     },
     team: {
       size: Math.max(8, Math.round(probability / 2)),
-      founderExperienceScore: Math.max(4, Math.min(10, Math.round(probability / 12))),
+      founderExperienceScore: Math.max(
+        4,
+        Math.min(10, Math.round(probability / 12)),
+      ),
     },
   };
 }
 
 function buildFundAnalytics(
   apiDeals: PipelineApiDeal[],
-  deals: ActiveDeal[]
+  deals: ActiveDeal[],
 ): FundAnalytics {
   if (deals.length === 0) {
     return {
@@ -264,19 +319,24 @@ function buildFundAnalytics(
 
   const stageDays: Record<string, number> = {
     Sourced: 7,
-    'First Meeting': 14,
-    'Due Diligence': 26,
-    'Term Sheet': 38,
+    "First Meeting": 14,
+    "Due Diligence": 26,
+    "Term Sheet": 38,
     Closed: 50,
   };
 
   const avgTimeInDD = Math.round(
-    deals.reduce((sum, deal) => sum + (stageDays[deal.stage] ?? 20), 0) / deals.length
+    deals.reduce((sum, deal) => sum + (stageDays[deal.stage] ?? 20), 0) /
+      deals.length,
   );
 
-  const readyForIC = deals.filter((deal) => deal.icStatus === 'ready-for-ic').length;
+  const readyForIC = deals.filter(
+    (deal) => deal.icStatus === "ready-for-ic",
+  ).length;
   const onTrack = deals.filter((deal) => deal.progress >= 70).length;
-  const atRisk = deals.filter((deal) => deal.progress >= 40 && deal.progress < 70).length;
+  const atRisk = deals.filter(
+    (deal) => deal.progress >= 40 && deal.progress < 70,
+  ).length;
   const blocked = deals.filter((deal) => deal.progress < 40).length;
 
   const byStageMap = new Map<string, number>();
@@ -289,10 +349,10 @@ function buildFundAnalytics(
 
     const range =
       deal.amount < 2_000_000
-        ? '<$2M'
+        ? "<$2M"
         : deal.amount <= 4_000_000
-          ? '$2-4M'
-          : '>$4M';
+          ? "$2-4M"
+          : ">$4M";
     bySizeMap.set(range, (bySizeMap.get(range) ?? 0) + 1);
   }
 
@@ -304,13 +364,22 @@ function buildFundAnalytics(
       readyForIC,
     },
     dealDistribution: {
-      byStage: Array.from(byStageMap.entries()).map(([stage, count]) => ({ stage, count })),
-      bySector: Array.from(bySectorMap.entries()).map(([sector, count]) => ({ sector, count })),
-      bySize: Array.from(bySizeMap.entries()).map(([range, count]) => ({ range, count })),
+      byStage: Array.from(byStageMap.entries()).map(([stage, count]) => ({
+        stage,
+        count,
+      })),
+      bySector: Array.from(bySectorMap.entries()).map(([sector, count]) => ({
+        sector,
+        count,
+      })),
+      bySize: Array.from(bySizeMap.entries()).map(([range, count]) => ({
+        range,
+        count,
+      })),
     },
     ddProgress: {
       avgCompletion: Math.round(
-        deals.reduce((sum, deal) => sum + deal.progress, 0) / deals.length
+        deals.reduce((sum, deal) => sum + deal.progress, 0) / deals.length,
       ),
       onTrack,
       atRisk,
@@ -321,14 +390,14 @@ function buildFundAnalytics(
 
 async function fetchDocumentsForApiMode(): Promise<ApiDocument[]> {
   try {
-    const response = await requestJson<ApiDocumentsResponse>('/documents', {
-      method: 'GET',
+    const response = await requestJson<ApiDocumentsResponse>("/documents", {
+      method: "GET",
       query: {
         limit: 300,
-        sortBy: 'uploadedDate',
-        sortOrder: 'desc',
+        sortBy: "uploadedDate",
+        sortOrder: "desc",
       },
-      fallbackMessage: 'Failed to load documents',
+      fallbackMessage: "Failed to load documents",
     });
 
     return response.documents ?? [];
@@ -342,7 +411,7 @@ function mapDocumentsToDeals(
   apiDocuments: ApiDocument[],
   dealIdLookup: Map<string, number>,
   dealNameLookup: Map<string, number>,
-  dealNameByNumericId: Map<number, string>
+  dealNameByNumericId: Map<number, string>,
 ): Document[] {
   const mapped: Document[] = [];
 
@@ -360,7 +429,10 @@ function mapDocumentsToDeals(
       category: mapDocumentCategory(apiDocument.category),
       status: mapDocumentStatus(apiDocument.uploadedDate, index),
       dealId: mappedDealId,
-      dealName: dealNameByNumericId.get(mappedDealId) ?? apiDocument.dealName ?? 'Unknown Deal',
+      dealName:
+        dealNameByNumericId.get(mappedDealId) ??
+        apiDocument.dealName ??
+        "Unknown Deal",
       uploadedBy: apiDocument.uploadedBy,
       uploadedDate: formatUploadedDate(apiDocument.uploadedDate),
       size: formatDocumentSize(apiDocument.size),
@@ -371,7 +443,7 @@ function mapDocumentsToDeals(
 }
 
 export async function getDealIntelligenceData(
-  params: GetDealIntelligenceParams
+  params: GetDealIntelligenceParams,
 ): Promise<{
   activeDeals: ActiveDeal[];
   dealAnalyticsData: DealAnalytics[];
@@ -379,7 +451,7 @@ export async function getDealIntelligenceData(
   fundAnalytics: FundAnalytics;
   documents: Document[];
 }> {
-  if (isMockMode('dealIntelligence')) {
+  if (isMockMode("dealIntelligence")) {
     // Mock mode: Accept params but return static data
     // Future: Apply pagination/sorting
     return {
@@ -391,14 +463,16 @@ export async function getDealIntelligenceData(
     };
   }
 
-  const apiDeals = (await fetchPipelineDealsFromApi({
-    fundId: params.fundId,
-    search: params.search,
-    limit: params.limit,
-    offset: params.offset,
-    sortBy: params.sortBy,
-    sortOrder: params.sortOrder,
-  })).filter((deal) => (deal.outcome ?? 'active') === 'active');
+  const apiDeals = (
+    await fetchPipelineDealsFromApi({
+      fundId: params.fundId,
+      search: params.search,
+      limit: params.limit,
+      offset: params.offset,
+      sortBy: params.sortBy,
+      sortOrder: params.sortOrder,
+    })
+  ).filter((deal) => (deal.outcome ?? "active") === "active");
 
   const dealIdLookup = new Map<string, number>();
   const dealNameLookup = new Map<string, number>();
@@ -416,19 +490,19 @@ export async function getDealIntelligenceData(
     apiDocuments,
     dealIdLookup,
     dealNameLookup,
-    dealNameByNumericId
+    dealNameByNumericId,
   );
 
   const activeDealsFromApi = apiDeals.map((deal, index) =>
     buildActiveDeal(
       deal,
       index + 1,
-      mappedDocuments.filter((document) => document.dealId === index + 1)
-    )
+      mappedDocuments.filter((document) => document.dealId === index + 1),
+    ),
   );
 
   const analyticsFromApi = apiDeals.map((deal, index) =>
-    buildDealAnalyticsFromDeal(deal, index + 1)
+    buildDealAnalyticsFromDeal(deal, index + 1),
   );
 
   return {

@@ -19,20 +19,20 @@ export interface BaseFilterParams {
 
 export interface BaseSortParams {
   sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
 }
 
 /**
  * Combined standard params for most queries
  */
 export interface StandardQueryParams
-  extends BasePaginationParams,
-    BaseFilterParams,
-    BaseSortParams {}
+  extends BasePaginationParams, BaseFilterParams, BaseSortParams {}
 
 /**
  * Helper to extract fundId from params or state
  */
-export function extractFundId(params: { fundId?: string | null }): string | null {
+export function extractFundId(params: {
+  fundId?: string | null;
+}): string | null {
   return params.fundId ?? null;
 }

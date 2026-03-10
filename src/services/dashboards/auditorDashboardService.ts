@@ -1,49 +1,52 @@
-import { isMockMode } from '@/config/data-mode';
+import { isMockMode } from "@/config/data-mode";
 import {
   auditorAuditTrail,
   auditorComplianceItems,
   auditorDashboardMetrics,
-} from '@/data/seeds/dashboards/auditor-dashboard';
-import { apiClient } from '@/api/client';
-import { unwrapApiResult } from '@/api/unwrap';
-import { formatDate } from '@/utils/formatting/date';
+} from "@/data/seeds/dashboards/auditor-dashboard";
+import { apiClient } from "@/api/client";
+import { unwrapApiResult } from "@/api/unwrap";
+import { formatDate } from "@/utils/formatting/date";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
-function readString(value: unknown, fallback = ''): string {
-  return typeof value === 'string' ? value : fallback;
+function readString(value: unknown, fallback = ""): string {
+  return typeof value === "string" ? value : fallback;
 }
 
 function readNumber(value: unknown, fallback = 0): number {
-  return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
 
 function toDisplayDate(value: unknown): string {
-  if (typeof value === 'string' || typeof value === 'number') {
+  if (typeof value === "string" || typeof value === "number") {
     const parsed = new Date(value);
     if (!Number.isNaN(parsed.getTime())) {
-      return formatDate(parsed, { month: 'short', day: 'numeric' });
+      return formatDate(parsed, { month: "short", day: "numeric" });
     }
     return readString(value);
   }
   if (value instanceof Date && !Number.isNaN(value.getTime())) {
-    return formatDate(value, { month: 'short', day: 'numeric' });
+    return formatDate(value, { month: "short", day: "numeric" });
   }
-  return 'N/A';
+  return "N/A";
 }
 
 export async function getAuditorDashboardSnapshot() {
-  if (isMockMode('dashboards')) {
-    return { metrics: auditorDashboardMetrics, auditTrail: auditorAuditTrail, complianceItems: auditorComplianceItems };
+  if (isMockMode("dashboards")) {
+    return {
+      metrics: auditorDashboardMetrics,
+      auditTrail: auditorAuditTrail,
+      complianceItems: auditorComplianceItems,
+    };
   }
 
   // API mode
-  const result = await unwrapApiResult(
-    apiClient.GET('/dashboard/auditor'),
-    { fallbackMessage: 'Failed to fetch auditor dashboard' }
-  );
+  const result = await unwrapApiResult(apiClient.GET("/dashboard/auditor"), {
+    fallbackMessage: "Failed to fetch auditor dashboard",
+  });
 
   const apiData: Record<string, unknown> = isRecord(result) ? result : {};
   const metricsSource = isRecord(apiData.metrics) ? apiData.metrics : {};
@@ -57,28 +60,34 @@ export async function getAuditorDashboardSnapshot() {
   const totalFundsAudited = readNumber(metricsSource.totalFundsAudited);
   const openFindings = readNumber(metricsSource.openFindings);
   const complianceScore = readNumber(metricsSource.complianceScore);
-  const lastAuditDate = readString(metricsSource.lastAuditDate, '');
+  const lastAuditDate = readString(metricsSource.lastAuditDate, "");
 
   const metrics = auditorDashboardMetrics.map((metric) => ({ ...metric }));
   if (metrics[0]) metrics[0].value = String(totalFundsAudited);
   if (metrics[1]) metrics[1].value = String(openFindings);
-  if (metrics[2]) metrics[2].value = `${Math.max(0, Math.min(100, Math.round(complianceScore)))}%`;
+  if (metrics[2])
+    metrics[2].value = `${Math.max(0, Math.min(100, Math.round(complianceScore)))}%`;
   if (metrics[3]) metrics[3].value = toDisplayDate(lastAuditDate);
 
   const normalizedAuditTrail = auditTrailApi
     .map((item) => ({
-      action: readString(item.action, readString(item.description, 'Audit event')),
-      fund: readString(item.fund, readString(item.entity, 'General')),
+      action: readString(
+        item.action,
+        readString(item.description, "Audit event"),
+      ),
+      fund: readString(item.fund, readString(item.entity, "General")),
       date: toDisplayDate(item.date ?? item.timestamp),
-      hash: readString(item.hash, readString(item.txHash, 'n/a')),
+      hash: readString(item.hash, readString(item.txHash, "n/a")),
     }))
     .filter((item) => item.action.length > 0);
 
   const normalizedComplianceItems = complianceItemsApi
     .map((item) => ({
-      item: readString(item.item, readString(item.title, 'Compliance item')),
-      status: readString(item.status, 'Pending'),
-      lastCheck: toDisplayDate(item.lastCheck ?? item.updatedAt ?? item.dueDate),
+      item: readString(item.item, readString(item.title, "Compliance item")),
+      status: readString(item.status, "Pending"),
+      lastCheck: toDisplayDate(
+        item.lastCheck ?? item.updatedAt ?? item.dueDate,
+      ),
     }))
     .filter((item) => item.item.length > 0);
 

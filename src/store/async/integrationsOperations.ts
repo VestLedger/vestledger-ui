@@ -1,6 +1,6 @@
-import { createAsyncThunk } from '@reduxjs/toolkit';
-import type { RootState } from '@/store/rootReducer';
-import type { AppDispatch } from '@/store/store';
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import type { RootState } from "@/store/rootReducer";
+import type { AppDispatch } from "@/store/store";
 import {
   captureCalendarEvent,
   configureCalendarRules,
@@ -15,12 +15,12 @@ import {
   ignoreCalendarEvent,
   syncCalendar,
   toggleCalendarAutoCapture,
-} from '@/services/integrationsService';
-import { integrationsLoaded } from '@/store/slices/miscSlice';
-import type { CalendarProvider } from '@/components/integrations/calendar-integration';
-import type { IntegrationsSnapshot } from '@/services/integrationsService';
-import type { NormalizedError } from '@/store/types/AsyncState';
-import { normalizeError } from '@/store/utils/normalizeError';
+} from "@/services/integrationsService";
+import { integrationsLoaded } from "@/store/slices/miscSlice";
+import type { CalendarProvider } from "@/components/integrations/calendar-integration";
+import type { IntegrationsSnapshot } from "@/services/integrationsService";
+import type { NormalizedError } from "@/store/types/AsyncState";
+import { normalizeError } from "@/store/utils/normalizeError";
 
 type IntegrationsThunkConfig = {
   state: RootState;
@@ -28,7 +28,9 @@ type IntegrationsThunkConfig = {
   rejectValue: NormalizedError;
 };
 
-async function refreshIntegrationsSnapshot(dispatch: AppDispatch): Promise<IntegrationsSnapshot> {
+async function refreshIntegrationsSnapshot(
+  dispatch: AppDispatch,
+): Promise<IntegrationsSnapshot> {
   const snapshot = await getIntegrationsSnapshot();
   dispatch(integrationsLoaded(snapshot));
   return snapshot;
@@ -38,7 +40,7 @@ export const connectIntegrationOperation = createAsyncThunk<
   IntegrationsSnapshot,
   string,
   IntegrationsThunkConfig
->('integrations/connect', async (integrationId, thunkApi) => {
+>("integrations/connect", async (integrationId, thunkApi) => {
   try {
     await connectIntegration(integrationId);
     return await refreshIntegrationsSnapshot(thunkApi.dispatch);
@@ -51,7 +53,7 @@ export const disconnectIntegrationOperation = createAsyncThunk<
   IntegrationsSnapshot,
   string,
   IntegrationsThunkConfig
->('integrations/disconnect', async (integrationId, thunkApi) => {
+>("integrations/disconnect", async (integrationId, thunkApi) => {
   try {
     await disconnectIntegration(integrationId);
     return await refreshIntegrationsSnapshot(thunkApi.dispatch);
@@ -64,7 +66,7 @@ export const connectCalendarOperation = createAsyncThunk<
   IntegrationsSnapshot,
   CalendarProvider,
   IntegrationsThunkConfig
->('integrations/calendar/connect', async (provider, thunkApi) => {
+>("integrations/calendar/connect", async (provider, thunkApi) => {
   try {
     await connectCalendar(provider);
     return await refreshIntegrationsSnapshot(thunkApi.dispatch);
@@ -77,7 +79,7 @@ export const disconnectCalendarOperation = createAsyncThunk<
   IntegrationsSnapshot,
   string,
   IntegrationsThunkConfig
->('integrations/calendar/disconnect', async (accountId, thunkApi) => {
+>("integrations/calendar/disconnect", async (accountId, thunkApi) => {
   try {
     await disconnectCalendar(accountId);
     return await refreshIntegrationsSnapshot(thunkApi.dispatch);
@@ -90,7 +92,7 @@ export const syncCalendarOperation = createAsyncThunk<
   IntegrationsSnapshot,
   string,
   IntegrationsThunkConfig
->('integrations/calendar/sync', async (accountId, thunkApi) => {
+>("integrations/calendar/sync", async (accountId, thunkApi) => {
   try {
     await syncCalendar(accountId);
     return await refreshIntegrationsSnapshot(thunkApi.dispatch);
@@ -103,7 +105,7 @@ export const configureCalendarRulesOperation = createAsyncThunk<
   IntegrationsSnapshot,
   string,
   IntegrationsThunkConfig
->('integrations/calendar/configureRules', async (accountId, thunkApi) => {
+>("integrations/calendar/configureRules", async (accountId, thunkApi) => {
   try {
     await configureCalendarRules(accountId);
     return await refreshIntegrationsSnapshot(thunkApi.dispatch);
@@ -116,7 +118,7 @@ export const toggleCalendarAutoCaptureOperation = createAsyncThunk<
   IntegrationsSnapshot,
   string,
   IntegrationsThunkConfig
->('integrations/calendar/toggleAutoCapture', async (accountId, thunkApi) => {
+>("integrations/calendar/toggleAutoCapture", async (accountId, thunkApi) => {
   try {
     await toggleCalendarAutoCapture(accountId);
     return await refreshIntegrationsSnapshot(thunkApi.dispatch);
@@ -129,7 +131,7 @@ export const captureCalendarEventOperation = createAsyncThunk<
   IntegrationsSnapshot,
   string,
   IntegrationsThunkConfig
->('integrations/calendar/captureEvent', async (eventId, thunkApi) => {
+>("integrations/calendar/captureEvent", async (eventId, thunkApi) => {
   try {
     await captureCalendarEvent(eventId);
     return await refreshIntegrationsSnapshot(thunkApi.dispatch);
@@ -142,7 +144,7 @@ export const ignoreCalendarEventOperation = createAsyncThunk<
   IntegrationsSnapshot,
   string,
   IntegrationsThunkConfig
->('integrations/calendar/ignoreEvent', async (eventId, thunkApi) => {
+>("integrations/calendar/ignoreEvent", async (eventId, thunkApi) => {
   try {
     await ignoreCalendarEvent(eventId);
     return await refreshIntegrationsSnapshot(thunkApi.dispatch);
@@ -155,7 +157,7 @@ export const editCalendarEventOperation = createAsyncThunk<
   IntegrationsSnapshot,
   string,
   IntegrationsThunkConfig
->('integrations/calendar/editEvent', async (eventId, thunkApi) => {
+>("integrations/calendar/editEvent", async (eventId, thunkApi) => {
   try {
     await editCalendarEvent(eventId);
     return await refreshIntegrationsSnapshot(thunkApi.dispatch);
@@ -168,7 +170,7 @@ export const createCalendarEventOperation = createAsyncThunk<
   IntegrationsSnapshot,
   void,
   IntegrationsThunkConfig
->('integrations/calendar/createEvent', async (_, thunkApi) => {
+>("integrations/calendar/createEvent", async (_, thunkApi) => {
   try {
     await createCalendarEvent();
     return await refreshIntegrationsSnapshot(thunkApi.dispatch);
@@ -179,9 +181,9 @@ export const createCalendarEventOperation = createAsyncThunk<
 
 export const exportCalendarEventsOperation = createAsyncThunk<
   string,
-  'csv' | 'ical',
+  "csv" | "ical",
   IntegrationsThunkConfig
->('integrations/calendar/export', async (format, thunkApi) => {
+>("integrations/calendar/export", async (format, thunkApi) => {
   try {
     return await exportCalendarEvents(format);
   } catch (error: unknown) {

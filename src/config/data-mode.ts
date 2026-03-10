@@ -1,55 +1,55 @@
-import { safeLocalStorage } from '@/lib/storage/safeLocalStorage';
+import { safeLocalStorage } from "@/lib/storage/safeLocalStorage";
 
-export type DataMode = 'mock' | 'api';
+export type DataMode = "mock" | "api";
 
 export type FeatureName =
-  | 'auth'
-  | 'funds'
-  | 'alerts'
-  | 'search'
-  | 'reports'
-  | 'analytics'
-  | 'documents'
-  | 'portfolio'
-  | 'pipeline'
-  | 'dashboards'
-  | 'dealflow'
-  | 'backOffice'
-  | 'ai'
-  | 'dealIntelligence'
-  | 'crm'
-  | 'integrations'
-  | 'lpPortal'
-  | 'auditTrail'
-  | 'companySearch'
-  | 'collaboration'
-  | 'onboarding';
+  | "auth"
+  | "funds"
+  | "alerts"
+  | "search"
+  | "reports"
+  | "analytics"
+  | "documents"
+  | "portfolio"
+  | "pipeline"
+  | "dashboards"
+  | "dealflow"
+  | "backOffice"
+  | "ai"
+  | "dealIntelligence"
+  | "crm"
+  | "integrations"
+  | "lpPortal"
+  | "auditTrail"
+  | "companySearch"
+  | "collaboration"
+  | "onboarding";
 
 /**
  * Audited features where mock fallback should be blocked while running in API mode.
  * This supports the UI-to-API wiring initiative.
  */
 export const AUDITED_NO_MOCK_FEATURES: readonly FeatureName[] = [
-  'auth',
-  'funds',
-  'alerts',
-  'reports',
-  'analytics',
-  'documents',
-  'portfolio',
-  'pipeline',
-  'dashboards',
-  'dealflow',
-  'backOffice',
-  'ai',
-  'dealIntelligence',
-  'crm',
-  'integrations',
-  'lpPortal',
-  'auditTrail',
-  'companySearch',
-  'collaboration',
-  'onboarding',
+  "auth",
+  "funds",
+  "alerts",
+  "reports",
+  "analytics",
+  "documents",
+  "portfolio",
+  "pipeline",
+  "dashboards",
+  "dealflow",
+  "backOffice",
+  "ai",
+  "dealIntelligence",
+  "crm",
+  "integrations",
+  "lpPortal",
+  "auditTrail",
+  "companySearch",
+  "collaboration",
+  "onboarding",
 ] as const;
 
 /**
@@ -81,35 +81,39 @@ const featureFlags: Partial<Record<FeatureName, boolean>> = {
   onboarding: true,
 };
 
-export const DATA_MODE_OVERRIDE_KEY = 'dataModeOverride';
+export const DATA_MODE_OVERRIDE_KEY = "dataModeOverride";
 
 export function parseDataMode(value?: string | null): DataMode | null {
   if (!value) return null;
   const normalized = value.toLowerCase();
-  if (normalized === 'mock' || normalized === 'api') {
+  if (normalized === "mock" || normalized === "api") {
     return normalized;
   }
   return null;
 }
 
 function getCookieValue(cookieHeader: string, name: string): string | null {
-  const entries = cookieHeader.split('; ');
+  const entries = cookieHeader.split("; ");
   const match = entries.find((entry) => entry.startsWith(`${name}=`));
   if (!match) return null;
   return match.slice(name.length + 1);
 }
 
-export function getDataModeOverrideFromCookieHeader(cookieHeader?: string | null): DataMode | null {
+export function getDataModeOverrideFromCookieHeader(
+  cookieHeader?: string | null,
+): DataMode | null {
   if (!cookieHeader) return null;
   const raw = getCookieValue(cookieHeader, DATA_MODE_OVERRIDE_KEY);
   return parseDataMode(raw);
 }
 
 function getStoredDataModeOverride(): DataMode | null {
-  const fromStorage = parseDataMode(safeLocalStorage.getItem(DATA_MODE_OVERRIDE_KEY));
+  const fromStorage = parseDataMode(
+    safeLocalStorage.getItem(DATA_MODE_OVERRIDE_KEY),
+  );
   if (fromStorage) return fromStorage;
 
-  if (typeof document !== 'undefined') {
+  if (typeof document !== "undefined") {
     const fromCookie = getDataModeOverrideFromCookieHeader(document.cookie);
     if (fromCookie) return fromCookie;
   }
@@ -122,8 +126,8 @@ export function getDataMode(): DataMode {
   if (override) return override;
 
   const raw = process.env.NEXT_PUBLIC_DATA_MODE?.toLowerCase();
-  if (raw === 'api') return 'api';
-  return 'mock';
+  if (raw === "api") return "api";
+  return "mock";
 }
 
 /**
@@ -133,7 +137,7 @@ export function getDataMode(): DataMode {
  */
 export function isMockMode(feature?: FeatureName): boolean {
   const override = getStoredDataModeOverride();
-  if (override) return override === 'mock';
+  if (override) return override === "mock";
 
   // Check feature-specific override
   if (feature !== undefined && feature in featureFlags) {
@@ -141,7 +145,7 @@ export function isMockMode(feature?: FeatureName): boolean {
   }
 
   // Fall back to global mode
-  return getDataMode() === 'mock';
+  return getDataMode() === "mock";
 }
 
 /**
@@ -149,7 +153,7 @@ export function isMockMode(feature?: FeatureName): boolean {
  * In API mode, audited features should not silently fall back to bundled mock data.
  */
 export function isAuditedNoMockRuntime(feature?: FeatureName): boolean {
-  if (getDataMode() !== 'api') {
+  if (getDataMode() !== "api") {
     return false;
   }
 

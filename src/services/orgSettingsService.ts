@@ -1,14 +1,11 @@
-import { isMockMode } from '@/config/data-mode';
-import { getDefaultFundRegulatoryRegime } from '@/lib/regulatory-regions';
-import { safeLocalStorage } from '@/lib/storage/safeLocalStorage';
-import { requestJson } from '@/services/shared/httpClient';
-import type { User } from '@/types/auth';
-import type {
-  FundRegulatoryRegime,
-  OperatingRegion,
-} from '@/types/regulatory';
+import { isMockMode } from "@/config/data-mode";
+import { getDefaultFundRegulatoryRegime } from "@/lib/regulatory-regions";
+import { safeLocalStorage } from "@/lib/storage/safeLocalStorage";
+import { requestJson } from "@/services/shared/httpClient";
+import type { User } from "@/types/auth";
+import type { FundRegulatoryRegime, OperatingRegion } from "@/types/regulatory";
 
-const STORAGE_USER_KEY = 'user';
+const STORAGE_USER_KEY = "user";
 
 export interface OrgSettings {
   orgId: string;
@@ -20,25 +17,23 @@ export interface OrgSettings {
 
 function buildOrgSlug(orgId?: string): string {
   if (!orgId) {
-    return 'mock-org';
+    return "mock-org";
   }
 
   return orgId
-    .replace(/^org[_-]?/i, '')
-    .replace(/_/g, '-')
+    .replace(/^org[_-]?/i, "")
+    .replace(/_/g, "-")
     .toLowerCase();
 }
 
 function buildMockOrgSettings(
   user: User | null,
-  regionOverride?: OperatingRegion | null
+  regionOverride?: OperatingRegion | null,
 ): OrgSettings {
   const operatingRegion = regionOverride ?? user?.operatingRegion ?? null;
   const organizationConfigured =
-    operatingRegion !== null
-      ? true
-      : (user?.organizationConfigured ?? false);
-  const orgId = user?.tenantId ?? 'org_mock_demo';
+    operatingRegion !== null ? true : (user?.organizationConfigured ?? false);
+  const orgId = user?.tenantId ?? "org_mock_demo";
 
   return {
     orgId,
@@ -55,8 +50,8 @@ export async function getCurrentOrgSettings(): Promise<OrgSettings> {
     return buildMockOrgSettings(user);
   }
 
-  return requestJson<OrgSettings>('/orgs/current/settings', {
-    fallbackMessage: 'Failed to load organization settings',
+  return requestJson<OrgSettings>("/orgs/current/settings", {
+    fallbackMessage: "Failed to load organization settings",
   });
 }
 
@@ -80,9 +75,9 @@ export async function updateCurrentOrgSettings(input: {
     return buildMockOrgSettings(nextUser, input.operatingRegion);
   }
 
-  return requestJson<OrgSettings>('/orgs/current/settings', {
-    method: 'PATCH',
+  return requestJson<OrgSettings>("/orgs/current/settings", {
+    method: "PATCH",
     body: input,
-    fallbackMessage: 'Failed to update organization settings',
+    fallbackMessage: "Failed to update organization settings",
   });
 }

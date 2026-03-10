@@ -1,4 +1,4 @@
-import { isMockMode } from '@/config/data-mode';
+import { isMockMode } from "@/config/data-mode";
 import {
   mockHistory,
   mockStrikePrices,
@@ -6,8 +6,8 @@ import {
   type StrikePrice,
   type Valuation409A,
   type ValuationHistory,
-} from '@/data/mocks/back-office/valuation-409a';
-import { requestJson } from '@/services/shared/httpClient';
+} from "@/data/mocks/back-office/valuation-409a";
+import { requestJson } from "@/services/shared/httpClient";
 
 type ApiListResponse<TItem> =
   | {
@@ -66,7 +66,7 @@ function extractApiList<TItem>(response: ApiListResponse<TItem>): TItem[] {
 }
 
 function asNumber(value: unknown, fallback = 0): number {
-  return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
 
 function asDateOnly(value?: string | null, fallback = nowIsoDate()): string {
@@ -76,27 +76,30 @@ function asDateOnly(value?: string | null, fallback = nowIsoDate()): string {
   return parsed.toISOString().slice(0, 10);
 }
 
-function normalizeValuationStatus(rawStatus?: string): Valuation409A['status'] {
-  const normalized = rawStatus?.toLowerCase() ?? '';
-  if (normalized === 'expired') return 'expired';
+function normalizeValuationStatus(rawStatus?: string): Valuation409A["status"] {
+  const normalized = rawStatus?.toLowerCase() ?? "";
+  if (normalized === "expired") return "expired";
   if (
-    normalized === 'expiring' ||
-    normalized === 'expiring-soon' ||
-    normalized === 'expiring_soon'
+    normalized === "expiring" ||
+    normalized === "expiring-soon" ||
+    normalized === "expiring_soon"
   ) {
-    return 'expiring-soon';
+    return "expiring-soon";
   }
-  return 'current';
+  return "current";
 }
 
-function normalizeStrikeStatus(rawStatus?: string): StrikePrice['status'] {
-  const normalized = rawStatus?.toLowerCase() ?? '';
-  if (normalized === 'exercised') return 'exercised';
-  if (normalized === 'expired') return 'expired';
-  return 'active';
+function normalizeStrikeStatus(rawStatus?: string): StrikePrice["status"] {
+  const normalized = rawStatus?.toLowerCase() ?? "";
+  if (normalized === "exercised") return "exercised";
+  if (normalized === "expired") return "expired";
+  return "active";
 }
 
-function mapApiValuation(record: ApiValuationRecord, index: number): Valuation409A {
+function mapApiValuation(
+  record: ApiValuationRecord,
+  index: number,
+): Valuation409A {
   const fairMarketValue = asNumber(record.fairMarketValue, 0);
 
   return {
@@ -108,39 +111,42 @@ function mapApiValuation(record: ApiValuationRecord, index: number): Valuation40
     commonStock: asNumber(record.commonStock, fairMarketValue),
     preferredStock: asNumber(record.preferredStock, fairMarketValue),
     status: normalizeValuationStatus(record.status),
-    provider: record.provider ?? 'Valuation Provider',
-    reportUrl: record.reportUrl ?? '',
-    methodology: record.methodology ?? 'OPM',
+    provider: record.provider ?? "Valuation Provider",
+    reportUrl: record.reportUrl ?? "",
+    methodology: record.methodology ?? "OPM",
   };
 }
 
-function mapApiStrikePrice(record: ApiStrikePriceRecord, index: number): StrikePrice {
+function mapApiStrikePrice(
+  record: ApiStrikePriceRecord,
+  index: number,
+): StrikePrice {
   return {
     id: record.id ?? `strike-${index + 1}`,
     grantDate: asDateOnly(record.grantDate),
     strikePrice: asNumber(record.strikePrice, 0),
     sharesGranted: asNumber(record.sharesGranted, 0),
     recipient: record.recipient ?? `Recipient ${index + 1}`,
-    vestingSchedule: record.vestingSchedule ?? '4-year',
+    vestingSchedule: record.vestingSchedule ?? "4-year",
     status: normalizeStrikeStatus(record.status),
   };
 }
 
 function mapApiValuationHistory(
   record: ApiValuationHistoryRecord,
-  index: number
+  index: number,
 ): ValuationHistory {
   return {
     id: record.id ?? `valuation-history-${index + 1}`,
     date: asDateOnly(record.date),
     fmv: asNumber(record.fmv, 0),
     change: asNumber(record.change, 0),
-    trigger: record.trigger ?? 'Valuation refresh',
+    trigger: record.trigger ?? "Valuation refresh",
   };
 }
 
 function extractNestedRecords<TItem>(source: unknown, key: string): TItem[] {
-  if (!source || typeof source !== 'object') return [];
+  if (!source || typeof source !== "object") return [];
   const container = source as Record<string, unknown>;
   const value = container[key];
   if (!Array.isArray(value)) return [];
@@ -148,10 +154,13 @@ function extractNestedRecords<TItem>(source: unknown, key: string): TItem[] {
 }
 
 async function fetchValuationSnapshotFromApi(): Promise<ValuationSnapshot> {
-  const response = await requestJson<ApiListResponse<ApiValuationRecord>>('/valuations', {
-    method: 'GET',
-    fallbackMessage: 'Failed to fetch 409A valuations',
-  });
+  const response = await requestJson<ApiListResponse<ApiValuationRecord>>(
+    "/valuations",
+    {
+      method: "GET",
+      fallbackMessage: "Failed to fetch 409A valuations",
+    },
+  );
 
   const records = extractApiList(response);
   const valuations = records.map(mapApiValuation);
@@ -160,9 +169,14 @@ async function fetchValuationSnapshotFromApi(): Promise<ValuationSnapshot> {
   const historyRecords: ApiValuationHistoryRecord[] = [];
 
   records.forEach((record) => {
-    strikePriceRecords.push(...extractNestedRecords<ApiStrikePriceRecord>(record, 'strikePrices'));
+    strikePriceRecords.push(
+      ...extractNestedRecords<ApiStrikePriceRecord>(record, "strikePrices"),
+    );
     historyRecords.push(
-      ...extractNestedRecords<ApiValuationHistoryRecord>(record, 'valuationHistory')
+      ...extractNestedRecords<ApiValuationHistoryRecord>(
+        record,
+        "valuationHistory",
+      ),
     );
   });
 
@@ -196,12 +210,12 @@ function setCachedSnapshot(snapshot: ValuationSnapshot): void {
 function getCachedSnapshot(): ValuationSnapshot {
   return clone(
     apiValuationSnapshotCache ??
-      (isMockMode('backOffice') ? getBaseMockSnapshot() : getEmptySnapshot())
+      (isMockMode("backOffice") ? getBaseMockSnapshot() : getEmptySnapshot()),
   );
 }
 
 async function getValuationSnapshot(): Promise<ValuationSnapshot> {
-  if (isMockMode('backOffice')) {
+  if (isMockMode("backOffice")) {
     if (!apiValuationSnapshotCache) {
       setCachedSnapshot(getBaseMockSnapshot());
     }
@@ -213,8 +227,14 @@ async function getValuationSnapshot(): Promise<ValuationSnapshot> {
   try {
     const current = await fetchValuationSnapshotFromApi();
     const snapshot: ValuationSnapshot = {
-      valuations: current.valuations.length > 0 ? current.valuations : previous.valuations,
-      strikePrices: current.strikePrices.length > 0 ? current.strikePrices : previous.strikePrices,
+      valuations:
+        current.valuations.length > 0
+          ? current.valuations
+          : previous.valuations,
+      strikePrices:
+        current.strikePrices.length > 0
+          ? current.strikePrices
+          : previous.strikePrices,
       history: current.history.length > 0 ? current.history : previous.history,
     };
 

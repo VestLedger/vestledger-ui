@@ -4,52 +4,61 @@
  * Defines structures for distribution workflow, approvals, allocations, and statements
  */
 
-import type { WaterfallResults } from './waterfall';
+import type { WaterfallResults } from "./waterfall";
 
 // ============================================================================
 // Enums and Constants
 // ============================================================================
 
 export type DistributionStatus =
-  | 'draft'
-  | 'pending-approval'
-  | 'approved'
-  | 'processing'
-  | 'completed'
-  | 'rejected'
-  | 'cancelled';
+  | "draft"
+  | "pending-approval"
+  | "approved"
+  | "processing"
+  | "completed"
+  | "rejected"
+  | "cancelled";
 
 export type DistributionEventType =
-  | 'exit'
-  | 'dividend'
-  | 'recapitalization'
-  | 'refinancing'
-  | 'partial-exit'
-  | 'other';
+  | "exit"
+  | "dividend"
+  | "recapitalization"
+  | "refinancing"
+  | "partial-exit"
+  | "other";
 
 export type FeeType =
-  | 'management-fee'
-  | 'transaction-cost'
-  | 'legal-fee'
-  | 'audit-fee'
-  | 'admin-fee'
-  | 'other';
+  | "management-fee"
+  | "transaction-cost"
+  | "legal-fee"
+  | "audit-fee"
+  | "admin-fee"
+  | "other";
 
-export type ApprovalStatus = 'pending' | 'approved' | 'rejected' | 'returned';
+export type ApprovalStatus = "pending" | "approved" | "rejected" | "returned";
 
-export type StatementTemplate = 'standard' | 'ilpa-compliant' | 'custom';
+export type StatementTemplate = "standard" | "ilpa-compliant" | "custom";
 
-export type TaxFormType = 'k1' | '1099' | 'other';
+export type TaxFormType = "k1" | "1099" | "other";
 
-export type DistributionElectionType = 'cash' | 'shares' | 'split';
+export type DistributionElectionType = "cash" | "shares" | "split";
 
-export type SecurityTransferStatus = 'pending' | 'submitted' | 'processing' | 'settled' | 'failed';
+export type SecurityTransferStatus =
+  | "pending"
+  | "submitted"
+  | "processing"
+  | "settled"
+  | "failed";
 
-export type DistributionStageStatus = 'scheduled' | 'processing' | 'completed' | 'on-hold';
+export type DistributionStageStatus =
+  | "scheduled"
+  | "processing"
+  | "completed"
+  | "on-hold";
 
-export type HoldbackStatus = 'held' | 'scheduled' | 'released';
+export type HoldbackStatus = "held" | "scheduled" | "released";
 
-export type FractionalShareMethod = 'cash-in-lieu' | 'round-down' | 'round-up';
+export type FractionalShareMethod = "cash-in-lieu" | "round-down" | "round-up";
 
 // ============================================================================
 // Statement Branding + Template Config
@@ -80,7 +89,7 @@ export interface StatementTemplateConfig {
 export interface DistributionInKindAsset {
   id: string;
   name: string;
-  assetType: 'equity' | 'debt' | 'fund-interest' | 'other';
+  assetType: "equity" | "debt" | "fund-interest" | "other";
   ticker?: string;
   cusip?: string;
   totalShares: number;
@@ -110,7 +119,7 @@ export interface DistributionElection {
   cashPercentage?: number;
   sharePercentage?: number;
   submittedAt?: string;
-  status: 'pending' | 'confirmed' | 'overdue';
+  status: "pending" | "confirmed" | "overdue";
   notes?: string;
 }
 
@@ -139,7 +148,7 @@ export interface SecondaryTransferAdjustment {
   adjustmentAmount: number;
   reason: string;
   effectiveDate: string;
-  status: 'pending' | 'applied' | 'review';
+  status: "pending" | "applied" | "review";
 }
 
 export interface DistributionStage {
@@ -166,13 +175,13 @@ export interface SideLetterTerm {
   lpName: string;
   termType: string;
   description: string;
-  adjustmentType: 'fee' | 'withholding' | 'holdback' | 'other';
+  adjustmentType: "fee" | "withholding" | "holdback" | "other";
   adjustmentValue: string;
   applied: boolean;
 }
 
 export interface SpecialDistributionDetails {
-  category: 'dividend-recap' | 'refinancing' | 'secondary' | 'other';
+  category: "dividend-recap" | "refinancing" | "secondary" | "other";
   summary: string;
   leverageAmount?: number;
   notes?: string;
@@ -317,7 +326,7 @@ export interface DistributionImpact {
     currentValue: number;
     projectedValue: number;
     isViolation: boolean;
-    severity: 'info' | 'warning' | 'critical';
+    severity: "info" | "warning" | "critical";
   }[];
 }
 
@@ -469,7 +478,7 @@ export interface DistributionComment {
 
 export interface RecurringSchedule {
   id: string;
-  frequency: 'monthly' | 'quarterly' | 'semi-annual' | 'annual';
+  frequency: "monthly" | "quarterly" | "semi-annual" | "annual";
   startDate: string;
   endDate?: string;
   nextOccurrence: string;
@@ -487,8 +496,8 @@ export interface DistributionCalendarEvent {
   distributionId?: string; // undefined if it's a scheduled future distribution
   title: string;
   date: string;
-  eventType: DistributionEventType | 'scheduled' | 'reminder';
-  status: DistributionStatus | 'upcoming';
+  eventType: DistributionEventType | "scheduled" | "reminder";
+  status: DistributionStatus | "upcoming";
   amount?: number;
   fundId: string;
   fundName: string;
@@ -506,7 +515,7 @@ export interface FeeTemplate {
   id: string;
   name: string;
   description: string;
-  feeLineItems: Omit<FeeLineItem, 'id' | 'createdAt' | 'updatedAt'>[];
+  feeLineItems: Omit<FeeLineItem, "id" | "createdAt" | "updatedAt">[];
   isSystem: boolean;
   fundId?: string; // Fund-specific template
   createdAt: string;
@@ -521,7 +530,7 @@ export interface LPProfile {
   id: string;
   name: string;
   legalName: string;
-  type: 'individual' | 'institutional' | 'entity';
+  type: "individual" | "institutional" | "entity";
 
   // Tax info
   taxJurisdiction: string;

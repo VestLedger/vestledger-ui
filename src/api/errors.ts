@@ -1,4 +1,4 @@
-import type { NormalizedError } from '@/store/types/AsyncState';
+import type { NormalizedError } from "@/store/types/AsyncState";
 
 export class ApiError extends Error {
   status: number;
@@ -14,7 +14,7 @@ export class ApiError extends Error {
     details?: unknown;
   }) {
     super(args.message);
-    this.name = 'ApiError';
+    this.name = "ApiError";
     this.status = args.status;
     this.code = args.code;
     this.requestId = args.requestId;
@@ -23,16 +23,16 @@ export class ApiError extends Error {
 }
 
 function readString(obj: unknown, key: string): string | undefined {
-  if (!obj || typeof obj !== 'object') return undefined;
+  if (!obj || typeof obj !== "object") return undefined;
   const value = (obj as Record<string, unknown>)[key];
-  return typeof value === 'string' ? value : undefined;
+  return typeof value === "string" ? value : undefined;
 }
 
 function readFirstString(arr: unknown): string | undefined {
   if (!Array.isArray(arr)) return undefined;
   for (const item of arr) {
-    if (typeof item === 'string') return item;
-    const msg = readString(item, 'message');
+    if (typeof item === "string") return item;
+    const msg = readString(item, "message");
     if (msg) return msg;
   }
   return undefined;
@@ -40,17 +40,18 @@ function readFirstString(arr: unknown): string | undefined {
 
 function extractErrorMessage(payload: unknown): string | undefined {
   // RFC7807: { title, detail }
-  const detail = readString(payload, 'detail');
+  const detail = readString(payload, "detail");
   if (detail) return detail;
-  const title = readString(payload, 'title');
+  const title = readString(payload, "title");
   if (title) return title;
 
   // Common shapes: { message }, { error }
-  const message = readString(payload, 'message') ?? readString(payload, 'error');
+  const message =
+    readString(payload, "message") ?? readString(payload, "error");
   if (message) return message;
 
   // { errors: [...] }
-  if (payload && typeof payload === 'object') {
+  if (payload && typeof payload === "object") {
     const errors = (payload as Record<string, unknown>).errors;
     const first = readFirstString(errors);
     if (first) return first;
@@ -61,13 +62,13 @@ function extractErrorMessage(payload: unknown): string | undefined {
 
 function extractErrorCode(payload: unknown): string | undefined {
   // Common fields
-  return readString(payload, 'code') ?? readString(payload, 'errorCode');
+  return readString(payload, "code") ?? readString(payload, "errorCode");
 }
 
 function extractRequestId(response: Response): string | undefined {
   return (
-    response.headers.get('x-request-id') ??
-    response.headers.get('x-correlation-id') ??
+    response.headers.get("x-request-id") ??
+    response.headers.get("x-correlation-id") ??
     undefined
   );
 }
@@ -106,4 +107,3 @@ export function normalizeApiError(error: ApiError): NormalizedError {
     },
   };
 }
-

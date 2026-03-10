@@ -1,6 +1,10 @@
-import { Page, Locator } from '@playwright/test';
-import { loginViaRedirect } from '../helpers/auth-helpers';
-import { clickContextualTab, getContextualTab, openContextualMenu } from '../helpers/navigation-helpers';
+import { Page, Locator } from "@playwright/test";
+import { loginViaRedirect } from "../helpers/auth-helpers";
+import {
+  clickContextualTab,
+  getContextualTab,
+  openContextualMenu,
+} from "../helpers/navigation-helpers";
 
 export class DealIntelligencePage {
   readonly page: Page;
@@ -51,42 +55,77 @@ export class DealIntelligencePage {
 
   constructor(page: Page) {
     this.page = page;
-    this.pageTitle = page.getByRole('heading', { level: 1, name: /deal intelligence/i });
+    this.pageTitle = page.getByRole("heading", {
+      level: 1,
+      name: /deal intelligence/i,
+    });
 
     const metricCard = (title: string) =>
       page
-        .locator('div', { hasText: new RegExp(`^${title}$`, 'i') })
+        .locator("div", { hasText: new RegExp(`^${title}$`, "i") })
         .locator('xpath=ancestor::div[contains(@class,"rounded-lg")][1]')
         .first();
 
     // Fund Analytics metrics
-    this.activeDealsMetric = metricCard('Active Deals');
-    this.avgTimeInDDMetric = metricCard('Avg Time in DD');
-    this.ddToICRateMetric = metricCard('DD-to-IC Rate');
-    this.readyForICMetric = metricCard('Ready for IC');
+    this.activeDealsMetric = metricCard("Active Deals");
+    this.avgTimeInDDMetric = metricCard("Avg Time in DD");
+    this.ddToICRateMetric = metricCard("DD-to-IC Rate");
+    this.readyForICMetric = metricCard("Ready for IC");
 
     // DD Status Summary
-    this.readyForICCard = page.locator('div.rounded-lg').filter({ hasText: /ready for ic/i }).first();
-    this.ddInProgressCard = page.locator('div.rounded-lg').filter({ hasText: /dd in progress/i }).first();
-    this.overdueDocumentsCard = page.locator('div.rounded-lg').filter({ hasText: /overdue documents/i }).first();
-    this.pendingReviewsCard = page.locator('div.rounded-lg').filter({ hasText: /pending reviews/i }).first();
+    this.readyForICCard = page
+      .locator("div.rounded-lg")
+      .filter({ hasText: /ready for ic/i })
+      .first();
+    this.ddInProgressCard = page
+      .locator("div.rounded-lg")
+      .filter({ hasText: /dd in progress/i })
+      .first();
+    this.overdueDocumentsCard = page
+      .locator("div.rounded-lg")
+      .filter({ hasText: /overdue documents/i })
+      .first();
+    this.pendingReviewsCard = page
+      .locator("div.rounded-lg")
+      .filter({ hasText: /pending reviews/i })
+      .first();
 
     // Deal Distribution
-    this.dealsByStageSection = page.locator('div.rounded-lg').filter({ hasText: /deals by stage/i }).first();
-    this.dealsBySectorSection = page.locator('div.rounded-lg').filter({ hasText: /deals by sector/i }).first();
-    this.ddProgressOverview = page.locator('div.rounded-lg').filter({ hasText: /dd progress overview/i }).first();
+    this.dealsByStageSection = page
+      .locator("div.rounded-lg")
+      .filter({ hasText: /deals by stage/i })
+      .first();
+    this.dealsBySectorSection = page
+      .locator("div.rounded-lg")
+      .filter({ hasText: /deals by sector/i })
+      .first();
+    this.ddProgressOverview = page
+      .locator("div.rounded-lg")
+      .filter({ hasText: /dd progress overview/i })
+      .first();
 
     // AI Deal Sourcing
-    this.companySearchSection = page.locator('text=AI Deal Sourcing').locator('..').locator('..');
-    this.companySearchInput = page.getByPlaceholder(/search.*company|company.*search/i);
+    this.companySearchSection = page
+      .locator("text=AI Deal Sourcing")
+      .locator("..")
+      .locator("..");
+    this.companySearchInput = page.getByPlaceholder(
+      /search.*company|company.*search/i,
+    );
 
     // Active Deals
-    this.uploadDocumentButton = page.getByRole('button', { name: /upload document/i });
-    this.dealCards = page.locator('div.rounded-lg').filter({ hasText: /document completion:/i });
+    this.uploadDocumentButton = page.getByRole("button", {
+      name: /upload document/i,
+    });
+    this.dealCards = page
+      .locator("div.rounded-lg")
+      .filter({ hasText: /document completion:/i });
 
     // Per-Deal View
-    this.backToFundViewButton = page.getByRole('button', { name: /back to fund view/i });
-    this.dealHeader = page.locator('h2').filter({ hasText: /[A-Z]/ });
+    this.backToFundViewButton = page.getByRole("button", {
+      name: /back to fund view/i,
+    });
+    this.dealHeader = page.locator("h2").filter({ hasText: /[A-Z]/ });
     this.dealProgressBar = page.locator('[role="progressbar"]').first();
 
     // Tabs (in per-deal view)
@@ -98,13 +137,18 @@ export class DealIntelligencePage {
 
     // Documents tab
     this.documentSearchInput = page.getByPlaceholder(/search documents/i);
-    this.filterByCategoryButton = page.getByRole('button', { name: /filter by category/i });
-    this.documentLibrary = page.locator('div.rounded-lg').filter({ hasText: /document library/i }).first();
-    this.exportButton = page.getByRole('button', { name: /export/i });
+    this.filterByCategoryButton = page.getByRole("button", {
+      name: /filter by category/i,
+    });
+    this.documentLibrary = page
+      .locator("div.rounded-lg")
+      .filter({ hasText: /document library/i })
+      .first();
+    this.exportButton = page.getByRole("button", { name: /export/i });
   }
 
   async goto() {
-    await loginViaRedirect(this.page, '/deal-intelligence');
+    await loginViaRedirect(this.page, "/deal-intelligence");
     await openContextualMenu(this.page, /deal intelligence/i);
   }
 
@@ -138,18 +182,18 @@ export class DealIntelligencePage {
 
   async clickDeal(index: number = 0) {
     await this.dealCards.nth(index).click();
-    await this.page.waitForLoadState('domcontentloaded');
+    await this.page.waitForLoadState("domcontentloaded");
   }
 
   async selectDealByName(name: string) {
     const deal = this.dealCards.filter({ hasText: name }).first();
     await deal.click();
-    await this.page.waitForLoadState('domcontentloaded');
+    await this.page.waitForLoadState("domcontentloaded");
   }
 
   async backToFundView() {
     await this.backToFundViewButton.click();
-    await this.page.waitForLoadState('domcontentloaded');
+    await this.page.waitForLoadState("domcontentloaded");
   }
 
   async selectOverviewTab() {
@@ -174,43 +218,48 @@ export class DealIntelligencePage {
 
   async searchDocuments(query: string) {
     await this.documentSearchInput.fill(query);
-    await this.page.waitForLoadState('domcontentloaded');
+    await this.page.waitForLoadState("domcontentloaded");
   }
 
   async searchCompanies(query: string) {
     if (await this.companySearchInput.isVisible()) {
       await this.companySearchInput.fill(query);
-      await this.page.waitForLoadState('domcontentloaded');
+      await this.page.waitForLoadState("domcontentloaded");
     }
   }
 
   getDealsByICStatus(status: string): Locator {
-    return this.dealCards.filter({ has: this.page.locator(`text=/${status}/i`) });
+    return this.dealCards.filter({
+      has: this.page.locator(`text=/${status}/i`),
+    });
   }
 
   getCategoryProgress(category: string): Locator {
-    return this.page.locator(`text=/${category}/i`).locator('..').locator('[role="progressbar"]');
+    return this.page
+      .locator(`text=/${category}/i`)
+      .locator("..")
+      .locator('[role="progressbar"]');
   }
 
   getFinancialMetrics(): Locator {
     return this.page
-      .locator('text=/Financial Metrics/i')
+      .locator("text=/Financial Metrics/i")
       .locator('xpath=ancestor::div[contains(@class,"rounded-lg")][1]');
   }
 
   getMarketAnalytics(): Locator {
     return this.page
-      .locator('text=/Market Analytics/i')
+      .locator("text=/Market Analytics/i")
       .locator('xpath=ancestor::div[contains(@class,"rounded-lg")][1]');
   }
 
   private async extractCardNumber(card: Locator): Promise<number> {
     const text = await card
-      .locator('.text-3xl, .text-2xl, p.text-2xl, div.text-2xl, text=/\\d+/')
+      .locator(".text-3xl, .text-2xl, p.text-2xl, div.text-2xl, text=/\\d+/")
       .first()
       .textContent();
     if (!text) return 0;
-    const normalized = text.replace(/[^\d-]/g, '');
+    const normalized = text.replace(/[^\d-]/g, "");
     return normalized ? parseInt(normalized, 10) : 0;
   }
 }

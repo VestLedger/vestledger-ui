@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from "vitest";
 import {
   pipelineReducer,
   pipelineDataLoaded,
@@ -7,39 +7,39 @@ import {
   pipelineDealUpserted,
   type PipelineData,
   type GetPipelineParams,
-} from '../pipelineSlice';
-import { getSliceTestExpectations } from '../../__tests__/sliceTestHarness';
-import type { NormalizedError } from '@/store/types/AsyncState';
+} from "../pipelineSlice";
+import { getSliceTestExpectations } from "../../__tests__/sliceTestHarness";
+import type { NormalizedError } from "@/store/types/AsyncState";
 
 function request<T>(type: string, payload?: T) {
   return { type, payload };
 }
 
-describe('pipelineSlice', () => {
+describe("pipelineSlice", () => {
   const mockPipelineData: PipelineData = {
-    stages: ['Sourcing', 'Due Diligence', 'Negotiation', 'Closed'],
+    stages: ["Sourcing", "Due Diligence", "Negotiation", "Closed"],
     deals: [
       {
         id: 1,
-        name: 'TechStartup Inc',
-        stage: 'Sourcing',
-        amount: '$2M',
+        name: "TechStartup Inc",
+        stage: "Sourcing",
+        amount: "$2M",
         probability: 75,
-        founder: 'Jane Doe',
-        lastContact: '2 days ago',
-        sector: 'SaaS',
-        outcome: 'active',
+        founder: "Jane Doe",
+        lastContact: "2 days ago",
+        sector: "SaaS",
+        outcome: "active",
       },
       {
         id: 2,
-        name: 'HealthApp Co',
-        stage: 'Due Diligence',
-        amount: '$5M',
+        name: "HealthApp Co",
+        stage: "Due Diligence",
+        amount: "$5M",
         probability: 60,
-        founder: 'John Smith',
-        lastContact: '1 week ago',
-        sector: 'Healthcare',
-        outcome: 'active',
+        founder: "John Smith",
+        lastContact: "1 week ago",
+        sector: "Healthcare",
+        outcome: "active",
       },
     ],
     copilotSuggestions: [],
@@ -49,174 +49,179 @@ describe('pipelineSlice', () => {
     mockData: mockPipelineData,
   });
 
-  describe('initial state', () => {
-    it('should return the initial state', () => {
-      const state = pipelineReducer(undefined, { type: '@@INIT' });
+  describe("initial state", () => {
+    it("should return the initial state", () => {
+      const state = pipelineReducer(undefined, { type: "@@INIT" });
       expect(state).toEqual(expectations.initialState);
     });
 
-    it('should have idle status initially', () => {
-      const state = pipelineReducer(undefined, { type: '@@INIT' });
-      expect(state.status).toBe('idle');
+    it("should have idle status initially", () => {
+      const state = pipelineReducer(undefined, { type: "@@INIT" });
+      expect(state.status).toBe("idle");
       expect(state.data).toBeNull();
       expect(state.error).toBeUndefined();
     });
   });
 
-  describe('pipelineDataRequested', () => {
-    it('should set status to loading', () => {
+  describe("pipelineDataRequested", () => {
+    it("should set status to loading", () => {
       const params: GetPipelineParams = {};
       const state = pipelineReducer(
         expectations.initialState,
-        request('pipeline/pipelineDataRequested', params)
+        request("pipeline/pipelineDataRequested", params),
       );
-      expect(state.status).toBe('loading');
+      expect(state.status).toBe("loading");
       expect(state.error).toBeUndefined();
     });
 
-    it('should clear previous error when requesting', () => {
+    it("should clear previous error when requesting", () => {
       const stateWithError = {
         ...expectations.initialState,
-        error: { message: 'Previous error', code: 'PREV_ERROR' },
+        error: { message: "Previous error", code: "PREV_ERROR" },
       };
-      const state = pipelineReducer(stateWithError, request('pipeline/pipelineDataRequested', {}));
+      const state = pipelineReducer(
+        stateWithError,
+        request("pipeline/pipelineDataRequested", {}),
+      );
       expect(state.error).toBeUndefined();
     });
   });
 
-  describe('pipelineDataLoaded', () => {
-    it('should set data and status to succeeded', () => {
+  describe("pipelineDataLoaded", () => {
+    it("should set data and status to succeeded", () => {
       const state = pipelineReducer(
         expectations.loadingState,
-        pipelineDataLoaded(mockPipelineData)
+        pipelineDataLoaded(mockPipelineData),
       );
-      expect(state.status).toBe('succeeded');
+      expect(state.status).toBe("succeeded");
       expect(state.data).toEqual(mockPipelineData);
       expect(state.error).toBeUndefined();
     });
 
-    it('should replace existing data', () => {
+    it("should replace existing data", () => {
       const stateWithData = {
         ...expectations.succeededState,
-        data: { stages: ['Old'], deals: [], copilotSuggestions: [] },
+        data: { stages: ["Old"], deals: [], copilotSuggestions: [] },
       };
       const state = pipelineReducer(
         stateWithData,
-        pipelineDataLoaded(mockPipelineData)
+        pipelineDataLoaded(mockPipelineData),
       );
       expect(state.data).toEqual(mockPipelineData);
     });
   });
 
-  describe('pipelineDataFailed', () => {
-    it('should set error and status to failed', () => {
+  describe("pipelineDataFailed", () => {
+    it("should set error and status to failed", () => {
       const error: NormalizedError = {
-        message: 'Failed to fetch pipeline data',
-        code: 'FETCH_ERROR',
+        message: "Failed to fetch pipeline data",
+        code: "FETCH_ERROR",
       };
       const state = pipelineReducer(
         expectations.loadingState,
-        pipelineDataFailed(error)
+        pipelineDataFailed(error),
       );
-      expect(state.status).toBe('failed');
+      expect(state.status).toBe("failed");
       expect(state.error).toEqual(error);
     });
 
-    it('should preserve the error code', () => {
+    it("should preserve the error code", () => {
       const error: NormalizedError = {
-        message: 'Network error',
-        code: 'NETWORK_ERROR',
+        message: "Network error",
+        code: "NETWORK_ERROR",
       };
       const state = pipelineReducer(
         expectations.loadingState,
-        pipelineDataFailed(error)
+        pipelineDataFailed(error),
       );
-      expect(state.error?.code).toBe('NETWORK_ERROR');
+      expect(state.error?.code).toBe("NETWORK_ERROR");
     });
   });
 
-  describe('dealStageUpdated', () => {
-    it('should update deal stage when data exists', () => {
+  describe("dealStageUpdated", () => {
+    it("should update deal stage when data exists", () => {
       const stateWithData = {
         ...expectations.succeededState,
         data: mockPipelineData,
       };
       const state = pipelineReducer(
         stateWithData,
-        dealStageUpdated({ dealId: 1, newStage: 'Due Diligence' })
+        dealStageUpdated({ dealId: 1, newStage: "Due Diligence" }),
       );
       const updatedDeal = state.data?.deals.find((d) => d.id === 1);
-      expect(updatedDeal?.stage).toBe('Due Diligence');
+      expect(updatedDeal?.stage).toBe("Due Diligence");
     });
 
-    it('should not modify other deals', () => {
+    it("should not modify other deals", () => {
       const stateWithData = {
         ...expectations.succeededState,
         data: mockPipelineData,
       };
       const state = pipelineReducer(
         stateWithData,
-        dealStageUpdated({ dealId: 1, newStage: 'Negotiation' })
+        dealStageUpdated({ dealId: 1, newStage: "Negotiation" }),
       );
       const otherDeal = state.data?.deals.find((d) => d.id === 2);
-      expect(otherDeal?.stage).toBe('Due Diligence');
+      expect(otherDeal?.stage).toBe("Due Diligence");
     });
 
-    it('should handle non-existent deal id gracefully', () => {
+    it("should handle non-existent deal id gracefully", () => {
       const stateWithData = {
         ...expectations.succeededState,
         data: mockPipelineData,
       };
       const state = pipelineReducer(
         stateWithData,
-        dealStageUpdated({ dealId: 999, newStage: 'Closed' })
+        dealStageUpdated({ dealId: 999, newStage: "Closed" }),
       );
       // Should not throw and state should remain unchanged
       expect(state.data?.deals).toHaveLength(2);
     });
 
-    it('should handle null data gracefully', () => {
+    it("should handle null data gracefully", () => {
       const state = pipelineReducer(
         expectations.initialState,
-        dealStageUpdated({ dealId: 1, newStage: 'Closed' })
+        dealStageUpdated({ dealId: 1, newStage: "Closed" }),
       );
       // Should not throw
       expect(state.data).toBeNull();
     });
   });
 
-  describe('pipelineDealUpserted', () => {
-    it('adds a new deal and stage when they do not exist', () => {
+  describe("pipelineDealUpserted", () => {
+    it("adds a new deal and stage when they do not exist", () => {
       const state = pipelineReducer(
         expectations.succeededState,
         pipelineDealUpserted({
           id: 3,
-          name: 'Fintech Labs',
-          stage: 'IC',
-          amount: '$3M',
+          name: "Fintech Labs",
+          stage: "IC",
+          amount: "$3M",
           probability: 80,
-          founder: 'Alex Roe',
-          lastContact: 'today',
-          sector: 'Fintech',
-          outcome: 'active',
-        })
+          founder: "Alex Roe",
+          lastContact: "today",
+          sector: "Fintech",
+          outcome: "active",
+        }),
       );
 
-      expect(state.data?.stages).toContain('IC');
+      expect(state.data?.stages).toContain("IC");
       expect(state.data?.deals[0]?.id).toBe(3);
     });
 
-    it('replaces an existing deal without duplicating it', () => {
+    it("replaces an existing deal without duplicating it", () => {
       const state = pipelineReducer(
         expectations.succeededState,
         pipelineDealUpserted({
           ...mockPipelineData.deals[0],
-          stage: 'Negotiation',
-        })
+          stage: "Negotiation",
+        }),
       );
 
       expect(state.data?.deals).toHaveLength(mockPipelineData.deals.length);
-      expect(state.data?.deals.find((deal) => deal.id === 1)?.stage).toBe('Negotiation');
+      expect(state.data?.deals.find((deal) => deal.id === 1)?.stage).toBe(
+        "Negotiation",
+      );
     });
   });
 });

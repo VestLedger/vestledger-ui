@@ -7,10 +7,15 @@
 import type {
   FundRegulatoryProfile,
   FundRegulatoryRegime,
-} from '@/types/regulatory';
+} from "@/types/regulatory";
 
-export type FundStatus = 'active' | 'closed' | 'fundraising';
-export type FundStrategy = 'early-stage' | 'growth' | 'late-stage' | 'multi-stage' | 'sector-specific';
+export type FundStatus = "active" | "closed" | "fundraising";
+export type FundStrategy =
+  | "early-stage"
+  | "growth"
+  | "late-stage"
+  | "multi-stage"
+  | "sector-specific";
 
 export interface Fund {
   id: string;
@@ -67,7 +72,7 @@ export interface FundSummary {
   closedFunds: number;
 }
 
-export type FundViewMode = 'individual' | 'consolidated' | 'comparison';
+export type FundViewMode = "individual" | "consolidated" | "comparison";
 
 export interface FundContextType {
   funds: Fund[];

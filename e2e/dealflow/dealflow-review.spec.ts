@@ -1,19 +1,19 @@
-import { test, expect } from '../fixtures/auth.fixture';
-import { DealflowReviewPage } from '../pages/dealflow-review.page';
+import { test, expect } from "../fixtures/auth.fixture";
+import { DealflowReviewPage } from "../pages/dealflow-review.page";
 import {
   captureDataSnapshot,
   verifyDataChanged,
-} from '../helpers/interaction-helpers';
+} from "../helpers/interaction-helpers";
 
-test.describe('Dealflow Review - Page Load', () => {
-  test('should load dealflow review page', async ({ page }) => {
+test.describe("Dealflow Review - Page Load", () => {
+  test("should load dealflow review page", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
     await expect(dealflowReview.pageTitle).toBeVisible({ timeout: 10000 });
   });
 
-  test('should display deal selector', async ({ page }) => {
+  test("should display deal selector", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -23,7 +23,7 @@ test.describe('Dealflow Review - Page Load', () => {
     }
   });
 
-  test('should have presentation button', async ({ page }) => {
+  test("should have presentation button", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -33,8 +33,8 @@ test.describe('Dealflow Review - Page Load', () => {
   });
 });
 
-test.describe('Dealflow Review - Deal Navigation', () => {
-  test('should display current deal indicator', async ({ page }) => {
+test.describe("Dealflow Review - Deal Navigation", () => {
+  test("should display current deal indicator", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -44,7 +44,7 @@ test.describe('Dealflow Review - Deal Navigation', () => {
     }
   });
 
-  test('should navigate to next deal', async ({ page }) => {
+  test("should navigate to next deal", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -57,7 +57,7 @@ test.describe('Dealflow Review - Deal Navigation', () => {
     }
   });
 
-  test('should navigate to previous deal', async ({ page }) => {
+  test("should navigate to previous deal", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -73,7 +73,7 @@ test.describe('Dealflow Review - Deal Navigation', () => {
     }
   });
 
-  test('should select deal by clicking deal button', async ({ page }) => {
+  test("should select deal by clicking deal button", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -86,8 +86,8 @@ test.describe('Dealflow Review - Deal Navigation', () => {
   });
 });
 
-test.describe('Dealflow Review - Slide Navigation', () => {
-  test('should display slides panel', async ({ page }) => {
+test.describe("Dealflow Review - Slide Navigation", () => {
+  test("should display slides panel", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -97,7 +97,7 @@ test.describe('Dealflow Review - Slide Navigation', () => {
     }
   });
 
-  test('should display slide buttons', async ({ page }) => {
+  test("should display slide buttons", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -108,7 +108,7 @@ test.describe('Dealflow Review - Slide Navigation', () => {
     }
   });
 
-  test('should navigate to next slide', async ({ page }) => {
+  test("should navigate to next slide", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -124,7 +124,7 @@ test.describe('Dealflow Review - Slide Navigation', () => {
     }
   });
 
-  test('should navigate to previous slide', async ({ page }) => {
+  test("should navigate to previous slide", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -143,7 +143,7 @@ test.describe('Dealflow Review - Slide Navigation', () => {
     }
   });
 
-  test('should select slide by clicking slide button', async ({ page }) => {
+  test("should select slide by clicking slide button", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -159,8 +159,8 @@ test.describe('Dealflow Review - Slide Navigation', () => {
   });
 });
 
-test.describe('Dealflow Review - Slide Content', () => {
-  test('should display slide title', async ({ page }) => {
+test.describe("Dealflow Review - Slide Content", () => {
+  test("should display slide title", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -171,7 +171,7 @@ test.describe('Dealflow Review - Slide Content', () => {
     }
   });
 
-  test('should display slide number badge', async ({ page }) => {
+  test("should display slide number badge", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -181,7 +181,7 @@ test.describe('Dealflow Review - Slide Content', () => {
     }
   });
 
-  test('should display slide content', async ({ page }) => {
+  test("should display slide content", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -192,8 +192,8 @@ test.describe('Dealflow Review - Slide Content', () => {
   });
 });
 
-test.describe('Dealflow Review - Slide Types', () => {
-  test('should display overview slide content', async ({ page }) => {
+test.describe("Dealflow Review - Slide Types", () => {
+  test("should display overview slide content", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -201,45 +201,45 @@ test.describe('Dealflow Review - Slide Types', () => {
     if (totalDeals > 0) {
       // Overview is usually the first slide
       const overviewContent = dealflowReview.getOverviewSlideContent();
-      if (await overviewContent.count() > 0) {
+      if ((await overviewContent.count()) > 0) {
         await expect(overviewContent.first()).toBeVisible();
       }
     }
   });
 
-  test('should display market slide content', async ({ page }) => {
+  test("should display market slide content", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
     const totalDeals = await dealflowReview.getTotalDeals();
     if (totalDeals > 0) {
       // Navigate to market slide
-      const marketSlide = dealflowReview.getSlideByType('market');
-      if (await marketSlide.count() > 0) {
+      const marketSlide = dealflowReview.getSlideByType("market");
+      if ((await marketSlide.count()) > 0) {
         await marketSlide.first().click();
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState("networkidle");
 
         const marketContent = dealflowReview.getMarketSlideContent();
-        if (await marketContent.count() > 0) {
+        if ((await marketContent.count()) > 0) {
           await expect(marketContent.first()).toBeVisible();
         }
       }
     }
   });
 
-  test('should display financials slide content', async ({ page }) => {
+  test("should display financials slide content", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
     const totalDeals = await dealflowReview.getTotalDeals();
     if (totalDeals > 0) {
-      const financialsSlide = dealflowReview.getSlideByType('financials');
-      if (await financialsSlide.count() > 0) {
+      const financialsSlide = dealflowReview.getSlideByType("financials");
+      if ((await financialsSlide.count()) > 0) {
         await financialsSlide.first().click();
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState("networkidle");
 
         const financialsContent = dealflowReview.getFinancialsSlideContent();
-        if (await financialsContent.count() > 0) {
+        if ((await financialsContent.count()) > 0) {
           await expect(financialsContent.first()).toBeVisible();
         }
       }
@@ -247,8 +247,8 @@ test.describe('Dealflow Review - Slide Types', () => {
   });
 });
 
-test.describe('Dealflow Review - Voting', () => {
-  test('should display voting panel', async ({ page }) => {
+test.describe("Dealflow Review - Voting", () => {
+  test("should display voting panel", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -258,7 +258,7 @@ test.describe('Dealflow Review - Voting', () => {
     }
   });
 
-  test('should have yes vote button', async ({ page }) => {
+  test("should have yes vote button", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -269,7 +269,7 @@ test.describe('Dealflow Review - Voting', () => {
     }
   });
 
-  test('should have maybe vote button', async ({ page }) => {
+  test("should have maybe vote button", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -280,7 +280,7 @@ test.describe('Dealflow Review - Voting', () => {
     }
   });
 
-  test('should have no vote button', async ({ page }) => {
+  test("should have no vote button", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -291,7 +291,7 @@ test.describe('Dealflow Review - Voting', () => {
     }
   });
 
-  test('should cast yes vote', async ({ page }) => {
+  test("should cast yes vote", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -300,13 +300,13 @@ test.describe('Dealflow Review - Voting', () => {
       await dealflowReview.voteYes();
 
       // Check that vote was registered (button state change or votes cast section update)
-      const yesVotes = dealflowReview.getVotesByType('yes');
+      const yesVotes = dealflowReview.getVotesByType("yes");
       const count = await yesVotes.count();
       expect(count).toBeGreaterThanOrEqual(0);
     }
   });
 
-  test('should cast maybe vote', async ({ page }) => {
+  test("should cast maybe vote", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -316,7 +316,7 @@ test.describe('Dealflow Review - Voting', () => {
     }
   });
 
-  test('should cast no vote', async ({ page }) => {
+  test("should cast no vote", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -327,8 +327,8 @@ test.describe('Dealflow Review - Voting', () => {
   });
 });
 
-test.describe('Dealflow Review - Discussion', () => {
-  test('should display discussion section', async ({ page }) => {
+test.describe("Dealflow Review - Discussion", () => {
+  test("should display discussion section", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -338,7 +338,7 @@ test.describe('Dealflow Review - Discussion', () => {
     }
   });
 
-  test('should have discussion textarea', async ({ page }) => {
+  test("should have discussion textarea", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -348,21 +348,21 @@ test.describe('Dealflow Review - Discussion', () => {
     }
   });
 
-  test('should add comment', async ({ page }) => {
+  test("should add comment", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
     const totalDeals = await dealflowReview.getTotalDeals();
     if (totalDeals > 0) {
-      await dealflowReview.addComment('This looks like a promising deal.');
+      await dealflowReview.addComment("This looks like a promising deal.");
       const value = await dealflowReview.discussionTextarea.inputValue();
-      expect(value).toContain('promising');
+      expect(value).toContain("promising");
     }
   });
 });
 
-test.describe('Dealflow Review - Partner Scoring', () => {
-  test('should display partner scoring section', async ({ page }) => {
+test.describe("Dealflow Review - Partner Scoring", () => {
+  test("should display partner scoring section", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -373,36 +373,46 @@ test.describe('Dealflow Review - Partner Scoring', () => {
   });
 });
 
-test.describe('Dealflow Review - Presentation Mode', () => {
-  test('should start presentation', async ({ page }) => {
+test.describe("Dealflow Review - Presentation Mode", () => {
+  test("should start presentation", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
     const totalDeals = await dealflowReview.getTotalDeals();
-    if (totalDeals > 0 && await dealflowReview.startPresentationButton.isVisible()) {
+    if (
+      totalDeals > 0 &&
+      (await dealflowReview.startPresentationButton.isVisible())
+    ) {
       await dealflowReview.startPresentation();
 
       // Button text should change to "Stop Presenting"
-      await expect(dealflowReview.stopPresentationButton).toBeVisible({ timeout: 5000 });
+      await expect(dealflowReview.stopPresentationButton).toBeVisible({
+        timeout: 5000,
+      });
     }
   });
 
-  test('should stop presentation', async ({ page }) => {
+  test("should stop presentation", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
     const totalDeals = await dealflowReview.getTotalDeals();
-    if (totalDeals > 0 && await dealflowReview.startPresentationButton.isVisible()) {
+    if (
+      totalDeals > 0 &&
+      (await dealflowReview.startPresentationButton.isVisible())
+    ) {
       await dealflowReview.startPresentation();
       await dealflowReview.stopPresentation();
 
-      await expect(dealflowReview.startPresentationButton).toBeVisible({ timeout: 5000 });
+      await expect(dealflowReview.startPresentationButton).toBeVisible({
+        timeout: 5000,
+      });
     }
   });
 });
 
-test.describe('Dealflow Review - Add Slide', () => {
-  test('should have add slide button', async ({ page }) => {
+test.describe("Dealflow Review - Add Slide", () => {
+  test("should have add slide button", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -414,8 +424,8 @@ test.describe('Dealflow Review - Add Slide', () => {
   });
 });
 
-test.describe('Dealflow Review - Share and Export', () => {
-  test('should have share button', async ({ page }) => {
+test.describe("Dealflow Review - Share and Export", () => {
+  test("should have share button", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -424,7 +434,7 @@ test.describe('Dealflow Review - Share and Export', () => {
     }
   });
 
-  test('should have export button', async ({ page }) => {
+  test("should have export button", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -434,30 +444,31 @@ test.describe('Dealflow Review - Share and Export', () => {
   });
 });
 
-test.describe('Dealflow Review - Interactions - Data Verification', () => {
-  test('deal navigation should update slide content', async ({ page }) => {
+test.describe("Dealflow Review - Interactions - Data Verification", () => {
+  test("deal navigation should update slide content", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
     const totalDeals = await dealflowReview.getTotalDeals();
     if (totalDeals > 1) {
-      const dataSelector = 'div.rounded-lg, [class*="slide"], [class*="content"], h2, h3';
+      const dataSelector =
+        'div.rounded-lg, [class*="slide"], [class*="content"], h2, h3';
       const before = await captureDataSnapshot(page, dataSelector);
 
       await dealflowReview.nextDeal();
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState("networkidle");
 
       const after = await captureDataSnapshot(page, dataSelector);
       const changed = verifyDataChanged(before, after);
 
       expect(
         changed,
-        'Navigating to next deal should update slide content'
+        "Navigating to next deal should update slide content",
       ).toBe(true);
     }
   });
 
-  test('slide navigation should update displayed slide', async ({ page }) => {
+  test("slide navigation should update displayed slide", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -465,24 +476,26 @@ test.describe('Dealflow Review - Interactions - Data Verification', () => {
     if (totalDeals > 0) {
       const totalSlides = await dealflowReview.getTotalSlides();
       if (totalSlides > 1) {
-        const dataSelector = '[class*="slide"], [class*="content"], h2, h3, div.rounded-lg';
+        const dataSelector =
+          '[class*="slide"], [class*="content"], h2, h3, div.rounded-lg';
         const before = await captureDataSnapshot(page, dataSelector);
 
         await dealflowReview.nextSlide();
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState("networkidle");
 
         const after = await captureDataSnapshot(page, dataSelector);
         const changed = verifyDataChanged(before, after);
 
-        expect(
-          changed,
-          'Navigating to next slide should update content'
-        ).toBe(true);
+        expect(changed, "Navigating to next slide should update content").toBe(
+          true,
+        );
       }
     }
   });
 
-  test('selecting slide by button should update slide content', async ({ page }) => {
+  test("selecting slide by button should update slide content", async ({
+    page,
+  }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -494,26 +507,27 @@ test.describe('Dealflow Review - Interactions - Data Verification', () => {
         const before = await captureDataSnapshot(page, dataSelector);
 
         await dealflowReview.selectSlide(2);
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState("networkidle");
 
         const after = await captureDataSnapshot(page, dataSelector);
         const changed = verifyDataChanged(before, after);
 
         expect(
           changed,
-          'Clicking slide button should update displayed slide'
+          "Clicking slide button should update displayed slide",
         ).toBe(true);
       }
     }
   });
 
-  test('voting should update vote display', async ({ page }) => {
+  test("voting should update vote display", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
     const totalDeals = await dealflowReview.getTotalDeals();
     if (totalDeals > 0) {
-      const dataSelector = '[class*="vote"], [class*="button"][class*="active"], [class*="selected"]';
+      const dataSelector =
+        '[class*="vote"], [class*="button"][class*="active"], [class*="selected"]';
       const before = await captureDataSnapshot(page, dataSelector);
 
       await dealflowReview.voteYes();
@@ -522,14 +536,11 @@ test.describe('Dealflow Review - Interactions - Data Verification', () => {
       const after = await captureDataSnapshot(page, dataSelector);
       const changed = verifyDataChanged(before, after);
 
-      expect(
-        changed,
-        'Casting vote should update vote display'
-      ).toBe(true);
+      expect(changed, "Casting vote should update vote display").toBe(true);
     }
   });
 
-  test('changing vote should update button states', async ({ page }) => {
+  test("changing vote should update button states", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
@@ -549,19 +560,19 @@ test.describe('Dealflow Review - Interactions - Data Verification', () => {
       const afterNo = await captureDataSnapshot(page, dataSelector);
       const changed = verifyDataChanged(afterYes, afterNo);
 
-      expect(
-        changed,
-        'Changing vote should update button states'
-      ).toBe(true);
+      expect(changed, "Changing vote should update button states").toBe(true);
     }
   });
 
-  test('presentation mode should change UI state', async ({ page }) => {
+  test("presentation mode should change UI state", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
     const totalDeals = await dealflowReview.getTotalDeals();
-    if (totalDeals > 0 && await dealflowReview.startPresentationButton.isVisible()) {
+    if (
+      totalDeals > 0 &&
+      (await dealflowReview.startPresentationButton.isVisible())
+    ) {
       const dataSelector = 'button, [class*="present"], [class*="mode"]';
       const before = await captureDataSnapshot(page, dataSelector);
 
@@ -571,10 +582,9 @@ test.describe('Dealflow Review - Interactions - Data Verification', () => {
       const after = await captureDataSnapshot(page, dataSelector);
       const changed = verifyDataChanged(before, after);
 
-      expect(
-        changed,
-        'Starting presentation should change UI state'
-      ).toBe(true);
+      expect(changed, "Starting presentation should change UI state").toBe(
+        true,
+      );
 
       // Clean up - stop presentation
       if (await dealflowReview.stopPresentationButton.isVisible()) {
@@ -583,43 +593,53 @@ test.describe('Dealflow Review - Interactions - Data Verification', () => {
     }
   });
 
-  test('adding comment should update discussion section', async ({ page }) => {
+  test("adding comment should update discussion section", async ({ page }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
     const totalDeals = await dealflowReview.getTotalDeals();
-    if (totalDeals > 0 && await dealflowReview.discussionTextarea.isVisible()) {
-      const textareaBefore = await dealflowReview.discussionTextarea.inputValue();
+    if (
+      totalDeals > 0 &&
+      (await dealflowReview.discussionTextarea.isVisible())
+    ) {
+      const textareaBefore =
+        await dealflowReview.discussionTextarea.inputValue();
 
-      await dealflowReview.addComment('Test comment for interaction verification');
+      await dealflowReview.addComment(
+        "Test comment for interaction verification",
+      );
 
-      const textareaAfter = await dealflowReview.discussionTextarea.inputValue();
+      const textareaAfter =
+        await dealflowReview.discussionTextarea.inputValue();
 
       expect(
         textareaAfter !== textareaBefore,
-        'Adding comment should update the discussion textarea'
+        "Adding comment should update the discussion textarea",
       ).toBe(true);
     }
   });
 
-  test('selecting different deal should update all content sections', async ({ page }) => {
+  test("selecting different deal should update all content sections", async ({
+    page,
+  }) => {
     const dealflowReview = new DealflowReviewPage(page);
     await dealflowReview.goto();
 
     const totalDeals = await dealflowReview.getTotalDeals();
     if (totalDeals > 1) {
-      const dataSelector = 'div.rounded-lg, [class*="slide"], [class*="content"], [class*="vote"], h2, h3';
+      const dataSelector =
+        'div.rounded-lg, [class*="slide"], [class*="content"], [class*="vote"], h2, h3';
       const deal1Snapshot = await captureDataSnapshot(page, dataSelector);
 
       await dealflowReview.selectDeal(1);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState("networkidle");
 
       const deal2Snapshot = await captureDataSnapshot(page, dataSelector);
       const changed = verifyDataChanged(deal1Snapshot, deal2Snapshot);
 
       expect(
         changed,
-        'Selecting different deal should update all content sections'
+        "Selecting different deal should update all content sections",
       ).toBe(true);
     }
   });

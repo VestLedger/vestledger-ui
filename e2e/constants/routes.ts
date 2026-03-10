@@ -9,35 +9,35 @@
  */
 
 export const DASHBOARD_ROUTES = [
-  '/home',
-  '/vesta',
-  '/portfolio',
-  '/analytics',
-  '/pipeline',
-  '/lp-management',
-  '/fund-admin',
-  '/documents',
-  '/reports',
-  '/compliance',
-  '/audit-trail',
-  '/409a-valuations',
-  '/integrations',
-  '/collaboration',
-  '/settings',
-  '/tax-center',
-  '/waterfall',
-  '/ai-tools',
-  '/notifications',
-  '/deal-intelligence',
-  '/dealflow-review',
-  '/contacts',
-  '/lp-portal',
+  "/home",
+  "/vesta",
+  "/portfolio",
+  "/analytics",
+  "/pipeline",
+  "/lp-management",
+  "/fund-admin",
+  "/documents",
+  "/reports",
+  "/compliance",
+  "/audit-trail",
+  "/409a-valuations",
+  "/integrations",
+  "/collaboration",
+  "/settings",
+  "/tax-center",
+  "/waterfall",
+  "/ai-tools",
+  "/notifications",
+  "/deal-intelligence",
+  "/dealflow-review",
+  "/contacts",
+  "/lp-portal",
 ] as const;
 
 /** Routes the default `gp` test user cannot access (role-restricted to other roles). */
-export const GP_DENIED_ROUTES: readonly string[] = ['/lp-portal'];
+export const GP_DENIED_ROUTES: readonly string[] = ["/lp-portal"];
 
 /** Routes the default `gp` test user can access after authentication. */
 export const GP_ACCESSIBLE_ROUTES = DASHBOARD_ROUTES.filter(
-  (route) => !GP_DENIED_ROUTES.includes(route)
+  (route) => !GP_DENIED_ROUTES.includes(route),
 );

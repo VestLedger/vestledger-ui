@@ -39,7 +39,7 @@ const parseDraftTimestamp = (draft: DistributionWizardState) => {
 
 const findLatestDraft = (
   fundId: string,
-  explicitDraftId?: string | null
+  explicitDraftId?: string | null,
 ): { draftId: string; draft: DistributionWizardState } | null => {
   if (!safeLocalStorage.isAvailable()) return null;
 
@@ -48,7 +48,7 @@ const findLatestDraft = (
 
   if (preferredId) {
     const preferredDraft = safeLocalStorage.getJSON<DistributionWizardState>(
-      buildDraftKey(fundId, preferredId)
+      buildDraftKey(fundId, preferredId),
     );
     if (preferredDraft) {
       return { draftId: preferredId, draft: preferredDraft };
@@ -145,7 +145,10 @@ export function useDistributionDraft(params: {
   const isDirty = useMemo(() => {
     if (!wizard.lastEditedAt) return false;
     if (!wizard.draftSavedAt) return true;
-    return new Date(wizard.lastEditedAt).getTime() > new Date(wizard.draftSavedAt).getTime();
+    return (
+      new Date(wizard.lastEditedAt).getTime() >
+      new Date(wizard.draftSavedAt).getTime()
+    );
   }, [wizard.draftSavedAt, wizard.lastEditedAt]);
 
   useEffect(() => {
@@ -168,7 +171,8 @@ export function useDistributionDraft(params: {
     const handleClick = (event: MouseEvent) => {
       if (event.defaultPrevented) return;
       if (event.button !== 0) return;
-      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+        return;
       const target = event.target as HTMLElement | null;
       const anchor = target?.closest("a");
       if (!anchor) return;
@@ -178,7 +182,9 @@ export function useDistributionDraft(params: {
       const destination = new URL(href, window.location.href);
       const current = new URL(window.location.href);
       if (destination.pathname === current.pathname) return;
-      const confirmed = window.confirm("You have unsaved changes. Leave this page?");
+      const confirmed = window.confirm(
+        "You have unsaved changes. Leave this page?",
+      );
       if (!confirmed) {
         event.preventDefault();
         event.stopPropagation();
@@ -193,7 +199,9 @@ export function useDistributionDraft(params: {
   useEffect(() => {
     if (!isDirty || !isBrowser()) return undefined;
     const handlePopState = () => {
-      const confirmed = window.confirm("You have unsaved changes. Leave this page?");
+      const confirmed = window.confirm(
+        "You have unsaved changes. Leave this page?",
+      );
       if (confirmed) {
         lastConfirmedUrlRef.current = window.location.href;
         return;

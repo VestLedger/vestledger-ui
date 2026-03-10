@@ -16,7 +16,7 @@
  * ```
  */
 
-type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+type LogLevel = "debug" | "info" | "warn" | "error";
 
 interface LogContext {
   [key: string]: unknown;
@@ -32,47 +32,50 @@ interface LogEntry {
 }
 
 const LOG_COLORS: Record<LogLevel, string> = {
-  debug: '\x1b[36m', // Cyan
-  info: '\x1b[32m', // Green
-  warn: '\x1b[33m', // Yellow
-  error: '\x1b[31m', // Red
+  debug: "\x1b[36m", // Cyan
+  info: "\x1b[32m", // Green
+  warn: "\x1b[33m", // Yellow
+  error: "\x1b[31m", // Red
 };
 
-const RESET_COLOR = '\x1b[0m';
+const RESET_COLOR = "\x1b[0m";
 
 const USER_CORRECTABLE_ERROR_CODES = new Set([
-  'BAD_REQUEST',
-  'VALIDATION_FAILED',
-  'UNPROCESSABLE_ENTITY',
-  'HTTP_400',
-  'HTTP_404',
-  'HTTP_409',
-  'HTTP_422',
+  "BAD_REQUEST",
+  "VALIDATION_FAILED",
+  "UNPROCESSABLE_ENTITY",
+  "HTTP_400",
+  "HTTP_404",
+  "HTTP_409",
+  "HTTP_422",
 ]);
 
 class Logger {
-  private isDevelopment = process.env.NODE_ENV === 'development';
-  private isTest = process.env.NODE_ENV === 'test';
-  private isServer = typeof window === 'undefined';
+  private isDevelopment = process.env.NODE_ENV === "development";
+  private isTest = process.env.NODE_ENV === "test";
+  private isServer = typeof window === "undefined";
 
-  private extractStatus(error: Error, context?: LogContext): number | undefined {
+  private extractStatus(
+    error: Error,
+    context?: LogContext,
+  ): number | undefined {
     const errorStatus = (error as { status?: unknown }).status;
-    if (typeof errorStatus === 'number') {
+    if (typeof errorStatus === "number") {
       return errorStatus;
     }
 
     const contextStatus = context?.status;
-    return typeof contextStatus === 'number' ? contextStatus : undefined;
+    return typeof contextStatus === "number" ? contextStatus : undefined;
   }
 
   private extractCode(error: Error, context?: LogContext): string | undefined {
     const errorCode = (error as { code?: unknown }).code;
-    if (typeof errorCode === 'string' && errorCode.length > 0) {
+    if (typeof errorCode === "string" && errorCode.length > 0) {
       return errorCode;
     }
 
     const contextCode = context?.code;
-    return typeof contextCode === 'string' && contextCode.length > 0
+    return typeof contextCode === "string" && contextCode.length > 0
       ? contextCode
       : undefined;
   }
@@ -84,7 +87,10 @@ class Logger {
     }
 
     const code = this.extractCode(error, context);
-    return typeof code === 'string' && USER_CORRECTABLE_ERROR_CODES.has(code.toUpperCase());
+    return (
+      typeof code === "string" &&
+      USER_CORRECTABLE_ERROR_CODES.has(code.toUpperCase())
+    );
   }
 
   /**
@@ -103,7 +109,7 @@ class Logger {
     if (error) {
       output += `\n  Error: ${error.message}`;
       if (error.stack) {
-        output += `\n  Stack: ${error.stack.split('\n').slice(1, 4).join('\n        ')}`;
+        output += `\n  Stack: ${error.stack.split("\n").slice(1, 4).join("\n        ")}`;
       }
     }
 
@@ -117,7 +123,7 @@ class Logger {
     level: LogLevel,
     message: string,
     error?: Error,
-    context?: LogContext
+    context?: LogContext,
   ): LogEntry {
     return {
       level,
@@ -136,7 +142,7 @@ class Logger {
     if (this.isTest) {
       return;
     }
-    if (!this.isDevelopment && entry.level === 'debug') {
+    if (!this.isDevelopment && entry.level === "debug") {
       return; // Skip debug logs in production
     }
 
@@ -145,21 +151,21 @@ class Logger {
     // Use colors in Node.js (server-side)
     if (this.isServer) {
       const color = LOG_COLORS[entry.level];
-      console[entry.level === 'debug' ? 'log' : entry.level](
-        `${color}${formatted}${RESET_COLOR}`
+      console[entry.level === "debug" ? "log" : entry.level](
+        `${color}${formatted}${RESET_COLOR}`,
       );
     } else {
       // Browser console with CSS styling
       const styles: Record<LogLevel, string> = {
-        debug: 'color: #6b7280',
-        info: 'color: #10b981',
-        warn: 'color: #f59e0b',
-        error: 'color: #ef4444; font-weight: bold',
+        debug: "color: #6b7280",
+        info: "color: #10b981",
+        warn: "color: #f59e0b",
+        error: "color: #ef4444; font-weight: bold",
       };
 
-      console[entry.level === 'debug' ? 'log' : entry.level](
+      console[entry.level === "debug" ? "log" : entry.level](
         `%c${formatted}`,
-        styles[entry.level]
+        styles[entry.level],
       );
     }
   }
@@ -169,7 +175,7 @@ class Logger {
    * TODO: Integrate with Sentry or similar service
    */
   private sendToErrorTracker(entry: LogEntry): void {
-    if (entry.level !== 'error') return;
+    if (entry.level !== "error") return;
 
     // Placeholder for Sentry integration
     // Example:
@@ -182,7 +188,7 @@ class Logger {
 
     // For now, we'll just log that we would send this to a tracker
     if (this.isDevelopment) {
-      console.log('[Logger] Would send to error tracker:', entry.message);
+      console.log("[Logger] Would send to error tracker:", entry.message);
     }
   }
 
@@ -190,7 +196,7 @@ class Logger {
    * Log a debug message (development only)
    */
   debug(message: string, context?: LogContext): void {
-    const entry = this.createEntry('debug', message, undefined, context);
+    const entry = this.createEntry("debug", message, undefined, context);
     this.logToConsole(entry);
   }
 
@@ -198,7 +204,7 @@ class Logger {
    * Log an info message
    */
   info(message: string, context?: LogContext): void {
-    const entry = this.createEntry('info', message, undefined, context);
+    const entry = this.createEntry("info", message, undefined, context);
     this.logToConsole(entry);
   }
 
@@ -206,7 +212,7 @@ class Logger {
    * Log a warning message
    */
   warn(message: string, context?: LogContext): void {
-    const entry = this.createEntry('warn', message, undefined, context);
+    const entry = this.createEntry("warn", message, undefined, context);
     this.logToConsole(entry);
   }
 
@@ -222,23 +228,28 @@ class Logger {
       const code = this.extractCode(normalizedError, context);
       const downgradedContext: LogContext = {
         ...(context ?? {}),
-        logPolicy: 'downgraded_user_correctable',
+        logPolicy: "downgraded_user_correctable",
       };
 
-      if (typeof status === 'number') {
+      if (typeof status === "number") {
         downgradedContext.status = status;
       }
 
-      if (typeof code === 'string') {
+      if (typeof code === "string") {
         downgradedContext.code = code;
       }
 
-      const entry = this.createEntry('warn', message, normalizedError, downgradedContext);
+      const entry = this.createEntry(
+        "warn",
+        message,
+        normalizedError,
+        downgradedContext,
+      );
       this.logToConsole(entry);
       return;
     }
 
-    const entry = this.createEntry('error', message, normalizedError, context);
+    const entry = this.createEntry("error", message, normalizedError, context);
     this.logToConsole(entry);
     this.sendToErrorTracker(entry);
   }
@@ -258,7 +269,7 @@ class Logger {
 class ChildLogger {
   constructor(
     private parent: Logger,
-    private baseContext: LogContext
+    private baseContext: LogContext,
   ) {}
 
   private mergeContext(context?: LogContext): LogContext {

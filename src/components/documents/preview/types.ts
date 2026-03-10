@@ -1,11 +1,11 @@
 export type DocumentType =
-  | 'pdf'
-  | 'word'
-  | 'excel'
-  | 'presentation'
-  | 'image'
-  | 'archive'
-  | 'other';
+  | "pdf"
+  | "word"
+  | "excel"
+  | "presentation"
+  | "image"
+  | "archive"
+  | "other";
 
 export type JsonValue =
   | string
@@ -74,7 +74,7 @@ export interface ImageViewerProps extends ViewerCommonProps {
 
 export interface OfficeDocViewerProps extends ViewerCommonProps {
   fileName: string;
-  fileType: 'word' | 'excel' | 'presentation';
+  fileType: "word" | "excel" | "presentation";
 }
 
 export interface UnsupportedViewerProps {

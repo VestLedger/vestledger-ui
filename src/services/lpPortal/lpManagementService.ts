@@ -1,24 +1,24 @@
-import { isMockMode } from '@/config/data-mode';
+import { isMockMode } from "@/config/data-mode";
 import {
   mockCapitalCalls,
   mockDistributions,
   mockLPs,
   mockReports,
-} from '@/data/seeds/lp-portal/lp-management';
-import { requestJson } from '@/services/shared/httpClient';
+} from "@/data/seeds/lp-portal/lp-management";
+import { requestJson } from "@/services/shared/httpClient";
 import type {
   CapitalCall,
   Distribution,
   LP,
   Report,
-} from '@/data/seeds/lp-portal/lp-management';
+} from "@/data/seeds/lp-portal/lp-management";
 
 export type {
   CapitalCall,
   Distribution,
   LP,
   Report,
-} from '@/data/seeds/lp-portal/lp-management';
+} from "@/data/seeds/lp-portal/lp-management";
 
 export interface LPManagementSnapshot {
   lps: LP[];
@@ -98,7 +98,7 @@ function extractApiList<TItem>(response: ApiListResponse<TItem>): TItem[] {
 }
 
 function asNumber(value: unknown, fallback = 0): number {
-  return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
 
 function asDate(value?: string): string {
@@ -108,29 +108,49 @@ function asDate(value?: string): string {
   return parsed.toISOString().slice(0, 10);
 }
 
-function normalizeLPType(rawType?: string, lpName?: string): LP['type'] {
-  const normalizedType = rawType?.toLowerCase() ?? '';
-  const normalizedName = lpName?.toLowerCase() ?? '';
+function normalizeLPType(rawType?: string, lpName?: string): LP["type"] {
+  const normalizedType = rawType?.toLowerCase() ?? "";
+  const normalizedName = lpName?.toLowerCase() ?? "";
 
-  if (normalizedType.includes('family') || normalizedName.includes('family office')) {
-    return 'family-office';
+  if (
+    normalizedType.includes("family") ||
+    normalizedName.includes("family office")
+  ) {
+    return "family-office";
   }
-  if (normalizedType === 'individual') return 'individual';
-  if (normalizedType === 'corporate' || normalizedType === 'strategic' || normalizedType === 'entity') {
-    return 'corporate';
+  if (normalizedType === "individual") return "individual";
+  if (
+    normalizedType === "corporate" ||
+    normalizedType === "strategic" ||
+    normalizedType === "entity"
+  ) {
+    return "corporate";
   }
 
-  return 'institution';
+  return "institution";
 }
 
 function mapApiLPToLP(record: ApiLPRecord, index: number): LP {
-  const commitmentAmount = asNumber(record.totalCommitment ?? record.commitment);
+  const commitmentAmount = asNumber(
+    record.totalCommitment ?? record.commitment,
+  );
   const calledCapital = asNumber(record.capitalCalled ?? record.calledAmount);
-  const distributedCapital = asNumber(record.capitalDistributed ?? record.distributedAmount);
-  const navValue = Math.max(commitmentAmount, calledCapital * 1.15, distributedCapital * 1.2, 0);
+  const distributedCapital = asNumber(
+    record.capitalDistributed ?? record.distributedAmount,
+  );
+  const navValue = Math.max(
+    commitmentAmount,
+    calledCapital * 1.15,
+    distributedCapital * 1.2,
+    0,
+  );
   const dpi = calledCapital > 0 ? distributedCapital / calledCapital : 0;
-  const tvpi = calledCapital > 0 ? (navValue + distributedCapital) / calledCapital : 1;
-  const irr = Math.max(0, Math.min(45, Number((tvpi * 12 + dpi * 6).toFixed(1))));
+  const tvpi =
+    calledCapital > 0 ? (navValue + distributedCapital) / calledCapital : 1;
+  const irr = Math.max(
+    0,
+    Math.min(45, Number((tvpi * 12 + dpi * 6).toFixed(1))),
+  );
 
   return {
     id: record.id,
@@ -145,59 +165,65 @@ function mapApiLPToLP(record: ApiLPRecord, index: number): LP {
     tvpi: Number(tvpi.toFixed(2)),
     irr,
     joinDate: asDate(record.createdAt),
-    contactPerson: record.contactName ?? 'Investor Relations',
+    contactPerson: record.contactName ?? "Investor Relations",
     email: record.email ?? `lp-${index + 1}@example.com`,
     fundCount: record.fundCount ?? 1,
   };
 }
 
-function mapApiCapitalCallToCapitalCall(record: ApiCapitalCallRecord, index: number): CapitalCall {
-  const normalizedStatus = (record.status ?? '').toLowerCase();
-  const status: CapitalCall['status'] =
-    normalizedStatus === 'complete'
-      ? 'paid'
-      : normalizedStatus === 'overdue'
-        ? 'overdue'
-        : 'pending';
+function mapApiCapitalCallToCapitalCall(
+  record: ApiCapitalCallRecord,
+  index: number,
+): CapitalCall {
+  const normalizedStatus = (record.status ?? "").toLowerCase();
+  const status: CapitalCall["status"] =
+    normalizedStatus === "complete"
+      ? "paid"
+      : normalizedStatus === "overdue"
+        ? "overdue"
+        : "pending";
 
   return {
     id: record.id,
     callNumber: asNumber(record.callNumber, index + 1),
     amount: asNumber(record.amount),
     dueDate: asDate(record.dueDate),
-    purpose: record.purpose ?? 'General fund operations',
+    purpose: record.purpose ?? "General fund operations",
     status,
   };
 }
 
 function mapApiDistributionToDistribution(
   record: ApiDistributionRecord,
-  index: number
+  index: number,
 ): Distribution {
-  const eventType = (record.eventType ?? '').toLowerCase();
-  const type: Distribution['type'] =
-    eventType === 'dividend'
-      ? 'dividends'
-      : eventType === 'recapitalization' || eventType === 'refinancing'
-        ? 'return-of-capital'
-        : 'realized-gains';
+  const eventType = (record.eventType ?? "").toLowerCase();
+  const type: Distribution["type"] =
+    eventType === "dividend"
+      ? "dividends"
+      : eventType === "recapitalization" || eventType === "refinancing"
+        ? "return-of-capital"
+        : "realized-gains";
 
-  const normalizedStatus = (record.status ?? '').toLowerCase();
-  const status: Distribution['status'] =
-    normalizedStatus === 'completed'
-      ? 'paid'
-      : normalizedStatus === 'processing'
-        ? 'processing'
-        : 'pending';
+  const normalizedStatus = (record.status ?? "").toLowerCase();
+  const status: Distribution["status"] =
+    normalizedStatus === "completed"
+      ? "paid"
+      : normalizedStatus === "processing"
+        ? "processing"
+        : "pending";
 
   return {
     id: record.id,
     distributionNumber: asNumber(
       record.distributionNumber ?? record.revisionNumber,
-      index + 1
+      index + 1,
     ),
     amount: asNumber(
-      record.totalDistributed ?? record.totalAmount ?? record.netProceeds ?? record.grossProceeds
+      record.totalDistributed ??
+        record.totalAmount ??
+        record.netProceeds ??
+        record.grossProceeds,
     ),
     paymentDate: asDate(record.paymentDate ?? record.eventDate),
     type,
@@ -206,41 +232,47 @@ function mapApiDistributionToDistribution(
 }
 
 async function fetchLPsFromApi(): Promise<LP[]> {
-  const response = await requestJson<ApiListResponse<ApiLPRecord>>('/lps', {
-    method: 'GET',
+  const response = await requestJson<ApiListResponse<ApiLPRecord>>("/lps", {
+    method: "GET",
     query: {
       limit: 200,
       offset: 0,
-      sortBy: 'name',
-      sortOrder: 'asc',
-      groupBy: 'org',
+      sortBy: "name",
+      sortOrder: "asc",
+      groupBy: "org",
     },
-    fallbackMessage: 'Failed to fetch LP records',
+    fallbackMessage: "Failed to fetch LP records",
   });
 
   return extractApiList(response).map(mapApiLPToLP);
 }
 
 async function fetchCapitalCallsFromApi(): Promise<CapitalCall[]> {
-  const response = await requestJson<ApiListResponse<ApiCapitalCallRecord>>('/capital-calls/active', {
-    method: 'GET',
-    fallbackMessage: 'Failed to fetch capital calls',
-  });
+  const response = await requestJson<ApiListResponse<ApiCapitalCallRecord>>(
+    "/capital-calls/active",
+    {
+      method: "GET",
+      fallbackMessage: "Failed to fetch capital calls",
+    },
+  );
 
   return extractApiList(response).map(mapApiCapitalCallToCapitalCall);
 }
 
 async function fetchDistributionsFromApi(): Promise<Distribution[]> {
-  const response = await requestJson<ApiListResponse<ApiDistributionRecord>>('/distributions', {
-    method: 'GET',
-    query: {
-      limit: 100,
-      offset: 0,
-      sortBy: 'paymentDate',
-      sortOrder: 'desc',
+  const response = await requestJson<ApiListResponse<ApiDistributionRecord>>(
+    "/distributions",
+    {
+      method: "GET",
+      query: {
+        limit: 100,
+        offset: 0,
+        sortBy: "paymentDate",
+        sortOrder: "desc",
+      },
+      fallbackMessage: "Failed to fetch distributions",
     },
-    fallbackMessage: 'Failed to fetch distributions',
-  });
+  );
 
   return extractApiList(response).map(mapApiDistributionToDistribution);
 }
@@ -296,7 +328,7 @@ function resolveTargetLPIds(selectedLPIds?: string[]): string[] {
 }
 
 export async function getLPManagementSnapshot(): Promise<LPManagementSnapshot> {
-  if (isMockMode('lpPortal')) {
+  if (isMockMode("lpPortal")) {
     if (!apiLPManagementSnapshotCache) {
       setCachedSnapshot(getSeedSnapshot());
     }
@@ -341,9 +373,13 @@ export function getLPDistributions(): Distribution[] {
   return getCachedSnapshot().distributions;
 }
 
-export async function sendReportToLPs(selectedLPIds?: string[]): Promise<BulkSendResult> {
-  if (!isMockMode('lpPortal')) {
-    throw new Error('Sending LP reports in live mode requires an API implementation.');
+export async function sendReportToLPs(
+  selectedLPIds?: string[],
+): Promise<BulkSendResult> {
+  if (!isMockMode("lpPortal")) {
+    throw new Error(
+      "Sending LP reports in live mode requires an API implementation.",
+    );
   }
   const recipientCount = resolveTargetLPIds(selectedLPIds).length;
   return {
@@ -352,9 +388,13 @@ export async function sendReportToLPs(selectedLPIds?: string[]): Promise<BulkSen
   };
 }
 
-export async function sendCapitalCallToLPs(selectedLPIds?: string[]): Promise<BulkSendResult> {
-  if (!isMockMode('lpPortal')) {
-    throw new Error('Sending capital calls in live mode requires an API implementation.');
+export async function sendCapitalCallToLPs(
+  selectedLPIds?: string[],
+): Promise<BulkSendResult> {
+  if (!isMockMode("lpPortal")) {
+    throw new Error(
+      "Sending capital calls in live mode requires an API implementation.",
+    );
   }
   const recipientCount = resolveTargetLPIds(selectedLPIds).length;
   return {
@@ -363,9 +403,13 @@ export async function sendCapitalCallToLPs(selectedLPIds?: string[]): Promise<Bu
   };
 }
 
-export async function exportLPData(selectedLPIds?: string[]): Promise<ExportLPDataResult> {
-  if (!isMockMode('lpPortal')) {
-    throw new Error('Exporting LP data in live mode requires an API implementation.');
+export async function exportLPData(
+  selectedLPIds?: string[],
+): Promise<ExportLPDataResult> {
+  if (!isMockMode("lpPortal")) {
+    throw new Error(
+      "Exporting LP data in live mode requires an API implementation.",
+    );
   }
   const recordCount = resolveTargetLPIds(selectedLPIds).length;
   const exportedAt = new Date().toISOString();
@@ -377,9 +421,13 @@ export async function exportLPData(selectedLPIds?: string[]): Promise<ExportLPDa
   };
 }
 
-export async function generateLPReport(selectedLPIds?: string[]): Promise<Report> {
-  if (!isMockMode('lpPortal')) {
-    throw new Error('Generating LP reports in live mode requires an API implementation.');
+export async function generateLPReport(
+  selectedLPIds?: string[],
+): Promise<Report> {
+  if (!isMockMode("lpPortal")) {
+    throw new Error(
+      "Generating LP reports in live mode requires an API implementation.",
+    );
   }
   const recipientCount = resolveTargetLPIds(selectedLPIds).length;
   const now = new Date();
@@ -388,11 +436,11 @@ export async function generateLPReport(selectedLPIds?: string[]): Promise<Report
   const report: Report = {
     id: `report-${Date.now()}`,
     title: `${quarter} ${now.getFullYear()} LP Update (${recipientCount} LPs)`,
-    type: 'quarterly',
+    type: "quarterly",
     quarter,
     year: now.getFullYear(),
     publishedDate: nowIsoDate(),
-    status: 'draft',
+    status: "draft",
     viewCount: 0,
   };
 
@@ -400,9 +448,13 @@ export async function generateLPReport(selectedLPIds?: string[]): Promise<Report
   return clone(report);
 }
 
-export async function sendLPUpdate(selectedLPIds?: string[]): Promise<BulkSendResult> {
-  if (!isMockMode('lpPortal')) {
-    throw new Error('Sending LP updates in live mode requires an API implementation.');
+export async function sendLPUpdate(
+  selectedLPIds?: string[],
+): Promise<BulkSendResult> {
+  if (!isMockMode("lpPortal")) {
+    throw new Error(
+      "Sending LP updates in live mode requires an API implementation.",
+    );
   }
   const recipientCount = resolveTargetLPIds(selectedLPIds).length;
   return {

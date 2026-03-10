@@ -5,8 +5,8 @@
  * from API responses for form validation.
  */
 
-import { useMemo } from 'react';
-import type { NormalizedError } from '@/store/types/AsyncState';
+import { useMemo } from "react";
+import type { NormalizedError } from "@/store/types/AsyncState";
 
 export interface FieldError {
   field: string;
@@ -28,22 +28,26 @@ interface ValidationError {
  * Extract field-level errors from a NormalizedError
  * Handles various API error response formats
  */
-export function extractFieldErrors(error: NormalizedError | undefined | null): FieldErrors {
+export function extractFieldErrors(
+  error: NormalizedError | undefined | null,
+): FieldErrors {
   if (!error) return {};
 
   const fieldErrors: FieldErrors = {};
 
   // Handle validation errors array from details
-  const details = error.details as {
-    validationErrors?: ValidationError[];
-    errors?: ValidationError[];
-    fields?: Record<string, string | string[]>;
-  } | undefined;
+  const details = error.details as
+    | {
+        validationErrors?: ValidationError[];
+        errors?: ValidationError[];
+        fields?: Record<string, string | string[]>;
+      }
+    | undefined;
 
   // Format 1: validationErrors array
   if (details?.validationErrors && Array.isArray(details.validationErrors)) {
     for (const ve of details.validationErrors) {
-      const field = ve.field || 'general';
+      const field = ve.field || "general";
       if (!fieldErrors[field]) {
         fieldErrors[field] = [];
       }
@@ -54,7 +58,7 @@ export function extractFieldErrors(error: NormalizedError | undefined | null): F
   // Format 2: errors array (common in GraphQL)
   if (details?.errors && Array.isArray(details.errors)) {
     for (const ve of details.errors) {
-      const field = ve.field || 'general';
+      const field = ve.field || "general";
       if (!fieldErrors[field]) {
         fieldErrors[field] = [];
       }
@@ -63,14 +67,14 @@ export function extractFieldErrors(error: NormalizedError | undefined | null): F
   }
 
   // Format 3: fields object (common in REST validation)
-  if (details?.fields && typeof details.fields === 'object') {
+  if (details?.fields && typeof details.fields === "object") {
     for (const [field, messages] of Object.entries(details.fields)) {
       if (!fieldErrors[field]) {
         fieldErrors[field] = [];
       }
       if (Array.isArray(messages)) {
         fieldErrors[field].push(...messages);
-      } else if (typeof messages === 'string') {
+      } else if (typeof messages === "string") {
         fieldErrors[field].push(messages);
       }
     }
@@ -95,7 +99,10 @@ export function extractFieldErrors(error: NormalizedError | undefined | null): F
 /**
  * Get the first error message for a specific field
  */
-export function getFieldError(errors: FieldErrors, field: string): string | undefined {
+export function getFieldError(
+  errors: FieldErrors,
+  field: string,
+): string | undefined {
   return errors[field]?.[0];
 }
 
@@ -142,9 +149,9 @@ export function useFieldErrors(error: NormalizedError | undefined | null) {
       hasError: (field: string) => hasFieldError(fieldErrors, field),
       hasAnyErrors: hasAnyFieldErrors(fieldErrors),
       errorFields: getErrorFields(fieldErrors),
-      generalError: getFieldError(fieldErrors, 'general'),
+      generalError: getFieldError(fieldErrors, "general"),
     }),
-    [fieldErrors]
+    [fieldErrors],
   );
 }
 
@@ -154,7 +161,7 @@ export function useFieldErrors(error: NormalizedError | undefined | null) {
  */
 export function getFieldErrorProps(
   errors: FieldErrors,
-  field: string
+  field: string,
 ): { isInvalid: boolean; errorMessage?: string } {
   const hasError = hasFieldError(errors, field);
   return {

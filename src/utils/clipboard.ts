@@ -1,5 +1,5 @@
 export async function writeToClipboard(text: string): Promise<boolean> {
-  if (typeof navigator === 'undefined' || !navigator.clipboard?.writeText) {
+  if (typeof navigator === "undefined" || !navigator.clipboard?.writeText) {
     return false;
   }
 

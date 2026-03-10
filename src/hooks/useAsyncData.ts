@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import type { RootState } from '@/store/rootReducer';
-import type { AsyncThunkAction, PayloadAction } from '@reduxjs/toolkit';
-import type { AsyncState, NormalizedError } from '@/store/types/AsyncState';
-import { emitRecoverableErrorToast } from '@/utils/errors/recoverableToast';
+import { useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import type { RootState } from "@/store/rootReducer";
+import type { AsyncThunkAction, PayloadAction } from "@reduxjs/toolkit";
+import type { AsyncState, NormalizedError } from "@/store/types/AsyncState";
+import { emitRecoverableErrorToast } from "@/utils/errors/recoverableToast";
 
 /**
  * Options for the useAsyncData hook
@@ -28,7 +28,7 @@ export interface UseAsyncDataReturn<T> {
   /** The current data from the store */
   data: T | null;
   /** Current loading status */
-  status: 'idle' | 'loading' | 'succeeded' | 'failed';
+  status: "idle" | "loading" | "succeeded" | "failed";
   /** The current error, if any */
   error: NormalizedError | undefined;
   /** Function to manually trigger a refetch */
@@ -110,9 +110,14 @@ export interface UseAsyncDataReturn<T> {
  * ```
  */
 export function useAsyncData<T, TParams = void>(
-  operation: (params: TParams) => PayloadAction<TParams> | AsyncThunkAction<unknown, TParams, never> | unknown,
+  operation: (
+    params: TParams,
+  ) =>
+    | PayloadAction<TParams>
+    | AsyncThunkAction<unknown, TParams, never>
+    | unknown,
   selector: (state: RootState) => AsyncState<T>,
-  options: UseAsyncDataOptions<T, TParams> = {}
+  options: UseAsyncDataOptions<T, TParams> = {},
 ): UseAsyncDataReturn<T> {
   const {
     params,
@@ -149,31 +154,31 @@ export function useAsyncData<T, TParams = void>(
 
   // Call success/error callbacks when status changes
   useEffect(() => {
-    if (status === 'succeeded' && data && onSuccess) {
+    if (status === "succeeded" && data && onSuccess) {
       onSuccess(data);
     }
-    if (status === 'failed' && error && onError) {
+    if (status === "failed" && error && onError) {
       onError(error);
     }
   }, [status, data, error, onSuccess, onError]);
 
   useEffect(() => {
-    if (status !== 'failed' || !error) {
+    if (status !== "failed" || !error) {
       return;
     }
 
     emitRecoverableErrorToast(error, {
-      title: 'Could not refresh data',
-      fallbackMessage: 'Unable to load the latest data.',
-      context: 'useAsyncData',
+      title: "Could not refresh data",
+      fallbackMessage: "Unable to load the latest data.",
+      context: "useAsyncData",
     });
   }, [status, error]);
 
   // Helpers
-  const isLoading = status === 'loading';
-  const isSucceeded = status === 'succeeded';
-  const isFailed = status === 'failed';
-  const isInitialLoad = status === 'loading' && data === null;
+  const isLoading = status === "loading";
+  const isSucceeded = status === "succeeded";
+  const isFailed = status === "failed";
+  const isInitialLoad = status === "loading" && data === null;
 
   return {
     data,

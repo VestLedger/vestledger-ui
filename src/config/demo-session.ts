@@ -1,12 +1,15 @@
-import { MOCK_DEMO_PROFILE } from '@/config/auth';
-import type { User } from '@/types/auth';
+import { MOCK_DEMO_PROFILE } from "@/config/auth";
+import type { User } from "@/types/auth";
 
-export const DEFAULT_DEMO_EMAIL = 'demo@vestledger.com';
+export const DEFAULT_DEMO_EMAIL = "demo@vestledger.com";
 
 type UserLike = Partial<User> | null | undefined;
 
 export function getDemoEmail(): string {
-  return process.env.NEXT_PUBLIC_DEMO_EMAIL?.trim().toLowerCase() || DEFAULT_DEMO_EMAIL;
+  return (
+    process.env.NEXT_PUBLIC_DEMO_EMAIL?.trim().toLowerCase() ||
+    DEFAULT_DEMO_EMAIL
+  );
 }
 
 export function getDemoPassword(): string | null {

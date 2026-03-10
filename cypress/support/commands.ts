@@ -20,8 +20,12 @@ Cypress.Commands.add("seedAuth", () => {
     },
     {
       validate: () => {
-        cy.getCookie("isAuthenticated").should("have.property", "value", "true");
+        cy.getCookie("isAuthenticated").should(
+          "have.property",
+          "value",
+          "true",
+        );
       },
-    }
+    },
   );
 });

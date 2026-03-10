@@ -1,9 +1,9 @@
-export type OperatingRegion = 'india' | 'eu' | 'us';
+export type OperatingRegion = "india" | "eu" | "us";
 
 export type FundRegulatoryRegime =
-  | 'india_sebi_aif'
-  | 'eu_aifmd'
-  | 'us_private_fund';
+  | "india_sebi_aif"
+  | "eu_aifmd"
+  | "us_private_fund";
 
 export interface FundRegulatoryProfile {
   regulator?: string;

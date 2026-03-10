@@ -1,4 +1,4 @@
-import { isMockMode } from '@/config/data-mode';
+import { isMockMode } from "@/config/data-mode";
 import {
   mockCapitalCalls as seedCapitalCalls,
   mockDistributions as seedDistributions,
@@ -6,10 +6,10 @@ import {
   type CapitalCall,
   type Distribution,
   type LPResponse,
-} from '@/data/seeds/back-office/fund-admin';
-import { mockFunds as seedFunds } from '@/data/seeds/funds';
-import { apiClient } from '@/api/client';
-import { unwrapApiResult } from '@/api/unwrap';
+} from "@/data/seeds/back-office/fund-admin";
+import { mockFunds as seedFunds } from "@/data/seeds/funds";
+import { apiClient } from "@/api/client";
+import { unwrapApiResult } from "@/api/unwrap";
 
 interface ApiCapitalCall {
   id: string;
@@ -36,15 +36,18 @@ export interface CreateCapitalCallParams {
 const clone = <T>(value: T): T => structuredClone(value);
 
 function getFundName(fundId: string): string {
-  return seedFunds.find((fund) => fund.id === fundId)?.name ?? 'Unknown Fund';
+  return seedFunds.find((fund) => fund.id === fundId)?.name ?? "Unknown Fund";
 }
 
-function mapApiToCapitalCall(api: ApiCapitalCall, fundName: string): CapitalCall {
-  const statusMap: Record<string, CapitalCall['status']> = {
-    pending: 'sent',
-    partial: 'in-progress',
-    complete: 'completed',
-    overdue: 'in-progress',
+function mapApiToCapitalCall(
+  api: ApiCapitalCall,
+  fundName: string,
+): CapitalCall {
+  const statusMap: Record<string, CapitalCall["status"]> = {
+    pending: "sent",
+    partial: "in-progress",
+    complete: "completed",
+    overdue: "in-progress",
   };
 
   return {
@@ -52,14 +55,14 @@ function mapApiToCapitalCall(api: ApiCapitalCall, fundName: string): CapitalCall
     fundId: api.fundId,
     callNumber: api.callNumber,
     fundName,
-    callDate: api.createdAt.split('T')[0],
-    dueDate: api.dueDate.split('T')[0],
+    callDate: api.createdAt.split("T")[0],
+    dueDate: api.dueDate.split("T")[0],
     totalAmount: api.amount,
     amountReceived: api.collected,
     lpCount: 0,
     lpsResponded: 0,
-    status: statusMap[api.status] ?? 'draft',
-    purpose: api.purpose ?? '',
+    status: statusMap[api.status] ?? "draft",
+    purpose: api.purpose ?? "",
   };
 }
 
@@ -84,7 +87,7 @@ function upsertLPResponse(value: LPResponse): LPResponse {
 }
 
 export async function getCapitalCalls(fundId?: string): Promise<CapitalCall[]> {
-  if (isMockMode('backOffice')) {
+  if (isMockMode("backOffice")) {
     const calls = fundId
       ? seedCapitalCalls.filter((call) => call.fundId === fundId)
       : seedCapitalCalls;
@@ -93,42 +96,50 @@ export async function getCapitalCalls(fundId?: string): Promise<CapitalCall[]> {
 
   if (!fundId) {
     const result = await unwrapApiResult(
-      apiClient.GET('/capital-calls/active'),
-      { fallbackMessage: 'Failed to fetch active capital calls' }
+      apiClient.GET("/capital-calls/active"),
+      { fallbackMessage: "Failed to fetch active capital calls" },
     );
-    return ((result as unknown as (ApiCapitalCall & { fund?: { name: string } })[]) ?? []).map((cc) =>
-      mapApiToCapitalCall(cc, cc.fund?.name ?? getFundName(cc.fundId))
+    return (
+      (result as unknown as (ApiCapitalCall & { fund?: { name: string } })[]) ??
+      []
+    ).map((cc) =>
+      mapApiToCapitalCall(cc, cc.fund?.name ?? getFundName(cc.fundId)),
     );
   }
 
   const result = await unwrapApiResult(
-    apiClient.GET('/funds/{fundId}/capital-calls', {
+    apiClient.GET("/funds/{fundId}/capital-calls", {
       params: { path: { fundId } },
     }),
-    { fallbackMessage: 'Failed to fetch capital calls' }
+    { fallbackMessage: "Failed to fetch capital calls" },
   );
 
-  const list = Array.isArray(result) ? result : (result as unknown as { data?: unknown[] })?.data ?? [];
+  const list = Array.isArray(result)
+    ? result
+    : ((result as unknown as { data?: unknown[] })?.data ?? []);
   return ((list as unknown as ApiCapitalCall[]) ?? []).map((cc) =>
-    mapApiToCapitalCall(cc, getFundName(cc.fundId || fundId))
+    mapApiToCapitalCall(cc, getFundName(cc.fundId || fundId)),
   );
 }
 
-export async function createCapitalCall(params: CreateCapitalCallParams): Promise<CapitalCall> {
-  if (isMockMode('backOffice')) {
-    const nextCallNumber = Math.max(0, ...seedCapitalCalls.map((call) => call.callNumber)) + 1;
+export async function createCapitalCall(
+  params: CreateCapitalCallParams,
+): Promise<CapitalCall> {
+  if (isMockMode("backOffice")) {
+    const nextCallNumber =
+      Math.max(0, ...seedCapitalCalls.map((call) => call.callNumber)) + 1;
     const next: CapitalCall = {
       id: `call-${Date.now()}`,
       fundId: params.fundId,
       callNumber: nextCallNumber,
       fundName: params.fundName,
-      callDate: params.callDate ?? new Date().toISOString().split('T')[0],
+      callDate: params.callDate ?? new Date().toISOString().split("T")[0],
       dueDate: params.dueDate,
       totalAmount: params.totalAmount,
       amountReceived: 0,
       lpCount: 0,
       lpsResponded: 0,
-      status: 'draft',
+      status: "draft",
       purpose: params.purpose,
     };
 
@@ -136,7 +147,7 @@ export async function createCapitalCall(params: CreateCapitalCallParams): Promis
   }
 
   const result = await unwrapApiResult(
-    apiClient.POST('/funds/{fundId}/capital-calls', {
+    apiClient.POST("/funds/{fundId}/capital-calls", {
       params: { path: { fundId: params.fundId } },
       body: {
         callNumber: 1,
@@ -145,17 +156,20 @@ export async function createCapitalCall(params: CreateCapitalCallParams): Promis
         purpose: params.purpose,
       } as never,
     }),
-    { fallbackMessage: 'Failed to create capital call' }
+    { fallbackMessage: "Failed to create capital call" },
   );
 
-  return mapApiToCapitalCall(result as unknown as ApiCapitalCall, params.fundName);
+  return mapApiToCapitalCall(
+    result as unknown as ApiCapitalCall,
+    params.fundName,
+  );
 }
 
 export async function updateCapitalCall(
   capitalCallId: string,
-  patch: Partial<CapitalCall>
+  patch: Partial<CapitalCall>,
 ): Promise<CapitalCall> {
-  if (isMockMode('backOffice')) {
+  if (isMockMode("backOffice")) {
     const current = seedCapitalCalls.find((item) => item.id === capitalCallId);
     if (!current) {
       throw new Error(`Capital call not found: ${capitalCallId}`);
@@ -173,11 +187,13 @@ export async function updateCapitalCall(
 
   const call = seedCapitalCalls.find((item) => item.id === capitalCallId);
   if (!call) {
-    throw new Error('Capital call update is not available until fund context is loaded.');
+    throw new Error(
+      "Capital call update is not available until fund context is loaded.",
+    );
   }
 
   const result = await unwrapApiResult(
-    apiClient.PUT('/funds/{fundId}/capital-calls/{id}', {
+    apiClient.PUT("/funds/{fundId}/capital-calls/{id}", {
       params: { path: { fundId: call.fundId, id: capitalCallId } },
       body: {
         amount: patch.totalAmount,
@@ -186,52 +202,71 @@ export async function updateCapitalCall(
         purpose: patch.purpose,
       } as never,
     }),
-    { fallbackMessage: 'Failed to update capital call' }
+    { fallbackMessage: "Failed to update capital call" },
   );
 
-  return mapApiToCapitalCall(result as unknown as ApiCapitalCall, call.fundName);
+  return mapApiToCapitalCall(
+    result as unknown as ApiCapitalCall,
+    call.fundName,
+  );
 }
 
-export async function sendCapitalCallToLPs(capitalCallId: string): Promise<CapitalCall> {
-  return updateCapitalCall(capitalCallId, { status: 'sent' });
+export async function sendCapitalCallToLPs(
+  capitalCallId: string,
+): Promise<CapitalCall> {
+  return updateCapitalCall(capitalCallId, { status: "sent" });
 }
 
-export async function sendCapitalCallReminder(capitalCallId: string): Promise<CapitalCall> {
-  if (isMockMode('backOffice')) {
+export async function sendCapitalCallReminder(
+  capitalCallId: string,
+): Promise<CapitalCall> {
+  if (isMockMode("backOffice")) {
     const call = seedCapitalCalls.find((item) => item.id === capitalCallId);
     if (!call) throw new Error(`Capital call not found: ${capitalCallId}`);
     return clone(call);
   }
 
   const result = await unwrapApiResult(
-    apiClient.POST('/capital-calls/{id}/remind' as never, {
-      params: { path: { id: capitalCallId } },
-    } as never),
-    { fallbackMessage: 'Failed to send capital call reminder' }
+    apiClient.POST(
+      "/capital-calls/{id}/remind" as never,
+      {
+        params: { path: { id: capitalCallId } },
+      } as never,
+    ),
+    { fallbackMessage: "Failed to send capital call reminder" },
   );
-  return mapApiToCapitalCall(result as unknown as ApiCapitalCall, '');
+  return mapApiToCapitalCall(result as unknown as ApiCapitalCall, "");
 }
 
-export async function getDistributions(fundId?: string): Promise<Distribution[]> {
-  if (isMockMode('backOffice')) {
+export async function getDistributions(
+  fundId?: string,
+): Promise<Distribution[]> {
+  if (isMockMode("backOffice")) {
     const values = fundId
-      ? seedDistributions.filter((distribution) => distribution.fundId === fundId)
+      ? seedDistributions.filter(
+          (distribution) => distribution.fundId === fundId,
+        )
       : seedDistributions;
     return clone(values);
   }
 
   const result = await unwrapApiResult(
     fundId
-      ? apiClient.GET('/funds/{fundId}/distributions' as never, { params: { path: { fundId } } } as never)
-      : apiClient.GET('/distributions' as never),
-    { fallbackMessage: 'Failed to load distributions' }
+      ? apiClient.GET(
+          "/funds/{fundId}/distributions" as never,
+          { params: { path: { fundId } } } as never,
+        )
+      : apiClient.GET("/distributions" as never),
+    { fallbackMessage: "Failed to load distributions" },
   );
-  const list = Array.isArray(result) ? result : (result as unknown as { data?: unknown[] })?.data ?? [];
-  return (list as Distribution[]);
+  const list = Array.isArray(result)
+    ? result
+    : ((result as unknown as { data?: unknown[] })?.data ?? []);
+  return list as Distribution[];
 }
 
 export async function getLPResponses(fundId?: string): Promise<LPResponse[]> {
-  if (isMockMode('backOffice')) {
+  if (isMockMode("backOffice")) {
     const responses = fundId
       ? seedLPResponses.filter((response) => response.fundId === fundId)
       : seedLPResponses;
@@ -242,10 +277,14 @@ export async function getLPResponses(fundId?: string): Promise<LPResponse[]> {
     return clone(seedLPResponses);
   }
 
-  return clone(seedLPResponses.filter((response) => response.fundId === fundId));
+  return clone(
+    seedLPResponses.filter((response) => response.fundId === fundId),
+  );
 }
 
-export async function sendLPReminder(lpResponseId: string): Promise<LPResponse> {
+export async function sendLPReminder(
+  lpResponseId: string,
+): Promise<LPResponse> {
   const response = seedLPResponses.find((item) => item.id === lpResponseId);
   if (!response) {
     throw new Error(`LP response not found: ${lpResponseId}`);
@@ -256,7 +295,7 @@ export async function sendLPReminder(lpResponseId: string): Promise<LPResponse> 
 
 export async function recordLPResponsePayment(
   lpResponseId: string,
-  amountPaid: number
+  amountPaid: number,
 ): Promise<LPResponse> {
   const response = seedLPResponses.find((item) => item.id === lpResponseId);
   if (!response) {
@@ -266,17 +305,20 @@ export async function recordLPResponsePayment(
   const updated: LPResponse = {
     ...response,
     amountPaid,
-    status: amountPaid <= 0
-      ? 'pending'
-      : amountPaid >= response.callAmount
-        ? 'paid'
-        : 'partial',
+    status:
+      amountPaid <= 0
+        ? "pending"
+        : amountPaid >= response.callAmount
+          ? "paid"
+          : "partial",
   };
 
   return clone(upsertLPResponse(updated));
 }
 
-export async function exportFundAdminActivity(): Promise<{ exportedAt: string }> {
+export async function exportFundAdminActivity(): Promise<{
+  exportedAt: string;
+}> {
   return {
     exportedAt: new Date().toISOString(),
   };

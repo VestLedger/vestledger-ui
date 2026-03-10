@@ -4,9524 +4,9723 @@
  */
 
 export interface paths {
-    "/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["AppController_getHello"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/signup": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Register a new user */
-        post: operations["AuthController_signup"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/login": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Authenticate user and return JWT token */
-        post: operations["AuthController_login"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/auth/profile": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get current user profile */
-        get: operations["AuthController_getProfile"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Update current user profile */
-        patch: operations["AuthController_updateProfile"];
-        trace?: never;
-    };
-    "/auth/password": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Change current user password */
-        patch: operations["AuthController_updatePassword"];
-        trace?: never;
-    };
-    "/users": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List all users (gp/ops only) */
-        get: operations["UsersController_findAll"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/users/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get user by ID (gp/ops only) */
-        get: operations["UsersController_findOne"];
-        put?: never;
-        post?: never;
-        /** Delete user (gp/ops only) */
-        delete: operations["UsersController_remove"];
-        options?: never;
-        head?: never;
-        /** Update user (gp/ops only) */
-        patch: operations["UsersController_update"];
-        trace?: never;
-    };
-    "/orgs/current/settings": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get settings for the current organization */
-        get: operations["OrgsController_getCurrentSettings"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Update settings for the current organization */
-        patch: operations["OrgsController_updateCurrentSettings"];
-        trace?: never;
-    };
-    "/funds": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all funds with optional filters */
-        get: operations["FundsController_findAll"];
-        put?: never;
-        /** Create a new fund */
-        post: operations["FundsController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/funds/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a fund by ID */
-        get: operations["FundsController_findOne"];
-        /** Update a fund */
-        put: operations["FundsController_update"];
-        post?: never;
-        /** Delete a fund */
-        delete: operations["FundsController_remove"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/funds/{id}/metrics": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get fund performance metrics */
-        get: operations["FundsController_getMetrics"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/funds/{id}/summary": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get fund summary for dashboard */
-        get: operations["FundsController_getSummary"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/funds/{id}/active-waterfall": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get the active waterfall scenario for a fund */
-        get: operations["FundsController_getActiveWaterfall"];
-        /** Set the active waterfall scenario for a fund */
-        put: operations["FundsController_setActiveWaterfall"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/funds/{fundId}/portfolio": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all portfolio companies for a fund */
-        get: operations["PortfolioController_findAll"];
-        put?: never;
-        /** Add a portfolio company to a fund */
-        post: operations["PortfolioController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/funds/{fundId}/portfolio/health": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get portfolio health summary for a fund */
-        get: operations["PortfolioController_getHealthSummary"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/funds/{fundId}/portfolio/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a portfolio company by ID */
-        get: operations["PortfolioController_findOne"];
-        /** Update a portfolio company */
-        put: operations["PortfolioController_update"];
-        post?: never;
-        /** Remove a portfolio company */
-        delete: operations["PortfolioController_remove"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/lps": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all LPs with optional filters */
-        get: operations["LPsController_findAll"];
-        put?: never;
-        /** Create a new LP */
-        post: operations["LPsController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/lps/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get an LP by ID */
-        get: operations["LPsController_findOne"];
-        /** Update an LP */
-        put: operations["LPsController_update"];
-        post?: never;
-        /** Delete an LP */
-        delete: operations["LPsController_remove"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/lps/{id}/commitments": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get LP commitments across all funds */
-        get: operations["LPsController_getCommitments"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/lps/commitments": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Create an LP commitment to a fund */
-        post: operations["LPsController_createCommitment"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/funds/{fundId}/capital-calls": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all capital calls for a fund */
-        get: operations["CapitalCallsController_findAll"];
-        put?: never;
-        /** Create a capital call for a fund */
-        post: operations["CapitalCallsController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/capital-calls/active": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all active capital calls across all funds */
-        get: operations["CapitalCallsController_getActiveCapitalCalls"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/funds/{fundId}/capital-calls/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a capital call by ID */
-        get: operations["CapitalCallsController_findOne"];
-        /** Update a capital call */
-        put: operations["CapitalCallsController_update"];
-        post?: never;
-        /** Delete a capital call */
-        delete: operations["CapitalCallsController_remove"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/capital-calls/{id}/responses": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List LP responses for a capital call */
-        get: operations["CapitalCallsController_getResponses"];
-        put?: never;
-        /** Record an LP response to a capital call */
-        post: operations["CapitalCallsController_recordResponse"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/capital-calls/{id}/remind": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Send reminder for a capital call */
-        post: operations["CapitalCallsController_sendReminder"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dashboard": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get aggregated dashboard data */
-        get: operations["DashboardController_getDashboard"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dashboard/metrics": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get key metrics summary */
-        get: operations["DashboardController_getMetrics"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dashboard/alerts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get active alerts */
-        get: operations["DashboardController_getAlerts"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dashboard/alerts/{id}/read": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Mark alert as read */
-        put: operations["DashboardController_markAlertRead"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dashboard/alerts/{id}/dismiss": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Dismiss an alert */
-        put: operations["DashboardController_dismissAlert"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dashboard/tasks": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get prioritized tasks */
-        get: operations["DashboardController_getTasks"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dashboard/tasks/{id}/status": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Update task status */
-        put: operations["DashboardController_updateTaskStatus"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dashboard/lp/{lpId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get LP-specific dashboard */
-        get: operations["DashboardController_getLPDashboard"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dashboard/analyst": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get analyst dashboard */
-        get: operations["DashboardController_getAnalystDashboard"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dashboard/ops": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get operations dashboard */
-        get: operations["DashboardController_getOpsDashboard"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dashboard/auditor": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get auditor dashboard */
-        get: operations["DashboardController_getAuditorDashboard"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dashboard/ir": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get investor relations dashboard */
-        get: operations["DashboardController_getIRDashboard"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/dashboard/researcher": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get researcher dashboard */
-        get: operations["DashboardController_getResearcherDashboard"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/funds/{fundId}/analytics/performance": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get fund performance metrics */
-        get: operations["AnalyticsController_getPerformance"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/funds/{fundId}/analytics/benchmark": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get benchmark comparison data */
-        get: operations["AnalyticsController_getBenchmark"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/funds/{fundId}/analytics/j-curve": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get J-curve data */
-        get: operations["AnalyticsController_getJCurve"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/funds/{fundId}/analytics/cohorts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get cohort analysis */
-        get: operations["AnalyticsController_getCohorts"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/funds/{fundId}/analytics/concentration": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get concentration risk metrics */
-        get: operations["AnalyticsController_getConcentration"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/funds/{fundId}/analytics/deployment": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get deployment pacing data */
-        get: operations["AnalyticsController_getDeployment"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/funds/{fundId}/analytics/valuation-trends": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get valuation trends */
-        get: operations["AnalyticsController_getValuationTrends"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/waterfall/scenarios": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List waterfall scenarios */
-        get: operations["WaterfallController_findAll"];
-        put?: never;
-        /** Create a waterfall scenario */
-        post: operations["WaterfallController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/waterfall/scenarios/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a scenario by ID */
-        get: operations["WaterfallController_findOne"];
-        /** Update a scenario */
-        put: operations["WaterfallController_update"];
-        post?: never;
-        /** Delete a scenario */
-        delete: operations["WaterfallController_remove"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/waterfall/scenarios/{id}/duplicate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Duplicate a scenario */
-        post: operations["WaterfallController_duplicate"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/waterfall/scenarios/{id}/favorite": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Toggle scenario favorite status */
-        post: operations["WaterfallController_toggleFavorite"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/waterfall/calculate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Calculate waterfall distribution */
-        post: operations["WaterfallController_calculate"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/waterfall/sensitivity": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Run sensitivity analysis on a scenario */
-        post: operations["WaterfallController_sensitivityAnalysis"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/waterfall/templates": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List waterfall templates */
-        get: operations["WaterfallController_getTemplates"];
-        put?: never;
-        /** Create a waterfall template */
-        post: operations["WaterfallController_createTemplate"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/funds/{fundId}/distributions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List distributions for a fund */
-        get: operations["DistributionsController_findAllByFund"];
-        put?: never;
-        /** Create a distribution for a fund */
-        post: operations["DistributionsController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/funds/{fundId}/distributions/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a distribution by ID */
-        get: operations["DistributionsController_findOne"];
-        /** Update a distribution */
-        put: operations["DistributionsController_update"];
-        post?: never;
-        /** Delete a distribution */
-        delete: operations["DistributionsController_remove"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/distributions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List all distributions across funds */
-        get: operations["DistributionsController_findAll"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/distributions/calendar": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get distribution calendar events */
-        get: operations["DistributionsController_getCalendar"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/distributions/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a distribution by ID */
-        get: operations["DistributionsController_findOneGlobal"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/distributions/{id}/calculate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Calculate LP allocations for a distribution */
-        post: operations["DistributionsController_calculateAllocations"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/distributions/{id}/allocations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get LP allocations for a distribution */
-        get: operations["DistributionsController_getAllocations"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/distributions/{id}/submit": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Submit distribution for approval */
-        post: operations["DistributionsController_submitForApproval"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/distributions/{id}/approve": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Approve or reject a distribution */
-        post: operations["DistributionsController_processApproval"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/distributions/{id}/process": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Mark distribution as processing */
-        post: operations["DistributionsController_markAsProcessing"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/distributions/{id}/complete": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Mark distribution as completed */
-        post: operations["DistributionsController_markAsCompleted"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/distributions/{id}/cancel": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Cancel a distribution */
-        post: operations["DistributionsController_cancel"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/distributions/{id}/comments": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get comments for a distribution */
-        get: operations["DistributionsController_getComments"];
-        put?: never;
-        /** Add a comment to a distribution */
-        post: operations["DistributionsController_createComment"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/distributions/config/fee-templates": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get fee templates for distribution workflow */
-        get: operations["DistributionsController_getFeeTemplates"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/distributions/config/statement-templates": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get statement templates for distribution workflow */
-        get: operations["DistributionsController_getStatementTemplates"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/distributions/config/lp-profiles": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get LP profiles for distribution allocation */
-        get: operations["DistributionsController_getLPProfiles"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/distributions/config/approval-rules": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get approval rules for distribution workflow */
-        get: operations["DistributionsController_getApprovalRules"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/funds/{fundId}/carry/terms": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get carried interest terms for a fund */
-        get: operations["CarryController_findTerms"];
-        put?: never;
-        /** Create a carried interest term */
-        post: operations["CarryController_createTerm"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/funds/{fundId}/carry/accruals": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get carry accruals for a fund */
-        get: operations["CarryController_findAccruals"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/funds/{fundId}/carry/accruals/calculate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Calculate carry accrual for a fund */
-        post: operations["CarryController_calculateAccrual"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/carry/accruals/{id}/approve": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Approve a carry accrual */
-        post: operations["CarryController_approveAccrual"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/carry/accruals/{id}/distribute": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Distribute a carry accrual */
-        post: operations["CarryController_distributeAccrual"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/carry/accruals/{id}/export": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Export a carry accrual */
-        post: operations["CarryController_exportAccrual"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/funds/{fundId}/expenses": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get expenses for a fund */
-        get: operations["ExpensesController_findAll"];
-        put?: never;
-        /** Create an expense for a fund */
-        post: operations["ExpensesController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/expenses/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get an expense by ID */
-        get: operations["ExpensesController_findById"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/expenses/{id}/approve": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Approve an expense */
-        post: operations["ExpensesController_approve"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/expenses/{id}/reject": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Reject an expense */
-        post: operations["ExpensesController_reject"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/expenses/{id}/pay": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Mark an expense as paid */
-        post: operations["ExpensesController_markPaid"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/funds/{fundId}/expenses/export": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Export expenses for a fund */
-        get: operations["ExpensesController_exportByFund"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/expenses/export": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Export all expenses */
-        get: operations["ExpensesController_exportAll"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/funds/{fundId}/nav": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get NAV calculations for a fund */
-        get: operations["NAVController_findAll"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/funds/{fundId}/nav/calculate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Calculate NAV for a fund */
-        post: operations["NAVController_calculate"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/nav/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a NAV calculation by ID */
-        get: operations["NAVController_findById"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/nav/{id}/review": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Mark a NAV calculation as reviewed */
-        post: operations["NAVController_markReviewed"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/nav/{id}/publish": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Publish a NAV calculation */
-        post: operations["NAVController_publish"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/nav/{id}/export": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Export a NAV calculation */
-        post: operations["NAVController_export"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/funds/{fundId}/transfers": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get LP transfers for a fund */
-        get: operations["TransfersController_findAll"];
-        put?: never;
-        /** Create an LP transfer */
-        post: operations["TransfersController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/transfers/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a transfer by ID */
-        get: operations["TransfersController_findById"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/transfers/{id}/review": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Start legal review of a transfer */
-        post: operations["TransfersController_review"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/transfers/{id}/approve": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Approve a transfer */
-        post: operations["TransfersController_approve"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/transfers/{id}/reject": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Reject a transfer */
-        post: operations["TransfersController_reject"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/transfers/{id}/complete": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Complete a transfer */
-        post: operations["TransfersController_complete"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/transfers/{id}/documents": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Upload a document to a transfer */
-        post: operations["TransfersController_uploadDocument"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/funds/{fundId}/transfers/rofr": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get ROFR exercises for a fund */
-        get: operations["TransfersController_findROFRExercises"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/transfers/{transferId}/rofr/exercise": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Exercise ROFR on a transfer */
-        post: operations["TransfersController_exerciseROFR"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/compliance/items": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get compliance items */
-        get: operations["ComplianceController_findItems"];
-        put?: never;
-        /** Create a compliance item */
-        post: operations["ComplianceController_createItem"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/compliance/items/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Update a compliance item */
-        patch: operations["ComplianceController_updateItem"];
-        trace?: never;
-    };
-    "/compliance/filings": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get regulatory filings */
-        get: operations["ComplianceController_findFilings"];
-        put?: never;
-        /** Create a regulatory filing */
-        post: operations["ComplianceController_createFiling"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/compliance/audits": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get audit schedule */
-        get: operations["ComplianceController_findAuditSchedule"];
-        put?: never;
-        /** Create an audit schedule item */
-        post: operations["ComplianceController_createAuditSchedule"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/tax/documents": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get tax documents */
-        get: operations["TaxController_findDocuments"];
-        put?: never;
-        /** Create a tax document */
-        post: operations["TaxController_createDocument"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/tax/documents/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Update a tax document */
-        patch: operations["TaxController_updateDocument"];
-        trace?: never;
-    };
-    "/tax/summaries": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get tax summaries */
-        get: operations["TaxController_findSummaries"];
-        put?: never;
-        /** Create a tax summary */
-        post: operations["TaxController_createSummary"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/tax/portfolio-companies": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get portfolio company tax records */
-        get: operations["TaxController_findPortfolioCompanyTax"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/tax/deadline": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get filing deadline */
-        get: operations["TaxController_getFilingDeadline"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/valuations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get 409A valuations */
-        get: operations["ValuationsController_findAll"];
-        put?: never;
-        /** Create a 409A valuation */
-        post: operations["ValuationsController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/valuations/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a valuation by ID */
-        get: operations["ValuationsController_findById"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/valuations/{id}/strike-prices": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get strike prices for a valuation */
-        get: operations["ValuationsController_findStrikePrices"];
-        put?: never;
-        /** Create a strike price for a valuation */
-        post: operations["ValuationsController_createStrikePrice"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/valuations/{id}/history": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get valuation history */
-        get: operations["ValuationsController_findHistory"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/contacts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all contacts */
-        get: operations["ContactsController_findAll"];
-        put?: never;
-        /** Create a contact */
-        post: operations["ContactsController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/contacts/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a contact by ID */
-        get: operations["ContactsController_findById"];
-        put?: never;
-        post?: never;
-        /** Delete a contact */
-        delete: operations["ContactsController_delete"];
-        options?: never;
-        head?: never;
-        /** Update a contact */
-        patch: operations["ContactsController_update"];
-        trace?: never;
-    };
-    "/contacts/{id}/star": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Toggle star on a contact */
-        post: operations["ContactsController_toggleStar"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/contacts/{id}/interactions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get simple interactions for a contact */
-        get: operations["ContactsController_findInteractions"];
-        put?: never;
-        /** Create an interaction for a contact */
-        post: operations["ContactsController_createInteraction"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/contacts/{id}/timeline": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get enriched timeline interactions for a contact */
-        get: operations["ContactsController_findTimelineInteractions"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/pipeline/deals": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get pipeline deals */
-        get: operations["PipelineController_findAll"];
-        put?: never;
-        /** Create a pipeline deal */
-        post: operations["PipelineController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/pipeline/deals/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a deal by ID */
-        get: operations["PipelineController_findById"];
-        put?: never;
-        post?: never;
-        /** Delete a deal */
-        delete: operations["PipelineController_delete"];
-        options?: never;
-        head?: never;
-        /** Update a deal */
-        patch: operations["PipelineController_update"];
-        trace?: never;
-    };
-    "/pipeline/stages": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get pipeline stages */
-        get: operations["PipelineController_getStages"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/documents": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get documents and folders */
-        get: operations["DocumentsController_findAll"];
-        put?: never;
-        /** Create a document */
-        post: operations["DocumentsController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/documents/folders": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get document folders */
-        get: operations["DocumentsController_findFolders"];
-        put?: never;
-        /** Create a folder */
-        post: operations["DocumentsController_createFolder"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/documents/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a document by ID */
-        get: operations["DocumentsController_findById"];
-        put?: never;
-        post?: never;
-        /** Archive a document */
-        delete: operations["DocumentsController_delete"];
-        options?: never;
-        head?: never;
-        /** Update a document */
-        patch: operations["DocumentsController_update"];
-        trace?: never;
-    };
-    "/documents/{id}/access": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Update document access level */
-        patch: operations["DocumentsController_updateAccess"];
-        trace?: never;
-    };
-    "/integrations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get integrations snapshot (accounts, events, integrations) */
-        get: operations["IntegrationsController_getSnapshot"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/integrations/list": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get integration summaries */
-        get: operations["IntegrationsController_findIntegrations"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/integrations/{id}/status": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Update integration status */
-        patch: operations["IntegrationsController_updateStatus"];
-        trace?: never;
-    };
-    "/integrations/calendar/accounts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get calendar accounts */
-        get: operations["IntegrationsController_findCalendarAccounts"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/integrations/calendar/events": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get calendar events */
-        get: operations["IntegrationsController_findCalendarEvents"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/audit/events": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get blockchain audit events */
-        get: operations["AuditController_findAll"];
-        put?: never;
-        /** Create an audit event */
-        post: operations["AuditController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/audit/events/{id}/verify": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Verify an audit event */
-        post: operations["AuditController_verify"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/notifications": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get notifications */
-        get: operations["NotificationsController_findAll"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/notifications/{id}/read": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Mark a notification as read */
-        post: operations["NotificationsController_markRead"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/notifications/read-all": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Mark all notifications as read */
-        post: operations["NotificationsController_markAllRead"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/notifications/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Delete a notification */
-        delete: operations["NotificationsController_delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/onboarding/roles/{role}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get role-based onboarding plan */
-        get: operations["OnboardingController_getRolePlan"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/lp-portal/investor-snapshot": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get LP investor portal snapshot */
-        get: operations["LpPortalController_getInvestorSnapshot"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/collaboration/threads": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List collaboration threads */
-        get: operations["CollaborationController_findThreads"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/collaboration/messages": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List collaboration messages */
-        get: operations["CollaborationController_findMessages"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/collaboration/tasks": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List collaboration tasks */
-        get: operations["CollaborationController_findTasks"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/ai/copilot/quick-actions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get copilot quick actions for current page */
-        get: operations["AIController_getQuickActions"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/ai/copilot/suggestions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get copilot suggestions for current page */
-        get: operations["AIController_getSuggestions"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/ai/copilot/respond": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Get copilot response to a user message */
-        post: operations["AIController_respond"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/ai/badges": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get AI-computed badges for portfolio entities */
-        get: operations["AIController_getBadges"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/templates": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get available report templates */
-        get: operations["ReportsController_getTemplates"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/export-jobs": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get report export jobs */
-        get: operations["ReportsController_getExportJobs"];
-        put?: never;
-        /** Create a new report export job */
-        post: operations["ReportsController_createExportJob"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
+  "/": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["AppController_getHello"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/signup": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Register a new user */
+    post: operations["AuthController_signup"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/login": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Authenticate user and return JWT token */
+    post: operations["AuthController_login"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/auth/profile": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get current user profile */
+    get: operations["AuthController_getProfile"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Update current user profile */
+    patch: operations["AuthController_updateProfile"];
+    trace?: never;
+  };
+  "/auth/password": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Change current user password */
+    patch: operations["AuthController_updatePassword"];
+    trace?: never;
+  };
+  "/users": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List all users (gp/ops only) */
+    get: operations["UsersController_findAll"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/users/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get user by ID (gp/ops only) */
+    get: operations["UsersController_findOne"];
+    put?: never;
+    post?: never;
+    /** Delete user (gp/ops only) */
+    delete: operations["UsersController_remove"];
+    options?: never;
+    head?: never;
+    /** Update user (gp/ops only) */
+    patch: operations["UsersController_update"];
+    trace?: never;
+  };
+  "/orgs/current/settings": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get settings for the current organization */
+    get: operations["OrgsController_getCurrentSettings"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Update settings for the current organization */
+    patch: operations["OrgsController_updateCurrentSettings"];
+    trace?: never;
+  };
+  "/funds": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get all funds with optional filters */
+    get: operations["FundsController_findAll"];
+    put?: never;
+    /** Create a new fund */
+    post: operations["FundsController_create"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/funds/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get a fund by ID */
+    get: operations["FundsController_findOne"];
+    /** Update a fund */
+    put: operations["FundsController_update"];
+    post?: never;
+    /** Delete a fund */
+    delete: operations["FundsController_remove"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/funds/{id}/metrics": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get fund performance metrics */
+    get: operations["FundsController_getMetrics"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/funds/{id}/summary": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get fund summary for dashboard */
+    get: operations["FundsController_getSummary"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/funds/{id}/active-waterfall": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get the active waterfall scenario for a fund */
+    get: operations["FundsController_getActiveWaterfall"];
+    /** Set the active waterfall scenario for a fund */
+    put: operations["FundsController_setActiveWaterfall"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/funds/{fundId}/portfolio": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get all portfolio companies for a fund */
+    get: operations["PortfolioController_findAll"];
+    put?: never;
+    /** Add a portfolio company to a fund */
+    post: operations["PortfolioController_create"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/funds/{fundId}/portfolio/health": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get portfolio health summary for a fund */
+    get: operations["PortfolioController_getHealthSummary"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/funds/{fundId}/portfolio/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get a portfolio company by ID */
+    get: operations["PortfolioController_findOne"];
+    /** Update a portfolio company */
+    put: operations["PortfolioController_update"];
+    post?: never;
+    /** Remove a portfolio company */
+    delete: operations["PortfolioController_remove"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/lps": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get all LPs with optional filters */
+    get: operations["LPsController_findAll"];
+    put?: never;
+    /** Create a new LP */
+    post: operations["LPsController_create"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/lps/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get an LP by ID */
+    get: operations["LPsController_findOne"];
+    /** Update an LP */
+    put: operations["LPsController_update"];
+    post?: never;
+    /** Delete an LP */
+    delete: operations["LPsController_remove"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/lps/{id}/commitments": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get LP commitments across all funds */
+    get: operations["LPsController_getCommitments"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/lps/commitments": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Create an LP commitment to a fund */
+    post: operations["LPsController_createCommitment"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/funds/{fundId}/capital-calls": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get all capital calls for a fund */
+    get: operations["CapitalCallsController_findAll"];
+    put?: never;
+    /** Create a capital call for a fund */
+    post: operations["CapitalCallsController_create"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/capital-calls/active": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get all active capital calls across all funds */
+    get: operations["CapitalCallsController_getActiveCapitalCalls"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/funds/{fundId}/capital-calls/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get a capital call by ID */
+    get: operations["CapitalCallsController_findOne"];
+    /** Update a capital call */
+    put: operations["CapitalCallsController_update"];
+    post?: never;
+    /** Delete a capital call */
+    delete: operations["CapitalCallsController_remove"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/capital-calls/{id}/responses": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List LP responses for a capital call */
+    get: operations["CapitalCallsController_getResponses"];
+    put?: never;
+    /** Record an LP response to a capital call */
+    post: operations["CapitalCallsController_recordResponse"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/capital-calls/{id}/remind": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Send reminder for a capital call */
+    post: operations["CapitalCallsController_sendReminder"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/dashboard": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get aggregated dashboard data */
+    get: operations["DashboardController_getDashboard"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/dashboard/metrics": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get key metrics summary */
+    get: operations["DashboardController_getMetrics"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/dashboard/alerts": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get active alerts */
+    get: operations["DashboardController_getAlerts"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/dashboard/alerts/{id}/read": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Mark alert as read */
+    put: operations["DashboardController_markAlertRead"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/dashboard/alerts/{id}/dismiss": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Dismiss an alert */
+    put: operations["DashboardController_dismissAlert"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/dashboard/tasks": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get prioritized tasks */
+    get: operations["DashboardController_getTasks"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/dashboard/tasks/{id}/status": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Update task status */
+    put: operations["DashboardController_updateTaskStatus"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/dashboard/lp/{lpId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get LP-specific dashboard */
+    get: operations["DashboardController_getLPDashboard"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/dashboard/analyst": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get analyst dashboard */
+    get: operations["DashboardController_getAnalystDashboard"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/dashboard/ops": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get operations dashboard */
+    get: operations["DashboardController_getOpsDashboard"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/dashboard/auditor": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get auditor dashboard */
+    get: operations["DashboardController_getAuditorDashboard"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/dashboard/ir": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get investor relations dashboard */
+    get: operations["DashboardController_getIRDashboard"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/dashboard/researcher": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get researcher dashboard */
+    get: operations["DashboardController_getResearcherDashboard"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/funds/{fundId}/analytics/performance": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get fund performance metrics */
+    get: operations["AnalyticsController_getPerformance"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/funds/{fundId}/analytics/benchmark": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get benchmark comparison data */
+    get: operations["AnalyticsController_getBenchmark"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/funds/{fundId}/analytics/j-curve": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get J-curve data */
+    get: operations["AnalyticsController_getJCurve"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/funds/{fundId}/analytics/cohorts": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get cohort analysis */
+    get: operations["AnalyticsController_getCohorts"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/funds/{fundId}/analytics/concentration": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get concentration risk metrics */
+    get: operations["AnalyticsController_getConcentration"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/funds/{fundId}/analytics/deployment": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get deployment pacing data */
+    get: operations["AnalyticsController_getDeployment"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/funds/{fundId}/analytics/valuation-trends": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get valuation trends */
+    get: operations["AnalyticsController_getValuationTrends"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/waterfall/scenarios": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List waterfall scenarios */
+    get: operations["WaterfallController_findAll"];
+    put?: never;
+    /** Create a waterfall scenario */
+    post: operations["WaterfallController_create"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/waterfall/scenarios/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get a scenario by ID */
+    get: operations["WaterfallController_findOne"];
+    /** Update a scenario */
+    put: operations["WaterfallController_update"];
+    post?: never;
+    /** Delete a scenario */
+    delete: operations["WaterfallController_remove"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/waterfall/scenarios/{id}/duplicate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Duplicate a scenario */
+    post: operations["WaterfallController_duplicate"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/waterfall/scenarios/{id}/favorite": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Toggle scenario favorite status */
+    post: operations["WaterfallController_toggleFavorite"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/waterfall/calculate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Calculate waterfall distribution */
+    post: operations["WaterfallController_calculate"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/waterfall/sensitivity": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Run sensitivity analysis on a scenario */
+    post: operations["WaterfallController_sensitivityAnalysis"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/waterfall/templates": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List waterfall templates */
+    get: operations["WaterfallController_getTemplates"];
+    put?: never;
+    /** Create a waterfall template */
+    post: operations["WaterfallController_createTemplate"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/funds/{fundId}/distributions": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List distributions for a fund */
+    get: operations["DistributionsController_findAllByFund"];
+    put?: never;
+    /** Create a distribution for a fund */
+    post: operations["DistributionsController_create"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/funds/{fundId}/distributions/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get a distribution by ID */
+    get: operations["DistributionsController_findOne"];
+    /** Update a distribution */
+    put: operations["DistributionsController_update"];
+    post?: never;
+    /** Delete a distribution */
+    delete: operations["DistributionsController_remove"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/distributions": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List all distributions across funds */
+    get: operations["DistributionsController_findAll"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/distributions/calendar": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get distribution calendar events */
+    get: operations["DistributionsController_getCalendar"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/distributions/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get a distribution by ID */
+    get: operations["DistributionsController_findOneGlobal"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/distributions/{id}/calculate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Calculate LP allocations for a distribution */
+    post: operations["DistributionsController_calculateAllocations"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/distributions/{id}/allocations": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get LP allocations for a distribution */
+    get: operations["DistributionsController_getAllocations"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/distributions/{id}/submit": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Submit distribution for approval */
+    post: operations["DistributionsController_submitForApproval"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/distributions/{id}/approve": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Approve or reject a distribution */
+    post: operations["DistributionsController_processApproval"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/distributions/{id}/process": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Mark distribution as processing */
+    post: operations["DistributionsController_markAsProcessing"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/distributions/{id}/complete": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Mark distribution as completed */
+    post: operations["DistributionsController_markAsCompleted"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/distributions/{id}/cancel": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Cancel a distribution */
+    post: operations["DistributionsController_cancel"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/distributions/{id}/comments": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get comments for a distribution */
+    get: operations["DistributionsController_getComments"];
+    put?: never;
+    /** Add a comment to a distribution */
+    post: operations["DistributionsController_createComment"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/distributions/config/fee-templates": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get fee templates for distribution workflow */
+    get: operations["DistributionsController_getFeeTemplates"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/distributions/config/statement-templates": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get statement templates for distribution workflow */
+    get: operations["DistributionsController_getStatementTemplates"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/distributions/config/lp-profiles": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get LP profiles for distribution allocation */
+    get: operations["DistributionsController_getLPProfiles"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/distributions/config/approval-rules": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get approval rules for distribution workflow */
+    get: operations["DistributionsController_getApprovalRules"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/funds/{fundId}/carry/terms": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get carried interest terms for a fund */
+    get: operations["CarryController_findTerms"];
+    put?: never;
+    /** Create a carried interest term */
+    post: operations["CarryController_createTerm"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/funds/{fundId}/carry/accruals": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get carry accruals for a fund */
+    get: operations["CarryController_findAccruals"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/funds/{fundId}/carry/accruals/calculate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Calculate carry accrual for a fund */
+    post: operations["CarryController_calculateAccrual"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/carry/accruals/{id}/approve": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Approve a carry accrual */
+    post: operations["CarryController_approveAccrual"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/carry/accruals/{id}/distribute": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Distribute a carry accrual */
+    post: operations["CarryController_distributeAccrual"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/carry/accruals/{id}/export": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Export a carry accrual */
+    post: operations["CarryController_exportAccrual"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/funds/{fundId}/expenses": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get expenses for a fund */
+    get: operations["ExpensesController_findAll"];
+    put?: never;
+    /** Create an expense for a fund */
+    post: operations["ExpensesController_create"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/expenses/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get an expense by ID */
+    get: operations["ExpensesController_findById"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/expenses/{id}/approve": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Approve an expense */
+    post: operations["ExpensesController_approve"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/expenses/{id}/reject": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Reject an expense */
+    post: operations["ExpensesController_reject"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/expenses/{id}/pay": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Mark an expense as paid */
+    post: operations["ExpensesController_markPaid"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/funds/{fundId}/expenses/export": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Export expenses for a fund */
+    get: operations["ExpensesController_exportByFund"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/expenses/export": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Export all expenses */
+    get: operations["ExpensesController_exportAll"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/funds/{fundId}/nav": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get NAV calculations for a fund */
+    get: operations["NAVController_findAll"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/funds/{fundId}/nav/calculate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Calculate NAV for a fund */
+    post: operations["NAVController_calculate"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/nav/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get a NAV calculation by ID */
+    get: operations["NAVController_findById"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/nav/{id}/review": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Mark a NAV calculation as reviewed */
+    post: operations["NAVController_markReviewed"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/nav/{id}/publish": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Publish a NAV calculation */
+    post: operations["NAVController_publish"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/nav/{id}/export": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Export a NAV calculation */
+    post: operations["NAVController_export"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/funds/{fundId}/transfers": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get LP transfers for a fund */
+    get: operations["TransfersController_findAll"];
+    put?: never;
+    /** Create an LP transfer */
+    post: operations["TransfersController_create"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/transfers/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get a transfer by ID */
+    get: operations["TransfersController_findById"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/transfers/{id}/review": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Start legal review of a transfer */
+    post: operations["TransfersController_review"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/transfers/{id}/approve": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Approve a transfer */
+    post: operations["TransfersController_approve"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/transfers/{id}/reject": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Reject a transfer */
+    post: operations["TransfersController_reject"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/transfers/{id}/complete": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Complete a transfer */
+    post: operations["TransfersController_complete"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/transfers/{id}/documents": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Upload a document to a transfer */
+    post: operations["TransfersController_uploadDocument"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/funds/{fundId}/transfers/rofr": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get ROFR exercises for a fund */
+    get: operations["TransfersController_findROFRExercises"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/transfers/{transferId}/rofr/exercise": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Exercise ROFR on a transfer */
+    post: operations["TransfersController_exerciseROFR"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/compliance/items": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get compliance items */
+    get: operations["ComplianceController_findItems"];
+    put?: never;
+    /** Create a compliance item */
+    post: operations["ComplianceController_createItem"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/compliance/items/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Update a compliance item */
+    patch: operations["ComplianceController_updateItem"];
+    trace?: never;
+  };
+  "/compliance/filings": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get regulatory filings */
+    get: operations["ComplianceController_findFilings"];
+    put?: never;
+    /** Create a regulatory filing */
+    post: operations["ComplianceController_createFiling"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/compliance/audits": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get audit schedule */
+    get: operations["ComplianceController_findAuditSchedule"];
+    put?: never;
+    /** Create an audit schedule item */
+    post: operations["ComplianceController_createAuditSchedule"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/tax/documents": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get tax documents */
+    get: operations["TaxController_findDocuments"];
+    put?: never;
+    /** Create a tax document */
+    post: operations["TaxController_createDocument"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/tax/documents/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Update a tax document */
+    patch: operations["TaxController_updateDocument"];
+    trace?: never;
+  };
+  "/tax/summaries": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get tax summaries */
+    get: operations["TaxController_findSummaries"];
+    put?: never;
+    /** Create a tax summary */
+    post: operations["TaxController_createSummary"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/tax/portfolio-companies": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get portfolio company tax records */
+    get: operations["TaxController_findPortfolioCompanyTax"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/tax/deadline": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get filing deadline */
+    get: operations["TaxController_getFilingDeadline"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/valuations": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get 409A valuations */
+    get: operations["ValuationsController_findAll"];
+    put?: never;
+    /** Create a 409A valuation */
+    post: operations["ValuationsController_create"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/valuations/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get a valuation by ID */
+    get: operations["ValuationsController_findById"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/valuations/{id}/strike-prices": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get strike prices for a valuation */
+    get: operations["ValuationsController_findStrikePrices"];
+    put?: never;
+    /** Create a strike price for a valuation */
+    post: operations["ValuationsController_createStrikePrice"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/valuations/{id}/history": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get valuation history */
+    get: operations["ValuationsController_findHistory"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/contacts": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get all contacts */
+    get: operations["ContactsController_findAll"];
+    put?: never;
+    /** Create a contact */
+    post: operations["ContactsController_create"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/contacts/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get a contact by ID */
+    get: operations["ContactsController_findById"];
+    put?: never;
+    post?: never;
+    /** Delete a contact */
+    delete: operations["ContactsController_delete"];
+    options?: never;
+    head?: never;
+    /** Update a contact */
+    patch: operations["ContactsController_update"];
+    trace?: never;
+  };
+  "/contacts/{id}/star": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Toggle star on a contact */
+    post: operations["ContactsController_toggleStar"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/contacts/{id}/interactions": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get simple interactions for a contact */
+    get: operations["ContactsController_findInteractions"];
+    put?: never;
+    /** Create an interaction for a contact */
+    post: operations["ContactsController_createInteraction"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/contacts/{id}/timeline": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get enriched timeline interactions for a contact */
+    get: operations["ContactsController_findTimelineInteractions"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/pipeline/deals": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get pipeline deals */
+    get: operations["PipelineController_findAll"];
+    put?: never;
+    /** Create a pipeline deal */
+    post: operations["PipelineController_create"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/pipeline/deals/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get a deal by ID */
+    get: operations["PipelineController_findById"];
+    put?: never;
+    post?: never;
+    /** Delete a deal */
+    delete: operations["PipelineController_delete"];
+    options?: never;
+    head?: never;
+    /** Update a deal */
+    patch: operations["PipelineController_update"];
+    trace?: never;
+  };
+  "/pipeline/stages": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get pipeline stages */
+    get: operations["PipelineController_getStages"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/documents": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get documents and folders */
+    get: operations["DocumentsController_findAll"];
+    put?: never;
+    /** Create a document */
+    post: operations["DocumentsController_create"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/documents/folders": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get document folders */
+    get: operations["DocumentsController_findFolders"];
+    put?: never;
+    /** Create a folder */
+    post: operations["DocumentsController_createFolder"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/documents/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get a document by ID */
+    get: operations["DocumentsController_findById"];
+    put?: never;
+    post?: never;
+    /** Archive a document */
+    delete: operations["DocumentsController_delete"];
+    options?: never;
+    head?: never;
+    /** Update a document */
+    patch: operations["DocumentsController_update"];
+    trace?: never;
+  };
+  "/documents/{id}/access": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Update document access level */
+    patch: operations["DocumentsController_updateAccess"];
+    trace?: never;
+  };
+  "/integrations": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get integrations snapshot (accounts, events, integrations) */
+    get: operations["IntegrationsController_getSnapshot"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/integrations/list": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get integration summaries */
+    get: operations["IntegrationsController_findIntegrations"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/integrations/{id}/status": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Update integration status */
+    patch: operations["IntegrationsController_updateStatus"];
+    trace?: never;
+  };
+  "/integrations/calendar/accounts": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get calendar accounts */
+    get: operations["IntegrationsController_findCalendarAccounts"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/integrations/calendar/events": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get calendar events */
+    get: operations["IntegrationsController_findCalendarEvents"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/audit/events": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get blockchain audit events */
+    get: operations["AuditController_findAll"];
+    put?: never;
+    /** Create an audit event */
+    post: operations["AuditController_create"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/audit/events/{id}/verify": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Verify an audit event */
+    post: operations["AuditController_verify"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/notifications": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get notifications */
+    get: operations["NotificationsController_findAll"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/notifications/{id}/read": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Mark a notification as read */
+    post: operations["NotificationsController_markRead"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/notifications/read-all": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Mark all notifications as read */
+    post: operations["NotificationsController_markAllRead"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/notifications/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Delete a notification */
+    delete: operations["NotificationsController_delete"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/onboarding/roles/{role}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get role-based onboarding plan */
+    get: operations["OnboardingController_getRolePlan"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/lp-portal/investor-snapshot": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get LP investor portal snapshot */
+    get: operations["LpPortalController_getInvestorSnapshot"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/collaboration/threads": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List collaboration threads */
+    get: operations["CollaborationController_findThreads"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/collaboration/messages": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List collaboration messages */
+    get: operations["CollaborationController_findMessages"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/collaboration/tasks": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List collaboration tasks */
+    get: operations["CollaborationController_findTasks"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/ai/copilot/quick-actions": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get copilot quick actions for current page */
+    get: operations["AIController_getQuickActions"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/ai/copilot/suggestions": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get copilot suggestions for current page */
+    get: operations["AIController_getSuggestions"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/ai/copilot/respond": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Get copilot response to a user message */
+    post: operations["AIController_respond"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/ai/badges": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get AI-computed badges for portfolio entities */
+    get: operations["AIController_getBadges"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/reports/templates": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get available report templates */
+    get: operations["ReportsController_getTemplates"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/reports/export-jobs": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get report export jobs */
+    get: operations["ReportsController_getExportJobs"];
+    put?: never;
+    /** Create a new report export job */
+    post: operations["ReportsController_createExportJob"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        SignupDto: {
-            /** @example user@example.com */
-            email: string;
-            /** @example Jane Doe */
-            name: string;
-            /** @example Str0ngP@ssword! */
-            password: string;
-            /**
-             * @example gp
-             * @enum {string}
-             */
-            role?: "gp" | "analyst" | "ops" | "ir" | "researcher" | "lp" | "auditor" | "service_provider" | "strategic_partner";
-            /**
-             * @description Optional operating region for the organization created with this user
-             * @example india
-             * @enum {string}
-             */
-            operatingRegion?: "india" | "eu" | "us";
-        };
-        UserResponseDto: {
-            /** @example 123e4567-e89b-12d3-a456-426614174000 */
-            id: string;
-            /** @example user@example.com */
-            email: string;
-            /** @example Jane Doe */
-            name: string;
-            /** @example +1-555-123-4567 */
-            phone?: Record<string, never> | null;
-            /** @example Fund Manager */
-            jobTitle?: Record<string, never> | null;
-            /** @example 65f0d2c6a2d4b8746a1f91de */
-            orgId?: Record<string, never> | null;
-            /**
-             * @description Tenant alias for the current organization
-             * @example 65f0d2c6a2d4b8746a1f91de
-             */
-            tenantId?: Record<string, never> | null;
-            /**
-             * @description User role for authorization
-             * @example user
-             */
-            role: string;
-            /**
-             * @description Whether the user is an admin of their current organization
-             * @example true
-             */
-            isAdmin: boolean;
-            /**
-             * @description Operating region configured for the current organization
-             * @example india
-             */
-            operatingRegion?: Record<string, never> | null;
-            /**
-             * @description Whether the organization has completed its regional setup
-             * @example false
-             */
-            organizationConfigured: boolean;
-        };
-        AuthResponseDto: {
-            user: components["schemas"]["UserResponseDto"];
-            /**
-             * @description JWT access token containing sub, email, name, orgId, tenantId, role, isAdmin, and organization region claims
-             * @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-             */
-            access_token: string;
-        };
-        LoginDto: {
-            /** @example user@example.com */
-            email: string;
-            /** @example Str0ngP@ssword! */
-            password: string;
-        };
-        UpdateProfileDto: {
-            /** @example Jane Doe */
-            name?: string;
-            /** @example Jane */
-            firstName?: string;
-            /** @example Doe */
-            lastName?: string;
-            /** @example user@example.com */
-            email?: string;
-            /** @example +1-555-123-4567 */
-            phone?: string;
-            /** @example Fund Manager */
-            jobTitle?: string;
-        };
-        UpdatePasswordDto: {
-            /** @example OldP@ssword1 */
-            currentPassword: string;
-            /** @example NewStr0ngP@ss! */
-            newPassword: string;
-        };
-        UpdateUserDto: {
-            /** @example Jane Doe */
-            name?: string;
-            /** @example Jane */
-            firstName?: string;
-            /** @example Doe */
-            lastName?: string;
-            /** @example user@example.com */
-            email?: string;
-            /** @example +1-555-123-4567 */
-            phone?: string;
-            /** @example Fund Manager */
-            jobTitle?: string;
-        };
-        UpdateOrgSettingsDto: {
-            /**
-             * @description Primary operating region for this organization
-             * @example india
-             * @enum {string}
-             */
-            operatingRegion: "india" | "eu" | "us";
-        };
-        CreateFundDto: {
-            /** @example Venture Fund I */
-            name: string;
-            /** @example VF I */
-            displayName: string;
-            /** @example 1 */
-            fundNumber: number;
-            /**
-             * @example active
-             * @enum {string}
-             */
-            status: "active" | "closed" | "fundraising";
-            /**
-             * @example early-stage
-             * @enum {string}
-             */
-            strategy: "early-stage" | "growth" | "late-stage" | "multi-stage" | "sector-specific";
-            /** @example 2024 */
-            vintage: number;
-            /**
-             * @description Fund term in years
-             * @example 10
-             */
-            fundTerm: number;
-            /** @example 100000000 */
-            totalCommitment: number;
-            /** @example 25000000 */
-            deployedCapital: number;
-            /** @example 75000000 */
-            availableCapital: number;
-            /** @example 30000000 */
-            portfolioValue: number;
-            /** @example 15.5 */
-            irr?: number;
-            /** @example 1.2 */
-            tvpi?: number;
-            /** @example 0.3 */
-            dpi?: number;
-            /** @example 1.5 */
-            moic?: number;
-            /** @example 500000 */
-            minInvestment: number;
-            /** @example 5000000 */
-            maxInvestment: number;
-            /**
-             * @example [
-             *       "Technology",
-             *       "Healthcare",
-             *       "FinTech"
-             *     ]
-             */
-            targetSectors: string[];
-            /**
-             * @example [
-             *       "Seed",
-             *       "Series A",
-             *       "Series B"
-             *     ]
-             */
-            targetStages: string[];
-            /**
-             * @example [
-             *       "John Smith",
-             *       "Jane Doe"
-             *     ]
-             */
-            managers: string[];
-            /** @example 2024-01-01 */
-            startDate: string;
-            /** @example 2034-01-01 */
-            endDate?: string;
-            /** @example Early-stage venture fund focused on B2B SaaS */
-            description?: string;
-            /**
-             * @example aif
-             * @enum {string}
-             */
-            vehicleType?: "aif" | "spv" | "co_invest";
-            /**
-             * @description Parent fund or vehicle ID when this fund is nested under another vehicle
-             * @example 65f0d2c6a2d4b8746a1f91de
-             */
-            parentFundId?: string;
-            /**
-             * @description Fund regulatory regime. Defaults from the current organization when omitted.
-             * @example india_sebi_aif
-             * @enum {string}
-             */
-            regulatoryRegime?: "india_sebi_aif" | "eu_aifmd" | "us_private_fund";
-            /** @description Region-aware regulatory metadata for this fund */
-            regulatoryProfile?: {
-                [key: string]: unknown;
-            };
-            /**
-             * @description Waterfall scenario ID to attach as active for this fund
-             * @example 507f1f77bcf86cd799439099
-             */
-            activeWaterfallId: string;
-        };
-        UpdateFundDto: {
-            /** @example Venture Fund I */
-            name?: string;
-            /** @example VF I */
-            displayName?: string;
-            /** @example 1 */
-            fundNumber?: number;
-            /**
-             * @example active
-             * @enum {string}
-             */
-            status?: "active" | "closed" | "fundraising";
-            /**
-             * @example early-stage
-             * @enum {string}
-             */
-            strategy?: "early-stage" | "growth" | "late-stage" | "multi-stage" | "sector-specific";
-            /** @example 2024 */
-            vintage?: number;
-            /**
-             * @description Fund term in years
-             * @example 10
-             */
-            fundTerm?: number;
-            /** @example 100000000 */
-            totalCommitment?: number;
-            /** @example 25000000 */
-            deployedCapital?: number;
-            /** @example 75000000 */
-            availableCapital?: number;
-            /** @example 30000000 */
-            portfolioValue?: number;
-            /** @example 15.5 */
-            irr?: number;
-            /** @example 1.2 */
-            tvpi?: number;
-            /** @example 0.3 */
-            dpi?: number;
-            /** @example 1.5 */
-            moic?: number;
-            /** @example 500000 */
-            minInvestment?: number;
-            /** @example 5000000 */
-            maxInvestment?: number;
-            /**
-             * @example [
-             *       "Technology",
-             *       "Healthcare",
-             *       "FinTech"
-             *     ]
-             */
-            targetSectors?: string[];
-            /**
-             * @example [
-             *       "Seed",
-             *       "Series A",
-             *       "Series B"
-             *     ]
-             */
-            targetStages?: string[];
-            /**
-             * @example [
-             *       "John Smith",
-             *       "Jane Doe"
-             *     ]
-             */
-            managers?: string[];
-            /** @example 2024-01-01 */
-            startDate?: string;
-            /** @example 2034-01-01 */
-            endDate?: string;
-            /** @example Early-stage venture fund focused on B2B SaaS */
-            description?: string;
-            /**
-             * @example aif
-             * @enum {string}
-             */
-            vehicleType?: "aif" | "spv" | "co_invest";
-            /**
-             * @description Parent fund or vehicle ID when this fund is nested under another vehicle
-             * @example 65f0d2c6a2d4b8746a1f91de
-             */
-            parentFundId?: string;
-            /**
-             * @description Fund regulatory regime. Defaults from the current organization when omitted.
-             * @example india_sebi_aif
-             * @enum {string}
-             */
-            regulatoryRegime?: "india_sebi_aif" | "eu_aifmd" | "us_private_fund";
-            /** @description Region-aware regulatory metadata for this fund */
-            regulatoryProfile?: {
-                [key: string]: unknown;
-            };
-            /**
-             * @description Waterfall scenario ID to attach as active for this fund
-             * @example 507f1f77bcf86cd799439099
-             */
-            activeWaterfallId?: string;
-        };
-        SetActiveWaterfallDto: {
-            /**
-             * @description Waterfall scenario ID to set as active
-             * @example 507f1f77bcf86cd799439099
-             */
-            waterfallScenarioId: string;
-        };
-        CreatePortfolioCompanyDto: {
-            /** @example TechStartup Inc. */
-            name: string;
-            /** @example Technology */
-            sector: string;
-            /**
-             * @example series-a
-             * @enum {string}
-             */
-            stage: "seed" | "series-a" | "series-b" | "series-c" | "growth" | "late-stage";
-            /** @example 2024-03-15 */
-            investmentDate: string;
-            /** @example 2000000 */
-            initialInvestment: number;
-            /** @example 2500000 */
-            currentValue: number;
-            /**
-             * @description Ownership percentage (0-100)
-             * @example 15.5
-             */
-            ownership: number;
-            /**
-             * @description Health score (0-100)
-             * @example 75
-             */
-            health?: number;
-            /**
-             * @description Health change (-100 to +100)
-             * @example 5
-             */
-            healthChange?: number;
-            /**
-             * @description Runway in months
-             * @example 18
-             */
-            runway?: number;
-            /**
-             * @description Monthly burn rate
-             * @example 150000
-             */
-            burnRate?: number;
-            /**
-             * @example active
-             * @enum {string}
-             */
-            status?: "active" | "exited" | "written_off";
-            /** @example https://techstartup.com */
-            website?: string;
-            /** @example B2B SaaS platform for enterprise resource planning */
-            description?: string;
-        };
-        UpdatePortfolioCompanyDto: {
-            /** @example TechStartup Inc. */
-            name?: string;
-            /** @example Technology */
-            sector?: string;
-            /**
-             * @example series-a
-             * @enum {string}
-             */
-            stage?: "seed" | "series-a" | "series-b" | "series-c" | "growth" | "late-stage";
-            /** @example 2024-03-15 */
-            investmentDate?: string;
-            /** @example 2000000 */
-            initialInvestment?: number;
-            /** @example 2500000 */
-            currentValue?: number;
-            /**
-             * @description Ownership percentage (0-100)
-             * @example 15.5
-             */
-            ownership?: number;
-            /**
-             * @description Health score (0-100)
-             * @example 75
-             */
-            health?: number;
-            /**
-             * @description Health change (-100 to +100)
-             * @example 5
-             */
-            healthChange?: number;
-            /**
-             * @description Runway in months
-             * @example 18
-             */
-            runway?: number;
-            /**
-             * @description Monthly burn rate
-             * @example 150000
-             */
-            burnRate?: number;
-            /**
-             * @example active
-             * @enum {string}
-             */
-            status?: "active" | "exited" | "written_off";
-            /** @example https://techstartup.com */
-            website?: string;
-            /** @example B2B SaaS platform for enterprise resource planning */
-            description?: string;
-            /** @example 2025-06-01 */
-            exitDate?: string;
-            /** @example 5000000 */
-            exitValue?: number;
-        };
-        CreateLPDto: {
-            /** @example Acme Pension Fund */
-            name: string;
-            /** @example Acme Pension Fund, LLC */
-            legalName?: string;
-            /**
-             * @example institutional
-             * @enum {string}
-             */
-            type: "institutional" | "individual" | "strategic";
-            /**
-             * @example taxable
-             * @enum {string}
-             */
-            taxStatus: "taxable" | "tax-exempt" | "foreign";
-            /** @example US */
-            taxJurisdiction?: string;
-            /** @example 12-3456789 */
-            taxId?: string;
-            /**
-             * @description Default tax withholding rate (0-1)
-             * @example 0.3
-             */
-            defaultTaxWithholdingRate?: number;
-            /**
-             * @example W-9
-             * @enum {string}
-             */
-            taxFormType?: "W-9" | "W-8BEN" | "W-8BEN-E" | "W-8IMY";
-            /** @example contact@acmepension.com */
-            email?: string;
-            /** @example John Smith */
-            contactName?: string;
-            /** @example +1-555-123-4567 */
-            phone?: string;
-            /** @example 123 Main St, New York, NY 10001 */
-            address?: string;
-            /**
-             * @example email
-             * @enum {string}
-             */
-            preferredContactMethod?: "email" | "phone" | "mail";
-            /** @example 507f1f77bcf86cd799439077 */
-            primaryBankAccountId?: string;
-        };
-        UpdateLPDto: {
-            /** @example Acme Pension Fund */
-            name?: string;
-            /** @example Acme Pension Fund, LLC */
-            legalName?: string;
-            /**
-             * @example institutional
-             * @enum {string}
-             */
-            type?: "institutional" | "individual" | "strategic";
-            /**
-             * @example taxable
-             * @enum {string}
-             */
-            taxStatus?: "taxable" | "tax-exempt" | "foreign";
-            /** @example US */
-            taxJurisdiction?: string;
-            /** @example 12-3456789 */
-            taxId?: string;
-            /**
-             * @description Default tax withholding rate (0-1)
-             * @example 0.3
-             */
-            defaultTaxWithholdingRate?: number;
-            /**
-             * @example W-9
-             * @enum {string}
-             */
-            taxFormType?: "W-9" | "W-8BEN" | "W-8BEN-E" | "W-8IMY";
-            /** @example contact@acmepension.com */
-            email?: string;
-            /** @example John Smith */
-            contactName?: string;
-            /** @example +1-555-123-4567 */
-            phone?: string;
-            /** @example 123 Main St, New York, NY 10001 */
-            address?: string;
-            /**
-             * @example email
-             * @enum {string}
-             */
-            preferredContactMethod?: "email" | "phone" | "mail";
-            /** @example 507f1f77bcf86cd799439077 */
-            primaryBankAccountId?: string;
-        };
-        CreateLPCommitmentDto: {
-            /** @example 507f1f77bcf86cd799439011 */
-            lpId: string;
-            /** @example 507f1f77bcf86cd799439012 */
-            fundId: string;
-            /** @example 5000000 */
-            commitment: number;
-            /** @example 1000000 */
-            calledAmount?: number;
-            /** @example 500000 */
-            distributedAmount?: number;
-            /**
-             * @description Ownership percentage (0-100)
-             * @example 5
-             */
-            ownership: number;
-        };
-        CreateCapitalCallDto: {
-            /** @example 1 */
-            callNumber: number;
-            /** @example 5000000 */
-            amount: number;
-            /** @example 2024-06-30 */
-            dueDate: string;
-            /** @example America/New_York */
-            dueDateTimezone?: string;
-            /**
-             * @description UTC offset snapshot in minutes
-             * @example -300
-             */
-            dueDateOffsetMinutes?: number;
-            /** @example Q2 2024 capital call for new investments */
-            purpose?: string;
-        };
-        UpdateCapitalCallDto: {
-            /** @example 1 */
-            callNumber?: number;
-            /** @example 5000000 */
-            amount?: number;
-            /** @example 2024-06-30 */
-            dueDate?: string;
-            /** @example America/New_York */
-            dueDateTimezone?: string;
-            /**
-             * @description UTC offset snapshot in minutes
-             * @example -300
-             */
-            dueDateOffsetMinutes?: number;
-            /** @example Q2 2024 capital call for new investments */
-            purpose?: string;
-            /**
-             * @example partial
-             * @enum {string}
-             */
-            status?: "pending" | "partial" | "complete" | "overdue";
-            /** @example 2500000 */
-            collected?: number;
-        };
-        RecordResponseDto: {
-            /** @example 507f1f77bcf86cd799439011 */
-            lpId: string;
-            /** @example 500000 */
-            amountPaid: number;
-            /** @example 2024-06-15 */
-            paidDate?: string;
-            /**
-             * @example paid
-             * @enum {string}
-             */
-            status?: "pending" | "paid" | "partial" | "overdue";
-        };
-        CreateTierDto: {
-            /** @example Return of Capital */
-            name: string;
-            /**
-             * @example roc
-             * @enum {string}
-             */
-            type: "roc" | "preferred-return" | "catch-up" | "carry" | "custom";
-            /** @example 1 */
-            order: number;
-            /** @example 0 */
-            threshold?: number;
-            /**
-             * @description Hurdle rate percentage
-             * @example 8
-             */
-            hurdleRate?: number;
-            /**
-             * @description GP carry percentage
-             * @example 20
-             */
-            gpCarryPercentage?: number;
-            /**
-             * @description LP percentage
-             * @example 80
-             */
-            lpPercentage?: number;
-            /**
-             * @example pro-rata
-             * @enum {string}
-             */
-            splitType?: "pro-rata" | "equal" | "custom";
-            /** @example Return of contributed capital */
-            description?: string;
-            /** @example false */
-            isCustom?: boolean;
-        };
-        CreateInvestorClassDto: {
-            /** @example Limited Partners */
-            name: string;
-            /**
-             * @example lp
-             * @enum {string}
-             */
-            type: "lp" | "gp" | "partner";
-            /**
-             * @description Ownership percentage
-             * @example 80
-             */
-            ownershipPercentage: number;
-            /** @example 80000000 */
-            commitment: number;
-            /** @example 40000000 */
-            capitalCalled: number;
-            /** @example 10000000 */
-            capitalReturned: number;
-            /** @example 1 */
-            order: number;
-            /** @example Class A limited partners */
-            notes?: string;
-        };
-        CreateScenarioDto: {
-            /** @example 507f1f77bcf86cd799439011 */
-            fundId?: string;
-            /** @example Horizon Growth Fund III */
-            fundName?: string;
-            /** @example Base Case Scenario */
-            name: string;
-            /** @example Conservative exit assumptions */
-            description?: string;
-            /**
-             * @example european
-             * @enum {string}
-             */
-            model: "european" | "american" | "blended";
-            /** @example 150000000 */
-            exitValue: number;
-            /**
-             * @description Total invested capital
-             * @example 100000000
-             */
-            totalInvested?: number;
-            /**
-             * @description Total management fees
-             * @example 2000000
-             */
-            managementFees?: number;
-            /** @example false */
-            isFavorite?: boolean;
-            /**
-             * @description Whether this scenario is a reusable template
-             * @example false
-             */
-            isTemplate?: boolean;
-            /**
-             * @example [
-             *       "base-case",
-             *       "2024"
-             *     ]
-             */
-            tags?: string[];
-            /**
-             * @description Blended waterfall configuration (JSON)
-             * @example {
-             *       "europeanWeight": 0.5,
-             *       "americanWeight": 0.5
-             *     }
-             */
-            blendedConfig?: Record<string, never>;
-            /**
-             * @description Clawback provision details (JSON)
-             * @example {
-             *       "enabled": true,
-             *       "threshold": 0.08
-             *     }
-             */
-            clawbackProvision?: Record<string, never>;
-            /**
-             * @description Lookback provision details (JSON)
-             * @example {
-             *       "enabled": false
-             *     }
-             */
-            lookbackProvision?: Record<string, never>;
-            tiers: components["schemas"]["CreateTierDto"][];
-            investorClasses: components["schemas"]["CreateInvestorClassDto"][];
-        };
-        UpdateScenarioDto: {
-            /** @example Horizon Growth Fund III */
-            fundName?: string;
-            /** @example Base Case Scenario */
-            name?: string;
-            /** @example Conservative exit assumptions */
-            description?: string;
-            /**
-             * @example european
-             * @enum {string}
-             */
-            model?: "european" | "american" | "blended";
-            /** @example 150000000 */
-            exitValue?: number;
-            /**
-             * @description Total invested capital
-             * @example 100000000
-             */
-            totalInvested?: number;
-            /**
-             * @description Total management fees
-             * @example 2000000
-             */
-            managementFees?: number;
-            /** @example false */
-            isFavorite?: boolean;
-            /**
-             * @description Whether this scenario is a reusable template
-             * @example false
-             */
-            isTemplate?: boolean;
-            /**
-             * @example [
-             *       "base-case",
-             *       "2024"
-             *     ]
-             */
-            tags?: string[];
-            /**
-             * @description Blended waterfall configuration (JSON)
-             * @example {
-             *       "europeanWeight": 0.5,
-             *       "americanWeight": 0.5
-             *     }
-             */
-            blendedConfig?: Record<string, never>;
-            /**
-             * @description Clawback provision details (JSON)
-             * @example {
-             *       "enabled": true,
-             *       "threshold": 0.08
-             *     }
-             */
-            clawbackProvision?: Record<string, never>;
-            /**
-             * @description Lookback provision details (JSON)
-             * @example {
-             *       "enabled": false
-             *     }
-             */
-            lookbackProvision?: Record<string, never>;
-            tiers?: components["schemas"]["CreateTierDto"][];
-            investorClasses?: components["schemas"]["CreateInvestorClassDto"][];
-        };
-        CalculateWaterfallDto: {
-            /** @example 507f1f77bcf86cd799439011 */
-            scenarioId: string;
-            /**
-             * @description Override exit value for calculation
-             * @example 150000000
-             */
-            exitValue?: number;
-        };
-        SensitivityAnalysisDto: {
-            /** @example 507f1f77bcf86cd799439011 */
-            scenarioId: string;
-            /**
-             * @description Minimum exit value
-             * @example 50000000
-             */
-            minExitValue?: number;
-            /**
-             * @description Maximum exit value
-             * @example 300000000
-             */
-            maxExitValue?: number;
-            /**
-             * @description Number of data points
-             * @example 10
-             */
-            steps?: number;
-        };
-        CreateWaterfallTemplateDto: {
-            /** @example Default European Waterfall */
-            name: string;
-            /** @example Template for standard LP/GP split */
-            description?: string;
-            /**
-             * @example european
-             * @enum {string}
-             */
-            model: "european" | "american" | "blended";
-            /** @description Tier definitions */
-            tiers: Record<string, never>[];
-            /** @default false */
-            isDefault: boolean;
-        };
-        CreateFeeDto: {
-            /** @example management-fee */
-            type: string;
-            /** @example Management Fee Q4 */
-            name: string;
-            /** @example 50000 */
-            amount: number;
-            /**
-             * @description Fee as percentage of gross proceeds
-             * @example 2
-             */
-            percentage?: number;
-            /** @example fund */
-            paidBy: string;
-            /** @example Quarterly management fee */
-            description?: string;
-            /** @example Applied per LPA section 8.1 */
-            notes?: string;
-        };
-        CreateDistributionDto: {
-            /** @example 507f1f77bcf86cd799439011 */
-            fundId: string;
-            /** @example Horizon Growth Fund III */
-            fundName?: string;
-            /** @example TechCo Exit Distribution */
-            name: string;
-            /** @example Distribution from TechCo Series B exit */
-            description?: string;
-            /**
-             * @example exit
-             * @enum {string}
-             */
-            eventType: "exit" | "dividend" | "recapitalization" | "refinancing" | "partial-exit" | "other";
-            /** @example 2024-03-15T00:00:00Z */
-            eventDate: string;
-            /** @example America/New_York */
-            eventDateTimezone?: string;
-            /**
-             * @description UTC offset snapshot in minutes
-             * @example -300
-             */
-            eventDateOffsetMinutes?: number;
-            /** @example 2024-03-30T00:00:00Z */
-            paymentDate: string;
-            /** @example America/New_York */
-            paymentDateTimezone?: string;
-            /**
-             * @description UTC offset snapshot in minutes
-             * @example -300
-             */
-            paymentDateOffsetMinutes?: number;
-            /** @example 10000000 */
-            totalAmount: number;
-            /** @example 10500000 */
-            grossProceeds: number;
-            /** @example 9500000 */
-            netProceeds: number;
-            /** @example 500000 */
-            totalFees?: number;
-            /** @example 50000 */
-            totalExpenses?: number;
-            /** @example 150000 */
-            totalTaxWithholding?: number;
-            /** @example 9300000 */
-            totalDistributed?: number;
-            /** @example 507f1f77bcf86cd799439099 */
-            waterfallScenarioId?: string;
-            /** @example 507f1f77bcf86cd799439088 */
-            createdBy?: string;
-            /** @example Internal review notes */
-            internalNotes?: string;
-            /** @example false */
-            isRecurring?: boolean;
-            fees?: components["schemas"]["CreateFeeDto"][];
-        };
-        UpdateDistributionDto: {
-            /** @example Horizon Growth Fund III */
-            fundName?: string;
-            /** @example TechCo Exit Distribution */
-            name?: string;
-            /** @example Distribution from TechCo Series B exit */
-            description?: string;
-            /**
-             * @example exit
-             * @enum {string}
-             */
-            eventType?: "exit" | "dividend" | "recapitalization" | "refinancing" | "partial-exit" | "other";
-            /** @example 2024-03-15T00:00:00Z */
-            eventDate?: string;
-            /** @example America/New_York */
-            eventDateTimezone?: string;
-            /**
-             * @description UTC offset snapshot in minutes
-             * @example -300
-             */
-            eventDateOffsetMinutes?: number;
-            /** @example 2024-03-30T00:00:00Z */
-            paymentDate?: string;
-            /** @example America/New_York */
-            paymentDateTimezone?: string;
-            /**
-             * @description UTC offset snapshot in minutes
-             * @example -300
-             */
-            paymentDateOffsetMinutes?: number;
-            /** @example 10000000 */
-            totalAmount?: number;
-            /** @example 10500000 */
-            grossProceeds?: number;
-            /** @example 9500000 */
-            netProceeds?: number;
-            /** @example 500000 */
-            totalFees?: number;
-            /** @example 50000 */
-            totalExpenses?: number;
-            /** @example 150000 */
-            totalTaxWithholding?: number;
-            /** @example 9300000 */
-            totalDistributed?: number;
-            /** @example 507f1f77bcf86cd799439099 */
-            waterfallScenarioId?: string;
-            /** @example 507f1f77bcf86cd799439088 */
-            createdBy?: string;
-            /** @example Internal review notes */
-            internalNotes?: string;
-            /** @example false */
-            isRecurring?: boolean;
-            fees?: components["schemas"]["CreateFeeDto"][];
-        };
-        CalculateAllocationDto: {
-            /**
-             * @description Waterfall scenario ID. Defaults to fund active waterfall.
-             * @example 507f1f77bcf86cd799439099
-             */
-            waterfallScenarioId?: string;
-            /**
-             * @description Override exit value for waterfall calculation. Defaults to distribution netProceeds.
-             * @example 10000000
-             */
-            exitValue?: number;
-        };
-        SubmitDistributionForApprovalDto: {
-            /**
-             * @example [
-             *       "507f1f77bcf86cd799439011"
-             *     ]
-             */
-            approverIds: string[];
-        };
-        ApprovalActionDto: {
-            /**
-             * @example approved
-             * @enum {string}
-             */
-            status: "approved" | "rejected";
-            /** @example Approved with comments */
-            comments?: string;
-        };
-        CreateDistributionCommentDto: {
-            /** @example Please review the LP allocation breakdown */
-            comment: string;
-            /**
-             * @description Whether this comment is internal-only
-             * @example false
-             */
-            isInternal?: boolean;
-            /**
-             * @description Attachment file references
-             * @example [
-             *       "report.pdf"
-             *     ]
-             */
-            attachments?: string[];
-        };
-        CreateCarryTermDto: {
-            /** @example Growth Fund III */
-            fundName: string;
-            /** @example 20 */
-            gpCarryPercentage: number;
-            /** @example 8 */
-            hurdleRate: number;
-            /** @example 8 */
-            preferredReturn: number;
-            /** @example 100 */
-            catchupPercentage: number;
-            /** @example 50 */
-            catchupCap?: number;
-            /**
-             * @example {
-             *       "type": "time-based",
-             *       "vestingPeriodMonths": 48,
-             *       "cliffMonths": 12
-             *     }
-             */
-            vestingSchedule: Record<string, never>;
-            /** @example 2024-01-01 */
-            effectiveDate: string;
-            /** @enum {string} */
-            status?: "active" | "inactive" | "draft";
-        };
-        CalculateCarryAccrualDto: {
-            /** @example Growth Fund III */
-            fundName: string;
-        };
-        ExportCarryAccrualDto: {
-            /**
-             * @example pdf
-             * @enum {string}
-             */
-            format: "pdf" | "csv" | "xlsx";
-        };
-        CreateExpenseDto: {
-            /** @example Growth Fund III */
-            fundName: string;
-            /** @enum {string} */
-            type: "management-fee" | "monitoring-fee" | "transaction-fee" | "legal" | "audit" | "administrative" | "marketing" | "other";
-            /** @example Operating Expenses */
-            category: string;
-            /** @example Q1 management fee */
-            description: string;
-            /** @example 125000 */
-            amount: number;
-            /** @example 2024-03-31 */
-            date: string;
-            /** @example Vestledger Management LLC */
-            payee: string;
-            /** @example false */
-            isRecurring?: boolean;
-            /** @enum {string} */
-            recurringFrequency?: "monthly" | "quarterly" | "annually";
-            /** @example false */
-            allocatedToLPs?: boolean;
-            /** @example INV-2024-001 */
-            invoiceNumber?: string;
-            /**
-             * @example [
-             *       "recurring",
-             *       "management"
-             *     ]
-             */
-            tags?: string[];
-        };
-        ApproveExpenseDto: {
-            /** @example ops@vestledger.com */
-            approver: string;
-        };
-        CalculateNAVRequestDto: {
-            /** @example Growth Fund III */
-            fundName: string;
-        };
-        ReviewNAVRequestDto: {
-            /** @example ops@vestledger.com */
-            reviewedBy: string;
-        };
-        PublishNAVRequestDto: {
-            /** @example ops@vestledger.com */
-            publishedBy: string;
-        };
-        ExportNAVRequestDto: {
-            /**
-             * @example pdf
-             * @enum {string}
-             */
-            format: "pdf" | "csv" | "xlsx";
-        };
-        CreateTransferDto: {
-            /** @example Growth Fund III */
-            fundName: string;
-            /** @enum {string} */
-            type: "direct" | "secondary-sale" | "inheritance" | "gift" | "court-order";
-            /** @example lp-001 */
-            transferorId: string;
-            /** @example John Smith */
-            transferorName: string;
-            /** @example john@example.com */
-            transferorEmail: string;
-            /** @example lp-002 */
-            transfereeId?: string;
-            /** @example Jane Doe */
-            transfereeName?: string;
-            /** @example jane@example.com */
-            transfereeEmail?: string;
-            /** @example 5000000 */
-            commitmentAmount: number;
-            /** @example 3000000 */
-            fundedAmount: number;
-            /** @example 2000000 */
-            unfundedCommitment: number;
-            /** @example 4500000 */
-            transferPrice?: number;
-            /** @example 10 */
-            discount?: number;
-            /** @example false */
-            includesManagementRights?: boolean;
-            /** @example false */
-            includesInformationRights?: boolean;
-            /** @example false */
-            includesVotingRights?: boolean;
-            /** @example true */
-            subjectToROFR?: boolean;
-            rofrDeadline?: string;
-            /** @example America/New_York */
-            rofrDeadlineTimezone?: string;
-            /**
-             * @description UTC offset snapshot in minutes
-             * @example -300
-             */
-            rofrDeadlineOffsetMinutes?: number;
-            /** @example true */
-            requiresGPConsent?: boolean;
-            /** @example false */
-            requiresLPVote?: boolean;
-            notes?: string;
-        };
-        RejectTransferDto: {
-            /** @example Missing signatures */
-            reason: string;
-        };
-        UploadTransferDocumentDto: {
-            /** @example Transfer agreement v2.pdf */
-            name: string;
-        };
-        ExerciseRofrDto: {
-            /** @example Investor Relations Team */
-            exercisedByName: string;
-        };
-        CreateComplianceItemDto: {
-            /** @example Annual Fund Audit */
-            title: string;
-            /** @enum {string} */
-            type: "filing" | "report" | "certification" | "audit";
-            /** @example 2024-06-30 */
-            dueDate: string;
-            /** @example John Smith */
-            assignedTo: string;
-            /** @enum {string} */
-            priority?: "high" | "medium" | "low";
-            /** @example Annual audit of fund financials */
-            description: string;
-            /** @example Growth Fund III */
-            relatedFund?: string;
-            fundId?: string;
-        };
-        UpdateComplianceItemDto: {
-            /** @example Annual Fund Audit */
-            title?: string;
-            /** @enum {string} */
-            type?: "filing" | "report" | "certification" | "audit";
-            /** @example 2024-06-30 */
-            dueDate?: string;
-            /** @example John Smith */
-            assignedTo?: string;
-            /** @enum {string} */
-            priority?: "high" | "medium" | "low";
-            /** @example Annual audit of fund financials */
-            description?: string;
-            /** @example Growth Fund III */
-            relatedFund?: string;
-            fundId?: string;
-        };
-        CreateFilingDto: {
-            /** @example Form ADV */
-            filingType: string;
-            /** @example SEC */
-            regulator: string;
-            /** @example Annual */
-            frequency: string;
-            /** @example 2024-03-31 */
-            lastFiled: string;
-            /** @example 2025-03-31 */
-            nextDue: string;
-            /** @example Growth Fund III */
-            fundName: string;
-            fundId?: string;
-        };
-        CreateAuditScheduleDto: {
-            /** @example Financial Audit */
-            auditType: string;
-            /** @example Deloitte */
-            auditor: string;
-            /** @example 2024 */
-            year: number;
-            /** @example 2024-01-15 */
-            startDate: string;
-            /** @example 2024-03-15 */
-            completionDate?: string;
-            /** @example Growth Fund III */
-            fundName: string;
-            fundId?: string;
-        };
-        CreateTaxDocumentDto: {
-            /** @example Schedule K-1 */
-            documentType: string;
-            /** @example 2024 */
-            taxYear: number;
-            /** @enum {string} */
-            recipientType: "LP" | "GP" | "Portfolio Company";
-            /** @example Institutional Capital Partners */
-            recipientName: string;
-            /** @enum {string} */
-            status?: "draft" | "ready" | "sent" | "filed";
-            /** @example 1250000 */
-            amount?: number;
-            fundId?: string;
-        };
-        UpdateTaxDocumentDto: {
-            /** @example Schedule K-1 */
-            documentType?: string;
-            /** @example 2024 */
-            taxYear?: number;
-            /** @enum {string} */
-            recipientType?: "LP" | "GP" | "Portfolio Company";
-            /** @example Institutional Capital Partners */
-            recipientName?: string;
-            /** @enum {string} */
-            status?: "draft" | "ready" | "sent" | "filed";
-            /** @example 1250000 */
-            amount?: number;
-            fundId?: string;
-        };
-        CreateTaxSummaryDto: {
-            fundId: string;
-            /** @example Growth Fund III */
-            fundName: string;
-            /** @example 2024 */
-            taxYear: number;
-            /** @example 8 */
-            k1sIssued?: number;
-            /** @example 12 */
-            k1sTotal?: number;
-            /** @example 3 */
-            form1099Issued?: number;
-            /** @example 5 */
-            form1099Total?: number;
-            /** @example 450000 */
-            estimatedTaxesPaid?: number;
-            /** @example 2500000 */
-            totalDistributions?: number;
-            /** @example 2025-04-15 */
-            filingDeadline: string;
-        };
-        CreateValuationDto: {
-            /** @example TechStartup Inc. */
-            company: string;
-            /** @example 2024-01-15 */
-            valuationDate: string;
-            /** @example 2025-01-15 */
-            expirationDate: string;
-            /** @example 25000000 */
-            fairMarketValue: number;
-            /** @example 15000000 */
-            commonStock: number;
-            /** @example 10000000 */
-            preferredStock: number;
-            /** @example ValuationCo LLC */
-            provider: string;
-            /** @example Backsolve / OPM */
-            methodology: string;
-            /** @example https://reports.example.com/409a-report.pdf */
-            reportUrl?: string;
-            companyId?: string;
-        };
-        CreateStrikePriceDto: {
-            /** @example 2024-02-01 */
-            grantDate: string;
-            /** @example 1.25 */
-            strikePrice: number;
-            /** @example 50000 */
-            sharesGranted: number;
-            /** @example Jane Smith */
-            recipient: string;
-            /** @example 4-year, 1-year cliff */
-            vestingSchedule: string;
-        };
-        CreateContactDto: {
-            /** @example Sarah Chen */
-            name: string;
-            /** @example sarah@example.com */
-            email: string;
-            /** @example +1-555-0123 */
-            phone?: string;
-            /** @enum {string} */
-            role: "founder" | "co-founder" | "ceo" | "cto" | "investor" | "advisor" | "other";
-            /** @example TechStartup Inc. */
-            company?: string;
-            /** @example San Francisco, CA */
-            location?: string;
-            /**
-             * @example [
-             *       "ai",
-             *       "fintech"
-             *     ]
-             */
-            tags?: string[];
-            linkedin?: string;
-            twitter?: string;
-            notes?: string;
-            deals?: string[];
-            linkedCompanies?: string[];
-        };
-        UpdateContactDto: {
-            /** @example Sarah Chen */
-            name?: string;
-            /** @example sarah@example.com */
-            email?: string;
-            /** @example +1-555-0123 */
-            phone?: string;
-            /** @enum {string} */
-            role?: "founder" | "co-founder" | "ceo" | "cto" | "investor" | "advisor" | "other";
-            /** @example TechStartup Inc. */
-            company?: string;
-            /** @example San Francisco, CA */
-            location?: string;
-            /**
-             * @example [
-             *       "ai",
-             *       "fintech"
-             *     ]
-             */
-            tags?: string[];
-            linkedin?: string;
-            twitter?: string;
-            notes?: string;
-            deals?: string[];
-            linkedCompanies?: string[];
-        };
-        CreateInteractionDto: {
-            /** @enum {string} */
-            type: "email" | "call" | "meeting" | "note";
-            /** @example Follow-up call re: Series A */
-            subject: string;
-            /** @example 2024-03-25 */
-            date: string;
-            notes?: string;
-            /** @enum {string} */
-            direction?: "inbound" | "outbound";
-            description?: string;
-            /** @example 30 */
-            duration?: number;
-            participants?: string[];
-            /** @example 0 */
-            attachments?: number;
-            /** @enum {string} */
-            outcome?: "positive" | "neutral" | "negative";
-            tags?: string[];
-            linkedDeal?: string;
-            /** @example false */
-            isAutoCaptured?: boolean;
-        };
-        CreateDealDto: {
-            /** @example TechStartup Inc. */
-            name: string;
-            /** @enum {string} */
-            stage: "Sourced" | "First Meeting" | "Due Diligence" | "Term Sheet" | "Closed";
-            /** @example AI/ML */
-            sector: string;
-            /** @example 5000000 */
-            amount: number;
-            /** @example 60 */
-            probability?: number;
-            /** @example Sarah Chen */
-            founder: string;
-            /** @enum {string} */
-            outcome?: "active" | "won" | "lost" | "withdrawn" | "passed";
-            fundId?: string;
-        };
-        UpdateDealDto: {
-            /** @example TechStartup Inc. */
-            name?: string;
-            /** @enum {string} */
-            stage?: "Sourced" | "First Meeting" | "Due Diligence" | "Term Sheet" | "Closed";
-            /** @example AI/ML */
-            sector?: string;
-            /** @example 5000000 */
-            amount?: number;
-            /** @example 60 */
-            probability?: number;
-            /** @example Sarah Chen */
-            founder?: string;
-            /** @enum {string} */
-            outcome?: "active" | "won" | "lost" | "withdrawn" | "passed";
-            fundId?: string;
-        };
-        CreateDocumentDto: {
-            /** @example LPA Agreement.pdf */
-            name: string;
-            /** @enum {string} */
-            type: "pdf" | "word" | "excel" | "image" | "presentation" | "archive" | "other";
-            /** @enum {string} */
-            category: "legal" | "financial" | "tax" | "compliance" | "investor-relations" | "due-diligence" | "portfolio" | "other";
-            /** @example 2500000 */
-            size: number;
-            folderId?: string;
-            /** @example John Smith */
-            uploadedBy: string;
-            /** @example John Smith */
-            lastModifiedBy: string;
-            tags?: string[];
-            description?: string;
-            /** @enum {string} */
-            accessLevel?: "private" | "internal" | "investor" | "public";
-            fundId?: string;
-            fundName?: string;
-            dealId?: string;
-            dealName?: string;
-            lpId?: string;
-            lpName?: string;
-            requiresSignature?: boolean;
-            url?: string;
-        };
-        CreateFolderDto: {
-            /** @example Legal Documents */
-            name: string;
-            parentId?: string;
-            /** @example /Legal Documents */
-            path: string;
-            color?: string;
-            icon?: string;
-            description?: string;
-            /** @example John Smith */
-            createdBy: string;
-            /** @enum {string} */
-            accessLevel?: "private" | "internal" | "investor" | "public";
-        };
-        UpdateDocumentDto: {
-            /** @example LPA Agreement.pdf */
-            name?: string;
-            /** @enum {string} */
-            type?: "pdf" | "word" | "excel" | "image" | "presentation" | "archive" | "other";
-            /** @enum {string} */
-            category?: "legal" | "financial" | "tax" | "compliance" | "investor-relations" | "due-diligence" | "portfolio" | "other";
-            /** @example 2500000 */
-            size?: number;
-            folderId?: string;
-            /** @example John Smith */
-            uploadedBy?: string;
-            /** @example John Smith */
-            lastModifiedBy?: string;
-            tags?: string[];
-            description?: string;
-            /** @enum {string} */
-            accessLevel?: "private" | "internal" | "investor" | "public";
-            fundId?: string;
-            fundName?: string;
-            dealId?: string;
-            dealName?: string;
-            lpId?: string;
-            lpName?: string;
-            requiresSignature?: boolean;
-            url?: string;
-        };
-        UpdateDocumentAccessDto: {
-            /**
-             * @example internal
-             * @enum {string}
-             */
-            accessLevel: "private" | "internal" | "investor" | "public";
-        };
-        UpdateIntegrationStatusDto: {
-            /** @example connected */
-            status: string;
-        };
-        CreateAuditEventDto: {
-            /** @example 0x1234abcd... */
-            txHash: string;
-            /** @example 12345678 */
-            blockNumber: number;
-            /** @enum {string} */
-            eventType: "ownership_transfer" | "capital_call" | "distribution" | "valuation_update" | "document_hash" | "compliance_attestation";
-            /** @example Ownership transfer of LP interest */
-            description: string;
-            /**
-             * @example [
-             *       "GP Management LLC",
-             *       "LP Capital Partners"
-             *     ]
-             */
-            parties: string[];
-            /** @example 5000000 */
-            amount?: number;
-            /** @enum {string} */
-            verificationStatus?: "verified" | "pending" | "failed";
-            /** @example 0xabcdef... */
-            proofHash: string;
-        };
-        CopilotRespondDto: {
-            /** @description User message */
-            message: string;
-            /** @description Current page pathname */
-            pathname: string;
-        };
-        CreateExportJobDto: {
-            /** @description Template ID to use for the report */
-            templateId: string;
-            /**
-             * @description Export format
-             * @enum {string}
-             */
-            format: "pdf" | "csv" | "excel";
-            /** @description Optional filters to apply */
-            filters?: Record<string, never>;
-        };
+  schemas: {
+    SignupDto: {
+      /** @example user@example.com */
+      email: string;
+      /** @example Jane Doe */
+      name: string;
+      /** @example Str0ngP@ssword! */
+      password: string;
+      /**
+       * @example gp
+       * @enum {string}
+       */
+      role?:
+        | "gp"
+        | "analyst"
+        | "ops"
+        | "ir"
+        | "researcher"
+        | "lp"
+        | "auditor"
+        | "service_provider"
+        | "strategic_partner";
+      /**
+       * @description Optional operating region for the organization created with this user
+       * @example india
+       * @enum {string}
+       */
+      operatingRegion?: "india" | "eu" | "us";
     };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+    UserResponseDto: {
+      /** @example 123e4567-e89b-12d3-a456-426614174000 */
+      id: string;
+      /** @example user@example.com */
+      email: string;
+      /** @example Jane Doe */
+      name: string;
+      /** @example +1-555-123-4567 */
+      phone?: Record<string, never> | null;
+      /** @example Fund Manager */
+      jobTitle?: Record<string, never> | null;
+      /** @example 65f0d2c6a2d4b8746a1f91de */
+      orgId?: Record<string, never> | null;
+      /**
+       * @description Tenant alias for the current organization
+       * @example 65f0d2c6a2d4b8746a1f91de
+       */
+      tenantId?: Record<string, never> | null;
+      /**
+       * @description User role for authorization
+       * @example user
+       */
+      role: string;
+      /**
+       * @description Whether the user is an admin of their current organization
+       * @example true
+       */
+      isAdmin: boolean;
+      /**
+       * @description Operating region configured for the current organization
+       * @example india
+       */
+      operatingRegion?: Record<string, never> | null;
+      /**
+       * @description Whether the organization has completed its regional setup
+       * @example false
+       */
+      organizationConfigured: boolean;
+    };
+    AuthResponseDto: {
+      user: components["schemas"]["UserResponseDto"];
+      /**
+       * @description JWT access token containing sub, email, name, orgId, tenantId, role, isAdmin, and organization region claims
+       * @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+       */
+      access_token: string;
+    };
+    LoginDto: {
+      /** @example user@example.com */
+      email: string;
+      /** @example Str0ngP@ssword! */
+      password: string;
+    };
+    UpdateProfileDto: {
+      /** @example Jane Doe */
+      name?: string;
+      /** @example Jane */
+      firstName?: string;
+      /** @example Doe */
+      lastName?: string;
+      /** @example user@example.com */
+      email?: string;
+      /** @example +1-555-123-4567 */
+      phone?: string;
+      /** @example Fund Manager */
+      jobTitle?: string;
+    };
+    UpdatePasswordDto: {
+      /** @example OldP@ssword1 */
+      currentPassword: string;
+      /** @example NewStr0ngP@ss! */
+      newPassword: string;
+    };
+    UpdateUserDto: {
+      /** @example Jane Doe */
+      name?: string;
+      /** @example Jane */
+      firstName?: string;
+      /** @example Doe */
+      lastName?: string;
+      /** @example user@example.com */
+      email?: string;
+      /** @example +1-555-123-4567 */
+      phone?: string;
+      /** @example Fund Manager */
+      jobTitle?: string;
+    };
+    UpdateOrgSettingsDto: {
+      /**
+       * @description Primary operating region for this organization
+       * @example india
+       * @enum {string}
+       */
+      operatingRegion: "india" | "eu" | "us";
+    };
+    CreateFundDto: {
+      /** @example Venture Fund I */
+      name: string;
+      /** @example VF I */
+      displayName: string;
+      /** @example 1 */
+      fundNumber: number;
+      /**
+       * @example active
+       * @enum {string}
+       */
+      status: "active" | "closed" | "fundraising";
+      /**
+       * @example early-stage
+       * @enum {string}
+       */
+      strategy:
+        | "early-stage"
+        | "growth"
+        | "late-stage"
+        | "multi-stage"
+        | "sector-specific";
+      /** @example 2024 */
+      vintage: number;
+      /**
+       * @description Fund term in years
+       * @example 10
+       */
+      fundTerm: number;
+      /** @example 100000000 */
+      totalCommitment: number;
+      /** @example 25000000 */
+      deployedCapital: number;
+      /** @example 75000000 */
+      availableCapital: number;
+      /** @example 30000000 */
+      portfolioValue: number;
+      /** @example 15.5 */
+      irr?: number;
+      /** @example 1.2 */
+      tvpi?: number;
+      /** @example 0.3 */
+      dpi?: number;
+      /** @example 1.5 */
+      moic?: number;
+      /** @example 500000 */
+      minInvestment: number;
+      /** @example 5000000 */
+      maxInvestment: number;
+      /**
+       * @example [
+       *       "Technology",
+       *       "Healthcare",
+       *       "FinTech"
+       *     ]
+       */
+      targetSectors: string[];
+      /**
+       * @example [
+       *       "Seed",
+       *       "Series A",
+       *       "Series B"
+       *     ]
+       */
+      targetStages: string[];
+      /**
+       * @example [
+       *       "John Smith",
+       *       "Jane Doe"
+       *     ]
+       */
+      managers: string[];
+      /** @example 2024-01-01 */
+      startDate: string;
+      /** @example 2034-01-01 */
+      endDate?: string;
+      /** @example Early-stage venture fund focused on B2B SaaS */
+      description?: string;
+      /**
+       * @example aif
+       * @enum {string}
+       */
+      vehicleType?: "aif" | "spv" | "co_invest";
+      /**
+       * @description Parent fund or vehicle ID when this fund is nested under another vehicle
+       * @example 65f0d2c6a2d4b8746a1f91de
+       */
+      parentFundId?: string;
+      /**
+       * @description Fund regulatory regime. Defaults from the current organization when omitted.
+       * @example india_sebi_aif
+       * @enum {string}
+       */
+      regulatoryRegime?: "india_sebi_aif" | "eu_aifmd" | "us_private_fund";
+      /** @description Region-aware regulatory metadata for this fund */
+      regulatoryProfile?: {
+        [key: string]: unknown;
+      };
+      /**
+       * @description Waterfall scenario ID to attach as active for this fund
+       * @example 507f1f77bcf86cd799439099
+       */
+      activeWaterfallId: string;
+    };
+    UpdateFundDto: {
+      /** @example Venture Fund I */
+      name?: string;
+      /** @example VF I */
+      displayName?: string;
+      /** @example 1 */
+      fundNumber?: number;
+      /**
+       * @example active
+       * @enum {string}
+       */
+      status?: "active" | "closed" | "fundraising";
+      /**
+       * @example early-stage
+       * @enum {string}
+       */
+      strategy?:
+        | "early-stage"
+        | "growth"
+        | "late-stage"
+        | "multi-stage"
+        | "sector-specific";
+      /** @example 2024 */
+      vintage?: number;
+      /**
+       * @description Fund term in years
+       * @example 10
+       */
+      fundTerm?: number;
+      /** @example 100000000 */
+      totalCommitment?: number;
+      /** @example 25000000 */
+      deployedCapital?: number;
+      /** @example 75000000 */
+      availableCapital?: number;
+      /** @example 30000000 */
+      portfolioValue?: number;
+      /** @example 15.5 */
+      irr?: number;
+      /** @example 1.2 */
+      tvpi?: number;
+      /** @example 0.3 */
+      dpi?: number;
+      /** @example 1.5 */
+      moic?: number;
+      /** @example 500000 */
+      minInvestment?: number;
+      /** @example 5000000 */
+      maxInvestment?: number;
+      /**
+       * @example [
+       *       "Technology",
+       *       "Healthcare",
+       *       "FinTech"
+       *     ]
+       */
+      targetSectors?: string[];
+      /**
+       * @example [
+       *       "Seed",
+       *       "Series A",
+       *       "Series B"
+       *     ]
+       */
+      targetStages?: string[];
+      /**
+       * @example [
+       *       "John Smith",
+       *       "Jane Doe"
+       *     ]
+       */
+      managers?: string[];
+      /** @example 2024-01-01 */
+      startDate?: string;
+      /** @example 2034-01-01 */
+      endDate?: string;
+      /** @example Early-stage venture fund focused on B2B SaaS */
+      description?: string;
+      /**
+       * @example aif
+       * @enum {string}
+       */
+      vehicleType?: "aif" | "spv" | "co_invest";
+      /**
+       * @description Parent fund or vehicle ID when this fund is nested under another vehicle
+       * @example 65f0d2c6a2d4b8746a1f91de
+       */
+      parentFundId?: string;
+      /**
+       * @description Fund regulatory regime. Defaults from the current organization when omitted.
+       * @example india_sebi_aif
+       * @enum {string}
+       */
+      regulatoryRegime?: "india_sebi_aif" | "eu_aifmd" | "us_private_fund";
+      /** @description Region-aware regulatory metadata for this fund */
+      regulatoryProfile?: {
+        [key: string]: unknown;
+      };
+      /**
+       * @description Waterfall scenario ID to attach as active for this fund
+       * @example 507f1f77bcf86cd799439099
+       */
+      activeWaterfallId?: string;
+    };
+    SetActiveWaterfallDto: {
+      /**
+       * @description Waterfall scenario ID to set as active
+       * @example 507f1f77bcf86cd799439099
+       */
+      waterfallScenarioId: string;
+    };
+    CreatePortfolioCompanyDto: {
+      /** @example TechStartup Inc. */
+      name: string;
+      /** @example Technology */
+      sector: string;
+      /**
+       * @example series-a
+       * @enum {string}
+       */
+      stage:
+        | "seed"
+        | "series-a"
+        | "series-b"
+        | "series-c"
+        | "growth"
+        | "late-stage";
+      /** @example 2024-03-15 */
+      investmentDate: string;
+      /** @example 2000000 */
+      initialInvestment: number;
+      /** @example 2500000 */
+      currentValue: number;
+      /**
+       * @description Ownership percentage (0-100)
+       * @example 15.5
+       */
+      ownership: number;
+      /**
+       * @description Health score (0-100)
+       * @example 75
+       */
+      health?: number;
+      /**
+       * @description Health change (-100 to +100)
+       * @example 5
+       */
+      healthChange?: number;
+      /**
+       * @description Runway in months
+       * @example 18
+       */
+      runway?: number;
+      /**
+       * @description Monthly burn rate
+       * @example 150000
+       */
+      burnRate?: number;
+      /**
+       * @example active
+       * @enum {string}
+       */
+      status?: "active" | "exited" | "written_off";
+      /** @example https://techstartup.com */
+      website?: string;
+      /** @example B2B SaaS platform for enterprise resource planning */
+      description?: string;
+    };
+    UpdatePortfolioCompanyDto: {
+      /** @example TechStartup Inc. */
+      name?: string;
+      /** @example Technology */
+      sector?: string;
+      /**
+       * @example series-a
+       * @enum {string}
+       */
+      stage?:
+        | "seed"
+        | "series-a"
+        | "series-b"
+        | "series-c"
+        | "growth"
+        | "late-stage";
+      /** @example 2024-03-15 */
+      investmentDate?: string;
+      /** @example 2000000 */
+      initialInvestment?: number;
+      /** @example 2500000 */
+      currentValue?: number;
+      /**
+       * @description Ownership percentage (0-100)
+       * @example 15.5
+       */
+      ownership?: number;
+      /**
+       * @description Health score (0-100)
+       * @example 75
+       */
+      health?: number;
+      /**
+       * @description Health change (-100 to +100)
+       * @example 5
+       */
+      healthChange?: number;
+      /**
+       * @description Runway in months
+       * @example 18
+       */
+      runway?: number;
+      /**
+       * @description Monthly burn rate
+       * @example 150000
+       */
+      burnRate?: number;
+      /**
+       * @example active
+       * @enum {string}
+       */
+      status?: "active" | "exited" | "written_off";
+      /** @example https://techstartup.com */
+      website?: string;
+      /** @example B2B SaaS platform for enterprise resource planning */
+      description?: string;
+      /** @example 2025-06-01 */
+      exitDate?: string;
+      /** @example 5000000 */
+      exitValue?: number;
+    };
+    CreateLPDto: {
+      /** @example Acme Pension Fund */
+      name: string;
+      /** @example Acme Pension Fund, LLC */
+      legalName?: string;
+      /**
+       * @example institutional
+       * @enum {string}
+       */
+      type: "institutional" | "individual" | "strategic";
+      /**
+       * @example taxable
+       * @enum {string}
+       */
+      taxStatus: "taxable" | "tax-exempt" | "foreign";
+      /** @example US */
+      taxJurisdiction?: string;
+      /** @example 12-3456789 */
+      taxId?: string;
+      /**
+       * @description Default tax withholding rate (0-1)
+       * @example 0.3
+       */
+      defaultTaxWithholdingRate?: number;
+      /**
+       * @example W-9
+       * @enum {string}
+       */
+      taxFormType?: "W-9" | "W-8BEN" | "W-8BEN-E" | "W-8IMY";
+      /** @example contact@acmepension.com */
+      email?: string;
+      /** @example John Smith */
+      contactName?: string;
+      /** @example +1-555-123-4567 */
+      phone?: string;
+      /** @example 123 Main St, New York, NY 10001 */
+      address?: string;
+      /**
+       * @example email
+       * @enum {string}
+       */
+      preferredContactMethod?: "email" | "phone" | "mail";
+      /** @example 507f1f77bcf86cd799439077 */
+      primaryBankAccountId?: string;
+    };
+    UpdateLPDto: {
+      /** @example Acme Pension Fund */
+      name?: string;
+      /** @example Acme Pension Fund, LLC */
+      legalName?: string;
+      /**
+       * @example institutional
+       * @enum {string}
+       */
+      type?: "institutional" | "individual" | "strategic";
+      /**
+       * @example taxable
+       * @enum {string}
+       */
+      taxStatus?: "taxable" | "tax-exempt" | "foreign";
+      /** @example US */
+      taxJurisdiction?: string;
+      /** @example 12-3456789 */
+      taxId?: string;
+      /**
+       * @description Default tax withholding rate (0-1)
+       * @example 0.3
+       */
+      defaultTaxWithholdingRate?: number;
+      /**
+       * @example W-9
+       * @enum {string}
+       */
+      taxFormType?: "W-9" | "W-8BEN" | "W-8BEN-E" | "W-8IMY";
+      /** @example contact@acmepension.com */
+      email?: string;
+      /** @example John Smith */
+      contactName?: string;
+      /** @example +1-555-123-4567 */
+      phone?: string;
+      /** @example 123 Main St, New York, NY 10001 */
+      address?: string;
+      /**
+       * @example email
+       * @enum {string}
+       */
+      preferredContactMethod?: "email" | "phone" | "mail";
+      /** @example 507f1f77bcf86cd799439077 */
+      primaryBankAccountId?: string;
+    };
+    CreateLPCommitmentDto: {
+      /** @example 507f1f77bcf86cd799439011 */
+      lpId: string;
+      /** @example 507f1f77bcf86cd799439012 */
+      fundId: string;
+      /** @example 5000000 */
+      commitment: number;
+      /** @example 1000000 */
+      calledAmount?: number;
+      /** @example 500000 */
+      distributedAmount?: number;
+      /**
+       * @description Ownership percentage (0-100)
+       * @example 5
+       */
+      ownership: number;
+    };
+    CreateCapitalCallDto: {
+      /** @example 1 */
+      callNumber: number;
+      /** @example 5000000 */
+      amount: number;
+      /** @example 2024-06-30 */
+      dueDate: string;
+      /** @example America/New_York */
+      dueDateTimezone?: string;
+      /**
+       * @description UTC offset snapshot in minutes
+       * @example -300
+       */
+      dueDateOffsetMinutes?: number;
+      /** @example Q2 2024 capital call for new investments */
+      purpose?: string;
+    };
+    UpdateCapitalCallDto: {
+      /** @example 1 */
+      callNumber?: number;
+      /** @example 5000000 */
+      amount?: number;
+      /** @example 2024-06-30 */
+      dueDate?: string;
+      /** @example America/New_York */
+      dueDateTimezone?: string;
+      /**
+       * @description UTC offset snapshot in minutes
+       * @example -300
+       */
+      dueDateOffsetMinutes?: number;
+      /** @example Q2 2024 capital call for new investments */
+      purpose?: string;
+      /**
+       * @example partial
+       * @enum {string}
+       */
+      status?: "pending" | "partial" | "complete" | "overdue";
+      /** @example 2500000 */
+      collected?: number;
+    };
+    RecordResponseDto: {
+      /** @example 507f1f77bcf86cd799439011 */
+      lpId: string;
+      /** @example 500000 */
+      amountPaid: number;
+      /** @example 2024-06-15 */
+      paidDate?: string;
+      /**
+       * @example paid
+       * @enum {string}
+       */
+      status?: "pending" | "paid" | "partial" | "overdue";
+    };
+    CreateTierDto: {
+      /** @example Return of Capital */
+      name: string;
+      /**
+       * @example roc
+       * @enum {string}
+       */
+      type: "roc" | "preferred-return" | "catch-up" | "carry" | "custom";
+      /** @example 1 */
+      order: number;
+      /** @example 0 */
+      threshold?: number;
+      /**
+       * @description Hurdle rate percentage
+       * @example 8
+       */
+      hurdleRate?: number;
+      /**
+       * @description GP carry percentage
+       * @example 20
+       */
+      gpCarryPercentage?: number;
+      /**
+       * @description LP percentage
+       * @example 80
+       */
+      lpPercentage?: number;
+      /**
+       * @example pro-rata
+       * @enum {string}
+       */
+      splitType?: "pro-rata" | "equal" | "custom";
+      /** @example Return of contributed capital */
+      description?: string;
+      /** @example false */
+      isCustom?: boolean;
+    };
+    CreateInvestorClassDto: {
+      /** @example Limited Partners */
+      name: string;
+      /**
+       * @example lp
+       * @enum {string}
+       */
+      type: "lp" | "gp" | "partner";
+      /**
+       * @description Ownership percentage
+       * @example 80
+       */
+      ownershipPercentage: number;
+      /** @example 80000000 */
+      commitment: number;
+      /** @example 40000000 */
+      capitalCalled: number;
+      /** @example 10000000 */
+      capitalReturned: number;
+      /** @example 1 */
+      order: number;
+      /** @example Class A limited partners */
+      notes?: string;
+    };
+    CreateScenarioDto: {
+      /** @example 507f1f77bcf86cd799439011 */
+      fundId?: string;
+      /** @example Horizon Growth Fund III */
+      fundName?: string;
+      /** @example Base Case Scenario */
+      name: string;
+      /** @example Conservative exit assumptions */
+      description?: string;
+      /**
+       * @example european
+       * @enum {string}
+       */
+      model: "european" | "american" | "blended";
+      /** @example 150000000 */
+      exitValue: number;
+      /**
+       * @description Total invested capital
+       * @example 100000000
+       */
+      totalInvested?: number;
+      /**
+       * @description Total management fees
+       * @example 2000000
+       */
+      managementFees?: number;
+      /** @example false */
+      isFavorite?: boolean;
+      /**
+       * @description Whether this scenario is a reusable template
+       * @example false
+       */
+      isTemplate?: boolean;
+      /**
+       * @example [
+       *       "base-case",
+       *       "2024"
+       *     ]
+       */
+      tags?: string[];
+      /**
+       * @description Blended waterfall configuration (JSON)
+       * @example {
+       *       "europeanWeight": 0.5,
+       *       "americanWeight": 0.5
+       *     }
+       */
+      blendedConfig?: Record<string, never>;
+      /**
+       * @description Clawback provision details (JSON)
+       * @example {
+       *       "enabled": true,
+       *       "threshold": 0.08
+       *     }
+       */
+      clawbackProvision?: Record<string, never>;
+      /**
+       * @description Lookback provision details (JSON)
+       * @example {
+       *       "enabled": false
+       *     }
+       */
+      lookbackProvision?: Record<string, never>;
+      tiers: components["schemas"]["CreateTierDto"][];
+      investorClasses: components["schemas"]["CreateInvestorClassDto"][];
+    };
+    UpdateScenarioDto: {
+      /** @example Horizon Growth Fund III */
+      fundName?: string;
+      /** @example Base Case Scenario */
+      name?: string;
+      /** @example Conservative exit assumptions */
+      description?: string;
+      /**
+       * @example european
+       * @enum {string}
+       */
+      model?: "european" | "american" | "blended";
+      /** @example 150000000 */
+      exitValue?: number;
+      /**
+       * @description Total invested capital
+       * @example 100000000
+       */
+      totalInvested?: number;
+      /**
+       * @description Total management fees
+       * @example 2000000
+       */
+      managementFees?: number;
+      /** @example false */
+      isFavorite?: boolean;
+      /**
+       * @description Whether this scenario is a reusable template
+       * @example false
+       */
+      isTemplate?: boolean;
+      /**
+       * @example [
+       *       "base-case",
+       *       "2024"
+       *     ]
+       */
+      tags?: string[];
+      /**
+       * @description Blended waterfall configuration (JSON)
+       * @example {
+       *       "europeanWeight": 0.5,
+       *       "americanWeight": 0.5
+       *     }
+       */
+      blendedConfig?: Record<string, never>;
+      /**
+       * @description Clawback provision details (JSON)
+       * @example {
+       *       "enabled": true,
+       *       "threshold": 0.08
+       *     }
+       */
+      clawbackProvision?: Record<string, never>;
+      /**
+       * @description Lookback provision details (JSON)
+       * @example {
+       *       "enabled": false
+       *     }
+       */
+      lookbackProvision?: Record<string, never>;
+      tiers?: components["schemas"]["CreateTierDto"][];
+      investorClasses?: components["schemas"]["CreateInvestorClassDto"][];
+    };
+    CalculateWaterfallDto: {
+      /** @example 507f1f77bcf86cd799439011 */
+      scenarioId: string;
+      /**
+       * @description Override exit value for calculation
+       * @example 150000000
+       */
+      exitValue?: number;
+    };
+    SensitivityAnalysisDto: {
+      /** @example 507f1f77bcf86cd799439011 */
+      scenarioId: string;
+      /**
+       * @description Minimum exit value
+       * @example 50000000
+       */
+      minExitValue?: number;
+      /**
+       * @description Maximum exit value
+       * @example 300000000
+       */
+      maxExitValue?: number;
+      /**
+       * @description Number of data points
+       * @example 10
+       */
+      steps?: number;
+    };
+    CreateWaterfallTemplateDto: {
+      /** @example Default European Waterfall */
+      name: string;
+      /** @example Template for standard LP/GP split */
+      description?: string;
+      /**
+       * @example european
+       * @enum {string}
+       */
+      model: "european" | "american" | "blended";
+      /** @description Tier definitions */
+      tiers: Record<string, never>[];
+      /** @default false */
+      isDefault: boolean;
+    };
+    CreateFeeDto: {
+      /** @example management-fee */
+      type: string;
+      /** @example Management Fee Q4 */
+      name: string;
+      /** @example 50000 */
+      amount: number;
+      /**
+       * @description Fee as percentage of gross proceeds
+       * @example 2
+       */
+      percentage?: number;
+      /** @example fund */
+      paidBy: string;
+      /** @example Quarterly management fee */
+      description?: string;
+      /** @example Applied per LPA section 8.1 */
+      notes?: string;
+    };
+    CreateDistributionDto: {
+      /** @example 507f1f77bcf86cd799439011 */
+      fundId: string;
+      /** @example Horizon Growth Fund III */
+      fundName?: string;
+      /** @example TechCo Exit Distribution */
+      name: string;
+      /** @example Distribution from TechCo Series B exit */
+      description?: string;
+      /**
+       * @example exit
+       * @enum {string}
+       */
+      eventType:
+        | "exit"
+        | "dividend"
+        | "recapitalization"
+        | "refinancing"
+        | "partial-exit"
+        | "other";
+      /** @example 2024-03-15T00:00:00Z */
+      eventDate: string;
+      /** @example America/New_York */
+      eventDateTimezone?: string;
+      /**
+       * @description UTC offset snapshot in minutes
+       * @example -300
+       */
+      eventDateOffsetMinutes?: number;
+      /** @example 2024-03-30T00:00:00Z */
+      paymentDate: string;
+      /** @example America/New_York */
+      paymentDateTimezone?: string;
+      /**
+       * @description UTC offset snapshot in minutes
+       * @example -300
+       */
+      paymentDateOffsetMinutes?: number;
+      /** @example 10000000 */
+      totalAmount: number;
+      /** @example 10500000 */
+      grossProceeds: number;
+      /** @example 9500000 */
+      netProceeds: number;
+      /** @example 500000 */
+      totalFees?: number;
+      /** @example 50000 */
+      totalExpenses?: number;
+      /** @example 150000 */
+      totalTaxWithholding?: number;
+      /** @example 9300000 */
+      totalDistributed?: number;
+      /** @example 507f1f77bcf86cd799439099 */
+      waterfallScenarioId?: string;
+      /** @example 507f1f77bcf86cd799439088 */
+      createdBy?: string;
+      /** @example Internal review notes */
+      internalNotes?: string;
+      /** @example false */
+      isRecurring?: boolean;
+      fees?: components["schemas"]["CreateFeeDto"][];
+    };
+    UpdateDistributionDto: {
+      /** @example Horizon Growth Fund III */
+      fundName?: string;
+      /** @example TechCo Exit Distribution */
+      name?: string;
+      /** @example Distribution from TechCo Series B exit */
+      description?: string;
+      /**
+       * @example exit
+       * @enum {string}
+       */
+      eventType?:
+        | "exit"
+        | "dividend"
+        | "recapitalization"
+        | "refinancing"
+        | "partial-exit"
+        | "other";
+      /** @example 2024-03-15T00:00:00Z */
+      eventDate?: string;
+      /** @example America/New_York */
+      eventDateTimezone?: string;
+      /**
+       * @description UTC offset snapshot in minutes
+       * @example -300
+       */
+      eventDateOffsetMinutes?: number;
+      /** @example 2024-03-30T00:00:00Z */
+      paymentDate?: string;
+      /** @example America/New_York */
+      paymentDateTimezone?: string;
+      /**
+       * @description UTC offset snapshot in minutes
+       * @example -300
+       */
+      paymentDateOffsetMinutes?: number;
+      /** @example 10000000 */
+      totalAmount?: number;
+      /** @example 10500000 */
+      grossProceeds?: number;
+      /** @example 9500000 */
+      netProceeds?: number;
+      /** @example 500000 */
+      totalFees?: number;
+      /** @example 50000 */
+      totalExpenses?: number;
+      /** @example 150000 */
+      totalTaxWithholding?: number;
+      /** @example 9300000 */
+      totalDistributed?: number;
+      /** @example 507f1f77bcf86cd799439099 */
+      waterfallScenarioId?: string;
+      /** @example 507f1f77bcf86cd799439088 */
+      createdBy?: string;
+      /** @example Internal review notes */
+      internalNotes?: string;
+      /** @example false */
+      isRecurring?: boolean;
+      fees?: components["schemas"]["CreateFeeDto"][];
+    };
+    CalculateAllocationDto: {
+      /**
+       * @description Waterfall scenario ID. Defaults to fund active waterfall.
+       * @example 507f1f77bcf86cd799439099
+       */
+      waterfallScenarioId?: string;
+      /**
+       * @description Override exit value for waterfall calculation. Defaults to distribution netProceeds.
+       * @example 10000000
+       */
+      exitValue?: number;
+    };
+    SubmitDistributionForApprovalDto: {
+      /**
+       * @example [
+       *       "507f1f77bcf86cd799439011"
+       *     ]
+       */
+      approverIds: string[];
+    };
+    ApprovalActionDto: {
+      /**
+       * @example approved
+       * @enum {string}
+       */
+      status: "approved" | "rejected";
+      /** @example Approved with comments */
+      comments?: string;
+    };
+    CreateDistributionCommentDto: {
+      /** @example Please review the LP allocation breakdown */
+      comment: string;
+      /**
+       * @description Whether this comment is internal-only
+       * @example false
+       */
+      isInternal?: boolean;
+      /**
+       * @description Attachment file references
+       * @example [
+       *       "report.pdf"
+       *     ]
+       */
+      attachments?: string[];
+    };
+    CreateCarryTermDto: {
+      /** @example Growth Fund III */
+      fundName: string;
+      /** @example 20 */
+      gpCarryPercentage: number;
+      /** @example 8 */
+      hurdleRate: number;
+      /** @example 8 */
+      preferredReturn: number;
+      /** @example 100 */
+      catchupPercentage: number;
+      /** @example 50 */
+      catchupCap?: number;
+      /**
+       * @example {
+       *       "type": "time-based",
+       *       "vestingPeriodMonths": 48,
+       *       "cliffMonths": 12
+       *     }
+       */
+      vestingSchedule: Record<string, never>;
+      /** @example 2024-01-01 */
+      effectiveDate: string;
+      /** @enum {string} */
+      status?: "active" | "inactive" | "draft";
+    };
+    CalculateCarryAccrualDto: {
+      /** @example Growth Fund III */
+      fundName: string;
+    };
+    ExportCarryAccrualDto: {
+      /**
+       * @example pdf
+       * @enum {string}
+       */
+      format: "pdf" | "csv" | "xlsx";
+    };
+    CreateExpenseDto: {
+      /** @example Growth Fund III */
+      fundName: string;
+      /** @enum {string} */
+      type:
+        | "management-fee"
+        | "monitoring-fee"
+        | "transaction-fee"
+        | "legal"
+        | "audit"
+        | "administrative"
+        | "marketing"
+        | "other";
+      /** @example Operating Expenses */
+      category: string;
+      /** @example Q1 management fee */
+      description: string;
+      /** @example 125000 */
+      amount: number;
+      /** @example 2024-03-31 */
+      date: string;
+      /** @example Vestledger Management LLC */
+      payee: string;
+      /** @example false */
+      isRecurring?: boolean;
+      /** @enum {string} */
+      recurringFrequency?: "monthly" | "quarterly" | "annually";
+      /** @example false */
+      allocatedToLPs?: boolean;
+      /** @example INV-2024-001 */
+      invoiceNumber?: string;
+      /**
+       * @example [
+       *       "recurring",
+       *       "management"
+       *     ]
+       */
+      tags?: string[];
+    };
+    ApproveExpenseDto: {
+      /** @example ops@vestledger.com */
+      approver: string;
+    };
+    CalculateNAVRequestDto: {
+      /** @example Growth Fund III */
+      fundName: string;
+    };
+    ReviewNAVRequestDto: {
+      /** @example ops@vestledger.com */
+      reviewedBy: string;
+    };
+    PublishNAVRequestDto: {
+      /** @example ops@vestledger.com */
+      publishedBy: string;
+    };
+    ExportNAVRequestDto: {
+      /**
+       * @example pdf
+       * @enum {string}
+       */
+      format: "pdf" | "csv" | "xlsx";
+    };
+    CreateTransferDto: {
+      /** @example Growth Fund III */
+      fundName: string;
+      /** @enum {string} */
+      type:
+        | "direct"
+        | "secondary-sale"
+        | "inheritance"
+        | "gift"
+        | "court-order";
+      /** @example lp-001 */
+      transferorId: string;
+      /** @example John Smith */
+      transferorName: string;
+      /** @example john@example.com */
+      transferorEmail: string;
+      /** @example lp-002 */
+      transfereeId?: string;
+      /** @example Jane Doe */
+      transfereeName?: string;
+      /** @example jane@example.com */
+      transfereeEmail?: string;
+      /** @example 5000000 */
+      commitmentAmount: number;
+      /** @example 3000000 */
+      fundedAmount: number;
+      /** @example 2000000 */
+      unfundedCommitment: number;
+      /** @example 4500000 */
+      transferPrice?: number;
+      /** @example 10 */
+      discount?: number;
+      /** @example false */
+      includesManagementRights?: boolean;
+      /** @example false */
+      includesInformationRights?: boolean;
+      /** @example false */
+      includesVotingRights?: boolean;
+      /** @example true */
+      subjectToROFR?: boolean;
+      rofrDeadline?: string;
+      /** @example America/New_York */
+      rofrDeadlineTimezone?: string;
+      /**
+       * @description UTC offset snapshot in minutes
+       * @example -300
+       */
+      rofrDeadlineOffsetMinutes?: number;
+      /** @example true */
+      requiresGPConsent?: boolean;
+      /** @example false */
+      requiresLPVote?: boolean;
+      notes?: string;
+    };
+    RejectTransferDto: {
+      /** @example Missing signatures */
+      reason: string;
+    };
+    UploadTransferDocumentDto: {
+      /** @example Transfer agreement v2.pdf */
+      name: string;
+    };
+    ExerciseRofrDto: {
+      /** @example Investor Relations Team */
+      exercisedByName: string;
+    };
+    CreateComplianceItemDto: {
+      /** @example Annual Fund Audit */
+      title: string;
+      /** @enum {string} */
+      type: "filing" | "report" | "certification" | "audit";
+      /** @example 2024-06-30 */
+      dueDate: string;
+      /** @example John Smith */
+      assignedTo: string;
+      /** @enum {string} */
+      priority?: "high" | "medium" | "low";
+      /** @example Annual audit of fund financials */
+      description: string;
+      /** @example Growth Fund III */
+      relatedFund?: string;
+      fundId?: string;
+    };
+    UpdateComplianceItemDto: {
+      /** @example Annual Fund Audit */
+      title?: string;
+      /** @enum {string} */
+      type?: "filing" | "report" | "certification" | "audit";
+      /** @example 2024-06-30 */
+      dueDate?: string;
+      /** @example John Smith */
+      assignedTo?: string;
+      /** @enum {string} */
+      priority?: "high" | "medium" | "low";
+      /** @example Annual audit of fund financials */
+      description?: string;
+      /** @example Growth Fund III */
+      relatedFund?: string;
+      fundId?: string;
+    };
+    CreateFilingDto: {
+      /** @example Form ADV */
+      filingType: string;
+      /** @example SEC */
+      regulator: string;
+      /** @example Annual */
+      frequency: string;
+      /** @example 2024-03-31 */
+      lastFiled: string;
+      /** @example 2025-03-31 */
+      nextDue: string;
+      /** @example Growth Fund III */
+      fundName: string;
+      fundId?: string;
+    };
+    CreateAuditScheduleDto: {
+      /** @example Financial Audit */
+      auditType: string;
+      /** @example Deloitte */
+      auditor: string;
+      /** @example 2024 */
+      year: number;
+      /** @example 2024-01-15 */
+      startDate: string;
+      /** @example 2024-03-15 */
+      completionDate?: string;
+      /** @example Growth Fund III */
+      fundName: string;
+      fundId?: string;
+    };
+    CreateTaxDocumentDto: {
+      /** @example Schedule K-1 */
+      documentType: string;
+      /** @example 2024 */
+      taxYear: number;
+      /** @enum {string} */
+      recipientType: "LP" | "GP" | "Portfolio Company";
+      /** @example Institutional Capital Partners */
+      recipientName: string;
+      /** @enum {string} */
+      status?: "draft" | "ready" | "sent" | "filed";
+      /** @example 1250000 */
+      amount?: number;
+      fundId?: string;
+    };
+    UpdateTaxDocumentDto: {
+      /** @example Schedule K-1 */
+      documentType?: string;
+      /** @example 2024 */
+      taxYear?: number;
+      /** @enum {string} */
+      recipientType?: "LP" | "GP" | "Portfolio Company";
+      /** @example Institutional Capital Partners */
+      recipientName?: string;
+      /** @enum {string} */
+      status?: "draft" | "ready" | "sent" | "filed";
+      /** @example 1250000 */
+      amount?: number;
+      fundId?: string;
+    };
+    CreateTaxSummaryDto: {
+      fundId: string;
+      /** @example Growth Fund III */
+      fundName: string;
+      /** @example 2024 */
+      taxYear: number;
+      /** @example 8 */
+      k1sIssued?: number;
+      /** @example 12 */
+      k1sTotal?: number;
+      /** @example 3 */
+      form1099Issued?: number;
+      /** @example 5 */
+      form1099Total?: number;
+      /** @example 450000 */
+      estimatedTaxesPaid?: number;
+      /** @example 2500000 */
+      totalDistributions?: number;
+      /** @example 2025-04-15 */
+      filingDeadline: string;
+    };
+    CreateValuationDto: {
+      /** @example TechStartup Inc. */
+      company: string;
+      /** @example 2024-01-15 */
+      valuationDate: string;
+      /** @example 2025-01-15 */
+      expirationDate: string;
+      /** @example 25000000 */
+      fairMarketValue: number;
+      /** @example 15000000 */
+      commonStock: number;
+      /** @example 10000000 */
+      preferredStock: number;
+      /** @example ValuationCo LLC */
+      provider: string;
+      /** @example Backsolve / OPM */
+      methodology: string;
+      /** @example https://reports.example.com/409a-report.pdf */
+      reportUrl?: string;
+      companyId?: string;
+    };
+    CreateStrikePriceDto: {
+      /** @example 2024-02-01 */
+      grantDate: string;
+      /** @example 1.25 */
+      strikePrice: number;
+      /** @example 50000 */
+      sharesGranted: number;
+      /** @example Jane Smith */
+      recipient: string;
+      /** @example 4-year, 1-year cliff */
+      vestingSchedule: string;
+    };
+    CreateContactDto: {
+      /** @example Sarah Chen */
+      name: string;
+      /** @example sarah@example.com */
+      email: string;
+      /** @example +1-555-0123 */
+      phone?: string;
+      /** @enum {string} */
+      role:
+        | "founder"
+        | "co-founder"
+        | "ceo"
+        | "cto"
+        | "investor"
+        | "advisor"
+        | "other";
+      /** @example TechStartup Inc. */
+      company?: string;
+      /** @example San Francisco, CA */
+      location?: string;
+      /**
+       * @example [
+       *       "ai",
+       *       "fintech"
+       *     ]
+       */
+      tags?: string[];
+      linkedin?: string;
+      twitter?: string;
+      notes?: string;
+      deals?: string[];
+      linkedCompanies?: string[];
+    };
+    UpdateContactDto: {
+      /** @example Sarah Chen */
+      name?: string;
+      /** @example sarah@example.com */
+      email?: string;
+      /** @example +1-555-0123 */
+      phone?: string;
+      /** @enum {string} */
+      role?:
+        | "founder"
+        | "co-founder"
+        | "ceo"
+        | "cto"
+        | "investor"
+        | "advisor"
+        | "other";
+      /** @example TechStartup Inc. */
+      company?: string;
+      /** @example San Francisco, CA */
+      location?: string;
+      /**
+       * @example [
+       *       "ai",
+       *       "fintech"
+       *     ]
+       */
+      tags?: string[];
+      linkedin?: string;
+      twitter?: string;
+      notes?: string;
+      deals?: string[];
+      linkedCompanies?: string[];
+    };
+    CreateInteractionDto: {
+      /** @enum {string} */
+      type: "email" | "call" | "meeting" | "note";
+      /** @example Follow-up call re: Series A */
+      subject: string;
+      /** @example 2024-03-25 */
+      date: string;
+      notes?: string;
+      /** @enum {string} */
+      direction?: "inbound" | "outbound";
+      description?: string;
+      /** @example 30 */
+      duration?: number;
+      participants?: string[];
+      /** @example 0 */
+      attachments?: number;
+      /** @enum {string} */
+      outcome?: "positive" | "neutral" | "negative";
+      tags?: string[];
+      linkedDeal?: string;
+      /** @example false */
+      isAutoCaptured?: boolean;
+    };
+    CreateDealDto: {
+      /** @example TechStartup Inc. */
+      name: string;
+      /** @enum {string} */
+      stage:
+        | "Sourced"
+        | "First Meeting"
+        | "Due Diligence"
+        | "Term Sheet"
+        | "Closed";
+      /** @example AI/ML */
+      sector: string;
+      /** @example 5000000 */
+      amount: number;
+      /** @example 60 */
+      probability?: number;
+      /** @example Sarah Chen */
+      founder: string;
+      /** @enum {string} */
+      outcome?: "active" | "won" | "lost" | "withdrawn" | "passed";
+      fundId?: string;
+    };
+    UpdateDealDto: {
+      /** @example TechStartup Inc. */
+      name?: string;
+      /** @enum {string} */
+      stage?:
+        | "Sourced"
+        | "First Meeting"
+        | "Due Diligence"
+        | "Term Sheet"
+        | "Closed";
+      /** @example AI/ML */
+      sector?: string;
+      /** @example 5000000 */
+      amount?: number;
+      /** @example 60 */
+      probability?: number;
+      /** @example Sarah Chen */
+      founder?: string;
+      /** @enum {string} */
+      outcome?: "active" | "won" | "lost" | "withdrawn" | "passed";
+      fundId?: string;
+    };
+    CreateDocumentDto: {
+      /** @example LPA Agreement.pdf */
+      name: string;
+      /** @enum {string} */
+      type:
+        | "pdf"
+        | "word"
+        | "excel"
+        | "image"
+        | "presentation"
+        | "archive"
+        | "other";
+      /** @enum {string} */
+      category:
+        | "legal"
+        | "financial"
+        | "tax"
+        | "compliance"
+        | "investor-relations"
+        | "due-diligence"
+        | "portfolio"
+        | "other";
+      /** @example 2500000 */
+      size: number;
+      folderId?: string;
+      /** @example John Smith */
+      uploadedBy: string;
+      /** @example John Smith */
+      lastModifiedBy: string;
+      tags?: string[];
+      description?: string;
+      /** @enum {string} */
+      accessLevel?: "private" | "internal" | "investor" | "public";
+      fundId?: string;
+      fundName?: string;
+      dealId?: string;
+      dealName?: string;
+      lpId?: string;
+      lpName?: string;
+      requiresSignature?: boolean;
+      url?: string;
+    };
+    CreateFolderDto: {
+      /** @example Legal Documents */
+      name: string;
+      parentId?: string;
+      /** @example /Legal Documents */
+      path: string;
+      color?: string;
+      icon?: string;
+      description?: string;
+      /** @example John Smith */
+      createdBy: string;
+      /** @enum {string} */
+      accessLevel?: "private" | "internal" | "investor" | "public";
+    };
+    UpdateDocumentDto: {
+      /** @example LPA Agreement.pdf */
+      name?: string;
+      /** @enum {string} */
+      type?:
+        | "pdf"
+        | "word"
+        | "excel"
+        | "image"
+        | "presentation"
+        | "archive"
+        | "other";
+      /** @enum {string} */
+      category?:
+        | "legal"
+        | "financial"
+        | "tax"
+        | "compliance"
+        | "investor-relations"
+        | "due-diligence"
+        | "portfolio"
+        | "other";
+      /** @example 2500000 */
+      size?: number;
+      folderId?: string;
+      /** @example John Smith */
+      uploadedBy?: string;
+      /** @example John Smith */
+      lastModifiedBy?: string;
+      tags?: string[];
+      description?: string;
+      /** @enum {string} */
+      accessLevel?: "private" | "internal" | "investor" | "public";
+      fundId?: string;
+      fundName?: string;
+      dealId?: string;
+      dealName?: string;
+      lpId?: string;
+      lpName?: string;
+      requiresSignature?: boolean;
+      url?: string;
+    };
+    UpdateDocumentAccessDto: {
+      /**
+       * @example internal
+       * @enum {string}
+       */
+      accessLevel: "private" | "internal" | "investor" | "public";
+    };
+    UpdateIntegrationStatusDto: {
+      /** @example connected */
+      status: string;
+    };
+    CreateAuditEventDto: {
+      /** @example 0x1234abcd... */
+      txHash: string;
+      /** @example 12345678 */
+      blockNumber: number;
+      /** @enum {string} */
+      eventType:
+        | "ownership_transfer"
+        | "capital_call"
+        | "distribution"
+        | "valuation_update"
+        | "document_hash"
+        | "compliance_attestation";
+      /** @example Ownership transfer of LP interest */
+      description: string;
+      /**
+       * @example [
+       *       "GP Management LLC",
+       *       "LP Capital Partners"
+       *     ]
+       */
+      parties: string[];
+      /** @example 5000000 */
+      amount?: number;
+      /** @enum {string} */
+      verificationStatus?: "verified" | "pending" | "failed";
+      /** @example 0xabcdef... */
+      proofHash: string;
+    };
+    CopilotRespondDto: {
+      /** @description User message */
+      message: string;
+      /** @description Current page pathname */
+      pathname: string;
+    };
+    CreateExportJobDto: {
+      /** @description Template ID to use for the report */
+      templateId: string;
+      /**
+       * @description Export format
+       * @enum {string}
+       */
+      format: "pdf" | "csv" | "excel";
+      /** @description Optional filters to apply */
+      filters?: Record<string, never>;
+    };
+  };
+  responses: never;
+  parameters: never;
+  requestBodies: never;
+  headers: never;
+  pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    AppController_getHello: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AuthController_signup: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SignupDto"];
-            };
-        };
-        responses: {
-            /** @description User successfully registered */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AuthResponseDto"];
-                };
-            };
-            /** @description Email already exists */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AuthController_login: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["LoginDto"];
-            };
-        };
-        responses: {
-            /** @description User successfully authenticated */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AuthResponseDto"];
-                };
-            };
-            /** @description Invalid credentials */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AuthController_getProfile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description User profile */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AuthController_updateProfile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateProfileDto"];
-            };
-        };
-        responses: {
-            /** @description Profile updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Email already in use */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AuthController_updatePassword: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdatePasswordDto"];
-            };
-        };
-        responses: {
-            /** @description Password updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Current password is incorrect */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UsersController_findAll: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of users */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Forbidden — requires gp or ops role */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UsersController_findOne: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description User details */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description User not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UsersController_remove: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description User deleted */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description User not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UsersController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateUserDto"];
-            };
-        };
-        responses: {
-            /** @description User updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description User not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    OrgsController_getCurrentSettings: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Organization settings */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    OrgsController_updateCurrentSettings: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateOrgSettingsDto"];
-            };
-        };
-        responses: {
-            /** @description Organization settings updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FundsController_findAll: {
-        parameters: {
-            query?: {
-                status?: "active" | "closed" | "fundraising";
-                strategy?: "early-stage" | "growth" | "late-stage" | "multi-stage" | "sector-specific";
-                vintage?: number;
-                search?: string;
-                limit?: number;
-                offset?: number;
-                sortBy?: "createdAt" | "name" | "vintage" | "totalCommitment";
-                sortOrder?: "asc" | "desc";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of funds */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FundsController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateFundDto"];
-            };
-        };
-        responses: {
-            /** @description Fund created successfully */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid input */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FundsController_findOne: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Fund details */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Fund not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FundsController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateFundDto"];
-            };
-        };
-        responses: {
-            /** @description Fund updated successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid input */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Fund not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FundsController_remove: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Fund deleted successfully */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Fund not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FundsController_getMetrics: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Fund metrics */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Fund not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FundsController_getSummary: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Fund summary */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Fund not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FundsController_getActiveWaterfall: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Active waterfall scenario */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Fund not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FundsController_setActiveWaterfall: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SetActiveWaterfallDto"];
-            };
-        };
-        responses: {
-            /** @description Active waterfall set successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid scenario or does not belong to fund */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Fund not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    PortfolioController_findAll: {
-        parameters: {
-            query?: {
-                status?: "active" | "exited" | "written_off";
-                sector?: string;
-                stage?: "seed" | "series-a" | "series-b" | "series-c" | "growth" | "late-stage";
-                /** @description Minimum health score */
-                minHealth?: number;
-                /** @description Maximum health score */
-                maxHealth?: number;
-                search?: string;
-                limit?: number;
-                offset?: number;
-                sortBy?: "createdAt" | "name" | "currentValue" | "health" | "investmentDate";
-                sortOrder?: "asc" | "desc";
-            };
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of portfolio companies */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    PortfolioController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreatePortfolioCompanyDto"];
-            };
-        };
-        responses: {
-            /** @description Portfolio company created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid input */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Fund not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    PortfolioController_getHealthSummary: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Portfolio health summary */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    PortfolioController_findOne: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-                /** @description Portfolio company ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Portfolio company details */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Company not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    PortfolioController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-                /** @description Portfolio company ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdatePortfolioCompanyDto"];
-            };
-        };
-        responses: {
-            /** @description Portfolio company updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid input */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Company not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    PortfolioController_remove: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-                /** @description Portfolio company ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Portfolio company deleted */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Company not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    LPsController_findAll: {
-        parameters: {
-            query?: {
-                /** @description Filter LPs by fund commitment */
-                fundId?: string;
-                type?: "institutional" | "individual" | "strategic";
-                taxStatus?: "taxable" | "tax-exempt" | "foreign";
-                search?: string;
-                limit?: number;
-                offset?: number;
-                sortBy?: "createdAt" | "name" | "type";
-                sortOrder?: "asc" | "desc";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of LPs */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    LPsController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateLPDto"];
-            };
-        };
-        responses: {
-            /** @description LP created successfully */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid input */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    LPsController_findOne: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description LP ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description LP details */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description LP not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    LPsController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description LP ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateLPDto"];
-            };
-        };
-        responses: {
-            /** @description LP updated successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid input */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description LP not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    LPsController_remove: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description LP ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description LP deleted successfully */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description LP not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    LPsController_getCommitments: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description LP ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description LP commitments */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description LP not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    LPsController_createCommitment: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateLPCommitmentDto"];
-            };
-        };
-        responses: {
-            /** @description Commitment created successfully */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid input */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description LP or Fund not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Commitment already exists */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    CapitalCallsController_findAll: {
-        parameters: {
-            query?: {
-                status?: "pending" | "partial" | "complete" | "overdue";
-                limit?: number;
-                offset?: number;
-                sortBy?: "createdAt" | "dueDate" | "amount" | "callNumber";
-                sortOrder?: "asc" | "desc";
-            };
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of capital calls */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    CapitalCallsController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateCapitalCallDto"];
-            };
-        };
-        responses: {
-            /** @description Capital call created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid input */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Fund not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    CapitalCallsController_getActiveCapitalCalls: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of active capital calls */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    CapitalCallsController_findOne: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-                /** @description Capital call ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Capital call details */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Capital call not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    CapitalCallsController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-                /** @description Capital call ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateCapitalCallDto"];
-            };
-        };
-        responses: {
-            /** @description Capital call updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid input */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Capital call not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    CapitalCallsController_remove: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-                /** @description Capital call ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Capital call deleted */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Capital call not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    CapitalCallsController_getResponses: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Capital call ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of LP responses */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Capital call not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    CapitalCallsController_recordResponse: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Capital call ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RecordResponseDto"];
-            };
-        };
-        responses: {
-            /** @description Response recorded */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid input */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Capital call or LP not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    CapitalCallsController_sendReminder: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Capital call ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Reminder sent */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Capital call not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DashboardController_getDashboard: {
-        parameters: {
-            query?: {
-                /** @description Filter by fund ID */
-                fundId?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Dashboard data */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DashboardController_getMetrics: {
-        parameters: {
-            query?: {
-                /** @description Filter by fund ID */
-                fundId?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Metrics summary */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DashboardController_getAlerts: {
-        parameters: {
-            query?: {
-                /** @description Filter by fund ID */
-                fundId?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of alerts */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DashboardController_markAlertRead: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Alert marked as read */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DashboardController_dismissAlert: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Alert dismissed */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DashboardController_getTasks: {
-        parameters: {
-            query?: {
-                /** @description Filter by fund ID */
-                fundId?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of tasks */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DashboardController_updateTaskStatus: {
-        parameters: {
-            query: {
-                status: "pending" | "in_progress" | "completed";
-            };
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Task status updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DashboardController_getLPDashboard: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                lpId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description LP dashboard data */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DashboardController_getAnalystDashboard: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Analyst dashboard data */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DashboardController_getOpsDashboard: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Operations dashboard data */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DashboardController_getAuditorDashboard: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Auditor dashboard data with fund and compliance overview */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DashboardController_getIRDashboard: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description IR dashboard data with LP engagement metrics */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DashboardController_getResearcherDashboard: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Researcher dashboard with portfolio analysis */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AnalyticsController_getPerformance: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Fund performance data */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Fund not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AnalyticsController_getBenchmark: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Benchmark comparison data */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Fund not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AnalyticsController_getJCurve: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description J-curve data points */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Fund not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AnalyticsController_getCohorts: {
-        parameters: {
-            query?: {
-                /** @description Group cohorts by field */
-                groupBy?: "vintage" | "sector" | "stage";
-            };
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Cohort analysis data */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Fund not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AnalyticsController_getConcentration: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Concentration risk data */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Fund not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AnalyticsController_getDeployment: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Deployment pacing data */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Fund not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AnalyticsController_getValuationTrends: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Valuation trends data */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Fund not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WaterfallController_findAll: {
-        parameters: {
-            query?: {
-                fundId?: string;
-                model?: "european" | "american" | "blended";
-                isFavorite?: boolean;
-                tag?: string;
-                search?: string;
-                limit?: number;
-                offset?: number;
-                sortBy?: "createdAt" | "updatedAt" | "name" | "exitValue";
-                sortOrder?: "asc" | "desc";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of scenarios */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WaterfallController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateScenarioDto"];
-            };
-        };
-        responses: {
-            /** @description Scenario created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid input */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WaterfallController_findOne: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Scenario ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Scenario details */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Scenario not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WaterfallController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Scenario ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateScenarioDto"];
-            };
-        };
-        responses: {
-            /** @description Scenario updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid input */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Scenario not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WaterfallController_remove: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Scenario ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Scenario deleted */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Scenario not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WaterfallController_duplicate: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Scenario ID to duplicate */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Scenario duplicated */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Scenario not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WaterfallController_toggleFavorite: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Scenario ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Favorite status toggled */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Scenario not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WaterfallController_calculate: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CalculateWaterfallDto"];
-            };
-        };
-        responses: {
-            /** @description Calculation results */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid input */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Scenario not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WaterfallController_sensitivityAnalysis: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SensitivityAnalysisDto"];
-            };
-        };
-        responses: {
-            /** @description Sensitivity analysis results */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid input */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Scenario not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WaterfallController_getTemplates: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of templates */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WaterfallController_createTemplate: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateWaterfallTemplateDto"];
-            };
-        };
-        responses: {
-            /** @description Template created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid input */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DistributionsController_findAllByFund: {
-        parameters: {
-            query?: {
-                status?: "draft" | "pending_approval" | "approved" | "processing" | "completed" | "rejected" | "cancelled";
-                eventType?: "exit" | "dividend" | "recapitalization" | "refinancing" | "partial-exit" | "other";
-                fromDate?: string;
-                toDate?: string;
-                limit?: number;
-                offset?: number;
-                sortBy?: "createdAt" | "eventDate" | "paymentDate" | "totalAmount";
-                sortOrder?: "asc" | "desc";
-            };
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of distributions */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DistributionsController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateDistributionDto"];
-            };
-        };
-        responses: {
-            /** @description Distribution created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid input */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Fund not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DistributionsController_findOne: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Distribution ID */
-                id: string;
-                /** @description Fund ID */
-                fundId: unknown;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Distribution details */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Distribution not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DistributionsController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Distribution ID */
-                id: string;
-                /** @description Fund ID */
-                fundId: unknown;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateDistributionDto"];
-            };
-        };
-        responses: {
-            /** @description Distribution updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid input or status */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Distribution not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DistributionsController_remove: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Distribution ID */
-                id: string;
-                /** @description Fund ID */
-                fundId: unknown;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Distribution deleted */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Cannot delete non-draft distribution */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Distribution not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DistributionsController_findAll: {
-        parameters: {
-            query?: {
-                fundId?: string;
-                status?: "draft" | "pending_approval" | "approved" | "processing" | "completed" | "rejected" | "cancelled";
-                eventType?: "exit" | "dividend" | "recapitalization" | "refinancing" | "partial-exit" | "other";
-                fromDate?: string;
-                toDate?: string;
-                limit?: number;
-                offset?: number;
-                sortBy?: "createdAt" | "eventDate" | "paymentDate" | "totalAmount";
-                sortOrder?: "asc" | "desc";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of distributions */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DistributionsController_getCalendar: {
-        parameters: {
-            query?: {
-                /** @description Start date (ISO format) */
-                fromDate?: string;
-                /** @description End date (ISO format) */
-                toDate?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Calendar events */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DistributionsController_findOneGlobal: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Distribution ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Distribution details */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Distribution not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DistributionsController_calculateAllocations: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Distribution ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CalculateAllocationDto"];
-            };
-        };
-        responses: {
-            /** @description Allocations calculated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description No LP commitments found */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Distribution not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DistributionsController_getAllocations: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Distribution ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description LP allocations */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Distribution not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DistributionsController_submitForApproval: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Distribution ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SubmitDistributionForApprovalDto"];
-            };
-        };
-        responses: {
-            /** @description Distribution submitted for approval */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid status or no allocations */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Distribution not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DistributionsController_processApproval: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Distribution ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ApprovalActionDto"];
-            };
-        };
-        responses: {
-            /** @description Approval processed */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid status or not approver turn */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Distribution not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DistributionsController_markAsProcessing: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Distribution ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Distribution marked as processing */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid status transition */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Distribution not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DistributionsController_markAsCompleted: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Distribution ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Distribution completed */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid status transition */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Distribution not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DistributionsController_cancel: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Distribution ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Distribution cancelled */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Cannot cancel completed distribution */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Distribution not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DistributionsController_getComments: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Distribution ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of comments */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Distribution not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DistributionsController_createComment: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Distribution ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateDistributionCommentDto"];
-            };
-        };
-        responses: {
-            /** @description Comment created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Distribution not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DistributionsController_getFeeTemplates: {
-        parameters: {
-            query?: {
-                fundId?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Fee templates */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DistributionsController_getStatementTemplates: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Statement templates */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DistributionsController_getLPProfiles: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description LP profiles */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DistributionsController_getApprovalRules: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Approval rules */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    CarryController_findTerms: {
-        parameters: {
-            query?: {
-                status?: "active" | "inactive" | "draft";
-                limit?: number;
-                offset?: number;
-                sortBy?: "createdAt" | "effectiveDate" | "gpCarryPercentage";
-                sortOrder?: "asc" | "desc";
-            };
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of carry terms */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    CarryController_createTerm: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateCarryTermDto"];
-            };
-        };
-        responses: {
-            /** @description Carry term created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    CarryController_findAccruals: {
-        parameters: {
-            query?: {
-                status?: "active" | "inactive" | "draft";
-                limit?: number;
-                offset?: number;
-                sortBy?: "createdAt" | "effectiveDate" | "gpCarryPercentage";
-                sortOrder?: "asc" | "desc";
-            };
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of carry accruals */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    CarryController_calculateAccrual: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CalculateCarryAccrualDto"];
-            };
-        };
-        responses: {
-            /** @description Accrual calculated */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    CarryController_approveAccrual: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Accrual ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Accrual approved */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    CarryController_distributeAccrual: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Accrual ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Accrual distributed */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    CarryController_exportAccrual: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Accrual ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ExportCarryAccrualDto"];
-            };
-        };
-        responses: {
-            /** @description Export metadata */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ExpensesController_findAll: {
-        parameters: {
-            query?: {
-                status?: "pending" | "approved" | "paid" | "rejected";
-                type?: "management-fee" | "monitoring-fee" | "transaction-fee" | "legal" | "audit" | "administrative" | "marketing" | "other";
-                fromDate?: string;
-                toDate?: string;
-                limit?: number;
-                offset?: number;
-                sortBy?: "createdAt" | "date" | "amount";
-                sortOrder?: "asc" | "desc";
-            };
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of expenses */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ExpensesController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateExpenseDto"];
-            };
-        };
-        responses: {
-            /** @description Expense created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ExpensesController_findById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Expense ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Expense details */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ExpensesController_approve: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Expense ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ApproveExpenseDto"];
-            };
-        };
-        responses: {
-            /** @description Expense approved */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ExpensesController_reject: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Expense ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Expense rejected */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ExpensesController_markPaid: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Expense ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Expense marked as paid */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ExpensesController_exportByFund: {
-        parameters: {
-            query: {
-                format: "pdf" | "csv" | "xlsx";
-            };
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Export metadata */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ExpensesController_exportAll: {
-        parameters: {
-            query: {
-                format: "pdf" | "csv" | "xlsx";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Export metadata */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    NAVController_findAll: {
-        parameters: {
-            query?: {
-                status?: "draft" | "calculated" | "reviewed" | "published";
-                fromDate?: string;
-                toDate?: string;
-                limit?: number;
-                offset?: number;
-            };
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of NAV calculations */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    NAVController_calculate: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CalculateNAVRequestDto"];
-            };
-        };
-        responses: {
-            /** @description NAV calculated */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    NAVController_findById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description NAV calculation ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description NAV calculation details */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    NAVController_markReviewed: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description NAV calculation ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ReviewNAVRequestDto"];
-            };
-        };
-        responses: {
-            /** @description NAV marked as reviewed */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    NAVController_publish: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description NAV calculation ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PublishNAVRequestDto"];
-            };
-        };
-        responses: {
-            /** @description NAV published */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    NAVController_export: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description NAV calculation ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ExportNAVRequestDto"];
-            };
-        };
-        responses: {
-            /** @description Export metadata */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TransfersController_findAll: {
-        parameters: {
-            query?: {
-                status?: string;
-                type?: "direct" | "secondary-sale" | "inheritance" | "gift" | "court-order";
-                limit?: number;
-                offset?: number;
-                sortBy?: "createdAt" | "requestedDate" | "commitmentAmount";
-                sortOrder?: "asc" | "desc";
-            };
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of transfers */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TransfersController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateTransferDto"];
-            };
-        };
-        responses: {
-            /** @description Transfer created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TransfersController_findById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Transfer ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Transfer details with ROFR exercises */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TransfersController_review: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Transfer ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Transfer under review */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TransfersController_approve: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Transfer ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Transfer approved */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TransfersController_reject: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Transfer ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RejectTransferDto"];
-            };
-        };
-        responses: {
-            /** @description Transfer rejected */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TransfersController_complete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Transfer ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Transfer completed */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TransfersController_uploadDocument: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Transfer ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UploadTransferDocumentDto"];
-            };
-        };
-        responses: {
-            /** @description Document uploaded */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TransfersController_findROFRExercises: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Fund ID */
-                fundId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of ROFR exercises */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TransfersController_exerciseROFR: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Transfer ID */
-                transferId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ExerciseRofrDto"];
-            };
-        };
-        responses: {
-            /** @description ROFR exercised */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ComplianceController_findItems: {
-        parameters: {
-            query?: {
-                status?: "completed" | "in-progress" | "upcoming" | "overdue";
-                priority?: "high" | "medium" | "low";
-                type?: "filing" | "report" | "certification" | "audit";
-                fundId?: string;
-                limit?: number;
-                offset?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of compliance items */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ComplianceController_createItem: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateComplianceItemDto"];
-            };
-        };
-        responses: {
-            /** @description Compliance item created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ComplianceController_updateItem: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Compliance item ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateComplianceItemDto"];
-            };
-        };
-        responses: {
-            /** @description Compliance item updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ComplianceController_findFilings: {
-        parameters: {
-            query?: {
-                status?: "completed" | "in-progress" | "upcoming" | "overdue";
-                priority?: "high" | "medium" | "low";
-                type?: "filing" | "report" | "certification" | "audit";
-                fundId?: string;
-                limit?: number;
-                offset?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of regulatory filings */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ComplianceController_createFiling: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateFilingDto"];
-            };
-        };
-        responses: {
-            /** @description Filing created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ComplianceController_findAuditSchedule: {
-        parameters: {
-            query?: {
-                status?: "completed" | "in-progress" | "upcoming" | "overdue";
-                priority?: "high" | "medium" | "low";
-                type?: "filing" | "report" | "certification" | "audit";
-                fundId?: string;
-                limit?: number;
-                offset?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of audit schedule items */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ComplianceController_createAuditSchedule: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateAuditScheduleDto"];
-            };
-        };
-        responses: {
-            /** @description Audit schedule item created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TaxController_findDocuments: {
-        parameters: {
-            query?: {
-                taxYear?: number;
-                status?: "draft" | "ready" | "sent" | "filed";
-                recipientType?: "LP" | "GP" | "Portfolio Company";
-                fundId?: string;
-                limit?: number;
-                offset?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of tax documents */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TaxController_createDocument: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateTaxDocumentDto"];
-            };
-        };
-        responses: {
-            /** @description Tax document created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TaxController_updateDocument: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Tax document ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateTaxDocumentDto"];
-            };
-        };
-        responses: {
-            /** @description Tax document updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TaxController_findSummaries: {
-        parameters: {
-            query?: {
-                taxYear?: number;
-                status?: "draft" | "ready" | "sent" | "filed";
-                recipientType?: "LP" | "GP" | "Portfolio Company";
-                fundId?: string;
-                limit?: number;
-                offset?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of tax summaries */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TaxController_createSummary: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateTaxSummaryDto"];
-            };
-        };
-        responses: {
-            /** @description Tax summary created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TaxController_findPortfolioCompanyTax: {
-        parameters: {
-            query?: {
-                taxYear?: number;
-                status?: "draft" | "ready" | "sent" | "filed";
-                recipientType?: "LP" | "GP" | "Portfolio Company";
-                fundId?: string;
-                limit?: number;
-                offset?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of portfolio company tax records */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TaxController_getFilingDeadline: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Filing deadline */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ValuationsController_findAll: {
-        parameters: {
-            query?: {
-                status?: "current" | "expiring-soon" | "expired";
-                companyId?: string;
-                limit?: number;
-                offset?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of valuations */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ValuationsController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateValuationDto"];
-            };
-        };
-        responses: {
-            /** @description Valuation created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ValuationsController_findById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Valuation ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Valuation details */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ValuationsController_findStrikePrices: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Valuation ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of strike prices */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ValuationsController_createStrikePrice: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Valuation ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateStrikePriceDto"];
-            };
-        };
-        responses: {
-            /** @description Strike price created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ValuationsController_findHistory: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Valuation ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Valuation history entries */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ContactsController_findAll: {
-        parameters: {
-            query?: {
-                role?: "founder" | "co-founder" | "ceo" | "cto" | "investor" | "advisor" | "other";
-                search?: string;
-                starred?: boolean;
-                fundId?: string;
-                limit?: number;
-                offset?: number;
-                sortBy?: "name" | "createdAt" | "lastContact" | "interactionCount";
-                sortOrder?: "asc" | "desc";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of contacts */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ContactsController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateContactDto"];
-            };
-        };
-        responses: {
-            /** @description Contact created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ContactsController_findById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Contact ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Contact details */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ContactsController_delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Contact ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Contact deleted */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ContactsController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Contact ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateContactDto"];
-            };
-        };
-        responses: {
-            /** @description Contact updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ContactsController_toggleStar: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Contact ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Star toggled */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ContactsController_findInteractions: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Contact ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of interactions */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ContactsController_createInteraction: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Contact ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateInteractionDto"];
-            };
-        };
-        responses: {
-            /** @description Interaction created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ContactsController_findTimelineInteractions: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Contact ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Timeline interactions with extended fields */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    PipelineController_findAll: {
-        parameters: {
-            query?: {
-                stage?: "Sourced" | "First Meeting" | "Due Diligence" | "Term Sheet" | "Closed";
-                outcome?: "active" | "won" | "lost" | "withdrawn" | "passed";
-                sector?: string;
-                fundId?: string;
-                search?: string;
-                limit?: number;
-                offset?: number;
-                sortBy?: "name" | "createdAt" | "amount" | "stage";
-                sortOrder?: "asc" | "desc";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of deals */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    PipelineController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateDealDto"];
-            };
-        };
-        responses: {
-            /** @description Deal created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    PipelineController_findById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Deal ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Deal details */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    PipelineController_delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Deal ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Deal deleted */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    PipelineController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Deal ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateDealDto"];
-            };
-        };
-        responses: {
-            /** @description Deal updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    PipelineController_getStages: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of pipeline stages */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DocumentsController_findAll: {
-        parameters: {
-            query?: {
-                category?: string;
-                type?: string;
-                fundId?: string;
-                folderId?: string;
-                favoritesOnly?: boolean;
-                search?: string;
-                accessLevel?: "private" | "internal" | "investor" | "public";
-                limit?: number;
-                offset?: number;
-                sortBy?: "name" | "uploadedDate" | "lastModified" | "size";
-                sortOrder?: "asc" | "desc";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Documents and folders */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DocumentsController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateDocumentDto"];
-            };
-        };
-        responses: {
-            /** @description Document created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DocumentsController_findFolders: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of folders */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DocumentsController_createFolder: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateFolderDto"];
-            };
-        };
-        responses: {
-            /** @description Folder created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DocumentsController_findById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Document ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Document details */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DocumentsController_delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Document ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Document archived */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DocumentsController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Document ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateDocumentDto"];
-            };
-        };
-        responses: {
-            /** @description Document updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DocumentsController_updateAccess: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Document ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateDocumentAccessDto"];
-            };
-        };
-        responses: {
-            /** @description Access level updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    IntegrationsController_getSnapshot: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Integrations snapshot */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    IntegrationsController_findIntegrations: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of integrations */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    IntegrationsController_updateStatus: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Integration ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateIntegrationStatusDto"];
-            };
-        };
-        responses: {
-            /** @description Integration status updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    IntegrationsController_findCalendarAccounts: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of calendar accounts */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    IntegrationsController_findCalendarEvents: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of calendar events */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AuditController_findAll: {
-        parameters: {
-            query?: {
-                eventType?: "ownership_transfer" | "capital_call" | "distribution" | "valuation_update" | "document_hash" | "compliance_attestation";
-                fromDate?: string;
-                toDate?: string;
-                verificationStatus?: "verified" | "pending" | "failed";
-                limit?: number;
-                offset?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of audit events */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AuditController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateAuditEventDto"];
-            };
-        };
-        responses: {
-            /** @description Audit event created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AuditController_verify: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Audit event ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Audit event verified */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    NotificationsController_findAll: {
-        parameters: {
-            query?: {
-                userId?: string;
-                category?: "deal" | "lp" | "document" | "calendar" | "alert" | "system";
-                type?: "info" | "success" | "warning" | "error" | "default";
-                unreadOnly?: boolean;
-                limit?: number;
-                offset?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of notifications */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    NotificationsController_markRead: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Notification ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Notification marked as read */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    NotificationsController_markAllRead: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description All notifications marked as read */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    NotificationsController_delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Notification ID */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Notification deleted */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    OnboardingController_getRolePlan: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description User role */
-                role: "superadmin" | "gp" | "analyst" | "ops" | "ir" | "researcher" | "lp" | "auditor" | "service_provider" | "strategic_partner";
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Onboarding plan */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    LpPortalController_getInvestorSnapshot: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Investor portal snapshot payload */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    CollaborationController_findThreads: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Collaboration thread list */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    CollaborationController_findMessages: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Collaboration message list */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    CollaborationController_findTasks: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Collaboration task list */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AIController_getQuickActions: {
-        parameters: {
-            query?: {
-                /** @description Current page pathname */
-                pathname?: string;
-                /** @description Active tab */
-                tab?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of quick actions (stub — AI integration pending) */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AIController_getSuggestions: {
-        parameters: {
-            query?: {
-                /** @description Current page pathname */
-                pathname?: string;
-                /** @description Active tab */
-                tab?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of suggestions (stub — AI integration pending) */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AIController_respond: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CopilotRespondDto"];
-            };
-        };
-        responses: {
-            /** @description Copilot response (stub — AI integration pending) */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AIController_getBadges: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Badge data (stub — ML pipeline pending) */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ReportsController_getTemplates: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of report templates */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ReportsController_getExportJobs: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of export jobs */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ReportsController_createExportJob: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateExportJobDto"];
-            };
-        };
-        responses: {
-            /** @description Export job created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
+  AppController_getHello: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AuthController_signup: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SignupDto"];
+      };
+    };
+    responses: {
+      /** @description User successfully registered */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AuthResponseDto"];
+        };
+      };
+      /** @description Email already exists */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AuthController_login: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LoginDto"];
+      };
+    };
+    responses: {
+      /** @description User successfully authenticated */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AuthResponseDto"];
+        };
+      };
+      /** @description Invalid credentials */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AuthController_getProfile: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description User profile */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AuthController_updateProfile: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateProfileDto"];
+      };
+    };
+    responses: {
+      /** @description Profile updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Email already in use */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AuthController_updatePassword: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdatePasswordDto"];
+      };
+    };
+    responses: {
+      /** @description Password updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Current password is incorrect */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UsersController_findAll: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of users */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Forbidden — requires gp or ops role */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UsersController_findOne: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description User details */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description User not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UsersController_remove: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description User deleted */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description User not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UsersController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateUserDto"];
+      };
+    };
+    responses: {
+      /** @description User updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description User not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  OrgsController_getCurrentSettings: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Organization settings */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  OrgsController_updateCurrentSettings: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateOrgSettingsDto"];
+      };
+    };
+    responses: {
+      /** @description Organization settings updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FundsController_findAll: {
+    parameters: {
+      query?: {
+        status?: "active" | "closed" | "fundraising";
+        strategy?:
+          | "early-stage"
+          | "growth"
+          | "late-stage"
+          | "multi-stage"
+          | "sector-specific";
+        vintage?: number;
+        search?: string;
+        limit?: number;
+        offset?: number;
+        sortBy?: "createdAt" | "name" | "vintage" | "totalCommitment";
+        sortOrder?: "asc" | "desc";
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of funds */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FundsController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateFundDto"];
+      };
+    };
+    responses: {
+      /** @description Fund created successfully */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Invalid input */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FundsController_findOne: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Fund details */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Fund not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FundsController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateFundDto"];
+      };
+    };
+    responses: {
+      /** @description Fund updated successfully */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Invalid input */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Fund not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FundsController_remove: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Fund deleted successfully */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Fund not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FundsController_getMetrics: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Fund metrics */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Fund not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FundsController_getSummary: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Fund summary */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Fund not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FundsController_getActiveWaterfall: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Active waterfall scenario */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Fund not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FundsController_setActiveWaterfall: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SetActiveWaterfallDto"];
+      };
+    };
+    responses: {
+      /** @description Active waterfall set successfully */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Invalid scenario or does not belong to fund */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Fund not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  PortfolioController_findAll: {
+    parameters: {
+      query?: {
+        status?: "active" | "exited" | "written_off";
+        sector?: string;
+        stage?:
+          | "seed"
+          | "series-a"
+          | "series-b"
+          | "series-c"
+          | "growth"
+          | "late-stage";
+        /** @description Minimum health score */
+        minHealth?: number;
+        /** @description Maximum health score */
+        maxHealth?: number;
+        search?: string;
+        limit?: number;
+        offset?: number;
+        sortBy?:
+          | "createdAt"
+          | "name"
+          | "currentValue"
+          | "health"
+          | "investmentDate";
+        sortOrder?: "asc" | "desc";
+      };
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of portfolio companies */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  PortfolioController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreatePortfolioCompanyDto"];
+      };
+    };
+    responses: {
+      /** @description Portfolio company created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Invalid input */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Fund not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  PortfolioController_getHealthSummary: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Portfolio health summary */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  PortfolioController_findOne: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+        /** @description Portfolio company ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Portfolio company details */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Company not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  PortfolioController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+        /** @description Portfolio company ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdatePortfolioCompanyDto"];
+      };
+    };
+    responses: {
+      /** @description Portfolio company updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Invalid input */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Company not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  PortfolioController_remove: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+        /** @description Portfolio company ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Portfolio company deleted */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Company not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  LPsController_findAll: {
+    parameters: {
+      query?: {
+        /** @description Filter LPs by fund commitment */
+        fundId?: string;
+        type?: "institutional" | "individual" | "strategic";
+        taxStatus?: "taxable" | "tax-exempt" | "foreign";
+        search?: string;
+        limit?: number;
+        offset?: number;
+        sortBy?: "createdAt" | "name" | "type";
+        sortOrder?: "asc" | "desc";
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of LPs */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  LPsController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateLPDto"];
+      };
+    };
+    responses: {
+      /** @description LP created successfully */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Invalid input */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  LPsController_findOne: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description LP ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description LP details */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description LP not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  LPsController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description LP ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateLPDto"];
+      };
+    };
+    responses: {
+      /** @description LP updated successfully */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Invalid input */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description LP not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  LPsController_remove: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description LP ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description LP deleted successfully */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description LP not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  LPsController_getCommitments: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description LP ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description LP commitments */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description LP not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  LPsController_createCommitment: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateLPCommitmentDto"];
+      };
+    };
+    responses: {
+      /** @description Commitment created successfully */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Invalid input */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description LP or Fund not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Commitment already exists */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  CapitalCallsController_findAll: {
+    parameters: {
+      query?: {
+        status?: "pending" | "partial" | "complete" | "overdue";
+        limit?: number;
+        offset?: number;
+        sortBy?: "createdAt" | "dueDate" | "amount" | "callNumber";
+        sortOrder?: "asc" | "desc";
+      };
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of capital calls */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  CapitalCallsController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateCapitalCallDto"];
+      };
+    };
+    responses: {
+      /** @description Capital call created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Invalid input */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Fund not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  CapitalCallsController_getActiveCapitalCalls: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of active capital calls */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  CapitalCallsController_findOne: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+        /** @description Capital call ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Capital call details */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Capital call not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  CapitalCallsController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+        /** @description Capital call ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateCapitalCallDto"];
+      };
+    };
+    responses: {
+      /** @description Capital call updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Invalid input */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Capital call not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  CapitalCallsController_remove: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+        /** @description Capital call ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Capital call deleted */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Capital call not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  CapitalCallsController_getResponses: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Capital call ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of LP responses */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Capital call not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  CapitalCallsController_recordResponse: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Capital call ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["RecordResponseDto"];
+      };
+    };
+    responses: {
+      /** @description Response recorded */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Invalid input */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Capital call or LP not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  CapitalCallsController_sendReminder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Capital call ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Reminder sent */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Capital call not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DashboardController_getDashboard: {
+    parameters: {
+      query?: {
+        /** @description Filter by fund ID */
+        fundId?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Dashboard data */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DashboardController_getMetrics: {
+    parameters: {
+      query?: {
+        /** @description Filter by fund ID */
+        fundId?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Metrics summary */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DashboardController_getAlerts: {
+    parameters: {
+      query?: {
+        /** @description Filter by fund ID */
+        fundId?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of alerts */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DashboardController_markAlertRead: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Alert marked as read */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DashboardController_dismissAlert: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Alert dismissed */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DashboardController_getTasks: {
+    parameters: {
+      query?: {
+        /** @description Filter by fund ID */
+        fundId?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of tasks */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DashboardController_updateTaskStatus: {
+    parameters: {
+      query: {
+        status: "pending" | "in_progress" | "completed";
+      };
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Task status updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DashboardController_getLPDashboard: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        lpId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description LP dashboard data */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DashboardController_getAnalystDashboard: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Analyst dashboard data */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DashboardController_getOpsDashboard: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Operations dashboard data */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DashboardController_getAuditorDashboard: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Auditor dashboard data with fund and compliance overview */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DashboardController_getIRDashboard: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description IR dashboard data with LP engagement metrics */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DashboardController_getResearcherDashboard: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Researcher dashboard with portfolio analysis */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AnalyticsController_getPerformance: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Fund performance data */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Fund not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AnalyticsController_getBenchmark: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Benchmark comparison data */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Fund not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AnalyticsController_getJCurve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description J-curve data points */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Fund not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AnalyticsController_getCohorts: {
+    parameters: {
+      query?: {
+        /** @description Group cohorts by field */
+        groupBy?: "vintage" | "sector" | "stage";
+      };
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Cohort analysis data */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Fund not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AnalyticsController_getConcentration: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Concentration risk data */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Fund not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AnalyticsController_getDeployment: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Deployment pacing data */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Fund not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AnalyticsController_getValuationTrends: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Valuation trends data */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Fund not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WaterfallController_findAll: {
+    parameters: {
+      query?: {
+        fundId?: string;
+        model?: "european" | "american" | "blended";
+        isFavorite?: boolean;
+        tag?: string;
+        search?: string;
+        limit?: number;
+        offset?: number;
+        sortBy?: "createdAt" | "updatedAt" | "name" | "exitValue";
+        sortOrder?: "asc" | "desc";
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of scenarios */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WaterfallController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateScenarioDto"];
+      };
+    };
+    responses: {
+      /** @description Scenario created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Invalid input */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WaterfallController_findOne: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Scenario ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Scenario details */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Scenario not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WaterfallController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Scenario ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateScenarioDto"];
+      };
+    };
+    responses: {
+      /** @description Scenario updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Invalid input */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Scenario not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WaterfallController_remove: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Scenario ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Scenario deleted */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Scenario not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WaterfallController_duplicate: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Scenario ID to duplicate */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Scenario duplicated */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Scenario not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WaterfallController_toggleFavorite: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Scenario ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Favorite status toggled */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Scenario not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WaterfallController_calculate: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CalculateWaterfallDto"];
+      };
+    };
+    responses: {
+      /** @description Calculation results */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Invalid input */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Scenario not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WaterfallController_sensitivityAnalysis: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SensitivityAnalysisDto"];
+      };
+    };
+    responses: {
+      /** @description Sensitivity analysis results */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Invalid input */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Scenario not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WaterfallController_getTemplates: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of templates */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WaterfallController_createTemplate: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateWaterfallTemplateDto"];
+      };
+    };
+    responses: {
+      /** @description Template created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Invalid input */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DistributionsController_findAllByFund: {
+    parameters: {
+      query?: {
+        status?:
+          | "draft"
+          | "pending_approval"
+          | "approved"
+          | "processing"
+          | "completed"
+          | "rejected"
+          | "cancelled";
+        eventType?:
+          | "exit"
+          | "dividend"
+          | "recapitalization"
+          | "refinancing"
+          | "partial-exit"
+          | "other";
+        fromDate?: string;
+        toDate?: string;
+        limit?: number;
+        offset?: number;
+        sortBy?: "createdAt" | "eventDate" | "paymentDate" | "totalAmount";
+        sortOrder?: "asc" | "desc";
+      };
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of distributions */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DistributionsController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateDistributionDto"];
+      };
+    };
+    responses: {
+      /** @description Distribution created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Invalid input */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Fund not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DistributionsController_findOne: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Distribution ID */
+        id: string;
+        /** @description Fund ID */
+        fundId: unknown;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Distribution details */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Distribution not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DistributionsController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Distribution ID */
+        id: string;
+        /** @description Fund ID */
+        fundId: unknown;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateDistributionDto"];
+      };
+    };
+    responses: {
+      /** @description Distribution updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Invalid input or status */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Distribution not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DistributionsController_remove: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Distribution ID */
+        id: string;
+        /** @description Fund ID */
+        fundId: unknown;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Distribution deleted */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Cannot delete non-draft distribution */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Distribution not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DistributionsController_findAll: {
+    parameters: {
+      query?: {
+        fundId?: string;
+        status?:
+          | "draft"
+          | "pending_approval"
+          | "approved"
+          | "processing"
+          | "completed"
+          | "rejected"
+          | "cancelled";
+        eventType?:
+          | "exit"
+          | "dividend"
+          | "recapitalization"
+          | "refinancing"
+          | "partial-exit"
+          | "other";
+        fromDate?: string;
+        toDate?: string;
+        limit?: number;
+        offset?: number;
+        sortBy?: "createdAt" | "eventDate" | "paymentDate" | "totalAmount";
+        sortOrder?: "asc" | "desc";
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of distributions */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DistributionsController_getCalendar: {
+    parameters: {
+      query?: {
+        /** @description Start date (ISO format) */
+        fromDate?: string;
+        /** @description End date (ISO format) */
+        toDate?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Calendar events */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DistributionsController_findOneGlobal: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Distribution ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Distribution details */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Distribution not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DistributionsController_calculateAllocations: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Distribution ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CalculateAllocationDto"];
+      };
+    };
+    responses: {
+      /** @description Allocations calculated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No LP commitments found */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Distribution not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DistributionsController_getAllocations: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Distribution ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description LP allocations */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Distribution not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DistributionsController_submitForApproval: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Distribution ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SubmitDistributionForApprovalDto"];
+      };
+    };
+    responses: {
+      /** @description Distribution submitted for approval */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Invalid status or no allocations */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Distribution not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DistributionsController_processApproval: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Distribution ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ApprovalActionDto"];
+      };
+    };
+    responses: {
+      /** @description Approval processed */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Invalid status or not approver turn */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Distribution not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DistributionsController_markAsProcessing: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Distribution ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Distribution marked as processing */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Invalid status transition */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Distribution not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DistributionsController_markAsCompleted: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Distribution ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Distribution completed */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Invalid status transition */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Distribution not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DistributionsController_cancel: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Distribution ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Distribution cancelled */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Cannot cancel completed distribution */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Distribution not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DistributionsController_getComments: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Distribution ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of comments */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Distribution not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DistributionsController_createComment: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Distribution ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateDistributionCommentDto"];
+      };
+    };
+    responses: {
+      /** @description Comment created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Distribution not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DistributionsController_getFeeTemplates: {
+    parameters: {
+      query?: {
+        fundId?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Fee templates */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DistributionsController_getStatementTemplates: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Statement templates */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DistributionsController_getLPProfiles: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description LP profiles */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DistributionsController_getApprovalRules: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Approval rules */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  CarryController_findTerms: {
+    parameters: {
+      query?: {
+        status?: "active" | "inactive" | "draft";
+        limit?: number;
+        offset?: number;
+        sortBy?: "createdAt" | "effectiveDate" | "gpCarryPercentage";
+        sortOrder?: "asc" | "desc";
+      };
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of carry terms */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  CarryController_createTerm: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateCarryTermDto"];
+      };
+    };
+    responses: {
+      /** @description Carry term created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  CarryController_findAccruals: {
+    parameters: {
+      query?: {
+        status?: "active" | "inactive" | "draft";
+        limit?: number;
+        offset?: number;
+        sortBy?: "createdAt" | "effectiveDate" | "gpCarryPercentage";
+        sortOrder?: "asc" | "desc";
+      };
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of carry accruals */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  CarryController_calculateAccrual: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CalculateCarryAccrualDto"];
+      };
+    };
+    responses: {
+      /** @description Accrual calculated */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  CarryController_approveAccrual: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Accrual ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Accrual approved */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  CarryController_distributeAccrual: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Accrual ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Accrual distributed */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  CarryController_exportAccrual: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Accrual ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ExportCarryAccrualDto"];
+      };
+    };
+    responses: {
+      /** @description Export metadata */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ExpensesController_findAll: {
+    parameters: {
+      query?: {
+        status?: "pending" | "approved" | "paid" | "rejected";
+        type?:
+          | "management-fee"
+          | "monitoring-fee"
+          | "transaction-fee"
+          | "legal"
+          | "audit"
+          | "administrative"
+          | "marketing"
+          | "other";
+        fromDate?: string;
+        toDate?: string;
+        limit?: number;
+        offset?: number;
+        sortBy?: "createdAt" | "date" | "amount";
+        sortOrder?: "asc" | "desc";
+      };
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of expenses */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ExpensesController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateExpenseDto"];
+      };
+    };
+    responses: {
+      /** @description Expense created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ExpensesController_findById: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Expense ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Expense details */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ExpensesController_approve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Expense ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ApproveExpenseDto"];
+      };
+    };
+    responses: {
+      /** @description Expense approved */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ExpensesController_reject: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Expense ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Expense rejected */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ExpensesController_markPaid: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Expense ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Expense marked as paid */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ExpensesController_exportByFund: {
+    parameters: {
+      query: {
+        format: "pdf" | "csv" | "xlsx";
+      };
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Export metadata */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ExpensesController_exportAll: {
+    parameters: {
+      query: {
+        format: "pdf" | "csv" | "xlsx";
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Export metadata */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  NAVController_findAll: {
+    parameters: {
+      query?: {
+        status?: "draft" | "calculated" | "reviewed" | "published";
+        fromDate?: string;
+        toDate?: string;
+        limit?: number;
+        offset?: number;
+      };
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of NAV calculations */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  NAVController_calculate: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CalculateNAVRequestDto"];
+      };
+    };
+    responses: {
+      /** @description NAV calculated */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  NAVController_findById: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description NAV calculation ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description NAV calculation details */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  NAVController_markReviewed: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description NAV calculation ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ReviewNAVRequestDto"];
+      };
+    };
+    responses: {
+      /** @description NAV marked as reviewed */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  NAVController_publish: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description NAV calculation ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["PublishNAVRequestDto"];
+      };
+    };
+    responses: {
+      /** @description NAV published */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  NAVController_export: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description NAV calculation ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ExportNAVRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Export metadata */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  TransfersController_findAll: {
+    parameters: {
+      query?: {
+        status?: string;
+        type?:
+          | "direct"
+          | "secondary-sale"
+          | "inheritance"
+          | "gift"
+          | "court-order";
+        limit?: number;
+        offset?: number;
+        sortBy?: "createdAt" | "requestedDate" | "commitmentAmount";
+        sortOrder?: "asc" | "desc";
+      };
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of transfers */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  TransfersController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateTransferDto"];
+      };
+    };
+    responses: {
+      /** @description Transfer created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  TransfersController_findById: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Transfer ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Transfer details with ROFR exercises */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  TransfersController_review: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Transfer ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Transfer under review */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  TransfersController_approve: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Transfer ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Transfer approved */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  TransfersController_reject: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Transfer ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["RejectTransferDto"];
+      };
+    };
+    responses: {
+      /** @description Transfer rejected */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  TransfersController_complete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Transfer ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Transfer completed */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  TransfersController_uploadDocument: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Transfer ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UploadTransferDocumentDto"];
+      };
+    };
+    responses: {
+      /** @description Document uploaded */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  TransfersController_findROFRExercises: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Fund ID */
+        fundId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of ROFR exercises */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  TransfersController_exerciseROFR: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Transfer ID */
+        transferId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ExerciseRofrDto"];
+      };
+    };
+    responses: {
+      /** @description ROFR exercised */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ComplianceController_findItems: {
+    parameters: {
+      query?: {
+        status?: "completed" | "in-progress" | "upcoming" | "overdue";
+        priority?: "high" | "medium" | "low";
+        type?: "filing" | "report" | "certification" | "audit";
+        fundId?: string;
+        limit?: number;
+        offset?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of compliance items */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ComplianceController_createItem: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateComplianceItemDto"];
+      };
+    };
+    responses: {
+      /** @description Compliance item created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ComplianceController_updateItem: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Compliance item ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateComplianceItemDto"];
+      };
+    };
+    responses: {
+      /** @description Compliance item updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ComplianceController_findFilings: {
+    parameters: {
+      query?: {
+        status?: "completed" | "in-progress" | "upcoming" | "overdue";
+        priority?: "high" | "medium" | "low";
+        type?: "filing" | "report" | "certification" | "audit";
+        fundId?: string;
+        limit?: number;
+        offset?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of regulatory filings */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ComplianceController_createFiling: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateFilingDto"];
+      };
+    };
+    responses: {
+      /** @description Filing created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ComplianceController_findAuditSchedule: {
+    parameters: {
+      query?: {
+        status?: "completed" | "in-progress" | "upcoming" | "overdue";
+        priority?: "high" | "medium" | "low";
+        type?: "filing" | "report" | "certification" | "audit";
+        fundId?: string;
+        limit?: number;
+        offset?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of audit schedule items */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ComplianceController_createAuditSchedule: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateAuditScheduleDto"];
+      };
+    };
+    responses: {
+      /** @description Audit schedule item created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  TaxController_findDocuments: {
+    parameters: {
+      query?: {
+        taxYear?: number;
+        status?: "draft" | "ready" | "sent" | "filed";
+        recipientType?: "LP" | "GP" | "Portfolio Company";
+        fundId?: string;
+        limit?: number;
+        offset?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of tax documents */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  TaxController_createDocument: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateTaxDocumentDto"];
+      };
+    };
+    responses: {
+      /** @description Tax document created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  TaxController_updateDocument: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Tax document ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateTaxDocumentDto"];
+      };
+    };
+    responses: {
+      /** @description Tax document updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  TaxController_findSummaries: {
+    parameters: {
+      query?: {
+        taxYear?: number;
+        status?: "draft" | "ready" | "sent" | "filed";
+        recipientType?: "LP" | "GP" | "Portfolio Company";
+        fundId?: string;
+        limit?: number;
+        offset?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of tax summaries */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  TaxController_createSummary: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateTaxSummaryDto"];
+      };
+    };
+    responses: {
+      /** @description Tax summary created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  TaxController_findPortfolioCompanyTax: {
+    parameters: {
+      query?: {
+        taxYear?: number;
+        status?: "draft" | "ready" | "sent" | "filed";
+        recipientType?: "LP" | "GP" | "Portfolio Company";
+        fundId?: string;
+        limit?: number;
+        offset?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of portfolio company tax records */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  TaxController_getFilingDeadline: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Filing deadline */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ValuationsController_findAll: {
+    parameters: {
+      query?: {
+        status?: "current" | "expiring-soon" | "expired";
+        companyId?: string;
+        limit?: number;
+        offset?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of valuations */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ValuationsController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateValuationDto"];
+      };
+    };
+    responses: {
+      /** @description Valuation created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ValuationsController_findById: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Valuation ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Valuation details */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ValuationsController_findStrikePrices: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Valuation ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of strike prices */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ValuationsController_createStrikePrice: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Valuation ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateStrikePriceDto"];
+      };
+    };
+    responses: {
+      /** @description Strike price created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ValuationsController_findHistory: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Valuation ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Valuation history entries */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ContactsController_findAll: {
+    parameters: {
+      query?: {
+        role?:
+          | "founder"
+          | "co-founder"
+          | "ceo"
+          | "cto"
+          | "investor"
+          | "advisor"
+          | "other";
+        search?: string;
+        starred?: boolean;
+        fundId?: string;
+        limit?: number;
+        offset?: number;
+        sortBy?: "name" | "createdAt" | "lastContact" | "interactionCount";
+        sortOrder?: "asc" | "desc";
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of contacts */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ContactsController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateContactDto"];
+      };
+    };
+    responses: {
+      /** @description Contact created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ContactsController_findById: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Contact ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Contact details */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ContactsController_delete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Contact ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Contact deleted */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ContactsController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Contact ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateContactDto"];
+      };
+    };
+    responses: {
+      /** @description Contact updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ContactsController_toggleStar: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Contact ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Star toggled */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ContactsController_findInteractions: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Contact ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of interactions */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ContactsController_createInteraction: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Contact ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateInteractionDto"];
+      };
+    };
+    responses: {
+      /** @description Interaction created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ContactsController_findTimelineInteractions: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Contact ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Timeline interactions with extended fields */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  PipelineController_findAll: {
+    parameters: {
+      query?: {
+        stage?:
+          | "Sourced"
+          | "First Meeting"
+          | "Due Diligence"
+          | "Term Sheet"
+          | "Closed";
+        outcome?: "active" | "won" | "lost" | "withdrawn" | "passed";
+        sector?: string;
+        fundId?: string;
+        search?: string;
+        limit?: number;
+        offset?: number;
+        sortBy?: "name" | "createdAt" | "amount" | "stage";
+        sortOrder?: "asc" | "desc";
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of deals */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  PipelineController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateDealDto"];
+      };
+    };
+    responses: {
+      /** @description Deal created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  PipelineController_findById: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Deal ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Deal details */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  PipelineController_delete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Deal ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Deal deleted */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  PipelineController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Deal ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateDealDto"];
+      };
+    };
+    responses: {
+      /** @description Deal updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  PipelineController_getStages: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of pipeline stages */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DocumentsController_findAll: {
+    parameters: {
+      query?: {
+        category?: string;
+        type?: string;
+        fundId?: string;
+        folderId?: string;
+        favoritesOnly?: boolean;
+        search?: string;
+        accessLevel?: "private" | "internal" | "investor" | "public";
+        limit?: number;
+        offset?: number;
+        sortBy?: "name" | "uploadedDate" | "lastModified" | "size";
+        sortOrder?: "asc" | "desc";
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Documents and folders */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DocumentsController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateDocumentDto"];
+      };
+    };
+    responses: {
+      /** @description Document created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DocumentsController_findFolders: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of folders */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DocumentsController_createFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateFolderDto"];
+      };
+    };
+    responses: {
+      /** @description Folder created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DocumentsController_findById: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Document ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Document details */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DocumentsController_delete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Document ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Document archived */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DocumentsController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Document ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateDocumentDto"];
+      };
+    };
+    responses: {
+      /** @description Document updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DocumentsController_updateAccess: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Document ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateDocumentAccessDto"];
+      };
+    };
+    responses: {
+      /** @description Access level updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  IntegrationsController_getSnapshot: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Integrations snapshot */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  IntegrationsController_findIntegrations: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of integrations */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  IntegrationsController_updateStatus: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Integration ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateIntegrationStatusDto"];
+      };
+    };
+    responses: {
+      /** @description Integration status updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  IntegrationsController_findCalendarAccounts: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of calendar accounts */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  IntegrationsController_findCalendarEvents: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of calendar events */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AuditController_findAll: {
+    parameters: {
+      query?: {
+        eventType?:
+          | "ownership_transfer"
+          | "capital_call"
+          | "distribution"
+          | "valuation_update"
+          | "document_hash"
+          | "compliance_attestation";
+        fromDate?: string;
+        toDate?: string;
+        verificationStatus?: "verified" | "pending" | "failed";
+        limit?: number;
+        offset?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of audit events */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AuditController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateAuditEventDto"];
+      };
+    };
+    responses: {
+      /** @description Audit event created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AuditController_verify: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Audit event ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Audit event verified */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  NotificationsController_findAll: {
+    parameters: {
+      query?: {
+        userId?: string;
+        category?: "deal" | "lp" | "document" | "calendar" | "alert" | "system";
+        type?: "info" | "success" | "warning" | "error" | "default";
+        unreadOnly?: boolean;
+        limit?: number;
+        offset?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of notifications */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  NotificationsController_markRead: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Notification ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Notification marked as read */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  NotificationsController_markAllRead: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description All notifications marked as read */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  NotificationsController_delete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Notification ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Notification deleted */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  OnboardingController_getRolePlan: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description User role */
+        role:
+          | "superadmin"
+          | "gp"
+          | "analyst"
+          | "ops"
+          | "ir"
+          | "researcher"
+          | "lp"
+          | "auditor"
+          | "service_provider"
+          | "strategic_partner";
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Onboarding plan */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  LpPortalController_getInvestorSnapshot: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Investor portal snapshot payload */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  CollaborationController_findThreads: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Collaboration thread list */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  CollaborationController_findMessages: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Collaboration message list */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  CollaborationController_findTasks: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Collaboration task list */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AIController_getQuickActions: {
+    parameters: {
+      query?: {
+        /** @description Current page pathname */
+        pathname?: string;
+        /** @description Active tab */
+        tab?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of quick actions (stub — AI integration pending) */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AIController_getSuggestions: {
+    parameters: {
+      query?: {
+        /** @description Current page pathname */
+        pathname?: string;
+        /** @description Active tab */
+        tab?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of suggestions (stub — AI integration pending) */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AIController_respond: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CopilotRespondDto"];
+      };
+    };
+    responses: {
+      /** @description Copilot response (stub — AI integration pending) */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AIController_getBadges: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Badge data (stub — ML pipeline pending) */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ReportsController_getTemplates: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of report templates */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ReportsController_getExportJobs: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of export jobs */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ReportsController_createExportJob: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateExportJobDto"];
+      };
+    };
+    responses: {
+      /** @description Export job created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
 }

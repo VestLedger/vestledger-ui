@@ -1,4 +1,4 @@
-import { isMockMode } from '@/config/data-mode';
+import { isMockMode } from "@/config/data-mode";
 import {
   mockAuditSchedule,
   mockComplianceItems,
@@ -6,8 +6,8 @@ import {
   type AuditSchedule,
   type ComplianceItem,
   type RegulatoryFiling,
-} from '@/data/mocks/back-office/compliance';
-import { requestJson } from '@/services/shared/httpClient';
+} from "@/data/mocks/back-office/compliance";
+import { requestJson } from "@/services/shared/httpClient";
 
 type ApiListResponse<TItem> =
   | {
@@ -81,68 +81,75 @@ function asDateOnly(value?: string | null, fallback = nowIsoDate()): string {
   return parsed.toISOString().slice(0, 10);
 }
 
-function normalizeComplianceItemType(rawType?: string): ComplianceItem['type'] {
-  const normalized = rawType?.toLowerCase() ?? '';
-  if (normalized.includes('report')) return 'report';
-  if (normalized.includes('cert')) return 'certification';
-  if (normalized.includes('audit')) return 'audit';
-  return 'filing';
+function normalizeComplianceItemType(rawType?: string): ComplianceItem["type"] {
+  const normalized = rawType?.toLowerCase() ?? "";
+  if (normalized.includes("report")) return "report";
+  if (normalized.includes("cert")) return "certification";
+  if (normalized.includes("audit")) return "audit";
+  return "filing";
 }
 
-function normalizeComplianceItemStatus(rawStatus?: string): ComplianceItem['status'] {
-  const normalized = rawStatus?.toLowerCase() ?? '';
-  if (normalized === 'completed' || normalized === 'complete' || normalized === 'done') {
-    return 'completed';
+function normalizeComplianceItemStatus(
+  rawStatus?: string,
+): ComplianceItem["status"] {
+  const normalized = rawStatus?.toLowerCase() ?? "";
+  if (
+    normalized === "completed" ||
+    normalized === "complete" ||
+    normalized === "done"
+  ) {
+    return "completed";
   }
   if (
-    normalized === 'in-progress' ||
-    normalized === 'in_progress' ||
-    normalized === 'pending' ||
-    normalized === 'active'
+    normalized === "in-progress" ||
+    normalized === "in_progress" ||
+    normalized === "pending" ||
+    normalized === "active"
   ) {
-    return 'in-progress';
+    return "in-progress";
   }
-  if (normalized === 'overdue' || normalized === 'late') return 'overdue';
-  return 'upcoming';
+  if (normalized === "overdue" || normalized === "late") return "overdue";
+  return "upcoming";
 }
 
-function normalizePriority(rawPriority?: string): ComplianceItem['priority'] {
-  const normalized = rawPriority?.toLowerCase() ?? '';
-  if (normalized === 'high' || normalized === 'urgent') return 'high';
-  if (normalized === 'low') return 'low';
-  return 'medium';
+function normalizePriority(rawPriority?: string): ComplianceItem["priority"] {
+  const normalized = rawPriority?.toLowerCase() ?? "";
+  if (normalized === "high" || normalized === "urgent") return "high";
+  if (normalized === "low") return "low";
+  return "medium";
 }
 
-function normalizeFilingStatus(rawStatus?: string): RegulatoryFiling['status'] {
-  const normalized = rawStatus?.toLowerCase() ?? '';
-  if (normalized === 'overdue' || normalized === 'late') return 'overdue';
+function normalizeFilingStatus(rawStatus?: string): RegulatoryFiling["status"] {
+  const normalized = rawStatus?.toLowerCase() ?? "";
+  if (normalized === "overdue" || normalized === "late") return "overdue";
   if (
-    normalized === 'due-soon' ||
-    normalized === 'due_soon' ||
-    normalized === 'upcoming' ||
-    normalized === 'pending'
+    normalized === "due-soon" ||
+    normalized === "due_soon" ||
+    normalized === "upcoming" ||
+    normalized === "pending"
   ) {
-    return 'due-soon';
+    return "due-soon";
   }
-  return 'current';
+  return "current";
 }
 
-function normalizeAuditStatus(rawStatus?: string): AuditSchedule['status'] {
-  const normalized = rawStatus?.toLowerCase() ?? '';
-  if (normalized === 'completed' || normalized === 'complete') return 'completed';
+function normalizeAuditStatus(rawStatus?: string): AuditSchedule["status"] {
+  const normalized = rawStatus?.toLowerCase() ?? "";
+  if (normalized === "completed" || normalized === "complete")
+    return "completed";
   if (
-    normalized === 'in-progress' ||
-    normalized === 'in_progress' ||
-    normalized === 'active'
+    normalized === "in-progress" ||
+    normalized === "in_progress" ||
+    normalized === "active"
   ) {
-    return 'in-progress';
+    return "in-progress";
   }
-  return 'scheduled';
+  return "scheduled";
 }
 
 function mapApiComplianceItem(
   record: ApiComplianceItemRecord,
-  index: number
+  index: number,
 ): ComplianceItem {
   return {
     id: record.id ?? `compliance-item-${index + 1}`,
@@ -150,68 +157,80 @@ function mapApiComplianceItem(
     type: normalizeComplianceItemType(record.type),
     dueDate: asDateOnly(record.dueDate),
     status: normalizeComplianceItemStatus(record.status),
-    assignedTo: record.assignedTo ?? record.owner ?? 'Compliance Team',
+    assignedTo: record.assignedTo ?? record.owner ?? "Compliance Team",
     priority: normalizePriority(record.priority),
-    description: record.description ?? 'Compliance task imported from API.',
-    relatedFund: record.relatedFund ?? record.fundName ?? 'All Funds',
+    description: record.description ?? "Compliance task imported from API.",
+    relatedFund: record.relatedFund ?? record.fundName ?? "All Funds",
   };
 }
 
 function mapApiRegulatoryFiling(
   record: ApiRegulatoryFilingRecord,
-  index: number
+  index: number,
 ): RegulatoryFiling {
   const nextDueRaw = record.nextDue ?? record.dueDate;
 
   return {
     id: record.id ?? `regulatory-filing-${index + 1}`,
-    filingType: record.filingType ?? record.name ?? 'Regulatory Filing',
-    regulator: record.regulator ?? 'Regulator',
-    frequency: record.frequency ?? 'Annual',
+    filingType: record.filingType ?? record.name ?? "Regulatory Filing",
+    regulator: record.regulator ?? "Regulator",
+    frequency: record.frequency ?? "Annual",
     lastFiled: asDateOnly(record.lastFiled),
-    nextDue: nextDueRaw && nextDueRaw !== 'N/A' ? asDateOnly(nextDueRaw) : 'N/A',
+    nextDue:
+      nextDueRaw && nextDueRaw !== "N/A" ? asDateOnly(nextDueRaw) : "N/A",
     status: normalizeFilingStatus(record.status),
-    fundName: record.fundName ?? 'All Funds',
+    fundName: record.fundName ?? "All Funds",
   };
 }
 
 function mapApiAuditSchedule(
   record: ApiAuditScheduleRecord,
-  index: number
+  index: number,
 ): AuditSchedule {
   return {
     id: record.id ?? `audit-schedule-${index + 1}`,
-    auditType: record.auditType ?? record.type ?? 'Audit',
-    auditor: record.auditor ?? 'External Auditor',
-    year: typeof record.year === 'number' ? record.year : new Date().getFullYear(),
+    auditType: record.auditType ?? record.type ?? "Audit",
+    auditor: record.auditor ?? "External Auditor",
+    year:
+      typeof record.year === "number" ? record.year : new Date().getFullYear(),
     startDate: asDateOnly(record.startDate),
-    completionDate: record.completionDate ? asDateOnly(record.completionDate) : null,
+    completionDate: record.completionDate
+      ? asDateOnly(record.completionDate)
+      : null,
     status: normalizeAuditStatus(record.status),
-    fundName: record.fundName ?? 'All Funds',
+    fundName: record.fundName ?? "All Funds",
   };
 }
 
 async function fetchComplianceItemsFromApi(): Promise<ComplianceItem[]> {
-  const response = await requestJson<ApiListResponse<ApiComplianceItemRecord>>('/compliance/items', {
-    method: 'GET',
-    fallbackMessage: 'Failed to fetch compliance items',
-  });
+  const response = await requestJson<ApiListResponse<ApiComplianceItemRecord>>(
+    "/compliance/items",
+    {
+      method: "GET",
+      fallbackMessage: "Failed to fetch compliance items",
+    },
+  );
   return extractApiList(response).map(mapApiComplianceItem);
 }
 
 async function fetchRegulatoryFilingsFromApi(): Promise<RegulatoryFiling[]> {
-  const response = await requestJson<ApiListResponse<ApiRegulatoryFilingRecord>>('/compliance/filings', {
-    method: 'GET',
-    fallbackMessage: 'Failed to fetch regulatory filings',
+  const response = await requestJson<
+    ApiListResponse<ApiRegulatoryFilingRecord>
+  >("/compliance/filings", {
+    method: "GET",
+    fallbackMessage: "Failed to fetch regulatory filings",
   });
   return extractApiList(response).map(mapApiRegulatoryFiling);
 }
 
 async function fetchAuditScheduleFromApi(): Promise<AuditSchedule[]> {
-  const response = await requestJson<ApiListResponse<ApiAuditScheduleRecord>>('/compliance/audits', {
-    method: 'GET',
-    fallbackMessage: 'Failed to fetch audit schedule',
-  });
+  const response = await requestJson<ApiListResponse<ApiAuditScheduleRecord>>(
+    "/compliance/audits",
+    {
+      method: "GET",
+      fallbackMessage: "Failed to fetch audit schedule",
+    },
+  );
   return extractApiList(response).map(mapApiAuditSchedule);
 }
 
@@ -238,12 +257,12 @@ function setCachedSnapshot(snapshot: ComplianceSnapshot): void {
 function getCachedSnapshot(): ComplianceSnapshot {
   return clone(
     apiComplianceSnapshotCache ??
-      (isMockMode('backOffice') ? getBaseMockSnapshot() : getEmptySnapshot())
+      (isMockMode("backOffice") ? getBaseMockSnapshot() : getEmptySnapshot()),
   );
 }
 
 async function getComplianceSnapshot(): Promise<ComplianceSnapshot> {
-  if (isMockMode('backOffice')) {
+  if (isMockMode("backOffice")) {
     if (!apiComplianceSnapshotCache) {
       setCachedSnapshot(getBaseMockSnapshot());
     }
@@ -259,15 +278,15 @@ async function getComplianceSnapshot(): Promise<ComplianceSnapshot> {
 
   const snapshot: ComplianceSnapshot = {
     complianceItems:
-      itemsResult.status === 'fulfilled' && itemsResult.value.length > 0
+      itemsResult.status === "fulfilled" && itemsResult.value.length > 0
         ? itemsResult.value
         : previous.complianceItems,
     regulatoryFilings:
-      filingsResult.status === 'fulfilled' && filingsResult.value.length > 0
+      filingsResult.status === "fulfilled" && filingsResult.value.length > 0
         ? filingsResult.value
         : previous.regulatoryFilings,
     auditSchedule:
-      auditsResult.status === 'fulfilled' && auditsResult.value.length > 0
+      auditsResult.status === "fulfilled" && auditsResult.value.length > 0
         ? auditsResult.value
         : previous.auditSchedule,
   };

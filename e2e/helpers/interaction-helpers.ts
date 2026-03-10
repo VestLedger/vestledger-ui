@@ -1,9 +1,12 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { Page, Locator, expect } from "@playwright/test";
 
 /**
  * Captures text content from all elements matching a selector
  */
-export async function captureTextContent(page: Page, selector: string): Promise<string[]> {
+export async function captureTextContent(
+  page: Page,
+  selector: string,
+): Promise<string[]> {
   const elements = page.locator(selector);
   return elements.allTextContents();
 }
@@ -11,7 +14,10 @@ export async function captureTextContent(page: Page, selector: string): Promise<
 /**
  * Captures the count of elements matching a selector
  */
-export async function captureElementCount(page: Page, selector: string): Promise<number> {
+export async function captureElementCount(
+  page: Page,
+  selector: string,
+): Promise<number> {
   return page.locator(selector).count();
 }
 
@@ -32,7 +38,7 @@ export async function captureDataSnapshot(page: Page, selector: string) {
  */
 export function verifyDataChanged(
   before: { count: number; texts: string[]; firstText: string | null },
-  after: { count: number; texts: string[]; firstText: string | null }
+  after: { count: number; texts: string[]; firstText: string | null },
 ): boolean {
   // Check if count changed
   if (before.count !== after.count) return true;
@@ -53,17 +59,17 @@ export async function selectOptionAndVerifyChange(
   page: Page,
   dropdown: Locator,
   optionValue: string | { index: number },
-  dataSelector: string
+  dataSelector: string,
 ): Promise<{ before: any; after: any; changed: boolean }> {
   const before = await captureDataSnapshot(page, dataSelector);
 
-  if (typeof optionValue === 'string') {
+  if (typeof optionValue === "string") {
     await dropdown.selectOption(optionValue);
   } else {
     await dropdown.selectOption(optionValue);
   }
 
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState("networkidle");
 
   const after = await captureDataSnapshot(page, dataSelector);
   const changed = verifyDataChanged(before, after);
@@ -77,12 +83,12 @@ export async function selectOptionAndVerifyChange(
 export async function clickFilterAndVerifyChange(
   page: Page,
   filterElement: Locator,
-  dataSelector: string
+  dataSelector: string,
 ): Promise<{ before: any; after: any; changed: boolean }> {
   const before = await captureDataSnapshot(page, dataSelector);
 
   await filterElement.click();
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState("networkidle");
 
   const after = await captureDataSnapshot(page, dataSelector);
   const changed = verifyDataChanged(before, after);
@@ -97,12 +103,12 @@ export async function searchAndVerifyChange(
   page: Page,
   searchInput: Locator,
   searchTerm: string,
-  dataSelector: string
+  dataSelector: string,
 ): Promise<{ before: any; after: any; changed: boolean }> {
   const before = await captureDataSnapshot(page, dataSelector);
 
   await searchInput.fill(searchTerm);
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState("networkidle");
   // Additional wait for debounced search
   await page.waitForTimeout(500);
 
@@ -116,7 +122,7 @@ export async function searchAndVerifyChange(
  * Gets available options from a select/combobox
  */
 export async function getDropdownOptions(dropdown: Locator): Promise<string[]> {
-  const options = dropdown.locator('option');
+  const options = dropdown.locator("option");
   return options.allTextContents();
 }
 
@@ -126,8 +132,13 @@ export async function getDropdownOptions(dropdown: Locator): Promise<string[]> {
 export async function selectDifferentOption(
   page: Page,
   dropdown: Locator,
-  dataSelector: string
-): Promise<{ before: any; after: any; changed: boolean; selectedOption: string | null }> {
+  dataSelector: string,
+): Promise<{
+  before: any;
+  after: any;
+  changed: boolean;
+  selectedOption: string | null;
+}> {
   const options = await getDropdownOptions(dropdown);
 
   if (options.length < 2) {
@@ -143,7 +154,7 @@ export async function selectDifferentOption(
 
   // Select the second option (index 1) to ensure we're selecting something different
   await dropdown.selectOption({ index: 1 });
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState("networkidle");
 
   const after = await captureDataSnapshot(page, dataSelector);
   const changed = verifyDataChanged(before, after);
@@ -154,19 +165,24 @@ export async function selectDifferentOption(
 /**
  * Asserts that an interaction caused data to change
  */
-export async function expectDataToChange(
-  result: { before: any; after: any; changed: boolean }
-) {
-  expect(result.changed,
-    `Expected data to change.\nBefore: ${JSON.stringify(result.before)}\nAfter: ${JSON.stringify(result.after)}`
+export async function expectDataToChange(result: {
+  before: any;
+  after: any;
+  changed: boolean;
+}) {
+  expect(
+    result.changed,
+    `Expected data to change.\nBefore: ${JSON.stringify(result.before)}\nAfter: ${JSON.stringify(result.after)}`,
   ).toBe(true);
 }
 
 /**
  * Asserts that filtering reduced the number of items
  */
-export async function expectFilterToReduceItems(
-  result: { before: any; after: any; changed: boolean }
-) {
+export async function expectFilterToReduceItems(result: {
+  before: any;
+  after: any;
+  changed: boolean;
+}) {
   expect(result.after.count).toBeLessThanOrEqual(result.before.count);
 }

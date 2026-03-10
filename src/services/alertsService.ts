@@ -1,8 +1,12 @@
-import type { Alert, GetAlertsParams, AlertType } from '@/store/slices/alertsSlice';
-import { isMockMode } from '@/config/data-mode';
-import { mockAlerts } from '@/data/mocks/store/alerts';
-import { apiClient } from '@/api/client';
-import { unwrapApiResult } from '@/api/unwrap';
+import type {
+  Alert,
+  GetAlertsParams,
+  AlertType,
+} from "@/store/slices/alertsSlice";
+import { isMockMode } from "@/config/data-mode";
+import { mockAlerts } from "@/data/mocks/store/alerts";
+import { apiClient } from "@/api/client";
+import { unwrapApiResult } from "@/api/unwrap";
 
 interface ApiAlert {
   id: string;
@@ -22,11 +26,11 @@ interface ApiAlert {
 function mapApiToAlert(api: ApiAlert): Alert {
   // Map API type to UI type
   const typeMap: Record<string, AlertType> = {
-    capital_call: 'alert',
-    portfolio: 'deal',
-    compliance: 'system',
-    deadline: 'alert',
-    report: 'report',
+    capital_call: "alert",
+    portfolio: "deal",
+    compliance: "system",
+    deadline: "alert",
+    report: "report",
   };
 
   // Calculate relative time
@@ -48,7 +52,7 @@ function mapApiToAlert(api: ApiAlert): Alert {
 
   return {
     id: api.id,
-    type: typeMap[api.type] ?? 'system',
+    type: typeMap[api.type] ?? "system",
     title: api.title,
     message: api.message,
     time,
@@ -61,7 +65,7 @@ function mapApiToAlert(api: ApiAlert): Alert {
  * Uses real API when in API mode, mock data when in mock mode
  */
 export async function fetchAlerts(params: GetAlertsParams): Promise<Alert[]> {
-  if (isMockMode('alerts')) {
+  if (isMockMode("alerts")) {
     // Mock mode: Apply filters to mock data
     let alerts = [...mockAlerts];
 
@@ -74,12 +78,12 @@ export async function fetchAlerts(params: GetAlertsParams): Promise<Alert[]> {
 
   // API mode: Call real endpoint
   const result = await unwrapApiResult(
-    apiClient.GET('/dashboard/alerts', {
+    apiClient.GET("/dashboard/alerts", {
       params: {
         query: {},
       },
     }),
-    { fallbackMessage: 'Failed to fetch alerts' }
+    { fallbackMessage: "Failed to fetch alerts" },
   );
 
   let alerts = ((result as unknown as ApiAlert[]) ?? []).map(mapApiToAlert);

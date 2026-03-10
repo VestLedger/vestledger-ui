@@ -1,10 +1,10 @@
-import { requestJson } from '@/services/shared/httpClient';
-import type { UserRole } from '@/types/auth';
+import { requestJson } from "@/services/shared/httpClient";
+import type { UserRole } from "@/types/auth";
 
-export type AssignableAppRole = Exclude<UserRole, 'superadmin'>;
-export type TenantStatus = 'active' | 'suspended';
-export type TenantUserStatus = 'active' | 'disabled';
-export type InvitationStatus = 'pending' | 'accepted' | 'expired' | 'revoked';
+export type AssignableAppRole = Exclude<UserRole, "superadmin">;
+export type TenantStatus = "active" | "suspended";
+export type TenantUserStatus = "active" | "disabled";
+export type InvitationStatus = "pending" | "accepted" | "expired" | "revoked";
 
 export interface Tenant {
   id: string;
@@ -68,54 +68,59 @@ export interface CreateTenantInvitationInput {
 }
 
 export async function listTenants(): Promise<TenantSummary[]> {
-  return requestJson<TenantSummary[]>('/superadmin/tenants', {
-    fallbackMessage: 'Failed to fetch tenants',
+  return requestJson<TenantSummary[]>("/superadmin/tenants", {
+    fallbackMessage: "Failed to fetch tenants",
   });
 }
 
 export async function getTenantDetail(tenantId: string): Promise<TenantDetail> {
   return requestJson<TenantDetail>(`/superadmin/tenants/${tenantId}`, {
-    fallbackMessage: 'Failed to fetch tenant detail',
+    fallbackMessage: "Failed to fetch tenant detail",
   });
 }
 
-export async function onboardTenant(input: OnboardTenantInput): Promise<TenantDetail> {
-  return requestJson<TenantDetail>('/superadmin/tenants', {
-    method: 'POST',
+export async function onboardTenant(
+  input: OnboardTenantInput,
+): Promise<TenantDetail> {
+  return requestJson<TenantDetail>("/superadmin/tenants", {
+    method: "POST",
     body: input,
-    fallbackMessage: 'Failed to onboard tenant',
+    fallbackMessage: "Failed to onboard tenant",
   });
 }
 
 export async function setTenantStatus(
   tenantId: string,
-  status: TenantStatus
+  status: TenantStatus,
 ): Promise<Tenant> {
   return requestJson<Tenant>(`/superadmin/tenants/${tenantId}/status`, {
-    method: 'PATCH',
+    method: "PATCH",
     body: { status },
-    fallbackMessage: 'Failed to update tenant status',
+    fallbackMessage: "Failed to update tenant status",
   });
 }
 
 export async function createTenantInvitation(
-  input: CreateTenantInvitationInput
+  input: CreateTenantInvitationInput,
 ): Promise<Invitation> {
-  return requestJson<Invitation>(`/superadmin/tenants/${input.tenantId}/invitations`, {
-    method: 'POST',
-    body: {
-      name: input.name,
-      email: input.email,
-      targetAppRole: input.targetAppRole,
-      targetIsAdmin: input.targetIsAdmin,
+  return requestJson<Invitation>(
+    `/superadmin/tenants/${input.tenantId}/invitations`,
+    {
+      method: "POST",
+      body: {
+        name: input.name,
+        email: input.email,
+        targetAppRole: input.targetAppRole,
+        targetIsAdmin: input.targetIsAdmin,
+      },
+      fallbackMessage: "Failed to invite user",
     },
-    fallbackMessage: 'Failed to invite user',
-  });
+  );
 }
 
 export async function resendInvitation(inviteId: string): Promise<Invitation> {
   return requestJson<Invitation>(`/superadmin/invitations/${inviteId}/resend`, {
-    method: 'POST',
-    fallbackMessage: 'Failed to resend invitation',
+    method: "POST",
+    fallbackMessage: "Failed to resend invitation",
   });
 }

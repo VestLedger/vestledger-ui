@@ -1,10 +1,12 @@
-import { useCallback, useLayoutEffect, useRef } from 'react';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { patchUIState, setUIState } from '@/store/slices/uiSlice';
+import { useCallback, useLayoutEffect, useRef } from "react";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { patchUIState, setUIState } from "@/store/slices/uiSlice";
 
 export function useUIKey<T>(key: string, fallback: T) {
   const dispatch = useAppDispatch();
-  const storedValue = useAppSelector((state) => state.ui.byKey[key] as T | undefined);
+  const storedValue = useAppSelector(
+    (state) => state.ui.byKey[key] as T | undefined,
+  );
   const value = storedValue ?? fallback;
 
   const storedValueRef = useRef<T | undefined>(storedValue);
@@ -23,7 +25,7 @@ export function useUIKey<T>(key: string, fallback: T) {
     (next: T) => {
       dispatch(setUIState({ key, value: next }));
     },
-    [dispatch, key]
+    [dispatch, key],
   );
 
   const patch = useCallback(
@@ -31,7 +33,7 @@ export function useUIKey<T>(key: string, fallback: T) {
       const current = storedValueRef.current;
       if (current === undefined) {
         const base = fallbackRef.current;
-        if (base && typeof base === 'object' && !Array.isArray(base)) {
+        if (base && typeof base === "object" && !Array.isArray(base)) {
           dispatch(
             setUIState({
               key,
@@ -39,16 +41,18 @@ export function useUIKey<T>(key: string, fallback: T) {
                 ...(base as Record<string, unknown>),
                 ...(nextPatch as Record<string, unknown>),
               },
-            })
+            }),
           );
           return;
         }
         dispatch(setUIState({ key, value: nextPatch as unknown }));
         return;
       }
-      dispatch(patchUIState({ key, patch: nextPatch as Record<string, unknown> }));
+      dispatch(
+        patchUIState({ key, patch: nextPatch as Record<string, unknown> }),
+      );
     },
-    [dispatch, key]
+    [dispatch, key],
   );
 
   return { value, set, patch };

@@ -1,5 +1,5 @@
-import { Page, Locator } from '@playwright/test';
-import { loginViaRedirect } from '../helpers/auth-helpers';
+import { Page, Locator } from "@playwright/test";
+import { loginViaRedirect } from "../helpers/auth-helpers";
 
 export class PortfolioPage {
   readonly page: Page;
@@ -12,20 +12,20 @@ export class PortfolioPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.pageTitle = page.getByRole('heading', { level: 1 });
-    this.portfolioTable = page.locator('table');
+    this.pageTitle = page.getByRole("heading", { level: 1 });
+    this.portfolioTable = page.locator("table");
     this.summaryCards = page.locator('[data-testid="summary-card"]');
     this.filterDropdown = page.locator('[data-testid="filter-dropdown"]');
     this.searchInput = page.getByPlaceholder(/search/i);
-    this.exportButton = page.getByRole('button', { name: /export/i });
+    this.exportButton = page.getByRole("button", { name: /export/i });
   }
 
   async goto() {
-    await loginViaRedirect(this.page, '/portfolio');
+    await loginViaRedirect(this.page, "/portfolio");
   }
 
   async getPortfolioRows() {
-    return this.portfolioTable.locator('tbody tr');
+    return this.portfolioTable.locator("tbody tr");
   }
 
   async getPortfolioCount() {
@@ -35,7 +35,7 @@ export class PortfolioPage {
 
   async searchPortfolio(query: string) {
     await this.searchInput.fill(query);
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState("networkidle");
   }
 
   async viewCompanyDetails(companyName: string) {

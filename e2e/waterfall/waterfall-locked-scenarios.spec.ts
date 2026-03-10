@@ -1,11 +1,11 @@
-import { test, expect, loginViaRedirect } from '../fixtures/auth.fixture';
-import { WaterfallPage } from '../pages/waterfall.page';
+import { test, expect, loginViaRedirect } from "../fixtures/auth.fixture";
+import { WaterfallPage } from "../pages/waterfall.page";
 
-test.describe('Waterfall Scenario Manager - Locked Scenarios', () => {
-  test('should display Locked badge on locked scenarios', async ({ page }) => {
+test.describe("Waterfall Scenario Manager - Locked Scenarios", () => {
+  test("should display Locked badge on locked scenarios", async ({ page }) => {
     const waterfall = new WaterfallPage(page);
     await waterfall.goto();
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState("networkidle");
 
     // Look for any "Locked" badges in the scenario list
     const lockedBadges = waterfall.lockedBadges;
@@ -17,10 +17,12 @@ test.describe('Waterfall Scenario Manager - Locked Scenarios', () => {
     }
   });
 
-  test('should disable delete button for locked scenarios', async ({ page }) => {
+  test("should disable delete button for locked scenarios", async ({
+    page,
+  }) => {
     const waterfall = new WaterfallPage(page);
     await waterfall.goto();
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState("networkidle");
 
     // Find a scenario item that has a "Locked" badge
     const scenarioItems = waterfall.scenarioItems;
@@ -28,7 +30,10 @@ test.describe('Waterfall Scenario Manager - Locked Scenarios', () => {
 
     for (let i = 0; i < itemCount; i++) {
       const item = scenarioItems.nth(i);
-      const hasLocked = await item.getByText('Locked', { exact: true }).isVisible().catch(() => false);
+      const hasLocked = await item
+        .getByText("Locked", { exact: true })
+        .isVisible()
+        .catch(() => false);
 
       if (hasLocked) {
         // The delete button should be disabled
@@ -41,17 +46,22 @@ test.describe('Waterfall Scenario Manager - Locked Scenarios', () => {
     }
   });
 
-  test('should disable archive button for locked scenarios', async ({ page }) => {
+  test("should disable archive button for locked scenarios", async ({
+    page,
+  }) => {
     const waterfall = new WaterfallPage(page);
     await waterfall.goto();
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState("networkidle");
 
     const scenarioItems = waterfall.scenarioItems;
     const itemCount = await scenarioItems.count();
 
     for (let i = 0; i < itemCount; i++) {
       const item = scenarioItems.nth(i);
-      const hasLocked = await item.getByText('Locked', { exact: true }).isVisible().catch(() => false);
+      const hasLocked = await item
+        .getByText("Locked", { exact: true })
+        .isVisible()
+        .catch(() => false);
 
       if (hasLocked) {
         // The archive button should be disabled
@@ -64,17 +74,20 @@ test.describe('Waterfall Scenario Manager - Locked Scenarios', () => {
     }
   });
 
-  test('should allow duplicate on locked scenarios', async ({ page }) => {
+  test("should allow duplicate on locked scenarios", async ({ page }) => {
     const waterfall = new WaterfallPage(page);
     await waterfall.goto();
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState("networkidle");
 
     const scenarioItems = waterfall.scenarioItems;
     const itemCount = await scenarioItems.count();
 
     for (let i = 0; i < itemCount; i++) {
       const item = scenarioItems.nth(i);
-      const hasLocked = await item.getByText('Locked', { exact: true }).isVisible().catch(() => false);
+      const hasLocked = await item
+        .getByText("Locked", { exact: true })
+        .isVisible()
+        .catch(() => false);
 
       if (hasLocked) {
         // Duplicate button should NOT be disabled (escape hatch)
@@ -87,17 +100,20 @@ test.describe('Waterfall Scenario Manager - Locked Scenarios', () => {
     }
   });
 
-  test('should allow favorite toggle on locked scenarios', async ({ page }) => {
+  test("should allow favorite toggle on locked scenarios", async ({ page }) => {
     const waterfall = new WaterfallPage(page);
     await waterfall.goto();
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState("networkidle");
 
     const scenarioItems = waterfall.scenarioItems;
     const itemCount = await scenarioItems.count();
 
     for (let i = 0; i < itemCount; i++) {
       const item = scenarioItems.nth(i);
-      const hasLocked = await item.getByText('Locked', { exact: true }).isVisible().catch(() => false);
+      const hasLocked = await item
+        .getByText("Locked", { exact: true })
+        .isVisible()
+        .catch(() => false);
 
       if (hasLocked) {
         // Favorite button should NOT be disabled (metadata-only)
@@ -110,10 +126,12 @@ test.describe('Waterfall Scenario Manager - Locked Scenarios', () => {
     }
   });
 
-  test('should display scenario list with mixed locked/unlocked states', async ({ page }) => {
+  test("should display scenario list with mixed locked/unlocked states", async ({
+    page,
+  }) => {
     const waterfall = new WaterfallPage(page);
     await waterfall.goto();
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState("networkidle");
 
     // Verify the scenario manager loads with scenarios
     const scenarioItems = waterfall.scenarioItems;

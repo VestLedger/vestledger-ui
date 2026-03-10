@@ -1,7 +1,10 @@
-import type { NormalizedError } from '../types/AsyncState';
-import { ApiError, normalizeApiError } from '@/api/errors';
+import type { NormalizedError } from "../types/AsyncState";
+import { ApiError, normalizeApiError } from "@/api/errors";
 
-type GraphQLExtensions = Record<string, string | number | boolean | null | undefined | object>;
+type GraphQLExtensions = Record<
+  string,
+  string | number | boolean | null | undefined | object
+>;
 
 type GraphQLErrorLike = {
   message?: string;
@@ -30,13 +33,16 @@ export function normalizeError(error: unknown): NormalizedError {
   }
 
   // GraphQL errors
-  if (error && typeof error === 'object') {
+  if (error && typeof error === "object") {
     const graphQLErrorContainer = error as GraphQLErrorContainer;
     if (Array.isArray(graphQLErrorContainer.graphQLErrors)) {
       const gqlError = graphQLErrorContainer.graphQLErrors[0];
-      const errorCode = typeof gqlError?.extensions?.code === 'string' ? gqlError.extensions.code : undefined;
+      const errorCode =
+        typeof gqlError?.extensions?.code === "string"
+          ? gqlError.extensions.code
+          : undefined;
       return {
-        message: gqlError?.message || 'GraphQL error',
+        message: gqlError?.message || "GraphQL error",
         code: errorCode,
         details: gqlError?.extensions,
       };
@@ -53,7 +59,7 @@ export function normalizeError(error: unknown): NormalizedError {
 
     // API error responses
     const apiError = error as ApiErrorLike;
-    if ('message' in error && typeof apiError.message === 'string') {
+    if ("message" in error && typeof apiError.message === "string") {
       return {
         message: apiError.message,
         code: apiError.code,
@@ -63,14 +69,14 @@ export function normalizeError(error: unknown): NormalizedError {
   }
 
   // String errors
-  if (typeof error === 'string') {
+  if (typeof error === "string") {
     return { message: error };
   }
 
   // Unknown errors
   return {
-    message: 'An unexpected error occurred',
-    code: 'UNKNOWN_ERROR',
+    message: "An unexpected error occurred",
+    code: "UNKNOWN_ERROR",
     details: error,
   };
 }

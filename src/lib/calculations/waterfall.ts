@@ -18,28 +18,33 @@ import type {
   SensitivityAnalysis,
   BlendedWaterfallConfig,
   TierTimelineEntry,
-} from '@/types/waterfall';
-import { DEFAULT_CURRENCY, DEFAULT_LOCALE } from '@/config/i18n';
+} from "@/types/waterfall";
+import { DEFAULT_CURRENCY, DEFAULT_LOCALE } from "@/config/i18n";
 
-type InvestedBasis = 'commitment' | 'capitalCalled';
+type InvestedBasis = "commitment" | "capitalCalled";
 
 type WaterfallCalculationOptions = {
   includeCatchUp: boolean;
   investedBasis: InvestedBasis;
 };
 
-const getInvestedAmount = (investorClass: InvestorClass, basis: InvestedBasis) =>
-  basis === 'capitalCalled' ? investorClass.capitalCalled : investorClass.commitment;
+const getInvestedAmount = (
+  investorClass: InvestorClass,
+  basis: InvestedBasis,
+) =>
+  basis === "capitalCalled"
+    ? investorClass.capitalCalled
+    : investorClass.commitment;
 
 const resolveTotalInvested = (
   investorClasses: InvestorClass[],
   scenarioTotalInvested: number,
-  options: WaterfallCalculationOptions
+  options: WaterfallCalculationOptions,
 ) => {
-  if (options.investedBasis === 'capitalCalled') {
+  if (options.investedBasis === "capitalCalled") {
     const capitalCalledTotal = investorClasses.reduce(
       (sum, investorClass) => sum + investorClass.capitalCalled,
-      0
+      0,
     );
     return capitalCalledTotal > 0 ? capitalCalledTotal : scenarioTotalInvested;
   }
@@ -47,7 +52,7 @@ const resolveTotalInvested = (
 };
 
 const normalizeBlendConfig = (
-  config?: BlendedWaterfallConfig
+  config?: BlendedWaterfallConfig,
 ): { weights: BlendedWaterfallConfig; european: number; american: number } => {
   const europeanWeight = Math.max(0, config?.europeanWeight ?? 50);
   const americanWeight = Math.max(0, config?.americanWeight ?? 50);
@@ -64,9 +69,11 @@ const normalizeBlendConfig = (
 
 const buildTierTimeline = (
   scenario: WaterfallScenario,
-  results: WaterfallResults
+  results: WaterfallResults,
 ): TierTimelineEntry[] => {
-  const baseDate = scenario.createdAt ? new Date(scenario.createdAt) : new Date();
+  const baseDate = scenario.createdAt
+    ? new Date(scenario.createdAt)
+    : new Date();
   const tiers = results.tierBreakdown ?? [];
   const periodMonths = Math.max(1, Math.round(12 / Math.max(tiers.length, 1)));
 
@@ -87,21 +94,22 @@ const buildTierTimeline = (
 
 const buildClawbackSummary = (
   scenario: WaterfallScenario,
-  results: WaterfallResults
-): WaterfallResults['clawback'] => {
+  results: WaterfallResults,
+): WaterfallResults["clawback"] => {
   const provision = scenario.clawbackProvision;
   if (!provision?.enabled) return undefined;
 
   const requiredReturn =
-    results.totalInvested * (1 + (provision.hurdleRate / 100) * provision.distributionLifeYears);
+    results.totalInvested *
+    (1 + (provision.hurdleRate / 100) * provision.distributionLifeYears);
   const shortfall = Math.max(0, requiredReturn - results.lpTotalReturn);
   const clawbackDue = Math.min(
     results.gpCarry,
-    shortfall * (provision.clawbackRate / 100)
+    shortfall * (provision.clawbackRate / 100),
   );
   const netCarryAfterClawback = Math.max(0, results.gpCarry - clawbackDue);
   const status =
-    clawbackDue > 0 ? 'triggered' : shortfall > 0 ? 'at-risk' : 'clear';
+    clawbackDue > 0 ? "triggered" : shortfall > 0 ? "at-risk" : "clear";
 
   return {
     totalCarryPaid: results.gpCarry,
@@ -115,15 +123,16 @@ const buildClawbackSummary = (
 
 const buildLookbackSummary = (
   scenario: WaterfallScenario,
-  results: WaterfallResults
-): WaterfallResults['lookback'] => {
+  results: WaterfallResults,
+): WaterfallResults["lookback"] => {
   const provision = scenario.lookbackProvision;
   if (!provision?.enabled) return undefined;
 
   const lossesToRecover = Math.max(0, provision.lossCarryForward);
   const carryAtRisk = results.gpCarry * (provision.carryAtRiskRate / 100);
   const carryReleased = Math.max(0, results.gpCarry - carryAtRisk);
-  const status = lossesToRecover > 0 ? (carryAtRisk > 0 ? 'at-risk' : 'monitor') : 'cleared';
+  const status =
+    lossesToRecover > 0 ? (carryAtRisk > 0 ? "at-risk" : "monitor") : "cleared";
 
   return {
     lookbackYears: provision.lookbackYears,
@@ -137,7 +146,7 @@ const buildLookbackSummary = (
 const applyPhase6Enhancements = (
   scenario: WaterfallScenario,
   results: WaterfallResults,
-  blendedConfig?: BlendedWaterfallConfig
+  blendedConfig?: BlendedWaterfallConfig,
 ): WaterfallResults => ({
   ...results,
   tierTimeline: buildTierTimeline(scenario, results),
@@ -174,7 +183,9 @@ export function calculateIRR(cashflows: number[], dates: Date[]): number {
 
   // Convert dates to years from first date
   const startDate = dates[0].getTime();
-  const periods = dates.map((date) => (date.getTime() - startDate) / (365.25 * 24 * 60 * 60 * 1000));
+  const periods = dates.map(
+    (date) => (date.getTime() - startDate) / (365.25 * 24 * 60 * 60 * 1000),
+  );
 
   // Newton-Raphson method to find IRR
   let guess = 0.1; // Initial guess: 10%
@@ -209,7 +220,7 @@ export function calculateIRR(cashflows: number[], dates: Date[]): number {
 export function calculatePreferredReturn(
   invested: number,
   hurdleRate: number,
-  years: number
+  years: number,
 ): number {
   // Simple interest calculation
   // For compound interest: invested * Math.pow(1 + hurdleRate / 100, years) - invested
@@ -224,18 +235,18 @@ export function calculateTierAllocations(
   exitValue: number,
   tiers: WaterfallTier[],
   investorClasses: InvestorClass[],
-  model: WaterfallModel = 'european'
+  model: WaterfallModel = "european",
 ): TierBreakdown[] {
   const totalInvested = investorClasses.reduce(
     (sum, investorClass) => sum + investorClass.capitalCalled,
-    0
+    0,
   );
 
   const scenario: WaterfallScenario = {
-    id: 'temp-scenario',
-    name: 'Temporary Scenario',
+    id: "temp-scenario",
+    name: "Temporary Scenario",
     model,
-    ...(model === 'blended'
+    ...(model === "blended"
       ? { blendedConfig: { europeanWeight: 50, americanWeight: 50 } }
       : {}),
     investorClasses,
@@ -248,7 +259,7 @@ export function calculateTierAllocations(
     version: 1,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    createdBy: 'system',
+    createdBy: "system",
   };
 
   return calculateWaterfall(scenario).tierBreakdown;
@@ -270,7 +281,7 @@ export function calculateTierAllocations(
  */
 function calculateWaterfallModel(
   scenario: WaterfallScenario,
-  options: WaterfallCalculationOptions
+  options: WaterfallCalculationOptions,
 ): WaterfallResults {
   const {
     investorClasses,
@@ -282,7 +293,7 @@ function calculateWaterfallModel(
   const totalInvested = resolveTotalInvested(
     investorClasses,
     scenarioTotalInvested,
-    options
+    options,
   );
 
   // Sort tiers by order
@@ -320,7 +331,7 @@ function calculateWaterfallModel(
     let lpAmount = 0;
     const allocations: TierAllocation[] = [];
 
-    if (tier.type === 'catch-up' && !options.includeCatchUp) {
+    if (tier.type === "catch-up" && !options.includeCatchUp) {
       tierBreakdowns.push({
         tierId: tier.id,
         tierName: tier.name,
@@ -336,18 +347,22 @@ function calculateWaterfallModel(
     }
 
     switch (tier.type) {
-      case 'roc': {
+      case "roc": {
         // Return of Capital - 100% to LPs pro-rata
         tierAmount = Math.min(remainingProceeds, totalInvested);
         lpAmount = tierAmount;
         gpAmount = 0;
 
         // Distribute to LPs based on ownership
-        const lpClasses = investorClasses.filter((ic) => ic.type === 'lp');
-        const totalLPOwnership = lpClasses.reduce((sum, ic) => sum + ic.ownershipPercentage, 0);
+        const lpClasses = investorClasses.filter((ic) => ic.type === "lp");
+        const totalLPOwnership = lpClasses.reduce(
+          (sum, ic) => sum + ic.ownershipPercentage,
+          0,
+        );
 
         lpClasses.forEach((ic) => {
-          const allocation = (tierAmount * ic.ownershipPercentage) / totalLPOwnership;
+          const allocation =
+            (tierAmount * ic.ownershipPercentage) / totalLPOwnership;
           allocations.push({
             tierId: tier.id,
             tierName: tier.name,
@@ -365,21 +380,29 @@ function calculateWaterfallModel(
         break;
       }
 
-      case 'preferred-return': {
+      case "preferred-return": {
         // Preferred Return - 100% to LPs until hurdle met
         const hurdleRate = tier.hurdleRate || 8;
         const years = 3; // Simplified - should calculate from actual dates
-        const preferredAmount = calculatePreferredReturn(totalInvested, hurdleRate, years);
+        const preferredAmount = calculatePreferredReturn(
+          totalInvested,
+          hurdleRate,
+          years,
+        );
         tierAmount = Math.min(remainingProceeds, preferredAmount);
         lpAmount = tierAmount;
         gpAmount = 0;
 
         // Distribute to LPs based on ownership
-        const lpClasses = investorClasses.filter((ic) => ic.type === 'lp');
-        const totalLPOwnership = lpClasses.reduce((sum, ic) => sum + ic.ownershipPercentage, 0);
+        const lpClasses = investorClasses.filter((ic) => ic.type === "lp");
+        const totalLPOwnership = lpClasses.reduce(
+          (sum, ic) => sum + ic.ownershipPercentage,
+          0,
+        );
 
         lpClasses.forEach((ic) => {
-          const allocation = (tierAmount * ic.ownershipPercentage) / totalLPOwnership;
+          const allocation =
+            (tierAmount * ic.ownershipPercentage) / totalLPOwnership;
           allocations.push({
             tierId: tier.id,
             tierName: tier.name,
@@ -397,15 +420,16 @@ function calculateWaterfallModel(
         break;
       }
 
-      case 'catch-up': {
+      case "catch-up": {
         // GP Catch-Up - 100% to GP until GP has target carry %
         const targetCarryPct = tier.gpCarryPercentage || 20;
         const distributedSoFar = cumulativeAmount;
-        const targetGPAmount = (distributedSoFar * targetCarryPct) / (100 - targetCarryPct);
+        const targetGPAmount =
+          (distributedSoFar * targetCarryPct) / (100 - targetCarryPct);
         const currentGPAmount = Array.from(classResultsMap.values())
           .filter((r) => {
             const ic = investorClasses.find((c) => c.id === r.investorClassId);
-            return ic?.type === 'gp';
+            return ic?.type === "gp";
           })
           .reduce((sum, r) => sum + r.returned, 0);
 
@@ -415,11 +439,15 @@ function calculateWaterfallModel(
         lpAmount = 0;
 
         // Distribute to GPs
-        const gpClasses = investorClasses.filter((ic) => ic.type === 'gp');
-        const totalGPOwnership = gpClasses.reduce((sum, ic) => sum + ic.ownershipPercentage, 0);
+        const gpClasses = investorClasses.filter((ic) => ic.type === "gp");
+        const totalGPOwnership = gpClasses.reduce(
+          (sum, ic) => sum + ic.ownershipPercentage,
+          0,
+        );
 
         gpClasses.forEach((ic) => {
-          const allocation = (tierAmount * ic.ownershipPercentage) / totalGPOwnership;
+          const allocation =
+            (tierAmount * ic.ownershipPercentage) / totalGPOwnership;
           allocations.push({
             tierId: tier.id,
             tierName: tier.name,
@@ -438,7 +466,7 @@ function calculateWaterfallModel(
         break;
       }
 
-      case 'carry': {
+      case "carry": {
         // Remaining Carry - Split between LP and GP
         tierAmount = remainingProceeds;
         const gpCarryPct = tier.gpCarryPercentage || 20;
@@ -448,11 +476,15 @@ function calculateWaterfallModel(
         lpAmount = (tierAmount * lpPct) / 100;
 
         // Distribute to LPs
-        const lpClasses = investorClasses.filter((ic) => ic.type === 'lp');
-        const totalLPOwnership = lpClasses.reduce((sum, ic) => sum + ic.ownershipPercentage, 0);
+        const lpClasses = investorClasses.filter((ic) => ic.type === "lp");
+        const totalLPOwnership = lpClasses.reduce(
+          (sum, ic) => sum + ic.ownershipPercentage,
+          0,
+        );
 
         lpClasses.forEach((ic) => {
-          const allocation = (lpAmount * ic.ownershipPercentage) / totalLPOwnership;
+          const allocation =
+            (lpAmount * ic.ownershipPercentage) / totalLPOwnership;
           allocations.push({
             tierId: tier.id,
             tierName: tier.name,
@@ -469,11 +501,15 @@ function calculateWaterfallModel(
         });
 
         // Distribute to GPs
-        const gpClasses = investorClasses.filter((ic) => ic.type === 'gp');
-        const totalGPOwnership = gpClasses.reduce((sum, ic) => sum + ic.ownershipPercentage, 0);
+        const gpClasses = investorClasses.filter((ic) => ic.type === "gp");
+        const totalGPOwnership = gpClasses.reduce(
+          (sum, ic) => sum + ic.ownershipPercentage,
+          0,
+        );
 
         gpClasses.forEach((ic) => {
-          const allocation = (gpAmount * ic.ownershipPercentage) / totalGPOwnership;
+          const allocation =
+            (gpAmount * ic.ownershipPercentage) / totalGPOwnership;
           allocations.push({
             tierId: tier.id,
             tierName: tier.name,
@@ -492,9 +528,11 @@ function calculateWaterfallModel(
         break;
       }
 
-      case 'custom': {
+      case "custom": {
         // Custom tier - use defined split percentages
-        tierAmount = tier.threshold ? Math.min(remainingProceeds, tier.threshold) : remainingProceeds;
+        tierAmount = tier.threshold
+          ? Math.min(remainingProceeds, tier.threshold)
+          : remainingProceeds;
         const gpCarryPct = tier.gpCarryPercentage || 0;
         const lpPct = tier.lpPercentage || 100;
 
@@ -502,12 +540,16 @@ function calculateWaterfallModel(
         lpAmount = (tierAmount * lpPct) / 100;
 
         // Similar distribution logic as carry tier
-        const lpClasses = investorClasses.filter((ic) => ic.type === 'lp');
-        const totalLPOwnership = lpClasses.reduce((sum, ic) => sum + ic.ownershipPercentage, 0);
+        const lpClasses = investorClasses.filter((ic) => ic.type === "lp");
+        const totalLPOwnership = lpClasses.reduce(
+          (sum, ic) => sum + ic.ownershipPercentage,
+          0,
+        );
 
         if (totalLPOwnership > 0) {
           lpClasses.forEach((ic) => {
-            const allocation = (lpAmount * ic.ownershipPercentage) / totalLPOwnership;
+            const allocation =
+              (lpAmount * ic.ownershipPercentage) / totalLPOwnership;
             allocations.push({
               tierId: tier.id,
               tierName: tier.name,
@@ -524,12 +566,16 @@ function calculateWaterfallModel(
           });
         }
 
-        const gpClasses = investorClasses.filter((ic) => ic.type === 'gp');
-        const totalGPOwnership = gpClasses.reduce((sum, ic) => sum + ic.ownershipPercentage, 0);
+        const gpClasses = investorClasses.filter((ic) => ic.type === "gp");
+        const totalGPOwnership = gpClasses.reduce(
+          (sum, ic) => sum + ic.ownershipPercentage,
+          0,
+        );
 
         if (totalGPOwnership > 0) {
           gpClasses.forEach((ic) => {
-            const allocation = (gpAmount * ic.ownershipPercentage) / totalGPOwnership;
+            const allocation =
+              (gpAmount * ic.ownershipPercentage) / totalGPOwnership;
             allocations.push({
               tierId: tier.id,
               tierName: tier.name,
@@ -574,7 +620,7 @@ function calculateWaterfallModel(
 
     // Simplified IRR calculation (would need actual cash flow dates in production)
     const cashflows = [-result.invested, result.returned];
-    const dates = [new Date('2021-01-01'), new Date()];
+    const dates = [new Date("2021-01-01"), new Date()];
     result.irr = calculateIRR(cashflows, dates);
 
     investorClassResults.push(result);
@@ -583,20 +629,21 @@ function calculateWaterfallModel(
   // Calculate aggregate metrics
   const gpResults = investorClassResults.filter((r) => {
     const ic = investorClasses.find((c) => c.id === r.investorClassId);
-    return ic?.type === 'gp';
+    return ic?.type === "gp";
   });
 
   const lpResults = investorClassResults.filter((r) => {
     const ic = investorClasses.find((c) => c.id === r.investorClassId);
-    return ic?.type === 'lp';
+    return ic?.type === "lp";
   });
 
   const gpCarry = gpResults.reduce((sum, r) => sum + r.carry, 0);
   const gpTotalReturn = gpResults.reduce((sum, r) => sum + r.returned, 0);
   const lpTotalReturn = lpResults.reduce((sum, r) => sum + r.returned, 0);
-  const lpAverageMultiple = lpResults.length > 0
-    ? lpResults.reduce((sum, r) => sum + r.multiple, 0) / lpResults.length
-    : 0;
+  const lpAverageMultiple =
+    lpResults.length > 0
+      ? lpResults.reduce((sum, r) => sum + r.multiple, 0) / lpResults.length
+      : 0;
 
   return {
     totalExitValue: exitValue,
@@ -613,10 +660,12 @@ function calculateWaterfallModel(
   };
 }
 
-export function calculateEuropeanWaterfall(scenario: WaterfallScenario): WaterfallResults {
+export function calculateEuropeanWaterfall(
+  scenario: WaterfallScenario,
+): WaterfallResults {
   const results = calculateWaterfallModel(scenario, {
     includeCatchUp: true,
-    investedBasis: 'commitment',
+    investedBasis: "commitment",
   });
   return applyPhase6Enhancements(scenario, results);
 }
@@ -634,12 +683,14 @@ export function calculateEuropeanWaterfall(scenario: WaterfallScenario): Waterfa
  * 2. Preferred Return (100% to LPs until hurdle met)
  * 3. Carry on All Proceeds (Split on all remaining proceeds, e.g., 80/20)
  */
-export function calculateAmericanWaterfall(scenario: WaterfallScenario): WaterfallResults {
+export function calculateAmericanWaterfall(
+  scenario: WaterfallScenario,
+): WaterfallResults {
   // American model approximated as deal-by-deal carry using capital-called basis.
   // Catch-up tiers are skipped to reflect standard American structures.
   const results = calculateWaterfallModel(scenario, {
     includeCatchUp: false,
-    investedBasis: 'capitalCalled',
+    investedBasis: "capitalCalled",
   });
   return applyPhase6Enhancements(scenario, results);
 }
@@ -655,7 +706,7 @@ const blendAllocations = (
   european: TierAllocation[],
   american: TierAllocation[],
   weightEuropean: number,
-  weightAmerican: number
+  weightAmerican: number,
 ): TierAllocation[] => {
   const map = new Map<string, TierAllocation>();
   european.forEach((allocation) => {
@@ -669,18 +720,23 @@ const blendAllocations = (
     } else {
       map.set(key, {
         ...existing,
-        amount: blendNumber(existing.amount, allocation.amount, weightEuropean, weightAmerican),
+        amount: blendNumber(
+          existing.amount,
+          allocation.amount,
+          weightEuropean,
+          weightAmerican,
+        ),
         percentage: blendNumber(
           existing.percentage,
           allocation.percentage,
           weightEuropean,
-          weightAmerican
+          weightAmerican,
         ),
         cumulativeAmount: blendNumber(
           existing.cumulativeAmount,
           allocation.cumulativeAmount,
           weightEuropean,
-          weightAmerican
+          weightAmerican,
         ),
       });
     }
@@ -692,26 +748,58 @@ const blendInvestorResults = (
   european: InvestorClassResult[],
   american: InvestorClassResult[],
   weightEuropean: number,
-  weightAmerican: number
+  weightAmerican: number,
 ): InvestorClassResult[] => {
-  const americanMap = new Map(american.map((result) => [result.investorClassId, result]));
+  const americanMap = new Map(
+    american.map((result) => [result.investorClassId, result]),
+  );
   return european.map((result) => {
     const match = americanMap.get(result.investorClassId);
     if (!match) return result;
     return {
       ...result,
-      invested: blendNumber(result.invested, match.invested, weightEuropean, weightAmerican),
-      returned: blendNumber(result.returned, match.returned, weightEuropean, weightAmerican),
-      multiple: blendNumber(result.multiple, match.multiple, weightEuropean, weightAmerican),
+      invested: blendNumber(
+        result.invested,
+        match.invested,
+        weightEuropean,
+        weightAmerican,
+      ),
+      returned: blendNumber(
+        result.returned,
+        match.returned,
+        weightEuropean,
+        weightAmerican,
+      ),
+      multiple: blendNumber(
+        result.multiple,
+        match.multiple,
+        weightEuropean,
+        weightAmerican,
+      ),
       irr: blendNumber(result.irr, match.irr, weightEuropean, weightAmerican),
-      carry: blendNumber(result.carry, match.carry, weightEuropean, weightAmerican),
-      netReturn: blendNumber(result.netReturn, match.netReturn, weightEuropean, weightAmerican),
-      profit: blendNumber(result.profit, match.profit, weightEuropean, weightAmerican),
+      carry: blendNumber(
+        result.carry,
+        match.carry,
+        weightEuropean,
+        weightAmerican,
+      ),
+      netReturn: blendNumber(
+        result.netReturn,
+        match.netReturn,
+        weightEuropean,
+        weightAmerican,
+      ),
+      profit: blendNumber(
+        result.profit,
+        match.profit,
+        weightEuropean,
+        weightAmerican,
+      ),
       allocations: blendAllocations(
         result.allocations,
         match.allocations,
         weightEuropean,
-        weightAmerican
+        weightAmerican,
       ),
     };
   });
@@ -722,20 +810,35 @@ const blendTierBreakdown = (
   american: TierBreakdown[],
   exitValue: number,
   weightEuropean: number,
-  weightAmerican: number
+  weightAmerican: number,
 ): TierBreakdown[] => {
   const americanMap = new Map(american.map((tier) => [tier.tierId, tier]));
   let cumulativeAmount = 0;
   return european.map((tier) => {
     const match = americanMap.get(tier.tierId);
     const totalAmount = match
-      ? blendNumber(tier.totalAmount, match.totalAmount, weightEuropean, weightAmerican)
+      ? blendNumber(
+          tier.totalAmount,
+          match.totalAmount,
+          weightEuropean,
+          weightAmerican,
+        )
       : tier.totalAmount;
     const gpAmount = match
-      ? blendNumber(tier.gpAmount, match.gpAmount, weightEuropean, weightAmerican)
+      ? blendNumber(
+          tier.gpAmount,
+          match.gpAmount,
+          weightEuropean,
+          weightAmerican,
+        )
       : tier.gpAmount;
     const lpAmount = match
-      ? blendNumber(tier.lpAmount, match.lpAmount, weightEuropean, weightAmerican)
+      ? blendNumber(
+          tier.lpAmount,
+          match.lpAmount,
+          weightEuropean,
+          weightAmerican,
+        )
       : tier.lpAmount;
     cumulativeAmount += totalAmount;
     return {
@@ -746,16 +849,31 @@ const blendTierBreakdown = (
       percentage: exitValue > 0 ? (totalAmount / exitValue) * 100 : 0,
       cumulativeAmount,
       allocations: match
-        ? blendAllocations(tier.allocations, match.allocations, weightEuropean, weightAmerican)
+        ? blendAllocations(
+            tier.allocations,
+            match.allocations,
+            weightEuropean,
+            weightAmerican,
+          )
         : tier.allocations,
     };
   });
 };
 
-export function calculateBlendedWaterfall(scenario: WaterfallScenario): WaterfallResults {
-  const { weights, european, american } = normalizeBlendConfig(scenario.blendedConfig);
-  const europeanResults = calculateEuropeanWaterfall({ ...scenario, model: 'european' });
-  const americanResults = calculateAmericanWaterfall({ ...scenario, model: 'american' });
+export function calculateBlendedWaterfall(
+  scenario: WaterfallScenario,
+): WaterfallResults {
+  const { weights, european, american } = normalizeBlendConfig(
+    scenario.blendedConfig,
+  );
+  const europeanResults = calculateEuropeanWaterfall({
+    ...scenario,
+    model: "european",
+  });
+  const americanResults = calculateAmericanWaterfall({
+    ...scenario,
+    model: "american",
+  });
 
   const blendedResults: WaterfallResults = {
     totalExitValue: scenario.exitValue,
@@ -764,51 +882,56 @@ export function calculateBlendedWaterfall(scenario: WaterfallScenario): Waterfal
       europeanResults.totalReturned,
       americanResults.totalReturned,
       european,
-      american
+      american,
     ),
-    gpCarry: blendNumber(europeanResults.gpCarry, americanResults.gpCarry, european, american),
+    gpCarry: blendNumber(
+      europeanResults.gpCarry,
+      americanResults.gpCarry,
+      european,
+      american,
+    ),
     gpCarryPercentage: blendNumber(
       europeanResults.gpCarryPercentage,
       americanResults.gpCarryPercentage,
       european,
-      american
+      american,
     ),
     gpManagementFees: blendNumber(
       europeanResults.gpManagementFees,
       americanResults.gpManagementFees,
       european,
-      american
+      american,
     ),
     gpTotalReturn: blendNumber(
       europeanResults.gpTotalReturn,
       americanResults.gpTotalReturn,
       european,
-      american
+      american,
     ),
     lpTotalReturn: blendNumber(
       europeanResults.lpTotalReturn,
       americanResults.lpTotalReturn,
       european,
-      american
+      american,
     ),
     lpAverageMultiple: blendNumber(
       europeanResults.lpAverageMultiple,
       americanResults.lpAverageMultiple,
       european,
-      american
+      american,
     ),
     investorClassResults: blendInvestorResults(
       europeanResults.investorClassResults,
       americanResults.investorClassResults,
       european,
-      american
+      american,
     ),
     tierBreakdown: blendTierBreakdown(
       europeanResults.tierBreakdown,
       americanResults.tierBreakdown,
       scenario.exitValue,
       european,
-      american
+      american,
     ),
   };
 
@@ -822,13 +945,15 @@ export function calculateBlendedWaterfall(scenario: WaterfallScenario): Waterfal
 /**
  * Calculate waterfall based on scenario model type
  */
-export function calculateWaterfall(scenario: WaterfallScenario): WaterfallResults {
+export function calculateWaterfall(
+  scenario: WaterfallScenario,
+): WaterfallResults {
   switch (scenario.model) {
-    case 'european':
+    case "european":
       return calculateEuropeanWaterfall(scenario);
-    case 'american':
+    case "american":
       return calculateAmericanWaterfall(scenario);
-    case 'blended':
+    case "blended":
       return calculateBlendedWaterfall(scenario);
     default:
       throw new Error(`Unsupported waterfall model: ${scenario.model}`);
@@ -846,7 +971,7 @@ export function calculateSensitivityAnalysis(
   scenario: WaterfallScenario,
   minExitValue: number,
   maxExitValue: number,
-  steps: number = 20
+  steps: number = 20,
 ): SensitivityAnalysis {
   const step = (maxExitValue - minExitValue) / steps;
   const dataPoints: SensitivityDataPoint[] = [];
@@ -860,14 +985,17 @@ export function calculateSensitivityAnalysis(
     const results = calculateWaterfall(testScenario);
 
     const lpResults = results.investorClassResults.filter((r) => {
-      const ic = scenario.investorClasses.find((c) => c.id === r.investorClassId);
-      return ic?.type === 'lp';
+      const ic = scenario.investorClasses.find(
+        (c) => c.id === r.investorClassId,
+      );
+      return ic?.type === "lp";
     });
 
     const lpReturn = lpResults.reduce((sum, r) => sum + r.returned, 0);
-    const lpMultiple = lpResults.length > 0
-      ? lpResults.reduce((sum, r) => sum + r.multiple, 0) / lpResults.length
-      : 0;
+    const lpMultiple =
+      lpResults.length > 0
+        ? lpResults.reduce((sum, r) => sum + r.multiple, 0) / lpResults.length
+        : 0;
 
     dataPoints.push({
       exitValue,
@@ -881,11 +1009,18 @@ export function calculateSensitivityAnalysis(
     // Detect break-even points (tier activations)
     if (previousResults) {
       const previousTotals = new Map(
-        previousResults.tierBreakdown.map((tier) => [tier.tierId, tier.totalAmount])
+        previousResults.tierBreakdown.map((tier) => [
+          tier.tierId,
+          tier.totalAmount,
+        ]),
       );
       results.tierBreakdown.forEach((tier) => {
         const prevAmount = previousTotals.get(tier.tierId) ?? 0;
-        if (prevAmount <= 0 && tier.totalAmount > 0 && !activatedTiers.has(tier.tierId)) {
+        if (
+          prevAmount <= 0 &&
+          tier.totalAmount > 0 &&
+          !activatedTiers.has(tier.tierId)
+        ) {
           activatedTiers.add(tier.tierId);
           breakEvenPoints.push({
             tierName: tier.tierName,
@@ -923,7 +1058,7 @@ export function calculateSensitivityAnalysis(
  */
 export function formatCurrency(amount: number): string {
   return new Intl.NumberFormat(DEFAULT_LOCALE, {
-    style: 'currency',
+    style: "currency",
     currency: DEFAULT_CURRENCY,
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,

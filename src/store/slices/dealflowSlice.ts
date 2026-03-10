@@ -1,9 +1,9 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { AsyncState, NormalizedError } from '@/store/types/AsyncState';
-import { createInitialAsyncState } from '@/store/types/AsyncState';
-import { createAsyncSelectors } from '@/store/utils/createAsyncSelectors';
-import type { Deal } from '@/services/dealflow/dealflowReviewService';
-import type { StandardQueryParams } from '@/types/serviceParams';
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import type { AsyncState, NormalizedError } from "@/store/types/AsyncState";
+import { createInitialAsyncState } from "@/store/types/AsyncState";
+import { createAsyncSelectors } from "@/store/utils/createAsyncSelectors";
+import type { Deal } from "@/services/dealflow/dealflowReviewService";
+import type { StandardQueryParams } from "@/types/serviceParams";
 
 export interface DealflowDealsData {
   deals: Deal[];
@@ -15,34 +15,37 @@ export interface GetDealflowDealsParams extends Partial<StandardQueryParams> {
 
 type DealflowState = AsyncState<DealflowDealsData>;
 
-const initialState: DealflowState = createInitialAsyncState<DealflowDealsData>();
+const initialState: DealflowState =
+  createInitialAsyncState<DealflowDealsData>();
 
 const dealflowSlice = createSlice({
-  name: 'dealflow',
+  name: "dealflow",
   initialState,
   reducers: {
-    dealflowDealsRequested: (state, _action: PayloadAction<GetDealflowDealsParams>) => {
-      state.status = 'loading';
+    dealflowDealsRequested: (
+      state,
+      _action: PayloadAction<GetDealflowDealsParams>,
+    ) => {
+      state.status = "loading";
       state.error = undefined;
     },
     dealflowDealsLoaded: (state, action: PayloadAction<DealflowDealsData>) => {
       state.data = action.payload;
-      state.status = 'succeeded';
+      state.status = "succeeded";
       state.error = undefined;
     },
     dealflowDealsFailed: (state, action: PayloadAction<NormalizedError>) => {
-      state.status = 'failed';
+      state.status = "failed";
       state.error = action.payload;
     },
   },
 });
 
-export const {
-  dealflowDealsLoaded,
-  dealflowDealsFailed,
-} = dealflowSlice.actions;
+export const { dealflowDealsLoaded, dealflowDealsFailed } =
+  dealflowSlice.actions;
 
 // Centralized selectors
-export const dealflowSelectors = createAsyncSelectors<DealflowDealsData>('dealflow');
+export const dealflowSelectors =
+  createAsyncSelectors<DealflowDealsData>("dealflow");
 
 export const dealflowReducer = dealflowSlice.reducer;

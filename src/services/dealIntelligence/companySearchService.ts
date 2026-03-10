@@ -1,12 +1,12 @@
-import { isMockMode } from '@/config/data-mode';
+import { isMockMode } from "@/config/data-mode";
 import {
   industries,
   mockCompanies,
   stages,
   type Company,
-} from '@/data/mocks/deal-intelligence/company-search';
-import type { PipelineApiDeal } from '@/services/shared/pipelineGateway';
-import { fetchPipelineDealsFromApi } from '@/services/shared/pipelineGateway';
+} from "@/data/mocks/deal-intelligence/company-search";
+import type { PipelineApiDeal } from "@/services/shared/pipelineGateway";
+import { fetchPipelineDealsFromApi } from "@/services/shared/pipelineGateway";
 
 type CompanySearchApiSnapshot = {
   companies: Company[];
@@ -17,24 +17,26 @@ type CompanySearchApiSnapshot = {
 let snapshotPromise: Promise<CompanySearchApiSnapshot> | null = null;
 
 const demoLocations = [
-  'San Francisco, CA',
-  'New York, NY',
-  'Austin, TX',
-  'Boston, MA',
-  'Seattle, WA',
-  'Los Angeles, CA',
-  'Chicago, IL',
+  "San Francisco, CA",
+  "New York, NY",
+  "Austin, TX",
+  "Boston, MA",
+  "Seattle, WA",
+  "Los Angeles, CA",
+  "Chicago, IL",
 ];
 
 function deriveEmployees(probability: number): string {
-  if (probability >= 85) return '100-200';
-  if (probability >= 70) return '50-100';
-  if (probability >= 50) return '25-50';
-  return '10-25';
+  if (probability >= 85) return "100-200";
+  if (probability >= 70) return "50-100";
+  if (probability >= 50) return "25-50";
+  return "10-25";
 }
 
 function mapDealToCompany(apiDeal: PipelineApiDeal, index: number): Company {
-  const probability = Number.isFinite(apiDeal.probability) ? apiDeal.probability : 50;
+  const probability = Number.isFinite(apiDeal.probability)
+    ? apiDeal.probability
+    : 50;
   const fundingBase = Math.max(1_000_000, apiDeal.amount);
   const aiMatchScore = Math.max(65, Math.min(98, Math.round(probability + 15)));
 
@@ -60,21 +62,29 @@ function mapDealToCompany(apiDeal: PipelineApiDeal, index: number): Company {
     },
     aiMatchScore,
     aiReasoning: `Pipeline score ${Math.round(probability)} with strong ${apiDeal.sector} thesis alignment.`,
-    status: probability >= 80 ? 'in_pipeline' : 'new',
+    status: probability >= 80 ? "in_pipeline" : "new",
   };
 }
 
 async function buildApiSnapshot(): Promise<CompanySearchApiSnapshot> {
-  const apiDeals = await fetchPipelineDealsFromApi({ limit: 200, sortBy: 'updatedAt', sortOrder: 'desc' });
-  const companies = apiDeals.map((deal, index) => mapDealToCompany(deal, index));
+  const apiDeals = await fetchPipelineDealsFromApi({
+    limit: 200,
+    sortBy: "updatedAt",
+    sortOrder: "desc",
+  });
+  const companies = apiDeals.map((deal, index) =>
+    mapDealToCompany(deal, index),
+  );
 
   const derivedIndustries = [
-    'All Industries',
+    "All Industries",
     ...Array.from(new Set(companies.map((company) => company.industry))),
   ];
   const derivedStages = [
-    'All Stages',
-    ...Array.from(new Set(companies.map((company) => company.funding.lastRound))),
+    "All Stages",
+    ...Array.from(
+      new Set(companies.map((company) => company.funding.lastRound)),
+    ),
   ];
 
   return {
@@ -96,19 +106,19 @@ async function getApiSnapshot(): Promise<CompanySearchApiSnapshot> {
 }
 
 export async function getCompanySearchIndustries(): Promise<string[]> {
-  if (isMockMode('companySearch')) return industries;
+  if (isMockMode("companySearch")) return industries;
   const snapshot = await getApiSnapshot();
   return snapshot.industries;
 }
 
 export async function getCompanySearchStages(): Promise<string[]> {
-  if (isMockMode('companySearch')) return stages;
+  if (isMockMode("companySearch")) return stages;
   const snapshot = await getApiSnapshot();
   return snapshot.stages;
 }
 
 export async function getCompanySearchCompanies(): Promise<Company[]> {
-  if (isMockMode('companySearch')) return mockCompanies;
+  if (isMockMode("companySearch")) return mockCompanies;
   const snapshot = await getApiSnapshot();
   return snapshot.companies;
 }

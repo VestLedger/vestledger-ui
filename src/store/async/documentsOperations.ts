@@ -1,6 +1,6 @@
-import { createAsyncThunk } from '@reduxjs/toolkit';
-import type { RootState } from '@/store/rootReducer';
-import type { AppDispatch } from '@/store/store';
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import type { RootState } from "@/store/rootReducer";
+import type { AppDispatch } from "@/store/store";
 import {
   createDocumentFolder,
   deleteDocument,
@@ -11,18 +11,21 @@ import {
   uploadDocument,
   type CreateFolderParams,
   type UploadDocumentParams,
-} from '@/services/documentsService';
+} from "@/services/documentsService";
 import {
   documentAccessUpdated,
   documentDeleted,
   documentMoved,
   documentUpserted,
   folderUpserted,
-} from '@/store/slices/documentsSlice';
-import type { AccessLevel } from '@/components/documents/document-manager';
-import type { Document, DocumentFolder } from '@/components/documents/document-manager';
-import type { NormalizedError } from '@/store/types/AsyncState';
-import { normalizeError } from '@/store/utils/normalizeError';
+} from "@/store/slices/documentsSlice";
+import type { AccessLevel } from "@/components/documents/document-manager";
+import type {
+  Document,
+  DocumentFolder,
+} from "@/components/documents/document-manager";
+import type { NormalizedError } from "@/store/types/AsyncState";
+import { normalizeError } from "@/store/utils/normalizeError";
 
 type DocumentsThunkConfig = {
   state: RootState;
@@ -34,7 +37,7 @@ export const uploadDocumentOperation = createAsyncThunk<
   Document,
   UploadDocumentParams | undefined,
   DocumentsThunkConfig
->('documents/upload', async (params, thunkApi) => {
+>("documents/upload", async (params, thunkApi) => {
   try {
     const document = await uploadDocument(params);
     thunkApi.dispatch(documentUpserted(document));
@@ -48,7 +51,7 @@ export const createDocumentFolderOperation = createAsyncThunk<
   DocumentFolder,
   CreateFolderParams | undefined,
   DocumentsThunkConfig
->('documents/createFolder', async (params, thunkApi) => {
+>("documents/createFolder", async (params, thunkApi) => {
   try {
     const folder = await createDocumentFolder(params);
     thunkApi.dispatch(folderUpserted(folder));
@@ -62,7 +65,7 @@ export const downloadDocumentOperation = createAsyncThunk<
   string | null,
   string,
   DocumentsThunkConfig
->('documents/download', async (documentId, thunkApi) => {
+>("documents/download", async (documentId, thunkApi) => {
   try {
     return await downloadDocument(documentId);
   } catch (error: unknown) {
@@ -74,10 +77,10 @@ export const shareDocumentOperation = createAsyncThunk<
   { documentId: string; accessLevel: AccessLevel },
   string,
   DocumentsThunkConfig
->('documents/share', async (documentId, thunkApi) => {
+>("documents/share", async (documentId, thunkApi) => {
   try {
     await shareDocument(documentId);
-    const result = { documentId, accessLevel: 'investor' as const };
+    const result = { documentId, accessLevel: "investor" as const };
     thunkApi.dispatch(documentAccessUpdated(result));
     return result;
   } catch (error: unknown) {
@@ -89,7 +92,7 @@ export const deleteDocumentOperation = createAsyncThunk<
   string,
   string,
   DocumentsThunkConfig
->('documents/delete', async (documentId, thunkApi) => {
+>("documents/delete", async (documentId, thunkApi) => {
   try {
     await deleteDocument(documentId);
     thunkApi.dispatch(documentDeleted(documentId));
@@ -103,7 +106,7 @@ export const moveDocumentOperation = createAsyncThunk<
   { documentId: string; newFolderId: string | null },
   { documentId: string; newFolderId: string | null },
   DocumentsThunkConfig
->('documents/move', async ({ documentId, newFolderId }, thunkApi) => {
+>("documents/move", async ({ documentId, newFolderId }, thunkApi) => {
   try {
     await moveDocument(documentId, newFolderId);
     const result = { documentId, newFolderId };
@@ -118,7 +121,7 @@ export const updateDocumentAccessOperation = createAsyncThunk<
   { documentId: string; accessLevel: AccessLevel },
   { documentId: string; accessLevel: AccessLevel },
   DocumentsThunkConfig
->('documents/updateAccess', async ({ documentId, accessLevel }, thunkApi) => {
+>("documents/updateAccess", async ({ documentId, accessLevel }, thunkApi) => {
   try {
     await updateDocumentAccess(documentId, accessLevel);
     const result = { documentId, accessLevel };

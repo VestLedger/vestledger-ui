@@ -35,10 +35,10 @@ const colors = {
     "text-subtle": "#78716c",
 
     // Brand - Blue & Gold
-    primary: "#1e40af",         // Deep blue
+    primary: "#1e40af", // Deep blue
     "primary-hover": "#1d4ed8", // Slightly brighter blue
     "primary-light": "#dbeafe", // Light blue tint (for backgrounds)
-    secondary: "#d4a332",       // Rich gold
+    secondary: "#d4a332", // Rich gold
     "secondary-hover": "#b8922a",
     "secondary-light": "#fef3c7", // Light gold tint (for backgrounds)
 
@@ -84,10 +84,10 @@ const colors = {
     "text-subtle": "#78716c",
 
     // Brand - Blue & Gold
-    primary: "#3b82f6",         // Bright blue
+    primary: "#3b82f6", // Bright blue
     "primary-hover": "#60a5fa", // Lighter blue
     "primary-light": "rgba(59, 130, 246, 0.15)", // Blue with opacity
-    secondary: "#fbbf24",       // Bright gold
+    secondary: "#fbbf24", // Bright gold
     "secondary-hover": "#fcd34d",
     "secondary-light": "rgba(251, 191, 36, 0.15)", // Gold with opacity
 

@@ -1,8 +1,8 @@
-import { createAsyncThunk, type AnyAction } from '@reduxjs/toolkit';
-import type { RootState } from '@/store/rootReducer';
-import type { AppDispatch } from '@/store/store';
-import type { NormalizedError } from '@/store/types/AsyncState';
-import { normalizeError } from '@/store/utils/normalizeError';
+import { createAsyncThunk, type AnyAction } from "@reduxjs/toolkit";
+import type { RootState } from "@/store/rootReducer";
+import type { AppDispatch } from "@/store/store";
+import type { NormalizedError } from "@/store/types/AsyncState";
+import { normalizeError } from "@/store/utils/normalizeError";
 
 type DispatchableResult = AnyAction | AnyAction[] | void;
 
@@ -33,45 +33,48 @@ function dispatchResult(dispatch: AppDispatch, result: DispatchableResult) {
 }
 
 export function createLatestOperation<Arg, Result>(
-  config: LatestOperationConfig<Arg, Result>
+  config: LatestOperationConfig<Arg, Result>,
 ) {
   let latestRequestId: string | null = null;
 
-  return createAsyncThunk<Result, Arg, { state: RootState; dispatch: AppDispatch; rejectValue: NormalizedError }>(
-    config.typePrefix,
-    async (arg, thunkApi) => {
-      latestRequestId = thunkApi.requestId;
-      thunkApi.dispatch({
-        type: config.requestType,
-        payload: arg,
-      } as AnyAction);
+  return createAsyncThunk<
+    Result,
+    Arg,
+    { state: RootState; dispatch: AppDispatch; rejectValue: NormalizedError }
+  >(config.typePrefix, async (arg, thunkApi) => {
+    latestRequestId = thunkApi.requestId;
+    thunkApi.dispatch({
+      type: config.requestType,
+      payload: arg,
+    } as AnyAction);
 
-      try {
-        const result = await config.run({
-          arg,
-          dispatch: thunkApi.dispatch,
-          getState: thunkApi.getState,
-          signal: thunkApi.signal,
-          requestId: thunkApi.requestId,
-          rejectWithValue: thunkApi.rejectWithValue as (value: NormalizedError) => never,
-        });
+    try {
+      const result = await config.run({
+        arg,
+        dispatch: thunkApi.dispatch,
+        getState: thunkApi.getState,
+        signal: thunkApi.signal,
+        requestId: thunkApi.requestId,
+        rejectWithValue: thunkApi.rejectWithValue as (
+          value: NormalizedError,
+        ) => never,
+      });
 
-        if (!thunkApi.signal.aborted && latestRequestId === thunkApi.requestId) {
-          dispatchResult(thunkApi.dispatch, config.onSuccess?.(result, arg));
-        }
-
-        return result;
-      } catch (error: unknown) {
-        const normalized = normalizeError(error);
-
-        if (!thunkApi.signal.aborted && latestRequestId === thunkApi.requestId) {
-          dispatchResult(thunkApi.dispatch, config.onFailure?.(normalized, arg));
-        }
-
-        return thunkApi.rejectWithValue(normalized);
+      if (!thunkApi.signal.aborted && latestRequestId === thunkApi.requestId) {
+        dispatchResult(thunkApi.dispatch, config.onSuccess?.(result, arg));
       }
+
+      return result;
+    } catch (error: unknown) {
+      const normalized = normalizeError(error);
+
+      if (!thunkApi.signal.aborted && latestRequestId === thunkApi.requestId) {
+        dispatchResult(thunkApi.dispatch, config.onFailure?.(normalized, arg));
+      }
+
+      return thunkApi.rejectWithValue(normalized);
     }
-  );
+  });
 }
 
 export function sleep(ms: number, signal?: AbortSignal) {
@@ -89,12 +92,12 @@ export function sleep(ms: number, signal?: AbortSignal) {
 
     const onAbort = () => {
       cleanup();
-      reject(new DOMException('Aborted', 'AbortError'));
+      reject(new DOMException("Aborted", "AbortError"));
     };
 
     const cleanup = () => {
       globalThis.clearTimeout(timeoutId);
-      signal.removeEventListener('abort', onAbort);
+      signal.removeEventListener("abort", onAbort);
     };
 
     if (signal.aborted) {
@@ -102,6 +105,6 @@ export function sleep(ms: number, signal?: AbortSignal) {
       return;
     }
 
-    signal.addEventListener('abort', onAbort, { once: true });
+    signal.addEventListener("abort", onAbort, { once: true });
   });
 }

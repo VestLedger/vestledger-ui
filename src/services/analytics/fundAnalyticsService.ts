@@ -1,4 +1,4 @@
-import { isMockMode } from '@/config/data-mode';
+import { isMockMode } from "@/config/data-mode";
 import {
   benchmarkData,
   cohortsBySector,
@@ -29,7 +29,7 @@ import {
   type JCurveDataPoint,
   type ValuationTrend,
 } from "@/data/seeds/mock-fund-analytics-data";
-import { requestJson } from '@/services/shared/httpClient';
+import { requestJson } from "@/services/shared/httpClient";
 
 export type {
   BenchmarkComparison,
@@ -160,36 +160,34 @@ const clone = <T>(value: T): T => structuredClone(value);
 
 function normalizeFundId(fundId?: string | null): string {
   const normalized = fundId?.trim();
-  if (!normalized) return 'all';
+  if (!normalized) return "all";
   return normalized;
 }
 
-function isSupportedStatus(
-  value: string
-): value is FundMetrics['fundStatus'] {
+function isSupportedStatus(value: string): value is FundMetrics["fundStatus"] {
   return (
-    value === 'fundraising'
-    || value === 'investing'
-    || value === 'harvesting'
-    || value === 'liquidating'
+    value === "fundraising" ||
+    value === "investing" ||
+    value === "harvesting" ||
+    value === "liquidating"
   );
 }
 
-function mapFundStatus(value?: string): FundMetrics['fundStatus'] {
-  if (!value) return 'investing';
+function mapFundStatus(value?: string): FundMetrics["fundStatus"] {
+  if (!value) return "investing";
   if (isSupportedStatus(value)) return value;
 
   const normalized = value.toLowerCase();
-  if (normalized === 'active') return 'investing';
-  if (normalized === 'closed') return 'harvesting';
-  if (normalized === 'fundraising') return 'fundraising';
-  if (normalized === 'liquidating') return 'liquidating';
+  if (normalized === "active") return "investing";
+  if (normalized === "closed") return "harvesting";
+  if (normalized === "fundraising") return "fundraising";
+  if (normalized === "liquidating") return "liquidating";
 
-  return 'investing';
+  return "investing";
 }
 
 function formatQuarterLabel(value?: string, fallback?: string): string {
-  if (!value) return fallback ?? 'N/A';
+  if (!value) return fallback ?? "N/A";
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return fallback ?? value;
   const quarter = Math.floor(parsed.getMonth() / 3) + 1;
@@ -199,7 +197,7 @@ function formatQuarterLabel(value?: string, fallback?: string): string {
 function getEmptyFundMetrics(fundId: string): FundMetrics {
   return {
     fundId,
-    fundName: fundId === 'all' ? 'All Funds' : 'Fund',
+    fundName: fundId === "all" ? "All Funds" : "Fund",
     vintage: 0,
     fundSize: 0,
     deployed: 0,
@@ -212,7 +210,7 @@ function getEmptyFundMetrics(fundId: string): FundMetrics {
     numberOfInvestments: 0,
     averageInvestmentSize: 0,
     deploymentRate: 0,
-    fundStatus: 'investing',
+    fundStatus: "investing",
     remainingLife: 0,
   };
 }
@@ -227,8 +225,12 @@ function getSeedSnapshot(fundId?: string | null): FundAnalyticsSnapshot {
     valuationTrends: clone(valuationTrendsByFund[key] ?? valuationTrends),
     deploymentPacing: clone(deploymentPacingByFund[key] ?? deploymentPacing),
     concentration: {
-      byCompany: clone(concentrationByCompanyByFund[key] ?? concentrationByCompany),
-      bySector: clone(concentrationBySectorByFund[key] ?? concentrationBySector),
+      byCompany: clone(
+        concentrationByCompanyByFund[key] ?? concentrationByCompany,
+      ),
+      bySector: clone(
+        concentrationBySectorByFund[key] ?? concentrationBySector,
+      ),
       byStage: clone(concentrationByStageByFund[key] ?? concentrationByStage),
     },
     cohortsVintage: clone(cohortsByVintageByFund[key] ?? cohortsByVintage),
@@ -259,7 +261,7 @@ function getEmptySnapshot(fundId?: string | null): FundAnalyticsSnapshot {
 
 function mapFundMetricsResponse(
   fundId: string,
-  response: ApiFundPerformance
+  response: ApiFundPerformance,
 ): FundMetrics {
   const fallback = getEmptyFundMetrics(fundId);
 
@@ -275,8 +277,10 @@ function mapFundMetricsResponse(
     rvpi: response.rvpi ?? fallback.rvpi,
     irr: response.irr ?? fallback.irr,
     moic: response.moic ?? fallback.moic,
-    numberOfInvestments: response.numberOfInvestments ?? fallback.numberOfInvestments,
-    averageInvestmentSize: response.averageInvestmentSize ?? fallback.averageInvestmentSize,
+    numberOfInvestments:
+      response.numberOfInvestments ?? fallback.numberOfInvestments,
+    averageInvestmentSize:
+      response.averageInvestmentSize ?? fallback.averageInvestmentSize,
     deploymentRate: response.deploymentRate ?? fallback.deploymentRate,
     fundStatus: mapFundStatus(response.fundStatus ?? fallback.fundStatus),
     remainingLife: response.remainingLife ?? fallback.remainingLife,
@@ -285,33 +289,29 @@ function mapFundMetricsResponse(
 
 function metricValueFromFund(
   metricName: string,
-  fundMetrics: FundMetrics
+  fundMetrics: FundMetrics,
 ): number {
   const key = metricName.toLowerCase();
-  if (key === 'tvpi') return fundMetrics.tvpi;
-  if (key === 'dpi') return fundMetrics.dpi;
-  if (key === 'irr') return fundMetrics.irr;
-  if (key === 'moic') return fundMetrics.moic;
+  if (key === "tvpi") return fundMetrics.tvpi;
+  if (key === "dpi") return fundMetrics.dpi;
+  if (key === "irr") return fundMetrics.irr;
+  if (key === "moic") return fundMetrics.moic;
   return 0;
 }
 
 function mapBenchmarkResponse(
   response: ApiBenchmarkResponse,
-  fundMetrics: FundMetrics
+  fundMetrics: FundMetrics,
 ): BenchmarkComparison[] {
   if (!response.benchmarks || response.benchmarks.length === 0) return [];
 
   return response.benchmarks.map((benchmark) => {
-    const metric = benchmark.metric ?? 'Unknown';
+    const metric = benchmark.metric ?? "Unknown";
     return {
       metric,
       vestledgerValue:
-        benchmark.fundValue
-        ?? metricValueFromFund(metric, fundMetrics),
-      industryMedian:
-        benchmark.median
-        ?? benchmark.industryMedian
-        ?? 0,
+        benchmark.fundValue ?? metricValueFromFund(metric, fundMetrics),
+      industryMedian: benchmark.median ?? benchmark.industryMedian ?? 0,
       topQuartile: benchmark.topQuartile ?? 0,
       bottomQuartile: benchmark.bottomQuartile ?? 0,
     };
@@ -344,15 +344,15 @@ function mapCohortsResponse(points: ApiCohortPoint[]): CohortPerformance[] {
     const totalInvested = Math.max(point.totalInvested ?? 0, 0);
     const currentValue = Math.max(point.totalCurrentValue ?? 0, 0);
     const unrealizedMultiple =
-      point.unrealizedMultiple
-      ?? (totalInvested > 0 ? currentValue / totalInvested : 0);
+      point.unrealizedMultiple ??
+      (totalInvested > 0 ? currentValue / totalInvested : 0);
     const realizedMultiple = point.realizedMultiple ?? 0;
     const tvpi = unrealizedMultiple + realizedMultiple;
-    const estimatedIrr = ((tvpi - 1) * 18) + ((point.avgHealth ?? 70) * 0.15);
+    const estimatedIrr = (tvpi - 1) * 18 + (point.avgHealth ?? 70) * 0.15;
     const percentageExited = tvpi > 0 ? (realizedMultiple / tvpi) * 100 : 0;
 
     return {
-      cohort: point.name ?? 'Uncategorized',
+      cohort: point.name ?? "Uncategorized",
       count: point.companyCount ?? 0,
       totalInvested,
       currentValue,
@@ -360,19 +360,21 @@ function mapCohortsResponse(points: ApiCohortPoint[]): CohortPerformance[] {
       irr: Number(Math.max(-100, Math.min(estimatedIrr, 180)).toFixed(1)),
       tvpi: Number(tvpi.toFixed(2)),
       dpi: Number(realizedMultiple.toFixed(2)),
-      percentageExited: Number(Math.max(0, Math.min(percentageExited, 100)).toFixed(1)),
+      percentageExited: Number(
+        Math.max(0, Math.min(percentageExited, 100)).toFixed(1),
+      ),
     };
   });
 }
 
 function mapConcentrationEntries(
   points: ApiConcentrationEntry[] | undefined,
-  dimension: ConcentrationMetric['dimension']
+  dimension: ConcentrationMetric["dimension"],
 ): ConcentrationMetric[] {
   if (!points || points.length === 0) return [];
 
   return points.map((point) => ({
-    category: point.name ?? 'Other',
+    category: point.name ?? "Other",
     dimension,
     value: point.value ?? 0,
     percentage: point.percentage ?? 0,
@@ -382,11 +384,11 @@ function mapConcentrationEntries(
 
 function mapConcentrationResponse(
   response: ApiConcentrationResponse,
-  _fundId: string
+  _fundId: string,
 ): ConcentrationRiskSnapshot {
-  const byCompany = mapConcentrationEntries(response.byCompany, 'Company');
-  const bySector = mapConcentrationEntries(response.bySector, 'Sector');
-  const byStage = mapConcentrationEntries(response.byStage, 'Stage');
+  const byCompany = mapConcentrationEntries(response.byCompany, "Company");
+  const bySector = mapConcentrationEntries(response.bySector, "Sector");
+  const byStage = mapConcentrationEntries(response.byStage, "Stage");
 
   return {
     byCompany,
@@ -396,7 +398,7 @@ function mapConcentrationResponse(
 }
 
 function mapDeploymentResponse(
-  response: ApiDeploymentResponse
+  response: ApiDeploymentResponse,
 ): DeploymentPacing[] {
   if (!response.pacing || response.pacing.length === 0) return [];
 
@@ -406,7 +408,7 @@ function mapDeploymentResponse(
     const cumulative = Math.max(entry.cumulative ?? deployed, 0);
 
     return {
-      quarter: entry.year ? `FY ${entry.year}` : 'FY N/A',
+      quarter: entry.year ? `FY ${entry.year}` : "FY N/A",
       deployed,
       numberOfDeals: deals,
       averageDealSize: deals > 0 ? deployed / deals : 0,
@@ -417,7 +419,7 @@ function mapDeploymentResponse(
 }
 
 function mapValuationTrendsResponse(
-  response: ApiValuationTrendsResponse
+  response: ApiValuationTrendsResponse,
 ): ValuationTrend[] {
   if (!response.trends || response.trends.length === 0) return [];
 
@@ -443,29 +445,29 @@ function mapValuationTrendsResponse(
 
 function getSnapshotForReads(fundId?: string | null): FundAnalyticsSnapshot {
   const key = normalizeFundId(fundId);
-  if (isMockMode('analytics')) {
+  if (isMockMode("analytics")) {
     return getSeedSnapshot(key);
   }
 
   return clone(
-    apiFundAnalyticsSnapshotCache.get(key)
-    ?? latestApiFundAnalyticsSnapshot
-    ?? getEmptySnapshot(key)
+    apiFundAnalyticsSnapshotCache.get(key) ??
+      latestApiFundAnalyticsSnapshot ??
+      getEmptySnapshot(key),
   );
 }
 
 export async function fetchFundAnalyticsSnapshot(
-  fundId?: string | null
+  fundId?: string | null,
 ): Promise<FundAnalyticsSnapshot> {
   const key = normalizeFundId(fundId);
-  if (isMockMode('analytics')) {
+  if (isMockMode("analytics")) {
     const snapshot = getSeedSnapshot(key);
     apiFundAnalyticsSnapshotCache.set(key, snapshot);
     latestApiFundAnalyticsSnapshot = snapshot;
     return clone(snapshot);
   }
 
-  const fundQuery = key === 'all' ? {} : { fundId: key };
+  const fundQuery = key === "all" ? {} : { fundId: key };
 
   try {
     const [
@@ -479,50 +481,50 @@ export async function fetchFundAnalyticsSnapshot(
       deployment,
       valuationTrendsResponse,
     ] = await Promise.all([
-      requestJson<ApiFundPerformance>('/analytics/performance', {
-        method: 'GET',
+      requestJson<ApiFundPerformance>("/analytics/performance", {
+        method: "GET",
         query: fundQuery,
-        fallbackMessage: 'Failed to fetch fund performance',
+        fallbackMessage: "Failed to fetch fund performance",
       }),
-      requestJson<ApiBenchmarkResponse>('/analytics/benchmark', {
-        method: 'GET',
+      requestJson<ApiBenchmarkResponse>("/analytics/benchmark", {
+        method: "GET",
         query: fundQuery,
-        fallbackMessage: 'Failed to fetch benchmark data',
+        fallbackMessage: "Failed to fetch benchmark data",
       }),
-      requestJson<ApiJCurvePoint[]>('/analytics/j-curve', {
-        method: 'GET',
+      requestJson<ApiJCurvePoint[]>("/analytics/j-curve", {
+        method: "GET",
         query: fundQuery,
-        fallbackMessage: 'Failed to fetch J-curve data',
+        fallbackMessage: "Failed to fetch J-curve data",
       }),
-      requestJson<ApiCohortPoint[]>('/analytics/cohorts', {
-        method: 'GET',
-        query: { ...fundQuery, groupBy: 'vintage' },
-        fallbackMessage: 'Failed to fetch vintage cohorts',
+      requestJson<ApiCohortPoint[]>("/analytics/cohorts", {
+        method: "GET",
+        query: { ...fundQuery, groupBy: "vintage" },
+        fallbackMessage: "Failed to fetch vintage cohorts",
       }),
-      requestJson<ApiCohortPoint[]>('/analytics/cohorts', {
-        method: 'GET',
-        query: { ...fundQuery, groupBy: 'sector' },
-        fallbackMessage: 'Failed to fetch sector cohorts',
+      requestJson<ApiCohortPoint[]>("/analytics/cohorts", {
+        method: "GET",
+        query: { ...fundQuery, groupBy: "sector" },
+        fallbackMessage: "Failed to fetch sector cohorts",
       }),
-      requestJson<ApiCohortPoint[]>('/analytics/cohorts', {
-        method: 'GET',
-        query: { ...fundQuery, groupBy: 'stage' },
-        fallbackMessage: 'Failed to fetch stage cohorts',
+      requestJson<ApiCohortPoint[]>("/analytics/cohorts", {
+        method: "GET",
+        query: { ...fundQuery, groupBy: "stage" },
+        fallbackMessage: "Failed to fetch stage cohorts",
       }),
-      requestJson<ApiConcentrationResponse>('/analytics/concentration', {
-        method: 'GET',
+      requestJson<ApiConcentrationResponse>("/analytics/concentration", {
+        method: "GET",
         query: fundQuery,
-        fallbackMessage: 'Failed to fetch concentration metrics',
+        fallbackMessage: "Failed to fetch concentration metrics",
       }),
-      requestJson<ApiDeploymentResponse>('/analytics/deployment', {
-        method: 'GET',
+      requestJson<ApiDeploymentResponse>("/analytics/deployment", {
+        method: "GET",
         query: fundQuery,
-        fallbackMessage: 'Failed to fetch deployment pacing',
+        fallbackMessage: "Failed to fetch deployment pacing",
       }),
-      requestJson<ApiValuationTrendsResponse>('/analytics/valuation-trends', {
-        method: 'GET',
+      requestJson<ApiValuationTrendsResponse>("/analytics/valuation-trends", {
+        method: "GET",
         query: fundQuery,
-        fallbackMessage: 'Failed to fetch valuation trends',
+        fallbackMessage: "Failed to fetch valuation trends",
       }),
     ]);
 
@@ -534,9 +536,15 @@ export async function fetchFundAnalyticsSnapshot(
       valuationTrends: mapValuationTrendsResponse(valuationTrendsResponse),
       deploymentPacing: mapDeploymentResponse(deployment),
       concentration: mapConcentrationResponse(concentration, key),
-      cohortsVintage: mapCohortsResponse(Array.isArray(cohortsVintage) ? cohortsVintage : []),
-      cohortsSector: mapCohortsResponse(Array.isArray(cohortsSector) ? cohortsSector : []),
-      cohortsStage: mapCohortsResponse(Array.isArray(cohortsStage) ? cohortsStage : []),
+      cohortsVintage: mapCohortsResponse(
+        Array.isArray(cohortsVintage) ? cohortsVintage : [],
+      ),
+      cohortsSector: mapCohortsResponse(
+        Array.isArray(cohortsSector) ? cohortsSector : [],
+      ),
+      cohortsStage: mapCohortsResponse(
+        Array.isArray(cohortsStage) ? cohortsStage : [],
+      ),
     };
 
     apiFundAnalyticsSnapshotCache.set(key, snapshot);
@@ -544,9 +552,9 @@ export async function fetchFundAnalyticsSnapshot(
     return clone(snapshot);
   } catch {
     const fallback = clone(
-      apiFundAnalyticsSnapshotCache.get(key)
-      ?? latestApiFundAnalyticsSnapshot
-      ?? getEmptySnapshot(key)
+      apiFundAnalyticsSnapshotCache.get(key) ??
+        latestApiFundAnalyticsSnapshot ??
+        getEmptySnapshot(key),
     );
     return fallback;
   }

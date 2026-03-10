@@ -11,7 +11,7 @@
  * 4. Update this file to use Sentry SDK
  */
 
-import { logger } from '@/lib/logger';
+import { logger } from "@/lib/logger";
 
 interface ErrorContext {
   componentStack?: string;
@@ -27,7 +27,7 @@ interface ErrorContext {
 interface BreadcrumbData {
   category: string;
   message: string;
-  level?: 'debug' | 'info' | 'warning' | 'error';
+  level?: "debug" | "info" | "warning" | "error";
   data?: Record<string, unknown>;
 }
 
@@ -35,14 +35,20 @@ type SentryApi = {
   captureException: (error: Error, context?: Record<string, unknown>) => void;
   captureMessage: (message: string, context?: Record<string, unknown>) => void;
   addBreadcrumb: (breadcrumb: Record<string, unknown>) => void;
-  setUser: (user: { id?: string; email?: string; role?: string } | null) => void;
+  setUser: (
+    user: { id?: string; email?: string; role?: string } | null,
+  ) => void;
   setTag: (key: string, value: string) => void;
   setExtra: (key: string, value: unknown) => void;
-  withScope: (callback: (scope: {
-    setTag: (key: string, value: string) => void;
-    setExtra: (key: string, value: unknown) => void;
-    setUser: (user: { id?: string; email?: string; role?: string } | null) => void;
-  }) => void) => void;
+  withScope: (
+    callback: (scope: {
+      setTag: (key: string, value: string) => void;
+      setExtra: (key: string, value: unknown) => void;
+      setUser: (
+        user: { id?: string; email?: string; role?: string } | null,
+      ) => void;
+    }) => void,
+  ) => void;
 };
 
 /**
@@ -50,7 +56,7 @@ type SentryApi = {
  */
 function isSentryAvailable(): boolean {
   // Check if Sentry global is available (set by @sentry/nextjs)
-  return typeof window !== 'undefined' && 'Sentry' in window;
+  return typeof window !== "undefined" && "Sentry" in window;
 }
 
 /**
@@ -81,8 +87,8 @@ export function captureException(error: Error, context?: ErrorContext): void {
   }
 
   // Always log to our logger
-  logger.error('Exception captured', error, {
-    component: 'errorTracking',
+  logger.error("Exception captured", error, {
+    component: "errorTracking",
     ...context?.extra,
   });
 }
@@ -92,8 +98,8 @@ export function captureException(error: Error, context?: ErrorContext): void {
  */
 export function captureMessage(
   message: string,
-  level: 'info' | 'warning' | 'error' = 'info',
-  context?: Omit<ErrorContext, 'componentStack'>
+  level: "info" | "warning" | "error" = "info",
+  context?: Omit<ErrorContext, "componentStack">,
 ): void {
   const sentry = getSentry();
 
@@ -106,9 +112,9 @@ export function captureMessage(
   }
 
   // Log based on level
-  if (level === 'error') {
+  if (level === "error") {
     logger.error(message, undefined, context?.extra);
-  } else if (level === 'warning') {
+  } else if (level === "warning") {
     logger.warn(message, context?.extra);
   } else {
     logger.info(message, context?.extra);
@@ -125,13 +131,13 @@ export function addBreadcrumb(data: BreadcrumbData): void {
     sentry.addBreadcrumb({
       category: data.category,
       message: data.message,
-      level: data.level || 'info',
+      level: data.level || "info",
       data: data.data,
     });
   }
 
   // Also log breadcrumbs in development
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === "development") {
     logger.debug(`[${data.category}] ${data.message}`, data.data);
   }
 }
@@ -139,7 +145,9 @@ export function addBreadcrumb(data: BreadcrumbData): void {
 /**
  * Set user context for error tracking
  */
-export function setUser(user: { id?: string; email?: string; role?: string } | null): void {
+export function setUser(
+  user: { id?: string; email?: string; role?: string } | null,
+): void {
   const sentry = getSentry();
 
   if (sentry) {
@@ -186,7 +194,7 @@ export function withScope(
     setTag: (key: string, value: string) => void;
     setExtra: (key: string, value: unknown) => void;
     setUser: (user: { id?: string; email?: string } | null) => void;
-  }) => void
+  }) => void,
 ): void {
   const sentry = getSentry();
 

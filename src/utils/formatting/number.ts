@@ -1,4 +1,4 @@
-import { DEFAULT_LOCALE } from '@/config/i18n';
+import { DEFAULT_LOCALE } from "@/config/i18n";
 
 /**
  * Format percentage with configurable decimals
@@ -29,8 +29,8 @@ export function formatNumberCompact(value: number): string {
 export function formatNumber(
   value: number,
   options?: Intl.NumberFormatOptions,
-  locale: string = DEFAULT_LOCALE
+  locale: string = DEFAULT_LOCALE,
 ): string {
-  if (!Number.isFinite(value)) return '';
+  if (!Number.isFinite(value)) return "";
   return value.toLocaleString(locale, options);
 }

@@ -1,12 +1,15 @@
-import { isMockMode } from '@/config/data-mode';
+import { isMockMode } from "@/config/data-mode";
 import {
   pipelineCopilotSuggestions,
   pipelineDeals,
   pipelineStages,
   type PipelineDeal,
   type PipelineDealOutcome,
-} from '@/data/seeds/pipeline';
-import type { GetPipelineParams, PipelineData } from '@/store/slices/pipelineSlice';
+} from "@/data/seeds/pipeline";
+import type {
+  GetPipelineParams,
+  PipelineData,
+} from "@/store/slices/pipelineSlice";
 import {
   createPipelineDealInApi,
   fetchPipelineDealsFromApi,
@@ -14,9 +17,9 @@ import {
   formatAmountToMillions,
   mapPipelineApiDealToPipelineDeal,
   updatePipelineDealInApi,
-} from './shared/pipelineGateway';
-import { requestJson } from '@/services/shared/httpClient';
-import type { Suggestion } from '@/services/ai/copilotService';
+} from "./shared/pipelineGateway";
+import { requestJson } from "@/services/shared/httpClient";
+import type { Suggestion } from "@/services/ai/copilotService";
 
 export type { PipelineDeal, PipelineDealOutcome };
 
@@ -37,7 +40,7 @@ const clone = <T>(value: T): T => structuredClone(value);
  * @deprecated Use getPipelineData() instead for full pipeline data
  */
 export async function getPipelineStages(): Promise<string[]> {
-  if (isMockMode('pipeline')) return clone(pipelineStages);
+  if (isMockMode("pipeline")) return clone(pipelineStages);
   return fetchPipelineStagesFromApi();
 }
 
@@ -45,8 +48,10 @@ export async function getPipelineStages(): Promise<string[]> {
  * Get pipeline deals
  * @deprecated Use getPipelineData() instead for full pipeline data
  */
-export async function getPipelineDeals(params: GetPipelineParams = {}): Promise<PipelineDeal[]> {
-  if (isMockMode('pipeline')) return clone(pipelineDeals);
+export async function getPipelineDeals(
+  params: GetPipelineParams = {},
+): Promise<PipelineDeal[]> {
+  if (isMockMode("pipeline")) return clone(pipelineDeals);
   const deals = await fetchPipelineDealsFromApi(params);
   return deals.map(mapPipelineApiDealToPipelineDeal);
 }
@@ -56,7 +61,7 @@ export async function getPipelineDeals(params: GetPipelineParams = {}): Promise<
  * @deprecated Use getPipelineData() instead for full pipeline data
  */
 export function getPipelineCopilotSuggestions() {
-  if (isMockMode('pipeline')) return clone(pipelineCopilotSuggestions);
+  if (isMockMode("pipeline")) return clone(pipelineCopilotSuggestions);
   return [];
 }
 
@@ -64,8 +69,10 @@ export function getPipelineCopilotSuggestions() {
  * GraphQL-ready function to load complete pipeline data
  * Accepts params even in mock mode for seamless API migration
  */
-export async function getPipelineData(params: GetPipelineParams): Promise<PipelineData> {
-  if (isMockMode('pipeline')) {
+export async function getPipelineData(
+  params: GetPipelineParams,
+): Promise<PipelineData> {
+  if (isMockMode("pipeline")) {
     // Mock mode: Accept params but return static data
     // Future: Filter by stageFilter, apply pagination
     return {
@@ -78,11 +85,11 @@ export async function getPipelineData(params: GetPipelineParams): Promise<Pipeli
   const [stages, apiDeals, copilotSuggestions] = await Promise.all([
     fetchPipelineStagesFromApi(),
     fetchPipelineDealsFromApi(params),
-    requestJson<Suggestion[]>('/ai/copilot/suggestions', {
-      query: { pathname: '/pipeline' },
-      fallbackMessage: 'Failed to load pipeline copilot suggestions',
+    requestJson<Suggestion[]>("/ai/copilot/suggestions", {
+      query: { pathname: "/pipeline" },
+      fallbackMessage: "Failed to load pipeline copilot suggestions",
     }).catch((error) => {
-      console.error('Failed to load pipeline copilot suggestions', error);
+      console.error("Failed to load pipeline copilot suggestions", error);
       return [] as Suggestion[];
     }),
   ]);
@@ -94,18 +101,20 @@ export async function getPipelineData(params: GetPipelineParams): Promise<Pipeli
   };
 }
 
-export async function createPipelineDeal(input: CreatePipelineDealParams): Promise<PipelineDeal> {
-  if (isMockMode('pipeline')) {
+export async function createPipelineDeal(
+  input: CreatePipelineDealParams,
+): Promise<PipelineDeal> {
+  if (isMockMode("pipeline")) {
     return {
       id: `mock-${Date.now()}`,
       name: input.name,
       stage: input.stage,
-      outcome: 'active',
+      outcome: "active",
       sector: input.sector,
       amount: formatAmountToMillions(input.amount),
       probability: Math.round(input.probability),
       founder: input.founder,
-      lastContact: 'today',
+      lastContact: "today",
     };
   }
 
@@ -116,7 +125,7 @@ export async function createPipelineDeal(input: CreatePipelineDealParams): Promi
     amount: input.amount,
     probability: input.probability,
     founder: input.founder,
-    outcome: 'active',
+    outcome: "active",
     fundId: input.fundId,
   });
 
@@ -125,9 +134,9 @@ export async function createPipelineDeal(input: CreatePipelineDealParams): Promi
 
 export async function updatePipelineDealStage(
   dealId: number | string,
-  stage: string
+  stage: string,
 ): Promise<PipelineDeal> {
-  if (isMockMode('pipeline')) {
+  if (isMockMode("pipeline")) {
     const existing = pipelineDeals.find((deal) => deal.id === dealId);
     if (!existing) {
       throw new Error(`Pipeline deal not found: ${dealId}`);

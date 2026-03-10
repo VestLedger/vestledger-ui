@@ -1,6 +1,9 @@
-import { isMockMode } from '@/config/data-mode';
-import { mockAuditEvents, type AuditEvent } from '@/data/seeds/blockchain/audit-trail';
-import { requestJson } from '@/services/shared/httpClient';
+import { isMockMode } from "@/config/data-mode";
+import {
+  mockAuditEvents,
+  type AuditEvent,
+} from "@/data/seeds/blockchain/audit-trail";
+import { requestJson } from "@/services/shared/httpClient";
 
 export type { AuditEvent };
 
@@ -30,7 +33,9 @@ const clone = <T>(value: T): T => structuredClone(value);
 
 let apiAuditEventsCache: AuditEvent[] | null = null;
 
-function extractApiList(response: ApiAuditTrailResponse): ApiAuditEventRecord[] {
+function extractApiList(
+  response: ApiAuditTrailResponse,
+): ApiAuditEventRecord[] {
   if (Array.isArray(response)) return response;
   if (Array.isArray(response.data)) return response.data;
   return [];
@@ -43,46 +48,50 @@ function asDate(value?: string): Date {
   return parsed;
 }
 
-function normalizeEventType(rawType?: string): AuditEvent['eventType'] {
-  const normalized = rawType?.toLowerCase() ?? '';
+function normalizeEventType(rawType?: string): AuditEvent["eventType"] {
+  const normalized = rawType?.toLowerCase() ?? "";
   switch (normalized) {
-    case 'ownership_transfer':
-    case 'ownership-transfer':
-      return 'ownership_transfer';
-    case 'capital_call':
-    case 'capital-call':
-      return 'capital_call';
-    case 'distribution':
-      return 'distribution';
-    case 'valuation_update':
-    case 'valuation-update':
-      return 'valuation_update';
-    case 'document_hash':
-    case 'document-hash':
-      return 'document_hash';
-    case 'compliance_attestation':
-    case 'compliance-attestation':
-      return 'compliance_attestation';
+    case "ownership_transfer":
+    case "ownership-transfer":
+      return "ownership_transfer";
+    case "capital_call":
+    case "capital-call":
+      return "capital_call";
+    case "distribution":
+      return "distribution";
+    case "valuation_update":
+    case "valuation-update":
+      return "valuation_update";
+    case "document_hash":
+    case "document-hash":
+      return "document_hash";
+    case "compliance_attestation":
+    case "compliance-attestation":
+      return "compliance_attestation";
     default:
-      return 'document_hash';
+      return "document_hash";
   }
 }
 
-function normalizeVerificationStatus(rawStatus?: string): AuditEvent['verificationStatus'] {
-  const normalized = rawStatus?.toLowerCase() ?? '';
-  if (normalized === 'pending') return 'pending';
-  if (normalized === 'failed' || normalized === 'invalid') return 'failed';
-  return 'verified';
+function normalizeVerificationStatus(
+  rawStatus?: string,
+): AuditEvent["verificationStatus"] {
+  const normalized = rawStatus?.toLowerCase() ?? "";
+  if (normalized === "pending") return "pending";
+  if (normalized === "failed" || normalized === "invalid") return "failed";
+  return "verified";
 }
 
 function normalizeParties(rawParties?: string[] | string): string[] {
   if (Array.isArray(rawParties)) {
-    return rawParties.filter((item): item is string => typeof item === 'string' && item.length > 0);
+    return rawParties.filter(
+      (item): item is string => typeof item === "string" && item.length > 0,
+    );
   }
 
-  if (typeof rawParties === 'string' && rawParties.trim().length > 0) {
+  if (typeof rawParties === "string" && rawParties.trim().length > 0) {
     return rawParties
-      .split(',')
+      .split(",")
       .map((value) => value.trim())
       .filter(Boolean);
   }
@@ -93,25 +102,26 @@ function normalizeParties(rawParties?: string[] | string): string[] {
 function mapApiEvent(record: ApiAuditEventRecord, index: number): AuditEvent {
   return {
     id: record.id ?? `audit-event-${index + 1}`,
-    txHash: record.txHash ?? record.transactionHash ?? '',
+    txHash: record.txHash ?? record.transactionHash ?? "",
     blockNumber:
-      typeof record.blockNumber === 'number' && Number.isFinite(record.blockNumber)
+      typeof record.blockNumber === "number" &&
+      Number.isFinite(record.blockNumber)
         ? record.blockNumber
         : 0,
     timestamp: asDate(record.timestamp),
     eventType: normalizeEventType(record.eventType ?? record.type),
-    description: record.description ?? 'Audit event imported from API.',
+    description: record.description ?? "Audit event imported from API.",
     parties: normalizeParties(record.parties),
-    ...(typeof record.amount === 'number' ? { amount: record.amount } : {}),
+    ...(typeof record.amount === "number" ? { amount: record.amount } : {}),
     verificationStatus: normalizeVerificationStatus(record.verificationStatus),
-    proofHash: record.proofHash ?? '',
+    proofHash: record.proofHash ?? "",
   };
 }
 
 async function fetchAuditEventsFromApi(): Promise<AuditEvent[]> {
-  const response = await requestJson<ApiAuditTrailResponse>('/audit/events', {
-    method: 'GET',
-    fallbackMessage: 'Failed to fetch audit trail events',
+  const response = await requestJson<ApiAuditTrailResponse>("/audit/events", {
+    method: "GET",
+    fallbackMessage: "Failed to fetch audit trail events",
   });
 
   return extractApiList(response).map(mapApiEvent);
@@ -126,7 +136,7 @@ function getCachedOrEmptyEvents(): AuditEvent[] {
 }
 
 export async function getAuditEvents(): Promise<AuditEvent[]> {
-  if (isMockMode('auditTrail')) {
+  if (isMockMode("auditTrail")) {
     if (!apiAuditEventsCache) {
       setCache(mockAuditEvents);
     }

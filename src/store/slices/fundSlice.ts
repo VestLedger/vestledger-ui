@@ -1,14 +1,19 @@
-import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import type { AsyncState, NormalizedError } from '@/store/types/AsyncState';
-import { createInitialAsyncState } from '@/store/types/AsyncState';
-import { createAsyncSelectors } from '@/store/utils/createAsyncSelectors';
-import type { Fund, FundStatus, FundStrategy, FundViewMode } from '@/types/fund';
-import type { StandardQueryParams } from '@/types/serviceParams';
-import type { RootState } from '@/store/rootReducer';
+import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import type { AsyncState, NormalizedError } from "@/store/types/AsyncState";
+import { createInitialAsyncState } from "@/store/types/AsyncState";
+import { createAsyncSelectors } from "@/store/utils/createAsyncSelectors";
+import type {
+  Fund,
+  FundStatus,
+  FundStrategy,
+  FundViewMode,
+} from "@/types/fund";
+import type { StandardQueryParams } from "@/types/serviceParams";
+import type { RootState } from "@/store/rootReducer";
 import type {
   FundRegulatoryProfile,
   FundRegulatoryRegime,
-} from '@/types/regulatory';
+} from "@/types/regulatory";
 
 export interface FundsData {
   funds: Fund[];
@@ -50,7 +55,7 @@ interface FundState extends AsyncState<FundsData> {
   selectedFundId: string | null;
   viewMode: FundViewMode;
   archivedFundIds: string[];
-  mutationStatus: 'idle' | 'loading' | 'succeeded' | 'failed';
+  mutationStatus: "idle" | "loading" | "succeeded" | "failed";
   mutationError: NormalizedError | undefined;
 }
 
@@ -58,36 +63,38 @@ const initialState: FundState = {
   ...createInitialAsyncState<FundsData>(),
   hydrated: false,
   selectedFundId: null,
-  viewMode: 'consolidated',
+  viewMode: "consolidated",
   archivedFundIds: [],
-  mutationStatus: 'idle',
+  mutationStatus: "idle",
   mutationError: undefined,
 };
 
 const fundSlice = createSlice({
-  name: 'fund',
+  name: "fund",
   initialState,
   reducers: {
     fundsRequested: (state, _action: PayloadAction<GetFundsParams>) => {
-      state.status = 'loading';
+      state.status = "loading";
       state.error = undefined;
     },
     fundsLoaded: (state, action: PayloadAction<FundsData>) => {
       state.data = action.payload;
-      state.status = 'succeeded';
+      state.status = "succeeded";
       state.error = undefined;
 
       if (
-        state.selectedFundId === null
-        && state.viewMode === 'individual'
-        && action.payload.funds.length > 0
+        state.selectedFundId === null &&
+        state.viewMode === "individual" &&
+        action.payload.funds.length > 0
       ) {
-        const visible = action.payload.funds.filter((fund) => !state.archivedFundIds.includes(fund.id));
+        const visible = action.payload.funds.filter(
+          (fund) => !state.archivedFundIds.includes(fund.id),
+        );
         state.selectedFundId = visible[0]?.id ?? null;
       }
     },
     fundsFailed: (state, action: PayloadAction<NormalizedError>) => {
-      state.status = 'failed';
+      state.status = "failed";
       state.error = action.payload;
     },
     fundHydrated: (
@@ -96,7 +103,7 @@ const fundSlice = createSlice({
         selectedFundId: string | null;
         viewMode: FundViewMode;
         archivedFundIds?: string[];
-      }>
+      }>,
     ) => {
       state.hydrated = true;
       state.selectedFundId = action.payload.selectedFundId;
@@ -111,7 +118,7 @@ const fundSlice = createSlice({
     },
 
     createFundRequested: (state, _action: PayloadAction<CreateFundParams>) => {
-      state.mutationStatus = 'loading';
+      state.mutationStatus = "loading";
       state.mutationError = undefined;
     },
     createFundSucceeded: (state, action: PayloadAction<Fund>) => {
@@ -119,69 +126,82 @@ const fundSlice = createSlice({
         state.data = { funds: [] };
       }
       state.data.funds.unshift(action.payload);
-      state.mutationStatus = 'succeeded';
+      state.mutationStatus = "succeeded";
       state.mutationError = undefined;
-      if (state.viewMode === 'individual') {
+      if (state.viewMode === "individual") {
         state.selectedFundId = action.payload.id;
       }
     },
     createFundFailed: (state, action: PayloadAction<NormalizedError>) => {
-      state.mutationStatus = 'failed';
+      state.mutationStatus = "failed";
       state.mutationError = action.payload;
     },
 
     updateFundRequested: (
       state,
-      _action: PayloadAction<{ fundId: string; data: Partial<CreateFundParams> }>
+      _action: PayloadAction<{
+        fundId: string;
+        data: Partial<CreateFundParams>;
+      }>,
     ) => {
-      state.mutationStatus = 'loading';
+      state.mutationStatus = "loading";
       state.mutationError = undefined;
     },
     updateFundSucceeded: (state, action: PayloadAction<Fund>) => {
       if (!state.data) {
         state.data = { funds: [] };
       }
-      const index = state.data.funds.findIndex((fund) => fund.id === action.payload.id);
+      const index = state.data.funds.findIndex(
+        (fund) => fund.id === action.payload.id,
+      );
       if (index === -1) {
         state.data.funds.unshift(action.payload);
       } else {
         state.data.funds[index] = action.payload;
       }
-      state.mutationStatus = 'succeeded';
+      state.mutationStatus = "succeeded";
       state.mutationError = undefined;
     },
     updateFundFailed: (state, action: PayloadAction<NormalizedError>) => {
-      state.mutationStatus = 'failed';
+      state.mutationStatus = "failed";
       state.mutationError = action.payload;
     },
 
     closeFundRequested: (state, _action: PayloadAction<{ fundId: string }>) => {
-      state.mutationStatus = 'loading';
+      state.mutationStatus = "loading";
       state.mutationError = undefined;
     },
     closeFundSucceeded: (state, action: PayloadAction<Fund>) => {
       if (!state.data) {
         state.data = { funds: [] };
       }
-      const index = state.data.funds.findIndex((fund) => fund.id === action.payload.id);
+      const index = state.data.funds.findIndex(
+        (fund) => fund.id === action.payload.id,
+      );
       if (index === -1) {
         state.data.funds.unshift(action.payload);
       } else {
         state.data.funds[index] = action.payload;
       }
-      state.mutationStatus = 'succeeded';
+      state.mutationStatus = "succeeded";
       state.mutationError = undefined;
     },
     closeFundFailed: (state, action: PayloadAction<NormalizedError>) => {
-      state.mutationStatus = 'failed';
+      state.mutationStatus = "failed";
       state.mutationError = action.payload;
     },
 
-    archiveFundRequested: (state, _action: PayloadAction<{ fundId: string }>) => {
-      state.mutationStatus = 'loading';
+    archiveFundRequested: (
+      state,
+      _action: PayloadAction<{ fundId: string }>,
+    ) => {
+      state.mutationStatus = "loading";
       state.mutationError = undefined;
     },
-    archiveFundSucceeded: (state, action: PayloadAction<{ fundId: string }>) => {
+    archiveFundSucceeded: (
+      state,
+      action: PayloadAction<{ fundId: string }>,
+    ) => {
       const { fundId } = action.payload;
       if (!state.archivedFundIds.includes(fundId)) {
         state.archivedFundIds.push(fundId);
@@ -189,30 +209,38 @@ const fundSlice = createSlice({
       if (state.selectedFundId === fundId) {
         state.selectedFundId = null;
       }
-      state.mutationStatus = 'succeeded';
+      state.mutationStatus = "succeeded";
       state.mutationError = undefined;
     },
     archiveFundFailed: (state, action: PayloadAction<NormalizedError>) => {
-      state.mutationStatus = 'failed';
+      state.mutationStatus = "failed";
       state.mutationError = action.payload;
     },
 
-    unarchiveFundRequested: (state, _action: PayloadAction<{ fundId: string }>) => {
-      state.mutationStatus = 'loading';
+    unarchiveFundRequested: (
+      state,
+      _action: PayloadAction<{ fundId: string }>,
+    ) => {
+      state.mutationStatus = "loading";
       state.mutationError = undefined;
     },
-    unarchiveFundSucceeded: (state, action: PayloadAction<{ fundId: string }>) => {
-      state.archivedFundIds = state.archivedFundIds.filter((id) => id !== action.payload.fundId);
-      state.mutationStatus = 'succeeded';
+    unarchiveFundSucceeded: (
+      state,
+      action: PayloadAction<{ fundId: string }>,
+    ) => {
+      state.archivedFundIds = state.archivedFundIds.filter(
+        (id) => id !== action.payload.fundId,
+      );
+      state.mutationStatus = "succeeded";
       state.mutationError = undefined;
     },
     unarchiveFundFailed: (state, action: PayloadAction<NormalizedError>) => {
-      state.mutationStatus = 'failed';
+      state.mutationStatus = "failed";
       state.mutationError = action.payload;
     },
 
     clearFundMutationState: (state) => {
-      state.mutationStatus = 'idle';
+      state.mutationStatus = "idle";
       state.mutationError = undefined;
     },
   },
@@ -237,14 +265,17 @@ export const {
   clearFundMutationState,
 } = fundSlice.actions;
 
-export const fundsSelectors = createAsyncSelectors<FundsData>('fund');
+export const fundsSelectors = createAsyncSelectors<FundsData>("fund");
 
 // Avoid returning a new array literal when state is empty/unhydrated; react-redux
 // will warn if a selector returns a different reference for the same state.
 const EMPTY_FUNDS: Fund[] = [];
 const selectFunds = (state: RootState) => state.fund.data?.funds ?? EMPTY_FUNDS;
 const selectArchivedFundIds = (state: RootState) => state.fund.archivedFundIds;
-const selectArchivedFundIdSet = createSelector([selectArchivedFundIds], (ids) => new Set(ids));
+const selectArchivedFundIdSet = createSelector(
+  [selectArchivedFundIds],
+  (ids) => new Set(ids),
+);
 
 export const fundUISelectors = {
   selectHydrated: (state: RootState) => state.fund.hydrated,
@@ -254,12 +285,18 @@ export const fundUISelectors = {
   selectMutationStatus: (state: RootState) => state.fund.mutationStatus,
   selectMutationError: (state: RootState) => state.fund.mutationError,
   // Memoized selectors to avoid returning new array refs on every render.
-  selectVisibleFunds: createSelector([selectFunds, selectArchivedFundIdSet], (funds, archivedIds): Fund[] => {
-    return funds.filter((fund) => !archivedIds.has(fund.id));
-  }),
-  selectArchivedFunds: createSelector([selectFunds, selectArchivedFundIdSet], (funds, archivedIds): Fund[] => {
-    return funds.filter((fund) => archivedIds.has(fund.id));
-  }),
+  selectVisibleFunds: createSelector(
+    [selectFunds, selectArchivedFundIdSet],
+    (funds, archivedIds): Fund[] => {
+      return funds.filter((fund) => !archivedIds.has(fund.id));
+    },
+  ),
+  selectArchivedFunds: createSelector(
+    [selectFunds, selectArchivedFundIdSet],
+    (funds, archivedIds): Fund[] => {
+      return funds.filter((fund) => archivedIds.has(fund.id));
+    },
+  ),
   selectSelectedFund: (state: RootState): Fund | null => {
     const fundId = state.fund.selectedFundId;
     const funds = state.fund.data?.funds || [];

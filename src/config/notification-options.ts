@@ -7,11 +7,11 @@ export function getNotificationFilterOptions(counts: {
   system: number;
 }) {
   return [
-    { value: 'all', label: `All notifications (${counts.total})` },
-    { value: 'unread', label: `Unread (${counts.unread})` },
-    { value: 'alert', label: `Alerts (${counts.alert})` },
-    { value: 'deal', label: `Deals (${counts.deal})` },
-    { value: 'report', label: `Reports (${counts.report})` },
-    { value: 'system', label: `System (${counts.system})` },
+    { value: "all", label: `All notifications (${counts.total})` },
+    { value: "unread", label: `Unread (${counts.unread})` },
+    { value: "alert", label: `Alerts (${counts.alert})` },
+    { value: "deal", label: `Deals (${counts.deal})` },
+    { value: "report", label: `Reports (${counts.report})` },
+    { value: "system", label: `System (${counts.system})` },
   ];
 }

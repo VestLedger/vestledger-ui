@@ -19,7 +19,7 @@
 
 /* Backdrop */
 .command-palette::before {
-  content: '';
+  content: "";
   position: fixed;
   top: 0;
   left: 0;
@@ -66,7 +66,7 @@
   border: 1px solid var(--app-border);
   border-radius: 4px;
   font-size: 12px;
-  font-family: ui-monospace, 'SF Mono', monospace;
+  font-family: ui-monospace, "SF Mono", monospace;
   color: var(--app-text-muted);
 }
 
@@ -125,7 +125,7 @@
   margin-bottom: 2px;
 }
 
-.command-palette-item[aria-selected='true'] {
+.command-palette-item[aria-selected="true"] {
   background: var(--app-primary-bg);
   color: var(--app-primary);
 }
@@ -141,7 +141,7 @@
   color: var(--app-text-muted);
 }
 
-.command-palette-item[aria-selected='true'] .command-palette-item-icon {
+.command-palette-item[aria-selected="true"] .command-palette-item-icon {
   color: var(--app-primary);
 }
 
@@ -162,7 +162,7 @@
   color: var(--app-text);
 }
 
-.command-palette-item[aria-selected='true'] .command-palette-item-title {
+.command-palette-item[aria-selected="true"] .command-palette-item-title {
   color: var(--app-primary);
 }
 
@@ -192,7 +192,7 @@
   border: 1px solid var(--app-border);
   border-radius: 4px;
   font-size: 11px;
-  font-family: ui-monospace, 'SF Mono', monospace;
+  font-family: ui-monospace, "SF Mono", monospace;
 }
 
 /* Scrollbar */

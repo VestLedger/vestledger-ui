@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef } from "react";
 
 export interface SessionIdleGuardOptions {
   enabled: boolean;
@@ -63,11 +63,11 @@ export function useSessionIdleGuard({
     scheduleTimers();
 
     const events: Array<keyof WindowEventMap> = [
-      'mousemove',
-      'mousedown',
-      'keydown',
-      'touchstart',
-      'scroll',
+      "mousemove",
+      "mousedown",
+      "keydown",
+      "touchstart",
+      "scroll",
     ];
 
     for (const eventName of events) {

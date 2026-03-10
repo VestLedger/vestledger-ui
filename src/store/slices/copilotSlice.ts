@@ -1,19 +1,19 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import type { AsyncState, NormalizedError } from '@/store/types/AsyncState';
-import { createInitialAsyncState } from '@/store/types/AsyncState';
-import type { QuickAction, Suggestion } from '@/services/ai/copilotService';
-import type { StandardQueryParams } from '@/types/serviceParams';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import type { AsyncState, NormalizedError } from "@/store/types/AsyncState";
+import { createInitialAsyncState } from "@/store/types/AsyncState";
+import type { QuickAction, Suggestion } from "@/services/ai/copilotService";
+import type { StandardQueryParams } from "@/types/serviceParams";
 
 export interface CopilotMessage {
   id: string;
-  type: 'user' | 'ai';
+  type: "user" | "ai";
   content: string;
   timestamp: Date;
 }
 
 export type ExternalCopilotMessage = {
   content: string;
-  type?: 'user' | 'ai';
+  type?: "user" | "ai";
 };
 
 export type CopilotContextValue =
@@ -54,14 +54,14 @@ interface CopilotState {
 const initialState: CopilotState = {
   messages: [
     {
-      id: '1',
-      type: 'ai',
+      id: "1",
+      type: "ai",
       content:
         "Hi! I'm Vesta, your AI assistant. I'm here to help you navigate VestLedger, analyze data, and automate tasks. What would you like to do today?",
       timestamp: new Date(),
     },
   ],
-  inputValue: '',
+  inputValue: "",
   isTyping: false,
   showSuggestions: true,
   quickActionsOverride: null,
@@ -71,14 +71,14 @@ const initialState: CopilotState = {
 };
 
 const copilotSlice = createSlice({
-  name: 'copilot',
+  name: "copilot",
   initialState,
   reducers: {
     setInputValue: (state, action: PayloadAction<string>) => {
       state.inputValue = action.payload;
     },
     clearInputValue: (state) => {
-      state.inputValue = '';
+      state.inputValue = "";
     },
     setIsTyping: (state, action: PayloadAction<boolean>) => {
       state.isTyping = action.payload;
@@ -89,18 +89,27 @@ const copilotSlice = createSlice({
     addMessage: (state, action: PayloadAction<CopilotMessage>) => {
       state.messages = [...state.messages, action.payload];
     },
-    setQuickActionsOverride: (state, action: PayloadAction<QuickAction[] | null>) => {
+    setQuickActionsOverride: (
+      state,
+      action: PayloadAction<QuickAction[] | null>,
+    ) => {
       state.quickActionsOverride = action.payload;
     },
-    setSuggestionsOverride: (state, action: PayloadAction<Suggestion[] | null>) => {
+    setSuggestionsOverride: (
+      state,
+      action: PayloadAction<Suggestion[] | null>,
+    ) => {
       state.suggestionsOverride = action.payload;
     },
-    pushExternalMessage: (state, action: PayloadAction<ExternalCopilotMessage>) => {
+    pushExternalMessage: (
+      state,
+      action: PayloadAction<ExternalCopilotMessage>,
+    ) => {
       state.messages = [
         ...state.messages,
         {
           id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-          type: action.payload.type || 'ai',
+          type: action.payload.type || "ai",
           content: action.payload.content,
           timestamp: new Date(),
         },
@@ -115,17 +124,26 @@ const copilotSlice = createSlice({
     },
 
     // Async actions for loading suggestions/quick actions
-    copilotSuggestionsRequested: (state, _action: PayloadAction<GetCopilotSuggestionsParams>) => {
-      state.suggestionsState.status = 'loading';
+    copilotSuggestionsRequested: (
+      state,
+      _action: PayloadAction<GetCopilotSuggestionsParams>,
+    ) => {
+      state.suggestionsState.status = "loading";
       state.suggestionsState.error = undefined;
     },
-    copilotSuggestionsLoaded: (state, action: PayloadAction<CopilotSuggestionsData>) => {
+    copilotSuggestionsLoaded: (
+      state,
+      action: PayloadAction<CopilotSuggestionsData>,
+    ) => {
       state.suggestionsState.data = action.payload;
-      state.suggestionsState.status = 'succeeded';
+      state.suggestionsState.status = "succeeded";
       state.suggestionsState.error = undefined;
     },
-    copilotSuggestionsFailed: (state, action: PayloadAction<NormalizedError>) => {
-      state.suggestionsState.status = 'failed';
+    copilotSuggestionsFailed: (
+      state,
+      action: PayloadAction<NormalizedError>,
+    ) => {
+      state.suggestionsState.status = "failed";
       state.suggestionsState.error = action.payload;
     },
   },
@@ -147,15 +165,18 @@ export const {
 } = copilotSlice.actions;
 
 // Custom selectors for nested suggestions state
-import type { RootState } from '../rootReducer';
+import type { RootState } from "../rootReducer";
 
 export const copilotSuggestionsSelectors = {
   selectData: (state: RootState) => state.copilot.suggestionsState.data,
   selectStatus: (state: RootState) => state.copilot.suggestionsState.status,
   selectError: (state: RootState) => state.copilot.suggestionsState.error,
-  selectIsLoading: (state: RootState) => state.copilot.suggestionsState.status === 'loading',
-  selectIsSucceeded: (state: RootState) => state.copilot.suggestionsState.status === 'succeeded',
-  selectIsFailed: (state: RootState) => state.copilot.suggestionsState.status === 'failed',
+  selectIsLoading: (state: RootState) =>
+    state.copilot.suggestionsState.status === "loading",
+  selectIsSucceeded: (state: RootState) =>
+    state.copilot.suggestionsState.status === "succeeded",
+  selectIsFailed: (state: RootState) =>
+    state.copilot.suggestionsState.status === "failed",
   selectState: (state: RootState) => state.copilot.suggestionsState,
 };
 

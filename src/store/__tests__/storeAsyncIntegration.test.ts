@@ -12,9 +12,9 @@ import { loadPortfolioUpdatesOperation } from "@/store/async/dataOperations";
 import { calculateWaterfallOperation } from "@/store/async/waterfallOperations";
 
 vi.mock("@/services/backOffice/distributionService", async () => {
-  const actual = await vi.importActual<typeof import("@/services/backOffice/distributionService")>(
-    "@/services/backOffice/distributionService"
-  );
+  const actual = await vi.importActual<
+    typeof import("@/services/backOffice/distributionService")
+  >("@/services/backOffice/distributionService");
   return {
     ...actual,
     fetchDistributions: vi.fn(),
@@ -22,9 +22,9 @@ vi.mock("@/services/backOffice/distributionService", async () => {
 });
 
 vi.mock("@/services/analytics/waterfallService", async () => {
-  const actual = await vi.importActual<typeof import("@/services/analytics/waterfallService")>(
-    "@/services/analytics/waterfallService"
-  );
+  const actual = await vi.importActual<
+    typeof import("@/services/analytics/waterfallService")
+  >("@/services/analytics/waterfallService");
   return {
     ...actual,
     performWaterfallCalculation: vi.fn(),
@@ -32,9 +32,9 @@ vi.mock("@/services/analytics/waterfallService", async () => {
 });
 
 vi.mock("@/services/portfolio/portfolioDataService", async () => {
-  const actual = await vi.importActual<typeof import("@/services/portfolio/portfolioDataService")>(
-    "@/services/portfolio/portfolioDataService"
-  );
+  const actual = await vi.importActual<
+    typeof import("@/services/portfolio/portfolioDataService")
+  >("@/services/portfolio/portfolioDataService");
   return {
     ...actual,
     fetchPortfolioSnapshot: vi.fn(),
@@ -42,9 +42,9 @@ vi.mock("@/services/portfolio/portfolioDataService", async () => {
 });
 
 vi.mock("@/services/portfolio/portfolioDocumentsService", async () => {
-  const actual = await vi.importActual<typeof import("@/services/portfolio/portfolioDocumentsService")>(
-    "@/services/portfolio/portfolioDocumentsService"
-  );
+  const actual = await vi.importActual<
+    typeof import("@/services/portfolio/portfolioDocumentsService")
+  >("@/services/portfolio/portfolioDocumentsService");
   return {
     ...actual,
     fetchPortfolioDocumentsSnapshot: vi.fn(),
@@ -98,13 +98,15 @@ describe("store + async integration", () => {
       },
     ];
 
-    vi.mocked(distributionService.fetchDistributions).mockResolvedValue(mockDistributions);
+    vi.mocked(distributionService.fetchDistributions).mockResolvedValue(
+      mockDistributions,
+    );
 
     await store.dispatch(loadDistributionsOperation(undefined)).unwrap();
 
-    expect(store.getState().distribution.distributions.data?.distributions).toEqual(
-      mockDistributions
-    );
+    expect(
+      store.getState().distribution.distributions.data?.distributions,
+    ).toEqual(mockDistributions);
   });
 
   it("runs waterfall calculation through async operations and stores results", async () => {
@@ -112,16 +114,24 @@ describe("store + async integration", () => {
     const mockScenario = mockWaterfallScenarios[0];
     const mockResults = mockScenario.results!;
 
-    vi.mocked(waterfallService.performWaterfallCalculation).mockResolvedValue(mockResults);
+    vi.mocked(waterfallService.performWaterfallCalculation).mockResolvedValue(
+      mockResults,
+    );
 
-    await store.dispatch(calculateWaterfallOperation({ scenario: mockScenario })).unwrap();
+    await store
+      .dispatch(calculateWaterfallOperation({ scenario: mockScenario }))
+      .unwrap();
 
-    expect(store.getState().waterfall.calculation.data?.results).toEqual(mockResults);
+    expect(store.getState().waterfall.calculation.data?.results).toEqual(
+      mockResults,
+    );
   });
 
   it("loads the full portfolio snapshot and stores documents in Redux state", async () => {
     const store = setupStore();
-    const mockPortfolioSnapshot: Awaited<ReturnType<typeof portfolioDataService.fetchPortfolioSnapshot>> = {
+    const mockPortfolioSnapshot: Awaited<
+      ReturnType<typeof portfolioDataService.fetchPortfolioSnapshot>
+    > = {
       companies: [
         {
           id: "company-1",
@@ -191,7 +201,11 @@ describe("store + async integration", () => {
       },
       healthyCompanies: 1,
     };
-    const mockPortfolioDocuments: Awaited<ReturnType<typeof portfolioDocumentsService.fetchPortfolioDocumentsSnapshot>> = {
+    const mockPortfolioDocuments: Awaited<
+      ReturnType<
+        typeof portfolioDocumentsService.fetchPortfolioDocumentsSnapshot
+      >
+    > = {
       companies: [
         {
           id: 1,
@@ -221,10 +235,16 @@ describe("store + async integration", () => {
       ],
     };
 
-    vi.mocked(portfolioDataService.fetchPortfolioSnapshot).mockResolvedValue(mockPortfolioSnapshot);
-    vi.mocked(portfolioDocumentsService.fetchPortfolioDocumentsSnapshot).mockResolvedValue(mockPortfolioDocuments);
+    vi.mocked(portfolioDataService.fetchPortfolioSnapshot).mockResolvedValue(
+      mockPortfolioSnapshot,
+    );
+    vi.mocked(
+      portfolioDocumentsService.fetchPortfolioDocumentsSnapshot,
+    ).mockResolvedValue(mockPortfolioDocuments);
 
-    await store.dispatch(loadPortfolioUpdatesOperation({ fundId: "fund-1" })).unwrap();
+    await store
+      .dispatch(loadPortfolioUpdatesOperation({ fundId: "fund-1" }))
+      .unwrap();
 
     expect(store.getState().portfolio.data).toEqual({
       ...mockPortfolioSnapshot,

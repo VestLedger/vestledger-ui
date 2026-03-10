@@ -1,12 +1,12 @@
-import type { AnyAction } from '@reduxjs/toolkit';
+import type { AnyAction } from "@reduxjs/toolkit";
 import {
   searchCleared,
   searchFailed,
   searchLoaded,
   searchRequested,
-} from '@/store/slices/searchSlice';
-import { normalizeError } from '@/store/utils/normalizeError';
-import type { TopbarSearchResult } from '@/services/topbarSearchService';
+} from "@/store/slices/searchSlice";
+import { normalizeError } from "@/store/utils/normalizeError";
+import type { TopbarSearchResult } from "@/services/topbarSearchService";
 
 type TimeoutHandle = ReturnType<typeof setTimeout>;
 

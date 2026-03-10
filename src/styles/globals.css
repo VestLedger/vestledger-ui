@@ -35,32 +35,34 @@
   /* Brand - Blue & Gold */
   --app-primary: #1e40af;
   --app-primary-hover: #1d4ed8;
-  --app-primary-bg: rgba(30, 64, 175, 0.10);
+  --app-primary-bg: rgba(30, 64, 175, 0.1);
   --app-secondary: #d4a332;
-  --app-secondary-bg: rgba(212, 163, 50, 0.10);
+  --app-secondary-bg: rgba(212, 163, 50, 0.1);
 
   /* Status colors */
   --app-success: #16a34a;
-  --app-success-bg: rgba(22, 163, 74, 0.10);
+  --app-success-bg: rgba(22, 163, 74, 0.1);
   --app-warning: #d97706;
-  --app-warning-bg: rgba(217, 119, 6, 0.10);
+  --app-warning-bg: rgba(217, 119, 6, 0.1);
   --app-danger: #dc2626;
-  --app-danger-bg: rgba(220, 38, 38, 0.10);
+  --app-danger-bg: rgba(220, 38, 38, 0.1);
   --app-info: #0891b2;
-  --app-info-bg: rgba(8, 145, 178, 0.10);
+  --app-info-bg: rgba(8, 145, 178, 0.1);
   --app-neutral: #6b7280;
-  --app-neutral-bg: rgba(107, 114, 128, 0.10);
+  --app-neutral-bg: rgba(107, 114, 128, 0.1);
 
   /* Accent */
   --app-accent: #2563eb;
-  --app-accent-bg: rgba(37, 99, 235, 0.10);
+  --app-accent-bg: rgba(37, 99, 235, 0.1);
 
   /* Shadows */
-  --app-shadow-1: 0 1px 3px rgba(28, 25, 23, 0.10), 0 4px 12px rgba(28, 25, 23, 0.08);
-  --app-shadow-2: 0 4px 8px rgba(28, 25, 23, 0.12), 0 12px 32px rgba(28, 25, 23, 0.10);
+  --app-shadow-1:
+    0 1px 3px rgba(28, 25, 23, 0.1), 0 4px 12px rgba(28, 25, 23, 0.08);
+  --app-shadow-2:
+    0 4px 8px rgba(28, 25, 23, 0.12), 0 12px 32px rgba(28, 25, 23, 0.1);
 
   /* Focus ring */
-  --app-focus-ring: 0 0 0 2px #fafaf9, 0 0 0 4px rgba(30, 64, 175, 0.40);
+  --app-focus-ring: 0 0 0 2px #fafaf9, 0 0 0 4px rgba(30, 64, 175, 0.4);
 
   /* Brand Identity Glows */
   --brand-glow: 0 0 60px rgba(59, 130, 246, 0.3);
@@ -72,9 +74,12 @@
 
   /* Enhanced Shadows (depth hierarchy) */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-md:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   --shadow-glow: 0 0 40px rgba(30, 64, 175, 0.15);
 }
 
@@ -119,11 +124,11 @@
   --app-accent-bg: rgba(96, 165, 250, 0.15);
 
   /* Shadows */
-  --app-shadow-1: 0 1px 3px rgba(0, 0, 0, 0.35), 0 6px 16px rgba(0, 0, 0, 0.30);
-  --app-shadow-2: 0 4px 8px rgba(0, 0, 0, 0.40), 0 16px 40px rgba(0, 0, 0, 0.35);
+  --app-shadow-1: 0 1px 3px rgba(0, 0, 0, 0.35), 0 6px 16px rgba(0, 0, 0, 0.3);
+  --app-shadow-2: 0 4px 8px rgba(0, 0, 0, 0.4), 0 16px 40px rgba(0, 0, 0, 0.35);
 
   /* Focus ring */
-  --app-focus-ring: 0 0 0 2px #0c0a09, 0 0 0 4px rgba(59, 130, 246, 0.50);
+  --app-focus-ring: 0 0 0 2px #0c0a09, 0 0 0 4px rgba(59, 130, 246, 0.5);
 
   /* Brand Identity Glows (dark mode) */
   --brand-glow: 0 0 80px rgba(59, 130, 246, 0.4);
@@ -135,9 +140,12 @@
 
   /* Enhanced Shadows (dark mode) */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+  --shadow-md:
+    0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg:
+    0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  --shadow-xl:
+    0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
   --shadow-glow: 0 0 50px rgba(59, 130, 246, 0.2);
 }
 
@@ -150,7 +158,9 @@ html {
 }
 
 /* Default border color */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   border-color: var(--app-border);
 }
 
@@ -167,7 +177,7 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(87, 83, 78, 0.30);
+  background-color: rgba(87, 83, 78, 0.3);
   border-radius: 9999px;
   border: 2px solid transparent;
   background-clip: padding-box;
@@ -184,7 +194,9 @@ html {
 .hover-glow:hover {
   box-shadow: var(--app-shadow-1);
   border-color: var(--app-border-strong);
-  transition: box-shadow 0.18s ease, border-color 0.18s ease;
+  transition:
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
 }
 
 .no-scrollbar {
@@ -259,24 +271,46 @@ html {
    Animations
    ============================================ */
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: var(--brand-glow-subtle); }
-  50% { box-shadow: var(--brand-glow); }
+  0%,
+  100% {
+    box-shadow: var(--brand-glow-subtle);
+  }
+  50% {
+    box-shadow: var(--brand-glow);
+  }
 }
 
 @keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 /* ============================================
@@ -375,14 +409,18 @@ html {
   padding: 12px 24px;
   font-weight: 600;
   font-size: 0.875rem;
-  box-shadow: var(--shadow-md), 0 0 20px rgba(59, 130, 246, 0.2);
+  box-shadow:
+    var(--shadow-md),
+    0 0 20px rgba(59, 130, 246, 0.2);
   transition: all 0.3s ease;
   cursor: pointer;
 }
 
 .btn-primary:hover {
   background-position: 100% 50%;
-  box-shadow: var(--shadow-lg), 0 0 30px rgba(59, 130, 246, 0.3);
+  box-shadow:
+    var(--shadow-lg),
+    0 0 30px rgba(59, 130, 246, 0.3);
   transform: translateY(-1px);
 }
 
@@ -481,7 +519,11 @@ html {
 
 /* Brand glow card */
 .card-brand {
-  background: linear-gradient(180deg, rgba(30, 64, 175, 0.03) 0%, transparent 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(30, 64, 175, 0.03) 0%,
+    transparent 100%
+  );
   border: 1px solid rgba(30, 64, 175, 0.2);
   border-radius: 16px;
   box-shadow: var(--brand-glow-subtle);
@@ -494,22 +536,42 @@ html {
 }
 
 .dark .card-brand {
-  background: linear-gradient(180deg, rgba(59, 130, 246, 0.05) 0%, transparent 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(59, 130, 246, 0.05) 0%,
+    transparent 100%
+  );
   border-color: rgba(59, 130, 246, 0.2);
 }
 
 /* Hero background with gradient mesh */
 .hero-bg {
   background:
-    radial-gradient(ellipse at 20% 50%, rgba(30, 64, 175, 0.1) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 50%, rgba(37, 99, 235, 0.08) 0%, transparent 50%),
+    radial-gradient(
+      ellipse at 20% 50%,
+      rgba(30, 64, 175, 0.1) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at 80% 50%,
+      rgba(37, 99, 235, 0.08) 0%,
+      transparent 50%
+    ),
     var(--app-bg);
 }
 
 .dark .hero-bg {
   background:
-    radial-gradient(ellipse at 20% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 50%, rgba(96, 165, 250, 0.1) 0%, transparent 50%),
+    radial-gradient(
+      ellipse at 20% 50%,
+      rgba(59, 130, 246, 0.15) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at 80% 50%,
+      rgba(96, 165, 250, 0.1) 0%,
+      transparent 50%
+    ),
     var(--app-bg);
 }
 
@@ -564,7 +626,11 @@ html {
 }
 
 .card-vesta {
-  background: linear-gradient(180deg, rgba(30, 64, 175, 0.03) 0%, transparent 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(30, 64, 175, 0.03) 0%,
+    transparent 100%
+  );
   border: 1px solid rgba(30, 64, 175, 0.2);
   border-radius: 16px;
   box-shadow: var(--brand-glow-subtle);
@@ -577,7 +643,11 @@ html {
 }
 
 .dark .card-vesta {
-  background: linear-gradient(180deg, rgba(59, 130, 246, 0.05) 0%, transparent 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(59, 130, 246, 0.05) 0%,
+    transparent 100%
+  );
   border-color: rgba(59, 130, 246, 0.2);
 }
 
@@ -613,10 +683,19 @@ html {
   --app-info: #3b82f6;
   --app-info-bg: rgba(59, 130, 246, 0.14);
 
-  --shadow-xl: 0 14px 28px rgba(15, 23, 42, 0.09), 0 6px 14px rgba(15, 23, 42, 0.07);
+  --shadow-xl:
+    0 14px 28px rgba(15, 23, 42, 0.09), 0 6px 14px rgba(15, 23, 42, 0.07);
   background:
-    radial-gradient(ellipse at 14% 0%, rgba(59, 130, 246, 0.12) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 8%, rgba(16, 185, 129, 0.08) 0%, transparent 48%),
+    radial-gradient(
+      ellipse at 14% 0%,
+      rgba(59, 130, 246, 0.12) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at 80% 8%,
+      rgba(16, 185, 129, 0.08) 0%,
+      transparent 48%
+    ),
     linear-gradient(180deg, #f4f6fb 0%, #f2f5fb 100%);
 }
 
@@ -649,10 +728,19 @@ html {
   --app-info: #38bdf8;
   --app-info-bg: rgba(56, 189, 248, 0.18);
 
-  --shadow-xl: 0 18px 36px rgba(3, 8, 20, 0.45), 0 8px 18px rgba(3, 8, 20, 0.35);
+  --shadow-xl:
+    0 18px 36px rgba(3, 8, 20, 0.45), 0 8px 18px rgba(3, 8, 20, 0.35);
   background:
-    radial-gradient(ellipse at 12% 0%, rgba(96, 165, 250, 0.22) 0%, transparent 52%),
-    radial-gradient(ellipse at 84% 10%, rgba(16, 185, 129, 0.14) 0%, transparent 50%),
+    radial-gradient(
+      ellipse at 12% 0%,
+      rgba(96, 165, 250, 0.22) 0%,
+      transparent 52%
+    ),
+    radial-gradient(
+      ellipse at 84% 10%,
+      rgba(16, 185, 129, 0.14) 0%,
+      transparent 50%
+    ),
     linear-gradient(180deg, #0b1220 0%, #0d1627 100%);
 }
 

@@ -7,12 +7,7 @@ const fillInputByLabel = (label: string, value: string) => {
         return;
       }
 
-      cy.contains(label)
-        .parent()
-        .find("input")
-        .first()
-        .clear()
-        .type(value);
+      cy.contains(label).parent().find("input").first().clear().type(value);
     });
 };
 

@@ -1,10 +1,10 @@
-import { isMockMode } from '@/config/data-mode';
-import { requestJson } from '@/services/shared/httpClient';
-import type { UserRole } from '@/types/auth';
+import { isMockMode } from "@/config/data-mode";
+import { requestJson } from "@/services/shared/httpClient";
+import type { UserRole } from "@/types/auth";
 
-export type AssignableAppRole = Exclude<UserRole, 'superadmin'>;
-export type TeamUserStatus = 'active' | 'disabled';
-export type InvitationStatus = 'pending' | 'accepted' | 'expired' | 'revoked';
+export type AssignableAppRole = Exclude<UserRole, "superadmin">;
+export type TeamUserStatus = "active" | "disabled";
+export type InvitationStatus = "pending" | "accepted" | "expired" | "revoked";
 
 export interface TeamMember {
   id: string;
@@ -48,14 +48,14 @@ export interface UpdateTeamMemberInput {
 
 function assertApiMode() {
   if (isMockMode()) {
-    throw new Error('Team access is unavailable in demo mode.');
+    throw new Error("Team access is unavailable in demo mode.");
   }
 }
 
 export async function getTeamAccessSnapshot(): Promise<TeamAccessSnapshot> {
   assertApiMode();
-  return requestJson<TeamAccessSnapshot>('/orgs/current/team', {
-    fallbackMessage: 'Failed to load team access data',
+  return requestJson<TeamAccessSnapshot>("/orgs/current/team", {
+    fallbackMessage: "Failed to load team access data",
   });
 }
 
@@ -63,20 +63,22 @@ export async function inviteTeamMember(
   input: CreateTeamInvitationInput,
 ): Promise<TeamInvitation> {
   assertApiMode();
-  return requestJson<TeamInvitation>('/orgs/current/team/invitations', {
-    method: 'POST',
+  return requestJson<TeamInvitation>("/orgs/current/team/invitations", {
+    method: "POST",
     body: input,
-    fallbackMessage: 'Failed to invite team member',
+    fallbackMessage: "Failed to invite team member",
   });
 }
 
-export async function resendTeamInvite(inviteId: string): Promise<TeamInvitation> {
+export async function resendTeamInvite(
+  inviteId: string,
+): Promise<TeamInvitation> {
   assertApiMode();
   return requestJson<TeamInvitation>(
     `/orgs/current/team/invitations/${inviteId}/resend`,
     {
-      method: 'POST',
-      fallbackMessage: 'Failed to resend invitation',
+      method: "POST",
+      fallbackMessage: "Failed to resend invitation",
     },
   );
 }
@@ -86,12 +88,12 @@ export async function updateTeamMember(
 ): Promise<TeamMember> {
   assertApiMode();
   return requestJson<TeamMember>(`/orgs/current/team/users/${input.userId}`, {
-    method: 'PATCH',
+    method: "PATCH",
     body: {
       role: input.role,
       isAdmin: input.isAdmin,
       status: input.status,
     },
-    fallbackMessage: 'Failed to update team member',
+    fallbackMessage: "Failed to update team member",
   });
 }

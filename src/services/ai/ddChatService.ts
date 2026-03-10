@@ -1,10 +1,10 @@
-import { isMockMode } from '@/config/data-mode';
+import { isMockMode } from "@/config/data-mode";
 import {
   getMockDDChatResponse,
   mockConversations,
   type Message,
-} from '@/data/mocks/ai/dd-chat-assistant';
-import type { GetDDChatConversationParams } from '@/store/slices/aiSlice';
+} from "@/data/mocks/ai/dd-chat-assistant";
+import type { GetDDChatConversationParams } from "@/store/slices/aiSlice";
 
 export type { Message };
 
@@ -12,8 +12,10 @@ export type { Message };
  * Get initial DD chat conversation for a deal
  * GraphQL-ready: Accepts params even in mock mode for seamless API migration
  */
-export function getInitialDDChatConversation(_params: GetDDChatConversationParams): Message[] {
-  if (isMockMode('ai')) {
+export function getInitialDDChatConversation(
+  _params: GetDDChatConversationParams,
+): Message[] {
+  if (isMockMode("ai")) {
     // Mock mode: Accept params but return static data
     // Future: Fetch conversation for specific dealId
     return mockConversations;
@@ -25,13 +27,16 @@ export function getInitialDDChatConversation(_params: GetDDChatConversationParam
 /**
  * Get DD chat assistant response for a query
  */
-export function getDDChatAssistantResponse(query: string, dealName?: string): Message {
-  if (isMockMode('ai')) return getMockDDChatResponse(query, dealName);
+export function getDDChatAssistantResponse(
+  query: string,
+  dealName?: string,
+): Message {
+  if (isMockMode("ai")) return getMockDDChatResponse(query, dealName);
   return {
     id: `unavailable-${Date.now()}`,
-    role: 'assistant',
+    role: "assistant",
     content:
-      'AI due diligence assistant is unavailable in API mode until the backend chat integration is implemented.',
+      "AI due diligence assistant is unavailable in API mode until the backend chat integration is implemented.",
     timestamp: new Date(),
   };
 }

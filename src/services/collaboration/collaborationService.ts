@@ -1,4 +1,4 @@
-import { isMockMode } from '@/config/data-mode';
+import { isMockMode } from "@/config/data-mode";
 import {
   mockCollaborationSnapshot as seedCollaborationSnapshot,
   type CollaborationMessage,
@@ -7,10 +7,10 @@ import {
   type CollaborationTaskPriority,
   type CollaborationTaskStatus,
   type CollaborationThread,
-} from '@/data/seeds/collaboration';
-import type { UserRole } from '@/types/auth';
-import { requestJson } from '@/services/shared/httpClient';
-import { ROUTE_PATHS } from '@/config/routes';
+} from "@/data/seeds/collaboration";
+import type { UserRole } from "@/types/auth";
+import { requestJson } from "@/services/shared/httpClient";
+import { ROUTE_PATHS } from "@/config/routes";
 
 export type {
   CollaborationMessage,
@@ -19,7 +19,7 @@ export type {
   CollaborationTaskPriority,
   CollaborationTaskStatus,
   CollaborationThread,
-} from '@/data/seeds/collaboration';
+} from "@/data/seeds/collaboration";
 
 type ApiListResponse<TItem> =
   | {
@@ -33,7 +33,7 @@ type ApiThreadRecord = {
   title?: string;
   contextLabel?: string;
   participants?: UserRole[];
-  status?: CollaborationThread['status'];
+  status?: CollaborationThread["status"];
   unreadCount?: number;
   lastMessageAt?: string;
 };
@@ -99,7 +99,7 @@ function setCachedSnapshot(snapshot: CollaborationSnapshot): void {
 function getCachedSnapshot(): CollaborationSnapshot {
   return clone(
     collaborationCache ??
-      (isMockMode('collaboration') ? getSeedSnapshot() : getEmptySnapshot())
+      (isMockMode("collaboration") ? getSeedSnapshot() : getEmptySnapshot()),
   );
 }
 
@@ -116,25 +116,34 @@ function asDateIso(value?: string): string {
   return parsed.toISOString();
 }
 
-function mapApiThread(record: ApiThreadRecord, index: number): CollaborationThread {
+function mapApiThread(
+  record: ApiThreadRecord,
+  index: number,
+): CollaborationThread {
   return {
     id: record.id ?? `thread-${index + 1}`,
     title: record.title ?? `Collaboration thread ${index + 1}`,
-    contextLabel: record.contextLabel ?? 'General',
-    participants: Array.isArray(record.participants) ? record.participants : ['gp', 'analyst'],
-    status: record.status ?? 'active',
-    unreadCount: typeof record.unreadCount === 'number' ? record.unreadCount : 0,
+    contextLabel: record.contextLabel ?? "General",
+    participants: Array.isArray(record.participants)
+      ? record.participants
+      : ["gp", "analyst"],
+    status: record.status ?? "active",
+    unreadCount:
+      typeof record.unreadCount === "number" ? record.unreadCount : 0,
     lastMessageAt: asDateIso(record.lastMessageAt),
   };
 }
 
-function mapApiMessage(record: ApiMessageRecord, index: number): CollaborationMessage {
+function mapApiMessage(
+  record: ApiMessageRecord,
+  index: number,
+): CollaborationMessage {
   return {
     id: record.id ?? `message-${index + 1}`,
-    threadId: record.threadId ?? 'thread-1',
-    authorName: record.authorName ?? 'VestLedger User',
-    authorRole: record.authorRole ?? 'gp',
-    message: record.message ?? 'Message imported from API.',
+    threadId: record.threadId ?? "thread-1",
+    authorName: record.authorName ?? "VestLedger User",
+    authorRole: record.authorRole ?? "gp",
+    message: record.message ?? "Message imported from API.",
     createdAt: asDateIso(record.createdAt),
   };
 }
@@ -143,53 +152,61 @@ function mapApiTask(record: ApiTaskRecord, index: number): CollaborationTask {
   return {
     id: record.id ?? `task-${index + 1}`,
     title: record.title ?? `Collaboration task ${index + 1}`,
-    description: record.description ?? 'Task imported from API.',
-    ownerRole: record.ownerRole ?? 'gp',
+    description: record.description ?? "Task imported from API.",
+    ownerRole: record.ownerRole ?? "gp",
     contributorRoles:
-      Array.isArray(record.contributorRoles) && record.contributorRoles.length > 0
+      Array.isArray(record.contributorRoles) &&
+      record.contributorRoles.length > 0
         ? record.contributorRoles
-        : ['analyst'],
-    priority: record.priority ?? 'medium',
-    status: record.status ?? 'todo',
+        : ["analyst"],
+    priority: record.priority ?? "medium",
+    status: record.status ?? "todo",
     dueDate: record.dueDate ?? new Date().toISOString().slice(0, 10),
     route: record.route ?? ROUTE_PATHS.dashboard,
   };
 }
 
-async function fetchSnapshotFromApi(previous: CollaborationSnapshot): Promise<CollaborationSnapshot> {
-  const [threadsResult, messagesResult, tasksResult] = await Promise.allSettled([
-    requestJson<ApiListResponse<ApiThreadRecord>>('/collaboration/threads', {
-      method: 'GET',
-      fallbackMessage: 'Failed to fetch collaboration threads',
-    }),
-    requestJson<ApiListResponse<ApiMessageRecord>>('/collaboration/messages', {
-      method: 'GET',
-      fallbackMessage: 'Failed to fetch collaboration messages',
-    }),
-    requestJson<ApiListResponse<ApiTaskRecord>>('/collaboration/tasks', {
-      method: 'GET',
-      fallbackMessage: 'Failed to fetch collaboration tasks',
-    }),
-  ]);
+async function fetchSnapshotFromApi(
+  previous: CollaborationSnapshot,
+): Promise<CollaborationSnapshot> {
+  const [threadsResult, messagesResult, tasksResult] = await Promise.allSettled(
+    [
+      requestJson<ApiListResponse<ApiThreadRecord>>("/collaboration/threads", {
+        method: "GET",
+        fallbackMessage: "Failed to fetch collaboration threads",
+      }),
+      requestJson<ApiListResponse<ApiMessageRecord>>(
+        "/collaboration/messages",
+        {
+          method: "GET",
+          fallbackMessage: "Failed to fetch collaboration messages",
+        },
+      ),
+      requestJson<ApiListResponse<ApiTaskRecord>>("/collaboration/tasks", {
+        method: "GET",
+        fallbackMessage: "Failed to fetch collaboration tasks",
+      }),
+    ],
+  );
 
   return {
     threads:
-      threadsResult.status === 'fulfilled'
+      threadsResult.status === "fulfilled"
         ? extractApiList(threadsResult.value).map(mapApiThread)
         : previous.threads,
     messages:
-      messagesResult.status === 'fulfilled'
+      messagesResult.status === "fulfilled"
         ? extractApiList(messagesResult.value).map(mapApiMessage)
         : previous.messages,
     tasks:
-      tasksResult.status === 'fulfilled'
+      tasksResult.status === "fulfilled"
         ? extractApiList(tasksResult.value).map(mapApiTask)
         : previous.tasks,
   };
 }
 
 export async function getCollaborationSnapshot(): Promise<CollaborationSnapshot> {
-  if (isMockMode('collaboration')) {
+  if (isMockMode("collaboration")) {
     if (!collaborationCache) {
       setCachedSnapshot(getSeedSnapshot());
     }
@@ -207,10 +224,12 @@ export async function getCollaborationSnapshot(): Promise<CollaborationSnapshot>
 }
 
 export async function addCollaborationMessage(
-  input: CreateCollaborationMessageInput
+  input: CreateCollaborationMessageInput,
 ): Promise<CollaborationMessage> {
-  if (!isMockMode('collaboration')) {
-    throw new Error('Adding collaboration messages in live mode requires an API implementation.');
+  if (!isMockMode("collaboration")) {
+    throw new Error(
+      "Adding collaboration messages in live mode requires an API implementation.",
+    );
   }
 
   const snapshot = getCachedSnapshot();
@@ -228,11 +247,11 @@ export async function addCollaborationMessage(
     thread.id === input.threadId
       ? {
           ...thread,
-          status: 'active',
+          status: "active",
           unreadCount: 0,
           lastMessageAt: nextMessage.createdAt,
         }
-      : thread
+      : thread,
   );
 
   setCachedSnapshot(snapshot);
@@ -240,10 +259,12 @@ export async function addCollaborationMessage(
 }
 
 export async function createCollaborationTask(
-  input: CreateCollaborationTaskInput
+  input: CreateCollaborationTaskInput,
 ): Promise<CollaborationTask> {
-  if (!isMockMode('collaboration')) {
-    throw new Error('Creating collaboration tasks in live mode requires an API implementation.');
+  if (!isMockMode("collaboration")) {
+    throw new Error(
+      "Creating collaboration tasks in live mode requires an API implementation.",
+    );
   }
 
   const snapshot = getCachedSnapshot();
@@ -254,7 +275,7 @@ export async function createCollaborationTask(
     ownerRole: input.ownerRole,
     contributorRoles: input.contributorRoles,
     priority: input.priority,
-    status: 'todo',
+    status: "todo",
     dueDate: input.dueDate,
     route: input.route,
   };
@@ -266,10 +287,12 @@ export async function createCollaborationTask(
 
 export async function updateCollaborationTaskStatus(
   taskId: string,
-  status: CollaborationTaskStatus
+  status: CollaborationTaskStatus,
 ): Promise<CollaborationTask> {
-  if (!isMockMode('collaboration')) {
-    throw new Error('Updating collaboration tasks in live mode requires an API implementation.');
+  if (!isMockMode("collaboration")) {
+    throw new Error(
+      "Updating collaboration tasks in live mode requires an API implementation.",
+    );
   }
 
   const snapshot = getCachedSnapshot();

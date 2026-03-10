@@ -1,8 +1,8 @@
-import { configureStore } from '@reduxjs/toolkit';
-import createSagaMiddleware from 'redux-saga';
-import { abortableThunkRegistryMiddleware } from './abortableThunkRegistry';
-import { rootReducer } from './rootReducer';
-import { rootSaga } from './rootSaga';
+import { configureStore } from "@reduxjs/toolkit";
+import createSagaMiddleware from "redux-saga";
+import { abortableThunkRegistryMiddleware } from "./abortableThunkRegistry";
+import { rootReducer } from "./rootReducer";
+import { rootSaga } from "./rootSaga";
 
 export const sagaMiddleware = createSagaMiddleware();
 
@@ -12,11 +12,13 @@ export const store = configureStore({
     getDefaultMiddleware({
       serializableCheck: false,
       immutableCheck: false,
-    }).prepend(abortableThunkRegistryMiddleware).concat(sagaMiddleware),
-  devTools: process.env.NODE_ENV !== 'production',
+    })
+      .prepend(abortableThunkRegistryMiddleware)
+      .concat(sagaMiddleware),
+  devTools: process.env.NODE_ENV !== "production",
 });
 
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   sagaMiddleware.run(rootSaga);
 }
 
