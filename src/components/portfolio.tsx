@@ -1,25 +1,36 @@
-'use client'
+"use client";
 
-import { useEffect } from 'react';
-import { PageScaffold } from '@/ui/composites';
-import { Briefcase } from 'lucide-react';
-import { PortfolioDashboard } from './portfolio-dashboard';
-import { PortfolioDocuments } from './portfolio-documents';
-import { PortfolioUpdates } from './portfolio-updates';
-import { FundSelector } from './fund-selector';
-import { getRouteConfig, ROUTE_PATHS } from '@/config/routes';
-import { DEFAULT_PORTFOLIO_TAB_ID, PORTFOLIO_TAB_IDS } from '@/config/portfolio-tabs';
-import { useUIKey } from '@/store/ui';
-import { useFund } from '@/contexts/fund-context';
-import { useAsyncData } from '@/hooks/useAsyncData';
+import { useEffect } from "react";
+import { PageScaffold } from "@/ui/composites";
+import { Briefcase } from "lucide-react";
+import { PortfolioDashboard } from "./portfolio-dashboard";
+import { PortfolioDocuments } from "./portfolio-documents";
+import { PortfolioUpdates } from "./portfolio-updates";
+import { FundSelector } from "./fund-selector";
+import { getRouteConfig, ROUTE_PATHS } from "@/config/routes";
 import {
-  portfolioSelectors,
-} from '@/store/slices/portfolioSlice';
-import { AsyncStateRenderer } from '@/ui/async-states';
-import { loadPortfolioUpdatesOperation } from '@/store/async/dataOperations';
+  DEFAULT_PORTFOLIO_TAB_ID,
+  PORTFOLIO_TAB_IDS,
+} from "@/config/portfolio-tabs";
+import { useUIKey } from "@/store/ui";
+import { useFund, TabFundScope } from "@/contexts/fund-context";
+import { useAsyncData } from "@/hooks/useAsyncData";
+import { portfolioSelectors } from "@/store/slices/portfolioSlice";
+import { AsyncStateRenderer } from "@/ui/async-states";
+import { loadPortfolioUpdatesOperation } from "@/store/async/dataOperations";
 
 export function Portfolio() {
-  const { value: ui, patch: patchUI } = useUIKey('portfolio', { selected: DEFAULT_PORTFOLIO_TAB_ID });
+  return (
+    <TabFundScope tabKey="portfolio">
+      <PortfolioContent />
+    </TabFundScope>
+  );
+}
+
+function PortfolioContent() {
+  const { value: ui, patch: patchUI } = useUIKey("portfolio", {
+    selected: DEFAULT_PORTFOLIO_TAB_ID,
+  });
   const { selected } = ui;
   const { selectedFund } = useFund();
   const fundId = selectedFund?.id ?? null;
@@ -39,7 +50,7 @@ export function Portfolio() {
     {
       params: { fundId },
       dependencies: [fundId],
-    }
+    },
   );
 
   const pageMetrics = data?.pageMetrics ?? {
@@ -52,7 +63,7 @@ export function Portfolio() {
   const atRiskCompanies = pageMetrics.atRiskCompanies;
   const pendingUpdates = pageMetrics.pendingUpdates;
   const aiSummaryText = isLoading
-    ? 'Refreshing portfolio metrics and updates...'
+    ? "Refreshing portfolio metrics and updates..."
     : `${healthyCompanies}/${totalCompanies} companies performing well. ${atRiskCompanies} companies flagged for attention. ${pendingUpdates} unread portfolio updates require review.`;
 
   return (
@@ -60,8 +71,8 @@ export function Portfolio() {
       breadcrumbs={routeConfig?.breadcrumbs}
       aiSuggestion={routeConfig?.aiSuggestion}
       header={{
-        title: 'Portfolio',
-        description: 'Track performance across your investments',
+        title: "Portfolio",
+        description: "Track performance across your investments",
         icon: Briefcase,
         aiSummary: {
           text: aiSummaryText,
@@ -80,9 +91,9 @@ export function Portfolio() {
       >
         {() => (
           <div className="mt-4">
-            {selected === 'overview' && <PortfolioDashboard />}
-            {selected === 'updates' && <PortfolioUpdates />}
-            {selected === 'documents' && <PortfolioDocuments />}
+            {selected === "overview" && <PortfolioDashboard />}
+            {selected === "updates" && <PortfolioUpdates />}
+            {selected === "documents" && <PortfolioDocuments />}
           </div>
         )}
       </AsyncStateRenderer>

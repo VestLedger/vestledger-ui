@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useUIKey } from '@/store/ui';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { authSelectors } from '@/store/slices/authSlice';
-import { fundUISelectors } from '@/store/slices/fundSlice';
-import { useFund } from '@/contexts/fund-context';
-import { Card, Button, Progress, Select, Modal, Input } from '@/ui';
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useUIKey } from "@/store/ui";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { authSelectors } from "@/store/slices/authSlice";
+import { fundUISelectors } from "@/store/slices/fundSlice";
+import { useFund, TabFundScope } from "@/contexts/fund-context";
+import { Card, Button, Progress, Select, Modal, Input } from "@/ui";
 import {
   Send,
   Download,
@@ -15,39 +15,34 @@ import {
   Mail,
   ArrowUpRight,
   Building2,
-} from 'lucide-react';
-import { FundSelector } from '../fund-selector';
-import { getRouteConfig, ROUTE_PATHS } from '@/config/routes';
-import { CarriedInterestTracker } from '../fund-admin/carried-interest-tracker';
-import { ExpenseTracker } from '../fund-admin/expense-tracker';
-import { NAVCalculator } from '../fund-admin/nav-calculator';
-import { TransferSecondary } from '../fund-admin/transfer-secondary';
-import { DistributionsList } from '../fund-admin/distributions/distributions-list';
-import { FundSetupList } from '../fund-admin/fund-setup-list';
+} from "lucide-react";
+import { FundSelector } from "../fund-selector";
+import { getRouteConfig, ROUTE_PATHS } from "@/config/routes";
+import { CarriedInterestTracker } from "../fund-admin/carried-interest-tracker";
+import { ExpenseTracker } from "../fund-admin/expense-tracker";
+import { NAVCalculator } from "../fund-admin/nav-calculator";
+import { TransferSecondary } from "../fund-admin/transfer-secondary";
+import { DistributionsList } from "../fund-admin/distributions/distributions-list";
+import { FundSetupList } from "../fund-admin/fund-setup-list";
+import { fundAdminSelectors } from "@/store/slices/backOfficeSlice";
+import { navOpsSelectors } from "@/store/slices/navOpsSlice";
+import { carryOpsSelectors } from "@/store/slices/carryOpsSlice";
+import { expenseOpsSelectors } from "@/store/slices/expenseOpsSlice";
+import { secondaryTransferOpsSelectors } from "@/store/slices/secondaryTransferOpsSlice";
+import { AsyncStateRenderer } from "@/ui/async-states";
+import { formatCurrency, formatDate } from "@/utils/formatting";
 import {
-  fundAdminSelectors,
-} from '@/store/slices/backOfficeSlice';
-import {
-  navOpsSelectors,
-} from '@/store/slices/navOpsSlice';
-import {
-  carryOpsSelectors,
-} from '@/store/slices/carryOpsSlice';
-import {
-  expenseOpsSelectors,
-} from '@/store/slices/expenseOpsSlice';
-import {
-  secondaryTransferOpsSelectors,
-} from '@/store/slices/secondaryTransferOpsSlice';
-import { AsyncStateRenderer } from '@/ui/async-states';
-import { formatCurrency, formatDate } from '@/utils/formatting';
-import { KeyValueRow, StatusBadge, PageScaffold, SectionHeader } from '@/ui/composites';
-import { useAsyncData } from '@/hooks/useAsyncData';
-import type { CreateCapitalCallParams } from '@/services/backOffice/fundAdminService';
+  KeyValueRow,
+  StatusBadge,
+  PageScaffold,
+  SectionHeader,
+} from "@/ui/composites";
+import { useAsyncData } from "@/hooks/useAsyncData";
+import type { CreateCapitalCallParams } from "@/services/backOffice/fundAdminService";
 import {
   DEFAULT_FUND_ADMIN_TAB_ID,
   FUND_ADMIN_TAB_IDS,
-} from '@/config/fund-admin-tabs';
+} from "@/config/fund-admin-tabs";
 import {
   createCapitalCallOperation,
   exportFundAdminActivityOperation,
@@ -56,7 +51,7 @@ import {
   sendCapitalCallReminderOperation,
   sendLPReminderOperation,
   updateLPResponseOperation,
-} from '@/store/async/backOfficeOperations';
+} from "@/store/async/backOfficeOperations";
 import {
   addExpenseOperation,
   approveCarryOperation,
@@ -82,22 +77,30 @@ import {
   reviewNAVOperation,
   reviewSecondaryTransferOperation,
   uploadSecondaryTransferDocumentOperation,
-} from '@/store/async/fundAdminOpsOperations';
+} from "@/store/async/fundAdminOpsOperations";
 
 type FundAdminUIState = {
   selectedTab: string;
-  lpStatusFilter: 'all' | 'paid' | 'partial' | 'pending' | 'overdue';
+  lpStatusFilter: "all" | "paid" | "partial" | "pending" | "overdue";
 };
 
 const LP_STATUS_OPTIONS = [
-  { value: 'all', label: 'All Statuses' },
-  { value: 'paid', label: 'Paid' },
-  { value: 'partial', label: 'Partial' },
-  { value: 'pending', label: 'Pending' },
-  { value: 'overdue', label: 'Overdue' },
+  { value: "all", label: "All Statuses" },
+  { value: "paid", label: "Paid" },
+  { value: "partial", label: "Partial" },
+  { value: "pending", label: "Pending" },
+  { value: "overdue", label: "Overdue" },
 ];
 
 export function FundAdmin() {
+  return (
+    <TabFundScope tabKey="fund-admin">
+      <FundAdminContent />
+    </TabFundScope>
+  );
+}
+
+function FundAdminContent() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { selectedFund, viewMode } = useFund();
@@ -105,8 +108,8 @@ export function FundAdmin() {
   const user = useAppSelector(authSelectors.selectUser);
   const visibleFunds = useAppSelector(fundUISelectors.selectVisibleFunds);
 
-  const canMutate = user?.role === 'ops' || user?.role === 'gp';
-  const targetFundId = viewMode === 'individual' ? selectedFund?.id : undefined;
+  const canMutate = user?.role === "ops" || user?.role === "gp";
+  const targetFundId = viewMode === "individual" ? selectedFund?.id : undefined;
 
   const { data, isLoading, error, refetch } = useAsyncData(
     loadFundAdminOperation,
@@ -114,13 +117,16 @@ export function FundAdmin() {
     {
       params: { fundId: targetFundId },
       dependencies: [targetFundId, viewMode],
-    }
+    },
   );
 
-  const { value: ui, patch: patchUI } = useUIKey<FundAdminUIState>('back-office-fund-admin', {
-    selectedTab: DEFAULT_FUND_ADMIN_TAB_ID,
-    lpStatusFilter: 'all',
-  });
+  const { value: ui, patch: patchUI } = useUIKey<FundAdminUIState>(
+    "back-office-fund-admin",
+    {
+      selectedTab: DEFAULT_FUND_ADMIN_TAB_ID,
+      lpStatusFilter: "all",
+    },
+  );
   const { selectedTab, lpStatusFilter } = ui;
 
   useEffect(() => {
@@ -129,23 +135,35 @@ export function FundAdmin() {
     }
   }, [selectedTab, patchUI]);
 
-  const { data: navData } = useAsyncData(loadNAVOperation, navOpsSelectors.selectState, {
-    params: { fundId: targetFundId },
-    dependencies: [targetFundId],
-    fetchOnMount: selectedTab === 'nav-calculator',
-  });
+  const { data: navData } = useAsyncData(
+    loadNAVOperation,
+    navOpsSelectors.selectState,
+    {
+      params: { fundId: targetFundId },
+      dependencies: [targetFundId],
+      fetchOnMount: selectedTab === "nav-calculator",
+    },
+  );
 
-  const { data: carryData } = useAsyncData(loadCarryOperation, carryOpsSelectors.selectState, {
-    params: { fundId: targetFundId },
-    dependencies: [targetFundId],
-    fetchOnMount: selectedTab === 'carried-interest',
-  });
+  const { data: carryData } = useAsyncData(
+    loadCarryOperation,
+    carryOpsSelectors.selectState,
+    {
+      params: { fundId: targetFundId },
+      dependencies: [targetFundId],
+      fetchOnMount: selectedTab === "carried-interest",
+    },
+  );
 
-  const { data: expenseData } = useAsyncData(loadExpensesOperation, expenseOpsSelectors.selectState, {
-    params: { fundId: targetFundId },
-    dependencies: [targetFundId],
-    fetchOnMount: selectedTab === 'expenses',
-  });
+  const { data: expenseData } = useAsyncData(
+    loadExpensesOperation,
+    expenseOpsSelectors.selectState,
+    {
+      params: { fundId: targetFundId },
+      dependencies: [targetFundId],
+      fetchOnMount: selectedTab === "expenses",
+    },
+  );
 
   const { data: transferData } = useAsyncData(
     loadSecondaryTransfersOperation,
@@ -153,39 +171,55 @@ export function FundAdmin() {
     {
       params: { fundId: targetFundId },
       dependencies: [targetFundId],
-      fetchOnMount: selectedTab === 'secondary-transfers',
-    }
+      fetchOnMount: selectedTab === "secondary-transfers",
+    },
   );
 
   const [fundSetupCreateSignal, setFundSetupCreateSignal] = useState(0);
   const [isCreateCallOpen, setCreateCallOpen] = useState(false);
-  const [newCall, setNewCall] = useState<Pick<CreateCapitalCallParams, 'fundId' | 'fundName' | 'purpose' | 'totalAmount' | 'dueDate'>>({
-    fundId: selectedFund?.id ?? visibleFunds[0]?.id ?? '',
-    fundName: selectedFund?.name ?? visibleFunds[0]?.name ?? '',
-    purpose: '',
+  const [newCall, setNewCall] = useState<
+    Pick<
+      CreateCapitalCallParams,
+      "fundId" | "fundName" | "purpose" | "totalAmount" | "dueDate"
+    >
+  >({
+    fundId: selectedFund?.id ?? visibleFunds[0]?.id ?? "",
+    fundName: selectedFund?.name ?? visibleFunds[0]?.name ?? "",
+    purpose: "",
     totalAmount: 1_000_000,
-    dueDate: new Date().toISOString().split('T')[0] || '',
+    dueDate: new Date().toISOString().split("T")[0] || "",
   });
 
   const routeConfig = getRouteConfig(ROUTE_PATHS.fundAdmin);
 
-  const capitalCalls = useMemo(() => data?.capitalCalls ?? [], [data?.capitalCalls]);
-  const lpResponses = useMemo(() => data?.lpResponses ?? [], [data?.lpResponses]);
+  const capitalCalls = useMemo(
+    () => data?.capitalCalls ?? [],
+    [data?.capitalCalls],
+  );
+  const lpResponses = useMemo(
+    () => data?.lpResponses ?? [],
+    [data?.lpResponses],
+  );
 
   const filteredLPResponses = useMemo(() => {
-    if (lpStatusFilter === 'all') {
+    if (lpStatusFilter === "all") {
       return lpResponses;
     }
     return lpResponses.filter((response) => response.status === lpStatusFilter);
   }, [lpResponses, lpStatusFilter]);
 
-  const activeCalls = capitalCalls.filter((call) => call.status === 'in-progress' || call.status === 'sent');
+  const activeCalls = capitalCalls.filter(
+    (call) => call.status === "in-progress" || call.status === "sent",
+  );
   const activeCallsCount = activeCalls.length;
   const totalOutstanding = activeCalls.reduce(
     (sum, call) => sum + Math.max(call.totalAmount - call.amountReceived, 0),
-    0
+    0,
   );
-  const pendingLPs = lpResponses.filter((response) => response.status === 'pending' || response.status === 'partial').length;
+  const pendingLPs = lpResponses.filter(
+    (response) =>
+      response.status === "pending" || response.status === "partial",
+  ).length;
 
   const resolveActionFund = () => {
     if (selectedFund) return selectedFund;
@@ -195,11 +229,11 @@ export function FundAdmin() {
   const openCreateCall = () => {
     const fund = resolveActionFund();
     setNewCall({
-      fundId: fund?.id ?? '',
-      fundName: fund?.name ?? '',
-      purpose: '',
+      fundId: fund?.id ?? "",
+      fundName: fund?.name ?? "",
+      purpose: "",
       totalAmount: 1_000_000,
-      dueDate: new Date().toISOString().split('T')[0] || '',
+      dueDate: new Date().toISOString().split("T")[0] || "",
     });
     setCreateCallOpen(true);
   };
@@ -210,13 +244,15 @@ export function FundAdmin() {
       return;
     }
 
-    dispatch(createCapitalCallOperation({
-      fundId: fund.id,
-      fundName: fund.name,
-      purpose: newCall.purpose,
-      totalAmount: newCall.totalAmount,
-      dueDate: newCall.dueDate,
-    }));
+    dispatch(
+      createCapitalCallOperation({
+        fundId: fund.id,
+        fundName: fund.name,
+        purpose: newCall.purpose,
+        totalAmount: newCall.totalAmount,
+        dueDate: newCall.dueDate,
+      }),
+    );
     setCreateCallOpen(false);
   };
 
@@ -224,53 +260,57 @@ export function FundAdmin() {
     const fund = resolveActionFund();
     if (!fund || !canMutate) return;
 
-    dispatch(addExpenseOperation({
-      expense: {
-        fundId: fund.id,
-        fundName: fund.name,
-        type: 'other',
-        category: 'General',
-        description: 'New operating expense',
-        amount: 1_000,
-        date: new Date(),
-        payee: 'Vendor',
-        status: 'pending',
-        isRecurring: false,
-        allocatedToLPs: false,
-      },
-    }));
+    dispatch(
+      addExpenseOperation({
+        expense: {
+          fundId: fund.id,
+          fundName: fund.name,
+          type: "other",
+          category: "General",
+          description: "New operating expense",
+          amount: 1_000,
+          date: new Date(),
+          payee: "Vendor",
+          status: "pending",
+          isRecurring: false,
+          allocatedToLPs: false,
+        },
+      }),
+    );
   };
 
   const triggerTransferCreate = () => {
     const fund = resolveActionFund();
     if (!fund || !canMutate) return;
 
-    dispatch(initiateSecondaryTransferOperation({
-      transfer: {
-        fundId: fund.id,
-        fundName: fund.name,
-        type: 'direct',
-        transferorId: 'lp-source',
-        transferorName: 'Transferor LP',
-        transferorEmail: 'transferor@example.com',
-        transfereeId: 'lp-target',
-        transfereeName: 'Transferee LP',
-        transfereeEmail: 'transferee@example.com',
-        commitmentAmount: 1_000_000,
-        fundedAmount: 500_000,
-        unfundedCommitment: 500_000,
-        includesManagementRights: true,
-        includesInformationRights: true,
-        includesVotingRights: true,
-        subjectToROFR: false,
-        requiresGPConsent: true,
-        requiresLPVote: false,
-        accreditationVerified: false,
-        kycCompleted: false,
-        amlCleared: false,
-        taxFormsReceived: false,
-      },
-    }));
+    dispatch(
+      initiateSecondaryTransferOperation({
+        transfer: {
+          fundId: fund.id,
+          fundName: fund.name,
+          type: "direct",
+          transferorId: "lp-source",
+          transferorName: "Transferor LP",
+          transferorEmail: "transferor@example.com",
+          transfereeId: "lp-target",
+          transfereeName: "Transferee LP",
+          transfereeEmail: "transferee@example.com",
+          commitmentAmount: 1_000_000,
+          fundedAmount: 500_000,
+          unfundedCommitment: 500_000,
+          includesManagementRights: true,
+          includesInformationRights: true,
+          includesVotingRights: true,
+          subjectToROFR: false,
+          requiresGPConsent: true,
+          requiresLPVote: false,
+          accreditationVerified: false,
+          kycCompleted: false,
+          amlCleared: false,
+          taxFormsReceived: false,
+        },
+      }),
+    );
   };
 
   let primaryAction:
@@ -282,53 +322,57 @@ export function FundAdmin() {
     | undefined;
 
   if (canMutate) {
-    if (selectedTab === 'fund-setup') {
+    if (selectedTab === "fund-setup") {
       primaryAction = {
-        label: 'New Fund',
+        label: "New Fund",
         onClick: () => setFundSetupCreateSignal((value) => value + 1),
         aiSuggested: false,
       };
-    } else if (selectedTab === 'capital-calls') {
+    } else if (selectedTab === "capital-calls") {
       primaryAction = {
-        label: 'New Capital Call',
+        label: "New Capital Call",
         onClick: openCreateCall,
         aiSuggested: false,
       };
-    } else if (selectedTab === 'distributions') {
+    } else if (selectedTab === "distributions") {
       primaryAction = {
-        label: 'New Distribution',
+        label: "New Distribution",
         onClick: () => router.push(ROUTE_PATHS.fundAdminDistributionsNew),
         aiSuggested: false,
       };
-    } else if (selectedTab === 'nav-calculator') {
+    } else if (selectedTab === "nav-calculator") {
       primaryAction = {
-        label: 'Recalculate NAV',
+        label: "Recalculate NAV",
         onClick: () => {
           const fund = resolveActionFund();
           if (!fund) return;
-          dispatch(calculateNAVOperation({ fundId: fund.id, fundName: fund.name }));
+          dispatch(
+            calculateNAVOperation({ fundId: fund.id, fundName: fund.name }),
+          );
         },
         aiSuggested: false,
       };
-    } else if (selectedTab === 'carried-interest') {
+    } else if (selectedTab === "carried-interest") {
       primaryAction = {
-        label: 'Recalculate Carry',
+        label: "Recalculate Carry",
         onClick: () => {
           const fund = resolveActionFund();
           if (!fund) return;
-          dispatch(calculateCarryOperation({ fundId: fund.id, fundName: fund.name }));
+          dispatch(
+            calculateCarryOperation({ fundId: fund.id, fundName: fund.name }),
+          );
         },
         aiSuggested: false,
       };
-    } else if (selectedTab === 'expenses') {
+    } else if (selectedTab === "expenses") {
       primaryAction = {
-        label: 'Add Expense',
+        label: "Add Expense",
         onClick: triggerExpenseCreate,
         aiSuggested: false,
       };
-    } else if (selectedTab === 'secondary-transfers') {
+    } else if (selectedTab === "secondary-transfers") {
       primaryAction = {
-        label: 'Initiate Transfer',
+        label: "Initiate Transfer",
         onClick: triggerTransferCreate,
         aiSuggested: false,
       };
@@ -350,17 +394,18 @@ export function FundAdmin() {
           <PageScaffold
             breadcrumbs={routeConfig?.breadcrumbs}
             aiSuggestion={routeConfig?.aiSuggestion}
-            containerProps={{ className: 'space-y-4' }}
-            toolbar={(
+            containerProps={{ className: "space-y-4" }}
+            toolbar={
               <div className="flex justify-end">
                 <div className="w-full sm:w-64">
                   <FundSelector />
                 </div>
               </div>
-            )}
+            }
             header={{
-              title: 'Fund Administration',
-              description: 'Operate fund setup, capital workflows, and back-office operations in one cockpit.',
+              title: "Fund Administration",
+              description:
+                "Operate fund setup, capital workflows, and back-office operations in one cockpit.",
               icon: Building2,
               aiSummary: {
                 text: `${activeCallsCount} active capital calls with ${formatCurrency(totalOutstanding)} outstanding. ${pendingLPs} LPs require follow-up across active workflows.`,
@@ -368,22 +413,31 @@ export function FundAdmin() {
               primaryAction,
               secondaryActions: [
                 {
-                  label: 'Export Activity',
+                  label: "Export Activity",
                   onClick: () => dispatch(exportFundAdminActivityOperation()),
                 },
               ],
             }}
           >
             <div>
-              {selectedTab === 'fund-setup' && (
-                <FundSetupList canMutate={canMutate} createSignal={fundSetupCreateSignal} />
+              {selectedTab === "fund-setup" && (
+                <FundSetupList
+                  canMutate={canMutate}
+                  createSignal={fundSetupCreateSignal}
+                />
               )}
 
-              {selectedTab === 'capital-calls' && (
+              {selectedTab === "capital-calls" && (
                 <div className="space-y-3">
                   {capitalCalls.map((call) => {
-                    const responseRate = call.lpCount > 0 ? (call.lpsResponded / call.lpCount) * 100 : 0;
-                    const collectionRate = call.totalAmount > 0 ? (call.amountReceived / call.totalAmount) * 100 : 0;
+                    const responseRate =
+                      call.lpCount > 0
+                        ? (call.lpsResponded / call.lpCount) * 100
+                        : 0;
+                    const collectionRate =
+                      call.totalAmount > 0
+                        ? (call.amountReceived / call.totalAmount) * 100
+                        : 0;
 
                     return (
                       <Card key={call.id} padding="lg">
@@ -395,40 +449,71 @@ export function FundAdmin() {
                               </div>
                               <div>
                                 <div className="flex items-center gap-2 mb-1">
-                                  <h3 className="font-semibold text-lg">Capital Call #{call.callNumber}</h3>
-                                  <StatusBadge status={call.status} domain="fund-admin" showIcon size="sm" />
+                                  <h3 className="font-semibold text-lg">
+                                    Capital Call #{call.callNumber}
+                                  </h3>
+                                  <StatusBadge
+                                    status={call.status}
+                                    domain="fund-admin"
+                                    showIcon
+                                    size="sm"
+                                  />
                                 </div>
-                                <p className="text-sm text-[var(--app-text-muted)] mb-1">{call.fundName}</p>
-                                <p className="text-sm text-[var(--app-text-subtle)]">{call.purpose}</p>
+                                <p className="text-sm text-[var(--app-text-muted)] mb-1">
+                                  {call.fundName}
+                                </p>
+                                <p className="text-sm text-[var(--app-text-subtle)]">
+                                  {call.purpose}
+                                </p>
                               </div>
                             </div>
                             {canMutate && (
                               <div className="flex items-center gap-2">
-                                {call.status === 'draft' && (
+                                {call.status === "draft" && (
                                   <Button
                                     size="sm"
                                     className="bg-[var(--app-primary)] text-white"
                                     startContent={<Send className="w-4 h-4" />}
-                                    onPress={() => dispatch(sendCapitalCallOperation({ capitalCallId: call.id }))}
+                                    onPress={() =>
+                                      dispatch(
+                                        sendCapitalCallOperation({
+                                          capitalCallId: call.id,
+                                        }),
+                                      )
+                                    }
                                   >
                                     Send to LPs
                                   </Button>
                                 )}
-                                {call.status !== 'draft' && (
+                                {call.status !== "draft" && (
                                   <>
                                     <Button
                                       size="sm"
                                       variant="bordered"
-                                      startContent={<Mail className="w-4 h-4" />}
-                                      onPress={() => dispatch(sendCapitalCallReminderOperation({ capitalCallId: call.id }))}
+                                      startContent={
+                                        <Mail className="w-4 h-4" />
+                                      }
+                                      onPress={() =>
+                                        dispatch(
+                                          sendCapitalCallReminderOperation({
+                                            capitalCallId: call.id,
+                                          }),
+                                        )
+                                      }
                                     >
                                       Send Reminder
                                     </Button>
                                     <Button
                                       size="sm"
                                       variant="flat"
-                                      startContent={<Download className="w-4 h-4" />}
-                                      onPress={() => dispatch(exportFundAdminActivityOperation())}
+                                      startContent={
+                                        <Download className="w-4 h-4" />
+                                      }
+                                      onPress={() =>
+                                        dispatch(
+                                          exportFundAdminActivityOperation(),
+                                        )
+                                      }
                                     >
                                       Export
                                     </Button>
@@ -440,26 +525,40 @@ export function FundAdmin() {
 
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div>
-                              <p className="text-xs text-[var(--app-text-muted)] mb-1">Total Amount</p>
-                              <p className="text-lg font-bold">{formatCurrency(call.totalAmount)}</p>
+                              <p className="text-xs text-[var(--app-text-muted)] mb-1">
+                                Total Amount
+                              </p>
+                              <p className="text-lg font-bold">
+                                {formatCurrency(call.totalAmount)}
+                              </p>
                             </div>
                             <div>
-                              <p className="text-xs text-[var(--app-text-muted)] mb-1">Received</p>
+                              <p className="text-xs text-[var(--app-text-muted)] mb-1">
+                                Received
+                              </p>
                               <p className="text-lg font-bold text-[var(--app-success)]">
                                 {formatCurrency(call.amountReceived)}
                               </p>
                             </div>
                             <div>
-                              <p className="text-xs text-[var(--app-text-muted)] mb-1">Call Date</p>
-                              <p className="font-semibold">{formatDate(call.callDate)}</p>
+                              <p className="text-xs text-[var(--app-text-muted)] mb-1">
+                                Call Date
+                              </p>
+                              <p className="font-semibold">
+                                {formatDate(call.callDate)}
+                              </p>
                             </div>
                             <div>
-                              <p className="text-xs text-[var(--app-text-muted)] mb-1">Due Date</p>
-                              <p className="font-semibold">{formatDate(call.dueDate)}</p>
+                              <p className="text-xs text-[var(--app-text-muted)] mb-1">
+                                Due Date
+                              </p>
+                              <p className="font-semibold">
+                                {formatDate(call.dueDate)}
+                              </p>
                             </div>
                           </div>
 
-                          {call.status !== 'draft' && (
+                          {call.status !== "draft" && (
                             <div className="space-y-3">
                               <div>
                                 <KeyValueRow
@@ -480,10 +579,13 @@ export function FundAdmin() {
                               <div className="flex items-center justify-between text-sm">
                                 <div className="flex items-center gap-2">
                                   <Users className="w-4 h-4 text-[var(--app-text-muted)]" />
-                                  <span className="text-[var(--app-text-muted)]">LP Responses</span>
+                                  <span className="text-[var(--app-text-muted)]">
+                                    LP Responses
+                                  </span>
                                 </div>
                                 <span className="font-semibold">
-                                  {call.lpsResponded} of {call.lpCount} ({responseRate.toFixed(0)}%)
+                                  {call.lpsResponded} of {call.lpCount} (
+                                  {responseRate.toFixed(0)}%)
                                 </span>
                               </div>
                             </div>
@@ -495,17 +597,15 @@ export function FundAdmin() {
                 </div>
               )}
 
-              {selectedTab === 'distributions' && (
-                <DistributionsList />
-              )}
+              {selectedTab === "distributions" && <DistributionsList />}
 
-              {selectedTab === 'lp-responses' && (
+              {selectedTab === "lp-responses" && (
                 <Card padding="lg">
                   <SectionHeader
                     title="LP Responses"
                     titleClassName="font-semibold"
                     className="mb-4"
-                    action={(
+                    action={
                       <Select
                         aria-label="LP response status filter"
                         placeholder="Filter by status"
@@ -514,35 +614,49 @@ export function FundAdmin() {
                         selectedKeys={[lpStatusFilter]}
                         onChange={(event) =>
                           patchUI({
-                            lpStatusFilter: event.target.value as FundAdminUIState['lpStatusFilter'],
+                            lpStatusFilter: event.target
+                              .value as FundAdminUIState["lpStatusFilter"],
                           })
                         }
                         options={LP_STATUS_OPTIONS}
                       />
-                    )}
+                    }
                   />
 
                   <div className="space-y-3">
                     {filteredLPResponses.map((response) => {
-                      const paymentProgress = response.callAmount > 0
-                        ? (response.amountPaid / response.callAmount) * 100
-                        : 0;
+                      const paymentProgress =
+                        response.callAmount > 0
+                          ? (response.amountPaid / response.callAmount) * 100
+                          : 0;
 
                       return (
-                        <div key={response.id} className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
+                        <div
+                          key={response.id}
+                          className="p-4 rounded-lg bg-[var(--app-surface-hover)]"
+                        >
                           <div className="flex items-start justify-between mb-3">
                             <div>
                               <div className="flex items-center gap-2 mb-1">
-                                <p className="font-semibold">{response.lpName}</p>
-                                <StatusBadge status={response.status} domain="fund-admin" showIcon size="sm" />
+                                <p className="font-semibold">
+                                  {response.lpName}
+                                </p>
+                                <StatusBadge
+                                  status={response.status}
+                                  domain="fund-admin"
+                                  showIcon
+                                  size="sm"
+                                />
                               </div>
                               <p className="text-sm text-[var(--app-text-muted)]">
-                                Commitment: {formatCurrency(response.commitment)}
+                                Commitment:{" "}
+                                {formatCurrency(response.commitment)}
                               </p>
                             </div>
                             <div className="text-right">
                               <p className="text-lg font-bold">
-                                {formatCurrency(response.amountPaid)} / {formatCurrency(response.callAmount)}
+                                {formatCurrency(response.amountPaid)} /{" "}
+                                {formatCurrency(response.callAmount)}
                               </p>
                               <p className="text-xs text-[var(--app-text-muted)]">
                                 Due: {formatDate(response.dueDate)}
@@ -550,7 +664,7 @@ export function FundAdmin() {
                             </div>
                           </div>
 
-                          {response.status !== 'paid' && (
+                          {response.status !== "paid" && (
                             <div className="mb-3">
                               <Progress
                                 value={paymentProgress}
@@ -567,17 +681,23 @@ export function FundAdmin() {
                             </span>
                             {canMutate && (
                               <div className="flex items-center gap-2">
-                                {response.status === 'pending' && (
+                                {response.status === "pending" && (
                                   <Button
                                     size="sm"
                                     variant="flat"
                                     startContent={<Mail className="w-4 h-4" />}
-                                    onPress={() => dispatch(sendLPReminderOperation({ lpResponseId: response.id }))}
+                                    onPress={() =>
+                                      dispatch(
+                                        sendLPReminderOperation({
+                                          lpResponseId: response.id,
+                                        }),
+                                      )
+                                    }
                                   >
                                     Send Reminder
                                   </Button>
                                 )}
-                                {response.status !== 'paid' && (
+                                {response.status !== "paid" && (
                                   <Button
                                     size="sm"
                                     variant="bordered"
@@ -586,7 +706,7 @@ export function FundAdmin() {
                                         updateLPResponseOperation({
                                           lpResponseId: response.id,
                                           amountPaid: response.callAmount,
-                                        })
+                                        }),
                                       )
                                     }
                                   >
@@ -603,105 +723,192 @@ export function FundAdmin() {
                 </Card>
               )}
 
-              {selectedTab === 'nav-calculator' && (
+              {selectedTab === "nav-calculator" && (
                 <NAVCalculator
                   calculations={navData?.calculations ?? []}
-                  onCalculate={canMutate ? (() => {
-                    const fund = resolveActionFund();
-                    if (!fund) return;
-                    dispatch(calculateNAVOperation({ fundId: fund.id, fundName: fund.name }));
-                  }) : undefined}
-                  onReview={canMutate ? ((calculationId) =>
-                    dispatch(
-                      reviewNAVOperation({
-                        calculationId,
-                        reviewedBy: user?.email ?? 'ops@vestledger.ai',
-                      })
-                    )) : undefined}
-                  onPublish={canMutate ? ((calculationId) =>
-                    dispatch(
-                      publishNAVOperation({
-                        calculationId,
-                        publishedBy: user?.email ?? 'ops@vestledger.ai',
-                      })
-                    )) : undefined}
+                  onCalculate={
+                    canMutate
+                      ? () => {
+                          const fund = resolveActionFund();
+                          if (!fund) return;
+                          dispatch(
+                            calculateNAVOperation({
+                              fundId: fund.id,
+                              fundName: fund.name,
+                            }),
+                          );
+                        }
+                      : undefined
+                  }
+                  onReview={
+                    canMutate
+                      ? (calculationId) =>
+                          dispatch(
+                            reviewNAVOperation({
+                              calculationId,
+                              reviewedBy: user?.email ?? "ops@vestledger.ai",
+                            }),
+                          )
+                      : undefined
+                  }
+                  onPublish={
+                    canMutate
+                      ? (calculationId) =>
+                          dispatch(
+                            publishNAVOperation({
+                              calculationId,
+                              publishedBy: user?.email ?? "ops@vestledger.ai",
+                            }),
+                          )
+                      : undefined
+                  }
                   onExport={(calculationId, format) =>
                     dispatch(exportNAVOperation({ calculationId, format }))
                   }
                 />
               )}
 
-              {selectedTab === 'carried-interest' && (
+              {selectedTab === "carried-interest" && (
                 <CarriedInterestTracker
                   terms={carryData?.terms ?? []}
                   accruals={carryData?.accruals ?? []}
-                  onCalculateAccrual={canMutate ? ((fundId) => {
-                    const fund = visibleFunds.find((item) => item.id === fundId);
-                    dispatch(calculateCarryOperation({ fundId, fundName: fund?.name ?? 'Fund' }));
-                  }) : undefined}
-                  onEditTerms={canMutate ? (() => setFundSetupCreateSignal((value) => value + 1)) : undefined}
-                  onApproveAccrual={canMutate ? ((accrualId) =>
-                    dispatch(approveCarryOperation({ accrualId }))
-                  ) : undefined}
-                  onDistribute={canMutate ? ((accrualId) =>
-                    dispatch(distributeCarryOperation({ accrualId }))
-                  ) : undefined}
+                  onCalculateAccrual={
+                    canMutate
+                      ? (fundId) => {
+                          const fund = visibleFunds.find(
+                            (item) => item.id === fundId,
+                          );
+                          dispatch(
+                            calculateCarryOperation({
+                              fundId,
+                              fundName: fund?.name ?? "Fund",
+                            }),
+                          );
+                        }
+                      : undefined
+                  }
+                  onEditTerms={
+                    canMutate
+                      ? () => setFundSetupCreateSignal((value) => value + 1)
+                      : undefined
+                  }
+                  onApproveAccrual={
+                    canMutate
+                      ? (accrualId) =>
+                          dispatch(approveCarryOperation({ accrualId }))
+                      : undefined
+                  }
+                  onDistribute={
+                    canMutate
+                      ? (accrualId) =>
+                          dispatch(distributeCarryOperation({ accrualId }))
+                      : undefined
+                  }
                   onExport={(accrualId, format) =>
                     dispatch(exportCarryOperation({ accrualId, format }))
                   }
                 />
               )}
 
-              {selectedTab === 'expenses' && (
+              {selectedTab === "expenses" && (
                 <ExpenseTracker
                   expenses={expenseData?.expenses ?? []}
                   onAddExpense={canMutate ? triggerExpenseCreate : undefined}
-                  onApproveExpense={canMutate ? ((expenseId) =>
-                    dispatch(approveExpenseOperation({ expenseId, approver: user?.email ?? 'ops@vestledger.ai' }))
-                  ) : undefined}
-                  onRejectExpense={canMutate ? ((expenseId) =>
-                    dispatch(rejectExpenseOperation({ expenseId }))
-                  ) : undefined}
-                  onMarkPaid={canMutate ? ((expenseId) =>
-                    dispatch(markExpensePaidOperation({ expenseId }))
-                  ) : undefined}
-                  onExport={(format) => dispatch(exportExpenseOperation({ format, fundId: targetFundId }))}
+                  onApproveExpense={
+                    canMutate
+                      ? (expenseId) =>
+                          dispatch(
+                            approveExpenseOperation({
+                              expenseId,
+                              approver: user?.email ?? "ops@vestledger.ai",
+                            }),
+                          )
+                      : undefined
+                  }
+                  onRejectExpense={
+                    canMutate
+                      ? (expenseId) =>
+                          dispatch(rejectExpenseOperation({ expenseId }))
+                      : undefined
+                  }
+                  onMarkPaid={
+                    canMutate
+                      ? (expenseId) =>
+                          dispatch(markExpensePaidOperation({ expenseId }))
+                      : undefined
+                  }
+                  onExport={(format) =>
+                    dispatch(
+                      exportExpenseOperation({ format, fundId: targetFundId }),
+                    )
+                  }
                 />
               )}
 
-              {selectedTab === 'secondary-transfers' && (
+              {selectedTab === "secondary-transfers" && (
                 <TransferSecondary
                   transfers={transferData?.transfers ?? []}
                   rofrExercises={transferData?.rofrExercises ?? []}
-                  onInitiateTransfer={canMutate ? triggerTransferCreate : undefined}
-                  onReviewTransfer={canMutate ? ((transferId) =>
-                    dispatch(reviewSecondaryTransferOperation({ transferId }))
-                  ) : undefined}
-                  onApproveTransfer={canMutate ? ((transferId) =>
-                    dispatch(approveSecondaryTransferOperation({ transferId }))
-                  ) : undefined}
-                  onRejectTransfer={canMutate ? ((transferId, reason) =>
-                    dispatch(rejectSecondaryTransferOperation({ transferId, reason }))
-                  ) : undefined}
-                  onCompleteTransfer={canMutate ? ((transferId) =>
-                    dispatch(completeSecondaryTransferOperation({ transferId }))
-                  ) : undefined}
-                  onUploadDocument={canMutate ? ((transferId) =>
-                    dispatch(
-                      uploadSecondaryTransferDocumentOperation({
-                        transferId,
-                        docName: `Supporting Document ${new Date().toISOString()}`,
-                      })
-                    )
-                  ) : undefined}
-                  onExerciseROFR={canMutate ? ((transferId) =>
-                    dispatch(
-                      exerciseSecondaryTransferROFROperation({
-                        transferId,
-                        exercisedByName: user?.name ?? 'Existing LP',
-                      })
-                    )
-                  ) : undefined}
+                  onInitiateTransfer={
+                    canMutate ? triggerTransferCreate : undefined
+                  }
+                  onReviewTransfer={
+                    canMutate
+                      ? (transferId) =>
+                          dispatch(
+                            reviewSecondaryTransferOperation({ transferId }),
+                          )
+                      : undefined
+                  }
+                  onApproveTransfer={
+                    canMutate
+                      ? (transferId) =>
+                          dispatch(
+                            approveSecondaryTransferOperation({ transferId }),
+                          )
+                      : undefined
+                  }
+                  onRejectTransfer={
+                    canMutate
+                      ? (transferId, reason) =>
+                          dispatch(
+                            rejectSecondaryTransferOperation({
+                              transferId,
+                              reason,
+                            }),
+                          )
+                      : undefined
+                  }
+                  onCompleteTransfer={
+                    canMutate
+                      ? (transferId) =>
+                          dispatch(
+                            completeSecondaryTransferOperation({ transferId }),
+                          )
+                      : undefined
+                  }
+                  onUploadDocument={
+                    canMutate
+                      ? (transferId) =>
+                          dispatch(
+                            uploadSecondaryTransferDocumentOperation({
+                              transferId,
+                              docName: `Supporting Document ${new Date().toISOString()}`,
+                            }),
+                          )
+                      : undefined
+                  }
+                  onExerciseROFR={
+                    canMutate
+                      ? (transferId) =>
+                          dispatch(
+                            exerciseSecondaryTransferROFROperation({
+                              transferId,
+                              exercisedByName: user?.name ?? "Existing LP",
+                            }),
+                          )
+                      : undefined
+                  }
                 />
               )}
             </div>
@@ -716,7 +923,7 @@ export function FundAdmin() {
           if (!open) setCreateCallOpen(false);
         }}
         size="lg"
-        footer={(
+        footer={
           <>
             <Button variant="bordered" onPress={() => setCreateCallOpen(false)}>
               Cancel
@@ -725,21 +932,26 @@ export function FundAdmin() {
               Create Capital Call
             </Button>
           </>
-        )}
+        }
       >
         <div className="space-y-3">
           <Select
             label="Fund"
             selectedKeys={[newCall.fundId]}
             onChange={(event) => {
-              const fund = visibleFunds.find((item) => item.id === event.target.value);
+              const fund = visibleFunds.find(
+                (item) => item.id === event.target.value,
+              );
               setNewCall((current) => ({
                 ...current,
                 fundId: event.target.value,
                 fundName: fund?.name ?? current.fundName,
               }));
             }}
-            options={visibleFunds.map((fund) => ({ value: fund.id, label: fund.name }))}
+            options={visibleFunds.map((fund) => ({
+              value: fund.id,
+              label: fund.name,
+            }))}
           />
           <Input
             label="Purpose"
