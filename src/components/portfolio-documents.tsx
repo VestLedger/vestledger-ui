@@ -1,33 +1,53 @@
-'use client'
+"use client";
 
-import { useEffect } from 'react';
-import { isMockMode } from '@/config/data-mode';
-import { Filter, Upload, Download, Eye, FileText, AlertCircle } from 'lucide-react';
-import { Button, Card, Badge } from '@/ui';
-import { ListItemCard, SearchToolbar, SectionHeader, StatusBadge } from '@/ui/composites';
-import { DocumentPreviewModal, useDocumentPreview, getMockDocumentUrl, inferDocumentType } from './documents/preview';
-import { useUIKey } from '@/store/ui';
-import { PortfolioTabHeader } from '@/components/portfolio-tab-header';
+import { useEffect, useMemo } from "react";
+import { isMockMode } from "@/config/data-mode";
+import {
+  Filter,
+  Upload,
+  Download,
+  Eye,
+  FileText,
+  AlertCircle,
+} from "lucide-react";
+import { Button, Card, Badge } from "@/ui";
+import {
+  ListItemCard,
+  SearchToolbar,
+  SectionHeader,
+  StatusBadge,
+} from "@/ui/composites";
+import {
+  DocumentPreviewModal,
+  useDocumentPreview,
+  getMockDocumentUrl,
+  inferDocumentType,
+} from "./documents/preview";
+import { useUIKey } from "@/store/ui";
+import { PortfolioTabHeader } from "@/components/portfolio-tab-header";
 import {
   type PortfolioDocumentCompany as PortfolioCompany,
   type PortfolioDocumentCategory as DocumentCategory,
-} from '@/services/portfolio/portfolioDocumentsService';
-import { useAppSelector } from '@/store/hooks';
-import { portfolioSelectors } from '@/store/slices/portfolioSlice';
+} from "@/services/portfolio/portfolioDocumentsService";
+import { useAppSelector } from "@/store/hooks";
+import { portfolioSelectors } from "@/store/slices/portfolioSlice";
 
 export function PortfolioDocuments() {
   const portfolioData = useAppSelector(portfolioSelectors.selectData);
-  const portfolioCompanies = portfolioData?.documents.companies ?? [];
+  const portfolioCompanies = useMemo(
+    () => portfolioData?.documents.companies ?? [],
+    [portfolioData?.documents.companies],
+  );
   const documents = portfolioData?.documents.documents ?? [];
   const documentCategories = portfolioData?.documents.categories ?? [];
   const { value: ui, patch: patchUI } = useUIKey<{
-    selectedCompany: PortfolioCompany | 'all' | null;
-    selectedCategory: DocumentCategory | 'all';
+    selectedCompany: PortfolioCompany | "all" | null;
+    selectedCategory: DocumentCategory | "all";
     searchQuery: string;
-  }>('portfolio-documents', {
+  }>("portfolio-documents", {
     selectedCompany: null,
-    selectedCategory: 'all',
-    searchQuery: '',
+    selectedCategory: "all",
+    searchQuery: "",
   });
   const { selectedCompany, selectedCategory, searchQuery } = ui;
   const preview = useDocumentPreview();
@@ -47,25 +67,34 @@ export function PortfolioDocuments() {
     }
 
     // 'all' = user explicitly chose consolidated view; leave it alone
-    if (selectedCompany === 'all') return;
+    if (selectedCompany === "all") return;
 
     // Validate that the selected company still exists in the list
-    if (!portfolioCompanies.some((company) => company.id === selectedCompany.id)) {
+    if (
+      !portfolioCompanies.some((company) => company.id === selectedCompany.id)
+    ) {
       patchUI({ selectedCompany: portfolioCompanies[0] ?? null });
     }
   }, [patchUI, portfolioCompanies, selectedCompany]);
 
-  const filteredDocuments = documents.filter(doc => {
-    const matchesCompany = !selectedCompany || selectedCompany === 'all' || doc.companyId === selectedCompany.id;
-    const matchesCategory = selectedCategory === 'all' || doc.category === selectedCategory;
-    const matchesSearch = searchQuery === '' ||
+  const filteredDocuments = documents.filter((doc) => {
+    const matchesCompany =
+      !selectedCompany ||
+      selectedCompany === "all" ||
+      doc.companyId === selectedCompany.id;
+    const matchesCategory =
+      selectedCategory === "all" || doc.category === selectedCategory;
+    const matchesSearch =
+      searchQuery === "" ||
       doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       doc.companyName.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCompany && matchesCategory && matchesSearch;
   });
 
-  const overdueCount = documents.filter(d => d.status === 'overdue').length;
-  const pendingCount = documents.filter(d => d.status === 'pending-review').length;
+  const overdueCount = documents.filter((d) => d.status === "overdue").length;
+  const pendingCount = documents.filter(
+    (d) => d.status === "pending-review",
+  ).length;
 
   return (
     <div>
@@ -73,7 +102,7 @@ export function PortfolioDocuments() {
       <PortfolioTabHeader
         title="Portfolio Documents"
         description="Document management for portfolio companies"
-        actions={(
+        actions={
           <Button
             variant="flat"
             size="sm"
@@ -82,7 +111,7 @@ export function PortfolioDocuments() {
           >
             Upload Document
           </Button>
-        )}
+        }
       />
 
       {/* Attention Items */}
@@ -93,8 +122,12 @@ export function PortfolioDocuments() {
               <div className="flex items-center gap-3">
                 <AlertCircle className="w-5 h-5 text-[var(--app-danger)]" />
                 <div>
-                  <div className="text-lg font-medium">{overdueCount} Overdue</div>
-                  <div className="text-sm text-[var(--app-text-muted)]">Documents past due date</div>
+                  <div className="text-lg font-medium">
+                    {overdueCount} Overdue
+                  </div>
+                  <div className="text-sm text-[var(--app-text-muted)]">
+                    Documents past due date
+                  </div>
                 </div>
               </div>
             </Card>
@@ -104,8 +137,12 @@ export function PortfolioDocuments() {
               <div className="flex items-center gap-3">
                 <Eye className="w-5 h-5 text-[var(--app-info)]" />
                 <div>
-                  <div className="text-lg font-medium">{pendingCount} Pending Review</div>
-                  <div className="text-sm text-[var(--app-text-muted)]">Documents awaiting approval</div>
+                  <div className="text-lg font-medium">
+                    {pendingCount} Pending Review
+                  </div>
+                  <div className="text-sm text-[var(--app-text-muted)]">
+                    Documents awaiting approval
+                  </div>
                 </div>
               </div>
             </Card>
@@ -116,16 +153,20 @@ export function PortfolioDocuments() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
         {/* Company Directory */}
         <Card className="lg:col-span-1" padding="md">
-          <SectionHeader title="Companies" className="mb-4" titleClassName="text-lg font-medium" />
+          <SectionHeader
+            title="Companies"
+            className="mb-4"
+            titleClassName="text-lg font-medium"
+          />
           <div className="space-y-2">
             <Card
               isPressable
-              onPress={() => patchUI({ selectedCompany: 'all' })}
+              onPress={() => patchUI({ selectedCompany: "all" })}
               padding="sm"
               className={`cursor-pointer transition-all ${
-                selectedCompany === 'all'
-                  ? 'bg-[var(--app-surface-hover)] border-[var(--app-primary)]'
-                  : 'border-[var(--app-border)] hover:border-[var(--app-border-subtle)] hover:bg-[var(--app-surface-hover)]'
+                selectedCompany === "all"
+                  ? "bg-[var(--app-surface-hover)] border-[var(--app-primary)]"
+                  : "border-[var(--app-border)] hover:border-[var(--app-border-subtle)] hover:bg-[var(--app-surface-hover)]"
               }`}
             >
               <div className="text-sm font-medium">All Companies</div>
@@ -140,29 +181,44 @@ export function PortfolioDocuments() {
                 onPress={() => patchUI({ selectedCompany: company })}
                 padding="sm"
                 className={`cursor-pointer transition-all ${
-                  selectedCompany !== 'all' && selectedCompany?.id === company.id
-                    ? 'bg-[var(--app-surface-hover)] border-[var(--app-primary)]'
-                    : 'border-[var(--app-border)] hover:border-[var(--app-border-subtle)] hover:bg-[var(--app-surface-hover)]'
+                  selectedCompany !== "all" &&
+                  selectedCompany?.id === company.id
+                    ? "bg-[var(--app-surface-hover)] border-[var(--app-primary)]"
+                    : "border-[var(--app-border)] hover:border-[var(--app-border-subtle)] hover:bg-[var(--app-surface-hover)]"
                 }`}
               >
                 <div className="flex items-center gap-2 mb-1">
                   <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-accent)] flex items-center justify-center flex-shrink-0">
-                    <span className="text-xs text-white">{company.name.charAt(0)}</span>
+                    <span className="text-xs text-white">
+                      {company.name.charAt(0)}
+                    </span>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="text-sm font-medium truncate">{company.name}</div>
-                    <div className="text-xs text-[var(--app-text-muted)]">{company.sector}</div>
+                    <div className="text-sm font-medium truncate">
+                      {company.name}
+                    </div>
+                    <div className="text-xs text-[var(--app-text-muted)]">
+                      {company.sector}
+                    </div>
                   </div>
                 </div>
                 {(company.overdueCount > 0 || company.pendingCount > 0) && (
                   <div className="flex items-center gap-2 mt-2">
                     {company.overdueCount > 0 && (
-                      <Badge size="sm" variant="flat" className="bg-[var(--app-danger-bg)] text-[var(--app-danger)]">
+                      <Badge
+                        size="sm"
+                        variant="flat"
+                        className="bg-[var(--app-danger-bg)] text-[var(--app-danger)]"
+                      >
                         {company.overdueCount} overdue
                       </Badge>
                     )}
                     {company.pendingCount > 0 && (
-                      <Badge size="sm" variant="flat" className="bg-[var(--app-info-bg)] text-[var(--app-info)]">
+                      <Badge
+                        size="sm"
+                        variant="flat"
+                        className="bg-[var(--app-info-bg)] text-[var(--app-info)]"
+                      >
                         {company.pendingCount} pending
                       </Badge>
                     )}
@@ -181,21 +237,23 @@ export function PortfolioDocuments() {
               searchValue={searchQuery}
               onSearchChange={(value) => patchUI({ searchQuery: value })}
               searchPlaceholder="Search documents..."
-              rightActions={(
+              rightActions={
                 <Button
                   variant="flat"
                   startContent={<Filter className="w-4 h-4" />}
                 >
                   Category
                 </Button>
-              )}
+              }
             />
           </div>
 
           {/* Document Categories */}
           <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 mb-6">
             {documentCategories.map((category) => {
-              const count = documents.filter(d => d.category === category.id).length;
+              const count = documents.filter(
+                (d) => d.category === category.id,
+              ).length;
               return (
                 <Card
                   key={category.id}
@@ -203,9 +261,13 @@ export function PortfolioDocuments() {
                   className="hover:border-[var(--app-border-subtle)] transition-colors cursor-pointer"
                 >
                   <FileText className="w-4 h-4 text-[var(--app-primary)] mb-2" />
-                  <div className="text-sm font-medium mb-1">{category.name}</div>
+                  <div className="text-sm font-medium mb-1">
+                    {category.name}
+                  </div>
                   <div className="text-2xl font-medium mb-1">{count}</div>
-                  <div className="text-xs text-[var(--app-text-muted)]">{category.description}</div>
+                  <div className="text-xs text-[var(--app-text-muted)]">
+                    {category.description}
+                  </div>
                 </Card>
               );
             })}
@@ -215,13 +277,21 @@ export function PortfolioDocuments() {
           <div>
             <SectionHeader
               className="mb-4"
-              title={selectedCompany && selectedCompany !== 'all' ? `${selectedCompany.name} Documents` : 'All Documents'}
+              title={
+                selectedCompany && selectedCompany !== "all"
+                  ? `${selectedCompany.name} Documents`
+                  : "All Documents"
+              }
               titleClassName="text-lg font-medium"
-              action={(
-                <Button variant="flat" size="sm" startContent={<Download className="w-4 h-4" />}>
+              action={
+                <Button
+                  variant="flat"
+                  size="sm"
+                  startContent={<Download className="w-4 h-4" />}
+                >
                   Export
                 </Button>
-              )}
+              }
             />
 
             {filteredDocuments.length === 0 ? (
@@ -234,13 +304,20 @@ export function PortfolioDocuments() {
                 {filteredDocuments.map((doc) => (
                   <ListItemCard
                     key={doc.id}
-                    icon={<FileText className="w-4 h-4 text-[var(--app-primary)]" />}
+                    icon={
+                      <FileText className="w-4 h-4 text-[var(--app-primary)]" />
+                    }
                     title={doc.name}
-                    badges={(
-                      <StatusBadge status={doc.status} domain="documents" size="sm" showIcon />
-                    )}
+                    badges={
+                      <StatusBadge
+                        status={doc.status}
+                        domain="documents"
+                        size="sm"
+                        showIcon
+                      />
+                    }
                     description={doc.companyName}
-                    meta={(
+                    meta={
                       <div className="flex flex-wrap items-center gap-2">
                         {doc.frequency && (
                           <>
@@ -262,14 +339,16 @@ export function PortfolioDocuments() {
                         )}
                         {doc.dueDate && <span>Due: {doc.dueDate}</span>}
                       </div>
-                    )}
-                    actions={(
+                    }
+                    actions={
                       <div className="flex items-center gap-3">
                         {doc.size && (
-                          <span className="text-xs text-[var(--app-text-muted)] hidden sm:inline">{doc.size}</span>
+                          <span className="text-xs text-[var(--app-text-muted)] hidden sm:inline">
+                            {doc.size}
+                          </span>
                         )}
                         <div className="flex gap-1">
-                          {doc.status !== 'awaiting-upload' && (
+                          {doc.status !== "awaiting-upload" && (
                             <>
                               <Button
                                 variant="light"
@@ -277,17 +356,27 @@ export function PortfolioDocuments() {
                                 isIconOnly
                                 aria-label={`Preview ${doc.name}`}
                                 onPress={() => {
-                                  const previewUrl = isMockMode('portfolio')
-                                    ? getMockDocumentUrl(inferDocumentType(doc.name))
-                                    : '';
+                                  const previewUrl = isMockMode("portfolio")
+                                    ? getMockDocumentUrl(
+                                        inferDocumentType(doc.name),
+                                      )
+                                    : "";
                                   preview.openPreview({
                                     id: doc.id.toString(),
                                     name: doc.name,
-                                    type: previewUrl ? inferDocumentType(doc.name) : 'other',
+                                    type: previewUrl
+                                      ? inferDocumentType(doc.name)
+                                      : "other",
                                     url: previewUrl,
                                     uploadedBy: doc.uploadedBy,
-                                    uploadedDate: doc.uploadedDate ? new Date(doc.uploadedDate) : undefined,
-                                    size: doc.size ? parseInt(doc.size.replace(/[^0-9]/g, '')) * 1024 : undefined,
+                                    uploadedDate: doc.uploadedDate
+                                      ? new Date(doc.uploadedDate)
+                                      : undefined,
+                                    size: doc.size
+                                      ? parseInt(
+                                          doc.size.replace(/[^0-9]/g, ""),
+                                        ) * 1024
+                                      : undefined,
                                     category: doc.category,
                                   });
                                 }}
@@ -304,7 +393,7 @@ export function PortfolioDocuments() {
                               </Button>
                             </>
                           )}
-                          {doc.status === 'awaiting-upload' && (
+                          {doc.status === "awaiting-upload" && (
                             <Button
                               variant="light"
                               size="sm"
@@ -316,7 +405,7 @@ export function PortfolioDocuments() {
                           )}
                         </div>
                       </div>
-                    )}
+                    }
                   />
                 ))}
               </div>

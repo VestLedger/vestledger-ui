@@ -19,10 +19,7 @@ import { logger } from "@/lib/logger";
 import { clearAuthenticatedAppCaches } from "@/services/internal/clearAuthenticatedAppCaches";
 import { DATA_MODE_OVERRIDE_KEY, type DataMode } from "@/config/data-mode";
 import { isDemoUser } from "@/config/demo-session";
-import {
-  AUTH_COOKIE_MAX_AGE_SECONDS,
-  AUTH_HYDRATION_TIMEOUT_MS,
-} from "@/config/auth";
+import { AUTH_COOKIE_MAX_AGE_SECONDS } from "@/config/auth";
 import { getAuthCookieDomain } from "@/utils/auth/cookie-domain";
 
 const STORAGE_AUTH_KEY = "isAuthenticated";

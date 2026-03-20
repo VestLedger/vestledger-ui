@@ -4,7 +4,6 @@ import { logger } from "@/lib/logger";
 import { requestJson, type ApiQueryParams } from "./httpClient";
 import {
   PIPELINE_DEAL_OUTCOMES,
-  PIPELINE_STAGE_DISPLAY_NAMES,
   PIPELINE_STAGE_API_VALUES,
 } from "@/config/pipeline-options";
 

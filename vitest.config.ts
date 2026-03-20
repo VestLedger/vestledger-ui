@@ -7,6 +7,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default defineConfig({
+  // Vitest in this workspace resolves Vite 5 types while plugin-react is
+  // installed against Vite 6. The plugin is runtime-compatible; suppress the
+  // transient type mismatch until the dependency graph is aligned.
+  // @ts-expect-error Vite 5/6 plugin type mismatch in the current lockfile
   plugins: [react()],
   resolve: {
     alias: {
