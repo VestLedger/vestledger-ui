@@ -10,14 +10,13 @@ import {
   Clock,
   LayoutDashboard,
 } from "lucide-react";
-import { HomeMorningBrief } from "./dashboard/home-morning-brief";
-import { HomePriorityMatrix } from "./dashboard/home-priority-matrix";
 import { HomeFundHealthList } from "./dashboard/home-fund-health-list";
 import { HomePortfolioHealthList } from "./dashboard/home-portfolio-health-list";
 import { HomeBlockerBeacon } from "./dashboard/home-blocker-beacon";
-import { HomeOpportunitiesRail } from "./dashboard/home-opportunities-rail";
 import { HomeRevenueDistribution } from "./dashboard/home-revenue-distribution";
 import { HomeARRTrend } from "./dashboard/home-arr-trend";
+import { HomeExecutiveOverview } from "./dashboard/home-executive-overview";
+import { HomeActionCenter } from "./dashboard/home-action-center";
 import { useDashboardData } from "@/hooks/use-dashboard-data";
 import { useAuth } from "@/contexts/auth-context";
 import { useFund, TabFundScope } from "@/contexts/fund-context";
@@ -282,20 +281,6 @@ function DashboardV2Content() {
   if (viewMode === "consolidated" || !selectedFund) {
     const routeConfig = getRouteConfig(ROUTE_PATHS.dashboard);
     const totalFundLabel = formatCountLabel(summary.totalFunds, "fund");
-    const trustWatchCount = fundTrustRows.filter(
-      (row) => row.riskFlag !== "stable",
-    ).length;
-    const trustCriticalCount = fundTrustRows.filter(
-      (row) => row.riskFlag === "critical",
-    ).length;
-    const portfolioWatchCount = portfolioRevenueRows.filter(
-      (row) => row.riskFlag !== "stable",
-    ).length;
-    const urgentSignalsCount = dailyBriefItems.filter((item) =>
-      item.quadrant.startsWith("urgent"),
-    ).length;
-    const arrNow =
-      portfolioRevenueTrend[portfolioRevenueTrend.length - 1]?.arr ?? 0;
 
     return (
       <PageScaffold
@@ -303,7 +288,7 @@ function DashboardV2Content() {
         aiSuggestion={routeConfig?.aiSuggestion}
         header={{
           title: "GP Command Center",
-          description: `Revenue makers and LP trust across ${totalFundLabel}`,
+          description: `Executive health across ${totalFundLabel}`,
           icon: LayoutDashboard,
           aiSummary: {
             text: morningBrief.summary,
@@ -314,102 +299,20 @@ function DashboardV2Content() {
               onBlockerClick={openBlocker}
             />
           ),
-          badges: [
-            {
-              label: `$${arrNow}M ARR`,
-              size: "md",
-              variant: "flat",
-              className: "bg-[var(--app-success-bg)] text-[var(--app-success)]",
-            },
-            {
-              label: `${morningBrief.itemCount} signals / 7d`,
-              size: "md",
-              variant: "bordered",
-              className:
-                "text-[var(--app-text-muted)] border-[var(--app-border)]",
-            },
-            {
-              label: `${urgentSignalsCount} urgent`,
-              size: "md",
-              variant: "bordered",
-              className:
-                "text-[var(--app-warning)] border-[var(--app-warning)]/45",
-            },
-            {
-              label: `${trustWatchCount} trust watch / ${portfolioWatchCount} portfolio watch`,
-              size: "md",
-              variant: "bordered",
-              className:
-                "text-[var(--app-text-muted)] border-[var(--app-border)]",
-            },
-          ],
         }}
       >
         <div
           className={`gp-home-content ${sectionTopSpacingClass} ${density.page.sectionStackClass}`}
         >
-          <HomeMorningBrief brief={morningBrief} />
-
-          <section
-            className="overflow-hidden rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)]"
-            data-testid="gp-home-signals-tape"
-          >
-            <div className="grid grid-cols-2 gap-px bg-[var(--app-border)] lg:grid-cols-5">
-              <div className="bg-[var(--app-surface)] px-3 py-2">
-                <p className="text-[10px] uppercase tracking-[0.14em] text-[var(--app-text-subtle)]">
-                  Urgent now
-                </p>
-                <p className="text-sm font-semibold text-[var(--app-danger)]">
-                  {urgentSignalsCount}
-                </p>
-              </div>
-              <div className="bg-[var(--app-surface)] px-3 py-2">
-                <p className="text-[10px] uppercase tracking-[0.14em] text-[var(--app-text-subtle)]">
-                  LP trust critical
-                </p>
-                <p className="text-sm font-semibold text-[var(--app-warning)]">
-                  {trustCriticalCount}
-                </p>
-              </div>
-              <div className="bg-[var(--app-surface)] px-3 py-2">
-                <p className="text-[10px] uppercase tracking-[0.14em] text-[var(--app-text-subtle)]">
-                  Blockers
-                </p>
-                <p className="text-sm font-semibold text-[var(--app-warning)]">
-                  {blockers.length}
-                </p>
-              </div>
-              <div className="bg-[var(--app-surface)] px-3 py-2">
-                <p className="text-[10px] uppercase tracking-[0.14em] text-[var(--app-text-subtle)]">
-                  Revenue makers
-                </p>
-                <p className="text-sm font-semibold text-[var(--app-success)]">
-                  {portfolioRevenueRows.length}
-                </p>
-              </div>
-              <div className="bg-[var(--app-surface)] px-3 py-2">
-                <p className="text-[10px] uppercase tracking-[0.14em] text-[var(--app-text-subtle)]">
-                  Opportunities
-                </p>
-                <p className="text-sm font-semibold text-[var(--app-info)]">
-                  {opportunities.length}
-                </p>
-              </div>
-            </div>
-          </section>
-
-          <div
-            className={`grid grid-cols-1 ${density.page.blockGapClass} xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]`}
-          >
-            <HomePriorityMatrix
-              items={dailyBriefItems}
-              onItemClick={openBriefItem}
-            />
-            <HomeOpportunitiesRail
-              opportunities={opportunities}
-              onOpportunityClick={openOpportunity}
-            />
-          </div>
+          <HomeExecutiveOverview
+            brief={morningBrief}
+            dailyBriefItems={dailyBriefItems}
+            fundTrustRows={fundTrustRows}
+            portfolioRevenueRows={portfolioRevenueRows}
+            blockers={blockers}
+            opportunities={opportunities}
+            portfolioRevenueTrend={portfolioRevenueTrend}
+          />
 
           <div
             className={`grid grid-cols-1 ${density.page.blockGapClass} xl:grid-cols-[minmax(0,1.38fr)_minmax(0,1fr)]`}
@@ -418,6 +321,7 @@ function DashboardV2Content() {
             <HomePortfolioHealthList
               rows={portfolioRevenueRows}
               onRowClick={openPortfolioDetails}
+              previewRows={5}
             />
             <div className={`grid grid-cols-1 ${density.page.blockGapClass}`}>
               <HomeRevenueDistribution slices={revenueDistribution} />
@@ -429,8 +333,19 @@ function DashboardV2Content() {
             <HomeFundHealthList
               rows={fundTrustRows}
               onRowClick={openFundSetupDetails}
+              previewRows={5}
             />
           </div>
+
+          <HomeActionCenter
+            items={dailyBriefItems}
+            blockers={blockers}
+            opportunities={opportunities}
+            onItemClick={openBriefItem}
+            onBlockerClick={openBlocker}
+            onOpportunityClick={openOpportunity}
+            blockGapClass={density.page.blockGapClass}
+          />
         </div>
 
         <div className={density.spacer.pageBottomClass} />

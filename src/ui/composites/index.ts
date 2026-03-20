@@ -51,5 +51,8 @@ export type {
   CompactLaneTone,
 } from "./compact-lane-header";
 
+export { ExpandableSection } from "./expandable-section";
+export type { ExpandableSectionProps } from "./expandable-section";
+
 export { TaskChecklist } from "./TaskChecklist";
 export type { TaskChecklistItem, TaskChecklistProps } from "./TaskChecklist";

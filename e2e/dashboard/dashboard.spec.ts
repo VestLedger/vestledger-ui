@@ -30,19 +30,21 @@ test.describe("Dashboard", () => {
     const dashboard = new DashboardPage(page);
     await dashboard.goto();
 
-    await expect(page.getByTestId("gp-morning-brief")).toBeVisible({
+    await expect(page.getByTestId("gp-home-executive-overview")).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(page.getByTestId("gp-home-arr-momentum")).toBeVisible({
       timeout: 10000,
     });
     await expect(page.getByTestId("gp-home-blockers-beacon")).toBeVisible({
       timeout: 10000,
     });
-    await expect(page.getByTestId("gp-priority-matrix")).toBeVisible({
-      timeout: 10000,
-    });
-    await expect(page.getByTestId("gp-home-opportunities")).toBeVisible({
-      timeout: 10000,
-    });
-    await expect(page.getByTestId("portfolio-health-list")).toBeVisible({
+    await expect(page.getByTestId("portfolio-health-list-preview")).toBeVisible(
+      {
+        timeout: 10000,
+      },
+    );
+    await expect(page.getByTestId("fund-health-list-preview")).toBeVisible({
       timeout: 10000,
     });
     await expect(page.getByTestId("gp-home-revenue-distribution")).toBeVisible({
@@ -51,7 +53,36 @@ test.describe("Dashboard", () => {
     await expect(page.getByTestId("gp-home-arr-trend")).toBeVisible({
       timeout: 10000,
     });
-    await expect(page.getByTestId("fund-health-list")).toBeVisible({
+    await expect(page.getByTestId("gp-home-action-center-preview")).toBeVisible(
+      {
+        timeout: 10000,
+      },
+    );
+  });
+
+  test("should expand preview-first dashboard sections", async ({ page }) => {
+    const dashboard = new DashboardPage(page);
+    await dashboard.goto();
+
+    await page.getByTestId("portfolio-health-list-toggle").click();
+    await expect(page.getByTestId("portfolio-health-list-content")).toBeVisible(
+      {
+        timeout: 10000,
+      },
+    );
+
+    await page.getByTestId("fund-health-list-toggle").click();
+    await expect(page.getByTestId("fund-health-list-content")).toBeVisible({
+      timeout: 10000,
+    });
+
+    await page.getByTestId("gp-home-action-center-toggle").click();
+    await expect(page.getByTestId("gp-home-action-center-content")).toBeVisible(
+      {
+        timeout: 10000,
+      },
+    );
+    await expect(page.getByTestId("gp-priority-matrix")).toBeVisible({
       timeout: 10000,
     });
   });
