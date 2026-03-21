@@ -753,18 +753,18 @@ html {
    Scoped to public route group wrapper
    ============================================ */
 .public-marketing {
-  --marketing-shell-bg: rgba(255, 255, 255, 0.78);
-  --marketing-shell-border: rgba(148, 163, 184, 0.22);
-  --marketing-shell-control-bg: rgba(255, 255, 255, 0.68);
-  --marketing-shell-control-border: rgba(148, 163, 184, 0.24);
-  --marketing-shell-control-hover: rgba(241, 245, 249, 0.92);
+  --marketing-shell-bg: rgba(252, 248, 242, 0.84);
+  --marketing-shell-border: rgba(128, 146, 176, 0.2);
+  --marketing-shell-control-bg: rgba(255, 252, 248, 0.88);
+  --marketing-shell-control-border: rgba(132, 152, 184, 0.22);
+  --marketing-shell-control-hover: rgba(255, 255, 255, 0.98);
   --marketing-shell-control-text: var(--app-text);
   --marketing-stage-bg: linear-gradient(
     180deg,
-    rgba(240, 246, 255, 0.94) 0%,
-    rgba(230, 238, 250, 0.96) 100%
+    rgba(248, 244, 236, 0.96) 0%,
+    rgba(238, 246, 255, 0.98) 100%
   );
-  --marketing-stage-border: rgba(148, 163, 184, 0.24);
+  --marketing-stage-border: rgba(132, 148, 176, 0.2);
   --marketing-panel-bg: linear-gradient(
     180deg,
     rgba(8, 18, 36, 0.84) 0%,
@@ -772,57 +772,68 @@ html {
   );
   --marketing-panel-bg-soft: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.78) 0%,
-    rgba(248, 250, 255, 0.62) 100%
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(250, 245, 237, 0.8) 100%
   );
-  --marketing-panel-border: rgba(116, 150, 209, 0.22);
+  --marketing-panel-border: rgba(108, 132, 170, 0.2);
   --marketing-panel-shadow:
-    0 28px 90px rgba(7, 16, 32, 0.18), 0 10px 24px rgba(7, 16, 32, 0.12);
+    0 28px 90px rgba(12, 23, 42, 0.12), 0 10px 24px rgba(12, 23, 42, 0.08);
   --marketing-contrast-panel-bg: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.88) 0%,
-    rgba(246, 250, 255, 0.8) 100%
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(251, 247, 240, 0.88) 100%
   );
-  --marketing-contrast-panel-border: rgba(116, 150, 209, 0.22);
+  --marketing-contrast-panel-border: rgba(106, 132, 170, 0.22);
   --marketing-contrast-panel-shadow:
-    0 28px 90px rgba(7, 16, 32, 0.12), 0 10px 24px rgba(7, 16, 32, 0.08);
-  --marketing-contrast-text: #0f172a;
-  --marketing-contrast-muted: #475569;
-  --marketing-contrast-subtle: #64748b;
-  --marketing-contrast-soft-bg: rgba(255, 255, 255, 0.72);
-  --marketing-contrast-soft-border: rgba(148, 163, 184, 0.22);
-  --marketing-contrast-deep-bg: rgba(15, 23, 42, 0.04);
-  --marketing-contrast-deep-text: #334155;
-  --marketing-grid-line: rgba(89, 124, 182, 0.12);
-  --marketing-glow-blue: rgba(59, 130, 246, 0.22);
-  --marketing-glow-gold: rgba(251, 191, 36, 0.18);
-  --marketing-glow-cyan: rgba(34, 211, 238, 0.18);
-  --marketing-kicker-bg: rgba(255, 255, 255, 0.88);
-  --marketing-kicker-border: rgba(148, 163, 184, 0.28);
-  --marketing-kicker-text: #0f172a;
-  --marketing-kicker-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
-  --marketing-chip-bg: rgba(255, 255, 255, 0.76);
-  --marketing-chip-border: rgba(148, 163, 184, 0.24);
-  --marketing-chip-text: #0f172a;
-  --marketing-footer-bg: linear-gradient(180deg, #eef4ff 0%, #f8fbff 100%);
-  --marketing-footer-border: rgba(148, 163, 184, 0.22);
-  --marketing-footer-text: #0f172a;
-  --marketing-footer-muted: #475569;
-  --marketing-footer-subtle: #64748b;
+    0 28px 90px rgba(12, 23, 42, 0.1), 0 12px 30px rgba(12, 23, 42, 0.06);
+  --marketing-contrast-text: #0b1324;
+  --marketing-contrast-muted: #445268;
+  --marketing-contrast-subtle: #6a7589;
+  --marketing-contrast-soft-bg: rgba(255, 255, 255, 0.84);
+  --marketing-contrast-soft-border: rgba(132, 148, 176, 0.2);
+  --marketing-contrast-deep-bg: rgba(15, 23, 42, 0.055);
+  --marketing-contrast-deep-text: #2d3e54;
+  --marketing-grid-line: rgba(93, 121, 164, 0.08);
+  --marketing-grid-opacity: 0.18;
+  --marketing-glow-blue: rgba(59, 130, 246, 0.18);
+  --marketing-glow-gold: rgba(212, 163, 50, 0.16);
+  --marketing-glow-cyan: rgba(34, 211, 238, 0.14);
+  --marketing-kicker-bg: rgba(255, 252, 247, 0.94);
+  --marketing-kicker-border: rgba(144, 156, 180, 0.24);
+  --marketing-kicker-text: #10203a;
+  --marketing-kicker-shadow: 0 18px 44px rgba(15, 23, 42, 0.07);
+  --marketing-chip-bg: rgba(255, 252, 247, 0.88);
+  --marketing-chip-border: rgba(132, 152, 184, 0.2);
+  --marketing-chip-text: #10203a;
+  --marketing-footer-bg: linear-gradient(
+    180deg,
+    #f4efe6 0%,
+    #f8fbff 52%,
+    #eef5ff 100%
+  );
+  --marketing-footer-border: rgba(132, 148, 176, 0.2);
+  --marketing-footer-text: #0b1324;
+  --marketing-footer-muted: #445268;
+  --marketing-footer-subtle: #6a7589;
   font-family: var(--font-public-body), "Segoe UI", sans-serif;
   background:
     radial-gradient(
       circle at 0% 0%,
-      rgba(59, 130, 246, 0.11) 0%,
-      transparent 26%
+      rgba(212, 163, 50, 0.12) 0%,
+      transparent 22%
     ),
     radial-gradient(
       circle at 100% 10%,
-      rgba(34, 211, 238, 0.09) 0%,
+      rgba(59, 130, 246, 0.12) 0%,
       transparent 24%
     ),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, transparent 35%),
-    var(--app-bg);
+    radial-gradient(
+      circle at 50% 100%,
+      rgba(34, 211, 238, 0.08) 0%,
+      transparent 22%
+    ),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.68) 0%, transparent 38%),
+    linear-gradient(180deg, #f7f3ec 0%, #f7fbff 100%);
 }
 
 .dark .public-marketing {
@@ -863,6 +874,7 @@ html {
   --marketing-contrast-deep-bg: rgba(2, 6, 23, 0.45);
   --marketing-contrast-deep-text: #e2e8f0;
   --marketing-grid-line: rgba(112, 147, 202, 0.18);
+  --marketing-grid-opacity: 0.38;
   --marketing-glow-blue: rgba(96, 165, 250, 0.3);
   --marketing-glow-gold: rgba(251, 191, 36, 0.22);
   --marketing-glow-cyan: rgba(34, 211, 238, 0.2);
@@ -1018,9 +1030,9 @@ html {
 .public-marketing-card {
   border-radius: 20px;
   border: 1px solid rgba(112, 147, 202, 0.16);
-  background: rgba(255, 255, 255, 0.56);
+  background: rgba(255, 255, 255, 0.74);
   box-shadow:
-    0 18px 50px rgba(7, 16, 32, 0.08),
+    0 18px 50px rgba(12, 23, 42, 0.07),
     inset 0 1px 0 rgba(255, 255, 255, 0.4);
   backdrop-filter: blur(22px);
   transition:
@@ -1048,7 +1060,7 @@ html {
   background-image: url("/marketing-signal-grid.svg");
   background-size: cover;
   background-position: center;
-  opacity: 0.38;
+  opacity: var(--marketing-grid-opacity, 0.38);
 }
 
 .public-marketing-shell-link {

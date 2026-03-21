@@ -324,7 +324,7 @@ export function HomepageStatic() {
             priority
             className="object-cover object-center opacity-80 dark:opacity-95"
           />
-          <div className="absolute inset-0 bg-[linear-gradient(92deg,rgba(248,250,252,0.98)_0%,rgba(248,250,252,0.94)_38%,rgba(248,250,252,0.6)_58%,rgba(248,250,252,0.08)_76%,rgba(5,11,22,0.16)_100%)] dark:hidden" />
+          <div className="absolute inset-0 bg-[linear-gradient(92deg,rgba(248,244,236,0.94)_0%,rgba(251,248,242,0.88)_34%,rgba(244,248,255,0.62)_56%,rgba(233,242,255,0.24)_76%,rgba(8,18,36,0.08)_100%)] dark:hidden" />
           <div className="absolute inset-0 hidden dark:block bg-[radial-gradient(circle_at_18%_18%,rgba(251,191,36,0.12),transparent_22%),linear-gradient(180deg,rgba(5,11,22,0.12),rgba(5,11,22,0.5))]" />
         </div>
         <div

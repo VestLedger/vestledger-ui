@@ -27,7 +27,7 @@ COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
 
 # Build-time public config for Next.js (baked into the bundle).
-ARG NEXT_PUBLIC_API_BASE_URL=/api
+ARG NEXT_PUBLIC_API_BASE_URL=https://api.vestledger.com
 ARG NEXT_PUBLIC_PUBLIC_DOMAIN=www.vestledger.com
 ARG NEXT_PUBLIC_APP_DOMAIN=app.vestledger.com
 ARG NEXT_PUBLIC_ADMIN_DOMAIN=admin.vestledger.com

@@ -11,7 +11,7 @@ import { PublicMobileMenu } from "./public-mobile-menu";
  */
 export function PublicHeaderStatic() {
   return (
-    <header className="sticky top-0 left-0 right-0 z-50 w-full px-3 pt-3 sm:px-4 sm:pt-4">
+    <header className="fixed inset-x-0 top-0 z-50 w-full px-3 pt-3 sm:px-4 sm:pt-4">
       <nav className="mx-auto max-w-7xl rounded-[20px] border border-[color:var(--marketing-shell-border)] bg-[color:var(--marketing-shell-bg)] shadow-[0_24px_60px_rgba(7,16,32,0.18)] backdrop-blur-2xl">
         <div className="mx-auto flex items-center justify-between gap-4 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-4 sm:gap-8">

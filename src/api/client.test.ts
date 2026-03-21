@@ -7,7 +7,7 @@ vi.mock("openapi-fetch", () => ({
 }));
 
 vi.mock("@/api/config", () => ({
-  getApiBaseUrl: vi.fn(() => "https://api.vestledger.local/api"),
+  getApiBaseUrl: vi.fn(() => "https://api.vestledger.local"),
 }));
 
 vi.mock("@/lib/storage/safeLocalStorage", () => ({
