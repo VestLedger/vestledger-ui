@@ -1,17 +1,17 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig, type UserConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const plugins = [react()] as unknown as NonNullable<UserConfig["plugins"]>;
 
 export default defineConfig({
-  // Vitest in this workspace resolves Vite 5 types while plugin-react is
-  // installed against Vite 6. The plugin is runtime-compatible; suppress the
-  // transient type mismatch until the dependency graph is aligned.
-  // @ts-expect-error Vite 5/6 plugin type mismatch in the current lockfile
-  plugins: [react()],
+  // The monorepo currently exposes two Vite type trees during Next's build-time
+  // typecheck. Cast the runtime-compatible plugin list to the exact config
+  // shape Vitest expects without relying on a brittle ts-expect-error.
+  plugins,
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
