@@ -747,3 +747,410 @@ html {
 .gp-home-skin .gp-home-content {
   position: relative;
 }
+
+/* ============================================
+   Public Marketing System
+   Scoped to public route group wrapper
+   ============================================ */
+.public-marketing {
+  --marketing-shell-bg: rgba(255, 255, 255, 0.78);
+  --marketing-shell-border: rgba(148, 163, 184, 0.22);
+  --marketing-shell-control-bg: rgba(255, 255, 255, 0.68);
+  --marketing-shell-control-border: rgba(148, 163, 184, 0.24);
+  --marketing-shell-control-hover: rgba(241, 245, 249, 0.92);
+  --marketing-shell-control-text: var(--app-text);
+  --marketing-stage-bg: linear-gradient(
+    180deg,
+    rgba(240, 246, 255, 0.94) 0%,
+    rgba(230, 238, 250, 0.96) 100%
+  );
+  --marketing-stage-border: rgba(148, 163, 184, 0.24);
+  --marketing-panel-bg: linear-gradient(
+    180deg,
+    rgba(8, 18, 36, 0.84) 0%,
+    rgba(6, 14, 28, 0.72) 100%
+  );
+  --marketing-panel-bg-soft: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.78) 0%,
+    rgba(248, 250, 255, 0.62) 100%
+  );
+  --marketing-panel-border: rgba(116, 150, 209, 0.22);
+  --marketing-panel-shadow:
+    0 28px 90px rgba(7, 16, 32, 0.18), 0 10px 24px rgba(7, 16, 32, 0.12);
+  --marketing-contrast-panel-bg: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.88) 0%,
+    rgba(246, 250, 255, 0.8) 100%
+  );
+  --marketing-contrast-panel-border: rgba(116, 150, 209, 0.22);
+  --marketing-contrast-panel-shadow:
+    0 28px 90px rgba(7, 16, 32, 0.12), 0 10px 24px rgba(7, 16, 32, 0.08);
+  --marketing-contrast-text: #0f172a;
+  --marketing-contrast-muted: #475569;
+  --marketing-contrast-subtle: #64748b;
+  --marketing-contrast-soft-bg: rgba(255, 255, 255, 0.72);
+  --marketing-contrast-soft-border: rgba(148, 163, 184, 0.22);
+  --marketing-contrast-deep-bg: rgba(15, 23, 42, 0.04);
+  --marketing-contrast-deep-text: #334155;
+  --marketing-grid-line: rgba(89, 124, 182, 0.12);
+  --marketing-glow-blue: rgba(59, 130, 246, 0.22);
+  --marketing-glow-gold: rgba(251, 191, 36, 0.18);
+  --marketing-glow-cyan: rgba(34, 211, 238, 0.18);
+  --marketing-kicker-bg: rgba(255, 255, 255, 0.88);
+  --marketing-kicker-border: rgba(148, 163, 184, 0.28);
+  --marketing-kicker-text: #0f172a;
+  --marketing-kicker-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+  --marketing-chip-bg: rgba(255, 255, 255, 0.76);
+  --marketing-chip-border: rgba(148, 163, 184, 0.24);
+  --marketing-chip-text: #0f172a;
+  --marketing-footer-bg: linear-gradient(180deg, #eef4ff 0%, #f8fbff 100%);
+  --marketing-footer-border: rgba(148, 163, 184, 0.22);
+  --marketing-footer-text: #0f172a;
+  --marketing-footer-muted: #475569;
+  --marketing-footer-subtle: #64748b;
+  font-family: var(--font-public-body), "Segoe UI", sans-serif;
+  background:
+    radial-gradient(
+      circle at 0% 0%,
+      rgba(59, 130, 246, 0.11) 0%,
+      transparent 26%
+    ),
+    radial-gradient(
+      circle at 100% 10%,
+      rgba(34, 211, 238, 0.09) 0%,
+      transparent 24%
+    ),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, transparent 35%),
+    var(--app-bg);
+}
+
+.dark .public-marketing {
+  --marketing-shell-bg: rgba(4, 10, 20, 0.78);
+  --marketing-shell-border: rgba(125, 158, 214, 0.2);
+  --marketing-shell-control-bg: rgba(255, 255, 255, 0.05);
+  --marketing-shell-control-border: rgba(255, 255, 255, 0.1);
+  --marketing-shell-control-hover: rgba(255, 255, 255, 0.1);
+  --marketing-shell-control-text: var(--app-text);
+  --marketing-stage-bg: linear-gradient(
+    180deg,
+    rgba(5, 11, 22, 0.82) 0%,
+    rgba(9, 18, 34, 0.96) 100%
+  );
+  --marketing-stage-border: rgba(255, 255, 255, 0.1);
+  --marketing-panel-bg: linear-gradient(
+    180deg,
+    rgba(7, 14, 28, 0.92) 0%,
+    rgba(6, 10, 20, 0.84) 100%
+  );
+  --marketing-panel-bg-soft: linear-gradient(
+    180deg,
+    rgba(17, 25, 41, 0.82) 0%,
+    rgba(11, 18, 32, 0.7) 100%
+  );
+  --marketing-panel-border: rgba(120, 152, 207, 0.22);
+  --marketing-panel-shadow:
+    0 32px 90px rgba(2, 6, 17, 0.56), 0 12px 28px rgba(2, 6, 17, 0.36);
+  --marketing-contrast-panel-bg: var(--marketing-panel-bg);
+  --marketing-contrast-panel-border: rgba(120, 152, 207, 0.22);
+  --marketing-contrast-panel-shadow:
+    0 32px 90px rgba(2, 6, 17, 0.56), 0 12px 28px rgba(2, 6, 17, 0.36);
+  --marketing-contrast-text: #f8fafc;
+  --marketing-contrast-muted: #cbd5e1;
+  --marketing-contrast-subtle: #94a3b8;
+  --marketing-contrast-soft-bg: rgba(255, 255, 255, 0.05);
+  --marketing-contrast-soft-border: rgba(255, 255, 255, 0.1);
+  --marketing-contrast-deep-bg: rgba(2, 6, 23, 0.45);
+  --marketing-contrast-deep-text: #e2e8f0;
+  --marketing-grid-line: rgba(112, 147, 202, 0.18);
+  --marketing-glow-blue: rgba(96, 165, 250, 0.3);
+  --marketing-glow-gold: rgba(251, 191, 36, 0.22);
+  --marketing-glow-cyan: rgba(34, 211, 238, 0.2);
+  --marketing-kicker-bg: rgba(5, 12, 24, 0.72);
+  --marketing-kicker-border: rgba(112, 147, 202, 0.22);
+  --marketing-kicker-text: #dbeafe;
+  --marketing-kicker-shadow: 0 16px 50px rgba(7, 16, 32, 0.16);
+  --marketing-chip-bg: rgba(7, 16, 32, 0.72);
+  --marketing-chip-border: rgba(112, 147, 202, 0.18);
+  --marketing-chip-text: #dbeafe;
+  --marketing-footer-bg: #050b16;
+  --marketing-footer-border: rgba(255, 255, 255, 0.1);
+  --marketing-footer-text: #f8fafc;
+  --marketing-footer-muted: #cbd5e1;
+  --marketing-footer-subtle: #94a3b8;
+  background:
+    radial-gradient(
+      circle at 0% 0%,
+      rgba(59, 130, 246, 0.2) 0%,
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 100% 10%,
+      rgba(34, 211, 238, 0.14) 0%,
+      transparent 24%
+    ),
+    linear-gradient(180deg, rgba(11, 18, 32, 0.18) 0%, transparent 36%),
+    var(--app-bg);
+}
+
+.public-marketing-shell {
+  position: relative;
+  isolation: isolate;
+}
+
+.public-marketing-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(
+    90deg,
+    transparent 0,
+    rgba(255, 255, 255, 0.06) 50%,
+    transparent 100%
+  );
+  opacity: 0.35;
+  mix-blend-mode: soft-light;
+}
+
+.public-marketing-main {
+  position: relative;
+}
+
+.public-marketing [data-public-display="true"] {
+  font-family: var(--font-public-display), "Segoe UI", sans-serif;
+  letter-spacing: -0.04em;
+}
+
+.public-marketing-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--marketing-kicker-border);
+  background: var(--marketing-kicker-bg);
+  color: var(--marketing-kicker-text);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  box-shadow: var(--marketing-kicker-shadow);
+}
+
+.public-marketing-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--marketing-chip-border);
+  background: var(--marketing-chip-bg);
+  color: var(--marketing-chip-text);
+  font-size: 0.78rem;
+  font-weight: 500;
+  backdrop-filter: blur(16px);
+}
+
+.public-marketing-shell-control {
+  border: 1px solid var(--marketing-shell-control-border);
+  background: var(--marketing-shell-control-bg);
+  color: var(--marketing-shell-control-text);
+  backdrop-filter: blur(18px);
+}
+
+.public-marketing-shell-control:hover {
+  background: var(--marketing-shell-control-hover);
+}
+
+.public-marketing-stage {
+  background: var(--marketing-stage-bg);
+  border-color: var(--marketing-stage-border);
+}
+
+.public-marketing-panel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  border: 1px solid var(--marketing-panel-border);
+  background: var(--marketing-panel-bg-soft);
+  box-shadow: var(--marketing-panel-shadow);
+  backdrop-filter: blur(24px);
+}
+
+.public-marketing-panel-dark {
+  background: var(--marketing-panel-bg);
+  color: #eff6ff;
+}
+
+.public-marketing-panel-contrast {
+  background: var(--marketing-contrast-panel-bg);
+  border-color: var(--marketing-contrast-panel-border);
+  box-shadow: var(--marketing-contrast-panel-shadow);
+  color: var(--marketing-contrast-text);
+}
+
+.public-marketing-contrast-heading {
+  color: var(--marketing-contrast-text);
+}
+
+.public-marketing-contrast-copy {
+  color: var(--marketing-contrast-muted);
+}
+
+.public-marketing-contrast-label {
+  color: var(--marketing-contrast-subtle);
+}
+
+.public-marketing-contrast-soft {
+  border: 1px solid var(--marketing-contrast-soft-border);
+  background: var(--marketing-contrast-soft-bg);
+  backdrop-filter: blur(18px);
+}
+
+.public-marketing-contrast-deep {
+  border: 1px solid var(--marketing-contrast-soft-border);
+  background: var(--marketing-contrast-deep-bg);
+  color: var(--marketing-contrast-deep-text);
+  backdrop-filter: blur(18px);
+}
+
+.public-marketing-card {
+  border-radius: 20px;
+  border: 1px solid rgba(112, 147, 202, 0.16);
+  background: rgba(255, 255, 255, 0.56);
+  box-shadow:
+    0 18px 50px rgba(7, 16, 32, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(22px);
+  transition:
+    transform 0.28s ease,
+    border-color 0.28s ease,
+    box-shadow 0.28s ease;
+}
+
+.dark .public-marketing-card {
+  background: rgba(10, 18, 34, 0.72);
+  box-shadow:
+    0 20px 54px rgba(2, 6, 17, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.public-marketing-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(112, 147, 202, 0.3);
+  box-shadow:
+    0 24px 60px rgba(7, 16, 32, 0.12),
+    0 0 50px rgba(59, 130, 246, 0.08);
+}
+
+.public-marketing-grid {
+  background-image: url("/marketing-signal-grid.svg");
+  background-size: cover;
+  background-position: center;
+  opacity: 0.38;
+}
+
+.public-marketing-shell-link {
+  position: relative;
+  color: var(--app-text-muted);
+  transition: color 0.24s ease;
+}
+
+.public-marketing-shell-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.35rem;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(59, 130, 246, 0.92) 50%,
+    transparent 100%
+  );
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.24s ease;
+}
+
+.public-marketing-shell-link:hover,
+.public-marketing-shell-link[data-active="true"] {
+  color: var(--app-text);
+}
+
+.public-marketing-shell-link:hover::after,
+.public-marketing-shell-link[data-active="true"]::after {
+  transform: scaleX(1);
+}
+
+.public-marketing-footer-surface {
+  background: var(--marketing-footer-bg);
+  border-color: var(--marketing-footer-border);
+  color: var(--marketing-footer-text);
+}
+
+.public-marketing-footer-link {
+  color: var(--marketing-footer-muted);
+  transition: color 0.24s ease;
+}
+
+.public-marketing-footer-link:hover {
+  color: var(--marketing-footer-text);
+}
+
+.public-marketing-glow {
+  animation: marketing-float 14s ease-in-out infinite;
+}
+
+.public-marketing-drift {
+  animation: marketing-drift 18s ease-in-out infinite;
+}
+
+.public-marketing-pulse {
+  animation: marketing-pulse 4.8s ease-in-out infinite;
+}
+
+@keyframes marketing-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -12px, 0);
+  }
+}
+
+@keyframes marketing-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(14px, -10px, 0) scale(1.03);
+  }
+}
+
+@keyframes marketing-pulse {
+  0%,
+  100% {
+    opacity: 0.62;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.03);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .public-marketing *,
+  .public-marketing *::before,
+  .public-marketing *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

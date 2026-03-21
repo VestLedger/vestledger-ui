@@ -1,0 +1,48 @@
+<svg width="1600" height="1200" viewBox="0 0 1600 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="1200" fill="#040914"/>
+  <g opacity="0.28">
+    <path d="M0 100H1600" stroke="#3B82F6" stroke-opacity="0.18"/>
+    <path d="M0 200H1600" stroke="#3B82F6" stroke-opacity="0.12"/>
+    <path d="M0 300H1600" stroke="#3B82F6" stroke-opacity="0.18"/>
+    <path d="M0 400H1600" stroke="#3B82F6" stroke-opacity="0.12"/>
+    <path d="M0 500H1600" stroke="#3B82F6" stroke-opacity="0.18"/>
+    <path d="M0 600H1600" stroke="#3B82F6" stroke-opacity="0.12"/>
+    <path d="M0 700H1600" stroke="#3B82F6" stroke-opacity="0.18"/>
+    <path d="M0 800H1600" stroke="#3B82F6" stroke-opacity="0.12"/>
+    <path d="M0 900H1600" stroke="#3B82F6" stroke-opacity="0.18"/>
+    <path d="M0 1000H1600" stroke="#3B82F6" stroke-opacity="0.12"/>
+    <path d="M100 0V1200" stroke="#22D3EE" stroke-opacity="0.12"/>
+    <path d="M200 0V1200" stroke="#3B82F6" stroke-opacity="0.18"/>
+    <path d="M300 0V1200" stroke="#22D3EE" stroke-opacity="0.12"/>
+    <path d="M400 0V1200" stroke="#3B82F6" stroke-opacity="0.18"/>
+    <path d="M500 0V1200" stroke="#22D3EE" stroke-opacity="0.12"/>
+    <path d="M600 0V1200" stroke="#3B82F6" stroke-opacity="0.18"/>
+    <path d="M700 0V1200" stroke="#22D3EE" stroke-opacity="0.12"/>
+    <path d="M800 0V1200" stroke="#3B82F6" stroke-opacity="0.18"/>
+    <path d="M900 0V1200" stroke="#22D3EE" stroke-opacity="0.12"/>
+    <path d="M1000 0V1200" stroke="#3B82F6" stroke-opacity="0.18"/>
+    <path d="M1100 0V1200" stroke="#22D3EE" stroke-opacity="0.12"/>
+    <path d="M1200 0V1200" stroke="#3B82F6" stroke-opacity="0.18"/>
+    <path d="M1300 0V1200" stroke="#22D3EE" stroke-opacity="0.12"/>
+    <path d="M1400 0V1200" stroke="#3B82F6" stroke-opacity="0.18"/>
+    <path d="M1500 0V1200" stroke="#22D3EE" stroke-opacity="0.12"/>
+  </g>
+  <g opacity="0.8">
+    <circle cx="316" cy="274" r="4" fill="#60A5FA"/>
+    <circle cx="612" cy="458" r="4" fill="#FBBF24"/>
+    <circle cx="782" cy="332" r="3" fill="#67E8F9"/>
+    <circle cx="944" cy="714" r="4" fill="#60A5FA"/>
+    <circle cx="1184" cy="518" r="5" fill="#FBBF24"/>
+    <circle cx="1338" cy="824" r="4" fill="#67E8F9"/>
+  </g>
+  <g opacity="0.48">
+    <path d="M316 274L612 458L782 332L944 714L1184 518L1338 824" stroke="url(#paint0_linear)" stroke-width="2"/>
+  </g>
+  <defs>
+    <linearGradient id="paint0_linear" x1="316" y1="274" x2="1338" y2="824" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#60A5FA"/>
+      <stop offset="0.52" stop-color="#67E8F9"/>
+      <stop offset="1" stop-color="#FBBF24"/>
+    </linearGradient>
+  </defs>
+</svg>

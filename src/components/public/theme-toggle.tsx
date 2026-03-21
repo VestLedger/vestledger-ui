@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useTheme } from 'next-themes';
-import { Sun, Moon } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { useTheme } from "next-themes";
+import { Sun, Moon } from "lucide-react";
 
 /**
  * Minimal client component for theme toggle
@@ -21,7 +21,7 @@ export function ThemeToggle() {
     return (
       <button
         aria-label="Toggle theme"
-        className="inline-flex items-center justify-center w-10 h-10 rounded-lg text-[var(--app-text-muted)] hover:bg-[var(--app-surface-hover)] transition-colors"
+        className="public-marketing-shell-control inline-flex h-10 w-10 items-center justify-center rounded-full text-[var(--app-text-muted)] transition-colors"
         disabled
       >
         <Sun className="w-5 h-5" />
@@ -31,11 +31,15 @@ export function ThemeToggle() {
 
   return (
     <button
-      onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
       aria-label="Toggle theme"
-      className="inline-flex items-center justify-center w-10 h-10 rounded-lg text-[var(--app-text-muted)] hover:bg-[var(--app-surface-hover)] transition-colors"
+      className="public-marketing-shell-control inline-flex h-10 w-10 items-center justify-center rounded-full text-[var(--app-text-muted)] transition-colors"
     >
-      {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+      {theme === "dark" ? (
+        <Sun className="w-5 h-5" />
+      ) : (
+        <Moon className="w-5 h-5" />
+      )}
     </button>
   );
 }

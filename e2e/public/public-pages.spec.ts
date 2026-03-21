@@ -1,6 +1,13 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 
 test.use({ storageState: { cookies: [], origins: [] } });
+
+async function isLocalhostLoginFallback(page: Page) {
+  return page
+    .getByRole("heading", { name: /welcome back/i })
+    .isVisible()
+    .catch(() => false);
+}
 
 test.describe("Public Pages", () => {
   test.describe("Home Page", () => {
@@ -13,25 +20,51 @@ test.describe("Public Pages", () => {
 
     test("should display hero section", async ({ page }) => {
       await page.goto("/");
+      await page.waitForLoadState("networkidle");
+      test.skip(
+        await isLocalhostLoginFallback(page),
+        "Localhost middleware routes / to login unless a dedicated public host is configured.",
+      );
 
-      const hero = page
-        .locator('[class*="hero"], [data-testid="hero"], main section')
-        .first();
+      const hero = page.getByTestId("home-hero");
       await expect(hero).toBeVisible();
+      await expect(
+        hero.getByRole("heading", { name: /meet vesta/i }),
+      ).toBeVisible();
     });
 
-    test("should have navigation to login", async ({ page }) => {
+    test("should expose the new homepage story sections", async ({ page }) => {
       await page.goto("/");
+      await page.waitForLoadState("networkidle");
+      test.skip(
+        await isLocalhostLoginFallback(page),
+        "Localhost middleware routes / to login unless a dedicated public host is configured.",
+      );
+      await expect(page.getByTestId("workflow-rail")).toBeVisible();
+      await expect(page.getByTestId("product-proof")).toBeVisible();
+      await expect(page.getByTestId("trust-layer")).toBeVisible();
+      await expect(page.getByTestId("home-cta")).toBeVisible();
+    });
+
+    test("should have navigation to login and primary CTA", async ({
+      page,
+    }) => {
+      await page.goto("/");
+
       const menuButton = page.getByRole("button", { name: /open menu/i });
       if (await menuButton.isVisible()) {
         await menuButton.click();
       }
 
-      // Mobile/desktop variants can expose different primary auth CTAs.
-      const authOrPrimaryCta = page
-        .getByRole("link", { name: /login|sign in|get started/i })
-        .or(page.getByRole("button", { name: /login|sign in|get started/i }));
-      await expect(authOrPrimaryCta.first()).toBeVisible();
+      const login = page
+        .getByRole("link", { name: /login|sign in/i })
+        .or(page.getByRole("button", { name: /login|sign in/i }));
+      const primaryCta = page.getByRole("link", {
+        name: /meet vesta|request access/i,
+      });
+
+      await expect(login.first()).toBeVisible();
+      await expect(primaryCta.first()).toBeVisible();
     });
   });
 
@@ -139,6 +172,11 @@ test.describe("Public Navigation", () => {
 
   test("should have consistent navigation header", async ({ page }) => {
     await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    test.skip(
+      await isLocalhostLoginFallback(page),
+      "Localhost middleware routes / to login unless a dedicated public host is configured.",
+    );
 
     const header = page.locator("header, nav").first();
     await expect(header).toBeVisible();
