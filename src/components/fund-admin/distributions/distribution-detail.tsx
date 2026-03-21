@@ -17,11 +17,7 @@ import { AsyncStateRenderer } from '@/ui/async-states';
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { useAppDispatch } from "@/store/hooks";
 import {
-  approveDistributionRequested,
-  distributionRequested,
   distributionsSelectors,
-  rejectDistributionRequested,
-  returnForRevisionRequested,
   setSelectedDistribution,
 } from "@/store/slices/distributionSlice";
 import type { Distribution, LPAllocation } from "@/types/distribution";
@@ -36,6 +32,12 @@ import { StatementGenerator } from "./statement-generator";
 import { getStatementTemplateLabel } from "./statement-template-constants";
 import { CalendarDays, Download, Receipt, Users } from "lucide-react";
 import { ROUTE_PATHS } from "@/config/routes";
+import {
+  approveDistributionOperation,
+  loadDistributionOperation,
+  rejectDistributionOperation,
+  returnDistributionForRevisionOperation,
+} from '@/store/async/distributionOperations';
 
 const buildLifecycleEvents = (distribution: Distribution) => [
   { id: "draft", label: "Draft", timestamp: distribution.createdAt },
@@ -57,7 +59,7 @@ export function DistributionDetail() {
   }, [params?.id]);
 
   const { data, isLoading, error, refetch } = useAsyncData(
-    distributionRequested,
+    loadDistributionOperation,
     distributionsSelectors.selectState,
     {
       params: distributionId ?? "",
@@ -298,9 +300,9 @@ export function DistributionDetail() {
 
                   <ApprovalStepper
                     distribution={record}
-                    onApprove={(params) => dispatch(approveDistributionRequested(params))}
-                    onReject={(params) => dispatch(rejectDistributionRequested(params))}
-                    onReturnForRevision={(params) => dispatch(returnForRevisionRequested(params))}
+                    onApprove={(params) => dispatch(approveDistributionOperation(params))}
+                    onReject={(params) => dispatch(rejectDistributionOperation(params))}
+                    onReturnForRevision={(params) => dispatch(returnDistributionForRevisionOperation(params))}
                     isSubmitting={isLoading}
                   />
 

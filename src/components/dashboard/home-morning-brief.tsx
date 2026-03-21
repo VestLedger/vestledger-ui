@@ -2,7 +2,7 @@
 
 import { Clock3, Sparkles } from 'lucide-react';
 import type { MorningBrief } from '@/data/mocks/hooks/dashboard-data';
-import { DEFAULT_LOCALE } from '@/config/i18n';
+import { formatTime } from '@/utils/formatting';
 import { KpiChip } from '@/ui/composites';
 
 interface HomeMorningBriefProps {
@@ -10,11 +10,10 @@ interface HomeMorningBriefProps {
 }
 
 export function HomeMorningBrief({ brief }: HomeMorningBriefProps) {
-  const asOfLabel = brief.asOf.toLocaleTimeString(DEFAULT_LOCALE, {
+  const asOfLabel = formatTime(brief.asOf, {
     hour: '2-digit',
     minute: '2-digit',
   });
-  const confidenceLabel = `${Math.round(brief.confidence * 100)}%`;
 
   return (
     <section
@@ -48,7 +47,6 @@ export function HomeMorningBrief({ brief }: HomeMorningBriefProps) {
           <KpiChip label="Signals" value={brief.itemCount} tone="neutral" />
           <KpiChip label="Urgent" value={brief.urgentCount} tone="danger" />
           <KpiChip label="Important" value={brief.importantCount} tone="warning" />
-          <KpiChip label="Confidence" value={confidenceLabel} tone="primary" className="col-span-2 lg:col-span-1" />
           <div className="col-span-2 flex items-center justify-end gap-1 rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)]/85 px-2 py-2 text-[var(--app-text-subtle)] lg:col-span-2">
             <Clock3 className="h-3.5 w-3.5" />
             <span className="text-[11px]">As of {asOfLabel}</span>

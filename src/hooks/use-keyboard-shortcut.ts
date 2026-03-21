@@ -1,4 +1,4 @@
-import { useEffect, type DependencyList } from 'react';
+import { useEffect, type DependencyList } from "react";
 
 interface ShortcutConfig {
   key: string;
@@ -11,7 +11,7 @@ interface ShortcutConfig {
 export function useKeyboardShortcut(
   config: ShortcutConfig,
   callback: () => void,
-  deps: DependencyList = []
+  deps: DependencyList = [],
 ) {
   const {
     key,
@@ -37,7 +37,7 @@ export function useKeyboardShortcut(
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [key, metaKey, ctrlKey, shiftKey, altKey, callback, deps]);
 }

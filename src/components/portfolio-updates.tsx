@@ -12,14 +12,12 @@ import {
 import { ListItemCard, SearchToolbar } from '@/ui/composites';
 import { useUIKey } from '@/store/ui';
 import {
-  portfolioUpdatesRequested,
   portfolioSelectors,
 } from '@/store/slices/portfolioSlice';
-import { AsyncStateRenderer } from '@/ui/async-states';
 import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys';
-import { useAsyncData } from '@/hooks/useAsyncData';
 import { PortfolioTabHeader } from '@/components/portfolio-tab-header';
 import { formatDate as formatDateValue } from '@/utils/formatting';
+import { useAppSelector } from '@/store/hooks';
 
 const updateIcons = {
   financial: <DollarSign className="w-5 h-5" />,
@@ -46,7 +44,7 @@ const updateBadgeColors = {
 };
 
 export function PortfolioUpdates() {
-  const { data, isLoading, error, refetch } = useAsyncData(portfolioUpdatesRequested, portfolioSelectors.selectState, { params: {} });
+  const data = useAppSelector(portfolioSelectors.selectData);
 
   // Use centralized UI state defaults
   const { value: ui, patch: patchUI } = useUIKey(
@@ -80,22 +78,12 @@ export function PortfolioUpdates() {
   };
 
   return (
-    <AsyncStateRenderer
-      data={data}
-      isLoading={isLoading}
-      error={error}
-      onRetry={refetch}
-      loadingMessage="Loading portfolio updates..."
-      errorTitle="Failed to Load Portfolio Updates"
-      isEmpty={() => false}
-    >
-      {() => (
-        <div>
-          {/* Header */}
-          <PortfolioTabHeader
-            title="Portfolio Updates"
-            description="Latest communications and milestones from portfolio companies"
-          />
+    <div>
+      {/* Header */}
+      <PortfolioTabHeader
+        title="Portfolio Updates"
+        description="Latest communications and milestones from portfolio companies"
+      />
 
       {/* Filters */}
       <div className="mb-4">
@@ -211,8 +199,6 @@ export function PortfolioUpdates() {
           </Button>
         </div>
       )}
-        </div>
-      )}
-    </AsyncStateRenderer>
+    </div>
   );
 }

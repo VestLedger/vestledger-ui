@@ -1,4 +1,4 @@
-import { DEFAULT_CURRENCY, DEFAULT_LOCALE } from '@/config/i18n';
+import { DEFAULT_CURRENCY, DEFAULT_LOCALE } from "@/config/i18n";
 
 export interface CurrencyFormatOptions {
   locale?: string;
@@ -14,7 +14,7 @@ export interface CurrencyFormatOptions {
  */
 export function formatCurrency(
   amount: number,
-  options?: CurrencyFormatOptions
+  options?: CurrencyFormatOptions,
 ): string {
   const defaults: CurrencyFormatOptions = {
     locale: DEFAULT_LOCALE,
@@ -24,10 +24,12 @@ export function formatCurrency(
   };
 
   return new Intl.NumberFormat(options?.locale || defaults.locale, {
-    style: 'currency',
+    style: "currency",
     currency: options?.currency || defaults.currency,
-    minimumFractionDigits: options?.minimumFractionDigits ?? defaults.minimumFractionDigits,
-    maximumFractionDigits: options?.maximumFractionDigits ?? defaults.maximumFractionDigits,
+    minimumFractionDigits:
+      options?.minimumFractionDigits ?? defaults.minimumFractionDigits,
+    maximumFractionDigits:
+      options?.maximumFractionDigits ?? defaults.maximumFractionDigits,
   }).format(amount);
 }
 
@@ -40,9 +42,10 @@ export function formatCurrency(
 export function formatCurrencyCompact(amount: number): string {
   // Defensive: some API payloads / persisted localStorage snapshots can contain null/undefined.
   // Avoid crashing the UI on `.toFixed()` in those cases.
-  if (!Number.isFinite(amount)) return '$0';
+  if (!Number.isFinite(amount)) return "$0";
 
-  if (amount >= 1_000_000_000) return `$${(amount / 1_000_000_000).toFixed(1)}B`;
+  if (amount >= 1_000_000_000)
+    return `$${(amount / 1_000_000_000).toFixed(1)}B`;
   if (amount >= 1_000_000) return `$${(amount / 1_000_000).toFixed(1)}M`;
   if (amount >= 1_000) return `$${(amount / 1_000).toFixed(0)}K`;
   return `$${amount.toFixed(0)}`;

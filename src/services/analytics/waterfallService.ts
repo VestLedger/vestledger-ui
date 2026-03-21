@@ -9,21 +9,21 @@ import type {
   WaterfallResults,
   WaterfallTemplate,
   SensitivityAnalysis,
-} from '@/types/waterfall';
-import { isMockMode } from '@/config/data-mode';
+} from "@/types/waterfall";
+import { isMockMode } from "@/config/data-mode";
 import {
   mockWaterfallScenarios,
   mockWaterfallTemplates,
-} from '@/data/mocks/analytics/waterfall';
-import { safeLocalStorage } from '@/lib/storage/safeLocalStorage';
+} from "@/data/mocks/analytics/waterfall";
+import { safeLocalStorage } from "@/lib/storage/safeLocalStorage";
 import {
   calculateWaterfall,
   calculateSensitivityAnalysis,
-} from '@/lib/calculations/waterfall';
-import { apiClient } from '@/api/client';
-import { unwrapApiResult } from '@/api/unwrap';
+} from "@/lib/calculations/waterfall";
+import { apiClient } from "@/api/client";
+import { unwrapApiResult } from "@/api/unwrap";
 
-const STORAGE_KEY = 'vestledger-waterfall-scenarios';
+const STORAGE_KEY = "vestledger-waterfall-scenarios";
 let scenarioStoreCache: WaterfallScenario[] | null = null;
 
 const seedScenarioStore = () =>
@@ -62,7 +62,7 @@ export interface GetWaterfallScenariosParams {
  * Fetch waterfall scenarios with optional filters
  */
 export async function fetchWaterfallScenarios(
-  params?: GetWaterfallScenariosParams
+  params?: GetWaterfallScenariosParams,
 ): Promise<WaterfallScenario[]> {
   // Mock mode uses local storage
   if (isMockMode()) {
@@ -79,7 +79,7 @@ export async function fetchWaterfallScenarios(
 
     if (params?.tags && params.tags.length > 0) {
       scenarios = scenarios.filter((s) =>
-        params.tags?.some((tag) => s.tags?.includes(tag))
+        params.tags?.some((tag) => s.tags?.includes(tag)),
       );
     }
 
@@ -88,7 +88,7 @@ export async function fetchWaterfallScenarios(
       scenarios = scenarios.filter(
         (s) =>
           s.name.toLowerCase().includes(query) ||
-          s.description?.toLowerCase().includes(query)
+          s.description?.toLowerCase().includes(query),
       );
     }
 
@@ -97,7 +97,7 @@ export async function fetchWaterfallScenarios(
 
   // API mode
   const payload = await unwrapApiResult(
-    apiClient.GET('/waterfall/scenarios', {
+    apiClient.GET("/waterfall/scenarios", {
       params: {
         query: {
           fundId: params?.fundId,
@@ -105,7 +105,7 @@ export async function fetchWaterfallScenarios(
         },
       },
     }),
-    { fallbackMessage: 'Failed to fetch waterfall scenarios' }
+    { fallbackMessage: "Failed to fetch waterfall scenarios" },
   );
 
   // API returns `{ data, meta }` for lists. Normalize to the scenario array so reducers/components
@@ -114,7 +114,7 @@ export async function fetchWaterfallScenarios(
     return payload as unknown as WaterfallScenario[];
   }
 
-  if (payload && typeof payload === 'object') {
+  if (payload && typeof payload === "object") {
     const candidate = payload as { data?: unknown };
     if (Array.isArray(candidate.data)) {
       return candidate.data as WaterfallScenario[];
@@ -127,7 +127,9 @@ export async function fetchWaterfallScenarios(
 /**
  * Fetch a single waterfall scenario by ID
  */
-export async function fetchWaterfallScenario(id: string): Promise<WaterfallScenario> {
+export async function fetchWaterfallScenario(
+  id: string,
+): Promise<WaterfallScenario> {
   if (isMockMode()) {
     const scenario = loadScenarioStore().find((s) => s.id === id);
     if (!scenario) {
@@ -138,10 +140,10 @@ export async function fetchWaterfallScenario(id: string): Promise<WaterfallScena
 
   // API mode
   const result = await unwrapApiResult(
-    apiClient.GET('/waterfall/scenarios/{id}', {
+    apiClient.GET("/waterfall/scenarios/{id}", {
       params: { path: { id } },
     }),
-    { fallbackMessage: `Failed to fetch waterfall scenario: ${id}` }
+    { fallbackMessage: `Failed to fetch waterfall scenario: ${id}` },
   );
 
   return result as unknown as WaterfallScenario;
@@ -151,7 +153,7 @@ export async function fetchWaterfallScenario(id: string): Promise<WaterfallScena
  * Create a new waterfall scenario
  */
 export async function createWaterfallScenario(
-  data: Omit<WaterfallScenario, 'id' | 'createdAt' | 'updatedAt' | 'version'>
+  data: Omit<WaterfallScenario, "id" | "createdAt" | "updatedAt" | "version">,
 ): Promise<WaterfallScenario> {
   if (isMockMode()) {
     const scenarios = loadScenarioStore();
@@ -161,6 +163,8 @@ export async function createWaterfallScenario(
       version: 1,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      isLocked: false,
+      lockedAt: undefined,
     };
 
     const next = [...scenarios, newScenario];
@@ -170,7 +174,7 @@ export async function createWaterfallScenario(
 
   // API mode - map UI data to API DTO format
   const apiData = {
-    fundId: data.fundId ?? '',
+    fundId: data.fundId?.trim() || undefined,
     fundName: data.fundName,
     name: data.name,
     description: data.description,
@@ -208,11 +212,11 @@ export async function createWaterfallScenario(
   };
 
   const result = await unwrapApiResult(
-    apiClient.POST('/waterfall/scenarios', {
+    apiClient.POST("/waterfall/scenarios", {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       body: apiData as any,
     }),
-    { fallbackMessage: 'Failed to create waterfall scenario' }
+    { fallbackMessage: "Failed to create waterfall scenario" },
   );
 
   return result as unknown as WaterfallScenario;
@@ -223,7 +227,7 @@ export async function createWaterfallScenario(
  */
 export async function updateWaterfallScenario(
   id: string,
-  data: Partial<WaterfallScenario>
+  data: Partial<WaterfallScenario>,
 ): Promise<WaterfallScenario> {
   if (isMockMode()) {
     const scenarios = loadScenarioStore();
@@ -284,12 +288,12 @@ export async function updateWaterfallScenario(
     })),
   };
   const result = await unwrapApiResult(
-    apiClient.PUT('/waterfall/scenarios/{id}', {
+    apiClient.PUT("/waterfall/scenarios/{id}", {
       params: { path: { id } },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       body: updateBody as any,
     }),
-    { fallbackMessage: 'Failed to update waterfall scenario' }
+    { fallbackMessage: "Failed to update waterfall scenario" },
   );
 
   return result as unknown as WaterfallScenario;
@@ -313,10 +317,10 @@ export async function deleteWaterfallScenario(id: string): Promise<void> {
 
   // API mode
   await unwrapApiResult(
-    apiClient.DELETE('/waterfall/scenarios/{id}', {
+    apiClient.DELETE("/waterfall/scenarios/{id}", {
       params: { path: { id } },
     }),
-    { fallbackMessage: 'Failed to delete waterfall scenario' }
+    { fallbackMessage: "Failed to delete waterfall scenario" },
   );
 }
 
@@ -325,7 +329,7 @@ export async function deleteWaterfallScenario(id: string): Promise<void> {
  */
 export async function duplicateWaterfallScenario(
   id: string,
-  newName?: string
+  newName?: string,
 ): Promise<WaterfallScenario> {
   if (isMockMode()) {
     const scenarios = loadScenarioStore();
@@ -341,7 +345,12 @@ export async function duplicateWaterfallScenario(
       version: 1,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      fundId: undefined,
+      fundName: undefined,
       isFavorite: false,
+      isTemplate: false,
+      isLocked: false,
+      lockedAt: undefined,
     };
 
     const next = [...scenarios, duplicate];
@@ -351,10 +360,10 @@ export async function duplicateWaterfallScenario(
 
   // API mode - duplicate then update name if needed
   const result = await unwrapApiResult(
-    apiClient.POST('/waterfall/scenarios/{id}/duplicate', {
+    apiClient.POST("/waterfall/scenarios/{id}/duplicate", {
       params: { path: { id } },
     }),
-    { fallbackMessage: 'Failed to duplicate waterfall scenario' }
+    { fallbackMessage: "Failed to duplicate waterfall scenario" },
   );
 
   const duplicated = result as unknown as WaterfallScenario;
@@ -381,7 +390,7 @@ export interface CalculateWaterfallParams {
  * Can accept either a scenario ID or a complete scenario object
  */
 export async function performWaterfallCalculation(
-  params: CalculateWaterfallParams
+  params: CalculateWaterfallParams,
 ): Promise<WaterfallResults> {
   let scenario: WaterfallScenario;
 
@@ -390,7 +399,7 @@ export async function performWaterfallCalculation(
   } else if (params.scenarioId) {
     scenario = await fetchWaterfallScenario(params.scenarioId);
   } else {
-    throw new Error('Either scenarioId or scenario must be provided');
+    throw new Error("Either scenarioId or scenario must be provided");
   }
 
   // Perform frontend calculation
@@ -409,10 +418,15 @@ export async function performSensitivityAnalysis(
   scenarioId: string,
   minExitValue: number,
   maxExitValue: number,
-  steps?: number
+  steps?: number,
 ): Promise<SensitivityAnalysis> {
   const scenario = await fetchWaterfallScenario(scenarioId);
-  return calculateSensitivityAnalysis(scenario, minExitValue, maxExitValue, steps);
+  return calculateSensitivityAnalysis(
+    scenario,
+    minExitValue,
+    maxExitValue,
+    steps,
+  );
 }
 
 // ============================================================================
@@ -428,10 +442,9 @@ export async function fetchWaterfallTemplates(): Promise<WaterfallTemplate[]> {
   }
 
   // API mode
-  const result = await unwrapApiResult(
-    apiClient.GET('/waterfall/templates'),
-    { fallbackMessage: 'Failed to fetch waterfall templates' }
-  );
+  const result = await unwrapApiResult(apiClient.GET("/waterfall/templates"), {
+    fallbackMessage: "Failed to fetch waterfall templates",
+  });
 
   return (result as unknown as WaterfallTemplate[]) ?? [];
 }
@@ -449,7 +462,7 @@ export async function createScenarioFromTemplate(
     totalInvested: number;
     managementFees: number;
     createdBy: string;
-  }
+  },
 ): Promise<WaterfallScenario> {
   if (isMockMode()) {
     const scenarios = loadScenarioStore();
@@ -475,11 +488,12 @@ export async function createScenarioFromTemplate(
       managementFees: scenarioData.managementFees,
       isFavorite: false,
       isTemplate: false,
+      isLocked: false,
       version: 1,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       createdBy: scenarioData.createdBy,
-      tags: [template.name.toLowerCase().replace(/\s+/g, '-')],
+      tags: [template.name.toLowerCase().replace(/\s+/g, "-")],
     };
 
     const next = [...scenarios, newScenario];
@@ -509,8 +523,9 @@ export async function createScenarioFromTemplate(
     managementFees: scenarioData.managementFees,
     isFavorite: false,
     isTemplate: false,
+    isLocked: false,
     createdBy: scenarioData.createdBy,
-    tags: [template.name.toLowerCase().replace(/\s+/g, '-')],
+    tags: [template.name.toLowerCase().replace(/\s+/g, "-")],
   });
 }
 
@@ -521,7 +536,9 @@ export async function createScenarioFromTemplate(
 /**
  * Toggle favorite status for a scenario
  */
-export async function toggleScenarioFavorite(id: string): Promise<WaterfallScenario> {
+export async function toggleScenarioFavorite(
+  id: string,
+): Promise<WaterfallScenario> {
   if (isMockMode()) {
     const scenarios = loadScenarioStore();
     const index = scenarios.findIndex((s) => s.id === id);
@@ -543,10 +560,10 @@ export async function toggleScenarioFavorite(id: string): Promise<WaterfallScena
 
   // API mode
   const result = await unwrapApiResult(
-    apiClient.POST('/waterfall/scenarios/{id}/favorite', {
+    apiClient.POST("/waterfall/scenarios/{id}/favorite", {
       params: { path: { id } },
     }),
-    { fallbackMessage: 'Failed to toggle favorite status' }
+    { fallbackMessage: "Failed to toggle favorite status" },
   );
 
   return result as unknown as WaterfallScenario;

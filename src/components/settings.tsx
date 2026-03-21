@@ -1,8 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useUIKey } from '@/store/ui';
-import { Card, Button, Input, Badge, Checkbox, Select, RadioGroup } from '@/ui';
+import { Card, Button, Input, Badge, Checkbox, Select, RadioGroup, useToast } from '@/ui';
 import type { PageHeaderBadge } from '@/ui';
 import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys';
 import {
@@ -27,18 +27,33 @@ import type { LucideIcon } from 'lucide-react';
 import { PageScaffold, SectionHeader, StatusBadge } from '@/ui/composites';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useAuth } from '@/contexts/auth-context';
+import { useAppDispatch } from '@/store/hooks';
+import { authUserUpdated } from '@/store/slices/authSlice';
 import {
-  createTeamUser,
+  OPERATING_REGION_OPTIONS,
+  getDefaultFundRegulatoryRegime,
+  getFundRegimeLabel,
+  getOperatingRegionLabel,
+} from '@/lib/regulatory-regions';
+import { updateCurrentOrgSettings } from '@/services/orgSettingsService';
+import {
   getTeamAccessSnapshot,
   inviteTeamMember,
   resendTeamInvite,
-  resolveTenantIdForUser,
-  updateTeamMemberRole,
-  updateTeamMemberStatus,
+  updateTeamMember,
+  type AssignableAppRole,
   type TeamAccessSnapshot,
   type TeamMember,
-} from '@/services/internal/teamAccessService';
-import type { AssignableAppRole, OrganizationRole } from '@/data/seeds/internal/superadmin';
+} from '@/services/internal/teamAccessApiService';
+import type { OperatingRegion } from '@/types/regulatory';
+import { persistAuthenticatedUser } from '@/utils/auth/persist-authenticated-user';
+import {
+  CURRENCY_OPTIONS,
+  DATE_FORMAT_OPTIONS,
+  LANGUAGE_OPTIONS,
+  TEAM_APP_ROLE_OPTIONS,
+  TIMEZONE_OPTIONS,
+} from '@/config/settings-options';
 
 interface SettingsSection {
   id: string;
@@ -92,52 +107,10 @@ const settingsSections: SettingsSection[] = [
   }
 ];
 
-const languageOptions = [
-  { value: 'en-us', label: 'English (US)' },
-  { value: 'en-uk', label: 'English (UK)' },
-  { value: 'es', label: 'Spanish' },
-  { value: 'fr', label: 'French' },
-];
-
-const timezoneOptions = [
-  { value: 'pt', label: 'Pacific Time (PT)' },
-  { value: 'mt', label: 'Mountain Time (MT)' },
-  { value: 'ct', label: 'Central Time (CT)' },
-  { value: 'et', label: 'Eastern Time (ET)' },
-];
-
-const dateFormatOptions = [
-  { value: 'mm-dd-yyyy', label: 'MM/DD/YYYY' },
-  { value: 'dd-mm-yyyy', label: 'DD/MM/YYYY' },
-  { value: 'yyyy-mm-dd', label: 'YYYY-MM-DD' },
-];
-
-const currencyOptions = [
-  { value: 'usd', label: 'USD ($)' },
-  { value: 'eur', label: 'EUR (€)' },
-  { value: 'gbp', label: 'GBP (£)' },
-  { value: 'jpy', label: 'JPY (¥)' },
-];
-
-const teamRoleOptions = [
-  { value: 'org_admin', label: 'Org Admin' },
-  { value: 'member', label: 'Member' },
-];
-
-const teamAppRoleOptions: Array<{ value: AssignableAppRole; label: string }> = [
-  { value: 'gp', label: 'GP' },
-  { value: 'analyst', label: 'Analyst' },
-  { value: 'ops', label: 'Operations' },
-  { value: 'ir', label: 'Investor Relations' },
-  { value: 'researcher', label: 'Researcher' },
-  { value: 'lp', label: 'LP' },
-  { value: 'auditor', label: 'Auditor' },
-  { value: 'service_provider', label: 'Service Provider' },
-  { value: 'strategic_partner', label: 'Strategic Partner' },
-];
-
 export function Settings() {
   const { user } = useAuth();
+  const dispatch = useAppDispatch();
+  const toast = useToast();
   const { value: settingsUI, patch: patchSettingsUI } = useUIKey('settings', {
     activeSection: 'profile',
     showPassword: false,
@@ -164,57 +137,55 @@ export function Settings() {
   const currency = settingsUI.currency;
   const activeSectionConfig = settingsSections.find((section) => section.id === activeSection);
   const activeSectionLabel = activeSectionConfig?.title ?? 'Settings';
-  const resolvedTenantId = useMemo(() => resolveTenantIdForUser(user), [user]);
+  const resolvedTenantId = user?.tenantId ?? null;
+  const canManageOrgSettings =
+    Boolean(user) && user?.role !== 'superadmin' && user?.isAdmin === true;
   const [teamSnapshot, setTeamSnapshot] = useState<TeamAccessSnapshot | null>(null);
   const [teamError, setTeamError] = useState<string | null>(null);
   const [teamNotice, setTeamNotice] = useState<string | null>(null);
+  const [orgRegion, setOrgRegion] = useState<OperatingRegion | ''>(
+    user?.operatingRegion ?? ''
+  );
+  const [isSavingOrgRegion, setIsSavingOrgRegion] = useState(false);
   const [teamInviteForm, setTeamInviteForm] = useState<{
     email: string;
     targetAppRole: AssignableAppRole;
-    targetOrgRole: OrganizationRole;
+    targetIsAdmin: boolean;
   }>({
     email: '',
     targetAppRole: 'analyst',
-    targetOrgRole: 'member',
-  });
-  const [teamCreateForm, setTeamCreateForm] = useState<{
-    name: string;
-    email: string;
-    appRole: AssignableAppRole;
-    organizationRole: OrganizationRole;
-  }>({
-    name: '',
-    email: '',
-    appRole: 'analyst',
-    organizationRole: 'member',
+    targetIsAdmin: false,
   });
 
-  const refreshTeamSnapshot = useCallback(() => {
-    if (!resolvedTenantId) {
+  const refreshTeamSnapshot = useCallback(async () => {
+    if (!resolvedTenantId || !canManageOrgSettings) {
       setTeamSnapshot(null);
       return null;
     }
 
-    const snapshot = getTeamAccessSnapshot(resolvedTenantId, {
-      userId: user?.id,
-      email: user?.email,
-    });
+    const snapshot = await getTeamAccessSnapshot();
     setTeamSnapshot(snapshot);
     return snapshot;
-  }, [resolvedTenantId, user?.email, user?.id]);
+  }, [canManageOrgSettings, resolvedTenantId]);
 
   useEffect(() => {
     if (activeSection !== 'team') {
       return;
     }
 
-    try {
-      refreshTeamSnapshot();
-      setTeamError(null);
-    } catch (error) {
-      setTeamError(error instanceof Error ? error.message : 'Failed to load team access data');
-    }
+    void (async () => {
+      try {
+        await refreshTeamSnapshot();
+        setTeamError(null);
+      } catch (error) {
+        setTeamError(error instanceof Error ? error.message : 'Failed to load team access data');
+      }
+    })();
   }, [activeSection, refreshTeamSnapshot]);
+
+  useEffect(() => {
+    setOrgRegion(user?.operatingRegion ?? '');
+  }, [user?.operatingRegion]);
 
   const aiSummaryText = activeSection === 'security'
     ? `Security status: 2FA is ${twoFactorEnabled ? 'enabled' : 'disabled'}. Review active sessions and update your password regularly.`
@@ -222,7 +193,45 @@ export function Settings() {
     ? 'Tune email and push alerts to keep signal high. Prioritize compliance and capital call updates.'
     : activeSection === 'team'
     ? 'Review member roles and access to keep permissions aligned with fund operations.'
+    : activeSection === 'preferences' && user
+    ? `Organization region: ${getOperatingRegionLabel(user.operatingRegion)}. Update locale and reporting defaults for your workspace here.`
     : `You are viewing ${activeSectionLabel}. Adjust preferences to keep your workspace aligned with your team.`;
+
+  const saveOrgRegion = async () => {
+    if (!orgRegion) {
+      toast.warning('Select an operating region before saving.', 'Region required');
+      return;
+    }
+
+    setIsSavingOrgRegion(true);
+    try {
+      const settings = await updateCurrentOrgSettings({ operatingRegion: orgRegion });
+      if (!user) {
+        return;
+      }
+
+      const nextUser = {
+        ...user,
+        tenantId: settings.orgId,
+        operatingRegion: settings.operatingRegion,
+        organizationConfigured: settings.organizationConfigured,
+      };
+      persistAuthenticatedUser(nextUser);
+      dispatch(authUserUpdated(nextUser));
+      toast.success(
+        `Organization updated for ${getOperatingRegionLabel(settings.operatingRegion)}.`,
+        'Organization settings saved'
+      );
+    } catch (error) {
+      console.error('Failed to save organization settings', error);
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to update organization settings',
+        'Save failed'
+      );
+    } finally {
+      setIsSavingOrgRegion(false);
+    }
+  };
 
   const headerBadges: PageHeaderBadge[] = [
     {
@@ -250,10 +259,13 @@ export function Settings() {
     });
   }
 
-  const runTeamMutation = (mutation: () => void, successMessage: string) => {
+  const runTeamMutation = async (
+    mutation: () => Promise<unknown>,
+    successMessage: string,
+  ) => {
     try {
-      mutation();
-      refreshTeamSnapshot();
+      await mutation();
+      await refreshTeamSnapshot();
       setTeamError(null);
       setTeamNotice(successMessage);
     } catch (error) {
@@ -262,91 +274,77 @@ export function Settings() {
     }
   };
 
-  const handleTeamRoleUpdate = (member: TeamMember, role: OrganizationRole) => {
-    if (!resolvedTenantId || !teamSnapshot?.actorUserId || !teamSnapshot.canManageTeam) {
+  const handleTeamRoleUpdate = async (
+    member: TeamMember,
+    role: AssignableAppRole,
+  ) => {
+    if (!resolvedTenantId || !canManageOrgSettings) {
       return;
     }
 
-    runTeamMutation(() => {
-      updateTeamMemberRole({
-        tenantId: resolvedTenantId,
+    await runTeamMutation(() => {
+      return updateTeamMember({
         userId: member.id,
-        organizationRole: role,
-        actorUserId: teamSnapshot.actorUserId ?? undefined,
+        role,
       });
     }, 'Team member role updated.');
   };
 
-  const handleTeamStatusToggle = (member: TeamMember) => {
-    if (!resolvedTenantId || !teamSnapshot?.actorUserId || !teamSnapshot.canManageTeam) {
+  const handleTeamAdminToggle = async (member: TeamMember, isAdmin: boolean) => {
+    if (!resolvedTenantId || !canManageOrgSettings) {
+      return;
+    }
+
+    await runTeamMutation(() => {
+      return updateTeamMember({
+        userId: member.id,
+        isAdmin,
+      });
+    }, `Team member ${isAdmin ? 'granted' : 'removed from'} org admin access.`);
+  };
+
+  const handleTeamStatusToggle = async (member: TeamMember) => {
+    if (!resolvedTenantId || !canManageOrgSettings) {
       return;
     }
 
     const nextStatus = member.status === 'active' ? 'disabled' : 'active';
 
-    runTeamMutation(() => {
-      updateTeamMemberStatus({
-        tenantId: resolvedTenantId,
+    await runTeamMutation(() => {
+      return updateTeamMember({
         userId: member.id,
         status: nextStatus,
-        actorUserId: teamSnapshot.actorUserId ?? undefined,
       });
     }, `Team member ${nextStatus === 'active' ? 'activated' : 'disabled'}.`);
   };
 
-  const handleTeamInvite = () => {
-    if (!resolvedTenantId || !teamSnapshot?.actorUserId || !teamSnapshot.canManageTeam) {
+  const handleTeamInvite = async () => {
+    if (!resolvedTenantId || !canManageOrgSettings) {
       return;
     }
 
-    runTeamMutation(() => {
-      inviteTeamMember({
-        tenantId: resolvedTenantId,
+    await runTeamMutation(() => {
+      return inviteTeamMember({
         email: teamInviteForm.email,
         targetAppRole: teamInviteForm.targetAppRole,
-        targetOrgRole: teamInviteForm.targetOrgRole,
-        invitedByUserId: teamSnapshot.actorUserId ?? undefined,
+        targetIsAdmin: teamInviteForm.targetIsAdmin,
       });
     }, 'Invitation sent.');
 
     setTeamInviteForm({
       email: '',
       targetAppRole: 'analyst',
-      targetOrgRole: 'member',
+      targetIsAdmin: false,
     });
   };
 
-  const handleTeamCreateUser = () => {
-    if (!resolvedTenantId || !teamSnapshot?.actorUserId || !teamSnapshot.canManageTeam) {
+  const handleTeamResendInvite = async (inviteId: string) => {
+    if (!resolvedTenantId || !canManageOrgSettings) {
       return;
     }
 
-    runTeamMutation(() => {
-      createTeamUser({
-        tenantId: resolvedTenantId,
-        name: teamCreateForm.name,
-        email: teamCreateForm.email,
-        appRole: teamCreateForm.appRole,
-        organizationRole: teamCreateForm.organizationRole,
-        actorUserId: teamSnapshot.actorUserId ?? undefined,
-      });
-    }, 'User created.');
-
-    setTeamCreateForm({
-      name: '',
-      email: '',
-      appRole: 'analyst',
-      organizationRole: 'member',
-    });
-  };
-
-  const handleTeamResendInvite = (inviteId: string) => {
-    if (!resolvedTenantId || !teamSnapshot?.actorUserId || !teamSnapshot.canManageTeam) {
-      return;
-    }
-
-    runTeamMutation(() => {
-      resendTeamInvite(resolvedTenantId, inviteId, teamSnapshot.actorUserId ?? undefined);
+    await runTeamMutation(() => {
+      return resendTeamInvite(inviteId);
     }, 'Invitation resent.');
   };
 
@@ -486,7 +484,7 @@ export function Settings() {
                 <Button
                   color={twoFactorEnabled ? "default" : "primary"}
                   variant={twoFactorEnabled ? "bordered" : "solid"}
-                  onClick={() => patchSettingsUI({ twoFactorEnabled: !twoFactorEnabled })}
+                  onPress={() => patchSettingsUI({ twoFactorEnabled: !twoFactorEnabled })}
                 >
                   {twoFactorEnabled ? 'Disable' : 'Enable'} 2FA
                 </Button>
@@ -578,13 +576,61 @@ export function Settings() {
       case 'preferences':
         return (
           <div className="space-y-4">
+            {canManageOrgSettings && (
+              <div>
+                <SectionHeader title="Organization Region" className="mb-4" />
+                <Card padding="md" className="max-w-2xl">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Operating Region</label>
+                      <Select
+                        options={OPERATING_REGION_OPTIONS.map((option) => ({
+                          value: option.value,
+                          label: option.label,
+                        }))}
+                        selectedKeys={orgRegion ? [orgRegion] : []}
+                        onChange={(event) => setOrgRegion(event.target.value as OperatingRegion)}
+                      />
+                      <p className="mt-2 text-sm text-[var(--app-text-muted)]">
+                        This sets the default regulatory regime for new funds and controls which
+                        back-office surfaces appear across the workspace.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                      <div className="rounded-lg border border-[var(--app-border)] p-3">
+                        <div className="text-[var(--app-text-muted)] mb-1">Current Region</div>
+                        <div className="font-medium">
+                          {getOperatingRegionLabel(user?.operatingRegion)}
+                        </div>
+                      </div>
+                      <div className="rounded-lg border border-[var(--app-border)] p-3">
+                        <div className="text-[var(--app-text-muted)] mb-1">Default Fund Regime</div>
+                        <div className="font-medium">
+                          {getFundRegimeLabel(
+                            getDefaultFundRegulatoryRegime(orgRegion || user?.operatingRegion || null)
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3">
+                      <Button color="primary" isLoading={isSavingOrgRegion} onPress={saveOrgRegion}>
+                        Save Organization Region
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              </div>
+            )}
+
             <div>
               <SectionHeader title="Regional Settings" className="mb-4" />
               <div className="space-y-4 max-w-md">
                 <div>
                   <label className="block text-sm font-medium mb-2">Language</label>
                   <Select
-                    options={languageOptions}
+                    options={LANGUAGE_OPTIONS}
                     selectedKeys={[language]}
                     onChange={(event) => patchSettingsUI({ language: event.target.value })}
                   />
@@ -592,7 +638,7 @@ export function Settings() {
                 <div>
                   <label className="block text-sm font-medium mb-2">Timezone</label>
                   <Select
-                    options={timezoneOptions}
+                    options={TIMEZONE_OPTIONS}
                     selectedKeys={[timezone]}
                     onChange={(event) => patchSettingsUI({ timezone: event.target.value })}
                   />
@@ -600,7 +646,7 @@ export function Settings() {
                 <div>
                   <label className="block text-sm font-medium mb-2">Date Format</label>
                   <Select
-                    options={dateFormatOptions}
+                    options={DATE_FORMAT_OPTIONS}
                     selectedKeys={[dateFormat]}
                     onChange={(event) => patchSettingsUI({ dateFormat: event.target.value })}
                   />
@@ -608,7 +654,7 @@ export function Settings() {
                 <div>
                   <label className="block text-sm font-medium mb-2">Currency</label>
                   <Select
-                    options={currencyOptions}
+                    options={CURRENCY_OPTIONS}
                     selectedKeys={[currency]}
                     onChange={(event) => patchSettingsUI({ currency: event.target.value })}
                   />
@@ -710,7 +756,7 @@ export function Settings() {
                   className="mb-4"
                   action={(
                     <Badge variant="bordered">
-                      {teamSnapshot?.canManageTeam ? 'Org Admin Access' : 'Read Only'}
+                      {canManageOrgSettings ? 'Org Admin Access' : 'Admin Only'}
                     </Badge>
                   )}
                 />
@@ -727,7 +773,15 @@ export function Settings() {
                   </Card>
                 )}
 
-                {teamSnapshot?.canManageTeam && (
+                {!canManageOrgSettings && (
+                  <Card padding="sm" className="mb-3 border-[var(--app-warning)]">
+                    <div className="text-sm text-[var(--app-warning)]">
+                      Only tenant org admins can manage team access.
+                    </div>
+                  </Card>
+                )}
+
+                {canManageOrgSettings && (
                   <div className="mb-4 rounded-lg border border-[var(--app-border)] p-4">
                     <SectionHeader title="Invite User" className="mb-3" />
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
@@ -740,7 +794,7 @@ export function Settings() {
                       />
                       <Select
                         label="App Persona"
-                        options={teamAppRoleOptions}
+                    options={TEAM_APP_ROLE_OPTIONS}
                         selectedKeys={[teamInviteForm.targetAppRole]}
                         onChange={(event) =>
                           setTeamInviteForm((prev) => ({
@@ -749,74 +803,24 @@ export function Settings() {
                           }))
                         }
                       />
-                      <Select
-                        label="Org Role"
-                        options={teamRoleOptions}
-                        selectedKeys={[teamInviteForm.targetOrgRole]}
-                        onChange={(event) =>
-                          setTeamInviteForm((prev) => ({
-                            ...prev,
-                            targetOrgRole: event.target.value as OrganizationRole,
-                          }))
-                        }
-                      />
+                      <div className="flex items-center rounded-lg border border-[var(--app-border)] px-3">
+                        <Checkbox
+                          isSelected={teamInviteForm.targetIsAdmin}
+                          onValueChange={(value) =>
+                            setTeamInviteForm((prev) => ({ ...prev, targetIsAdmin: value }))
+                          }
+                        >
+                          Org Admin
+                        </Checkbox>
+                      </div>
                       <div className="flex items-end">
                         <Button
                           color="primary"
                           className="w-full"
                           startContent={<Plus className="w-4 h-4" />}
-                          onClick={handleTeamInvite}
+                          onPress={handleTeamInvite}
                         >
                           Invite Member
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {teamSnapshot?.canManageTeam && (
-                  <div className="mb-4 rounded-lg border border-[var(--app-border)] p-4">
-                    <SectionHeader title="Create User (Shared Mode)" className="mb-3" />
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
-                      <Input
-                        label="Name"
-                        value={teamCreateForm.name}
-                        onChange={(event) =>
-                          setTeamCreateForm((prev) => ({ ...prev, name: event.target.value }))
-                        }
-                      />
-                      <Input
-                        label="Email"
-                        value={teamCreateForm.email}
-                        onChange={(event) =>
-                          setTeamCreateForm((prev) => ({ ...prev, email: event.target.value }))
-                        }
-                      />
-                      <Select
-                        label="App Persona"
-                        options={teamAppRoleOptions}
-                        selectedKeys={[teamCreateForm.appRole]}
-                        onChange={(event) =>
-                          setTeamCreateForm((prev) => ({
-                            ...prev,
-                            appRole: event.target.value as AssignableAppRole,
-                          }))
-                        }
-                      />
-                      <Select
-                        label="Org Role"
-                        options={teamRoleOptions}
-                        selectedKeys={[teamCreateForm.organizationRole]}
-                        onChange={(event) =>
-                          setTeamCreateForm((prev) => ({
-                            ...prev,
-                            organizationRole: event.target.value as OrganizationRole,
-                          }))
-                        }
-                      />
-                      <div className="flex items-end">
-                        <Button color="primary" className="w-full" onClick={handleTeamCreateUser}>
-                          Create User
                         </Button>
                       </div>
                     </div>
@@ -837,24 +841,34 @@ export function Settings() {
                       </div>
                       <div className="flex items-center gap-4">
                         <StatusBadge status={member.status === 'active' ? 'Active' : 'Disabled'} domain="general" size="sm" />
-                        <Badge variant="bordered">{member.appRole}</Badge>
                         <Select
-                          aria-label={`${member.name} org role`}
-                          options={teamRoleOptions}
-                          selectedKeys={[member.organizationRole]}
+                          aria-label={`${member.name} app role`}
+                          options={TEAM_APP_ROLE_OPTIONS}
+                          selectedKeys={[member.role]}
                           size="sm"
                           className="min-w-[160px]"
                           onChange={(event) =>
-                            handleTeamRoleUpdate(member, event.target.value as OrganizationRole)
+                            void handleTeamRoleUpdate(member, event.target.value as AssignableAppRole)
                           }
-                          isDisabled={!teamSnapshot?.canManageTeam || member.isLastOrgAdmin}
+                          isDisabled={!canManageOrgSettings}
                         />
+                        <Checkbox
+                          isSelected={member.isAdmin}
+                          onValueChange={(value) => {
+                            void handleTeamAdminToggle(member, value);
+                          }}
+                          isDisabled={!canManageOrgSettings}
+                        >
+                          Admin
+                        </Checkbox>
                         <Button
                           variant="ghost"
                           size="sm"
                           color={member.status === 'active' ? 'danger' : 'success'}
-                          onClick={() => handleTeamStatusToggle(member)}
-                          isDisabled={!teamSnapshot?.canManageTeam || member.isLastOrgAdmin}
+                          onPress={() => {
+                            void handleTeamStatusToggle(member);
+                          }}
+                          isDisabled={!canManageOrgSettings}
                         >
                           {member.status === 'active' ? 'Disable' : 'Activate'}
                         </Button>
@@ -871,7 +885,7 @@ export function Settings() {
                         <div>
                           <div className="font-medium">{invite.email}</div>
                           <div className="text-sm text-[var(--app-text-muted)]">
-                            {invite.targetOrgRole} · {invite.targetAppRole}
+                            {invite.targetIsAdmin ? 'Admin' : 'Member'} · {invite.targetAppRole}
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
@@ -879,8 +893,10 @@ export function Settings() {
                           <Button
                             variant="bordered"
                             size="sm"
-                            onClick={() => handleTeamResendInvite(invite.id)}
-                            isDisabled={!teamSnapshot?.canManageTeam || invite.status !== 'pending'}
+                            onPress={() => {
+                              void handleTeamResendInvite(invite.id);
+                            }}
+                            isDisabled={!canManageOrgSettings || invite.status !== 'pending'}
                           >
                             Resend
                           </Button>
@@ -908,7 +924,6 @@ export function Settings() {
         icon: SettingsIcon,
         aiSummary: {
           text: aiSummaryText,
-          confidence: 0.83,
         },
         badges: headerBadges,
       }}

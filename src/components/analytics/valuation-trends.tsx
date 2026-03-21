@@ -9,6 +9,27 @@ import { SectionHeader } from '@/ui/composites';
 export function ValuationTrends() {
   const { selectedFund } = useFund();
   const valuationTrends = getValuationTrends(selectedFund?.id);
+
+  if (valuationTrends.length === 0) {
+    return (
+      <Card padding="lg">
+        <div className="mb-6">
+          <SectionHeader
+            title={
+              <span className="flex items-center gap-2">
+                <DollarSign className="w-5 h-5 text-[var(--app-primary)]" />
+                <span>Portfolio Valuation Trends</span>
+              </span>
+            }
+          />
+        </div>
+        <div className="flex items-center justify-center h-64 text-[var(--app-text-muted)]">
+          <p>No valuation data available. Select a fund to view trends.</p>
+        </div>
+      </Card>
+    );
+  }
+
   // Calculate dimensions for the chart
   const maxValue = Math.max(...valuationTrends.map(d => d.portfolioValue));
   const maxTVPI = Math.max(...valuationTrends.map(d => d.tvpi));

@@ -2,7 +2,7 @@
 
 import { AlertTriangle, ArrowRight, CheckSquare } from 'lucide-react';
 import type { DailyBriefItem, PriorityQuadrant } from '@/data/mocks/hooks/dashboard-data';
-import { DEFAULT_LOCALE } from '@/config/i18n';
+import { formatDate } from '@/utils/formatting';
 import { CompactLaneHeader } from '@/ui/composites';
 
 interface HomePriorityMatrixProps {
@@ -151,7 +151,7 @@ export function HomePriorityMatrix({ items, onItemClick }: HomePriorityMatrixPro
 
                         <div className="flex items-center justify-between text-[10px] text-[var(--app-text-muted)]">
                           <span className="truncate">{item.owner}</span>
-                          <span>Due {item.dueDate.toLocaleDateString(DEFAULT_LOCALE, { month: 'short', day: 'numeric' })}</span>
+                          <span>Due {formatDate(item.dueDate, { month: 'short', day: 'numeric' })}</span>
                         </div>
 
                         <div className="mt-1 flex items-center justify-between">

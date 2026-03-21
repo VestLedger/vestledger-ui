@@ -1,4 +1,4 @@
-import { isMockMode } from '@/config/data-mode';
+import { isMockMode } from "@/config/data-mode";
 import {
   mockFilingDeadline,
   mockPortfolioTax,
@@ -7,8 +7,8 @@ import {
   type PortfolioCompanyTax,
   type TaxDocument,
   type TaxSummary,
-} from '@/data/mocks/back-office/tax-center';
-import { requestJson } from '@/services/shared/httpClient';
+} from "@/data/mocks/back-office/tax-center";
+import { requestJson } from "@/services/shared/httpClient";
 
 type ApiListResponse<TItem> =
   | {
@@ -88,16 +88,18 @@ function extractApiList<TItem>(response: ApiListResponse<TItem>): TItem[] {
 }
 
 function asNumber(value: unknown, fallback = 0): number {
-  return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
 
 function asBoolean(value: unknown, fallback = false): boolean {
-  if (typeof value === 'boolean') return value;
-  if (typeof value === 'number') return value > 0;
-  if (typeof value === 'string') {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value > 0;
+  if (typeof value === "string") {
     const normalized = value.toLowerCase();
-    if (normalized === 'true' || normalized === 'yes' || normalized === '1') return true;
-    if (normalized === 'false' || normalized === 'no' || normalized === '0') return false;
+    if (normalized === "true" || normalized === "yes" || normalized === "1")
+      return true;
+    if (normalized === "false" || normalized === "no" || normalized === "0")
+      return false;
   }
   return fallback;
 }
@@ -114,35 +116,40 @@ function asOptionalDateOnly(value?: string | null): string | null {
   return asDateOnly(value);
 }
 
-function asDateValue(value?: string | null, fallback = mockFilingDeadline): Date {
+function asDateValue(value?: string | null, fallback = new Date()): Date {
   if (!value) return new Date(fallback);
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return new Date(fallback);
   return parsed;
 }
 
-function normalizeTaxDocumentStatus(rawStatus?: string): TaxDocument['status'] {
-  const normalized = rawStatus?.toLowerCase() ?? '';
-  if (normalized === 'sent' || normalized === 'delivered') return 'sent';
-  if (normalized === 'filed' || normalized === 'submitted') return 'filed';
-  if (normalized === 'ready' || normalized === 'generated') return 'ready';
-  return 'draft';
+function normalizeTaxDocumentStatus(rawStatus?: string): TaxDocument["status"] {
+  const normalized = rawStatus?.toLowerCase() ?? "";
+  if (normalized === "sent" || normalized === "delivered") return "sent";
+  if (normalized === "filed" || normalized === "submitted") return "filed";
+  if (normalized === "ready" || normalized === "generated") return "ready";
+  return "draft";
 }
 
-function normalizeRecipientType(rawType?: string): TaxDocument['recipientType'] {
-  const normalized = rawType?.toLowerCase() ?? '';
-  if (normalized.includes('portfolio')) return 'Portfolio Company';
-  if (normalized === 'gp' || normalized.includes('general')) return 'GP';
-  return 'LP';
+function normalizeRecipientType(
+  rawType?: string,
+): TaxDocument["recipientType"] {
+  const normalized = rawType?.toLowerCase() ?? "";
+  if (normalized.includes("portfolio")) return "Portfolio Company";
+  if (normalized === "gp" || normalized.includes("general")) return "GP";
+  return "LP";
 }
 
-function mapApiTaxDocument(record: ApiTaxDocumentRecord, index: number): TaxDocument {
+function mapApiTaxDocument(
+  record: ApiTaxDocumentRecord,
+  index: number,
+): TaxDocument {
   return {
     id: record.id ?? `tax-document-${index + 1}`,
-    documentType: record.documentType ?? record.type ?? 'Tax Document',
+    documentType: record.documentType ?? record.type ?? "Tax Document",
     taxYear: asNumber(record.taxYear, new Date().getFullYear() - 1),
     recipientType: normalizeRecipientType(record.recipientType),
-    recipientName: record.recipientName ?? 'Recipient',
+    recipientName: record.recipientName ?? "Recipient",
     status: normalizeTaxDocumentStatus(record.status),
     generatedDate: asOptionalDateOnly(record.generatedDate),
     sentDate: asOptionalDateOnly(record.sentDate),
@@ -150,11 +157,20 @@ function mapApiTaxDocument(record: ApiTaxDocumentRecord, index: number): TaxDocu
   };
 }
 
-function mapApiTaxSummary(record: ApiTaxSummaryRecord, index: number): TaxSummary {
+function mapApiTaxSummary(
+  record: ApiTaxSummaryRecord,
+  index: number,
+): TaxSummary {
   const k1sIssued = asNumber(record.k1sIssued ?? record.k1Issued, 0);
-  const k1sTotal = Math.max(k1sIssued, asNumber(record.k1sTotal ?? record.k1Total, k1sIssued));
+  const k1sTotal = Math.max(
+    k1sIssued,
+    asNumber(record.k1sTotal ?? record.k1Total, k1sIssued),
+  );
   const form1099Issued = asNumber(record.form1099Issued, 0);
-  const form1099Total = Math.max(form1099Issued, asNumber(record.form1099Total, form1099Issued));
+  const form1099Total = Math.max(
+    form1099Issued,
+    asNumber(record.form1099Total, form1099Issued),
+  );
 
   return {
     id: record.id ?? `tax-summary-${index + 1}`,
@@ -172,7 +188,7 @@ function mapApiTaxSummary(record: ApiTaxSummaryRecord, index: number): TaxSummar
 
 function mapApiPortfolioTax(
   record: ApiPortfolioTaxRecord,
-  index: number
+  index: number,
 ): PortfolioCompanyTax {
   const k1Required = asBoolean(record.k1Required ?? record.requiresK1, false);
   const k1Received = asBoolean(record.k1Received ?? record.receivedK1, false);
@@ -181,53 +197,65 @@ function mapApiPortfolioTax(
     id: record.id ?? `portfolio-tax-${index + 1}`,
     companyName: record.companyName ?? `Portfolio Company ${index + 1}`,
     ownership: asNumber(record.ownership, 0),
-    taxClassification: record.taxClassification ?? 'C-Corp',
+    taxClassification: record.taxClassification ?? "C-Corp",
     k1Required,
     k1Received,
     k1ReceivedDate: k1Received
       ? asOptionalDateOnly(record.k1ReceivedDate ?? record.receivedDate)
       : null,
-    contactEmail: record.contactEmail ?? `tax-contact-${index + 1}@example.com`,
+    contactEmail: record.contactEmail ?? "",
   };
 }
 
 async function fetchTaxDeadlineFromApi(): Promise<Date> {
-  const response = await requestJson<ApiTaxDeadlineResponse>('/tax/deadline', {
-    method: 'GET',
-    fallbackMessage: 'Failed to fetch tax filing deadline',
+  const response = await requestJson<ApiTaxDeadlineResponse>("/tax/deadline", {
+    method: "GET",
+    fallbackMessage: "Failed to fetch tax filing deadline",
   });
 
   const raw =
-    typeof response === 'string'
+    typeof response === "string"
       ? response
-      : response.filingDeadline ?? response.deadline ?? response.taxDeadline ?? response.dueDate;
+      : (response.filingDeadline ??
+        response.deadline ??
+        response.taxDeadline ??
+        response.dueDate);
 
   return asDateValue(raw);
 }
 
 async function fetchTaxDocumentsFromApi(): Promise<TaxDocument[]> {
-  const response = await requestJson<ApiListResponse<ApiTaxDocumentRecord>>('/tax/documents', {
-    method: 'GET',
-    fallbackMessage: 'Failed to fetch tax documents',
-  });
+  const response = await requestJson<ApiListResponse<ApiTaxDocumentRecord>>(
+    "/tax/documents",
+    {
+      method: "GET",
+      fallbackMessage: "Failed to fetch tax documents",
+    },
+  );
 
   return extractApiList(response).map(mapApiTaxDocument);
 }
 
 async function fetchTaxSummariesFromApi(): Promise<TaxSummary[]> {
-  const response = await requestJson<ApiListResponse<ApiTaxSummaryRecord>>('/tax/summaries', {
-    method: 'GET',
-    fallbackMessage: 'Failed to fetch tax summaries',
-  });
+  const response = await requestJson<ApiListResponse<ApiTaxSummaryRecord>>(
+    "/tax/summaries",
+    {
+      method: "GET",
+      fallbackMessage: "Failed to fetch tax summaries",
+    },
+  );
 
   return extractApiList(response).map(mapApiTaxSummary);
 }
 
 async function fetchPortfolioTaxFromApi(): Promise<PortfolioCompanyTax[]> {
-  const response = await requestJson<ApiListResponse<ApiPortfolioTaxRecord>>('/tax/portfolio-companies', {
-    method: 'GET',
-    fallbackMessage: 'Failed to fetch portfolio tax details',
-  });
+  const response = await requestJson<ApiListResponse<ApiPortfolioTaxRecord>>(
+    "/tax/portfolio-companies",
+    {
+      method: "GET",
+      fallbackMessage: "Failed to fetch portfolio tax details",
+    },
+  );
 
   return extractApiList(response).map(mapApiPortfolioTax);
 }
@@ -241,45 +269,58 @@ function getBaseMockSnapshot(): TaxCenterSnapshot {
   };
 }
 
+function getEmptySnapshot(): TaxCenterSnapshot {
+  return {
+    filingDeadline: new Date(),
+    taxDocuments: [],
+    taxSummaries: [],
+    portfolioTax: [],
+  };
+}
+
 function setCachedSnapshot(snapshot: TaxCenterSnapshot): void {
   apiTaxCenterSnapshotCache = clone(snapshot);
 }
 
-function getCachedOrMockSnapshot(): TaxCenterSnapshot {
-  return clone(apiTaxCenterSnapshotCache ?? getBaseMockSnapshot());
+function getCachedSnapshot(): TaxCenterSnapshot {
+  return clone(
+    apiTaxCenterSnapshotCache ??
+      (isMockMode("backOffice") ? getBaseMockSnapshot() : getEmptySnapshot()),
+  );
 }
 
 async function getTaxCenterSnapshot(): Promise<TaxCenterSnapshot> {
-  if (isMockMode('backOffice')) {
+  if (isMockMode("backOffice")) {
     if (!apiTaxCenterSnapshotCache) {
       setCachedSnapshot(getBaseMockSnapshot());
     }
-    return getCachedOrMockSnapshot();
+    return getCachedSnapshot();
   }
 
-  const previous = getCachedOrMockSnapshot();
-  const [deadlineResult, documentsResult, summariesResult, portfolioResult] = await Promise.allSettled([
-    fetchTaxDeadlineFromApi(),
-    fetchTaxDocumentsFromApi(),
-    fetchTaxSummariesFromApi(),
-    fetchPortfolioTaxFromApi(),
-  ]);
+  const previous = getCachedSnapshot();
+  const [deadlineResult, documentsResult, summariesResult, portfolioResult] =
+    await Promise.allSettled([
+      fetchTaxDeadlineFromApi(),
+      fetchTaxDocumentsFromApi(),
+      fetchTaxSummariesFromApi(),
+      fetchPortfolioTaxFromApi(),
+    ]);
 
   const snapshot: TaxCenterSnapshot = {
     filingDeadline:
-      deadlineResult.status === 'fulfilled'
+      deadlineResult.status === "fulfilled"
         ? deadlineResult.value
         : previous.filingDeadline,
     taxDocuments:
-      documentsResult.status === 'fulfilled' && documentsResult.value.length > 0
+      documentsResult.status === "fulfilled" && documentsResult.value.length > 0
         ? documentsResult.value
         : previous.taxDocuments,
     taxSummaries:
-      summariesResult.status === 'fulfilled' && summariesResult.value.length > 0
+      summariesResult.status === "fulfilled" && summariesResult.value.length > 0
         ? summariesResult.value
         : previous.taxSummaries,
     portfolioTax:
-      portfolioResult.status === 'fulfilled' && portfolioResult.value.length > 0
+      portfolioResult.status === "fulfilled" && portfolioResult.value.length > 0
         ? portfolioResult.value
         : previous.portfolioTax,
   };

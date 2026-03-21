@@ -1,4 +1,4 @@
-import { isMockMode } from '@/config/data-mode';
+import { isMockMode } from "@/config/data-mode";
 import {
   assetAllocation,
   performanceData,
@@ -8,14 +8,15 @@ import {
   type AssetAllocation,
   type PortfolioCompanyMetrics,
   type PortfolioUpdate,
-} from '@/data/seeds/mock-portfolio-data';
-import { requestJson } from '@/services/shared/httpClient';
+} from "@/data/seeds/mock-portfolio-data";
+import { requestJson, type ApiQueryParams } from "@/services/shared/httpClient";
+import { formatCurrency, formatDate } from "@/utils/formatting";
 
 export type {
   AssetAllocation,
   PortfolioCompanyMetrics,
   PortfolioUpdate,
-} from '@/data/seeds/mock-portfolio-data';
+} from "@/data/seeds/mock-portfolio-data";
 
 type ApiPortfolioCompany = {
   id: string;
@@ -30,7 +31,7 @@ type ApiPortfolioCompany = {
   healthChange?: number;
   runway?: number;
   burnRate?: number;
-  status?: 'active' | 'exited' | 'written-off';
+  status?: "active" | "exited" | "written-off";
   createdAt?: string;
   updatedAt?: string;
 };
@@ -75,7 +76,7 @@ const clone = <T>(value: T): T => structuredClone(value);
 
 function formatStage(stage: string): string {
   return stage
-    .replace(/-/g, ' ')
+    .replace(/-/g, " ")
     .replace(/\b\w/g, (value) => value.toUpperCase());
 }
 
@@ -83,12 +84,15 @@ function formatDateOnly(value?: string): string {
   if (!value) return new Date().toISOString().slice(0, 10);
 
   const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return new Date().toISOString().slice(0, 10);
+  if (Number.isNaN(parsed.getTime()))
+    return new Date().toISOString().slice(0, 10);
 
   return parsed.toISOString().slice(0, 10);
 }
 
-function mapApiToPortfolioCompanyMetrics(api: ApiPortfolioCompany): PortfolioCompanyMetrics {
+function mapApiToPortfolioCompanyMetrics(
+  api: ApiPortfolioCompany,
+): PortfolioCompanyMetrics {
   const initialInvestment = Math.max(api.initialInvestment ?? 0, 0);
   const currentValue = Math.max(api.currentValue ?? 0, 0);
   const ownership = Math.max(api.ownership ?? 0, 0);
@@ -96,21 +100,32 @@ function mapApiToPortfolioCompanyMetrics(api: ApiPortfolioCompany): PortfolioCom
   const moic = initialInvestment > 0 ? effectiveValue / initialInvestment : 0;
   const healthScore = Math.round(api.health ?? 72);
   const status =
-    api.status === 'written-off'
-      ? 'at-risk'
-      : api.status === 'exited'
-        ? 'exited'
+    api.status === "written-off"
+      ? "at-risk"
+      : api.status === "exited"
+        ? "exited"
         : healthScore < 62
-          ? 'at-risk'
-          : 'active';
+          ? "at-risk"
+          : "active";
 
   const arr = Math.round(effectiveValue * 0.22);
   const arrGrowth = Math.max(8, Math.min(260, Math.round(healthScore * 1.6)));
   const burnRate = Math.max(0, Math.round(api.burnRate ?? arr * 0.35));
-  const runway = Math.max(4, Math.round(api.runway ?? (burnRate > 0 ? (effectiveValue * 0.4) / burnRate : 16)));
+  const runway = Math.max(
+    4,
+    Math.round(
+      api.runway ?? (burnRate > 0 ? (effectiveValue * 0.4) / burnRate : 16),
+    ),
+  );
   const totalRaised = Math.round(currentValue * 0.42);
-  const lastRoundAmount = Math.max(initialInvestment, Math.round(totalRaised * 0.45));
-  const irr = Math.max(-20, Math.min(120, Math.round((moic - 1) * 34 + (api.healthChange ?? 0) * 0.4)));
+  const lastRoundAmount = Math.max(
+    initialInvestment,
+    Math.round(totalRaised * 0.45),
+  );
+  const irr = Math.max(
+    -20,
+    Math.min(120, Math.round((moic - 1) * 34 + (api.healthChange ?? 0) * 0.4)),
+  );
 
   return {
     id: api.id,
@@ -127,7 +142,9 @@ function mapApiToPortfolioCompanyMetrics(api: ApiPortfolioCompany): PortfolioCom
     runway,
     headcount: Math.max(8, Math.round(healthScore * 1.6)),
     totalRaised,
-    lastRoundDate: formatDateOnly(api.updatedAt ?? api.createdAt ?? api.investmentDate),
+    lastRoundDate: formatDateOnly(
+      api.updatedAt ?? api.createdAt ?? api.investmentDate,
+    ),
     lastRoundAmount,
     lastRoundValuation: currentValue,
     moic: Number(moic.toFixed(2)),
@@ -138,24 +155,33 @@ function mapApiToPortfolioCompanyMetrics(api: ApiPortfolioCompany): PortfolioCom
   };
 }
 
-function derivePortfolioSummary(companies: PortfolioCompanyMetrics[]): PortfolioSummary {
+function derivePortfolioSummary(
+  companies: PortfolioCompanyMetrics[],
+): PortfolioSummary {
   const totalCompanies = companies.length;
-  const totalInvested = companies.reduce((sum, company) => sum + company.initialInvestment, 0);
+  const totalInvested = companies.reduce(
+    (sum, company) => sum + company.initialInvestment,
+    0,
+  );
   const totalCurrentValue = companies.reduce(
-    (sum, company) => sum + (company.currentValuation * company.ownership) / 100,
-    0
+    (sum, company) =>
+      sum + (company.currentValuation * company.ownership) / 100,
+    0,
   );
   const averageMOIC =
     totalCompanies > 0
-      ? companies.reduce((sum, company) => sum + company.moic, 0) / totalCompanies
+      ? companies.reduce((sum, company) => sum + company.moic, 0) /
+        totalCompanies
       : 0;
   const averageIRR =
     totalCompanies > 0
-      ? companies.reduce((sum, company) => sum + company.irr, 0) / totalCompanies
+      ? companies.reduce((sum, company) => sum + company.irr, 0) /
+        totalCompanies
       : 0;
   const averageHealthScore =
     totalCompanies > 0
-      ? companies.reduce((sum, company) => sum + company.healthScore, 0) / totalCompanies
+      ? companies.reduce((sum, company) => sum + company.healthScore, 0) /
+        totalCompanies
       : 0;
 
   return {
@@ -164,14 +190,20 @@ function derivePortfolioSummary(companies: PortfolioCompanyMetrics[]): Portfolio
     totalCurrentValue,
     averageMOIC,
     averageIRR,
-    activeCompanies: companies.filter((company) => company.status === 'active').length,
+    activeCompanies: companies.filter((company) => company.status === "active")
+      .length,
     averageHealthScore,
   };
 }
 
-function derivePortfolioAllocation(companies: PortfolioCompanyMetrics[]): AssetAllocation[] {
+function derivePortfolioAllocation(
+  companies: PortfolioCompanyMetrics[],
+): AssetAllocation[] {
   const totals = new Map<string, { amount: number; count: number }>();
-  const totalInvested = companies.reduce((sum, company) => sum + company.initialInvestment, 0);
+  const totalInvested = companies.reduce(
+    (sum, company) => sum + company.initialInvestment,
+    0,
+  );
 
   for (const company of companies) {
     const current = totals.get(company.sector) ?? { amount: 0, count: 0 };
@@ -190,12 +222,18 @@ function derivePortfolioAllocation(companies: PortfolioCompanyMetrics[]): AssetA
     .sort((left, right) => right.amount - left.amount);
 }
 
-function derivePortfolioPerformance(companies: PortfolioCompanyMetrics[]): PortfolioPerformancePoint[] {
+function derivePortfolioPerformance(
+  companies: PortfolioCompanyMetrics[],
+): PortfolioPerformancePoint[] {
   const totalCurrentValue = companies.reduce(
-    (sum, company) => sum + (company.currentValuation * company.ownership) / 100,
-    0
+    (sum, company) =>
+      sum + (company.currentValuation * company.ownership) / 100,
+    0,
   );
-  const deployed = companies.reduce((sum, company) => sum + company.initialInvestment, 0);
+  const deployed = companies.reduce(
+    (sum, company) => sum + company.initialInvestment,
+    0,
+  );
   const points: PortfolioPerformancePoint[] = [];
   const end = new Date();
 
@@ -203,7 +241,7 @@ function derivePortfolioPerformance(companies: PortfolioCompanyMetrics[]): Portf
     const date = new Date(end.getFullYear(), end.getMonth() - monthOffset, 1);
     const progress = (11 - monthOffset) / 11;
     points.push({
-      month: date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+      month: formatDate(date, { month: "short", year: "numeric" }),
       portfolioValue: Math.round(totalCurrentValue * (0.72 + progress * 0.28)),
       deployed: Math.round(deployed * (0.63 + progress * 0.37)),
     });
@@ -212,34 +250,37 @@ function derivePortfolioPerformance(companies: PortfolioCompanyMetrics[]): Portf
   return points;
 }
 
-function derivePortfolioUpdates(companies: PortfolioCompanyMetrics[]): PortfolioUpdate[] {
+function derivePortfolioUpdates(
+  companies: PortfolioCompanyMetrics[],
+): PortfolioUpdate[] {
   const sorted = [...companies].sort((left, right) =>
-    right.lastUpdateDate.localeCompare(left.lastUpdateDate)
+    right.lastUpdateDate.localeCompare(left.lastUpdateDate),
   );
 
   return sorted.slice(0, 10).map((company, index) => {
-    let type: PortfolioUpdate['type'] = 'product';
+    let type: PortfolioUpdate["type"] = "product";
     let title = `${company.companyName} Portfolio Update`;
     let description = `${company.companyName} remains on the active monitoring track.`;
 
-    if (company.status === 'at-risk') {
-      type = 'financial';
+    if (company.status === "at-risk") {
+      type = "financial";
       title = `${company.companyName}: Performance Attention Needed`;
       description = `Runway at ${company.runway} months with health score ${company.healthScore}.`;
     } else if (company.arrGrowth >= 160) {
-      type = 'milestone';
+      type = "milestone";
       title = `${company.companyName}: Growth Milestone`;
       description = `ARR growth reached ${company.arrGrowth}% with current MOIC ${company.moic.toFixed(1)}x.`;
     } else if (company.moic >= 2.2) {
-      type = 'funding';
+      type = "funding";
       title = `${company.companyName}: Valuation Expansion`;
-      description = `Current valuation now ${company.currentValuation.toLocaleString('en-US', {
-        style: 'currency',
-        currency: 'USD',
-        maximumFractionDigits: 0,
-      })}.`;
+      description = `Current valuation now ${formatCurrency(
+        company.currentValuation,
+        {
+          maximumFractionDigits: 0,
+        },
+      )}.`;
     } else if (company.headcount >= 80) {
-      type = 'team';
+      type = "team";
       title = `${company.companyName}: Team Scale-Up`;
       description = `Headcount expanded to ${company.headcount} with ${company.sector} execution focus.`;
     }
@@ -252,25 +293,26 @@ function derivePortfolioUpdates(companies: PortfolioCompanyMetrics[]): Portfolio
       title,
       description,
       date: company.lastUpdateDate,
-      author: 'Portfolio Ops',
+      author: "Portfolio Ops",
     };
   });
 }
 
 function buildPortfolioSnapshot(
   companies: PortfolioCompanyMetrics[],
-  healthSummary?: ApiPortfolioHealth['summary']
+  healthSummary?: ApiPortfolioHealth["summary"],
 ): PortfolioSnapshot {
   const summary = derivePortfolioSummary(companies);
   const updates = derivePortfolioUpdates(companies);
   const atRiskFromData = companies.filter(
-    (company) => company.status === 'at-risk' || company.healthScore < 82
+    (company) => company.status === "at-risk" || company.healthScore < 82,
   ).length;
   const atRiskCompanies = healthSummary?.atRiskCount ?? atRiskFromData;
-  const totalCompanies = healthSummary?.totalCompanies ?? summary.totalCompanies;
+  const totalCompanies =
+    healthSummary?.totalCompanies ?? summary.totalCompanies;
   const healthyCompanies = Math.max(
     0,
-    healthSummary?.healthyCount ?? totalCompanies - atRiskCompanies
+    healthSummary?.healthyCount ?? totalCompanies - atRiskCompanies,
   );
 
   return {
@@ -290,7 +332,7 @@ function buildPortfolioSnapshot(
 
 function buildSeedPortfolioSnapshot(): PortfolioSnapshot {
   const atRiskCompanies = portfolioCompanies.filter(
-    (company) => company.status === 'at-risk' || company.healthScore < 82
+    (company) => company.status === "at-risk" || company.healthScore < 82,
   ).length;
   const totalCompanies = portfolioCompanies.length;
 
@@ -309,15 +351,54 @@ function buildSeedPortfolioSnapshot(): PortfolioSnapshot {
   };
 }
 
-async function fetchApiPortfolioCompanies(fundId: string): Promise<ApiPortfolioCompany[]> {
-  const response = await requestJson<ApiPortfolioResponse>(`/funds/${fundId}/portfolio`, {
-    method: 'GET',
-    query: {
-      limit: 200,
-      sortBy: 'currentValue',
-      sortOrder: 'desc',
+function buildEmptyPortfolioSnapshot(
+  healthSummary?: ApiPortfolioHealth["summary"],
+): PortfolioSnapshot {
+  const totalCompanies = healthSummary?.totalCompanies ?? 0;
+  const atRiskCompanies = healthSummary?.atRiskCount ?? 0;
+  const healthyCompanies =
+    healthSummary?.healthyCount ??
+    Math.max(0, totalCompanies - atRiskCompanies);
+
+  return {
+    companies: [],
+    updates: [],
+    summary: {
+      totalCompanies,
+      totalInvested: 0,
+      totalCurrentValue: 0,
+      averageMOIC: 0,
+      averageIRR: 0,
+      activeCompanies: 0,
+      averageHealthScore: 0,
     },
-    fallbackMessage: 'Failed to fetch portfolio companies',
+    performance: [],
+    allocation: [],
+    pageMetrics: {
+      totalCompanies,
+      atRiskCompanies,
+      pendingUpdates: 0,
+    },
+    healthyCompanies,
+  };
+}
+
+async function fetchApiPortfolioCompanies(
+  fundId?: string,
+): Promise<ApiPortfolioCompany[]> {
+  const query: ApiQueryParams = {
+    limit: 200,
+    sortBy: "currentValue",
+    sortOrder: "desc",
+  };
+  if (fundId) {
+    query.fundId = fundId;
+  }
+
+  const response = await requestJson<ApiPortfolioResponse>("/portfolio", {
+    method: "GET",
+    query,
+    fallbackMessage: "Failed to fetch portfolio companies",
   });
 
   if (Array.isArray(response)) {
@@ -327,29 +408,34 @@ async function fetchApiPortfolioCompanies(fundId: string): Promise<ApiPortfolioC
   return response.data ?? [];
 }
 
-async function fetchApiPortfolioHealth(fundId: string): Promise<ApiPortfolioHealth | null> {
+async function fetchApiPortfolioHealth(
+  fundId?: string,
+): Promise<ApiPortfolioHealth | null> {
   try {
-    return await requestJson<ApiPortfolioHealth>(`/funds/${fundId}/portfolio/health`, {
-      method: 'GET',
-      fallbackMessage: 'Failed to fetch portfolio health summary',
+    const query: ApiQueryParams = {};
+    if (fundId) {
+      query.fundId = fundId;
+    }
+    return await requestJson<ApiPortfolioHealth>("/portfolio/health", {
+      method: "GET",
+      query,
+      fallbackMessage: "Failed to fetch portfolio health summary",
     });
   } catch {
     return null;
   }
 }
 
-export async function fetchPortfolioSnapshot(fundId?: string | null): Promise<PortfolioSnapshot> {
-  if (isMockMode('portfolio')) {
+export async function fetchPortfolioSnapshot(
+  fundId?: string | null,
+): Promise<PortfolioSnapshot> {
+  if (isMockMode("portfolio")) {
     const snapshot = buildSeedPortfolioSnapshot();
     apiPortfolioSnapshotCache = snapshot;
     return clone(snapshot);
   }
 
-  const normalizedFundId = fundId?.trim();
-  if (!normalizedFundId) {
-    const fallback = apiPortfolioSnapshotCache ?? buildSeedPortfolioSnapshot();
-    return clone(fallback);
-  }
+  const normalizedFundId = fundId?.trim() || undefined;
 
   try {
     const [apiCompanies, health] = await Promise.all([
@@ -358,55 +444,64 @@ export async function fetchPortfolioSnapshot(fundId?: string | null): Promise<Po
     ]);
 
     const companies = apiCompanies.map(mapApiToPortfolioCompanyMetrics);
-    const snapshot = buildPortfolioSnapshot(companies, health?.summary);
+    const snapshot =
+      companies.length > 0
+        ? buildPortfolioSnapshot(companies, health?.summary)
+        : buildEmptyPortfolioSnapshot(health?.summary);
     apiPortfolioSnapshotCache = snapshot;
     return clone(snapshot);
   } catch {
-    const fallback = apiPortfolioSnapshotCache ?? buildSeedPortfolioSnapshot();
+    const fallback = apiPortfolioSnapshotCache ?? buildEmptyPortfolioSnapshot();
     return clone(fallback);
   }
 }
 
 export async function fetchPortfolioCompanies(
-  fundId?: string | null
+  fundId?: string | null,
 ): Promise<PortfolioCompanyMetrics[]> {
   const snapshot = await fetchPortfolioSnapshot(fundId);
   return snapshot.companies;
 }
 
 export function getPortfolioCompanies(): PortfolioCompanyMetrics[] {
-  if (isMockMode('portfolio')) return clone(portfolioCompanies);
-  return clone(apiPortfolioSnapshotCache?.companies ?? portfolioCompanies);
+  if (isMockMode("portfolio")) return clone(portfolioCompanies);
+  return clone(apiPortfolioSnapshotCache?.companies ?? []);
 }
 
 export function getPortfolioUpdates(): PortfolioUpdate[] {
-  if (isMockMode('portfolio')) return clone(portfolioUpdates);
-  return clone(apiPortfolioSnapshotCache?.updates ?? portfolioUpdates);
+  if (isMockMode("portfolio")) return clone(portfolioUpdates);
+  return clone(apiPortfolioSnapshotCache?.updates ?? []);
 }
 
 export function getPortfolioSummary(): PortfolioSummary {
-  if (isMockMode('portfolio')) return clone(portfolioSummary);
-  return clone(apiPortfolioSnapshotCache?.summary ?? portfolioSummary);
+  if (isMockMode("portfolio")) return clone(portfolioSummary);
+  return clone(
+    apiPortfolioSnapshotCache?.summary ?? buildEmptyPortfolioSnapshot().summary,
+  );
 }
 
 export function getPortfolioPerformanceData(): PortfolioPerformancePoint[] {
-  if (isMockMode('portfolio')) return clone(performanceData);
-  return clone(apiPortfolioSnapshotCache?.performance ?? performanceData);
+  if (isMockMode("portfolio")) return clone(performanceData);
+  return clone(apiPortfolioSnapshotCache?.performance ?? []);
 }
 
 export function getPortfolioAssetAllocation(): AssetAllocation[] {
-  if (isMockMode('portfolio')) return clone(assetAllocation);
-  return clone(apiPortfolioSnapshotCache?.allocation ?? assetAllocation);
+  if (isMockMode("portfolio")) return clone(assetAllocation);
+  return clone(apiPortfolioSnapshotCache?.allocation ?? []);
 }
 
 export function getPortfolioPageMetricsSnapshot(): PortfolioPageMetricsSnapshot {
-  if (isMockMode('portfolio')) return buildSeedPortfolioSnapshot().pageMetrics;
-  return clone(apiPortfolioSnapshotCache?.pageMetrics ?? buildSeedPortfolioSnapshot().pageMetrics);
+  if (isMockMode("portfolio")) return buildSeedPortfolioSnapshot().pageMetrics;
+  return clone(
+    apiPortfolioSnapshotCache?.pageMetrics ??
+      buildEmptyPortfolioSnapshot().pageMetrics,
+  );
 }
 
 export function getPortfolioHealthyCompaniesCount(): number {
-  if (isMockMode('portfolio')) return buildSeedPortfolioSnapshot().healthyCompanies;
-  return apiPortfolioSnapshotCache?.healthyCompanies ?? buildSeedPortfolioSnapshot().healthyCompanies;
+  if (isMockMode("portfolio"))
+    return buildSeedPortfolioSnapshot().healthyCompanies;
+  return apiPortfolioSnapshotCache?.healthyCompanies ?? 0;
 }
 
 export function clearPortfolioSnapshotCache(): void {

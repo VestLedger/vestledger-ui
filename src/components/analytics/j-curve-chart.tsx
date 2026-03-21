@@ -9,6 +9,27 @@ import { SectionHeader } from '@/ui/composites';
 export function JCurveChart() {
   const { selectedFund } = useFund();
   const jCurveData = getJCurveData(selectedFund?.id);
+
+  if (jCurveData.length === 0) {
+    return (
+      <Card padding="lg">
+        <div className="mb-6 space-y-2">
+          <SectionHeader
+            title={(
+              <span className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-[var(--app-primary)]" />
+                <span>Fund J-Curve Analysis</span>
+              </span>
+            )}
+          />
+        </div>
+        <div className="flex items-center justify-center h-64 text-[var(--app-text-muted)]">
+          <p>No J-Curve data available. Select a fund to view analytics.</p>
+        </div>
+      </Card>
+    );
+  }
+
   // Calculate dimensions for the chart
   const maxIRR = Math.max(...jCurveData.map(d => d.cumulativeIRR));
   const minIRR = Math.min(...jCurveData.map(d => d.cumulativeIRR));

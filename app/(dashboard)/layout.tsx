@@ -6,14 +6,13 @@ import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { DashboardProviders } from '../providers-dashboard'
 import { useAuth } from '@/contexts/auth-context'
-import { useRouteSagas } from '@/hooks/use-route-sagas'
 import { NavigationProvider, useNavigation } from '@/contexts/navigation-context'
 import { SidebarGrouped } from '@/components/sidebar-grouped'
 import { Topbar } from '@/components/topbar'
 import { CommandPalette } from '@/components/command-palette'
 import { useKeyboardShortcut } from '@/hooks/use-keyboard-shortcut'
-import { LoadingState } from '@/ui/async-states'
 import { useToast } from '@/ui'
+import { LoadingState } from '@/ui/async-states'
 import { useUIKey } from '@/store/ui'
 import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys'
 import { DashboardDensityProvider } from '@/contexts/dashboard-density-context'
@@ -151,6 +150,7 @@ function DashboardLayoutInner({
 function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const [isRedirecting, setIsRedirecting] = useState(false)
+  const [isClientReady, setIsClientReady] = useState(false)
   const isVestaRoute = pathname === ROUTE_PATHS.vesta
 
   // Login page is in the (dashboard) route group but should NOT be protected
@@ -159,7 +159,10 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   // Always call hooks (rules of hooks) - but only use auth for protected pages
   const { hydrated, isAuthenticated, user, logout } = useAuth()
   const toast = useToast()
-  const sagasReady = useRouteSagas({ enabled: !isLoginPage })
+
+  useEffect(() => {
+    setIsClientReady(true)
+  }, [])
 
   useSessionIdleGuard({
     enabled: !isLoginPage && hydrated && isAuthenticated,
@@ -216,21 +219,26 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     return children
   }
 
-  // Show nothing while redirecting or not authenticated
-  if (!hydrated || !isAuthenticated || isRedirecting) {
-    return null
+  if (!isClientReady || !hydrated || isRedirecting) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[var(--app-bg)] text-[var(--app-text)]">
+        <LoadingState fullHeight={false} message="Loading workspace..." />
+      </div>
+    )
   }
 
-  const resolvedChildren = sagasReady ? children : (
-    <div className="p-4">
-      <LoadingState message="Loading modules…" fullHeight={false} />
-    </div>
-  )
+  if (!isAuthenticated) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[var(--app-bg)] text-[var(--app-text)]">
+        <LoadingState fullHeight={false} message="Redirecting to sign in..." />
+      </div>
+    )
+  }
 
   return (
     <NavigationProvider>
       <DashboardLayoutInner isVestaRoute={isVestaRoute}>
-        {resolvedChildren}
+        {children}
       </DashboardLayoutInner>
     </NavigationProvider>
   )

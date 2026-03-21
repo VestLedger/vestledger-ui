@@ -51,7 +51,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               variant="bordered"
               className="w-full justify-start"
               startContent={<LogOut className="h-4 w-4" />}
-              onClick={handleLogout}
+              onPress={handleLogout}
             >
               Sign Out
             </Button>

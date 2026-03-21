@@ -1,5 +1,5 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import type { RootState } from '../rootReducer';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import type { RootState } from "../rootReducer";
 
 /**
  * UI slice - Pure UI state storage (no async operations)
@@ -15,18 +15,21 @@ const initialState: UIState = {
 };
 
 const uiSlice = createSlice({
-  name: 'ui',
+  name: "ui",
   initialState,
   reducers: {
-    setUIState: (state, action: PayloadAction<{ key: string; value: unknown }>) => {
+    setUIState: (
+      state,
+      action: PayloadAction<{ key: string; value: unknown }>,
+    ) => {
       state.byKey[action.payload.key] = action.payload.value;
     },
     patchUIState: (
       state,
-      action: PayloadAction<{ key: string; patch: Record<string, unknown> }>
+      action: PayloadAction<{ key: string; patch: Record<string, unknown> }>,
     ) => {
       const current = state.byKey[action.payload.key];
-      if (current && typeof current === 'object' && !Array.isArray(current)) {
+      if (current && typeof current === "object" && !Array.isArray(current)) {
         state.byKey[action.payload.key] = {
           ...(current as Record<string, unknown>),
           ...action.payload.patch,

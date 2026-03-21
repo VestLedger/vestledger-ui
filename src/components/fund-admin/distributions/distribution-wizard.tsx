@@ -12,22 +12,14 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { useDistributionDraft } from "@/hooks/useDistributionDraft";
 import {
-  distributionsRequested,
   distributionsSelectors,
-  feeTemplatesRequested,
   feeTemplatesSelectors,
-  statementTemplatesRequested,
   statementTemplatesSelectors,
-  lpProfilesRequested,
   lpProfilesSelectors,
-  approvalRulesRequested,
   approvalRulesSelectors,
-  createDistributionRequested,
-  updateDistributionRequested,
   setSelectedDistribution,
 } from "@/store/slices/distributionSlice";
 import {
-  scenariosRequested,
   scenariosSelectors,
 } from "@/store/slices/waterfallSlice";
 import { useFund } from "@/contexts/fund-context";
@@ -55,6 +47,16 @@ import { DistributionStepAdvanced } from "./distribution-step-advanced";
 import { DistributionStepImpact } from "./distribution-step-impact";
 import { DistributionStepPreview } from "./distribution-step-preview";
 import { DistributionStepSubmit } from "./distribution-step-submit";
+import {
+  createDistributionOperation,
+  loadApprovalRulesOperation,
+  loadDistributionsOperation,
+  loadFeeTemplatesOperation,
+  loadLPProfilesOperation,
+  loadStatementTemplatesOperation,
+  updateDistributionOperation,
+} from '@/store/async/distributionOperations';
+import { loadWaterfallScenariosOperation } from '@/store/async/waterfallOperations';
 
 const STEP_LABELS = [
   "Event",
@@ -509,28 +511,28 @@ export function DistributionWizard() {
   );
 
   const { data: feeTemplatesData, isLoading: feeTemplatesLoading, error: feeTemplatesError, refetch: refetchFeeTemplates } =
-    useAsyncData(feeTemplatesRequested, feeTemplatesSelectors.selectState, {
+    useAsyncData(loadFeeTemplatesOperation, feeTemplatesSelectors.selectState, {
       params: eventData.fundId || undefined,
       dependencies: [eventData.fundId],
     });
 
   const { data: statementTemplatesData } = useAsyncData(
-    statementTemplatesRequested,
+    loadStatementTemplatesOperation,
     statementTemplatesSelectors.selectState
   );
 
   const { data: lpProfilesData } = useAsyncData(
-    lpProfilesRequested,
+    loadLPProfilesOperation,
     lpProfilesSelectors.selectState
   );
 
   const { data: approvalRulesData } = useAsyncData(
-    approvalRulesRequested,
+    loadApprovalRulesOperation,
     approvalRulesSelectors.selectState
   );
 
   const { data: distributionsData } = useAsyncData(
-    distributionsRequested,
+    loadDistributionsOperation,
     distributionsSelectors.selectState,
     {
       params: { fundId: eventData.fundId || undefined },
@@ -539,7 +541,7 @@ export function DistributionWizard() {
   );
 
   const { data: scenariosData, isLoading: scenariosLoading, error: scenariosError, refetch: refetchScenarios } =
-    useAsyncData(scenariosRequested, scenariosSelectors.selectState);
+    useAsyncData(loadWaterfallScenariosOperation, scenariosSelectors.selectState);
 
   const feeTemplates = useMemo(
     () => feeTemplatesData?.templates ?? [],
@@ -895,9 +897,9 @@ export function DistributionWizard() {
     setPendingSave({ requestId, status, isDraft });
 
     if (eventData.id) {
-      dispatch(updateDistributionRequested({ id: eventData.id, data: payload, requestId }));
+      dispatch(updateDistributionOperation({ id: eventData.id, data: payload, requestId }));
     } else {
-      dispatch(createDistributionRequested({ data: payload, requestId }));
+      dispatch(createDistributionOperation({ data: payload, requestId }));
     }
   };
 

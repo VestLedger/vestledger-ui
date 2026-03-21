@@ -2,7 +2,7 @@
  * Standard async state shape for all Redux slices
  * Replaces inconsistent loading:boolean + error:string|null patterns
  */
-export type AsyncStatus = 'idle' | 'loading' | 'succeeded' | 'failed';
+export type AsyncStatus = "idle" | "loading" | "succeeded" | "failed";
 
 export interface AsyncState<T> {
   data: T | null;
@@ -23,7 +23,7 @@ export interface NormalizedError {
 export function createInitialAsyncState<T>(): AsyncState<T> {
   return {
     data: null,
-    status: 'idle',
+    status: "idle",
     error: undefined,
   };
 }
@@ -32,13 +32,13 @@ export function createInitialAsyncState<T>(): AsyncState<T> {
  * Type guard for checking async state status
  */
 export function isLoading<T>(state: AsyncState<T>): boolean {
-  return state.status === 'loading';
+  return state.status === "loading";
 }
 
 export function isSucceeded<T>(state: AsyncState<T>): boolean {
-  return state.status === 'succeeded';
+  return state.status === "succeeded";
 }
 
 export function isFailed<T>(state: AsyncState<T>): boolean {
-  return state.status === 'failed';
+  return state.status === "failed";
 }

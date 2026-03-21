@@ -1,9 +1,9 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import type { RootState } from '../rootReducer';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import type { RootState } from "../rootReducer";
 
 export interface NavigationBadge {
   count: number;
-  variant: 'danger' | 'warning' | 'info';
+  variant: "danger" | "warning" | "info";
   tooltip?: string;
 }
 
@@ -23,7 +23,7 @@ interface NavigationState {
   sidebarState: SidebarState;
 }
 
-const DEFAULT_EXPANDED = ['core-operations'];
+const DEFAULT_EXPANDED = ["core-operations"];
 
 const initialState: NavigationState = {
   hydrated: false,
@@ -36,33 +36,42 @@ const initialState: NavigationState = {
 };
 
 const navigationSlice = createSlice({
-  name: 'navigation',
+  name: "navigation",
   initialState,
   reducers: {
     navigationHydrated: (
       state,
-      action: PayloadAction<{ expandedGroups: string[]; sidebarState: SidebarState }>
+      action: PayloadAction<{
+        expandedGroups: string[];
+        sidebarState: SidebarState;
+      }>,
     ) => {
       state.hydrated = true;
-      state.expandedGroups = Array.from(new Set([...DEFAULT_EXPANDED, ...action.payload.expandedGroups]));
+      state.expandedGroups = Array.from(
+        new Set([...DEFAULT_EXPANDED, ...action.payload.expandedGroups]),
+      );
       state.sidebarState = action.payload.sidebarState;
     },
     setExpandedGroups: (state, action: PayloadAction<string[]>) => {
-      state.expandedGroups = Array.from(new Set([...DEFAULT_EXPANDED, ...action.payload]));
+      state.expandedGroups = Array.from(
+        new Set([...DEFAULT_EXPANDED, ...action.payload]),
+      );
     },
     toggleGroup: (state, action: PayloadAction<string>) => {
       const groupId = action.payload;
-      if (groupId === 'core-operations') return;
+      if (groupId === "core-operations") return;
 
       if (state.expandedGroups.includes(groupId)) {
-        state.expandedGroups = state.expandedGroups.filter((g) => g !== groupId);
+        state.expandedGroups = state.expandedGroups.filter(
+          (g) => g !== groupId,
+        );
       } else {
         state.expandedGroups = [...state.expandedGroups, groupId];
       }
     },
     updateBadge: (
       state,
-      action: PayloadAction<{ itemId: string; badge: NavigationBadge | null }>
+      action: PayloadAction<{ itemId: string; badge: NavigationBadge | null }>,
     ) => {
       const { itemId, badge } = action.payload;
       if (badge === null) {
@@ -103,8 +112,10 @@ export const navigationSelectors = {
   selectExpandedGroups: (state: RootState) => state.navigation.expandedGroups,
   selectBadges: (state: RootState) => state.navigation.badges,
   selectSidebarState: (state: RootState) => state.navigation.sidebarState,
-  selectIsLeftCollapsed: (state: RootState) => state.navigation.sidebarState.leftCollapsed,
-  selectIsRightCollapsed: (state: RootState) => state.navigation.sidebarState.rightCollapsed,
+  selectIsLeftCollapsed: (state: RootState) =>
+    state.navigation.sidebarState.leftCollapsed,
+  selectIsRightCollapsed: (state: RootState) =>
+    state.navigation.sidebarState.rightCollapsed,
 };
 
 export const navigationReducer = navigationSlice.reducer;

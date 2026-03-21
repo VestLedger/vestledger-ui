@@ -40,7 +40,6 @@ export function HomeOpportunitiesRail({ opportunities, onOpportunityClick }: Hom
                   <TrendingUp className="h-3 w-3 text-[var(--app-success)]" />
                   {opportunity.impactLabel}
                 </span>
-                <span className="text-[var(--app-text-subtle)]">{Math.round(opportunity.confidence * 100)}% confidence</span>
               </div>
             </button>
           ))}

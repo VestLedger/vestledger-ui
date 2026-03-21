@@ -1,6 +1,10 @@
-import { call, delay, put, race, take, takeLatest } from 'redux-saga/effects';
-import { authenticateUser, isDemoCredentials, type AuthResult } from '@/services/authService';
-import type { User } from '@/types/auth';
+import { call, put, takeLatest } from "redux-saga/effects";
+import {
+  authenticateUser,
+  isDemoCredentials,
+  type AuthResult,
+} from "@/services/authService";
+import type { User } from "@/types/auth";
 import {
   authHydrated,
   loggedOut,
@@ -8,32 +12,24 @@ import {
   loginRequested,
   loginSucceeded,
   logoutRequested,
-} from '@/store/slices/authSlice';
-import { clientMounted } from '@/store/slices/uiEffectsSlice';
-import { safeLocalStorage } from '@/lib/storage/safeLocalStorage';
-import { normalizeError } from '@/store/utils/normalizeError';
-import { logger } from '@/lib/logger';
-import {
-  DATA_MODE_OVERRIDE_KEY,
-  parseDataMode,
-  type DataMode,
-} from "@/config/data-mode";
-import {
-  AUTH_COOKIE_MAX_AGE_SECONDS,
-  AUTH_HYDRATION_TIMEOUT_MS,
-  MOCK_DEMO_PROFILE,
-  MOCK_SUPERADMIN_PROFILE,
-} from "@/config/auth";
+} from "@/store/slices/authSlice";
+import { safeLocalStorage } from "@/lib/storage/safeLocalStorage";
+import { normalizeError } from "@/store/utils/normalizeError";
+import { logger } from "@/lib/logger";
+import { clearAuthenticatedAppCaches } from "@/services/internal/clearAuthenticatedAppCaches";
+import { DATA_MODE_OVERRIDE_KEY, type DataMode } from "@/config/data-mode";
+import { isDemoUser } from "@/config/demo-session";
+import { AUTH_COOKIE_MAX_AGE_SECONDS } from "@/config/auth";
+import { getAuthCookieDomain } from "@/utils/auth/cookie-domain";
 
-const STORAGE_AUTH_KEY = 'isAuthenticated';
-const STORAGE_USER_KEY = 'user';
-const STORAGE_TOKEN_KEY = 'accessToken';
-const STORAGE_ARCHIVED_FUND_IDS = 'vestledger-archived-fund-ids';
-
+const STORAGE_AUTH_KEY = "isAuthenticated";
+const STORAGE_USER_KEY = "user";
+const STORAGE_TOKEN_KEY = "accessToken";
+const STORAGE_ARCHIVED_FUND_IDS = "vestledger-archived-fund-ids";
 function getCookieValue(name: string): string | null {
-  if (typeof document === 'undefined') return null;
+  if (typeof document === "undefined") return null;
   const prefix = `${name}=`;
-  const entries = document.cookie.split(';');
+  const entries = document.cookie.split(";");
   for (const entry of entries) {
     const trimmed = entry.trim();
     if (trimmed.startsWith(prefix)) {
@@ -44,7 +40,7 @@ function getCookieValue(name: string): string | null {
 }
 
 function parseCookieUser(): Partial<User> | null {
-  const raw = getCookieValue('user');
+  const raw = getCookieValue("user");
   if (!raw) return null;
   try {
     return JSON.parse(decodeURIComponent(raw)) as Partial<User>;
@@ -53,11 +49,15 @@ function parseCookieUser(): Partial<User> | null {
   }
 }
 
-function isValidPersistedUser(user: Partial<User> | null | undefined): user is Partial<User> & Pick<User, 'email' | 'name' | 'role'> {
+function isValidPersistedUser(
+  user: Partial<User> | null | undefined,
+): user is Partial<User> & Pick<User, "email" | "name" | "role"> {
   return Boolean(user?.email && user?.name && user?.role);
 }
 
-function normalizeUser(user: Partial<User> & Pick<User, 'email' | 'name' | 'role'>): User {
+function normalizeUser(
+  user: Partial<User> & Pick<User, "email" | "name" | "role">,
+): User {
   return {
     id: user.id,
     name: user.name,
@@ -65,28 +65,14 @@ function normalizeUser(user: Partial<User> & Pick<User, 'email' | 'name' | 'role
     role: user.role,
     avatar: user.avatar,
     tenantId: user.tenantId,
-    organizationRole: user.organizationRole,
-    isPlatformAdmin: user.isPlatformAdmin,
+    isAdmin: user.isAdmin,
+    operatingRegion: user.operatingRegion,
+    organizationConfigured: user.organizationConfigured,
   };
 }
 
 function isKnownMockUser(user: User): boolean {
-  const demoEmail = process.env.NEXT_PUBLIC_DEMO_EMAIL?.trim().toLowerCase();
-  const superadminEmail =
-    process.env.NEXT_PUBLIC_SUPERADMIN_EMAIL?.trim().toLowerCase();
-  const normalizedUserEmail = user.email.trim().toLowerCase();
-
-  if (demoEmail && normalizedUserEmail === demoEmail) return true;
-  if (superadminEmail && normalizedUserEmail === superadminEmail) return true;
-  if (
-    user.id &&
-    (user.id === MOCK_DEMO_PROFILE.id || user.id === MOCK_SUPERADMIN_PROFILE.id)
-  )
-    return true;
-  if (user.tenantId && user.tenantId === MOCK_DEMO_PROFILE.tenantId)
-    return true;
-
-  return false;
+  return isDemoUser(user);
 }
 
 function resolveHydratedDataMode(
@@ -97,67 +83,60 @@ function resolveHydratedDataMode(
   if (isKnownMockUser(user)) {
     return "mock";
   }
-
-  const storageMode = parseDataMode(storageModeRaw);
-  if (storageMode) return storageMode;
-
-  const cookieMode = parseDataMode(cookieModeRaw);
-  if (cookieMode) return cookieMode;
-
-  // Authenticated non-demo sessions should default to API mode even if
-  // NEXT_PUBLIC_DATA_MODE is mock in local dev.
-  return 'api';
+  // Authenticated non-demo sessions should always default to API mode
+  // regardless of stale local/cookie overrides.
+  void storageModeRaw;
+  void cookieModeRaw;
+  return "api";
 }
 
-function getAuthCookieDomain(hostname?: string | null) {
-  if (!hostname) return null;
-  if (hostname === 'localhost' || hostname.endsWith('.localhost')) return null;
-  if (/^\d{1,3}(?:\.\d{1,3}){3}$/.test(hostname)) return null;
-  const baseHost = hostname.replace(/^www\./, '').replace(/^(app|admin)\./, '');
-  if (baseHost === 'localhost') return null;
-  return `.${baseHost}`;
-}
-
-function setAuthCookies(user: User) {
-  if (typeof document === 'undefined') return;
+function setAuthCookies(user: User, accessToken?: string | null) {
+  if (typeof document === "undefined") return;
   const domain = getAuthCookieDomain(window.location.hostname);
-  const domainAttribute = domain ? `; domain=${domain}` : '';
+  const domainAttribute = domain ? `; domain=${domain}` : "";
   document.cookie = `isAuthenticated=true; path=/${domainAttribute}; max-age=${AUTH_COOKIE_MAX_AGE_SECONDS}; SameSite=Lax`;
   document.cookie = `user=${encodeURIComponent(JSON.stringify(user))}; path=/${domainAttribute}; max-age=${AUTH_COOKIE_MAX_AGE_SECONDS}; SameSite=Lax`;
+  if (accessToken) {
+    document.cookie = `accessToken=${encodeURIComponent(accessToken)}; path=/${domainAttribute}; max-age=${AUTH_COOKIE_MAX_AGE_SECONDS}; SameSite=Lax`;
+  }
 }
 
 function setDataModeCookie(mode: DataMode) {
-  if (typeof document === 'undefined') return;
+  if (typeof document === "undefined") return;
   const domain = getAuthCookieDomain(window.location.hostname);
-  const domainAttribute = domain ? `; domain=${domain}` : '';
+  const domainAttribute = domain ? `; domain=${domain}` : "";
   document.cookie = `${DATA_MODE_OVERRIDE_KEY}=${mode}; path=/${domainAttribute}; max-age=${AUTH_COOKIE_MAX_AGE_SECONDS}; SameSite=Lax`;
 }
 
 function clearAuthCookies() {
-  if (typeof document === 'undefined') return;
+  if (typeof document === "undefined") return;
   const domain = getAuthCookieDomain(window.location.hostname);
-  const domainAttribute = domain ? `; domain=${domain}` : '';
+  const domainAttribute = domain ? `; domain=${domain}` : "";
   document.cookie = `isAuthenticated=; path=/${domainAttribute}; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
   document.cookie = `user=; path=/${domainAttribute}; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+  document.cookie = `accessToken=; path=/${domainAttribute}; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
 }
 
 function clearDataModeCookie() {
-  if (typeof document === 'undefined') return;
+  if (typeof document === "undefined") return;
   const domain = getAuthCookieDomain(window.location.hostname);
-  const domainAttribute = domain ? `; domain=${domain}` : '';
+  const domainAttribute = domain ? `; domain=${domain}` : "";
   document.cookie = `${DATA_MODE_OVERRIDE_KEY}=; path=/${domainAttribute}; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
 }
 
 function* hydrateAuthWorker() {
   const savedToken = safeLocalStorage.getItem(STORAGE_TOKEN_KEY);
+  const cookieToken = getCookieValue(STORAGE_TOKEN_KEY);
   const savedDataMode = safeLocalStorage.getItem(DATA_MODE_OVERRIDE_KEY);
   const cookieDataMode = getCookieValue(DATA_MODE_OVERRIDE_KEY);
-  const cookieAuth = getCookieValue('isAuthenticated');
+  const cookieAuth = getCookieValue("isAuthenticated");
   const cookieUser = parseCookieUser();
 
-  const hasValidCookieSession = cookieAuth === 'true' && isValidPersistedUser(cookieUser);
+  const hasValidCookieSession =
+    cookieAuth === "true" && isValidPersistedUser(cookieUser);
   if (hasValidCookieSession) {
     const normalizedUser = normalizeUser(cookieUser);
+    const resolvedToken = savedToken ?? cookieToken;
     const hydratedMode = resolveHydratedDataMode(
       savedDataMode,
       cookieDataMode,
@@ -165,12 +144,17 @@ function* hydrateAuthWorker() {
     );
 
     // Keep local storage aligned with the shared cross-subdomain cookie session.
-    safeLocalStorage.setItem(STORAGE_AUTH_KEY, 'true');
+    safeLocalStorage.setItem(STORAGE_AUTH_KEY, "true");
     safeLocalStorage.setJSON(STORAGE_USER_KEY, normalizedUser);
+    if (resolvedToken) {
+      safeLocalStorage.setItem(STORAGE_TOKEN_KEY, resolvedToken);
+    } else {
+      safeLocalStorage.removeItem(STORAGE_TOKEN_KEY);
+    }
     if (hydratedMode) {
       safeLocalStorage.setItem(DATA_MODE_OVERRIDE_KEY, hydratedMode);
       setDataModeCookie(hydratedMode);
-      if (hydratedMode === 'mock') {
+      if (hydratedMode === "mock") {
         safeLocalStorage.removeItem(STORAGE_ARCHIVED_FUND_IDS);
       }
     } else {
@@ -178,69 +162,87 @@ function* hydrateAuthWorker() {
       clearDataModeCookie();
     }
 
-    yield put(authHydrated({ isAuthenticated: true, user: normalizedUser, accessToken: savedToken }));
+    yield put(
+      authHydrated({
+        isAuthenticated: true,
+        user: normalizedUser,
+        accessToken: resolvedToken,
+      }),
+    );
     return;
   }
 
   // Shared auth cookie is absent/invalid: treat as logged out and clear stale local state.
+  clearAuthenticatedAppCaches();
   safeLocalStorage.removeItem(STORAGE_AUTH_KEY);
   safeLocalStorage.removeItem(STORAGE_USER_KEY);
   safeLocalStorage.removeItem(STORAGE_TOKEN_KEY);
   clearAuthCookies();
 
-  if (savedDataMode === 'mock' || savedDataMode === 'api') {
+  if (savedDataMode === "mock" || savedDataMode === "api") {
     setDataModeCookie(savedDataMode);
   } else {
     safeLocalStorage.removeItem(DATA_MODE_OVERRIDE_KEY);
     clearDataModeCookie();
   }
 
-  yield put(authHydrated({ isAuthenticated: false, user: null, accessToken: null }));
+  yield put(
+    authHydrated({ isAuthenticated: false, user: null, accessToken: null }),
+  );
 }
 
 export function* loginWorker(action: ReturnType<typeof loginRequested>) {
   try {
     const { email, password } = action.payload;
+    clearAuthenticatedAppCaches();
     safeLocalStorage.removeItem(STORAGE_AUTH_KEY);
     safeLocalStorage.removeItem(STORAGE_USER_KEY);
     safeLocalStorage.removeItem(STORAGE_TOKEN_KEY);
     clearAuthCookies();
-    const modeOverride: DataMode = isDemoCredentials(email, password) ? 'mock' : 'api';
+    const modeOverride: DataMode = isDemoCredentials(email, password)
+      ? "mock"
+      : "api";
     safeLocalStorage.setItem(DATA_MODE_OVERRIDE_KEY, modeOverride);
     setDataModeCookie(modeOverride);
-    if (modeOverride === 'mock') {
+    if (modeOverride === "mock") {
       safeLocalStorage.removeItem(STORAGE_ARCHIVED_FUND_IDS);
     }
     const result: AuthResult = yield call(authenticateUser, email, password);
+    const resolvedModeOverride: DataMode =
+      result.sessionType === "demo" || isKnownMockUser(result.user)
+        ? "mock"
+        : (result.dataModeOverride ?? modeOverride);
 
     // Persist to localStorage
-    safeLocalStorage.setItem(STORAGE_AUTH_KEY, 'true');
+    safeLocalStorage.setItem(STORAGE_AUTH_KEY, "true");
     safeLocalStorage.setJSON(STORAGE_USER_KEY, result.user);
-    safeLocalStorage.setItem(STORAGE_TOKEN_KEY, result.accessToken);
-    if (result.dataModeOverride) {
-      safeLocalStorage.setItem(DATA_MODE_OVERRIDE_KEY, result.dataModeOverride);
-      setDataModeCookie(result.dataModeOverride);
-      if (result.dataModeOverride === 'mock') {
-        safeLocalStorage.removeItem(STORAGE_ARCHIVED_FUND_IDS);
-      }
+    if (result.accessToken) {
+      safeLocalStorage.setItem(STORAGE_TOKEN_KEY, result.accessToken);
     } else {
-      safeLocalStorage.removeItem(DATA_MODE_OVERRIDE_KEY);
-      clearDataModeCookie();
+      safeLocalStorage.removeItem(STORAGE_TOKEN_KEY);
+    }
+    safeLocalStorage.setItem(DATA_MODE_OVERRIDE_KEY, resolvedModeOverride);
+    setDataModeCookie(resolvedModeOverride);
+    if (resolvedModeOverride === "mock") {
+      safeLocalStorage.removeItem(STORAGE_ARCHIVED_FUND_IDS);
     }
 
     // Sync to cookies for middleware access
-    setAuthCookies(result.user);
+    setAuthCookies(result.user, result.accessToken);
 
     // Mark auth state as successful only after storage and cookies are synced
     // so middleware sees the authenticated session on immediate redirects.
-    yield put(loginSucceeded({ user: result.user, accessToken: result.accessToken }));
+    yield put(
+      loginSucceeded({ user: result.user, accessToken: result.accessToken }),
+    );
   } catch (error: unknown) {
-    logger.error('Login failed', error);
+    logger.error("Login failed", error);
     yield put(loginFailed(normalizeError(error)));
   }
 }
 
 export function* logoutWorker() {
+  clearAuthenticatedAppCaches();
   safeLocalStorage.removeItem(STORAGE_AUTH_KEY);
   safeLocalStorage.removeItem(STORAGE_USER_KEY);
   safeLocalStorage.removeItem(STORAGE_TOKEN_KEY);
@@ -254,13 +256,6 @@ export function* logoutWorker() {
 }
 
 export function* authSaga() {
-  if (typeof window !== 'undefined') {
-    // Wait for clientMounted with a configurable timeout fallback
-    yield race({
-      mounted: take(clientMounted.type),
-      timeout: delay(AUTH_HYDRATION_TIMEOUT_MS),
-    });
-  }
   yield call(hydrateAuthWorker);
   yield takeLatest(loginRequested.type, loginWorker);
   yield takeLatest(logoutRequested.type, logoutWorker);

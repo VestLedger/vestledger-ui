@@ -1,16 +1,35 @@
-import type { LucideIcon } from 'lucide-react';
-import { BarChart, DollarSign, FileText, TrendingUp, Users } from 'lucide-react';
+import type { LucideIcon } from "lucide-react";
+import {
+  BarChart,
+  DollarSign,
+  FileText,
+  TrendingUp,
+  Users,
+} from "lucide-react";
 
-export type DocumentCategory = 'financial' | 'legal' | 'market' | 'team' | 'technical';
+export type DocumentCategory =
+  | "financial"
+  | "legal"
+  | "market"
+  | "team"
+  | "technical";
 
-export type DocumentStatus = 'completed' | 'in-progress' | 'pending' | 'overdue';
-export type ICStatus = 'ready-for-ic' | 'dd-in-progress' | 'docs-overdue' | 'blocked';
+export type DocumentStatus =
+  | "completed"
+  | "in-progress"
+  | "pending"
+  | "overdue";
+export type ICStatus =
+  | "ready-for-ic"
+  | "dd-in-progress"
+  | "docs-overdue"
+  | "blocked";
 
 export interface CategoryProgress {
   category: DocumentCategory;
   completed: number;
   total: number;
-  status: 'completed' | 'in-progress' | 'overdue';
+  status: "completed" | "in-progress" | "overdue";
 }
 
 export interface ActiveDeal {
@@ -102,56 +121,56 @@ export interface DealAnalytics {
 export const activeDeals: ActiveDeal[] = [
   {
     id: 1,
-    name: 'Quantum AI',
-    stage: 'Series A',
-    sector: 'AI/ML',
-    amount: '$2.5M',
-    founder: 'Sarah Chen',
+    name: "Quantum AI",
+    stage: "Series A",
+    sector: "AI/ML",
+    amount: "$2.5M",
+    founder: "Sarah Chen",
     progress: 75,
     docsCount: 24,
-    icStatus: 'dd-in-progress',
+    icStatus: "dd-in-progress",
     categoryProgress: [
-      { category: 'financial', completed: 5, total: 5, status: 'completed' },
-      { category: 'market', completed: 3, total: 4, status: 'in-progress' },
-      { category: 'legal', completed: 2, total: 3, status: 'in-progress' },
-      { category: 'team', completed: 3, total: 3, status: 'completed' },
-      { category: 'technical', completed: 1, total: 4, status: 'overdue' },
+      { category: "financial", completed: 5, total: 5, status: "completed" },
+      { category: "market", completed: 3, total: 4, status: "in-progress" },
+      { category: "legal", completed: 2, total: 3, status: "in-progress" },
+      { category: "team", completed: 3, total: 3, status: "completed" },
+      { category: "technical", completed: 1, total: 4, status: "overdue" },
     ],
   },
   {
     id: 2,
-    name: 'NeuroLink',
-    stage: 'Seed',
-    sector: 'MedTech',
-    amount: '$1.2M',
-    founder: 'Alex Martinez',
+    name: "NeuroLink",
+    stage: "Seed",
+    sector: "MedTech",
+    amount: "$1.2M",
+    founder: "Alex Martinez",
     progress: 45,
     docsCount: 18,
-    icStatus: 'docs-overdue',
+    icStatus: "docs-overdue",
     categoryProgress: [
-      { category: 'financial', completed: 3, total: 4, status: 'in-progress' },
-      { category: 'market', completed: 2, total: 3, status: 'in-progress' },
-      { category: 'legal', completed: 1, total: 3, status: 'overdue' },
-      { category: 'team', completed: 2, total: 2, status: 'completed' },
-      { category: 'technical', completed: 0, total: 3, status: 'overdue' },
+      { category: "financial", completed: 3, total: 4, status: "in-progress" },
+      { category: "market", completed: 2, total: 3, status: "in-progress" },
+      { category: "legal", completed: 1, total: 3, status: "overdue" },
+      { category: "team", completed: 2, total: 2, status: "completed" },
+      { category: "technical", completed: 0, total: 3, status: "overdue" },
     ],
   },
   {
     id: 3,
-    name: 'CloudScale',
-    stage: 'Series B',
-    sector: 'SaaS',
-    amount: '$5.0M',
-    founder: 'Maria Rodriguez',
+    name: "CloudScale",
+    stage: "Series B",
+    sector: "SaaS",
+    amount: "$5.0M",
+    founder: "Maria Rodriguez",
     progress: 90,
     docsCount: 31,
-    icStatus: 'ready-for-ic',
+    icStatus: "ready-for-ic",
     categoryProgress: [
-      { category: 'financial', completed: 6, total: 6, status: 'completed' },
-      { category: 'market', completed: 4, total: 4, status: 'completed' },
-      { category: 'legal', completed: 4, total: 4, status: 'completed' },
-      { category: 'team', completed: 3, total: 3, status: 'completed' },
-      { category: 'technical', completed: 5, total: 5, status: 'completed' },
+      { category: "financial", completed: 6, total: 6, status: "completed" },
+      { category: "market", completed: 4, total: 4, status: "completed" },
+      { category: "legal", completed: 4, total: 4, status: "completed" },
+      { category: "team", completed: 3, total: 3, status: "completed" },
+      { category: "technical", completed: 5, total: 5, status: "completed" },
     ],
   },
 ];
@@ -159,88 +178,88 @@ export const activeDeals: ActiveDeal[] = [
 export const mockDocuments: Document[] = [
   {
     id: 1,
-    name: 'Financial Statements (2021-2024)',
-    category: 'financial',
-    status: 'completed',
+    name: "Financial Statements (2021-2024)",
+    category: "financial",
+    status: "completed",
     dealId: 1,
-    dealName: 'Quantum AI',
-    uploadedBy: 'Sarah Chen',
-    uploadedDate: 'Nov 18, 2024',
-    size: '2.4 MB',
+    dealName: "Quantum AI",
+    uploadedBy: "Sarah Chen",
+    uploadedDate: "Nov 18, 2024",
+    size: "2.4 MB",
   },
   {
     id: 2,
-    name: 'Cap Table Analysis',
-    category: 'financial',
-    status: 'completed',
+    name: "Cap Table Analysis",
+    category: "financial",
+    status: "completed",
     dealId: 1,
-    dealName: 'Quantum AI',
-    uploadedBy: 'Mike Johnson',
-    uploadedDate: 'Nov 19, 2024',
-    size: '856 KB',
+    dealName: "Quantum AI",
+    uploadedBy: "Mike Johnson",
+    uploadedDate: "Nov 19, 2024",
+    size: "856 KB",
   },
   {
     id: 3,
-    name: 'Market Size Report',
-    category: 'market',
-    status: 'completed',
+    name: "Market Size Report",
+    category: "market",
+    status: "completed",
     dealId: 1,
-    dealName: 'Quantum AI',
-    uploadedBy: 'Emma Davis',
-    uploadedDate: 'Nov 17, 2024',
-    size: '3.1 MB',
+    dealName: "Quantum AI",
+    uploadedBy: "Emma Davis",
+    uploadedDate: "Nov 17, 2024",
+    size: "3.1 MB",
   },
   {
     id: 4,
-    name: 'IP Portfolio Review',
-    category: 'legal',
-    status: 'in-progress',
+    name: "IP Portfolio Review",
+    category: "legal",
+    status: "in-progress",
     dealId: 1,
-    dealName: 'Quantum AI',
-    uploadedBy: 'Legal Team',
-    uploadedDate: 'Nov 20, 2024',
-    size: '1.2 MB',
+    dealName: "Quantum AI",
+    uploadedBy: "Legal Team",
+    uploadedDate: "Nov 20, 2024",
+    size: "1.2 MB",
   },
   {
     id: 5,
-    name: 'Reference Call Notes',
-    category: 'team',
-    status: 'in-progress',
+    name: "Reference Call Notes",
+    category: "team",
+    status: "in-progress",
     dealId: 2,
-    dealName: 'NeuroLink',
-    uploadedBy: 'Alex Martinez',
-    uploadedDate: 'Nov 21, 2024',
-    size: '245 KB',
+    dealName: "NeuroLink",
+    uploadedBy: "Alex Martinez",
+    uploadedDate: "Nov 21, 2024",
+    size: "245 KB",
   },
   {
     id: 6,
-    name: 'Technical Due Diligence Report',
-    category: 'technical',
-    status: 'overdue',
+    name: "Technical Due Diligence Report",
+    category: "technical",
+    status: "overdue",
     dealId: 2,
-    dealName: 'NeuroLink',
+    dealName: "NeuroLink",
   },
   {
     id: 7,
-    name: 'Competitive Analysis',
-    category: 'market',
-    status: 'completed',
+    name: "Competitive Analysis",
+    category: "market",
+    status: "completed",
     dealId: 3,
-    dealName: 'CloudScale',
-    uploadedBy: 'Strategy Team',
-    uploadedDate: 'Nov 10, 2024',
-    size: '1.9 MB',
+    dealName: "CloudScale",
+    uploadedBy: "Strategy Team",
+    uploadedDate: "Nov 10, 2024",
+    size: "1.9 MB",
   },
   {
     id: 8,
-    name: 'Founder Background Check',
-    category: 'team',
-    status: 'completed',
+    name: "Founder Background Check",
+    category: "team",
+    status: "completed",
     dealId: 3,
-    dealName: 'CloudScale',
-    uploadedBy: 'HR',
-    uploadedDate: 'Nov 12, 2024',
-    size: '456 KB',
+    dealName: "CloudScale",
+    uploadedBy: "HR",
+    uploadedDate: "Nov 12, 2024",
+    size: "456 KB",
   },
 ];
 
@@ -250,11 +269,16 @@ export const documentCategories: Array<{
   icon: LucideIcon;
   color: string;
 }> = [
-  { id: 'financial', name: 'Financial Analysis', icon: DollarSign, color: 'primary' },
-  { id: 'market', name: 'Market Analysis', icon: BarChart, color: 'secondary' },
-  { id: 'team', name: 'Team Assessment', icon: Users, color: 'accent' },
-  { id: 'legal', name: 'Legal Review', icon: FileText, color: 'warning' },
-  { id: 'technical', name: 'Technical DD', icon: TrendingUp, color: 'info' },
+  {
+    id: "financial",
+    name: "Financial Analysis",
+    icon: DollarSign,
+    color: "primary",
+  },
+  { id: "market", name: "Market Analysis", icon: BarChart, color: "secondary" },
+  { id: "team", name: "Team Assessment", icon: Users, color: "accent" },
+  { id: "legal", name: "Legal Review", icon: FileText, color: "warning" },
+  { id: "technical", name: "Technical DD", icon: TrendingUp, color: "info" },
 ];
 
 export const fundAnalytics: FundAnalytics = {
@@ -266,21 +290,21 @@ export const fundAnalytics: FundAnalytics = {
   },
   dealDistribution: {
     byStage: [
-      { stage: 'Sourced', count: 2 },
-      { stage: 'First Meeting', count: 2 },
-      { stage: 'Due Diligence', count: 3 },
-      { stage: 'Term Sheet', count: 1 },
+      { stage: "Sourced", count: 2 },
+      { stage: "First Meeting", count: 2 },
+      { stage: "Due Diligence", count: 3 },
+      { stage: "Term Sheet", count: 1 },
     ],
     bySector: [
-      { sector: 'AI/ML', count: 3 },
-      { sector: 'Healthcare', count: 2 },
-      { sector: 'FinTech', count: 2 },
-      { sector: 'CleanTech', count: 1 },
+      { sector: "AI/ML", count: 3 },
+      { sector: "Healthcare", count: 2 },
+      { sector: "FinTech", count: 2 },
+      { sector: "CleanTech", count: 1 },
     ],
     bySize: [
-      { range: '<$2M', count: 3 },
-      { range: '$2-4M', count: 4 },
-      { range: '>$4M', count: 1 },
+      { range: "<$2M", count: 3 },
+      { range: "$2-4M", count: 4 },
+      { range: ">$4M", count: 1 },
     ],
   },
   ddProgress: {
@@ -413,4 +437,3 @@ export const dealAnalyticsData: DealAnalytics[] = [
     },
   },
 ];
-

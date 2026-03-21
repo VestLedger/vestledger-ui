@@ -10,7 +10,6 @@ export interface WorkflowStep {
   status: 'completed' | 'current' | 'upcoming' | 'blocked';
   aiPrediction?: {
     estimatedTime: string;
-    confidence: number;
     bottleneckRisk?: 'high' | 'medium' | 'low';
   };
 }
@@ -121,10 +120,6 @@ export function WorkflowStepper({
                           </span>
                         </>
                       )}
-                      <span className="text-[var(--app-text-subtle)]">•</span>
-                      <span className="text-[var(--app-primary)] font-semibold">
-                        {Math.round(step.aiPrediction.confidence * 100)}%
-                      </span>
                     </div>
                   </div>
                 </div>

@@ -9,9 +9,28 @@ import {
 
 const BASE_TIERS: WaterfallTier[] = [
   { id: "tier-1", name: "Return of Capital", type: "roc", order: 1 },
-  { id: "tier-2", name: "Preferred Return", type: "preferred-return", order: 2, hurdleRate: 8 },
-  { id: "tier-3", name: "Catch Up", type: "catch-up", order: 3, gpCarryPercentage: 20 },
-  { id: "tier-4", name: "Carry Split", type: "carry", order: 4, gpCarryPercentage: 20, lpPercentage: 80 },
+  {
+    id: "tier-2",
+    name: "Preferred Return",
+    type: "preferred-return",
+    order: 2,
+    hurdleRate: 8,
+  },
+  {
+    id: "tier-3",
+    name: "Catch Up",
+    type: "catch-up",
+    order: 3,
+    gpCarryPercentage: 20,
+  },
+  {
+    id: "tier-4",
+    name: "Carry Split",
+    type: "carry",
+    order: 4,
+    gpCarryPercentage: 20,
+    lpPercentage: 80,
+  },
 ];
 
 const BASE_INVESTOR_CLASSES = [
@@ -41,7 +60,9 @@ const BASE_INVESTOR_CLASSES = [
   },
 ];
 
-const buildScenario = (overrides?: Partial<WaterfallScenario>): WaterfallScenario => ({
+const buildScenario = (
+  overrides?: Partial<WaterfallScenario>,
+): WaterfallScenario => ({
   id: "scenario-1",
   name: "Base Case",
   description: "Base case scenario",
@@ -95,8 +116,14 @@ describe("waterfall calculations", () => {
       blendedConfig: { europeanWeight: 70, americanWeight: 30 },
     });
 
-    const european = calculateEuropeanWaterfall({ ...blendedScenario, model: "european" });
-    const american = calculateAmericanWaterfall({ ...blendedScenario, model: "american" });
+    const european = calculateEuropeanWaterfall({
+      ...blendedScenario,
+      model: "european",
+    });
+    const american = calculateAmericanWaterfall({
+      ...blendedScenario,
+      model: "american",
+    });
     const blended = calculateBlendedWaterfall(blendedScenario);
 
     const expectedCarry = european.gpCarry * 0.7 + american.gpCarry * 0.3;

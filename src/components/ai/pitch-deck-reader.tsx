@@ -1,15 +1,17 @@
 'use client'
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { isMockMode } from '@/config/data-mode';
 import { Card, Button, Badge, Progress } from '@/ui';
 import { Upload, FileText, Sparkles, CheckCircle2, Clock, Download, Eye } from 'lucide-react';
 import { DocumentPreviewModal, useDocumentPreview, getMockDocumentUrl } from '@/components/documents/preview';
 import { useUIKey } from '@/store/ui';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { pitchDeckUploadRequested } from '@/store/slices/uiEffectsSlice';
-import { pitchDeckAnalysesRequested, pitchDeckSelectors } from '@/store/slices/aiSlice';
+import { pitchDeckSelectors } from '@/store/slices/aiSlice';
 import { EmptyState, ErrorState, LoadingState } from '@/ui/async-states';
 import { SectionHeader, StatusBadge } from '@/ui/composites';
+import { loadPitchDeckAnalysesOperation } from '@/store/async/dataOperations';
+import { formatDate } from '@/utils/formatting';
 
 const defaultPitchDeckReaderState = {
   selectedAnalysisId: null as string | null,
@@ -18,6 +20,7 @@ const defaultPitchDeckReaderState = {
 
 export function PitchDeckReader() {
   const dispatch = useAppDispatch();
+  const uploadTimeoutRef = useRef<number | null>(null);
   const data = useAppSelector(pitchDeckSelectors.selectData);
   const status = useAppSelector(pitchDeckSelectors.selectStatus);
   const error = useAppSelector(pitchDeckSelectors.selectError);
@@ -26,7 +29,7 @@ export function PitchDeckReader() {
 
   // Load pitch deck analyses on mount
   useEffect(() => {
-    dispatch(pitchDeckAnalysesRequested({}));
+    dispatch(loadPitchDeckAnalysesOperation({}));
   }, [dispatch]);
   const { value: ui, patch: patchUI } = useUIKey<{ selectedAnalysisId: string | null; isUploading: boolean }>(
     'pitch-deck-reader',
@@ -36,8 +39,23 @@ export function PitchDeckReader() {
   const selectedAnalysis = analyses.find((analysis) => analysis.id === selectedAnalysisId) ?? null;
   const preview = useDocumentPreview();
 
+  useEffect(() => {
+    return () => {
+      if (uploadTimeoutRef.current !== null) {
+        window.clearTimeout(uploadTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const handleFileUpload = () => {
-    dispatch(pitchDeckUploadRequested());
+    if (isUploading) return;
+    patchUI({ isUploading: true });
+    if (uploadTimeoutRef.current !== null) {
+      window.clearTimeout(uploadTimeoutRef.current);
+    }
+    uploadTimeoutRef.current = window.setTimeout(() => {
+      patchUI({ isUploading: false });
+    }, 2000);
   };
 
   if (status === 'idle' || status === 'loading') return <LoadingState message="Loading pitch deck analyses…" />;
@@ -46,7 +64,7 @@ export function PitchDeckReader() {
       <ErrorState
         error={error}
         title="Failed to load pitch deck analyses"
-        onRetry={() => dispatch(pitchDeckAnalysesRequested({}))}
+        onRetry={() => dispatch(loadPitchDeckAnalysesOperation({}))}
       />
     );
   }
@@ -89,7 +107,7 @@ export function PitchDeckReader() {
               </Badge>
               <StatusBadge status={selectedAnalysis.status} domain="general" size="sm" showIcon />
               <span className="text-xs text-[var(--app-text-muted)]">
-                Analyzed on {new Date(selectedAnalysis.uploadDate).toLocaleDateString()}
+                Analyzed on {formatDate(selectedAnalysis.uploadDate)}
               </span>
             </div>
           </div>
@@ -103,8 +121,8 @@ export function PitchDeckReader() {
                   preview.openPreview({
                     id: selectedAnalysis.id,
                     name: selectedAnalysis.fileName,
-                    type: 'pdf',
-                    url: getMockDocumentUrl('pdf'),
+                    type: isMockMode('ai') ? 'pdf' : 'other',
+                    url: isMockMode('ai') ? getMockDocumentUrl('pdf') : '',
                     metadata: {
                       aiInsights: selectedAnalysis.aiInsights ?? [],
                       summary: selectedAnalysis.summary ?? null,
@@ -369,7 +387,7 @@ export function PitchDeckReader() {
               </div>
               <div className="text-right">
                 <p className="text-xs text-[var(--app-text-muted)]">
-                  {new Date(analysis.uploadDate).toLocaleDateString()}
+                  {formatDate(analysis.uploadDate)}
                 </p>
               </div>
             </div>

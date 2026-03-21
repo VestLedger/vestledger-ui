@@ -1,6 +1,10 @@
-export type IntegrationIcon = 'calendar' | 'email' | 'slack' | 'github';
-export type IntegrationStatus = 'connected' | 'available' | 'coming-soon';
-export type IntegrationCategory = 'productivity' | 'communication' | 'development' | 'finance';
+export type IntegrationIcon = "calendar" | "email" | "slack" | "github";
+export type IntegrationStatus = "connected" | "available" | "coming-soon";
+export type IntegrationCategory =
+  | "productivity"
+  | "communication"
+  | "development"
+  | "finance";
 
 export interface IntegrationSummary {
   id: string;
@@ -10,4 +14,3 @@ export interface IntegrationSummary {
   status: IntegrationStatus;
   category: IntegrationCategory;
 }
-

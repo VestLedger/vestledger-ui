@@ -149,22 +149,6 @@ export const PortfolioCompanyCard = memo(function PortfolioCompanyCard({
               </div>
             </div>
 
-            {/* Confidence Bar */}
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs text-[var(--app-text-subtle)] flex-shrink-0">
-                Confidence
-              </span>
-              <ProgressBar
-                value={company.prediction.confidence * 100}
-                variant="primary"
-                size="sm"
-                className="flex-1"
-              />
-              <span className="text-xs font-bold text-[var(--app-primary)] flex-shrink-0">
-                {Math.round(company.prediction.confidence * 100)}%
-              </span>
-            </div>
-
             {/* Reasoning */}
             <div className="flex items-start gap-2 p-2 rounded bg-[var(--app-surface)]/50">
               <Info className="w-3 h-3 text-[var(--app-text-subtle)] mt-0.5 flex-shrink-0" />

@@ -4,20 +4,47 @@ import { useEffect, useMemo, useState } from 'react';
 import { Button, Input, Modal, Select, Textarea, useToast } from '@/ui';
 import type { CreateFundParams } from '@/store/slices/fundSlice';
 import { findFirstMissingRequiredField } from '@/utils/forms/required';
+import { useAuth } from '@/contexts/auth-context';
+import { useAsyncData } from '@/hooks/useAsyncData';
+import {
+  FUND_REGIME_OPTIONS,
+  getDefaultFundRegulatoryRegime,
+  getFundRegimeLabel,
+  getOperatingRegionLabel,
+} from '@/lib/regulatory-regions';
+import type {
+  FundRegulatoryProfile,
+  FundRegulatoryRegime,
+} from '@/types/regulatory';
+import { scenariosSelectors } from '@/store/slices/waterfallSlice';
+import { loadWaterfallScenariosOperation } from '@/store/async/waterfallOperations';
+import {
+  FUND_STATUS_OPTIONS,
+  FUND_STRATEGY_OPTIONS,
+  INDIA_CATEGORY_OPTIONS,
+} from '@/config/fund-options';
 
-const STATUS_OPTIONS = [
-  { value: 'active', label: 'Active' },
-  { value: 'fundraising', label: 'Fundraising' },
-  { value: 'closed', label: 'Closed' },
-];
+const DATE_INPUT_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
-const STRATEGY_OPTIONS = [
-  { value: 'early-stage', label: 'Early Stage' },
-  { value: 'growth', label: 'Growth' },
-  { value: 'late-stage', label: 'Late Stage' },
-  { value: 'multi-stage', label: 'Multi Stage' },
-  { value: 'sector-specific', label: 'Sector Specific' },
-];
+function normalizeDateInputValue(value?: string): string {
+  if (!value) return '';
+  if (DATE_INPUT_PATTERN.test(value)) return value;
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return '';
+  return parsed.toISOString().slice(0, 10);
+}
+
+function normalizeFormValues(values: CreateFundParams): CreateFundParams {
+  const normalizedStartDate = normalizeDateInputValue(values.startDate);
+  const normalizedEndDate = normalizeDateInputValue(values.endDate);
+
+  return {
+    ...values,
+    startDate: normalizedStartDate || values.startDate,
+    endDate: normalizedEndDate || undefined,
+  };
+}
 
 export interface FundSetupFormProps {
   isOpen: boolean;
@@ -47,6 +74,9 @@ function getDefaultFormValues(): CreateFundParams {
     targetSectors: ['AI/ML'],
     targetStages: ['Seed', 'Series A'],
     managers: [''],
+    activeWaterfallId: '',
+    regulatoryRegime: null,
+    regulatoryProfile: {},
     startDate: `${year}-01-01`,
     endDate: `${year + 10}-01-01`,
     description: '',
@@ -64,15 +94,66 @@ export function FundSetupForm({
   onClose,
   onSubmit,
 }: FundSetupFormProps) {
+  const { user } = useAuth();
   const defaults = useMemo(getDefaultFormValues, []);
   const [form, setForm] = useState<CreateFundParams>(defaults);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const toast = useToast();
+  const defaultOrgRegime = useMemo(
+    () => getDefaultFundRegulatoryRegime(user?.operatingRegion ?? null),
+    [user?.operatingRegion]
+  );
+  const effectiveRegime = form.regulatoryRegime ?? defaultOrgRegime;
+  const regulatoryOptions = useMemo(
+    () => [
+      {
+        value: '',
+        label: defaultOrgRegime
+          ? `Use organization default (${getFundRegimeLabel(defaultOrgRegime)})`
+          : 'Use organization default',
+      },
+      ...FUND_REGIME_OPTIONS.map((option) => ({
+        value: option.value,
+        label: option.label,
+      })),
+    ],
+    [defaultOrgRegime]
+  );
 
   useEffect(() => {
     if (!isOpen) return;
-    setForm(initialValues ?? defaults);
+    setForm(normalizeFormValues(initialValues ?? defaults));
   }, [defaults, initialValues, isOpen]);
+
+  const { data: waterfallData, isLoading: isLoadingWaterfallOptions } = useAsyncData(
+    loadWaterfallScenariosOperation,
+    scenariosSelectors.selectState,
+    {
+      fetchOnMount: isOpen,
+      dependencies: [isOpen],
+      onError: () => {
+        toast.warning('Unable to load waterfall scenarios.', 'Try again');
+      },
+    }
+  );
+
+  const waterfallOptions = useMemo(
+    () =>
+      (waterfallData?.scenarios ?? []).map((scenario) => ({
+        value: scenario.id,
+        label: scenario.name,
+      })),
+    [waterfallData?.scenarios]
+  );
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    setForm((current) => {
+      if (current.activeWaterfallId || waterfallOptions.length === 0) return current;
+      return { ...current, activeWaterfallId: waterfallOptions[0]?.value ?? '' };
+    });
+  }, [isOpen, waterfallOptions]);
 
   const setNumber = (field: keyof CreateFundParams, value: string) => {
     const parsed = Number(value);
@@ -94,12 +175,48 @@ export function FundSetupForm({
     }));
   };
 
+  const setRegulatoryProfile = (
+    updater: (current: FundRegulatoryProfile) => FundRegulatoryProfile
+  ) => {
+    setForm((current) => ({
+      ...current,
+      regulatoryProfile: updater(current.regulatoryProfile ?? {}),
+    }));
+  };
+
+  const setRegulatoryField = (
+    field: keyof FundRegulatoryProfile,
+    value: string
+  ) => {
+    setRegulatoryProfile((current) => ({
+      ...current,
+      [field]: value || undefined,
+    }));
+  };
+
+  const setRegulatoryBranchField = (
+    branch: 'india' | 'eu' | 'us',
+    field: string,
+    value: string | number | boolean | string[] | undefined
+  ) => {
+    setRegulatoryProfile((current) => ({
+      ...current,
+      [branch]: {
+        ...(current[branch] ?? {}),
+        [field]: value,
+      },
+    }));
+  };
+
   const submit = () => {
-    const missingField = findFirstMissingRequiredField([
+    const requiredFields = [
       { key: 'name', label: 'Fund Name', value: form.name },
       { key: 'displayName', label: 'Display Name', value: form.displayName },
       { key: 'startDate', label: 'Start Date', value: form.startDate },
-    ]);
+      { key: 'activeWaterfallId', label: 'Waterfall Scenario', value: form.activeWaterfallId },
+    ];
+
+    const missingField = findFirstMissingRequiredField(requiredFields);
 
     if (missingField) {
       toast.warning(`${missingField.label} is required.`, 'Missing information');
@@ -108,6 +225,7 @@ export function FundSetupForm({
 
     onSubmit({
       ...form,
+      regulatoryRegime: form.regulatoryRegime || undefined,
       name: form.name.trim(),
       displayName: form.displayName.trim(),
       description: form.description?.trim() || '',
@@ -174,7 +292,7 @@ export function FundSetupForm({
               status: event.target.value as CreateFundParams['status'],
             }))
           }
-          options={STATUS_OPTIONS}
+                  options={FUND_STATUS_OPTIONS}
         />
         <Select
           label="Strategy"
@@ -185,7 +303,55 @@ export function FundSetupForm({
               strategy: event.target.value as CreateFundParams['strategy'],
             }))
           }
-          options={STRATEGY_OPTIONS}
+                  options={FUND_STRATEGY_OPTIONS}
+        />
+        <Select
+          label="Waterfall Scenario"
+          selectedKeys={form.activeWaterfallId ? [form.activeWaterfallId] : []}
+          onChange={(event) =>
+            setForm((current) => ({ ...current, activeWaterfallId: event.target.value }))
+          }
+          options={waterfallOptions}
+          isLoading={isLoadingWaterfallOptions}
+          isRequired
+          disallowEmptySelection
+        />
+        <Select
+          label="Fund Regulatory Regime"
+          selectedKeys={[
+            form.regulatoryRegime ? form.regulatoryRegime : '',
+          ]}
+          onChange={(event) =>
+            setForm((current) => ({
+              ...current,
+              regulatoryRegime: (event.target.value || null) as
+                | FundRegulatoryRegime
+                | null,
+            }))
+          }
+          options={regulatoryOptions}
+        />
+        <Input
+          label="Regulator"
+          value={form.regulatoryProfile?.regulator ?? ''}
+          onChange={(event) => setRegulatoryField('regulator', event.target.value)}
+          description={
+            user?.operatingRegion
+              ? `Organization region: ${getOperatingRegionLabel(user.operatingRegion)}`
+              : 'Set the organization region in Settings to enable a default regime.'
+          }
+        />
+        <Input
+          label="Registration Number"
+          value={form.regulatoryProfile?.registrationNumber ?? ''}
+          onChange={(event) =>
+            setRegulatoryField('registrationNumber', event.target.value)
+          }
+        />
+        <Input
+          label="Domicile"
+          value={form.regulatoryProfile?.domicile ?? ''}
+          onChange={(event) => setRegulatoryField('domicile', event.target.value)}
         />
         <Input
           label="Total Commitment"
@@ -245,11 +411,120 @@ export function FundSetupForm({
         />
       </div>
 
+      {effectiveRegime === 'india_sebi_aif' && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+          <Select
+            label="AIF Category"
+            selectedKeys={[
+              form.regulatoryProfile?.india?.category
+                ? form.regulatoryProfile.india.category
+                : '',
+            ]}
+            onChange={(event) =>
+              setRegulatoryBranchField(
+                'india',
+                'category',
+                event.target.value || undefined,
+              )
+            }
+            options={[{ value: '', label: 'Select category' }, ...INDIA_CATEGORY_OPTIONS]}
+          />
+          <Input
+            label="Scheme Name"
+            value={form.regulatoryProfile?.india?.schemeName ?? ''}
+            onChange={(event) =>
+              setRegulatoryBranchField('india', 'schemeName', event.target.value || undefined)
+            }
+          />
+          <Input
+            label="Sponsor Name"
+            value={form.regulatoryProfile?.india?.sponsorName ?? ''}
+            onChange={(event) =>
+              setRegulatoryBranchField('india', 'sponsorName', event.target.value || undefined)
+            }
+          />
+        </div>
+      )}
+
+      {effectiveRegime === 'eu_aifmd' && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+          <Input
+            label="Home Member State"
+            value={form.regulatoryProfile?.eu?.homeMemberState ?? ''}
+            onChange={(event) =>
+              setRegulatoryBranchField('eu', 'homeMemberState', event.target.value || undefined)
+            }
+          />
+          <Input
+            label="AIFM Name"
+            value={form.regulatoryProfile?.eu?.aifmName ?? ''}
+            onChange={(event) =>
+              setRegulatoryBranchField('eu', 'aifmName', event.target.value || undefined)
+            }
+          />
+          <Input
+            label="Marketing Countries (comma separated)"
+            value={(form.regulatoryProfile?.eu?.marketingCountries ?? []).join(', ')}
+            onChange={(event) =>
+              setRegulatoryBranchField(
+                'eu',
+                'marketingCountries',
+                event.target.value
+                  .split(',')
+                  .map((entry) => entry.trim())
+                  .filter(Boolean),
+              )
+            }
+          />
+        </div>
+      )}
+
+      {effectiveRegime === 'us_private_fund' && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+          <Input
+            label="Adviser Type"
+            value={form.regulatoryProfile?.us?.adviserType ?? ''}
+            onChange={(event) =>
+              setRegulatoryBranchField('us', 'adviserType', event.target.value || undefined)
+            }
+          />
+          <Input
+            label="Exemption Type"
+            value={form.regulatoryProfile?.us?.exemptionType ?? ''}
+            onChange={(event) =>
+              setRegulatoryBranchField('us', 'exemptionType', event.target.value || undefined)
+            }
+          />
+          <Input
+            label="Filing References (comma separated)"
+            value={(form.regulatoryProfile?.us?.filingReferences ?? []).join(', ')}
+            onChange={(event) =>
+              setRegulatoryBranchField(
+                'us',
+                'filingReferences',
+                event.target.value
+                  .split(',')
+                  .map((entry) => entry.trim())
+                  .filter(Boolean),
+              )
+            }
+          />
+        </div>
+      )}
+
       <Textarea
         className="mt-3"
         label="Description"
         value={form.description ?? ''}
         onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
+        minRows={2}
+      />
+
+      <Textarea
+        className="mt-3"
+        label="Regulatory Notes"
+        value={form.regulatoryProfile?.reportingNotes ?? ''}
+        onChange={(event) => setRegulatoryField('reportingNotes', event.target.value)}
         minRows={2}
       />
 

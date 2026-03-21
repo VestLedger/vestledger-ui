@@ -1,16 +1,16 @@
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.ANALYZE === 'true',
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true",
 });
 
 const normalizeDomain = (value) =>
-  value ? value.replace(/^https?:\/\//, '').replace(/\/+$/, '') : null;
+  value ? value.replace(/^https?:\/\//, "").replace(/\/+$/, "") : null;
 
 const parseCsv = (value) =>
   value
     ? value
-      .split(',')
-      .map((item) => item.trim())
-      .filter(Boolean)
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean)
     : [];
 
 const toOriginVariants = (domain) => {
@@ -18,7 +18,7 @@ const toOriginVariants = (domain) => {
   const hostWithOptionalPort = normalizeDomain(domain);
   if (!hostWithOptionalPort) return [];
 
-  const hostOnly = hostWithOptionalPort.split(':')[0];
+  const hostOnly = hostWithOptionalPort.split(":")[0];
   return [
     hostWithOptionalPort,
     hostOnly,
@@ -47,14 +47,18 @@ const configuredAllowedOrigins = [
   process.env.NEXT_PUBLIC_PUBLIC_DOMAIN,
   process.env.NEXT_PUBLIC_APP_DOMAIN,
   process.env.NEXT_PUBLIC_ADMIN_DOMAIN,
-]
-  .flatMap(toOriginVariants);
+].flatMap(toOriginVariants);
 
 const configuredDevHosts = parseCsv(process.env.NEXT_PUBLIC_DEV_ALLOWED_HOSTS);
 const configuredDevPorts = parseCsv(process.env.NEXT_PUBLIC_DEV_ALLOWED_PORTS);
-const configuredExtraOrigins = parseCsv(process.env.NEXT_PUBLIC_ALLOWED_DEV_ORIGINS);
+const configuredExtraOrigins = parseCsv(
+  process.env.NEXT_PUBLIC_ALLOWED_DEV_ORIGINS,
+);
 
-const devHostPortTargets = toHostPortTargets(configuredDevHosts, configuredDevPorts);
+const devHostPortTargets = toHostPortTargets(
+  configuredDevHosts,
+  configuredDevPorts,
+);
 const dynamicAllowedOrigins = [
   ...configuredExtraOrigins,
   ...configuredExtraOrigins.flatMap(toOriginVariants),
@@ -65,32 +69,30 @@ const dynamicAllowedOrigins = [
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  distDir: process.env.NEXT_DIST_DIR || '.next',
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   allowedDevOrigins: Array.from(
-    new Set([
-      ...configuredAllowedOrigins,
-      ...dynamicAllowedOrigins,
-    ])
+    new Set([...configuredAllowedOrigins, ...dynamicAllowedOrigins]),
   ),
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production'
-      ? { exclude: ['error', 'warn'] }
-      : false,
+    removeConsole:
+      process.env.NODE_ENV === "production"
+        ? { exclude: ["error", "warn"] }
+        : false,
   },
   productionBrowserSourceMaps: false,
   async headers() {
     // Long-lived caching is desirable in production, but it can break local dev because
     // Next dev chunk URLs are not content-hashed and the browser may keep stale JS.
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== "production") {
       return [];
     }
     return [
       {
-        source: '/_next/static/:path*',
+        source: "/_next/static/:path*",
         headers: [
           {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
           },
         ],
       },
@@ -108,7 +110,7 @@ const nextConfig = {
 
     // Externalize canvas for server-side builds
     if (isServer) {
-      config.externals = [...(config.externals || []), 'canvas'];
+      config.externals = [...(config.externals || []), "canvas"];
     }
 
     return config;

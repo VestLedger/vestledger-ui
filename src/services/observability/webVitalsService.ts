@@ -1,8 +1,13 @@
-import { isMockMode } from '@/config/data-mode';
-import { logger } from '@/lib/logger';
+import { isMockMode } from "@/config/data-mode";
+import { logger } from "@/lib/logger";
 
-type MetricRating = 'good' | 'needs-improvement' | 'poor';
-type MetricNavigationType = 'navigate' | 'reload' | 'back-forward' | 'prerender' | string;
+type MetricRating = "good" | "needs-improvement" | "poor";
+type MetricNavigationType =
+  | "navigate"
+  | "reload"
+  | "back-forward"
+  | "prerender"
+  | string;
 
 export interface WebVitalMetric {
   id: string;
@@ -13,12 +18,12 @@ export interface WebVitalMetric {
   navigationType: MetricNavigationType;
 }
 
-const WEB_VITALS_ENDPOINT = '/api/observability/web-vitals';
+const WEB_VITALS_ENDPOINT = "/api/observability/web-vitals";
 const WEB_VITALS_BUFFER_LIMIT = 200;
 const webVitalsBuffer: WebVitalMetric[] = [];
 
 function asFiniteNumber(value: unknown): number {
-  const parsed = typeof value === 'number' ? value : Number(value);
+  const parsed = typeof value === "number" ? value : Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
@@ -43,10 +48,12 @@ function addToBuffer(metric: WebVitalMetric): void {
 }
 
 function isDevelopmentRuntime(): boolean {
-  return process.env.NODE_ENV === 'development';
+  return process.env.NODE_ENV === "development";
 }
 
-export async function reportWebVitalMetric(metric: WebVitalMetric): Promise<void> {
+export async function reportWebVitalMetric(
+  metric: WebVitalMetric,
+): Promise<void> {
   const payload = toSerializableMetric(metric);
   addToBuffer(payload);
 
@@ -55,7 +62,7 @@ export async function reportWebVitalMetric(metric: WebVitalMetric): Promise<void
   }
 
   if (isMockMode()) {
-    logger.info('Captured web-vital metric (mock mode)', {
+    logger.info("Captured web-vital metric (mock mode)", {
       metric: payload.name,
       value: payload.value,
       rating: payload.rating,
@@ -66,18 +73,21 @@ export async function reportWebVitalMetric(metric: WebVitalMetric): Promise<void
 
   try {
     await fetch(WEB_VITALS_ENDPOINT, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),
       keepalive: true,
     });
   } catch (error) {
-    logger.warn('Failed to deliver web-vitals metric to observability endpoint.', {
-      metric: payload.name,
-      error: error instanceof Error ? error.message : String(error),
-    });
+    logger.warn(
+      "Failed to deliver web-vitals metric to observability endpoint.",
+      {
+        metric: payload.name,
+        error: error instanceof Error ? error.message : String(error),
+      },
+    );
   }
 }
 

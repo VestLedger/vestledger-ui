@@ -9,21 +9,27 @@ import { AdvancedTable, ColumnDef } from '@/components/data-table/advanced-table
 import { BulkActionsToolbar, useBulkSelection, BulkAction } from '@/components/bulk-actions-toolbar';
 import {
   type LP,
-  exportLPData,
-  generateLPReport,
-  sendCapitalCallToLPs,
-  sendLPUpdate,
-  sendReportToLPs,
 } from '@/services/lpPortal/lpManagementService';
 import { formatCurrency, formatPercent } from '@/utils/formatting';
 import { PageScaffold, SearchToolbar, SectionHeader, StatusBadge } from '@/ui/composites';
 import { ROUTE_PATHS } from '@/config/routes';
 import { DEFAULT_LP_MANAGEMENT_TAB_ID, LP_MANAGEMENT_TAB_IDS } from '@/config/lp-management-tabs';
 import { useAsyncData } from '@/hooks/useAsyncData';
-import { lpManagementRequested, lpManagementSelectors } from '@/store/slices/miscSlice';
+import { useAppDispatch } from '@/store/hooks';
+import { lpManagementSelectors } from '@/store/slices/miscSlice';
 import { AsyncStateRenderer } from '@/ui/async-states';
+import { loadLPManagementOperation } from '@/store/async/dataOperations';
+import {
+  exportLPDataOperation,
+  generateLPReportOperation,
+  sendLPCapitalCallOperation,
+  sendLPReportOperation,
+  sendLPUpdateOperation,
+} from '@/store/async/miscMutationOperations';
+import { formatDate } from '@/utils/formatting';
 
 export function LPManagement() {
+  const dispatch = useAppDispatch();
   const toast = useToast();
   const { value: ui, patch: patchUI } = useUIKey<{
     selectedTab: string;
@@ -33,7 +39,7 @@ export function LPManagement() {
     selectedLP: null,
   });
   const { data, isLoading, error, refetch } = useAsyncData(
-    lpManagementRequested,
+    loadLPManagementOperation,
     lpManagementSelectors.selectState
   );
   const { selectedTab } = ui;
@@ -63,9 +69,8 @@ export function LPManagement() {
 
   const handleGenerateReport = async () => {
     try {
-      const report = await generateLPReport(getSelectedLPIds());
+      const report = await dispatch(generateLPReportOperation(getSelectedLPIds())).unwrap();
       toast.success(`${report.title} saved as draft`, 'Report generated');
-      refetch();
     } catch {
       toast.error('Unable to generate report');
     }
@@ -73,7 +78,7 @@ export function LPManagement() {
 
   const handleSendUpdate = async () => {
     try {
-      const result = await sendLPUpdate(getSelectedLPIds());
+      const result = await dispatch(sendLPUpdateOperation(getSelectedLPIds())).unwrap();
       toast.success(`Update sent to ${result.recipientCount} LPs`, 'LP update delivered');
     } catch {
       toast.error('Unable to send LP update');
@@ -82,7 +87,7 @@ export function LPManagement() {
 
   const handleSendReport = async () => {
     try {
-      const result = await sendReportToLPs(getSelectedLPIds());
+      const result = await dispatch(sendLPReportOperation(getSelectedLPIds())).unwrap();
       toast.success(`Report sent to ${result.recipientCount} LPs`, 'Report sent');
     } catch {
       toast.error('Unable to send report');
@@ -91,7 +96,7 @@ export function LPManagement() {
 
   const handleSendCapitalCall = async () => {
     try {
-      const result = await sendCapitalCallToLPs(getSelectedLPIds());
+      const result = await dispatch(sendLPCapitalCallOperation(getSelectedLPIds())).unwrap();
       toast.success(`Capital call sent to ${result.recipientCount} LPs`, 'Capital call sent');
     } catch {
       toast.error('Unable to send capital call');
@@ -100,7 +105,7 @@ export function LPManagement() {
 
   const handleExport = async () => {
     try {
-      const result = await exportLPData(getSelectedLPIds());
+      const result = await dispatch(exportLPDataOperation(getSelectedLPIds())).unwrap();
       toast.success(`${result.recordCount} LP records prepared (${result.fileName})`, 'Export ready');
     } catch {
       toast.error('Unable to export LP data');
@@ -192,6 +197,17 @@ export function LPManagement() {
       ),
     },
     {
+      key: 'fundCount',
+      label: 'Funds',
+      sortable: true,
+      align: 'center',
+      render: (lp) => (
+        <span className="text-sm text-[var(--app-text-muted)]">
+          {lp.fundCount ?? 1}
+        </span>
+      ),
+    },
+    {
       key: 'commitmentAmount',
       label: 'Commitment',
       sortable: true,
@@ -271,7 +287,6 @@ export function LPManagement() {
             icon: UserCheck,
             aiSummary: {
               text: `${totalLPs} Limited Partners with ${formatCurrency(totalCommitments)} in commitments. Average IRR: ${averageIRR}%. ${pendingCapitalCalls} pending capital call(s), ${publishedReports} published report(s).`,
-              confidence: 0.88,
             },
             primaryAction: {
               label: 'Generate Report',
@@ -279,7 +294,6 @@ export function LPManagement() {
                 void handleGenerateReport();
               },
               aiSuggested: true,
-              confidence: 0.82,
             },
 	            secondaryActions: [
 	              {
@@ -325,7 +339,7 @@ export function LPManagement() {
             </div>
             <div>
               <p className="text-2xl font-bold">
-                {formatPercent(lps.reduce((sum, lp) => sum + lp.irr, 0) / lps.length)}
+                {formatPercent(lps.length > 0 ? lps.reduce((sum, lp) => sum + lp.irr, 0) / lps.length : 0)}
               </p>
               <p className="text-xs text-[var(--app-text-muted)]">Average IRR</p>
             </div>
@@ -339,7 +353,7 @@ export function LPManagement() {
             </div>
             <div>
               <p className="text-2xl font-bold">
-                {(lps.reduce((sum, lp) => sum + lp.tvpi, 0) / lps.length).toFixed(2)}x
+                {(lps.length > 0 ? lps.reduce((sum, lp) => sum + lp.tvpi, 0) / lps.length : 0).toFixed(2)}x
               </p>
               <p className="text-xs text-[var(--app-text-muted)]">Average TVPI</p>
             </div>
@@ -416,7 +430,7 @@ export function LPManagement() {
 
                   <h4 className="font-semibold mb-2">{report.title}</h4>
                   <p className="text-sm text-[var(--app-text-muted)] mb-4">
-                    Published: {new Date(report.publishedDate).toLocaleDateString()}
+                    Published: {formatDate(report.publishedDate)}
                   </p>
 
                   <div className="flex items-center gap-2">
@@ -466,7 +480,7 @@ export function LPManagement() {
                       <div>
                         <p className="font-medium">Call #{call.callNumber}</p>
                         <p className="text-xs text-[var(--app-text-muted)]">
-                          Due: {new Date(call.dueDate).toLocaleDateString()}
+                          Due: {formatDate(call.dueDate)}
                         </p>
                       </div>
                       <StatusBadge status={call.status} domain="fund-admin" size="sm" />
@@ -497,7 +511,7 @@ export function LPManagement() {
                       <div>
                         <p className="font-medium">Distribution #{dist.distributionNumber}</p>
                         <p className="text-xs text-[var(--app-text-muted)]">
-                          {new Date(dist.paymentDate).toLocaleDateString()}
+                          {formatDate(dist.paymentDate)}
                         </p>
                       </div>
                       <StatusBadge status={dist.status} domain="fund-admin" size="sm" />

@@ -22,20 +22,23 @@ import { AICopilotBubble } from './ai-copilot-bubble';
 import { useNavigation } from '@/contexts/navigation-context';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
-  copilotSuggestionsRequested,
   copilotSuggestionsSelectors,
-  openWithQueryRequested,
-  quickActionInvoked,
-  sendMessageRequested,
   setInputValue,
   setShowSuggestions,
-  suggestionInvoked,
 } from '@/store/slices/copilotSlice';
 import type { QuickAction, Suggestion } from '@/services/ai/copilotService';
 import { useDashboardDensity } from '@/contexts/dashboard-density-context';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useUIKey } from '@/store/ui';
 import { UI_STATE_DEFAULTS, UI_STATE_KEYS } from '@/store/constants/uiStateKeys';
+import { DEFAULT_LOCALE } from '@/config/i18n';
+import {
+  invokeCopilotQuickAction,
+  invokeCopilotSuggestion,
+  openCopilotWithQuery,
+  sendCopilotMessage,
+} from '@/hooks/use-copilot-controller';
+import { loadCopilotSuggestionsOperation } from '@/store/async/dataOperations';
 
 type UITabState = {
   activeTab?: string;
@@ -91,6 +94,98 @@ function getSpeechRecognitionCtor(): BrowserSpeechRecognitionCtor | null {
     webkitSpeechRecognition?: BrowserSpeechRecognitionCtor;
   };
   return candidateWindow.SpeechRecognition ?? candidateWindow.webkitSpeechRecognition ?? null;
+}
+
+function normalizeLanguageTag(language: string | undefined): string {
+  return (language ?? '').trim().toLowerCase();
+}
+
+const HUMAN_VOICE_HINTS = [
+  'natural',
+  'neural',
+  'wavenet',
+  'enhanced',
+  'premium',
+  'siri',
+  'aria',
+  'jenny',
+  'guy',
+  'samantha',
+  'allison',
+  'victoria',
+  'serena',
+  'alex',
+  'daniel',
+];
+
+const ROBOTIC_VOICE_HINTS = [
+  'espeak',
+  'festival',
+  'flite',
+  'mbrola',
+  'compact',
+  'classic',
+  'legacy',
+  'robot',
+  'default',
+];
+
+function scoreSpeechVoice(voice: SpeechSynthesisVoice, preferredLanguage: string): number {
+  const voiceName = voice.name.toLowerCase();
+  const voiceLanguage = normalizeLanguageTag(voice.lang);
+  const preferred = normalizeLanguageTag(preferredLanguage);
+  const preferredBase = preferred.split('-')[0];
+
+  let score = 0;
+
+  if (voiceLanguage === preferred) {
+    score += 80;
+  } else if (preferredBase && (voiceLanguage === preferredBase || voiceLanguage.startsWith(`${preferredBase}-`))) {
+    score += 55;
+  } else if (voiceLanguage.startsWith('en')) {
+    score += 20;
+  } else {
+    score -= 35;
+  }
+
+  if (voice.default) {
+    score += 8;
+  }
+
+  // In many browsers, remote/cloud voices tend to sound more natural.
+  if (!voice.localService) {
+    score += 6;
+  }
+
+  for (const hint of HUMAN_VOICE_HINTS) {
+    if (voiceName.includes(hint)) {
+      score += 22;
+    }
+  }
+
+  for (const hint of ROBOTIC_VOICE_HINTS) {
+    if (voiceName.includes(hint)) {
+      score -= 26;
+    }
+  }
+
+  return score;
+}
+
+function pickPreferredSpeechVoice(
+  voices: SpeechSynthesisVoice[],
+  preferredLanguage: string
+): SpeechSynthesisVoice | null {
+  if (voices.length === 0) return null;
+
+  const rankedVoices = voices
+    .map((voice) => ({
+      voice,
+      score: scoreSpeechVoice(voice, preferredLanguage),
+    }))
+    .sort((left, right) => right.score - left.score);
+
+  return rankedVoices[0]?.voice ?? null;
 }
 
 function resolveQuickActionLabel(action: QuickAction & { title?: unknown }, index: number): string {
@@ -177,7 +272,7 @@ export function useAICopilot() {
       if (sidebarState.rightCollapsed) {
         toggleRightSidebar();
       }
-      dispatch(openWithQueryRequested({ pathname, query }));
+      void openCopilotWithQuery(dispatch, pathname, query);
     },
     [dispatch, pathname, patchVestaShellUI, sidebarState.rightCollapsed, toggleRightSidebar]
   );
@@ -222,14 +317,16 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
   const suggestionsData = useAppSelector(copilotSuggestionsSelectors.selectData);
 
   const suggestions = useMemo(() => {
-    const fallback = suggestionsData?.suggestions || [];
-    return suggestionsOverride && suggestionsOverride.length > 0 ? suggestionsOverride : fallback;
+    return suggestionsOverride && suggestionsOverride.length > 0
+      ? suggestionsOverride
+      : (suggestionsData?.suggestions || []);
   }, [suggestionsData, suggestionsOverride]);
 
   const quickActions = useMemo(() => {
-    const fallback = suggestionsData?.quickActions || [];
-    return quickActionsOverride && quickActionsOverride.length > 0 ? quickActionsOverride : fallback;
-  }, [suggestionsData, quickActionsOverride]);
+    return quickActionsOverride && quickActionsOverride.length > 0
+      ? quickActionsOverride
+      : (suggestionsData?.quickActions || []);
+  }, [quickActionsOverride, suggestionsData]);
 
   const normalizedQuickActions = useMemo(() => {
     return quickActions.map((rawAction, index) => {
@@ -273,15 +370,21 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
 
     const synth = window.speechSynthesis;
     const utterance = new SpeechSynthesisUtterance(content);
-    utterance.rate = 1;
+    utterance.rate = 0.96;
     utterance.pitch = 1;
     utterance.volume = 1;
+    const preferredLanguage = normalizeLanguageTag(navigator.language) || 'en-us';
+    let speechStarted = false;
+    utterance.onstart = () => {
+      speechStarted = true;
+    };
 
     const applyPreferredVoice = () => {
       const voices = synth.getVoices();
       if (voices.length === 0) return false;
-      const englishVoice = voices.find((voice) => voice.lang.toLowerCase().startsWith('en'));
-      utterance.voice = englishVoice ?? voices[0];
+      const preferredVoice = pickPreferredSpeechVoice(voices, preferredLanguage);
+      utterance.voice = preferredVoice ?? voices[0];
+      utterance.lang = utterance.voice?.lang || preferredLanguage;
       return true;
     };
 
@@ -290,27 +393,44 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
         synth.cancel();
         synth.resume();
         synth.speak(utterance);
+
+        // Some desktop environments occasionally drop the first utterance.
+        // Retry once with a plain fallback voice if speech never begins.
+        window.setTimeout(() => {
+          if (speechStarted || synth.speaking || synth.pending) return;
+          try {
+            const fallbackUtterance = new SpeechSynthesisUtterance(content);
+            fallbackUtterance.rate = 1;
+            fallbackUtterance.pitch = 1;
+            fallbackUtterance.volume = 1;
+            fallbackUtterance.lang = preferredLanguage;
+            synth.cancel();
+            synth.resume();
+            synth.speak(fallbackUtterance);
+          } catch {
+            // noop
+          }
+        }, 350);
       } catch {
         // noop
       }
     };
 
-    if (!applyPreferredVoice()) {
+    const hasPreferredVoice = applyPreferredVoice();
+    play();
+
+    // Keep voice selection warm for subsequent speaks without delaying
+    // the current utterance (important for click-to-speak user gestures).
+    if (!hasPreferredVoice) {
       const onVoicesChanged = () => {
         synth.removeEventListener('voiceschanged', onVoicesChanged);
         applyPreferredVoice();
-        play();
       };
       synth.addEventListener('voiceschanged', onVoicesChanged);
       window.setTimeout(() => {
         synth.removeEventListener('voiceschanged', onVoicesChanged);
-        applyPreferredVoice();
-        play();
-      }, 250);
-      return;
+      }, 1000);
     }
-
-    play();
   }, [primeSpeechSynthesis]);
 
   useEffect(() => {
@@ -355,6 +475,17 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
     lastSpokenMessageIdRef.current = latestMessage.id;
     speakAssistantReply(latestMessage.content);
   }, [messages, resolvedVestaShellUI.ttsEnabled, speakAssistantReply]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (resolvedVestaShellUI.ttsEnabled) return;
+    if (!('speechSynthesis' in window)) return;
+    try {
+      window.speechSynthesis.cancel();
+    } catch {
+      // noop
+    }
+  }, [resolvedVestaShellUI.ttsEnabled]);
 
   const uiState = useAppSelector((state) => state.ui.byKey);
   const getCurrentTab = useCallback(() => {
@@ -416,20 +547,20 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
   }, [currentTab, patchVestaShellUI, pathname]);
 
   useEffect(() => {
-    dispatch(copilotSuggestionsRequested({ pathname, tab: currentTab }));
+    dispatch(loadCopilotSuggestionsOperation({ pathname, tab: currentTab }));
     dispatch(setShowSuggestions(true));
   }, [dispatch, pathname, currentTab]);
 
   const handleSendMessage = useCallback(() => {
     primeSpeechSynthesis();
-    dispatch(sendMessageRequested({ pathname, content: inputValue }));
+    void sendCopilotMessage(dispatch, pathname, inputValue);
   }, [dispatch, inputValue, pathname, primeSpeechSynthesis]);
 
   const handleQuickAction = useCallback(
     (action: QuickAction) => {
       primeSpeechSynthesis();
       action.onClick?.();
-      dispatch(quickActionInvoked({ pathname, action }));
+      void invokeCopilotQuickAction(dispatch, pathname, action);
     },
     [dispatch, pathname, primeSpeechSynthesis]
   );
@@ -437,19 +568,48 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
   const handleSuggestionClick = useCallback(
     (suggestion: Suggestion) => {
       primeSpeechSynthesis();
-      dispatch(suggestionInvoked({ suggestion }));
+      void invokeCopilotSuggestion(dispatch, suggestion);
     },
     [dispatch, primeSpeechSynthesis]
   );
+
+  const handleToggleTts = useCallback(() => {
+    const nextEnabled = !resolvedVestaShellUI.ttsEnabled;
+
+    if (typeof window !== 'undefined' && !nextEnabled && 'speechSynthesis' in window) {
+      try {
+        window.speechSynthesis.cancel();
+      } catch {
+        // noop
+      }
+    }
+
+    if (nextEnabled) {
+      // Do not replay older assistant responses when unmuting.
+      const latestAiMessage = [...messages].reverse().find((message) => message.type === 'ai');
+      if (latestAiMessage) {
+        lastSpokenMessageIdRef.current = latestAiMessage.id;
+      }
+      primeSpeechSynthesis();
+    }
+
+    patchVestaShellUI({ ttsEnabled: nextEnabled });
+  }, [
+    messages,
+    patchVestaShellUI,
+    primeSpeechSynthesis,
+    resolvedVestaShellUI.ttsEnabled,
+  ]);
 
   const handleMessageSpeech = useCallback(
     (content: string, type: 'user' | 'ai') => {
       if (type !== 'ai') return;
       const trimmed = content.trim();
       if (!trimmed) return;
+      primeSpeechSynthesis();
       speakAssistantReply(trimmed);
     },
-    [speakAssistantReply]
+    [primeSpeechSynthesis, speakAssistantReply]
   );
 
   const startVoiceCapture = useCallback(() => {
@@ -463,7 +623,7 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
       const recognition = new SpeechRecognitionCtor();
       recognition.continuous = false;
       recognition.interimResults = true;
-      recognition.lang = 'en-US';
+      recognition.lang = DEFAULT_LOCALE;
 
       recognition.onresult = (event: SpeechRecognitionEventLike) => {
         let finalTranscript = '';
@@ -492,7 +652,7 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
         const transcript = transcriptBufferRef.current.trim();
         transcriptBufferRef.current = '';
         if (!transcript) return;
-        dispatch(sendMessageRequested({ pathname, content: transcript }));
+        void sendCopilotMessage(dispatch, pathname, transcript);
       };
 
       speechRef.current = recognition;
@@ -597,7 +757,7 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
         </div>
         <div className="flex items-center gap-1">
           <button
-            onClick={() => patchVestaShellUI({ ttsEnabled: !resolvedVestaShellUI.ttsEnabled })}
+            onClick={handleToggleTts}
             className="p-1.5 rounded-lg hover:bg-[var(--app-surface-hover)] transition-colors"
             aria-label={resolvedVestaShellUI.ttsEnabled ? 'Disable spoken replies' : 'Enable spoken replies'}
             title={resolvedVestaShellUI.ttsEnabled ? 'Disable spoken replies' : 'Enable spoken replies'}
@@ -662,14 +822,6 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
                 <p className="text-sm text-[var(--app-text)] mb-1">{suggestion.text}</p>
                 <div className="flex items-center justify-between">
                   <p className="text-xs text-[var(--app-text-subtle)]">{suggestion.reasoning}</p>
-                  <span
-                    className={`
-                      text-xs font-semibold
-                      ${suggestion.confidence >= 0.8 ? 'text-[var(--app-success)]' : suggestion.confidence >= 0.6 ? 'text-[var(--app-warning)]' : 'text-[var(--app-danger)]'}
-                    `}
-                  >
-                    {Math.round(suggestion.confidence * 100)}%
-                  </span>
                 </div>
               </button>
             ))}
@@ -715,9 +867,6 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
                 className="max-w-[85%] rounded-lg bg-[var(--app-surface-hover)] px-3 py-2 text-left text-[var(--app-text)] transition-colors hover:bg-[var(--app-border)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--app-primary)]"
               >
                 <p className="text-sm">{message.content}</p>
-                {message.confidence && (
-                  <p className="mt-1 text-xs opacity-70">Confidence: {Math.round(message.confidence * 100)}%</p>
-                )}
               </button>
             ) : (
               <div className="max-w-[85%] rounded-lg bg-[var(--app-primary)] px-3 py-2 text-white">

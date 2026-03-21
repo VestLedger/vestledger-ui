@@ -12,14 +12,15 @@ import {
   Zap
 } from 'lucide-react';
 import { useUIKey } from '@/store/ui';
-import { companySearchRequested, companySearchSelectors } from '@/store/slices/miscSlice';
+import { companySearchSelectors } from '@/store/slices/miscSlice';
 import { AsyncStateRenderer, EmptyState } from '@/ui/async-states';
 import { formatCurrencyCompact } from '@/utils/formatting';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { SearchToolbar } from '@/ui/composites';
+import { loadCompanySearchOperation } from '@/store/async/dataOperations';
 
 export function CompanySearch() {
-  const { data, isLoading, error, refetch, status } = useAsyncData(companySearchRequested, companySearchSelectors.selectState);
+  const { data, isLoading, error, refetch, status } = useAsyncData(loadCompanySearchOperation, companySearchSelectors.selectState);
 
   // UI state MUST be called before any early returns (Rules of Hooks)
   const { value: ui, patch: patchUI } = useUIKey('company-search', {
@@ -33,13 +34,6 @@ export function CompanySearch() {
   const industries = data?.industries || [];
   const stages = data?.stages || [];
   const companies = data?.companies || [];
-
-  const getMatchScoreColor = (score: number) => {
-    if (score >= 90) return 'var(--app-success)';
-    if (score >= 80) return 'var(--app-primary)';
-    if (score >= 70) return 'var(--app-warning)';
-    return 'var(--app-text-muted)';
-  };
 
   const filteredCompanies = companies.filter(company => {
     if (searchQuery && !company.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
@@ -142,15 +136,9 @@ export function CompanySearch() {
                   </div>
                 </div>
               </div>
-              <div className="text-right">
-                <div
-                  className="text-2xl font-bold"
-                  style={{ color: getMatchScoreColor(company.aiMatchScore) }}
-                >
-                  {company.aiMatchScore}%
-                </div>
-                <div className="text-xs text-[var(--app-text-muted)]">AI Match</div>
-              </div>
+              <Badge size="sm" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">
+                AI Ranked
+              </Badge>
             </div>
 
             {/* Description */}

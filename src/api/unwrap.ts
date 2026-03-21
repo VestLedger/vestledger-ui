@@ -1,4 +1,4 @@
-import { ApiError, apiErrorFromOpenapiFetchResult } from './errors';
+import { ApiError, apiErrorFromOpenapiFetchResult } from "./errors";
 
 export type OpenapiFetchResult<TData> = {
   data?: TData;
@@ -13,7 +13,7 @@ export type OpenapiFetchResult<TData> = {
  */
 export async function unwrapApiResult<TData>(
   resultPromise: Promise<OpenapiFetchResult<TData>>,
-  opts?: { fallbackMessage?: string }
+  opts?: { fallbackMessage?: string },
 ): Promise<TData> {
   const result = await resultPromise;
 
@@ -28,12 +28,11 @@ export async function unwrapApiResult<TData>(
   if (result.data === undefined) {
     throw new ApiError({
       status: result.response.status,
-      code: 'EMPTY_RESPONSE',
-      message: opts?.fallbackMessage ?? 'Empty response from server',
+      code: "EMPTY_RESPONSE",
+      message: opts?.fallbackMessage ?? "Empty response from server",
       details: { error: result.error },
     });
   }
 
   return result.data;
 }
-

@@ -4,10 +4,10 @@
  * This file runs before all tests to configure the testing environment.
  */
 
-import '@testing-library/jest-dom';
+import "@testing-library/jest-dom";
 
 // Mock window.matchMedia for components that use media queries
-Object.defineProperty(window, 'matchMedia', {
+Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: (query: string) => ({
     matches: false,
@@ -24,7 +24,7 @@ Object.defineProperty(window, 'matchMedia', {
 // Mock ResizeObserver
 type ResizeObserverCallback = (
   entries: ResizeObserverEntry[],
-  observer: ResizeObserver
+  observer: ResizeObserver,
 ) => void;
 
 class ResizeObserverMock {
@@ -54,7 +54,7 @@ class ResizeObserverMock {
           contentRect: rect,
         } as ResizeObserverEntry,
       ],
-      this as unknown as ResizeObserver
+      this as unknown as ResizeObserver,
     );
   }
 
@@ -67,7 +67,7 @@ window.ResizeObserver = ResizeObserverMock as unknown as typeof ResizeObserver;
 // Mock IntersectionObserver
 class IntersectionObserverMock {
   root = null;
-  rootMargin = '';
+  rootMargin = "";
   thresholds = [];
 
   observe() {}
@@ -78,21 +78,22 @@ class IntersectionObserverMock {
   }
 }
 
-window.IntersectionObserver = IntersectionObserverMock as unknown as typeof IntersectionObserver;
+window.IntersectionObserver =
+  IntersectionObserverMock as unknown as typeof IntersectionObserver;
 
 // Suppress console.error for expected errors in tests
 const originalConsoleError = console.error;
 console.error = (...args) => {
   // Suppress React act() warnings and other expected test warnings
   const suppressedWarnings = [
-    'Warning: ReactDOM.render is no longer supported',
-    'Warning: An update to',
-    'act(...)',
+    "Warning: ReactDOM.render is no longer supported",
+    "Warning: An update to",
+    "act(...)",
   ];
 
   if (
     args.length > 0 &&
-    typeof args[0] === 'string' &&
+    typeof args[0] === "string" &&
     suppressedWarnings.some((warning) => args[0].includes(warning))
   ) {
     return;
@@ -120,7 +121,7 @@ const localStorageMock = {
   },
 };
 
-Object.defineProperty(window, 'localStorage', {
+Object.defineProperty(window, "localStorage", {
   value: localStorageMock,
 });
 

@@ -11,24 +11,30 @@ import { EmailIntegration, type EmailAccount } from '@/components/crm/email-inte
 import { InteractionTimeline } from '@/components/crm/interaction-timeline';
 import { NetworkGraph } from './network-graph';
 import {
-  connectCRMEmailAccount,
-  createCRMContact,
-  createCRMInteraction,
-  deleteCRMInteraction,
-  disconnectCRMEmailAccount,
-  linkCRMInteractionToDeal,
-  syncCRMEmailAccount,
-  toggleCRMContactStar,
-  toggleCRMEmailAutoCapture,
-  updateCRMInteraction,
   type Contact,
 } from '@/services/crm/contactsService';
 import { useUIKey } from '@/store/ui';
-import { crmDataRequested, crmSelectors } from '@/store/slices/crmSlice';
+import { useAppDispatch } from '@/store/hooks';
+import { crmSelectors } from '@/store/slices/crmSlice';
 import { AsyncStateRenderer, EmptyState } from '@/ui/async-states';
 import { MetricsGrid, PageScaffold, SearchToolbar } from '@/ui/composites';
 import type { MetricsGridItem } from '@/ui/composites';
 import { useAsyncData } from '@/hooks/useAsyncData';
+import { loadCRMDataOperation } from '@/store/async/dataOperations';
+import {
+  connectCRMEmailAccountOperation,
+  createCRMContactOperation,
+  createCRMInteractionOperation,
+  deleteCRMInteractionOperation,
+  disconnectCRMEmailAccountOperation,
+  linkCRMInteractionToDealOperation,
+  syncCRMEmailAccountOperation,
+  toggleCRMContactStarOperation,
+  toggleCRMEmailAutoCaptureOperation,
+  updateCRMInteractionOperation,
+} from '@/store/async/crmOperations';
+import { CONTACT_ROLE_FILTER_OPTIONS } from '@/config/crm-options';
+import { formatDate } from '@/utils/formatting';
 
 interface ContactsUIState {
   contacts: Contact[];
@@ -46,7 +52,9 @@ interface ContactsUIState {
 export function Contacts() {
   const routeConfig = getRouteConfig(ROUTE_PATHS.contacts);
   const toast = useToast();
-  const { data, isLoading, error, refetch } = useAsyncData(crmDataRequested, crmSelectors.selectState, { params: {} });
+  const dispatch = useAppDispatch();
+  const crmQueryParams = {};
+  const { data, isLoading, error, refetch } = useAsyncData(loadCRMDataOperation, crmSelectors.selectState, { params: crmQueryParams });
 
   const mockContacts = data?.contacts || [];
   const mockEmailAccounts = data?.emailAccounts || [];
@@ -177,10 +185,9 @@ export function Contacts() {
   const getErrorMessage = (error: unknown, fallback: string) =>
     error instanceof Error ? error.message : fallback;
 
-  const runCRMAction = async (action: () => Promise<void>, successMessage?: string) => {
+  const runCRMAction = async (action: { unwrap: () => Promise<unknown> }, successMessage?: string) => {
     try {
-      await action();
-      refetch();
+      await action.unwrap();
       if (successMessage) {
         toast.success(successMessage);
       }
@@ -191,14 +198,14 @@ export function Contacts() {
 
   const toggleStar = async (contactId: string) => {
     await runCRMAction(
-      () => toggleCRMContactStar(contactId),
+      dispatch(toggleCRMContactStarOperation({ contactId, params: crmQueryParams })),
       'Contact star updated.'
     );
   };
 
   const handleCreateContact = async () => {
     await runCRMAction(
-      () => createCRMContact(),
+      dispatch(createCRMContactOperation(crmQueryParams)),
       'Contact created.'
     );
   };
@@ -210,21 +217,25 @@ export function Contacts() {
     }
 
     await runCRMAction(
-      () => createCRMInteraction(selectedContact.id, { type, direction: 'outbound' }),
+      dispatch(createCRMInteractionOperation({
+        contactId: selectedContact.id,
+        input: { type, direction: 'outbound' },
+        params: crmQueryParams,
+      })),
       'Interaction added.'
     );
   };
 
   const handleEditInteraction = async (interactionId: string) => {
     await runCRMAction(
-      () => updateCRMInteraction(interactionId),
+      dispatch(updateCRMInteractionOperation({ interactionId, params: crmQueryParams })),
       'Interaction updated.'
     );
   };
 
   const handleDeleteInteraction = async (interactionId: string) => {
     await runCRMAction(
-      () => deleteCRMInteraction(interactionId),
+      dispatch(deleteCRMInteractionOperation({ interactionId, params: crmQueryParams })),
       'Interaction deleted.'
     );
   };
@@ -232,35 +243,35 @@ export function Contacts() {
   const handleLinkInteractionToDeal = async (interactionId: string) => {
     const linkedDeal = selectedContact?.deals[0] ?? 'Deal Follow-up';
     await runCRMAction(
-      () => linkCRMInteractionToDeal(interactionId, linkedDeal),
+      dispatch(linkCRMInteractionToDealOperation({ interactionId, linkedDeal, params: crmQueryParams })),
       'Interaction linked to deal.'
     );
   };
 
   const handleConnectEmail = async (provider: 'gmail' | 'outlook') => {
     await runCRMAction(
-      () => connectCRMEmailAccount(provider),
+      dispatch(connectCRMEmailAccountOperation({ provider, params: crmQueryParams })),
       'Email account connected.'
     );
   };
 
   const handleDisconnectEmail = async (accountId: string) => {
     await runCRMAction(
-      () => disconnectCRMEmailAccount(accountId),
+      dispatch(disconnectCRMEmailAccountOperation({ accountId, params: crmQueryParams })),
       'Email account disconnected.'
     );
   };
 
   const handleSyncEmail = async (accountId: string) => {
     await runCRMAction(
-      () => syncCRMEmailAccount(accountId),
+      dispatch(syncCRMEmailAccountOperation({ accountId, params: crmQueryParams })),
       'Email sync completed.'
     );
   };
 
   const handleToggleEmailAutoCapture = async (accountId: string, enabled: boolean) => {
     await runCRMAction(
-      () => toggleCRMEmailAutoCapture(accountId, enabled),
+      dispatch(toggleCRMEmailAutoCaptureOperation({ accountId, enabled, params: crmQueryParams })),
       'Auto-capture setting updated.'
     );
   };
@@ -352,7 +363,6 @@ export function Contacts() {
               icon: Users,
               aiSummary: {
                 text: `${contacts.length} total contacts. ${contacts.filter(c => c.starred).length} starred. ${contacts.filter(c => c.nextFollowUp).length} pending follow-ups.`,
-                confidence: 0.91,
               },
               primaryAction: {
                 label: 'Add Contact',
@@ -413,13 +423,7 @@ export function Contacts() {
                   label: 'Role',
                   selectedValue: filterRole,
                   onChange: (value) => patchUI({ filterRole: value }),
-                  options: [
-                    { value: 'all', label: 'All Roles' },
-                    { value: 'founder', label: 'Founders' },
-                    { value: 'ceo', label: 'CEOs' },
-                    { value: 'investor', label: 'Investors' },
-                    { value: 'advisor', label: 'Advisors' },
-                  ],
+                  options: CONTACT_ROLE_FILTER_OPTIONS,
                 }}
               />
             </div>
@@ -666,7 +670,7 @@ export function Contacts() {
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4 text-[var(--app-warning)]" />
                       <span className="text-sm font-medium text-[var(--app-warning)]">
-                        Follow-up scheduled: {new Date(selectedContact.nextFollowUp).toLocaleDateString()}
+                        Follow-up scheduled: {formatDate(selectedContact.nextFollowUp)}
                       </span>
                     </div>
                   </div>
@@ -688,7 +692,7 @@ export function Contacts() {
                               <span className="text-sm font-medium">{interaction.subject}</span>
                             </div>
                             <span className="text-xs text-[var(--app-text-subtle)]">
-                              {new Date(interaction.date).toLocaleDateString()}
+                              {formatDate(interaction.date)}
                             </span>
                           </div>
                           {interaction.notes && (
@@ -752,7 +756,7 @@ export function Contacts() {
               <Button
                 variant="flat"
                 size="sm"
-                onClick={() => patchUI({ showNetworkGraph: false })}
+                onPress={() => patchUI({ showNetworkGraph: false })}
               >
                 Close
               </Button>

@@ -115,7 +115,7 @@ export function CarriedInterestTracker({
             <div>
               <h3 className="text-lg font-semibold mb-1">Carry Terms - {activeTerm.fundName}</h3>
               <p className="text-xs text-[var(--app-text-muted)]">
-                Effective {activeTerm.effectiveDate.toLocaleDateString()}
+                Effective {formatDate(activeTerm.effectiveDate)}
               </p>
             </div>
             {onEditTerms && (
@@ -256,7 +256,7 @@ export function CarriedInterestTracker({
                       })}
                     </p>
                     <p className="text-xs text-[var(--app-text-subtle)]">
-                      Calculated on {selectedAccrual.calculationDate.toLocaleDateString()}
+                      Calculated on {formatDate(selectedAccrual.calculationDate)}
                     </p>
                   </div>
 

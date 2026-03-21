@@ -5,12 +5,13 @@ import { Mail, Calendar, Phone } from 'lucide-react';
 import { Card, Button, Badge } from '@/ui';
 import { ListItemCard, RoleDashboardLayout, SectionHeader } from '@/ui/composites';
 import type { MetricsGridItem } from '@/ui/composites';
-import { irDashboardRequested, irDashboardSelectors } from '@/store/slices/dashboardsSlice';
+import { irDashboardSelectors } from '@/store/slices/dashboardsSlice';
 import { AsyncStateRenderer } from '@/ui/async-states';
 import { useAsyncData } from '@/hooks/useAsyncData';
+import { loadIRDashboardOperation } from '@/store/async/dataOperations';
 
 export function IRDashboard() {
-  const { data, isLoading, error, refetch } = useAsyncData(irDashboardRequested, irDashboardSelectors.selectState);
+  const { data, isLoading, error, refetch } = useAsyncData(loadIRDashboardOperation, irDashboardSelectors.selectState);
 
   // Extract data with defaults
   const metrics = data?.metrics || [];

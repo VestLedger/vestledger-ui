@@ -81,4 +81,3 @@ export const mockDeals: Deal[] = [
     oneLiner: "AI-powered supply chain optimization for restaurant groups",
   },
 ];
-

@@ -2,6 +2,13 @@
 PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 export PATH
 
+# Always run from repository root so Next resolves app files consistently.
+REPO_ROOT="$(cd -- "$(dirname -- "$0")/.." && pwd)"
+cd "$REPO_ROOT"
+
+# Keep hook builds deterministic across shells and CI by using default dist dir.
+unset NEXT_DIST_DIR
+
 run_pnpm() {
   if command -v pnpm >/dev/null 2>&1; then
     pnpm "$@"

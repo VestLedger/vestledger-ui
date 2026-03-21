@@ -1,5 +1,6 @@
 "use client";
 
+import { isMockMode } from "@/config/data-mode";
 import { Badge, Button, Card, Input, Switch } from "@/ui";
 import { SectionHeader, StatusBadge } from '@/ui/composites';
 import {
@@ -102,8 +103,8 @@ export function DistributionStepTax({
   const buildTaxDocument = (allocation: LPAllocation): PreviewDocument => ({
     id: `tax-${allocation.id}`,
     name: `${allocation.lpName} ${formatTaxFormType(allocation.taxFormType)} Tax Form`,
-    type: "pdf",
-    url: getMockDocumentUrl("pdf"),
+    type: isMockMode("backOffice") ? "pdf" : "other",
+    url: isMockMode("backOffice") ? getMockDocumentUrl("pdf") : "",
     category: "Tax Form",
     metadata: {
       lpId: allocation.lpId,

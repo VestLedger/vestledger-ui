@@ -17,6 +17,11 @@ import {
 } from 'lucide-react';
 import { SearchToolbar, SectionHeader, StatusBadge } from '@/ui/composites';
 import { formatDateTime } from '@/utils/formatting';
+import {
+  CALENDAR_DATE_RANGE_OPTIONS,
+  CALENDAR_EVENT_TYPE_FILTER_OPTIONS,
+  CALENDAR_STATUS_FILTER_OPTIONS,
+} from '@/config/integrations-options';
 
 export type CalendarProvider = 'google' | 'outlook' | 'apple' | 'other';
 export type EventType = 'meeting' | 'call' | 'conference' | 'site-visit' | 'other';
@@ -325,7 +330,7 @@ export function CalendarIntegration({
                     In Progress
                   </Badge>
                 ) : latestSync.status === 'completed' ? (
-                  <span>{latestSync.endDate?.toLocaleString()}</span>
+                  <span>{latestSync.endDate ? formatDateTime(latestSync.endDate) : ''}</span>
                 ) : (
                   <Badge size="sm" variant="flat" className="bg-[var(--app-danger-bg)] text-[var(--app-danger)]">
                     Failed
@@ -367,7 +372,7 @@ export function CalendarIntegration({
                       </div>
                       <div className="flex items-center gap-3 text-xs text-[var(--app-text-muted)]">
                         {account.lastSync && (
-                          <span>Last synced: {account.lastSync.toLocaleString()}</span>
+                          <span>Last synced: {formatDateTime(account.lastSync)}</span>
                         )}
                         {account.captureRules.length > 0 && (
                           <>
@@ -457,12 +462,7 @@ export function CalendarIntegration({
                 className="min-w-[150px]"
                 selectedKeys={[dateRange]}
                 onChange={(e) => patchUI({ dateRange: e.target.value as typeof dateRange })}
-                options={[
-                  { value: 'upcoming', label: 'Upcoming' },
-                  { value: 'past-week', label: 'Past Week' },
-                  { value: 'past-month', label: 'Past Month' },
-                  { value: 'all', label: 'All Time' },
-                ]}
+                options={CALENDAR_DATE_RANGE_OPTIONS}
               />
               <Select
                 aria-label="Status filter"
@@ -470,13 +470,7 @@ export function CalendarIntegration({
                 className="min-w-[150px]"
                 selectedKeys={[filterStatus]}
                 onChange={(e) => patchUI({ filterStatus: e.target.value as CaptureStatus | 'all' })}
-                options={[
-                  { value: 'all', label: 'All Status' },
-                  { value: 'pending', label: 'Pending' },
-                  { value: 'captured', label: 'Captured' },
-                  { value: 'ignored', label: 'Ignored' },
-                  { value: 'failed', label: 'Failed' },
-                ]}
+                options={CALENDAR_STATUS_FILTER_OPTIONS}
               />
               <Select
                 aria-label="Event type filter"
@@ -484,14 +478,7 @@ export function CalendarIntegration({
                 className="min-w-[150px]"
                 selectedKeys={[filterType]}
                 onChange={(e) => patchUI({ filterType: e.target.value as EventType | 'all' })}
-                options={[
-                  { value: 'all', label: 'All Types' },
-                  { value: 'meeting', label: 'Meeting' },
-                  { value: 'call', label: 'Call' },
-                  { value: 'conference', label: 'Conference' },
-                  { value: 'site-visit', label: 'Site Visit' },
-                  { value: 'other', label: 'Other' },
-                ]}
+                options={CALENDAR_EVENT_TYPE_FILTER_OPTIONS}
               />
               {onExportEvents && (
                 <>

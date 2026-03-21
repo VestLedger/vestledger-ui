@@ -6,10 +6,13 @@ import { Badge, Select } from '@/ui';
 import type { PageHeaderBadge } from '@/ui';
 import { ListItemCard, PageScaffold } from '@/ui/composites';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { alertsRequested, alertsSelectors, markAlertRead } from '@/store/slices/alertsSlice';
+import { alertsSelectors, markAlertRead } from '@/store/slices/alertsSlice';
 import { EmptyState, ErrorState, LoadingState } from '@/ui/async-states';
 import { useUIKey } from '@/store/ui';
 import { ROUTE_PATHS } from '@/config/routes';
+import { fetchAlertsOperation } from '@/store/async/dataOperations';
+import { getNotificationFilterOptions } from '@/config/notification-options';
+import { formatDateTime } from '@/utils/formatting';
 
 type NotificationFilter = 'all' | 'unread' | 'alert' | 'deal' | 'report' | 'system';
 
@@ -43,7 +46,7 @@ export function Notifications() {
   const selectedFilter = (ui.selectedFilter ?? ui.selectedTab ?? 'all') as NotificationFilter;
 
   useEffect(() => {
-    dispatch(alertsRequested({}));
+    dispatch(fetchAlertsOperation({}));
   }, [dispatch]);
 
   const notifications = reduxNotifications.map((alert) => {
@@ -137,7 +140,6 @@ export function Notifications() {
         icon: Bell,
         aiSummary: {
           text: aiSummaryText,
-          confidence: 0.86,
         },
         actionContent: (
           <div className="flex items-center gap-2">
@@ -149,14 +151,14 @@ export function Notifications() {
               selectedKeys={[selectedFilter]}
               onChange={(event) => patchUI({ selectedFilter: event.target.value as NotificationFilter })}
               disallowEmptySelection
-              options={[
-                { value: 'all', label: `All notifications (${totalCount})` },
-                { value: 'unread', label: `Unread (${unreadCount})` },
-                { value: 'alert', label: `Alerts (${alertCount})` },
-                { value: 'deal', label: `Deals (${dealCount})` },
-                { value: 'report', label: `Reports (${reportCount})` },
-                { value: 'system', label: `System (${systemCount})` },
-              ]}
+              options={getNotificationFilterOptions({
+                total: totalCount,
+                unread: unreadCount,
+                alert: alertCount,
+                deal: dealCount,
+                report: reportCount,
+                system: systemCount,
+              })}
             />
           </div>
         ),
@@ -171,7 +173,7 @@ export function Notifications() {
           <ErrorState
             error={alertsError}
             title="Failed to load notifications"
-            onRetry={() => dispatch(alertsRequested({}))}
+            onRetry={() => dispatch(fetchAlertsOperation({}))}
           />
         )}
         {alertsStatus === 'succeeded' && filteredNotifications.length === 0 && (
@@ -187,7 +189,7 @@ export function Notifications() {
             icon={getIcon(notification.type)}
             title={notification.title}
             description={notification.message}
-            meta={notification.timestamp.toLocaleString()}
+            meta={formatDateTime(notification.timestamp)}
             badges={
               !notification.read ? (
                 <Badge size="sm" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">

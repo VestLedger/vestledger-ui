@@ -1,12 +1,20 @@
-import type { Fund } from '@/types/fund';
-import type { CreateFundParams, GetFundsParams } from '@/store/slices/fundSlice';
-import { isMockMode } from '@/config/data-mode';
-import { mockFunds } from '@/data/mocks/funds';
-import { apiClient } from '@/api/client';
-import { unwrapApiResult } from '@/api/unwrap';
-import type { components } from '@/api/generated/openapi';
+import type { Fund } from "@/types/fund";
+import type {
+  CreateFundParams,
+  GetFundsParams,
+} from "@/store/slices/fundSlice";
+import { isMockMode } from "@/config/data-mode";
+import { mockFunds } from "@/data/mocks/funds";
+import { apiClient, getAccessToken } from "@/api/client";
+import { getApiBaseUrl } from "@/api/config";
+import { unwrapApiResult } from "@/api/unwrap";
+import type { components } from "@/api/generated/openapi";
+import type {
+  FundRegulatoryProfile,
+  FundRegulatoryRegime,
+} from "@/types/regulatory";
 
-type ApiFund = components['schemas']['CreateFundDto'] & {
+type ApiFund = components["schemas"]["CreateFundDto"] & {
   id: string;
   createdAt: string;
   updatedAt: string;
@@ -42,12 +50,25 @@ function mapApiFundToFund(apiFund: ApiFund): Fund {
     targetStages: apiFund.targetStages,
     description: apiFund.description,
     managers: apiFund.managers,
+    activeWaterfallId: (apiFund as Record<string, unknown>)
+      .activeWaterfallId as string | undefined,
+    regulatoryRegime: (apiFund as Record<string, unknown>).regulatoryRegime as
+      | FundRegulatoryRegime
+      | undefined,
+    regulatoryProfile: (apiFund as Record<string, unknown>)
+      .regulatoryProfile as FundRegulatoryProfile | undefined,
     createdAt: apiFund.createdAt,
     updatedAt: apiFund.updatedAt,
   };
 }
 
-function toCreateFundDto(data: CreateFundParams): components['schemas']['CreateFundDto'] {
+function toCreateFundDto(
+  data: CreateFundParams,
+): components["schemas"]["CreateFundDto"] & {
+  activeWaterfallId: string;
+  regulatoryRegime?: FundRegulatoryRegime | null;
+  regulatoryProfile?: FundRegulatoryProfile;
+} {
   return {
     name: data.name,
     displayName: data.displayName,
@@ -69,6 +90,11 @@ function toCreateFundDto(data: CreateFundParams): components['schemas']['CreateF
     targetSectors: data.targetSectors,
     targetStages: data.targetStages,
     managers: data.managers,
+    activeWaterfallId: data.activeWaterfallId,
+    regulatoryRegime: data.regulatoryRegime ?? undefined,
+    regulatoryProfile: data.regulatoryProfile as
+      | ({ [key: string]: unknown } & FundRegulatoryProfile)
+      | undefined,
     startDate: data.startDate,
     endDate: data.endDate,
     description: data.description,
@@ -76,7 +102,7 @@ function toCreateFundDto(data: CreateFundParams): components['schemas']['CreateF
 }
 
 export async function fetchFunds(params: GetFundsParams): Promise<Fund[]> {
-  if (isMockMode('funds')) {
+  if (isMockMode("funds")) {
     let funds = [...mockFunds];
 
     if (params.status) {
@@ -87,20 +113,24 @@ export async function fetchFunds(params: GetFundsParams): Promise<Fund[]> {
   }
 
   const query: {
-    status?: 'active' | 'closed' | 'fundraising';
+    status?: "active" | "closed" | "fundraising";
   } = {};
 
-  if (params.status === 'active' || params.status === 'closed' || params.status === 'fundraising') {
+  if (
+    params.status === "active" ||
+    params.status === "closed" ||
+    params.status === "fundraising"
+  ) {
     query.status = params.status;
   }
 
   const result = await unwrapApiResult(
-    apiClient.GET('/funds', {
+    apiClient.GET("/funds", {
       params: {
         query,
       },
     }),
-    { fallbackMessage: 'Failed to fetch funds' }
+    { fallbackMessage: "Failed to fetch funds" },
   );
 
   const apiResponse = result as unknown as { data: ApiFund[]; meta?: unknown };
@@ -110,7 +140,7 @@ export async function fetchFunds(params: GetFundsParams): Promise<Fund[]> {
 }
 
 export async function createFund(data: CreateFundParams): Promise<Fund> {
-  if (isMockMode('funds')) {
+  if (isMockMode("funds")) {
     const now = new Date().toISOString();
     const fund: Fund = {
       id: `fund-${Date.now()}`,
@@ -139,6 +169,9 @@ export async function createFund(data: CreateFundParams): Promise<Fund> {
       targetStages: data.targetStages,
       description: data.description,
       managers: data.managers,
+      activeWaterfallId: data.activeWaterfallId,
+      regulatoryRegime: data.regulatoryRegime,
+      regulatoryProfile: data.regulatoryProfile,
       createdAt: now,
       updatedAt: now,
     };
@@ -148,10 +181,10 @@ export async function createFund(data: CreateFundParams): Promise<Fund> {
   }
 
   const result = await unwrapApiResult(
-    apiClient.POST('/funds', {
+    apiClient.POST("/funds", {
       body: toCreateFundDto(data),
     }),
-    { fallbackMessage: 'Failed to create fund' }
+    { fallbackMessage: "Failed to create fund" },
   );
 
   return mapApiFundToFund(result as unknown as ApiFund);
@@ -159,9 +192,9 @@ export async function createFund(data: CreateFundParams): Promise<Fund> {
 
 export async function updateFund(
   fundId: string,
-  data: Partial<CreateFundParams>
+  data: Partial<CreateFundParams>,
 ): Promise<Fund> {
-  if (isMockMode('funds')) {
+  if (isMockMode("funds")) {
     const index = mockFunds.findIndex((fund) => fund.id === fundId);
     if (index === -1) {
       throw new Error(`Fund not found: ${fundId}`);
@@ -179,24 +212,28 @@ export async function updateFund(
   }
 
   const result = await unwrapApiResult(
-    apiClient.PUT('/funds/{id}', {
+    apiClient.PUT("/funds/{id}", {
       params: { path: { id: fundId } },
       body: {
         ...data,
+        regulatoryRegime: data.regulatoryRegime ?? undefined,
+        regulatoryProfile: data.regulatoryProfile as
+          | ({ [key: string]: unknown } & FundRegulatoryProfile)
+          | undefined,
       },
     }),
-    { fallbackMessage: 'Failed to update fund' }
+    { fallbackMessage: "Failed to update fund" },
   );
 
   return mapApiFundToFund(result as unknown as ApiFund);
 }
 
 export async function closeFund(fundId: string): Promise<Fund> {
-  return updateFund(fundId, { status: 'closed' });
+  return updateFund(fundId, { status: "closed" });
 }
 
 export async function archiveFundLocal(
-  fundId: string
+  fundId: string,
 ): Promise<{ fundId: string; archivedAt: string }> {
   return {
     fundId,
@@ -205,10 +242,57 @@ export async function archiveFundLocal(
 }
 
 export async function unarchiveFundLocal(
-  fundId: string
+  fundId: string,
 ): Promise<{ fundId: string; archivedAt: string }> {
   return {
     fundId,
     archivedAt: new Date().toISOString(),
   };
+}
+
+export async function getActiveWaterfall(
+  fundId: string,
+): Promise<{ waterfallScenarioId: string | null }> {
+  if (isMockMode("funds")) {
+    const fund = mockFunds.find((f) => f.id === fundId);
+    return { waterfallScenarioId: fund?.activeWaterfallId ?? null };
+  }
+
+  const token = getAccessToken();
+  const res = await fetch(
+    `${getApiBaseUrl()}/funds/${fundId}/active-waterfall`,
+    {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    },
+  );
+  if (!res.ok) throw new Error("Failed to fetch active waterfall");
+  const data = await res.json();
+  return { waterfallScenarioId: data?.waterfallScenarioId ?? null };
+}
+
+export async function setActiveWaterfall(
+  fundId: string,
+  waterfallScenarioId: string,
+): Promise<void> {
+  if (isMockMode("funds")) {
+    const fund = mockFunds.find((f) => f.id === fundId);
+    if (fund) {
+      fund.activeWaterfallId = waterfallScenarioId;
+    }
+    return;
+  }
+
+  const token = getAccessToken();
+  const res = await fetch(
+    `${getApiBaseUrl()}/funds/${fundId}/active-waterfall`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ waterfallScenarioId }),
+    },
+  );
+  if (!res.ok) throw new Error("Failed to set active waterfall");
 }

@@ -7,19 +7,21 @@ import { Button, Card, Badge, Progress, ToggleButtonGroup, Modal, Input, Select,
 import { KanbanBoard } from '@/components/kanban-board';
 import { useAppDispatch } from '@/store/hooks';
 import { setSuggestionsOverride } from '@/store/slices/copilotSlice';
-import { pipelineDataRequested, dealStageUpdated, pipelineSelectors } from '@/store/slices/pipelineSlice';
+import { pipelineSelectors } from '@/store/slices/pipelineSlice';
 import { useUIKey } from '@/store/ui';
 import { ErrorState, LoadingState } from '@/ui/async-states';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { dealOutcomeClasses } from '@/utils/styling';
+import { PIPELINE_STAGE_DISPLAY_NAMES } from '@/config/pipeline-options';
 import { PageScaffold } from '@/ui/composites';
 import { ROUTE_PATHS } from '@/config/routes';
-import { isMockMode } from '@/config/data-mode';
 import {
-  createPipelineDeal,
-  updatePipelineDealStage,
-  type PipelineDeal,
-} from '@/services/pipelineService';
+  loadPipelineDataOperation,
+} from '@/store/async/dataOperations';
+import {
+  createPipelineDealOperation,
+  updatePipelineDealStageOperation,
+} from '@/store/async/pipelineMutationOperations';
 
 type CreateDealDraft = {
   name: string;
@@ -44,11 +46,11 @@ function getInitialCreateDealDraft(defaultStage: string): CreateDealDraft {
 export function Pipeline() {
   const dispatch = useAppDispatch();
   const toast = useToast();
-  const { data, isLoading, error, refetch } = useAsyncData(pipelineDataRequested, pipelineSelectors.selectState, { params: {} });
+  const { data, isLoading, error, refetch } = useAsyncData(loadPipelineDataOperation, pipelineSelectors.selectState, { params: {} });
 
   const pipelineStages = data?.stages || [];
   const pipelineDeals = data?.deals || [];
-  const defaultStage = pipelineStages[0] ?? 'Sourced';
+  const defaultStage = pipelineStages[0] ?? 'sourced';
 
   const { value: pipelineUI, patch: patchPipelineUI } = useUIKey('pipeline', {
     viewMode: 'kanban' as 'kanban' | 'list',
@@ -57,16 +59,13 @@ export function Pipeline() {
 
   const { value: createDealUI, patch: patchCreateDealUI } = useUIKey<{
     isOpen: boolean;
-    createdDeals: PipelineDeal[];
     draft: CreateDealDraft;
   }>('pipeline-create-deal', {
     isOpen: false,
-    createdDeals: [],
     draft: getInitialCreateDealDraft(defaultStage),
   });
 
-  const pipelineDealsAll = [...pipelineDeals, ...createDealUI.createdDeals];
-  const usesMockPipeline = isMockMode('pipeline');
+  const pipelineDealsAll = pipelineDeals;
   const viewMode = pipelineUI.viewMode;
   const showClosedDeals = pipelineUI.showClosedDeals;
 
@@ -76,29 +75,11 @@ export function Pipeline() {
   const viewModeSelection = new Set([viewMode]);
 
   const handleItemMove = async (itemId: number | string, newStage: string) => {
-    const localIndex = createDealUI.createdDeals.findIndex((deal) => deal.id === itemId);
-    if (localIndex >= 0) {
-      const nextCreatedDeals = [...createDealUI.createdDeals];
-      nextCreatedDeals[localIndex] = {
-        ...nextCreatedDeals[localIndex],
-        stage: newStage,
-      };
-      patchCreateDealUI({ createdDeals: nextCreatedDeals });
-      return;
-    }
-
-    dispatch(dealStageUpdated({ dealId: itemId, newStage }));
-
-    if (usesMockPipeline) {
-      return;
-    }
-
     try {
-      await updatePipelineDealStage(itemId, newStage);
+      await dispatch(updatePipelineDealStageOperation({ dealId: itemId, newStage })).unwrap();
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unable to update stage';
       toast.error(message, 'Stage Update Failed');
-      refetch();
     }
   };
 
@@ -167,28 +148,19 @@ export function Pipeline() {
       : defaultStage;
 
     try {
-      const createdDeal = await createPipelineDeal({
+      const createdDeal = await dispatch(createPipelineDealOperation({
         name,
         stage,
         sector,
         founder,
         amount: amountMillions * 1_000_000,
         probability,
-      });
+      })).unwrap();
 
-      if (usesMockPipeline) {
-        patchCreateDealUI({
-          isOpen: false,
-          createdDeals: [createdDeal, ...createDealUI.createdDeals],
-          draft: getInitialCreateDealDraft(defaultStage),
-        });
-      } else {
-        patchCreateDealUI({
-          isOpen: false,
-          draft: getInitialCreateDealDraft(defaultStage),
-        });
-        refetch();
-      }
+      patchCreateDealUI({
+        isOpen: false,
+        draft: getInitialCreateDealDraft(defaultStage),
+      });
 
       toast.success(`${createdDeal.name} added to ${stage}.`, 'Deal Created');
     } catch (error) {
@@ -206,13 +178,11 @@ export function Pipeline() {
         icon: GitBranch,
         aiSummary: {
           text: `${highProbabilityDeals.length} high-probability deals (≥70%) detected. ${stalledDeals.length} deals need follow-up (inactive >1 week). Total pipeline value: $${(filteredDeals.reduce((sum, d) => sum + parseFloat(d.amount.replace(/[$M]/g, '')), 0)).toFixed(1)}M.`,
-          confidence: 0.92,
         },
         primaryAction: {
           label: 'Add Deal',
           onClick: openCreateDealModal,
           aiSuggested: true,
-          confidence: 0.78,
         },
         children: (
           <div className="flex flex-wrap items-center gap-3 mt-4">
@@ -262,7 +232,7 @@ export function Pipeline() {
             label="Stage"
             selectedKeys={createDealUI.draft.stage ? [createDealUI.draft.stage] : []}
             onChange={(event) => updateCreateDealDraft({ stage: event.target.value })}
-            options={pipelineStages.map((stage) => ({ value: stage, label: stage }))}
+            options={pipelineStages.map((stage) => ({ value: stage, label: PIPELINE_STAGE_DISPLAY_NAMES[stage] ?? stage }))}
           />
           <Input
             label="Sector"
@@ -328,7 +298,7 @@ export function Pipeline() {
         <KanbanBoard
           columns={pipelineStages.map(stage => ({
             id: stage,
-            title: stage,
+            title: PIPELINE_STAGE_DISPLAY_NAMES[stage] ?? stage,
             items: filteredDeals.filter(deal => deal.stage === stage)
           }))}
           onItemMove={handleItemMove}
@@ -371,7 +341,7 @@ export function Pipeline() {
                     </td>
                     <td className="px-4 py-3">
                       <Badge size="sm" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">
-                        {deal.stage}
+                        {PIPELINE_STAGE_DISPLAY_NAMES[deal.stage] ?? deal.stage}
                       </Badge>
                     </td>
                     <td className="px-4 py-3 text-[var(--app-text-muted)] hidden md:table-cell">{deal.sector}</td>

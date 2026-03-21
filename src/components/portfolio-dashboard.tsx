@@ -15,12 +15,8 @@ import type { ColumnDef } from '@/components/data-table/advanced-table';
 import { PortfolioTabHeader } from '@/components/portfolio-tab-header';
 import { MetricsGrid, SectionHeader } from '@/ui/composites';
 import type { MetricsGridItem } from '@/ui/composites';
-import {
-  getPortfolioAssetAllocation,
-  getPortfolioCompanies,
-  getPortfolioPerformanceData,
-  getPortfolioSummary,
-} from '@/services/portfolio/portfolioDataService';
+import { useAppSelector } from '@/store/hooks';
+import { portfolioSelectors } from '@/store/slices/portfolioSlice';
 
 const getHealthColor = (score: number) => {
   if (score >= 85) return 'var(--app-success)';
@@ -40,11 +36,20 @@ const getStatusBadge = (status: string) => {
 
 export function PortfolioDashboard() {
   const toast = useToast();
-  const portfolioCompanies = getPortfolioCompanies();
+  const portfolioData = useAppSelector(portfolioSelectors.selectData);
+  const portfolioCompanies = portfolioData?.companies ?? [];
   type PortfolioCompanyRow = (typeof portfolioCompanies)[number];
-  const portfolioSummary = getPortfolioSummary();
-  const performanceData = getPortfolioPerformanceData();
-  const assetAllocation = getPortfolioAssetAllocation();
+  const portfolioSummary = portfolioData?.summary ?? {
+    totalCompanies: 0,
+    totalInvested: 0,
+    totalCurrentValue: 0,
+    averageMOIC: 0,
+    averageIRR: 0,
+    activeCompanies: 0,
+    averageHealthScore: 0,
+  };
+  const performanceData = portfolioData?.performance ?? [];
+  const assetAllocation = portfolioData?.allocation ?? [];
 
   const filteredCompanies = portfolioCompanies;
 

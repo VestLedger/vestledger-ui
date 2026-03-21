@@ -1,5 +1,16 @@
-export type NotificationType = 'info' | 'success' | 'warning' | 'error' | 'default';
-export type NotificationCategory = 'deal' | 'lp' | 'document' | 'calendar' | 'alert' | 'system';
+export type NotificationType =
+  | "info"
+  | "success"
+  | "warning"
+  | "error"
+  | "default";
+export type NotificationCategory =
+  | "deal"
+  | "lp"
+  | "document"
+  | "calendar"
+  | "alert"
+  | "system";
 
 export interface Notification {
   id: string;
@@ -12,4 +23,3 @@ export interface Notification {
   actionLabel?: string;
   actionUrl?: string;
 }
-

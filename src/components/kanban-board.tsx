@@ -82,8 +82,10 @@ export function KanbanBoard<T extends KanbanItemBase>({
 }: KanbanBoardProps<T>) {
   const { value: ui, patch: patchUI } = useUIKey<{
     activeId: UniqueIdentifier | null;
+    originColumnId: string | null;
   }>(`kanban-board:${stateKey}`, {
     activeId: null,
+    originColumnId: null,
   });
   const { activeId } = ui;
 
@@ -97,29 +99,30 @@ export function KanbanBoard<T extends KanbanItemBase>({
   );
 
   const handleDragStart = (event: DragStartEvent) => {
-    patchUI({ activeId: event.active.id });
+    const originColumn = columns.find((col) =>
+      col.items.some((item) => item.id === event.active.id)
+    );
+    patchUI({ activeId: event.active.id, originColumnId: originColumn?.id ?? null });
   };
 
-  const handleDragOver = (event: DragOverEvent) => {
+  const handleDragOver = (_event: DragOverEvent) => {
+    // Visual feedback only — no API calls during drag
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    if (!over) return;
 
-    const activeColumn = columns.find((col) =>
-      col.items.some((item) => item.id === active.id)
-    );
-    const overColumn = columns.find(
-      (col) => col.id === over.id || col.items.some((item) => item.id === over.id)
-    );
+    if (over) {
+      const overColumn = columns.find(
+        (col) => col.id === over.id || col.items.some((item) => item.id === over.id)
+      );
 
-    if (!activeColumn || !overColumn) return;
-    if (activeColumn.id === overColumn.id) return;
+      if (overColumn && overColumn.id !== ui.originColumnId) {
+        onItemMove(active.id, overColumn.id);
+      }
+    }
 
-    // Item moved to different column
-    onItemMove(active.id, overColumn.id);
-  };
-
-  const handleDragEnd = (_event: DragEndEvent) => {
-    patchUI({ activeId: null });
+    patchUI({ activeId: null, originColumnId: null });
   };
 
   const activeItem = columns

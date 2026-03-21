@@ -9,7 +9,6 @@ import { AsyncStateRenderer } from '@/ui/async-states';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { useUIKey } from '@/store/ui';
 import {
-  distributionsRequested,
   distributionsSelectors,
 } from '@/store/slices/distributionSlice';
 import { useFund } from '@/contexts/fund-context';
@@ -23,6 +22,7 @@ import { formatCurrencyCompact, formatDate } from '@/utils/formatting';
 import { distributionEventTypeLabels, getLabelForType } from '@/utils/styling/typeMappers';
 import { CalendarDays, Files, Plus } from 'lucide-react';
 import { ROUTE_PATHS, withRouteParams } from '@/config/routes';
+import { loadDistributionsOperation } from '@/store/async/distributionOperations';
 
 type DistributionListUIState = {
   searchQuery: string;
@@ -77,7 +77,7 @@ export function DistributionsList() {
   }, [selectedFund?.id, ui.eventTypeFilter, ui.searchQuery, ui.statusFilter, viewMode]);
 
   const { data, isLoading, error, refetch } = useAsyncData(
-    distributionsRequested,
+    loadDistributionsOperation,
     distributionsSelectors.selectState,
     {
       params: filters,
@@ -225,7 +225,7 @@ export function DistributionsList() {
               columns={columns}
               searchable={false}
               exportable={false}
-              pageSize={8}
+              pageSize={10}
               searchKeys={['name', 'fundName', 'description', 'waterfallScenarioName']}
               onRowClick={(item) =>
                 router.push(

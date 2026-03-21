@@ -21,13 +21,13 @@ export interface RelationshipMetrics {
 
 export interface RelationshipScore {
   overall: number; // 0-100
-  strength: 'cold' | 'warm' | 'hot' | 'champion';
+  strength: "cold" | "warm" | "hot" | "champion";
   warmth: number; // 0-100
   engagement: number; // 0-100
   recency: number; // 0-100
   frequency: number; // 0-100
   quality: number; // 0-100
-  trend: 'increasing' | 'stable' | 'declining';
+  trend: "increasing" | "stable" | "declining";
   recommendations: string[];
 }
 
@@ -70,8 +70,10 @@ function calculateFrequencyScore(metrics: RelationshipMetrics): number {
   const monthsSinceFirst = Math.max(days / 30, 1);
   const interactionsPerMonth = interactionCount / monthsSinceFirst;
 
-  if (interactionsPerMonth >= 4) baseScore += 30; // 4+ per month
-  else if (interactionsPerMonth >= 2) baseScore += 20; // 2-4 per month
+  if (interactionsPerMonth >= 4)
+    baseScore += 30; // 4+ per month
+  else if (interactionsPerMonth >= 2)
+    baseScore += 20; // 2-4 per month
   else if (interactionsPerMonth >= 1) baseScore += 10; // 1-2 per month
 
   return Math.min(baseScore, 100);
@@ -101,8 +103,10 @@ function calculateQualityScore(metrics: RelationshipMetrics): number {
 
   // Response time bonus (faster is better)
   if (averageResponseTime !== undefined) {
-    if (averageResponseTime <= 24) score += 15; // Within 24 hours
-    else if (averageResponseTime <= 48) score += 10; // Within 48 hours
+    if (averageResponseTime <= 24)
+      score += 15; // Within 24 hours
+    else if (averageResponseTime <= 48)
+      score += 10; // Within 48 hours
     else if (averageResponseTime <= 72) score += 5; // Within 3 days
   }
 
@@ -122,7 +126,10 @@ function calculateEngagementScore(recency: number, frequency: number): number {
  * Calculate warmth score (0-100)
  * Based on shared connections, deal value, and quality
  */
-function calculateWarmthScore(metrics: RelationshipMetrics, quality: number): number {
+function calculateWarmthScore(
+  metrics: RelationshipMetrics,
+  quality: number,
+): number {
   let warmth = quality * 0.5; // Start with 50% of quality
 
   // Shared connections bonus
@@ -143,69 +150,88 @@ function calculateWarmthScore(metrics: RelationshipMetrics, quality: number): nu
 /**
  * Determine relationship strength category
  */
-function determineStrength(overall: number): RelationshipScore['strength'] {
-  if (overall >= 80) return 'champion';
-  if (overall >= 60) return 'hot';
-  if (overall >= 40) return 'warm';
-  return 'cold';
+function determineStrength(overall: number): RelationshipScore["strength"] {
+  if (overall >= 80) return "champion";
+  if (overall >= 60) return "hot";
+  if (overall >= 40) return "warm";
+  return "cold";
 }
 
 /**
  * Determine relationship trend
  */
-function determineTrend(recency: number, frequency: number): RelationshipScore['trend'] {
+function determineTrend(
+  recency: number,
+  frequency: number,
+): RelationshipScore["trend"] {
   // If recent activity is high, trending up
-  if (recency >= 80 && frequency >= 60) return 'increasing';
+  if (recency >= 80 && frequency >= 60) return "increasing";
 
   // If recent activity is low, trending down
-  if (recency < 40) return 'declining';
+  if (recency < 40) return "declining";
 
-  return 'stable';
+  return "stable";
 }
 
 /**
  * Generate actionable recommendations
  */
-function generateRecommendations(score: RelationshipScore, metrics: RelationshipMetrics): string[] {
+function generateRecommendations(
+  score: RelationshipScore,
+  metrics: RelationshipMetrics,
+): string[] {
   const recommendations: string[] = [];
   const days = getDaysSinceLastInteraction(metrics.lastInteractionDate);
 
   // Recency recommendations
   if (score.recency < 50) {
     if (days > 90) {
-      recommendations.push('⚠️ No contact in 3+ months - Reach out immediately to re-engage');
+      recommendations.push(
+        "⚠️ No contact in 3+ months - Reach out immediately to re-engage",
+      );
     } else if (days > 60) {
-      recommendations.push('Schedule a call or meeting within the next week');
+      recommendations.push("Schedule a call or meeting within the next week");
     } else if (days > 30) {
-      recommendations.push('Send a follow-up email or schedule a check-in');
+      recommendations.push("Send a follow-up email or schedule a check-in");
     }
   }
 
   // Frequency recommendations
   if (score.frequency < 40) {
-    recommendations.push('Increase touch frequency - Aim for monthly interactions');
+    recommendations.push(
+      "Increase touch frequency - Aim for monthly interactions",
+    );
   }
 
   // Quality recommendations
   if (score.quality < 50) {
-    if (!metrics.interactionTypes.meeting || metrics.interactionTypes.meeting < 2) {
-      recommendations.push('Schedule an in-person or video meeting to deepen relationship');
+    if (
+      !metrics.interactionTypes.meeting ||
+      metrics.interactionTypes.meeting < 2
+    ) {
+      recommendations.push(
+        "Schedule an in-person or video meeting to deepen relationship",
+      );
     }
     if (metrics.responseRate && metrics.responseRate < 0.5) {
-      recommendations.push('Try different communication channels or adjust outreach timing');
+      recommendations.push(
+        "Try different communication channels or adjust outreach timing",
+      );
     }
   }
 
   // Warmth recommendations
   if (score.warmth < 50 && !metrics.sharedConnections) {
-    recommendations.push('Identify mutual connections for warm introductions');
+    recommendations.push("Identify mutual connections for warm introductions");
   }
 
   // Positive reinforcement
   if (score.overall >= 80) {
-    recommendations.push('✅ Strong relationship - Maintain regular cadence');
-  } else if (score.trend === 'increasing') {
-    recommendations.push('📈 Relationship improving - Continue current engagement strategy');
+    recommendations.push("✅ Strong relationship - Maintain regular cadence");
+  } else if (score.trend === "increasing") {
+    recommendations.push(
+      "📈 Relationship improving - Continue current engagement strategy",
+    );
   }
 
   return recommendations;
@@ -214,7 +240,9 @@ function generateRecommendations(score: RelationshipScore, metrics: Relationship
 /**
  * Main function: Calculate comprehensive relationship score
  */
-export function calculateRelationshipScore(metrics: RelationshipMetrics): RelationshipScore {
+export function calculateRelationshipScore(
+  metrics: RelationshipMetrics,
+): RelationshipScore {
   // Calculate individual components
   const recency = calculateRecencyScore(metrics.lastInteractionDate);
   const frequency = calculateFrequencyScore(metrics);
@@ -224,10 +252,10 @@ export function calculateRelationshipScore(metrics: RelationshipMetrics): Relati
 
   // Calculate overall score (weighted average)
   const overall = Math.round(
-    recency * 0.3 +      // 30% - Recent activity is important
-    frequency * 0.25 +   // 25% - Consistency matters
-    quality * 0.25 +     // 25% - Quality of interactions
-    warmth * 0.2         // 20% - Relationship depth
+    recency * 0.3 + // 30% - Recent activity is important
+      frequency * 0.25 + // 25% - Consistency matters
+      quality * 0.25 + // 25% - Quality of interactions
+      warmth * 0.2, // 20% - Relationship depth
   );
 
   const strength = determineStrength(overall);
@@ -253,23 +281,35 @@ export function calculateRelationshipScore(metrics: RelationshipMetrics): Relati
 /**
  * Get color for relationship strength
  */
-export function getStrengthColor(strength: RelationshipScore['strength']): string {
+export function getStrengthColor(
+  strength: RelationshipScore["strength"],
+): string {
   switch (strength) {
-    case 'champion': return 'text-[var(--app-success)]';
-    case 'hot': return 'text-[var(--app-warning)]';
-    case 'warm': return 'text-[var(--app-info)]';
-    case 'cold': return 'text-[var(--app-text-muted)]';
+    case "champion":
+      return "text-[var(--app-success)]";
+    case "hot":
+      return "text-[var(--app-warning)]";
+    case "warm":
+      return "text-[var(--app-info)]";
+    case "cold":
+      return "text-[var(--app-text-muted)]";
   }
 }
 
 /**
  * Get icon for relationship strength
  */
-export function getStrengthIcon(strength: RelationshipScore['strength']): string {
+export function getStrengthIcon(
+  strength: RelationshipScore["strength"],
+): string {
   switch (strength) {
-    case 'champion': return '🔥';
-    case 'hot': return '⚡';
-    case 'warm': return '💛';
-    case 'cold': return '❄️';
+    case "champion":
+      return "🔥";
+    case "hot":
+      return "⚡";
+    case "warm":
+      return "💛";
+    case "cold":
+      return "❄️";
   }
 }

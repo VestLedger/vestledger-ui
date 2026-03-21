@@ -1,8 +1,8 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { AsyncState, NormalizedError } from '@/store/types/AsyncState';
-import { createInitialAsyncState } from '@/store/types/AsyncState';
-import { createAsyncSelectors } from '@/store/utils/createAsyncSelectors';
-import type { FundExpense } from '@/types/fundAdminOps';
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import type { AsyncState, NormalizedError } from "@/store/types/AsyncState";
+import { createInitialAsyncState } from "@/store/types/AsyncState";
+import { createAsyncSelectors } from "@/store/utils/createAsyncSelectors";
+import type { FundExpense } from "@/types/fundAdminOps";
 
 export interface ExpenseOpsData {
   expenses: FundExpense[];
@@ -27,45 +27,57 @@ function upsertExpense(list: FundExpense[], value: FundExpense) {
 }
 
 const expenseOpsSlice = createSlice({
-  name: 'expenseOps',
+  name: "expenseOps",
   initialState,
   reducers: {
-    expensesRequested: (state, _action: PayloadAction<{ fundId?: string } | undefined>) => {
-      state.data.status = 'loading';
+    expensesRequested: (
+      state,
+      _action: PayloadAction<{ fundId?: string } | undefined>,
+    ) => {
+      state.data.status = "loading";
       state.data.error = undefined;
     },
     expensesLoaded: (state, action: PayloadAction<ExpenseOpsData>) => {
       state.data.data = action.payload;
-      state.data.status = 'succeeded';
+      state.data.status = "succeeded";
       state.data.error = undefined;
     },
     expensesFailed: (state, action: PayloadAction<NormalizedError>) => {
-      state.data.status = 'failed';
+      state.data.status = "failed";
       state.data.error = action.payload;
     },
 
-    expenseAddRequested: (state, _action: PayloadAction<{ expense: Omit<FundExpense, 'id'> }>) => {
-      state.data.status = 'loading';
+    expenseAddRequested: (
+      state,
+      _action: PayloadAction<{ expense: Omit<FundExpense, "id"> }>,
+    ) => {
+      state.data.status = "loading";
       state.data.error = undefined;
     },
     expenseApproveRequested: (
       state,
-      _action: PayloadAction<{ expenseId: string; approver: string }>
+      _action: PayloadAction<{ expenseId: string; approver: string }>,
     ) => {
-      state.data.status = 'loading';
+      state.data.status = "loading";
       state.data.error = undefined;
     },
-    expenseRejectRequested: (state, _action: PayloadAction<{ expenseId: string }>) => {
-      state.data.status = 'loading';
+    expenseRejectRequested: (
+      state,
+      _action: PayloadAction<{ expenseId: string }>,
+    ) => {
+      state.data.status = "loading";
       state.data.error = undefined;
     },
-    expenseMarkPaidRequested: (state, _action: PayloadAction<{ expenseId: string }>) => {
-      state.data.status = 'loading';
+    expenseMarkPaidRequested: (
+      state,
+      _action: PayloadAction<{ expenseId: string }>,
+    ) => {
+      state.data.status = "loading";
       state.data.error = undefined;
     },
     expenseExportRequested: (
       state,
-      _action: PayloadAction<{ format: 'csv' | 'pdf'; fundId?: string }>
+      _action: PayloadAction<{ format: "csv" | "pdf"; fundId?: string }>,
     ) => {
       state.data.error = undefined;
     },
@@ -75,29 +87,28 @@ const expenseOpsSlice = createSlice({
         state.data.data = { expenses: [] };
       }
       upsertExpense(state.data.data.expenses, action.payload);
-      state.data.status = 'succeeded';
+      state.data.status = "succeeded";
       state.data.error = undefined;
     },
 
-    expenseExportSucceeded: (state, action: PayloadAction<{ exportedAt: string }>) => {
+    expenseExportSucceeded: (
+      state,
+      action: PayloadAction<{ exportedAt: string }>,
+    ) => {
       state.lastExportAt = action.payload.exportedAt;
     },
   },
 });
 
 export const {
-  expensesRequested,
   expensesLoaded,
   expensesFailed,
-  expenseAddRequested,
-  expenseApproveRequested,
-  expenseRejectRequested,
-  expenseMarkPaidRequested,
-  expenseExportRequested,
   expenseUpserted,
   expenseExportSucceeded,
 } = expenseOpsSlice.actions;
 
-export const expenseOpsSelectors = createAsyncSelectors<ExpenseOpsData>((state) => state.expenseOps.data);
+export const expenseOpsSelectors = createAsyncSelectors<ExpenseOpsData>(
+  (state) => state.expenseOps.data,
+);
 
 export const expenseOpsReducer = expenseOpsSlice.reducer;

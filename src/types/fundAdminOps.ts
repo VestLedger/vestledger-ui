@@ -4,7 +4,7 @@ export interface NAVCalculation {
   fundName: string;
   asOfDate: Date;
   calculationDate: Date;
-  status: 'draft' | 'calculated' | 'reviewed' | 'published';
+  status: "draft" | "calculated" | "reviewed" | "published";
   totalAssets: number;
   totalLiabilities: number;
   netAssets: number;
@@ -22,17 +22,26 @@ export interface NAVCalculation {
 
 export interface NAVComponent {
   id: string;
-  category: 'investment' | 'cash' | 'receivable' | 'liability' | 'other';
+  category: "investment" | "cash" | "receivable" | "liability" | "other";
   description: string;
   value: number;
-  valuationMethod: 'cost' | 'fair-value' | 'mark-to-market' | 'discounted-cash-flow';
+  valuationMethod:
+    | "cost"
+    | "fair-value"
+    | "mark-to-market"
+    | "discounted-cash-flow";
   lastValuationDate: Date;
-  confidence: 'high' | 'medium' | 'low';
+  confidence: "high" | "medium" | "low";
 }
 
 export interface NAVAdjustment {
   id: string;
-  type: 'unrealized-gain' | 'unrealized-loss' | 'write-up' | 'write-down' | 'other';
+  type:
+    | "unrealized-gain"
+    | "unrealized-loss"
+    | "write-up"
+    | "write-down"
+    | "other";
   description: string;
   amount: number;
   justification: string;
@@ -50,14 +59,14 @@ export interface CarriedInterestTerm {
   catchupCap?: number;
   vestingSchedule: VestingSchedule;
   effectiveDate: Date;
-  status: 'active' | 'inactive' | 'draft';
+  status: "active" | "inactive" | "draft";
 }
 
 export interface VestingSchedule {
-  type: 'immediate' | 'cliff' | 'graded';
+  type: "immediate" | "cliff" | "graded";
   cliffMonths?: number;
   vestingPeriodMonths?: number;
-  accelerationTriggers?: ('exit' | 'ipo' | 'change-of-control')[];
+  accelerationTriggers?: ("exit" | "ipo" | "change-of-control")[];
 }
 
 export interface CarryAccrual {
@@ -83,7 +92,7 @@ export interface CarryAccrual {
   irr: number;
   moic: number;
   waterfall: WaterfallTier[];
-  status: 'draft' | 'calculated' | 'approved' | 'distributed';
+  status: "draft" | "calculated" | "approved" | "distributed";
   notes?: string;
 }
 
@@ -101,14 +110,14 @@ export interface WaterfallTier {
 }
 
 export type ExpenseType =
-  | 'management-fee'
-  | 'monitoring-fee'
-  | 'transaction-fee'
-  | 'legal'
-  | 'audit'
-  | 'administrative'
-  | 'marketing'
-  | 'other';
+  | "management-fee"
+  | "monitoring-fee"
+  | "transaction-fee"
+  | "legal"
+  | "audit"
+  | "administrative"
+  | "marketing"
+  | "other";
 
 export interface FundExpense {
   id: string;
@@ -120,27 +129,32 @@ export interface FundExpense {
   amount: number;
   date: Date;
   payee: string;
-  status: 'pending' | 'approved' | 'paid' | 'rejected';
+  status: "pending" | "approved" | "paid" | "rejected";
   approvedBy?: string;
   paidDate?: Date;
   isRecurring: boolean;
-  recurringFrequency?: 'monthly' | 'quarterly' | 'annually';
+  recurringFrequency?: "monthly" | "quarterly" | "annually";
   allocatedToLPs: boolean;
   invoiceNumber?: string;
   tags?: string[];
 }
 
-export type TransferType = 'direct' | 'secondary-sale' | 'inheritance' | 'gift' | 'court-order';
+export type TransferType =
+  | "direct"
+  | "secondary-sale"
+  | "inheritance"
+  | "gift"
+  | "court-order";
 
 export type TransferStatus =
-  | 'draft'
-  | 'pending-gp-approval'
-  | 'pending-legal-review'
-  | 'pending-buyer-funding'
-  | 'approved'
-  | 'rejected'
-  | 'completed'
-  | 'cancelled';
+  | "draft"
+  | "pending-gp-approval"
+  | "pending-legal-review"
+  | "pending-buyer-funding"
+  | "approved"
+  | "rejected"
+  | "completed"
+  | "cancelled";
 
 export interface LPTransfer {
   id: string;
@@ -186,10 +200,16 @@ export interface LPTransfer {
 export interface TransferDocument {
   id: string;
   name: string;
-  type: 'assignment-agreement' | 'consent-form' | 'accreditation' | 'kyc' | 'tax-form' | 'other';
+  type:
+    | "assignment-agreement"
+    | "consent-form"
+    | "accreditation"
+    | "kyc"
+    | "tax-form"
+    | "other";
   uploadedDate: Date;
   uploadedBy: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: "pending" | "approved" | "rejected";
   url?: string;
 }
 
@@ -200,5 +220,5 @@ export interface ROFRExercise {
   exercisedByName: string;
   exerciseDate: Date;
   amount: number;
-  status: 'pending' | 'accepted' | 'declined';
+  status: "pending" | "accepted" | "declined";
 }

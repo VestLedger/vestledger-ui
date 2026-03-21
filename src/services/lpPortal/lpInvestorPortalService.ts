@@ -1,4 +1,4 @@
-import { isMockMode } from '@/config/data-mode';
+import { isMockMode } from "@/config/data-mode";
 import {
   mockInvestorData,
   mockReports,
@@ -22,8 +22,9 @@ import {
   type LPNotificationPreferences,
   type LPEmailPreview,
   type LPFAQItem,
-} from '@/data/seeds/lp-portal/lp-investor-portal';
-import { requestJson } from '@/services/shared/httpClient';
+} from "@/data/seeds/lp-portal/lp-investor-portal";
+import { requestJson } from "@/services/shared/httpClient";
+import { DEFAULT_CURRENCY } from "@/config/i18n";
 
 export interface LPInvestorSnapshot {
   investor: InvestorData;
@@ -40,7 +41,9 @@ export interface LPInvestorSnapshot {
 }
 
 type ApiInvestorSnapshot = Partial<LPInvestorSnapshot>;
-type ApiInvestorSnapshotResponse = ApiInvestorSnapshot | { data?: ApiInvestorSnapshot };
+type ApiInvestorSnapshotResponse =
+  | ApiInvestorSnapshot
+  | { data?: ApiInvestorSnapshot };
 
 const clone = <T>(value: T): T => structuredClone(value);
 
@@ -62,8 +65,59 @@ function getSeedSnapshot(): LPInvestorSnapshot {
   };
 }
 
+function getEmptySnapshot(): LPInvestorSnapshot {
+  return {
+    investor: {
+      name: "",
+      fundName: "",
+      commitmentAmount: 0,
+      calledCapital: 0,
+      distributedCapital: 0,
+      navValue: 0,
+      dpi: 0,
+      tvpi: 0,
+      rvpi: 0,
+      irr: 0,
+      moic: 0,
+      joinDate: "",
+      lastUpdate: "",
+    },
+    reports: [],
+    transactions: [],
+    distributionStatements: [],
+    upcomingDistributions: [],
+    distributionConfirmations: [],
+    distributionElections: [],
+    bankDetails: {
+      accountName: "",
+      bankName: "",
+      accountNumber: "",
+      routingNumber: "",
+      accountType: "checking",
+      currency: DEFAULT_CURRENCY,
+      country: "",
+      lastUpdated: "",
+      verified: false,
+    },
+    notificationPreferences: {
+      statementReady: false,
+      distributionReminders: false,
+      taxDocumentAlerts: false,
+      marketingUpdates: false,
+      reminderDaysBefore: [],
+      emailAddress: "",
+    },
+    emailPreview: {
+      subject: "",
+      body: "",
+      footer: "",
+    },
+    faqItems: [],
+  };
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
+  return typeof value === "object" && value !== null;
 }
 
 function resolveArray<T>(value: unknown, fallback: T[]): T[] {
@@ -72,7 +126,7 @@ function resolveArray<T>(value: unknown, fallback: T[]): T[] {
 
 function normalizeSnapshot(
   apiData: ApiInvestorSnapshot | null | undefined,
-  fallback: LPInvestorSnapshot
+  fallback: LPInvestorSnapshot,
 ): LPInvestorSnapshot {
   if (!apiData) return clone(fallback);
 
@@ -95,22 +149,25 @@ function normalizeSnapshot(
   return {
     investor,
     reports: resolveArray<QuarterlyReport>(apiData.reports, fallback.reports),
-    transactions: resolveArray<Transaction>(apiData.transactions, fallback.transactions),
+    transactions: resolveArray<Transaction>(
+      apiData.transactions,
+      fallback.transactions,
+    ),
     distributionStatements: resolveArray<LPDistributionStatement>(
       apiData.distributionStatements,
-      fallback.distributionStatements
+      fallback.distributionStatements,
     ),
     upcomingDistributions: resolveArray<LPUpcomingDistribution>(
       apiData.upcomingDistributions,
-      fallback.upcomingDistributions
+      fallback.upcomingDistributions,
     ),
     distributionConfirmations: resolveArray<LPDistributionConfirmation>(
       apiData.distributionConfirmations,
-      fallback.distributionConfirmations
+      fallback.distributionConfirmations,
     ),
     distributionElections: resolveArray<LPDistributionElection>(
       apiData.distributionElections,
-      fallback.distributionElections
+      fallback.distributionElections,
     ),
     bankDetails,
     notificationPreferences,
@@ -120,11 +177,11 @@ function normalizeSnapshot(
 }
 
 function getCachedSnapshot(): LPInvestorSnapshot {
-  return clone(apiInvestorSnapshotCache ?? getSeedSnapshot());
+  return clone(apiInvestorSnapshotCache ?? getEmptySnapshot());
 }
 
 export async function getInvestorSnapshot(): Promise<LPInvestorSnapshot> {
-  if (isMockMode('lpPortal')) {
+  if (isMockMode("lpPortal")) {
     if (!apiInvestorSnapshotCache) {
       apiInvestorSnapshotCache = getSeedSnapshot();
     }
@@ -133,13 +190,16 @@ export async function getInvestorSnapshot(): Promise<LPInvestorSnapshot> {
 
   try {
     const fallback = getCachedSnapshot();
-    const response = await requestJson<ApiInvestorSnapshotResponse>('/lp-portal/investor-snapshot', {
-      method: 'GET',
-      fallbackMessage: 'Failed to fetch LP investor portal snapshot',
-    });
+    const response = await requestJson<ApiInvestorSnapshotResponse>(
+      "/lp-portal/investor-snapshot",
+      {
+        method: "GET",
+        fallbackMessage: "Failed to fetch LP investor portal snapshot",
+      },
+    );
 
     const payload =
-      isRecord(response) && 'data' in response && isRecord(response.data)
+      isRecord(response) && "data" in response && isRecord(response.data)
         ? (response.data as ApiInvestorSnapshot)
         : (response as ApiInvestorSnapshot);
 
@@ -149,4 +209,8 @@ export async function getInvestorSnapshot(): Promise<LPInvestorSnapshot> {
   } catch {
     return getCachedSnapshot();
   }
+}
+
+export function clearLPInvestorSnapshotCache(): void {
+  apiInvestorSnapshotCache = null;
 }

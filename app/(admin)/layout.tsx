@@ -10,7 +10,12 @@ import { isSuperadminUser, resolveUserDomainTarget } from '@/utils/auth/internal
 
 function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const { hydrated, isAuthenticated, user } = useAuth();
+  const [isClientReady, setIsClientReady] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
+
+  useEffect(() => {
+    setIsClientReady(true);
+  }, []);
 
   useEffect(() => {
     const isLoggingOut = typeof window !== 'undefined' && sessionStorage.getItem('isLoggingOut') === 'true';
@@ -37,7 +42,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
     }
   }, [hydrated, isAuthenticated, user]);
 
-  if (!hydrated || !isAuthenticated || !user || isRedirecting) {
+  if (!isClientReady || !hydrated || !isAuthenticated || !user || isRedirecting) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <LoadingState fullHeight={false} message="Loading admin console..." />
@@ -50,7 +55,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <DashboardProviders>
+    <DashboardProviders runtime="admin">
       <AdminLayoutContent>{children}</AdminLayoutContent>
     </DashboardProviders>
   );

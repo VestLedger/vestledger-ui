@@ -8,8 +8,8 @@ import {
   type Tenant,
   type TenantStatus,
   type TenantUser,
-} from '@/data/seeds/internal/superadmin';
-import { INTERNAL_TENANT_ID } from '@/utils/auth/internal-access';
+} from "@/data/seeds/internal/superadmin";
+import { INTERNAL_TENANT_ID } from "@/utils/auth/internal-access";
 
 export interface TenantSummary extends Tenant {
   totalUsers: number;
@@ -51,7 +51,7 @@ const assertTenantExists = (tenantId: string): Tenant => {
   const tenant = state.tenants.find((record) => record.id === tenantId);
 
   if (!tenant) {
-    throw new Error('Tenant not found');
+    throw new Error("Tenant not found");
   }
 
   return tenant;
@@ -61,14 +61,15 @@ const getTenantAdmins = (tenantId: string): TenantUser[] => {
   const state = readSuperadminMockState();
   const adminMemberships = state.memberships.filter(
     (membership) =>
-      membership.tenantId === tenantId && membership.organizationRole === 'org_admin'
+      membership.tenantId === tenantId &&
+      membership.organizationRole === "org_admin",
   );
 
   return state.users.filter(
     (user) =>
       user.tenantId === tenantId &&
-      user.status === 'active' &&
-      adminMemberships.some((membership) => membership.userId === user.id)
+      user.status === "active" &&
+      adminMemberships.some((membership) => membership.userId === user.id),
   );
 };
 
@@ -79,21 +80,25 @@ export function listTenants(): TenantSummary[] {
   const state = readSuperadminMockState();
 
   return state.tenants.map((tenant) => {
-    const tenantUsers = state.users.filter((user) => user.tenantId === tenant.id);
+    const tenantUsers = state.users.filter(
+      (user) => user.tenantId === tenant.id,
+    );
     const tenantMemberships = state.memberships.filter(
-      (membership) => membership.tenantId === tenant.id
+      (membership) => membership.tenantId === tenant.id,
     );
     const tenantInvites = state.invitations.filter(
-      (invitation) => invitation.tenantId === tenant.id
+      (invitation) => invitation.tenantId === tenant.id,
     );
 
     return {
       ...tenant,
       totalUsers: tenantUsers.length,
       totalAdmins: tenantMemberships.filter(
-        (membership) => membership.organizationRole === 'org_admin'
+        (membership) => membership.organizationRole === "org_admin",
       ).length,
-      pendingInvites: tenantInvites.filter((invite) => invite.status === 'pending').length,
+      pendingInvites: tenantInvites.filter(
+        (invite) => invite.status === "pending",
+      ).length,
     };
   });
 }
@@ -103,7 +108,7 @@ export function getTenantDetail(tenantId: string): TenantDetail {
   const state = readSuperadminMockState();
   const users = state.users.filter((user) => user.tenantId === tenantId);
   const invitations = state.invitations.filter(
-    (invitation) => invitation.tenantId === tenantId
+    (invitation) => invitation.tenantId === tenantId,
   );
   const admins = getTenantAdmins(tenantId);
 
@@ -117,8 +122,8 @@ export function getTenantDetail(tenantId: string): TenantDetail {
 
 export function onboardTenant(input: OnboardTenantInput): TenantDetail {
   const now = Date.now();
-  const tenantId = createMockId('org');
-  const inviteId = createMockId('invite');
+  const tenantId = createMockId("org");
+  const inviteId = createMockId("invite");
   const normalizedEmail = normalizeEmail(input.firstAdminEmail);
 
   mutateSuperadminMockState((state) => {
@@ -127,7 +132,7 @@ export function onboardTenant(input: OnboardTenantInput): TenantDetail {
       displayName: input.displayName.trim(),
       legalName: input.legalName.trim(),
       primaryDomain: input.primaryDomain.trim().toLowerCase(),
-      status: 'active',
+      status: "active",
       createdAt: new Date(now).toISOString(),
     });
 
@@ -135,25 +140,28 @@ export function onboardTenant(input: OnboardTenantInput): TenantDetail {
       id: inviteId,
       tenantId,
       email: normalizedEmail,
-      targetOrgRole: 'org_admin',
+      targetOrgRole: "org_admin",
       targetAppRole: input.firstAdminAppRole,
-      status: 'pending',
+      status: "pending",
       expiresAt: computeExpiry(now),
       createdAt: new Date(now).toISOString(),
       lastSentAt: new Date(now).toISOString(),
-      invitedByUserId: 'user_superadmin_001',
+      invitedByUserId: "user_superadmin_001",
     });
   });
 
   return getTenantDetail(tenantId);
 }
 
-export function setTenantStatus(tenantId: string, status: TenantStatus): Tenant {
+export function setTenantStatus(
+  tenantId: string,
+  status: TenantStatus,
+): Tenant {
   mutateSuperadminMockState((state) => {
     const tenant = state.tenants.find((record) => record.id === tenantId);
 
     if (!tenant) {
-      throw new Error('Tenant not found');
+      throw new Error("Tenant not found");
     }
 
     tenant.status = status;
@@ -166,19 +174,20 @@ export function createTenantUser(input: CreateTenantUserInput): TenantUser {
   assertTenantExists(input.tenantId);
   const normalizedEmail = normalizeEmail(input.email);
 
-  let createdUserId = '';
+  let createdUserId = "";
 
   mutateSuperadminMockState((state) => {
     const existingUser = state.users.find(
       (user) =>
-        user.tenantId === input.tenantId && normalizeEmail(user.email) === normalizedEmail
+        user.tenantId === input.tenantId &&
+        normalizeEmail(user.email) === normalizedEmail,
     );
 
     if (existingUser) {
-      throw new Error('A user with this email already exists for the tenant');
+      throw new Error("A user with this email already exists for the tenant");
     }
 
-    createdUserId = createMockId('user');
+    createdUserId = createMockId("user");
 
     state.users.unshift({
       id: createdUserId,
@@ -186,7 +195,7 @@ export function createTenantUser(input: CreateTenantUserInput): TenantUser {
       name: input.name.trim(),
       email: normalizedEmail,
       appRole: input.appRole,
-      status: 'active',
+      status: "active",
     });
 
     state.memberships.unshift({
@@ -200,7 +209,7 @@ export function createTenantUser(input: CreateTenantUserInput): TenantUser {
   const createdUser = state.users.find((user) => user.id === createdUserId);
 
   if (!createdUser) {
-    throw new Error('Failed to create user');
+    throw new Error("Failed to create user");
   }
 
   return createdUser;
@@ -213,11 +222,11 @@ export function resendInvite(inviteId: string): Invitation {
     const invite = state.invitations.find((record) => record.id === inviteId);
 
     if (!invite) {
-      throw new Error('Invitation not found');
+      throw new Error("Invitation not found");
     }
 
-    if (invite.status !== 'pending') {
-      throw new Error('Only pending invitations can be resent');
+    if (invite.status !== "pending") {
+      throw new Error("Only pending invitations can be resent");
     }
 
     const now = Date.now();
@@ -227,7 +236,7 @@ export function resendInvite(inviteId: string): Invitation {
   });
 
   if (!updatedInvite) {
-    throw new Error('Failed to resend invitation');
+    throw new Error("Failed to resend invitation");
   }
 
   return updatedInvite;

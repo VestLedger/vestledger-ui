@@ -1,5 +1,5 @@
-import { Page, Locator } from '@playwright/test';
-import { loginViaRedirect } from '../helpers/auth-helpers';
+import { Page, Locator } from "@playwright/test";
+import { loginViaRedirect } from "../helpers/auth-helpers";
 
 export class FundAdminPage {
   readonly page: Page;
@@ -8,19 +8,26 @@ export class FundAdminPage {
   readonly createFundButton: Locator;
   readonly searchInput: Locator;
   readonly filterDropdown: Locator;
+  readonly activeWaterfallLabel: Locator;
+  readonly changeWaterfallButton: Locator;
 
   constructor(page: Page) {
     this.page = page;
-    this.pageTitle = page.getByRole('heading', { level: 1 });
+    this.pageTitle = page.getByRole("heading", { level: 1 });
     this.fundsList = page.locator('[data-testid="funds-list"], table');
-    this.createFundButton = page.getByRole('button', { name: /create|new|add/i });
+    this.createFundButton = page.getByRole("button", {
+      name: /create|new|add/i,
+    });
     this.searchInput = page.getByPlaceholder(/search/i);
-    this.filterDropdown = page.getByRole('combobox', { name: /status/i })
+    this.filterDropdown = page
+      .getByRole("combobox", { name: /status/i })
       .or(page.locator('[data-testid="filter-dropdown"]'));
+    this.activeWaterfallLabel = page.getByText("Active Waterfall");
+    this.changeWaterfallButton = page.getByRole("button", { name: /change/i });
   }
 
   async goto() {
-    await loginViaRedirect(this.page, '/fund-admin');
+    await loginViaRedirect(this.page, "/fund-admin");
   }
 
   async getFundRows() {
@@ -34,7 +41,7 @@ export class FundAdminPage {
 
   async searchFunds(query: string) {
     await this.searchInput.fill(query);
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState("networkidle");
   }
 
   async clickFund(fundName: string) {

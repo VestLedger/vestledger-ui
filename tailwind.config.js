@@ -1,11 +1,11 @@
 const { nextui } = require("@nextui-org/react");
 const path = require("path");
-const { colors } = require("./src/styles/colors");
+const { colors } = require("./config/colors.cjs");
 
 /**
  * THEMING CONFIGURATION
  * =====================
- * Single source of truth: src/styles/colors.js
+ * Single source of truth: config/colors.cjs
  *
  * Usage in components:
  * - Tailwind classes: bg-app-primary, text-app-muted, border-app-border
@@ -20,7 +20,10 @@ module.exports = {
   content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
-    path.join(path.dirname(require.resolve("@nextui-org/theme")), "**/*.{js,ts,jsx,tsx}"),
+    path.join(
+      path.dirname(require.resolve("@nextui-org/theme")),
+      "**/*.{js,ts,jsx,tsx}",
+    ),
   ],
   theme: {
     extend: {

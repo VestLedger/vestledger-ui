@@ -1,5 +1,5 @@
-import { Page, Locator } from '@playwright/test';
-import { loginViaRedirect } from '../helpers/auth-helpers';
+import { Page, Locator } from "@playwright/test";
+import { loginViaRedirect } from "../helpers/auth-helpers";
 
 export class DashboardPage {
   readonly page: Page;
@@ -11,19 +11,19 @@ export class DashboardPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.sidebar = page.locator('nav, aside').first();
-    this.mainContent = page.locator('main');
+    this.sidebar = page.locator("nav, aside").first();
+    this.mainContent = page.locator("main");
     this.userMenu = page.locator('[data-testid="user-menu"]');
     this.notificationsButton = page.locator('[aria-label*="notification" i]');
     this.searchInput = page.getByPlaceholder(/search/i);
   }
 
   async goto() {
-    await this.page.goto('/home', { waitUntil: 'domcontentloaded' });
+    await this.page.goto("/home", { waitUntil: "domcontentloaded" });
     const pathname = new URL(this.page.url()).pathname;
-    if (pathname === '/login') {
-      await loginViaRedirect(this.page, '/home', {
-        waitForLoadState: 'domcontentloaded',
+    if (pathname === "/login") {
+      await loginViaRedirect(this.page, "/home", {
+        waitForLoadState: "domcontentloaded",
         requireLoginRedirect: false,
       });
     }
@@ -34,7 +34,7 @@ export class DashboardPage {
   }
 
   async waitForPageLoad() {
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState("networkidle");
   }
 
   async getPageTitle() {
@@ -42,7 +42,7 @@ export class DashboardPage {
   }
 
   async isLoaded() {
-    await this.mainContent.waitFor({ state: 'visible' });
+    await this.mainContent.waitFor({ state: "visible" });
     return true;
   }
 }

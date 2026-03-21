@@ -1,13 +1,13 @@
-import { useCallback } from 'react';
-import { useUIKey } from '@/store/ui';
-import { PreviewDocument } from '../types';
+import { useCallback } from "react";
+import { useUIKey } from "@/store/ui";
+import { PreviewDocument } from "../types";
 
 export function useDocumentPreview() {
   const { value: ui, patch: patchUI } = useUIKey<{
     previewDocument: PreviewDocument | null;
     previewDocuments: PreviewDocument[];
     currentIndex: number;
-  }>('document-preview', {
+  }>("document-preview", {
     previewDocument: null,
     previewDocuments: [],
     currentIndex: 0,
@@ -31,7 +31,7 @@ export function useDocumentPreview() {
         });
       }
     },
-    [patchUI]
+    [patchUI],
   );
 
   const closePreview = useCallback(() => {
@@ -51,7 +51,7 @@ export function useDocumentPreview() {
         });
       }
     },
-    [patchUI, previewDocuments]
+    [patchUI, previewDocuments],
   );
 
   const navigateNext = useCallback(() => {
@@ -74,14 +74,14 @@ export function useDocumentPreview() {
     (document: PreviewDocument | null) => {
       patchUI({ previewDocument: document });
     },
-    [patchUI]
+    [patchUI],
   );
 
   const setCurrentIndex = useCallback(
     (index: number) => {
       patchUI({ currentIndex: index });
     },
-    [patchUI]
+    [patchUI],
   );
 
   return {

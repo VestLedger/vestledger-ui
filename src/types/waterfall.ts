@@ -8,8 +8,13 @@
 // Enums and Constants
 // ============================================================================
 
-export type WaterfallModel = 'european' | 'american' | 'blended';
-export type TierType = 'roc' | 'preferred-return' | 'catch-up' | 'carry' | 'custom';
+export type WaterfallModel = "european" | "american" | "blended";
+export type TierType =
+  | "roc"
+  | "preferred-return"
+  | "catch-up"
+  | "carry"
+  | "custom";
 
 export interface BlendedWaterfallConfig {
   europeanWeight: number; // 0-100
@@ -45,7 +50,7 @@ export interface TierTimelineEntry {
 export interface InvestorClass {
   id: string;
   name: string;
-  type: 'lp' | 'gp';
+  type: "lp" | "gp";
   ownershipPercentage: number; // 0-100
   commitment: number;
   capitalCalled: number;
@@ -71,7 +76,7 @@ export interface WaterfallTier {
   hurdleRate?: number; // Preferred return rate (e.g., 8%)
   gpCarryPercentage?: number; // GP carry % for this tier
   lpPercentage?: number; // LP split %
-  splitType?: 'pro-rata' | 'equal' | 'custom';
+  splitType?: "pro-rata" | "equal" | "custom";
 
   // Calculated results (populated after calculation)
   totalAmount?: number;
@@ -130,14 +135,14 @@ export interface WaterfallResults {
     shortfall: number;
     clawbackDue: number;
     netCarryAfterClawback: number;
-    status: 'clear' | 'at-risk' | 'triggered';
+    status: "clear" | "at-risk" | "triggered";
   };
   lookback?: {
     lookbackYears: number;
     lossesToRecover: number;
     carryAtRisk: number;
     carryReleased: number;
-    status: 'monitor' | 'at-risk' | 'cleared';
+    status: "monitor" | "at-risk" | "cleared";
   };
   blendedBreakdown?: BlendedWaterfallConfig;
 }
@@ -203,6 +208,8 @@ export interface WaterfallScenario {
   updatedAt: string;
   createdBy: string;
   tags?: string[];
+  isLocked?: boolean;
+  lockedAt?: string;
 }
 
 // ============================================================================
@@ -254,7 +261,7 @@ export interface WaterfallTemplate {
   name: string;
   description: string;
   model: WaterfallModel;
-  tiers: Omit<WaterfallTier, 'id'>[];
+  tiers: Omit<WaterfallTier, "id">[];
   isSystem: boolean;
   createdAt: string;
   updatedAt: string;
@@ -264,8 +271,11 @@ export interface WaterfallTemplate {
 // Export Types
 // ============================================================================
 
-export type ExportFormat = 'excel' | 'csv' | 'pdf' | 'pptx';
-export type ExportTemplate = 'executive-summary' | 'detailed' | 'board-presentation';
+export type ExportFormat = "excel" | "csv" | "pdf" | "pptx";
+export type ExportTemplate =
+  | "executive-summary"
+  | "detailed"
+  | "board-presentation";
 
 export interface ExportOptions {
   format: ExportFormat;

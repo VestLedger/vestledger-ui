@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import type { HomeBlocker } from '@/data/mocks/hooks/dashboard-data';
 import { ROUTE_PATHS } from '@/config/routes';
 import { SignalBeacon } from '@/ui/composites';
@@ -16,12 +17,25 @@ const toneBySeverity: Record<HomeBlocker['severity'], 'critical' | 'warning' | '
 };
 
 export function HomeBlockerBeacon({ blockers, onBlockerClick }: HomeBlockerBeaconProps) {
+  const fallbackTimeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (fallbackTimeoutRef.current !== null) {
+        window.clearTimeout(fallbackTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const navigateWithFallback = (blocker: HomeBlocker) => {
     onBlockerClick(blocker);
 
     // Fallback to hard navigation if client routing did not move away from /home.
     if (typeof window === 'undefined') return;
-    window.setTimeout(() => {
+    if (fallbackTimeoutRef.current !== null) {
+      window.clearTimeout(fallbackTimeoutRef.current);
+    }
+    fallbackTimeoutRef.current = window.setTimeout(() => {
       if (window.location.pathname === ROUTE_PATHS.dashboard && blocker.route !== ROUTE_PATHS.dashboard) {
         window.location.assign(blocker.route);
       }

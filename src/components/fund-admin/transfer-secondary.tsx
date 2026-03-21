@@ -3,8 +3,12 @@
 import { useUIKey } from '@/store/ui';
 import { Card, Button, Badge, Select } from '@/ui';
 import { ArrowRightLeft, Users, FileText, AlertCircle } from 'lucide-react';
-import { formatCurrency, formatPercent } from '@/utils/formatting';
+import { formatCurrency, formatDate, formatPercent } from '@/utils/formatting';
 import { SearchToolbar, SectionHeader, StatusBadge } from '@/ui/composites';
+import {
+  TRANSFER_STATUS_FILTER_OPTIONS,
+  TRANSFER_TYPE_FILTER_OPTIONS,
+} from '@/config/fund-options';
 
 export type TransferType = 'direct' | 'secondary-sale' | 'inheritance' | 'gift' | 'court-order';
 export type TransferStatus =
@@ -258,17 +262,7 @@ export function TransferSecondary({
                 className="min-w-[210px]"
                 selectedKeys={[filterStatus]}
                 onChange={(e) => patchUI({ filterStatus: e.target.value as TransferStatus | 'all' })}
-                options={[
-                  { value: 'all', label: 'All Status' },
-                  { value: 'draft', label: 'Draft' },
-                  { value: 'pending-gp-approval', label: 'Pending GP Approval' },
-                  { value: 'pending-legal-review', label: 'Pending Legal Review' },
-                  { value: 'pending-buyer-funding', label: 'Pending Funding' },
-                  { value: 'approved', label: 'Approved' },
-                  { value: 'completed', label: 'Completed' },
-                  { value: 'rejected', label: 'Rejected' },
-                  { value: 'cancelled', label: 'Cancelled' },
-                ]}
+                options={TRANSFER_STATUS_FILTER_OPTIONS}
               />
               <Select
                 aria-label="Transfer type filter"
@@ -276,14 +270,7 @@ export function TransferSecondary({
                 className="min-w-[170px]"
                 selectedKeys={[filterType]}
                 onChange={(e) => patchUI({ filterType: e.target.value as TransferType | 'all' })}
-                options={[
-                  { value: 'all', label: 'All Types' },
-                  { value: 'direct', label: 'Direct Transfer' },
-                  { value: 'secondary-sale', label: 'Secondary Sale' },
-                  { value: 'inheritance', label: 'Inheritance' },
-                  { value: 'gift', label: 'Gift' },
-                  { value: 'court-order', label: 'Court Order' },
-                ]}
+                options={TRANSFER_TYPE_FILTER_OPTIONS}
               />
             </div>
           )}
@@ -330,7 +317,7 @@ export function TransferSecondary({
                     <div className="text-right">
                       <p className="text-xs text-[var(--app-text-muted)]">Requested</p>
                       <p className="text-sm font-medium">
-                        {transfer.requestedDate.toLocaleDateString()}
+                        {formatDate(transfer.requestedDate)}
                       </p>
                     </div>
                   </div>

@@ -2,16 +2,16 @@
 // Import and re-export all components for easy consumption
 
 // Components
-export * from './components';
+export * from "./components";
 
 // Layout
-export * from './layout';
+export * from "./layout";
 
 // Typography
-export * from './typography';
+export * from "./typography";
 
 // Feedback
-export * from './feedback';
+export * from "./feedback";
 
 // Visualization
-export * from './visualization';
+export * from "./visualization";

@@ -22,12 +22,8 @@ function ThemeSyncWrapper({ children }: { children: ReactNode }) {
     if (mounted) return;
 
     const cookieTheme = getThemeFromCookie();
-    console.log('[ThemeSync] Initial mount:', { cookieTheme, theme, resolvedTheme });
 
     if (cookieTheme) {
-      // Cookie exists - it's the source of truth
-      // Force set the theme from cookie
-      console.log('[ThemeSync] Forcing theme from cookie:', cookieTheme);
       setTheme(cookieTheme);
     }
 
@@ -40,9 +36,7 @@ function ThemeSyncWrapper({ children }: { children: ReactNode }) {
 
     if (theme === 'light' || theme === 'dark') {
       const cookieTheme = getThemeFromCookie();
-      // Only update cookie if different to avoid infinite loops
       if (cookieTheme !== theme) {
-        console.log('[ThemeSync] Theme changed, updating cookie:', theme);
         setThemeCookie(theme);
       }
     }
@@ -54,7 +48,6 @@ function ThemeSyncWrapper({ children }: { children: ReactNode }) {
 
     const cookieTheme = getThemeFromCookie();
     if (!cookieTheme && (resolvedTheme === 'light' || resolvedTheme === 'dark')) {
-      console.log('[ThemeSync] Setting initial cookie from resolvedTheme:', resolvedTheme);
       setThemeCookie(resolvedTheme);
     }
   }, [mounted, resolvedTheme]);

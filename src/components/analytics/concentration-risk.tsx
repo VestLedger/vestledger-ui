@@ -107,6 +107,27 @@ export function ConcentrationRisk() {
   };
 
   const data = getConcentrationData();
+
+  if (data.length === 0) {
+    return (
+      <Card padding="lg">
+        <div className="mb-6">
+          <SectionHeader
+            title={
+              <span className="flex items-center gap-2">
+                <PieChart className="w-5 h-5 text-[var(--app-primary)]" />
+                <span>Concentration Risk Analysis</span>
+              </span>
+            }
+          />
+        </div>
+        <div className="flex items-center justify-center h-64 text-[var(--app-text-muted)]">
+          <p>No concentration data available. Select a fund to view risk analysis.</p>
+        </div>
+      </Card>
+    );
+  }
+
   const maxPercentage = Math.max(...data.map(d => d.percentage));
 
   // Calculate risk metrics

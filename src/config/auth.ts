@@ -1,3 +1,5 @@
+import type { OperatingRegion } from "@/types/regulatory";
+
 const ONE_DAY_IN_SECONDS = 24 * 60 * 60;
 const FIVE_SECONDS_IN_MS = 5 * 1000;
 
@@ -19,35 +21,62 @@ function normalizeValue(value: string | undefined, fallback: string): string {
   return normalized && normalized.length > 0 ? normalized : fallback;
 }
 
+function parseBoolean(value: string | undefined, fallback: boolean): boolean {
+  if (!value) {
+    return fallback;
+  }
+
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "true") return true;
+  if (normalized === "false") return false;
+
+  return fallback;
+}
+
+function normalizeOperatingRegion(
+  value: string | undefined,
+  fallback: OperatingRegion | null,
+): OperatingRegion | null {
+  const normalized = value?.trim().toLowerCase();
+
+  if (normalized === "india" || normalized === "eu" || normalized === "us") {
+    return normalized;
+  }
+
+  return fallback;
+}
+
 export const AUTH_COOKIE_MAX_AGE_SECONDS = parsePositiveInt(
   process.env.NEXT_PUBLIC_AUTH_COOKIE_MAX_AGE_SECONDS,
-  ONE_DAY_IN_SECONDS
+  ONE_DAY_IN_SECONDS,
 );
 
 export const AUTH_HYDRATION_TIMEOUT_MS = parsePositiveInt(
   process.env.NEXT_PUBLIC_AUTH_HYDRATION_TIMEOUT_MS,
-  FIVE_SECONDS_IN_MS
+  FIVE_SECONDS_IN_MS,
 );
 
 export const INTERNAL_TENANT_ID = normalizeValue(
   process.env.NEXT_PUBLIC_INTERNAL_TENANT_ID,
-  'org_vestledger_internal'
+  "org_vestledger_internal",
 );
 
-export const MOCK_SUPERADMIN_PROFILE = Object.freeze({
-  id: normalizeValue(process.env.NEXT_PUBLIC_SUPERADMIN_USER_ID, 'user_superadmin_001'),
-  displayName: normalizeValue(
-    process.env.NEXT_PUBLIC_SUPERADMIN_DISPLAY_NAME,
-    'Platform Superadmin'
+export const MOCK_DEMO_PROFILE = Object.freeze({
+  id: normalizeValue(process.env.NEXT_PUBLIC_DEMO_USER_ID, "user_demo_gp_001"),
+  tenantId: normalizeValue(
+    process.env.NEXT_PUBLIC_DEMO_TENANT_ID,
+    "org_summit_vc",
   ),
   accessToken: normalizeValue(
-    process.env.NEXT_PUBLIC_SUPERADMIN_ACCESS_TOKEN,
-    'mock-superadmin-token'
+    process.env.NEXT_PUBLIC_DEMO_ACCESS_TOKEN,
+    "mock-token",
   ),
-});
-
-export const MOCK_DEMO_PROFILE = Object.freeze({
-  id: normalizeValue(process.env.NEXT_PUBLIC_DEMO_USER_ID, 'user_demo_gp_001'),
-  tenantId: normalizeValue(process.env.NEXT_PUBLIC_DEMO_TENANT_ID, 'org_summit_vc'),
-  accessToken: normalizeValue(process.env.NEXT_PUBLIC_DEMO_ACCESS_TOKEN, 'mock-token'),
+  operatingRegion: normalizeOperatingRegion(
+    process.env.NEXT_PUBLIC_DEMO_OPERATING_REGION,
+    "us",
+  ),
+  organizationConfigured: parseBoolean(
+    process.env.NEXT_PUBLIC_DEMO_ORGANIZATION_CONFIGURED,
+    true,
+  ),
 });

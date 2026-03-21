@@ -1,5 +1,5 @@
-import type { AsyncState } from '../types/AsyncState';
-import type { NormalizedError } from '../types/AsyncState';
+import type { AsyncState } from "../types/AsyncState";
+import type { NormalizedError } from "../types/AsyncState";
 
 type Action<TPayload> = { type: string; payload: TPayload };
 
@@ -40,30 +40,30 @@ export function getSliceTestExpectations<T>(config: { mockData: T }) {
 
   const initialState: AsyncState<T> = {
     data: null,
-    status: 'idle',
+    status: "idle",
     error: undefined,
   };
 
   const loadingState: AsyncState<T> = {
     data: null,
-    status: 'loading',
+    status: "loading",
     error: undefined,
   };
 
   const succeededState: AsyncState<T> = {
     data: mockData,
-    status: 'succeeded',
+    status: "succeeded",
     error: undefined,
   };
 
   const testError: NormalizedError = {
-    message: 'Test error',
-    code: 'TEST_ERROR',
+    message: "Test error",
+    code: "TEST_ERROR",
   };
 
   const failedState: AsyncState<T> = {
     data: null,
-    status: 'failed',
+    status: "failed",
     error: testError,
   };
 
@@ -84,7 +84,7 @@ export function getSliceTestExpectations<T>(config: { mockData: T }) {
 export function createSliceTests<T, Params = Record<string, never>>(config: {
   reducer: (
     state: AsyncState<T> | undefined,
-    action: { type: string; payload?: T | Params | NormalizedError }
+    action: { type: string; payload?: T | Params | NormalizedError },
   ) => AsyncState<T>;
   actions: {
     requested: (params: Params) => Action<Params>;
@@ -103,7 +103,7 @@ export function createSliceTests<T, Params = Record<string, never>>(config: {
      * Verify initial state follows AsyncState<T> contract
      */
     getInitialState: () => {
-      return reducer(undefined, { type: '@@INIT' });
+      return reducer(undefined, { type: "@@INIT" });
     },
     expectedInitialState: expectations.initialState,
 
@@ -111,9 +111,12 @@ export function createSliceTests<T, Params = Record<string, never>>(config: {
      * Verify requested action sets loading state
      */
     getLoadingState: () => {
-      return reducer(expectations.initialState, actions.requested(requestedParams));
+      return reducer(
+        expectations.initialState,
+        actions.requested(requestedParams),
+      );
     },
-    expectedLoadingStatus: 'loading' as const,
+    expectedLoadingStatus: "loading" as const,
 
     /**
      * Verify loaded action sets data and succeeded status
@@ -127,7 +130,10 @@ export function createSliceTests<T, Params = Record<string, never>>(config: {
      * Verify failed action sets error and failed status
      */
     getFailedState: () => {
-      return reducer(expectations.loadingState, actions.failed(expectations.testError));
+      return reducer(
+        expectations.loadingState,
+        actions.failed(expectations.testError),
+      );
     },
     expectedFailedState: expectations.failedState,
 

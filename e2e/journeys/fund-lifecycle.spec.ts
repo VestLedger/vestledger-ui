@@ -1,8 +1,11 @@
-import { test, expect, loginViaRedirect } from '../fixtures/auth.fixture';
-import { FundAdminPage } from '../pages/fund-admin.page';
-import { CapitalCallsPage } from '../pages/capital-calls.page';
-import { DistributionsPage, DistributionWizardPage } from '../pages/distributions.page';
-import { WaterfallPage } from '../pages/waterfall.page';
+import { test, expect, loginViaRedirect } from "../fixtures/auth.fixture";
+import { FundAdminPage } from "../pages/fund-admin.page";
+import { CapitalCallsPage } from "../pages/capital-calls.page";
+import {
+  DistributionsPage,
+  DistributionWizardPage,
+} from "../pages/distributions.page";
+import { WaterfallPage } from "../pages/waterfall.page";
 
 /**
  * Fund Lifecycle Journey Tests
@@ -16,8 +19,10 @@ import { WaterfallPage } from '../pages/waterfall.page';
  * 5. Approval workflow
  */
 
-test.describe('Fund Lifecycle - Complete Journey', () => {
-  test('should complete full fund lifecycle from capital call to distribution', async ({ page }) => {
+test.describe("Fund Lifecycle - Complete Journey", () => {
+  test("should complete full fund lifecycle from capital call to distribution", async ({
+    page,
+  }) => {
     // Step 1: Navigate to Fund Admin
     const fundAdmin = new FundAdminPage(page);
     await fundAdmin.goto();
@@ -31,7 +36,9 @@ test.describe('Fund Lifecycle - Complete Journey', () => {
     // Step 3: Navigate to Capital Calls
     const capitalCalls = new CapitalCallsPage(page);
     await fundAdmin.selectCapitalCallsTab();
-    await expect(capitalCalls.capitalCallsTable.or(page.locator('text=/Capital Calls/i'))).toBeVisible();
+    await expect(
+      capitalCalls.capitalCallsTable.or(page.locator("text=/Capital Calls/i")),
+    ).toBeVisible();
 
     // Step 4: Navigate to Distributions
     const distributions = new DistributionsPage(page);
@@ -53,8 +60,8 @@ test.describe('Fund Lifecycle - Complete Journey', () => {
   });
 });
 
-test.describe('Fund Lifecycle - Capital Call Flow', () => {
-  test('should view fund overview and LP commitments', async ({ page }) => {
+test.describe("Fund Lifecycle - Capital Call Flow", () => {
+  test("should view fund overview and LP commitments", async ({ page }) => {
     const fundAdmin = new FundAdminPage(page);
     await fundAdmin.goto();
 
@@ -66,17 +73,19 @@ test.describe('Fund Lifecycle - Capital Call Flow', () => {
     expect(lpCount).toBeGreaterThanOrEqual(0);
   });
 
-  test('should navigate to capital calls tab', async ({ page }) => {
+  test("should navigate to capital calls tab", async ({ page }) => {
     const fundAdmin = new FundAdminPage(page);
     await fundAdmin.goto();
     await fundAdmin.selectCapitalCallsTab();
 
     // Capital calls content should be visible
-    const capitalCallContent = page.locator('text=/Capital Call|Amount|Status/i');
+    const capitalCallContent = page.locator(
+      "text=/Capital Call|Amount|Status/i",
+    );
     await expect(capitalCallContent.first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('should have create capital call button', async ({ page }) => {
+  test("should have create capital call button", async ({ page }) => {
     const capitalCalls = new CapitalCallsPage(page);
     await capitalCalls.goto();
 
@@ -85,7 +94,7 @@ test.describe('Fund Lifecycle - Capital Call Flow', () => {
     }
   });
 
-  test('should track LP payment responses', async ({ page }) => {
+  test("should track LP payment responses", async ({ page }) => {
     const capitalCalls = new CapitalCallsPage(page);
     await capitalCalls.goto();
 
@@ -94,16 +103,18 @@ test.describe('Fund Lifecycle - Capital Call Flow', () => {
       await capitalCalls.selectLPResponsesTab();
 
       // Should show payment status
-      const paymentStatus = page.locator('text=/paid|pending|partial/i');
-      if (await paymentStatus.count() > 0) {
+      const paymentStatus = page.locator("text=/paid|pending|partial/i");
+      if ((await paymentStatus.count()) > 0) {
         await expect(paymentStatus.first()).toBeVisible();
       }
     }
   });
 });
 
-test.describe('Fund Lifecycle - Distribution Creation Flow', () => {
-  test('should navigate through distribution wizard steps', async ({ page }) => {
+test.describe("Fund Lifecycle - Distribution Creation Flow", () => {
+  test("should navigate through distribution wizard steps", async ({
+    page,
+  }) => {
     const distributions = new DistributionsPage(page);
     await distributions.goto();
 
@@ -114,14 +125,14 @@ test.describe('Fund Lifecycle - Distribution Creation Flow', () => {
       const wizard = new DistributionWizardPage(page);
 
       // Verify wizard opened
-      const wizardContent = page.locator('text=/Distribution Type|Step 1/i');
-      if (await wizardContent.count() > 0) {
+      const wizardContent = page.locator("text=/Distribution Type|Step 1/i");
+      if ((await wizardContent.count()) > 0) {
         await expect(wizardContent.first()).toBeVisible({ timeout: 10000 });
       }
     }
   });
 
-  test('should view existing distributions', async ({ page }) => {
+  test("should view existing distributions", async ({ page }) => {
     const distributions = new DistributionsPage(page);
     await distributions.goto();
 
@@ -131,16 +142,18 @@ test.describe('Fund Lifecycle - Distribution Creation Flow', () => {
       await distributions.clickDistribution(0);
 
       // Should show distribution details
-      const detailContent = page.locator('text=/Amount|Status|Date|Allocations/i');
-      if (await detailContent.count() > 0) {
+      const detailContent = page.locator(
+        "text=/Amount|Status|Date|Allocations/i",
+      );
+      if ((await detailContent.count()) > 0) {
         await expect(detailContent.first()).toBeVisible({ timeout: 10000 });
       }
     }
   });
 });
 
-test.describe('Fund Lifecycle - Waterfall Calculation Flow', () => {
-  test('should view waterfall scenarios', async ({ page }) => {
+test.describe("Fund Lifecycle - Waterfall Calculation Flow", () => {
+  test("should view waterfall scenarios", async ({ page }) => {
     const waterfall = new WaterfallPage(page);
     await waterfall.goto();
 
@@ -148,44 +161,48 @@ test.describe('Fund Lifecycle - Waterfall Calculation Flow', () => {
     expect(count).toBeGreaterThanOrEqual(0);
   });
 
-  test('should select different waterfall models', async ({ page }) => {
+  test("should select different waterfall models", async ({ page }) => {
     const waterfall = new WaterfallPage(page);
     await waterfall.goto();
 
     // Check for model selection
-    const modelSelector = page.getByRole('combobox', { name: /model/i }).or(
-      page.locator('text=/European|American|Blended/i')
-    );
+    const modelSelector = page
+      .getByRole("combobox", { name: /model/i })
+      .or(page.locator("text=/European|American|Blended/i"));
     if (await modelSelector.first().isVisible()) {
       await expect(modelSelector.first()).toBeVisible();
     }
   });
 
-  test('should view tier breakdown', async ({ page }) => {
+  test("should view tier breakdown", async ({ page }) => {
     const waterfall = new WaterfallPage(page);
     await waterfall.goto();
 
     // Check for tier information
-    const tierContent = page.locator('text=/Tier|Return|Hurdle|Carry/i');
-    if (await tierContent.count() > 0) {
+    const tierContent = page.locator("text=/Tier|Return|Hurdle|Carry/i");
+    if ((await tierContent.count()) > 0) {
       await expect(tierContent.first()).toBeVisible();
     }
   });
 });
 
-test.describe('Fund Lifecycle - Approval Workflow', () => {
-  test('should view distribution pending approval', async ({ page }) => {
+test.describe("Fund Lifecycle - Approval Workflow", () => {
+  test("should view distribution pending approval", async ({ page }) => {
     const distributions = new DistributionsPage(page);
     await distributions.goto();
 
     // Look for pending approval status
-    const pendingApproval = page.locator('text=/pending.*approval|awaiting.*approval/i');
-    if (await pendingApproval.count() > 0) {
+    const pendingApproval = page.locator(
+      "text=/pending.*approval|awaiting.*approval/i",
+    );
+    if ((await pendingApproval.count()) > 0) {
       await expect(pendingApproval.first()).toBeVisible();
     }
   });
 
-  test('should have approval actions for authorized users', async ({ page }) => {
+  test("should have approval actions for authorized users", async ({
+    page,
+  }) => {
     const distributions = new DistributionsPage(page);
     await distributions.goto();
 
@@ -194,8 +211,8 @@ test.describe('Fund Lifecycle - Approval Workflow', () => {
       await distributions.clickDistribution(0);
 
       // Check for approval buttons
-      const approveBtn = page.getByRole('button', { name: /approve/i });
-      const rejectBtn = page.getByRole('button', { name: /reject/i });
+      const approveBtn = page.getByRole("button", { name: /approve/i });
+      const rejectBtn = page.getByRole("button", { name: /reject/i });
 
       if (await approveBtn.isVisible()) {
         await expect(approveBtn).toBeEnabled();
@@ -204,38 +221,44 @@ test.describe('Fund Lifecycle - Approval Workflow', () => {
   });
 });
 
-test.describe('Fund Lifecycle - LP Portal Verification', () => {
-  test('should verify distribution visible in LP portal', async ({ page }) => {
+test.describe("Fund Lifecycle - LP Portal Verification", () => {
+  test("should verify distribution visible in LP portal", async ({ page }) => {
     // Navigate to LP Portal
-    await loginViaRedirect(page, '/lp-portal');
-    await page.waitForLoadState('networkidle');
+    await loginViaRedirect(page, "/lp-portal");
+    await page.waitForLoadState("networkidle");
 
-    const lpPortalTitle = page.locator('h1, [class*="title"]').filter({ hasText: /LP Portal|Investor Portal/i });
-    if (await lpPortalTitle.count() > 0) {
+    const lpPortalTitle = page
+      .locator('h1, [class*="title"]')
+      .filter({ hasText: /LP Portal|Investor Portal/i });
+    if ((await lpPortalTitle.count()) > 0) {
       await expect(lpPortalTitle.first()).toBeVisible({ timeout: 10000 });
 
       // Check for distributions section
-      const distributionsSection = page.locator('text=/Distributions|Recent Distributions/i');
-      if (await distributionsSection.count() > 0) {
+      const distributionsSection = page.locator(
+        "text=/Distributions|Recent Distributions/i",
+      );
+      if ((await distributionsSection.count()) > 0) {
         await expect(distributionsSection.first()).toBeVisible();
       }
     }
   });
 
-  test('should show LP capital account', async ({ page }) => {
-    await loginViaRedirect(page, '/lp-portal');
-    await page.waitForLoadState('networkidle');
+  test("should show LP capital account", async ({ page }) => {
+    await loginViaRedirect(page, "/lp-portal");
+    await page.waitForLoadState("networkidle");
 
     // Check for capital account information
-    const capitalAccount = page.locator('text=/Capital Account|Commitment|Called|Distributed/i');
-    if (await capitalAccount.count() > 0) {
+    const capitalAccount = page.locator(
+      "text=/Capital Account|Commitment|Called|Distributed/i",
+    );
+    if ((await capitalAccount.count()) > 0) {
       await expect(capitalAccount.first()).toBeVisible();
     }
   });
 });
 
-test.describe('Fund Lifecycle - Fund Metrics Consistency', () => {
-  test('should show consistent metrics across pages', async ({ page }) => {
+test.describe("Fund Lifecycle - Fund Metrics Consistency", () => {
+  test("should show consistent metrics across pages", async ({ page }) => {
     // Get metrics from Fund Admin
     const fundAdmin = new FundAdminPage(page);
     await fundAdmin.goto();
@@ -247,13 +270,17 @@ test.describe('Fund Lifecycle - Fund Metrics Consistency', () => {
     await distributions.goto();
 
     // Metrics should be consistent with fund-level data
-    const totalDistributed = page.locator('text=/Total Distributed|\\$[\\d,]+/i');
-    if (await totalDistributed.count() > 0) {
+    const totalDistributed = page.locator(
+      "text=/Total Distributed|\\$[\\d,]+/i",
+    );
+    if ((await totalDistributed.count()) > 0) {
       await expect(totalDistributed.first()).toBeVisible();
     }
   });
 
-  test('should reflect capital call status in fund overview', async ({ page }) => {
+  test("should reflect capital call status in fund overview", async ({
+    page,
+  }) => {
     const fundAdmin = new FundAdminPage(page);
     await fundAdmin.goto();
 
@@ -262,31 +289,35 @@ test.describe('Fund Lifecycle - Fund Metrics Consistency', () => {
     expect(calledCapital).toBeTruthy();
 
     // Uncalled capital should also be shown
-    const uncalledMetric = page.locator('text=/Uncalled|Remaining/i');
-    if (await uncalledMetric.count() > 0) {
+    const uncalledMetric = page.locator("text=/Uncalled|Remaining/i");
+    if ((await uncalledMetric.count()) > 0) {
       await expect(uncalledMetric.first()).toBeVisible();
     }
   });
 });
 
-test.describe('Fund Lifecycle - Document Generation', () => {
-  test('should have capital call notice generation', async ({ page }) => {
+test.describe("Fund Lifecycle - Document Generation", () => {
+  test("should have capital call notice generation", async ({ page }) => {
     const capitalCalls = new CapitalCallsPage(page);
     await capitalCalls.goto();
 
     // Look for generate/download notice button
-    const generateBtn = page.getByRole('button', { name: /generate.*notice|download.*notice/i });
+    const generateBtn = page.getByRole("button", {
+      name: /generate.*notice|download.*notice/i,
+    });
     if (await generateBtn.first().isVisible()) {
       await expect(generateBtn.first()).toBeEnabled();
     }
   });
 
-  test('should have distribution statement generation', async ({ page }) => {
+  test("should have distribution statement generation", async ({ page }) => {
     const distributions = new DistributionsPage(page);
     await distributions.goto();
 
     // Look for statement generation
-    const statementBtn = page.getByRole('button', { name: /statement|download|export/i });
+    const statementBtn = page.getByRole("button", {
+      name: /statement|download|export/i,
+    });
     if (await statementBtn.first().isVisible()) {
       await expect(statementBtn.first()).toBeEnabled();
     }

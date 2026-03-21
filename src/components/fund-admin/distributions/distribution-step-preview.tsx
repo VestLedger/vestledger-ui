@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { isMockMode } from "@/config/data-mode";
 import { Badge, Button, Card, Input, Select, Textarea } from "@/ui";
 import { SectionHeader } from '@/ui/composites';
 import {
@@ -85,7 +86,7 @@ export function DistributionStepPreview({
   const statementName = selectedLP
     ? `${selectedLP.name} - ${templateLabel}`
     : `${distributionName} - ${templateLabel}`;
-  const statementUrl = getMockDocumentUrl("pdf");
+  const statementUrl = isMockMode("backOffice") ? getMockDocumentUrl("pdf") : undefined;
 
   return (
     <Card padding="lg" className="space-y-4">

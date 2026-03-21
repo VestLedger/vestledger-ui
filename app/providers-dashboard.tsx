@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { Provider } from 'react-redux';
 import { store } from '@/store/store';
-import { clientMounted } from '@/store/slices/uiEffectsSlice';
 import { AuthProvider } from '@/contexts/auth-context';
 import { FundProvider } from '@/contexts/fund-context';
+import { DashboardRuntime } from '@/store/runtime/dashboard-runtime';
 
 /**
  * Dashboard-specific provider stack
@@ -14,17 +14,23 @@ import { FundProvider } from '@/contexts/fund-context';
  * These providers are only needed by dashboard routes, not public routes.
  * Shared UI providers (NextUI, Theme) are in RootProviders at app/layout.tsx
  */
-export function DashboardProviders({ children }: { children: React.ReactNode }) {
-  useEffect(() => {
-    store.dispatch(clientMounted());
-  }, []);
+type DashboardProvidersProps = {
+  children: React.ReactNode;
+  runtime?: 'dashboard' | 'admin';
+};
+
+export function DashboardProviders({
+  children,
+  runtime = 'dashboard',
+}: DashboardProvidersProps) {
+  const pathname = usePathname();
+  const enableDashboardRuntime = runtime === 'dashboard' && pathname !== '/login';
 
   return (
     <Provider store={store}>
+      {enableDashboardRuntime ? <DashboardRuntime /> : null}
       <AuthProvider>
-        <FundProvider>
-          {children}
-        </FundProvider>
+        {runtime === 'dashboard' ? <FundProvider>{children}</FundProvider> : children}
       </AuthProvider>
     </Provider>
   );

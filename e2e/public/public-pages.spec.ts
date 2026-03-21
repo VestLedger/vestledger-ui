@@ -1,133 +1,191 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from "@playwright/test";
 
 test.use({ storageState: { cookies: [], origins: [] } });
 
-test.describe('Public Pages', () => {
-  test.describe('Home Page', () => {
-    test('should load home page', async ({ page }) => {
-      await page.goto('/');
-      await page.waitForLoadState('networkidle');
+async function isLocalhostLoginFallback(page: Page) {
+  return page
+    .getByRole("heading", { name: /welcome back/i })
+    .isVisible()
+    .catch(() => false);
+}
+
+test.describe("Public Pages", () => {
+  test.describe("Home Page", () => {
+    test("should load home page", async ({ page }) => {
+      await page.goto("/");
+      await page.waitForLoadState("networkidle");
 
       await expect(page).toHaveTitle(/VestLedger/i);
     });
 
-    test('should display hero section', async ({ page }) => {
-      await page.goto('/');
+    test("should display hero section", async ({ page }) => {
+      await page.goto("/");
+      await page.waitForLoadState("networkidle");
+      test.skip(
+        await isLocalhostLoginFallback(page),
+        "Localhost middleware routes / to login unless a dedicated public host is configured.",
+      );
 
-      const hero = page.locator('[class*="hero"], [data-testid="hero"], main section').first();
+      const hero = page.getByTestId("home-hero");
       await expect(hero).toBeVisible();
+      await expect(
+        hero.getByRole("heading", { name: /meet vesta/i }),
+      ).toBeVisible();
     });
 
-    test('should have navigation to login', async ({ page }) => {
-      await page.goto('/');
+    test("should expose the new homepage story sections", async ({ page }) => {
+      await page.goto("/");
+      await page.waitForLoadState("networkidle");
+      test.skip(
+        await isLocalhostLoginFallback(page),
+        "Localhost middleware routes / to login unless a dedicated public host is configured.",
+      );
+      await expect(page.getByTestId("workflow-rail")).toBeVisible();
+      await expect(page.getByTestId("product-proof")).toBeVisible();
+      await expect(page.getByTestId("trust-layer")).toBeVisible();
+      await expect(page.getByTestId("home-cta")).toBeVisible();
+    });
 
-      const loginLink = page.getByRole('link', { name: /login|sign in/i });
-      const loginButton = page.getByRole('button', { name: /login|sign in/i });
-      const loginCta = loginLink.or(loginButton);
-      await expect(loginCta.first()).toBeVisible();
+    test("should have navigation to login and primary CTA", async ({
+      page,
+    }) => {
+      await page.goto("/");
+
+      const menuButton = page.getByRole("button", { name: /open menu/i });
+      if (await menuButton.isVisible()) {
+        await menuButton.click();
+      }
+
+      const login = page
+        .getByRole("link", { name: /login|sign in/i })
+        .or(page.getByRole("button", { name: /login|sign in/i }));
+      const primaryCta = page.getByRole("link", {
+        name: /meet vesta|request access/i,
+      });
+
+      await expect(login.first()).toBeVisible();
+      await expect(primaryCta.first()).toBeVisible();
     });
   });
 
-  test.describe('About Page', () => {
-    test('should load about page', async ({ page }) => {
-      await page.goto('/about');
-      await page.waitForLoadState('networkidle');
+  test.describe("About Page", () => {
+    test("should load about page", async ({ page }) => {
+      await page.goto("/about");
+      await page.waitForLoadState("networkidle");
 
-      const mainContent = page.locator('main');
+      const mainContent = page.locator("main");
       await expect(mainContent).toBeVisible();
     });
   });
 
-  test.describe('Features Page', () => {
-    test('should load features page', async ({ page }) => {
-      await page.goto('/features');
-      await page.waitForLoadState('networkidle');
+  test.describe("Features Page", () => {
+    test("should load features page", async ({ page }) => {
+      await page.goto("/features");
+      await page.waitForLoadState("networkidle");
 
-      const mainContent = page.locator('main');
+      const mainContent = page.locator("main");
       await expect(mainContent).toBeVisible();
     });
 
-    test('should display feature sections', async ({ page }) => {
-      await page.goto('/features');
-      await page.waitForLoadState('networkidle');
+    test("should display feature sections", async ({ page }) => {
+      await page.goto("/features");
+      await page.waitForLoadState("networkidle");
 
       const sections = page.locator('section, [class*="feature"]');
       await expect(sections.first()).toBeVisible();
     });
   });
 
-  test.describe('How It Works Page', () => {
-    test('should load how it works page', async ({ page }) => {
-      await page.goto('/how-it-works');
-      await page.waitForLoadState('networkidle');
+  test.describe("How It Works Page", () => {
+    test("should load how it works page", async ({ page }) => {
+      await page.goto("/how-it-works");
+      await page.waitForLoadState("networkidle");
 
-      const mainContent = page.locator('main');
+      const mainContent = page.locator("main");
       await expect(mainContent).toBeVisible();
     });
   });
 
-  test.describe('Security Page', () => {
-    test('should load security page', async ({ page }) => {
-      await page.goto('/security');
-      await page.waitForLoadState('networkidle');
+  test.describe("Security Page", () => {
+    test("should load security page", async ({ page }) => {
+      await page.goto("/security");
+      await page.waitForLoadState("networkidle");
 
-      const mainContent = page.locator('main');
+      const mainContent = page.locator("main");
       await expect(mainContent).toBeVisible();
     });
 
-    test('should display security information', async ({ page }) => {
-      await page.goto('/security');
+    test("should display security information", async ({ page }) => {
+      await page.goto("/security");
 
-      // Look for security-related content
-      const securityContent = page.locator('text=/security|encrypt|protect|compliance/i');
+      const securityHeading = page
+        .locator("main")
+        .getByRole("heading", { name: /security/i });
+      await expect(securityHeading.first()).toBeVisible();
+
+      const securityContent = page
+        .locator("main")
+        .locator("text=/encrypt|protect|compliance|audit|access control/i");
       await expect(securityContent.first()).toBeVisible();
     });
   });
 
-  test.describe('Expression of Interest (EOI) Page', () => {
-    test('should load EOI page', async ({ page }) => {
-      await page.goto('/eoi');
-      await page.waitForLoadState('networkidle');
+  test.describe("Expression of Interest (EOI) Page", () => {
+    test("should load EOI page", async ({ page }) => {
+      await page.goto("/eoi");
+      await page.waitForLoadState("networkidle");
 
-      const mainContent = page.locator('main');
+      const mainContent = page.locator("main");
       await expect(mainContent).toBeVisible();
     });
 
-    test('should have contact form or request form', async ({ page }) => {
-      await page.goto('/eoi');
-      await page.waitForLoadState('networkidle');
+    test("should have contact form or request form", async ({ page }) => {
+      await page.goto("/eoi");
+      await page.waitForLoadState("networkidle");
 
-      const form = page.locator('form');
+      const form = page.locator("form");
       await expect(form).toBeVisible();
     });
   });
 });
 
-test.describe('Public Navigation', () => {
-  test('should navigate between public pages', async ({ page }) => {
-    const publicRoutes = ['/', '/about', '/features', '/how-it-works', '/security', '/eoi'];
+test.describe("Public Navigation", () => {
+  test("should navigate between public pages", async ({ page }) => {
+    const publicRoutes = [
+      "/",
+      "/about",
+      "/features",
+      "/how-it-works",
+      "/security",
+      "/eoi",
+    ];
 
     for (const route of publicRoutes) {
       await page.goto(route);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState("networkidle");
 
       // Each page should load without errors
-      const errorMessage = page.locator('text=/error|404|not found/i');
+      const errorMessage = page.locator("text=/error|404|not found/i");
       await expect(errorMessage).not.toBeVisible();
     }
   });
 
-  test('should have consistent navigation header', async ({ page }) => {
-    await page.goto('/');
+  test("should have consistent navigation header", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    test.skip(
+      await isLocalhostLoginFallback(page),
+      "Localhost middleware routes / to login unless a dedicated public host is configured.",
+    );
 
-    const header = page.locator('header, nav').first();
+    const header = page.locator("header, nav").first();
     await expect(header).toBeVisible();
   });
 
-  test('should have footer', async ({ page }) => {
-    await page.goto('/');
+  test("should have footer", async ({ page }) => {
+    await page.goto("/");
 
-    const footer = page.locator('footer');
+    const footer = page.locator("footer");
 
     if (await footer.isVisible()) {
       await expect(footer).toBeVisible();

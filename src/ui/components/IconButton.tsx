@@ -1,5 +1,5 @@
-import { Button, ButtonProps } from '@nextui-org/react';
 import { forwardRef, ReactNode } from 'react';
+import { Button, type ButtonProps } from './Button';
 
 export interface IconButtonProps extends Omit<ButtonProps, 'children'> {
   icon: ReactNode;

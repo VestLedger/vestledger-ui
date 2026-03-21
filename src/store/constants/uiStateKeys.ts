@@ -2,30 +2,30 @@
  * Centralized UI state persistence keys
  * Prevents key collisions and ensures namespacing
  */
-import type { ActiveDeal } from '@/services/dealIntelligence/dealIntelligenceService';
+import type { ActiveDeal } from "@/services/dealIntelligence/dealIntelligenceService";
 
 export const UI_STATE_KEYS = {
   // Navigation
-  NAV_EXPANDED_GROUPS: 'vestledger-nav-expanded-groups',
-  SIDEBAR_LEFT: 'vestledger-sidebar-left-collapsed',
-  SIDEBAR_RIGHT: 'vestledger-sidebar-right-collapsed',
+  NAV_EXPANDED_GROUPS: "vestledger-nav-expanded-groups",
+  SIDEBAR_LEFT: "vestledger-sidebar-left-collapsed",
+  SIDEBAR_RIGHT: "vestledger-sidebar-right-collapsed",
 
   // Fund selection
-  SELECTED_FUND_ID: 'vestledger-selected-fund-id',
-  FUND_VIEW_MODE: 'vestledger-fund-view-mode',
+  SELECTED_FUND_ID: "vestledger-selected-fund-id",
+  FUND_VIEW_MODE: "vestledger-fund-view-mode",
 
   // Authentication
-  AUTH_AUTHENTICATED: 'vestledger-auth-authenticated',
-  AUTH_USER: 'vestledger-auth-user',
+  AUTH_AUTHENTICATED: "vestledger-auth-authenticated",
+  AUTH_USER: "vestledger-auth-user",
 
   // Component-specific UI state
-  TOPBAR: 'topbar',
-  DASHBOARD_DENSITY: 'dashboard-density',
-  VESTA_SHELL: 'vesta-shell',
-  DEAL_INTELLIGENCE: 'deal-intelligence',
-  PORTFOLIO_UPDATES: 'portfolio-updates',
-  PIPELINE: 'pipeline',
-  DEALFLOW_REVIEW: 'dealflow-review',
+  TOPBAR: "topbar",
+  DASHBOARD_DENSITY: "dashboard-density",
+  VESTA_SHELL: "vesta-shell",
+  DEAL_INTELLIGENCE: "deal-intelligence",
+  PORTFOLIO_UPDATES: "portfolio-updates",
+  PIPELINE: "pipeline",
+  DEALFLOW_REVIEW: "dealflow-review",
 } as const;
 
 /**
@@ -35,36 +35,41 @@ export const UI_STATE_KEYS = {
 export const UI_STATE_DEFAULTS = {
   topbar: {
     isProfileOpen: false,
-    searchQuery: '',
+    searchQuery: "",
     isSearchFocused: false,
   },
 
   dashboardDensity: {
-    mode: 'compact' as 'compact' | 'comfortable',
+    mode: "compact" as "compact" | "comfortable",
   },
 
   vestaShell: {
-    vestaViewMode: 'sidebar' as 'collapsed' | 'sidebar' | 'fullscreen',
-    voiceCaptureMode: 'tap' as 'tap' | 'hold',
+    vestaViewMode: "sidebar" as "collapsed" | "sidebar" | "fullscreen",
+    voiceCaptureMode: "tap" as "tap" | "hold",
     voiceCaptureRequestNonce: 0,
     activeThreadContext: {
-      contextType: 'route' as 'route' | 'route-tab',
-      contextId: '/home',
+      contextType: "route" as "route" | "route-tab",
+      contextId: "/home",
     },
-    ttsEnabled: true,
+    ttsEnabled: false,
   },
 
   dealIntelligence: {
     selectedDeal: null as ActiveDeal | null,
-    selectedCategory: 'all',
-    searchQuery: '',
-    viewMode: 'fund-level' as 'fund-level' | 'per-deal',
-    selectedDetailTab: 'overview' as 'overview' | 'analytics' | 'documents' | 'analysis' | 'ic-materials',
+    selectedCategory: "all",
+    searchQuery: "",
+    viewMode: "fund-level" as "fund-level" | "per-deal",
+    selectedDetailTab: "overview" as
+      | "overview"
+      | "analytics"
+      | "documents"
+      | "analysis"
+      | "ic-materials",
   },
 
   portfolioUpdates: {
-    selectedType: 'all',
-    searchQuery: '',
+    selectedType: "all",
+    searchQuery: "",
   },
 
   dealflowReview: {

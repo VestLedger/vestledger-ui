@@ -6,19 +6,30 @@ import { Receipt, Download, Send, Calendar, DollarSign, Mail, FileText } from 'l
 import { getRouteConfig, ROUTE_PATHS } from '@/config/routes';
 import { K1Generator } from '../tax/k1-generator';
 import { useUIKey } from '@/store/ui';
+import { useAuth } from '@/contexts/auth-context';
+import {
+  getOperatingRegionLabel,
+  getTaxCenterLabel,
+} from '@/lib/regulatory-regions';
 import { DEFAULT_TAX_CENTER_TAB_ID, TAX_CENTER_TAB_IDS } from '@/config/tax-center-tabs';
-import { taxCenterRequested, taxCenterSelectors } from '@/store/slices/backOfficeSlice';
+import { taxCenterSelectors } from '@/store/slices/backOfficeSlice';
 import { AsyncStateRenderer } from '@/ui/async-states';
 import { formatCurrency, formatDate } from '@/utils/formatting';
 import { KeyValueRow, StatusBadge, MetricsGrid, PageScaffold, SectionHeader } from '@/ui/composites';
 import type { MetricsGridItem } from '@/ui/composites';
 import { useAsyncData } from '@/hooks/useAsyncData';
+import { loadTaxCenterOperation } from '@/store/async/backOfficeOperations';
 
 export function TaxCenter() {
+  const { user } = useAuth();
   const toast = useToast();
-  const { data, isLoading, error, refetch } = useAsyncData(taxCenterRequested, taxCenterSelectors.selectState);
+  const { data, isLoading, error, refetch } = useAsyncData(loadTaxCenterOperation, taxCenterSelectors.selectState);
   const { value: ui, patch: patchUI } = useUIKey('back-office-tax-center', { selectedTab: DEFAULT_TAX_CENTER_TAB_ID });
   const { selectedTab } = ui;
+  const operatingRegion = user?.operatingRegion ?? null;
+  const taxCenterLabel = getTaxCenterLabel(operatingRegion);
+  const isNonUsRegion =
+    operatingRegion === 'india' || operatingRegion === 'eu';
 
   useEffect(() => {
     if (!TAX_CENTER_TAB_IDS.has(selectedTab)) {
@@ -137,16 +148,42 @@ export function TaxCenter() {
       isEmpty={() => false}
     >
       {() => (
+        isNonUsRegion ? (
+          <PageScaffold
+            breadcrumbs={routeConfig?.breadcrumbs}
+            aiSuggestion={routeConfig?.aiSuggestion}
+            header={{
+              title: taxCenterLabel,
+              description: `Reporting workflows for ${getOperatingRegionLabel(operatingRegion)} are active for this organization.`,
+              icon: Receipt,
+              aiSummary: {
+                text: `US-specific K-1 and 1099 workflows are hidden because this organization is configured for ${getOperatingRegionLabel(operatingRegion)}.`,
+              },
+            }}
+          >
+            <Card padding="lg">
+              <div className="space-y-3">
+                <Badge variant="flat">{getOperatingRegionLabel(operatingRegion)}</Badge>
+                <h3 className="text-lg font-semibold">Region-aware tax and reporting mode</h3>
+                <p className="text-sm text-[var(--app-text-muted)]">
+                  This workspace now suppresses the US-only K-1 and 1099 workflow.
+                  Use the organization region and fund regulatory profile as the source
+                  of truth for region-specific reporting, document delivery, and
+                  compliance follow-up.
+                </p>
+              </div>
+            </Card>
+          </PageScaffold>
+        ) : (
         <PageScaffold
           breadcrumbs={routeConfig?.breadcrumbs}
           aiSuggestion={routeConfig?.aiSuggestion}
           header={{
-            title: 'Tax Center',
+            title: taxCenterLabel,
             description: 'Manage tax documents, K-1s, and reporting for LPs and portfolio companies',
             icon: Receipt,
             aiSummary: {
               text: `${k1sIssued} K-1s issued out of ${k1sTotal}. ${form1099Issued} 1099s issued. ${readyDocuments} documents ready to send. Filing deadline: ${formatDate(filingDeadline, { month: 'long', day: 'numeric', year: 'numeric' })}. AI recommends prioritizing the ${readyDocuments} ready documents for immediate distribution.`,
-              confidence: 0.92,
             },
             primaryAction: {
               label: 'Generate K-1s',
@@ -204,12 +241,12 @@ export function TaxCenter() {
                         )}
                         {doc.generatedDate && (
                           <>
-                            <span>Generated: {new Date(doc.generatedDate).toLocaleDateString()}</span>
+                            <span>Generated: {formatDate(doc.generatedDate)}</span>
                             <span>•</span>
                           </>
                         )}
                         {doc.sentDate && (
-                          <span>Sent: {new Date(doc.sentDate).toLocaleDateString()}</span>
+                          <span>Sent: {formatDate(doc.sentDate)}</span>
                         )}
                       </div>
                     </div>
@@ -293,7 +330,7 @@ export function TaxCenter() {
                       </div>
                       <div className="text-right">
                         <p className="text-sm text-[var(--app-text-muted)]">Filing Deadline</p>
-                        <p className="font-semibold">{new Date(summary.filingDeadline).toLocaleDateString()}</p>
+                        <p className="font-semibold">{formatDate(summary.filingDeadline)}</p>
                       </div>
                     </div>
 
@@ -391,7 +428,7 @@ export function TaxCenter() {
                           <div>
                             <p className="text-[var(--app-text-muted)]">K-1 Received</p>
                             <p className="font-medium">
-                              {company.k1ReceivedDate ? new Date(company.k1ReceivedDate).toLocaleDateString() : 'N/A'}
+                              {company.k1ReceivedDate ? formatDate(company.k1ReceivedDate) : 'N/A'}
                             </p>
                           </div>
                         </div>
@@ -500,6 +537,7 @@ export function TaxCenter() {
         </div>
       </Card>
         </PageScaffold>
+        )
       )}
     </AsyncStateRenderer>
   );

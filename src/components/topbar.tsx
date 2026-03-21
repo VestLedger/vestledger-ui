@@ -1,17 +1,18 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { Search, ChevronDown, LogOut, Sparkles, Moon, Sun, Mic } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
-import { Button, Badge, Card, Input } from '@/ui';
+import { Button, Card, Input } from '@/ui';
 import { useRouter } from 'next/navigation';
 import { useAICopilot } from './ai-copilot-sidebar';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { alertsRequested, alertsSelectors, markAlertRead } from '@/store/slices/alertsSlice';
-import { searchRequested, searchCleared, searchSelectors } from '@/store/slices/searchSlice';
+import { alertsSelectors, markAlertRead } from '@/store/slices/alertsSlice';
+import { searchSelectors } from '@/store/slices/searchSlice';
 import { NotificationCenter } from '@/components/notification-center';
 import type { Notification } from '@/types/notification';
 import { useTheme } from 'next-themes';
+import { searchTopbar } from '@/services/topbarSearchService';
 import type { TopbarSearchResult } from '@/services/topbarSearchService';
 import { useUIKey } from '@/store/ui';
 import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys';
@@ -20,6 +21,8 @@ import { buildPublicWebUrl } from '@/config/env';
 import { ROUTE_PATHS } from '@/config/routes';
 import { logger } from '@/lib/logger';
 import { useNavigation } from '@/contexts/navigation-context';
+import { fetchAlertsOperation } from '@/store/async/dataOperations';
+import { createTopbarSearchController } from '@/components/topbar-search-controller';
 
 export function Topbar() {
   const { user, logout } = useAuth();
@@ -47,6 +50,14 @@ export function Topbar() {
   const searchResults = searchData?.results || [];
 
   const searchRef = useRef<HTMLDivElement>(null);
+  const topbarSearchController = useMemo(
+    () =>
+      createTopbarSearchController({
+        dispatch,
+        search: searchTopbar,
+      }),
+    [dispatch]
+  );
 
   const handleLogout = () => {
     // Set flag in sessionStorage to indicate logout in progress
@@ -65,7 +76,7 @@ export function Topbar() {
   };
 
   useEffect(() => {
-    dispatch(alertsRequested({}));
+    dispatch(fetchAlertsOperation({}));
   }, [dispatch]);
 
   // Convert Redux alerts to Notification format
@@ -93,12 +104,11 @@ export function Topbar() {
 
   // Dispatch search request when query changes
   useEffect(() => {
-    if (topbarUI.searchQuery.trim()) {
-      dispatch(searchRequested({ query: topbarUI.searchQuery }));
-    } else {
-      dispatch(searchCleared());
-    }
-  }, [dispatch, topbarUI.searchQuery]);
+    topbarSearchController.update(topbarUI.searchQuery);
+    return () => {
+      topbarSearchController.cancel();
+    };
+  }, [topbarSearchController, topbarUI.searchQuery]);
 
   // Close search dropdown when clicking outside
   useEffect(() => {
@@ -204,11 +214,6 @@ export function Topbar() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-sm font-medium truncate">{result.title}</span>
-                          {result.confidence && (
-                            <Badge size="sm" variant="flat" className="bg-app-primary/10 dark:bg-app-dark-primary/15 text-app-primary dark:text-app-dark-primary text-xs">
-                              {Math.round(result.confidence * 100)}% match
-                            </Badge>
-                          )}
                         </div>
                         {result.description && (
                           <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted truncate">{result.description}</p>

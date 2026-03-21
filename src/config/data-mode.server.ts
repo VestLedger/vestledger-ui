@@ -1,5 +1,12 @@
-import { cookies } from 'next/headers';
-import { DATA_MODE_OVERRIDE_KEY, getDataMode, isMockMode, parseDataMode, type DataMode, type FeatureName } from './data-mode';
+import { cookies } from "next/headers";
+import {
+  DATA_MODE_OVERRIDE_KEY,
+  getDataMode,
+  isMockMode,
+  parseDataMode,
+  type DataMode,
+  type FeatureName,
+} from "./data-mode";
 
 function getServerOverride(): DataMode | null {
   const raw = cookies().get(DATA_MODE_OVERRIDE_KEY)?.value;
@@ -14,6 +21,6 @@ export function getServerDataMode(): DataMode {
 
 export function isServerMockMode(feature?: FeatureName): boolean {
   const override = getServerOverride();
-  if (override) return override === 'mock';
+  if (override) return override === "mock";
   return isMockMode(feature);
 }

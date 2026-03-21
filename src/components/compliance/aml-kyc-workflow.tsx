@@ -13,6 +13,11 @@ import {
   Download,
 } from 'lucide-react';
 import { SearchToolbar, SectionHeader, StatusBadge } from '@/ui/composites';
+import {
+  AML_KYC_RISK_LEVEL_FILTER_OPTIONS,
+  AML_KYC_STATUS_FILTER_OPTIONS,
+} from '@/config/compliance-options';
+import { formatDate } from '@/utils/formatting';
 
 export type EntityType = 'individual' | 'corporation' | 'partnership' | 'trust' | 'llc' | 'other';
 export type RiskLevel = 'low' | 'medium' | 'high' | 'severe';
@@ -324,17 +329,7 @@ export function AMLKYCWorkflow({
                 className="min-w-[210px]"
                 selectedKeys={[filterStatus]}
                 onChange={(e) => patchUI({ filterStatus: e.target.value as WorkflowStatus | 'all' })}
-                options={[
-                  { value: 'all', label: 'All Status' },
-                  { value: 'not-started', label: 'Not Started' },
-                  { value: 'information-gathering', label: 'Information Gathering' },
-                  { value: 'document-collection', label: 'Document Collection' },
-                  { value: 'verification-in-progress', label: 'Verification In Progress' },
-                  { value: 'review-required', label: 'Review Required' },
-                  { value: 'approved', label: 'Approved' },
-                  { value: 'rejected', label: 'Rejected' },
-                  { value: 'expired', label: 'Expired' },
-                ]}
+                options={AML_KYC_STATUS_FILTER_OPTIONS}
               />
               <Select
                 aria-label="Risk level filter"
@@ -342,13 +337,7 @@ export function AMLKYCWorkflow({
                 className="min-w-[170px]"
                 selectedKeys={[filterRisk]}
                 onChange={(e) => patchUI({ filterRisk: e.target.value as RiskLevel | 'all' })}
-                options={[
-                  { value: 'all', label: 'All Risk Levels' },
-                  { value: 'low', label: 'Low Risk' },
-                  { value: 'medium', label: 'Medium Risk' },
-                  { value: 'high', label: 'High Risk' },
-                  { value: 'severe', label: 'Severe Risk' },
-                ]}
+                options={AML_KYC_RISK_LEVEL_FILTER_OPTIONS}
               />
             </div>
           )}
@@ -412,7 +401,7 @@ export function AMLKYCWorkflow({
                       <div className="flex items-center gap-3 text-xs text-[var(--app-text-muted)]">
                         <span>Assigned to: {workflow.assignedTo}</span>
                         <span>•</span>
-                        <span>Initiated {workflow.initiatedDate.toLocaleDateString()}</span>
+                        <span>Initiated {formatDate(workflow.initiatedDate)}</span>
                         {workflow.fundName && (
                           <>
                             <span>•</span>
@@ -425,7 +414,7 @@ export function AMLKYCWorkflow({
                       <p className="text-sm font-medium mb-1">Risk Score: {workflow.overallRiskScore}/100</p>
                       {workflow.nextReviewDate && (
                         <p className="text-xs text-[var(--app-text-muted)]">
-                          Next review: {workflow.nextReviewDate.toLocaleDateString()}
+                          Next review: {formatDate(workflow.nextReviewDate)}
                         </p>
                       )}
                     </div>

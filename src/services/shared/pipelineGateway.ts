@@ -1,7 +1,11 @@
-import type { GetPipelineParams } from '@/store/slices/pipelineSlice';
-import type { PipelineDeal, PipelineDealOutcome } from '@/data/seeds/pipeline';
-import { logger } from '@/lib/logger';
-import { requestJson, type ApiQueryParams } from './httpClient';
+import type { GetPipelineParams } from "@/store/slices/pipelineSlice";
+import type { PipelineDeal, PipelineDealOutcome } from "@/data/seeds/pipeline";
+import { logger } from "@/lib/logger";
+import { requestJson, type ApiQueryParams } from "./httpClient";
+import {
+  PIPELINE_DEAL_OUTCOMES,
+  PIPELINE_STAGE_API_VALUES,
+} from "@/config/pipeline-options";
 
 export interface PipelineApiDeal {
   id: string;
@@ -44,28 +48,15 @@ type PipelineDealsResponse =
       data?: PipelineApiDeal[];
     };
 
-const VALID_OUTCOMES: ReadonlySet<PipelineDealOutcome> = new Set<PipelineDealOutcome>([
-  'active',
-  'won',
-  'lost',
-  'withdrawn',
-  'passed',
-]);
-
-const DEFAULT_STAGES = [
-  'Sourced',
-  'First Meeting',
-  'Due Diligence',
-  'Term Sheet',
-  'Closed',
-];
+const VALID_OUTCOMES: ReadonlySet<PipelineDealOutcome> =
+  new Set<PipelineDealOutcome>(PIPELINE_DEAL_OUTCOMES);
 
 function normalizeOptionalNumber(value: unknown): number | undefined {
-  if (typeof value === 'number' && Number.isFinite(value)) {
+  if (typeof value === "number" && Number.isFinite(value)) {
     return value;
   }
 
-  if (typeof value === 'string') {
+  if (typeof value === "string") {
     const trimmed = value.trim();
     if (trimmed.length === 0) {
       return undefined;
@@ -93,7 +84,7 @@ function normalizeOutcome(value?: string | null): PipelineDealOutcome {
   if (value && VALID_OUTCOMES.has(value as PipelineDealOutcome)) {
     return value as PipelineDealOutcome;
   }
-  return 'active';
+  return "active";
 }
 
 export function formatAmountToMillions(amount: number): string {
@@ -104,29 +95,31 @@ export function formatAmountToMillions(amount: number): string {
 }
 
 export function formatRelativeTimestamp(value?: string | null): string {
-  if (!value) return 'No recent contact';
+  if (!value) return "No recent contact";
 
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return 'Unknown';
+  if (Number.isNaN(date.getTime())) return "Unknown";
 
   const now = Date.now();
   const diffMs = Math.max(0, now - date.getTime());
   const diffDays = Math.floor(diffMs / (24 * 60 * 60 * 1000));
 
-  if (diffDays === 0) return 'today';
-  if (diffDays === 1) return '1 day ago';
+  if (diffDays === 0) return "today";
+  if (diffDays === 1) return "1 day ago";
   if (diffDays < 7) return `${diffDays} days ago`;
 
   const diffWeeks = Math.floor(diffDays / 7);
-  if (diffWeeks === 1) return '1 week ago';
+  if (diffWeeks === 1) return "1 week ago";
   if (diffWeeks < 5) return `${diffWeeks} weeks ago`;
 
   const diffMonths = Math.floor(diffDays / 30);
-  if (diffMonths <= 1) return '1 month ago';
+  if (diffMonths <= 1) return "1 month ago";
   return `${diffMonths} months ago`;
 }
 
-export function mapPipelineApiDealToPipelineDeal(apiDeal: PipelineApiDeal): PipelineDeal {
+export function mapPipelineApiDealToPipelineDeal(
+  apiDeal: PipelineApiDeal,
+): PipelineDeal {
   return {
     id: apiDeal.id,
     name: apiDeal.name,
@@ -136,30 +129,32 @@ export function mapPipelineApiDealToPipelineDeal(apiDeal: PipelineApiDeal): Pipe
     amount: formatAmountToMillions(apiDeal.amount),
     probability: Math.round(apiDeal.probability ?? 0),
     founder: apiDeal.founder,
-    lastContact: formatRelativeTimestamp(apiDeal.lastContact ?? apiDeal.updatedAt ?? apiDeal.createdAt),
+    lastContact: formatRelativeTimestamp(
+      apiDeal.lastContact ?? apiDeal.updatedAt ?? apiDeal.createdAt,
+    ),
   };
 }
 
 export async function fetchPipelineDealsFromApi(
-  params: GetPipelineParams = {}
+  params: GetPipelineParams = {},
 ): Promise<PipelineApiDeal[]> {
-  const response = await requestJson<PipelineDealsResponse>('/pipeline/deals', {
-    method: 'GET',
+  const response = await requestJson<PipelineDealsResponse>("/pipeline/deals", {
+    method: "GET",
     query: toQuery(params),
-    fallbackMessage: 'Failed to load pipeline deals',
+    fallbackMessage: "Failed to load pipeline deals",
   });
 
   if (!response) {
-    logger.warn('Empty pipeline deals payload from API; using fallback', {
-      component: 'pipelineGateway',
+    logger.warn("Empty pipeline deals payload from API; using fallback", {
+      component: "pipelineGateway",
       params,
     });
     return [];
   }
   if (Array.isArray(response)) return response;
   if (!Array.isArray(response.data)) {
-    logger.warn('Malformed pipeline deals payload from API; using fallback', {
-      component: 'pipelineGateway',
+    logger.warn("Malformed pipeline deals payload from API; using fallback", {
+      component: "pipelineGateway",
       params,
     });
     return [];
@@ -168,44 +163,52 @@ export async function fetchPipelineDealsFromApi(
 }
 
 export async function fetchPipelineStagesFromApi(): Promise<string[]> {
-  const stages = await requestJson<string[]>('/pipeline/stages', {
-    method: 'GET',
-    fallbackMessage: 'Failed to load pipeline stages',
+  const stages = await requestJson<string[]>("/pipeline/stages", {
+    method: "GET",
+    fallbackMessage: "Failed to load pipeline stages",
   });
 
   if (!stages) {
-    logger.warn('Empty pipeline stages payload from API; using default stages', {
-      component: 'pipelineGateway',
+    logger.warn("Empty pipeline stages payload from API.", {
+      component: "pipelineGateway",
     });
-    return DEFAULT_STAGES;
+    return [];
   }
   if (!Array.isArray(stages) || stages.length === 0) {
-    logger.warn('Malformed pipeline stages payload from API; using default stages', {
-      component: 'pipelineGateway',
+    logger.warn("Malformed pipeline stages payload from API.", {
+      component: "pipelineGateway",
     });
-    return DEFAULT_STAGES;
+    return [];
   }
 
   return stages;
 }
 
+/** Convert a display stage name to its DB enum value before sending to API */
+function stageToApiValue(stage: string): string {
+  return PIPELINE_STAGE_API_VALUES[stage] ?? stage;
+}
+
 export async function createPipelineDealInApi(
-  input: CreatePipelineDealApiInput
+  input: CreatePipelineDealApiInput,
 ): Promise<PipelineApiDeal> {
-  return requestJson<PipelineApiDeal>('/pipeline/deals', {
-    method: 'POST',
-    body: input,
-    fallbackMessage: 'Failed to create pipeline deal',
+  return requestJson<PipelineApiDeal>("/pipeline/deals", {
+    method: "POST",
+    body: { ...input, stage: stageToApiValue(input.stage) },
+    fallbackMessage: "Failed to create pipeline deal",
   });
 }
 
 export async function updatePipelineDealInApi(
   dealId: string,
-  input: UpdatePipelineDealApiInput
+  input: UpdatePipelineDealApiInput,
 ): Promise<PipelineApiDeal> {
+  const body = input.stage
+    ? { ...input, stage: stageToApiValue(input.stage) }
+    : input;
   return requestJson<PipelineApiDeal>(`/pipeline/deals/${dealId}`, {
-    method: 'PATCH',
-    body: input,
-    fallbackMessage: 'Failed to update pipeline deal',
+    method: "PATCH",
+    body,
+    fallbackMessage: "Failed to update pipeline deal",
   });
 }

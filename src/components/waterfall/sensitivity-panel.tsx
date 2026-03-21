@@ -17,7 +17,6 @@ import { useUIKey } from '@/store/ui';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { AsyncStateRenderer } from '@/ui/async-states';
 import {
-  sensitivityAnalysisRequested,
   sensitivitySelectors,
 } from '@/store/slices/waterfallSlice';
 import { calculateSensitivityAnalysis } from '@/lib/calculations/waterfall';
@@ -26,6 +25,7 @@ import type { WaterfallScenario } from '@/types/waterfall';
 import { TrendingUp } from 'lucide-react';
 import { SectionHeader } from '@/ui/composites';
 import { WATERFALL_SENSITIVITY_DEFAULTS } from '@/config/calculation-defaults';
+import { runSensitivityAnalysisOperation } from '@/store/async/waterfallOperations';
 
 type SensitivityUIState = {
   minExitValue: number;
@@ -195,7 +195,7 @@ export function SensitivityPanel({
   }, [maxExitValue, minExitValue, rangeBounds.step]);
 
   const { data, isLoading, error, refetch } = useAsyncData(
-    sensitivityAnalysisRequested,
+    runSensitivityAnalysisOperation,
     sensitivitySelectors.selectState,
     {
       params: {

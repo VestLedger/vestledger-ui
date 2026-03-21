@@ -1,5 +1,5 @@
-import { Page, Locator } from '@playwright/test';
-import { loginViaRedirect } from '../helpers/auth-helpers';
+import { Page, Locator } from "@playwright/test";
+import { loginViaRedirect } from "../helpers/auth-helpers";
 
 export class LPPortalPage {
   readonly page: Page;
@@ -11,15 +11,17 @@ export class LPPortalPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.pageTitle = page.getByRole('heading', { level: 1 });
-    this.investmentsSummary = page.locator('[data-testid="investments-summary"]');
+    this.pageTitle = page.getByRole("heading", { level: 1 });
+    this.investmentsSummary = page.locator(
+      '[data-testid="investments-summary"]',
+    );
     this.documentsSection = page.locator('[data-testid="documents"]');
     this.statementsSection = page.locator('[data-testid="statements"]');
     this.portfolioValue = page.locator('[data-testid="portfolio-value"]');
   }
 
   async goto() {
-    await loginViaRedirect(this.page, '/lp-portal');
+    await loginViaRedirect(this.page, "/lp-portal");
   }
 
   async getInvestments() {

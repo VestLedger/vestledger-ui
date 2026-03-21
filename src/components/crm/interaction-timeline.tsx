@@ -5,6 +5,10 @@ import { Mail, Phone, Video, MessageSquare, Calendar, Paperclip, Clock, Plus, Ed
 import { useUIKey } from '@/store/ui';
 import { SearchToolbar, SectionHeader } from '@/ui/composites';
 import { formatDate, formatTime } from '@/utils/formatting';
+import {
+  getInteractionTypeFilterOptions,
+  INTERACTION_GROUP_BY_OPTIONS,
+} from '@/config/crm-options';
 
 export interface TimelineInteraction {
   id: string;
@@ -206,13 +210,7 @@ export function InteractionTimeline({
                 className="min-w-[190px]"
                 selectedKeys={[filterType]}
                 onChange={(e) => patchUI({ filterType: e.target.value })}
-                options={[
-                  { value: 'all', label: `All Types (${interactionCounts.all})` },
-                  { value: 'email', label: `Emails (${interactionCounts.email})` },
-                  { value: 'call', label: `Calls (${interactionCounts.call})` },
-                  { value: 'meeting', label: `Meetings (${interactionCounts.meeting})` },
-                  { value: 'note', label: `Notes (${interactionCounts.note})` },
-                ]}
+                options={getInteractionTypeFilterOptions(interactionCounts)}
               />
               <Select
                 aria-label="Group interactions by"
@@ -220,10 +218,7 @@ export function InteractionTimeline({
                 className="min-w-[170px]"
                 selectedKeys={[groupBy]}
                 onChange={(e) => patchUI({ groupBy: e.target.value as 'date' | 'type' })}
-                options={[
-                  { value: 'date', label: 'Group by Date' },
-                  { value: 'type', label: 'Group by Type' },
-                ]}
+                options={INTERACTION_GROUP_BY_OPTIONS}
               />
             </div>
           )}
@@ -460,7 +455,9 @@ export function InteractionTimeline({
               {interactions.length > 0 && (
                 <span className="text-[var(--app-text-muted)]">
                   Last interaction:{' '}
-                  {interactions.sort((a, b) => b.date.getTime() - a.date.getTime())[0].date.toLocaleDateString()}
+                  {formatDate(
+                    interactions.sort((a, b) => b.date.getTime() - a.date.getTime())[0].date
+                  )}
                 </span>
               )}
             </div>

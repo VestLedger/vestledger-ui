@@ -6,15 +6,17 @@ import { Shield, FileText, AlertTriangle, CheckCircle, Clock, Download, Calendar
 import { AMLKYCWorkflow } from '../compliance/aml-kyc-workflow';
 import { useUIKey } from '@/store/ui';
 import { COMPLIANCE_TAB_IDS, DEFAULT_COMPLIANCE_TAB_ID } from '@/config/compliance-tabs';
-import { complianceRequested, complianceSelectors } from '@/store/slices/backOfficeSlice';
+import { complianceSelectors } from '@/store/slices/backOfficeSlice';
 import { AsyncStateRenderer } from '@/ui/async-states';
 import { PageScaffold, SectionHeader, StatusBadge, MetricsGrid } from '@/ui/composites';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { ROUTE_PATHS } from '@/config/routes';
+import { loadComplianceOperation } from '@/store/async/backOfficeOperations';
+import { formatDate } from '@/utils/formatting';
 
 export function Compliance() {
   const toast = useToast();
-  const { data, isLoading, error, refetch } = useAsyncData(complianceRequested, complianceSelectors.selectState);
+  const { data, isLoading, error, refetch } = useAsyncData(loadComplianceOperation, complianceSelectors.selectState);
   const { value: ui, patch: patchUI } = useUIKey('back-office-compliance', { selectedTab: DEFAULT_COMPLIANCE_TAB_ID });
   const { selectedTab } = ui;
 
@@ -162,7 +164,6 @@ export function Compliance() {
             icon: Shield,
             aiSummary: {
               text: `${overdueItems} overdue items require immediate attention. ${inProgressItems} items in progress. ${upcomingHighPriority} high-priority deadlines approaching. AI recommends prioritizing Form ADV and annual certification.`,
-              confidence: 0.94,
             },
             primaryAction: {
               label: 'Upload Document',
@@ -246,7 +247,7 @@ export function Compliance() {
                         <div className="flex items-center gap-4 text-sm text-[var(--app-text-subtle)]">
                           <div className="flex items-center gap-1">
                             <Calendar className="w-4 h-4" />
-                            <span>Due: {new Date(item.dueDate).toLocaleDateString()}</span>
+                            <span>Due: {formatDate(item.dueDate)}</span>
                           </div>
                           <span>•</span>
                           <div className="flex items-center gap-1">
@@ -301,11 +302,11 @@ export function Compliance() {
                           </div>
                           <div>
                             <p className="text-[var(--app-text-muted)]">Last Filed</p>
-                            <p className="font-medium">{new Date(filing.lastFiled).toLocaleDateString()}</p>
+                            <p className="font-medium">{formatDate(filing.lastFiled)}</p>
                           </div>
                           <div>
                             <p className="text-[var(--app-text-muted)]">Next Due</p>
-                            <p className="font-medium">{filing.nextDue !== 'N/A' ? new Date(filing.nextDue).toLocaleDateString() : 'N/A'}</p>
+                            <p className="font-medium">{filing.nextDue !== 'N/A' ? formatDate(filing.nextDue) : 'N/A'}</p>
                           </div>
                           <div>
                             <p className="text-[var(--app-text-muted)]">Fund</p>
@@ -348,12 +349,12 @@ export function Compliance() {
                     <div className="grid grid-cols-3 gap-4 text-sm">
                       <div>
                         <p className="text-[var(--app-text-muted)]">Start Date</p>
-                        <p className="font-medium">{new Date(audit.startDate).toLocaleDateString()}</p>
+                        <p className="font-medium">{formatDate(audit.startDate)}</p>
                       </div>
                       <div>
                         <p className="text-[var(--app-text-muted)]">Completion Date</p>
                         <p className="font-medium">
-                          {audit.completionDate ? new Date(audit.completionDate).toLocaleDateString() : 'In Progress'}
+                          {audit.completionDate ? formatDate(audit.completionDate) : 'In Progress'}
                         </p>
                       </div>
                       <div>

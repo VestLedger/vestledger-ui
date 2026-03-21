@@ -8,18 +8,24 @@ import { PageScaffold, SearchToolbar, SectionHeader } from '@/ui/composites';
 import { ROUTE_PATHS } from '@/config/routes';
 import { COLLABORATION_TAB_IDS, DEFAULT_COLLABORATION_TAB_ID } from '@/config/collaboration-tabs';
 import { useAsyncData } from '@/hooks/useAsyncData';
-import { collaborationRequested, collaborationSelectors } from '@/store/slices/miscSlice';
+import { useAppDispatch } from '@/store/hooks';
+import { collaborationSelectors } from '@/store/slices/miscSlice';
 import { useUIKey } from '@/store/ui';
 import {
-  addCollaborationMessage,
-  createCollaborationTask,
-  updateCollaborationTaskStatus,
   type CollaborationMessage,
   type CollaborationTask,
   type CollaborationTaskStatus,
   type CollaborationThread,
 } from '@/services/collaboration/collaborationService';
 import { useAuth } from '@/contexts/auth-context';
+import { loadCollaborationOperation } from '@/store/async/dataOperations';
+import {
+  addCollaborationMessageOperation,
+  createCollaborationTaskOperation,
+  updateCollaborationTaskStatusOperation,
+} from '@/store/async/miscMutationOperations';
+import { COLLABORATION_TASK_STATUS_FILTER_OPTIONS } from '@/config/collaboration-options';
+import { formatDateTime } from '@/utils/formatting';
 
 type CollaborationUIState = {
   searchQuery: string;
@@ -36,10 +42,11 @@ const EMPTY_TASKS: CollaborationTask[] = [];
 const EMPTY_MESSAGES: CollaborationMessage[] = [];
 
 export function CollaborationWorkspace() {
+  const dispatch = useAppDispatch();
   const toast = useToast();
   const { user } = useAuth();
   const { data, isLoading, error, refetch } = useAsyncData(
-    collaborationRequested,
+    loadCollaborationOperation,
     collaborationSelectors.selectState
   );
   const { value: ui, patch: patchUI } = useUIKey<CollaborationUIState>('collaboration-workspace', {
@@ -99,15 +106,14 @@ export function CollaborationWorkspace() {
     }
 
     try {
-      await addCollaborationMessage({
+      await dispatch(addCollaborationMessageOperation({
         threadId: selectedThread.id,
         authorName: user.name,
         authorRole: user.role,
         message,
-      });
+      })).unwrap();
       patchUI({ messageDraft: '' });
       toast.success('Comment posted to collaboration thread.', 'Comment Added');
-      refetch();
     } catch {
       toast.error('Unable to post comment.');
     }
@@ -124,7 +130,7 @@ export function CollaborationWorkspace() {
     }
 
     try {
-      await createCollaborationTask({
+      await dispatch(createCollaborationTaskOperation({
         title,
         description,
         ownerRole: user.role,
@@ -132,10 +138,9 @@ export function CollaborationWorkspace() {
         priority: 'medium',
         dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
         route: ROUTE_PATHS.collaboration,
-      });
+      })).unwrap();
       patchUI({ taskTitleDraft: '', taskDescriptionDraft: '' });
       toast.success('Collaboration task created.', 'Task Added');
-      refetch();
     } catch {
       toast.error('Unable to create collaboration task.');
     }
@@ -143,9 +148,8 @@ export function CollaborationWorkspace() {
 
   const setTaskStatus = async (taskId: string, status: CollaborationTaskStatus) => {
     try {
-      await updateCollaborationTaskStatus(taskId, status);
+      await dispatch(updateCollaborationTaskStatusOperation({ taskId, status })).unwrap();
       toast.success(`Task moved to ${status}.`);
-      refetch();
     } catch {
       toast.error('Unable to update task status.');
     }
@@ -170,7 +174,6 @@ export function CollaborationWorkspace() {
             icon: MessageSquare,
             aiSummary: {
               text: `${unreadThreadsCount} threads need review and ${openTasksCount} tasks are still open. ${blockedTasksCount} tasks are blocked and should be escalated first.`,
-              confidence: 0.9,
             },
           }}
         >
@@ -233,7 +236,7 @@ export function CollaborationWorkspace() {
                             {message.authorName} ({message.authorRole})
                           </p>
                           <span className="text-xs text-[var(--app-text-muted)]">
-                            {new Date(message.createdAt).toLocaleString()}
+                            {formatDateTime(message.createdAt)}
                           </span>
                         </div>
                         <p className="text-sm">{message.message}</p>
@@ -275,13 +278,7 @@ export function CollaborationWorkspace() {
                     onChange={(event) =>
                       patchUI({ taskStatusFilter: event.target.value as CollaborationUIState['taskStatusFilter'] })
                     }
-                    options={[
-                      { value: 'all', label: 'All statuses' },
-                      { value: 'todo', label: 'Todo' },
-                      { value: 'in-progress', label: 'In Progress' },
-                      { value: 'blocked', label: 'Blocked' },
-                      { value: 'done', label: 'Done' },
-                    ]}
+                    options={COLLABORATION_TASK_STATUS_FILTER_OPTIONS}
                     className="w-full"
                   />
                 </div>
