@@ -1,8 +1,15 @@
-'use client'
+"use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { usePathname } from 'next/navigation';
-import { motion } from 'framer-motion';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
+import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
 import {
   Bot,
   ChevronDown,
@@ -16,29 +23,37 @@ import {
   VolumeX,
   Zap,
   type LucideIcon,
-} from 'lucide-react';
-import { Button, Input } from '@/ui';
-import { AICopilotBubble } from './ai-copilot-bubble';
-import { useNavigation } from '@/contexts/navigation-context';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+} from "lucide-react";
+import { Button, Input } from "@/ui";
+import { AICopilotBubble } from "./ai-copilot-bubble";
+import { useNavigation } from "@/contexts/navigation-context";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   copilotSuggestionsSelectors,
   setInputValue,
   setShowSuggestions,
-} from '@/store/slices/copilotSlice';
-import type { QuickAction, Suggestion } from '@/services/ai/copilotService';
-import { useDashboardDensity } from '@/contexts/dashboard-density-context';
-import { ROUTE_PATHS } from '@/config/routes';
-import { useUIKey } from '@/store/ui';
-import { UI_STATE_DEFAULTS, UI_STATE_KEYS } from '@/store/constants/uiStateKeys';
-import { DEFAULT_LOCALE } from '@/config/i18n';
+} from "@/store/slices/copilotSlice";
+import type { QuickAction, Suggestion } from "@/services/ai/copilotService";
+import { useDashboardDensity } from "@/contexts/dashboard-density-context";
+import { ROUTE_PATHS } from "@/config/routes";
+import { useUIKey } from "@/store/ui";
+import {
+  UI_STATE_DEFAULTS,
+  UI_STATE_KEYS,
+} from "@/store/constants/uiStateKeys";
+import { DEFAULT_LOCALE } from "@/config/i18n";
 import {
   invokeCopilotQuickAction,
   invokeCopilotSuggestion,
   openCopilotWithQuery,
   sendCopilotMessage,
-} from '@/hooks/use-copilot-controller';
-import { loadCopilotSuggestionsOperation } from '@/store/async/dataOperations';
+} from "@/hooks/use-copilot-controller";
+import { loadCopilotSuggestionsOperation } from "@/store/async/dataOperations";
+import { getManualSpeechRequest } from "./ai-copilot-speech";
+import {
+  pickPreferredSpeechVoice,
+  waitForSpeechVoices,
+} from "./ai-copilot-voice";
 
 type UITabState = {
   activeTab?: string;
@@ -48,7 +63,7 @@ type UITabState = {
   selectedDetailTab?: string;
 };
 
-type AICopilotSidebarMode = 'panel' | 'fullscreen' | 'standalone';
+type AICopilotSidebarMode = "panel" | "fullscreen" | "standalone";
 
 type AICopilotSidebarProps = {
   mode?: AICopilotSidebarMode;
@@ -88,116 +103,31 @@ type SpeechRecognitionErrorLike = {
 };
 
 function getSpeechRecognitionCtor(): BrowserSpeechRecognitionCtor | null {
-  if (typeof window === 'undefined') return null;
+  if (typeof window === "undefined") return null;
   const candidateWindow = window as unknown as {
     SpeechRecognition?: BrowserSpeechRecognitionCtor;
     webkitSpeechRecognition?: BrowserSpeechRecognitionCtor;
   };
-  return candidateWindow.SpeechRecognition ?? candidateWindow.webkitSpeechRecognition ?? null;
+  return (
+    candidateWindow.SpeechRecognition ??
+    candidateWindow.webkitSpeechRecognition ??
+    null
+  );
 }
 
-function normalizeLanguageTag(language: string | undefined): string {
-  return (language ?? '').trim().toLowerCase();
-}
-
-const HUMAN_VOICE_HINTS = [
-  'natural',
-  'neural',
-  'wavenet',
-  'enhanced',
-  'premium',
-  'siri',
-  'aria',
-  'jenny',
-  'guy',
-  'samantha',
-  'allison',
-  'victoria',
-  'serena',
-  'alex',
-  'daniel',
-];
-
-const ROBOTIC_VOICE_HINTS = [
-  'espeak',
-  'festival',
-  'flite',
-  'mbrola',
-  'compact',
-  'classic',
-  'legacy',
-  'robot',
-  'default',
-];
-
-function scoreSpeechVoice(voice: SpeechSynthesisVoice, preferredLanguage: string): number {
-  const voiceName = voice.name.toLowerCase();
-  const voiceLanguage = normalizeLanguageTag(voice.lang);
-  const preferred = normalizeLanguageTag(preferredLanguage);
-  const preferredBase = preferred.split('-')[0];
-
-  let score = 0;
-
-  if (voiceLanguage === preferred) {
-    score += 80;
-  } else if (preferredBase && (voiceLanguage === preferredBase || voiceLanguage.startsWith(`${preferredBase}-`))) {
-    score += 55;
-  } else if (voiceLanguage.startsWith('en')) {
-    score += 20;
-  } else {
-    score -= 35;
-  }
-
-  if (voice.default) {
-    score += 8;
-  }
-
-  // In many browsers, remote/cloud voices tend to sound more natural.
-  if (!voice.localService) {
-    score += 6;
-  }
-
-  for (const hint of HUMAN_VOICE_HINTS) {
-    if (voiceName.includes(hint)) {
-      score += 22;
-    }
-  }
-
-  for (const hint of ROBOTIC_VOICE_HINTS) {
-    if (voiceName.includes(hint)) {
-      score -= 26;
-    }
-  }
-
-  return score;
-}
-
-function pickPreferredSpeechVoice(
-  voices: SpeechSynthesisVoice[],
-  preferredLanguage: string
-): SpeechSynthesisVoice | null {
-  if (voices.length === 0) return null;
-
-  const rankedVoices = voices
-    .map((voice) => ({
-      voice,
-      score: scoreSpeechVoice(voice, preferredLanguage),
-    }))
-    .sort((left, right) => right.score - left.score);
-
-  return rankedVoices[0]?.voice ?? null;
-}
-
-function resolveQuickActionLabel(action: QuickAction & { title?: unknown }, index: number): string {
-  if (typeof action.label === 'string' && action.label.trim().length > 0) {
+function resolveQuickActionLabel(
+  action: QuickAction & { title?: unknown },
+  index: number,
+): string {
+  if (typeof action.label === "string" && action.label.trim().length > 0) {
     return action.label;
   }
 
-  if (typeof action.title === 'string' && action.title.trim().length > 0) {
+  if (typeof action.title === "string" && action.title.trim().length > 0) {
     return action.title;
   }
 
-  if (typeof action.action === 'string' && action.action.trim().length > 0) {
+  if (typeof action.action === "string" && action.action.trim().length > 0) {
     return action.action;
   }
 
@@ -205,16 +135,20 @@ function resolveQuickActionLabel(action: QuickAction & { title?: unknown }, inde
 }
 
 function resolveQuickActionIcon(icon: unknown): LucideIcon {
-  if (typeof icon === 'function') {
+  if (typeof icon === "function") {
     return icon as LucideIcon;
   }
 
-  if (icon && typeof icon === 'object') {
-    const candidate = icon as { $$typeof?: unknown; render?: unknown; type?: unknown };
+  if (icon && typeof icon === "object") {
+    const candidate = icon as {
+      $$typeof?: unknown;
+      render?: unknown;
+      type?: unknown;
+    };
     if (
-      '$$typeof' in candidate
-      || typeof candidate.render === 'function'
-      || typeof candidate.type === 'function'
+      "$$typeof" in candidate ||
+      typeof candidate.render === "function" ||
+      typeof candidate.type === "function"
     ) {
       return icon as LucideIcon;
     }
@@ -230,26 +164,33 @@ type ListeningVestaIconProps = {
 };
 
 function ListeningVestaIcon({
-  className = 'w-3.5 h-3.5',
-  containerClassName = 'h-8 w-8',
-  coreClassName = 'h-5 w-5',
+  className = "w-3.5 h-3.5",
+  containerClassName = "h-8 w-8",
+  coreClassName = "h-5 w-5",
 }: ListeningVestaIconProps) {
   return (
-    <div className={`relative flex items-center justify-center ${containerClassName}`}>
+    <div
+      className={`relative flex items-center justify-center ${containerClassName}`}
+    >
       <motion.span
         className="absolute inset-0 rounded-full border border-[var(--app-primary)]"
         animate={{ scale: [1, 1.45], opacity: [0.6, 0] }}
-        transition={{ duration: 1.2, ease: 'easeOut', repeat: Infinity }}
+        transition={{ duration: 1.2, ease: "easeOut", repeat: Infinity }}
       />
       <motion.span
         className="absolute inset-0 rounded-full border border-[var(--app-primary)]"
         animate={{ scale: [1, 1.25], opacity: [0.45, 0] }}
-        transition={{ duration: 1.2, ease: 'easeOut', repeat: Infinity, delay: 0.18 }}
+        transition={{
+          duration: 1.2,
+          ease: "easeOut",
+          repeat: Infinity,
+          delay: 0.18,
+        }}
       />
       <motion.div
         className={`relative z-10 flex items-center justify-center rounded-full bg-[var(--app-primary)] ${coreClassName}`}
         animate={{ scale: [1, 1.1, 1] }}
-        transition={{ duration: 1, ease: 'easeInOut', repeat: Infinity }}
+        transition={{ duration: 1, ease: "easeInOut", repeat: Infinity }}
       >
         <Bot className={`${className} text-white`} />
       </motion.div>
@@ -263,34 +204,40 @@ export function useAICopilot() {
   const { sidebarState, toggleRightSidebar } = useNavigation();
   const { patch: patchVestaShellUI } = useUIKey(
     UI_STATE_KEYS.VESTA_SHELL,
-    UI_STATE_DEFAULTS.vestaShell
+    UI_STATE_DEFAULTS.vestaShell,
   );
 
   const openWithQuery = useCallback(
     (query: string) => {
-      patchVestaShellUI({ vestaViewMode: 'sidebar' });
+      patchVestaShellUI({ vestaViewMode: "sidebar" });
       if (sidebarState.rightCollapsed) {
         toggleRightSidebar();
       }
       void openCopilotWithQuery(dispatch, pathname, query);
     },
-    [dispatch, pathname, patchVestaShellUI, sidebarState.rightCollapsed, toggleRightSidebar]
+    [
+      dispatch,
+      pathname,
+      patchVestaShellUI,
+      sidebarState.rightCollapsed,
+      toggleRightSidebar,
+    ],
   );
 
   return { openWithQuery };
 }
 
-export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
+export function AICopilotSidebar({ mode = "panel" }: AICopilotSidebarProps) {
   const dispatch = useAppDispatch();
   const pathname = usePathname();
   const { sidebarState, toggleRightSidebar } = useNavigation();
   const density = useDashboardDensity();
-  const isPanelMode = mode === 'panel';
+  const isPanelMode = mode === "panel";
   const isCollapsed = isPanelMode ? sidebarState.rightCollapsed : false;
 
   const { value: vestaShellUI, patch: patchVestaShellUI } = useUIKey(
     UI_STATE_KEYS.VESTA_SHELL,
-    UI_STATE_DEFAULTS.vestaShell
+    UI_STATE_DEFAULTS.vestaShell,
   );
   const resolvedVestaShellUI = useMemo(() => {
     const current = (vestaShellUI ?? {}) as Partial<VestaShellState>;
@@ -310,27 +257,38 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
   const messages = useAppSelector((state) => state.copilot.messages);
   const inputValue = useAppSelector((state) => state.copilot.inputValue);
   const isTyping = useAppSelector((state) => state.copilot.isTyping);
-  const showSuggestions = useAppSelector((state) => state.copilot.showSuggestions);
-  const quickActionsOverride = useAppSelector((state) => state.copilot.quickActionsOverride);
-  const suggestionsOverride = useAppSelector((state) => state.copilot.suggestionsOverride);
+  const showSuggestions = useAppSelector(
+    (state) => state.copilot.showSuggestions,
+  );
+  const quickActionsOverride = useAppSelector(
+    (state) => state.copilot.quickActionsOverride,
+  );
+  const suggestionsOverride = useAppSelector(
+    (state) => state.copilot.suggestionsOverride,
+  );
 
-  const suggestionsData = useAppSelector(copilotSuggestionsSelectors.selectData);
+  const suggestionsData = useAppSelector(
+    copilotSuggestionsSelectors.selectData,
+  );
 
   const suggestions = useMemo(() => {
     return suggestionsOverride && suggestionsOverride.length > 0
       ? suggestionsOverride
-      : (suggestionsData?.suggestions || []);
+      : suggestionsData?.suggestions || [];
   }, [suggestionsData, suggestionsOverride]);
 
   const quickActions = useMemo(() => {
     return quickActionsOverride && quickActionsOverride.length > 0
       ? quickActionsOverride
-      : (suggestionsData?.quickActions || []);
+      : suggestionsData?.quickActions || [];
   }, [quickActionsOverride, suggestionsData]);
 
   const normalizedQuickActions = useMemo(() => {
     return quickActions.map((rawAction, index) => {
-      const action = rawAction as QuickAction & { title?: unknown; icon?: unknown };
+      const action = rawAction as QuickAction & {
+        title?: unknown;
+        icon?: unknown;
+      };
       return {
         ...action,
         label: resolveQuickActionLabel(action, index),
@@ -341,19 +299,25 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const speechRef = useRef<BrowserSpeechRecognition | null>(null);
-  const transcriptBufferRef = useRef('');
+  const transcriptBufferRef = useRef("");
   const lastSpokenMessageIdRef = useRef<string | null>(null);
   const lastVoiceCaptureRequestRef = useRef(0);
+  const pointerSpokenMessageIdRef = useRef<string | null>(null);
+  const speechRequestIdRef = useRef(0);
   const ttsPrimedRef = useRef(false);
 
   const primeSpeechSynthesis = useCallback(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
     if (ttsPrimedRef.current) return;
-    if (!('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') return;
+    if (
+      !("speechSynthesis" in window) ||
+      typeof SpeechSynthesisUtterance === "undefined"
+    )
+      return;
 
     try {
       const synth = window.speechSynthesis;
-      const primer = new SpeechSynthesisUtterance(' ');
+      const primer = new SpeechSynthesisUtterance(" ");
       primer.volume = 0;
       synth.speak(primer);
       synth.cancel();
@@ -363,86 +327,115 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
     }
   }, []);
 
-  const speakAssistantReply = useCallback((content: string) => {
-    if (typeof window === 'undefined') return;
-    if (!('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') return;
-    primeSpeechSynthesis();
+  const speakAssistantReply = useCallback(
+    (content: string, options?: { waitForPreferredVoice?: boolean }) => {
+      if (typeof window === "undefined") return;
+      if (
+        !("speechSynthesis" in window) ||
+        typeof SpeechSynthesisUtterance === "undefined"
+      )
+        return;
+      primeSpeechSynthesis();
 
-    const synth = window.speechSynthesis;
-    const utterance = new SpeechSynthesisUtterance(content);
-    utterance.rate = 0.96;
-    utterance.pitch = 1;
-    utterance.volume = 1;
-    const preferredLanguage = normalizeLanguageTag(navigator.language) || 'en-us';
-    let speechStarted = false;
-    utterance.onstart = () => {
-      speechStarted = true;
-    };
-
-    const applyPreferredVoice = () => {
-      const voices = synth.getVoices();
-      if (voices.length === 0) return false;
-      const preferredVoice = pickPreferredSpeechVoice(voices, preferredLanguage);
-      utterance.voice = preferredVoice ?? voices[0];
-      utterance.lang = utterance.voice?.lang || preferredLanguage;
-      return true;
-    };
-
-    const play = () => {
-      try {
-        synth.cancel();
-        synth.resume();
-        synth.speak(utterance);
-
-        // Some desktop environments occasionally drop the first utterance.
-        // Retry once with a plain fallback voice if speech never begins.
-        window.setTimeout(() => {
-          if (speechStarted || synth.speaking || synth.pending) return;
-          try {
-            const fallbackUtterance = new SpeechSynthesisUtterance(content);
-            fallbackUtterance.rate = 1;
-            fallbackUtterance.pitch = 1;
-            fallbackUtterance.volume = 1;
-            fallbackUtterance.lang = preferredLanguage;
-            synth.cancel();
-            synth.resume();
-            synth.speak(fallbackUtterance);
-          } catch {
-            // noop
-          }
-        }, 350);
-      } catch {
-        // noop
-      }
-    };
-
-    const hasPreferredVoice = applyPreferredVoice();
-    play();
-
-    // Keep voice selection warm for subsequent speaks without delaying
-    // the current utterance (important for click-to-speak user gestures).
-    if (!hasPreferredVoice) {
-      const onVoicesChanged = () => {
-        synth.removeEventListener('voiceschanged', onVoicesChanged);
-        applyPreferredVoice();
+      const synth = window.speechSynthesis;
+      const requestId = speechRequestIdRef.current + 1;
+      speechRequestIdRef.current = requestId;
+      const utterance = new SpeechSynthesisUtterance(content);
+      utterance.rate = 0.96;
+      utterance.pitch = 1;
+      utterance.volume = 1;
+      const preferredLanguage =
+        (navigator.language ?? "").trim().toLowerCase() || "en-us";
+      let speechStarted = false;
+      utterance.onstart = () => {
+        speechStarted = true;
       };
-      synth.addEventListener('voiceschanged', onVoicesChanged);
-      window.setTimeout(() => {
-        synth.removeEventListener('voiceschanged', onVoicesChanged);
-      }, 1000);
-    }
-  }, [primeSpeechSynthesis]);
+
+      const isStaleRequest = () => requestId !== speechRequestIdRef.current;
+
+      const applyPreferredVoice = (voices = synth.getVoices()) => {
+        if (voices.length === 0) return false;
+        const preferredVoice = pickPreferredSpeechVoice(
+          voices,
+          preferredLanguage,
+        );
+        utterance.voice = preferredVoice ?? voices[0];
+        utterance.lang = utterance.voice?.lang || preferredLanguage;
+        return true;
+      };
+
+      const play = () => {
+        if (isStaleRequest()) return;
+        try {
+          synth.cancel();
+          synth.resume();
+          synth.speak(utterance);
+
+          // Some desktop environments occasionally drop the first utterance.
+          // Retry once with a plain fallback voice if speech never begins.
+          window.setTimeout(() => {
+            if (speechStarted || synth.speaking || synth.pending) return;
+            try {
+              const fallbackUtterance = new SpeechSynthesisUtterance(content);
+              fallbackUtterance.rate = 1;
+              fallbackUtterance.pitch = 1;
+              fallbackUtterance.volume = 1;
+              fallbackUtterance.lang = preferredLanguage;
+              synth.cancel();
+              synth.resume();
+              synth.speak(fallbackUtterance);
+            } catch {
+              // noop
+            }
+          }, 350);
+        } catch {
+          // noop
+        }
+      };
+
+      const startPlayback = async () => {
+        let hasPreferredVoice = false;
+
+        if (options?.waitForPreferredVoice) {
+          hasPreferredVoice = applyPreferredVoice(
+            await waitForSpeechVoices(synth),
+          );
+          if (isStaleRequest()) return;
+        } else {
+          hasPreferredVoice = applyPreferredVoice();
+        }
+
+        play();
+
+        // Keep voice selection warm for subsequent speaks without delaying
+        // the current utterance (important for click-to-speak user gestures).
+        if (!hasPreferredVoice) {
+          const onVoicesChanged = () => {
+            synth.removeEventListener("voiceschanged", onVoicesChanged);
+            applyPreferredVoice();
+          };
+          synth.addEventListener("voiceschanged", onVoicesChanged);
+          window.setTimeout(() => {
+            synth.removeEventListener("voiceschanged", onVoicesChanged);
+          }, 1000);
+        }
+      };
+
+      void startPlayback();
+    },
+    [primeSpeechSynthesis],
+  );
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
     const handlePrime = () => primeSpeechSynthesis();
 
-    window.addEventListener('pointerdown', handlePrime, { passive: true });
-    window.addEventListener('keydown', handlePrime);
+    window.addEventListener("pointerdown", handlePrime, { passive: true });
+    window.addEventListener("keydown", handlePrime);
 
     return () => {
-      window.removeEventListener('pointerdown', handlePrime);
-      window.removeEventListener('keydown', handlePrime);
+      window.removeEventListener("pointerdown", handlePrime);
+      window.removeEventListener("keydown", handlePrime);
     };
   }, [primeSpeechSynthesis]);
 
@@ -451,7 +444,7 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
   }, []);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages.length]);
 
   useEffect(() => {
@@ -461,25 +454,26 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
       } catch {
         // noop
       }
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         window.speechSynthesis.cancel();
       }
     };
   }, []);
 
   useEffect(() => {
-    if (!resolvedVestaShellUI.ttsEnabled || typeof window === 'undefined') return;
+    if (!resolvedVestaShellUI.ttsEnabled || typeof window === "undefined")
+      return;
     const latestMessage = messages[messages.length - 1];
-    if (!latestMessage || latestMessage.type !== 'ai') return;
+    if (!latestMessage || latestMessage.type !== "ai") return;
     if (latestMessage.id === lastSpokenMessageIdRef.current) return;
     lastSpokenMessageIdRef.current = latestMessage.id;
-    speakAssistantReply(latestMessage.content);
+    speakAssistantReply(latestMessage.content, { waitForPreferredVoice: true });
   }, [messages, resolvedVestaShellUI.ttsEnabled, speakAssistantReply]);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
     if (resolvedVestaShellUI.ttsEnabled) return;
-    if (!('speechSynthesis' in window)) return;
+    if (!("speechSynthesis" in window)) return;
     try {
       window.speechSynthesis.cancel();
     } catch {
@@ -495,41 +489,41 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
     };
 
     if (pathname === ROUTE_PATHS.contacts) {
-      return getTabValue('crm-contacts', 'activeTab');
+      return getTabValue("crm-contacts", "activeTab");
     }
     if (pathname === ROUTE_PATHS.lpPortal) {
-      return getTabValue('lp-investor-portal', 'selectedTab');
+      return getTabValue("lp-investor-portal", "selectedTab");
     }
     if (pathname === ROUTE_PATHS.lpManagement) {
-      return getTabValue('lp-management', 'selectedTab');
+      return getTabValue("lp-management", "selectedTab");
     }
     if (pathname === ROUTE_PATHS.dealIntelligence) {
-      const viewMode = getTabValue('deal-intelligence', 'viewMode');
-      if (viewMode === 'per-deal') {
-        return getTabValue('deal-intelligence', 'selectedDetailTab');
+      const viewMode = getTabValue("deal-intelligence", "viewMode");
+      if (viewMode === "per-deal") {
+        return getTabValue("deal-intelligence", "selectedDetailTab");
       }
-      return 'fund-level';
+      return "fund-level";
     }
     if (pathname === ROUTE_PATHS.fundAdmin) {
-      return getTabValue('back-office-fund-admin', 'selectedTab');
+      return getTabValue("back-office-fund-admin", "selectedTab");
     }
     if (pathname === ROUTE_PATHS.compliance) {
-      return getTabValue('back-office-compliance', 'selectedTab');
+      return getTabValue("back-office-compliance", "selectedTab");
     }
     if (pathname === ROUTE_PATHS.taxCenter) {
-      return getTabValue('back-office-tax-center', 'selectedTab');
+      return getTabValue("back-office-tax-center", "selectedTab");
     }
     if (pathname === ROUTE_PATHS.valuations409a) {
-      return getTabValue('back-office-valuation-409a', 'selectedTab');
+      return getTabValue("back-office-valuation-409a", "selectedTab");
     }
     if (pathname === ROUTE_PATHS.analytics) {
-      return getTabValue('analytics', 'selected');
+      return getTabValue("analytics", "selected");
     }
     if (pathname === ROUTE_PATHS.portfolio) {
-      return getTabValue('portfolio', 'selected');
+      return getTabValue("portfolio", "selected");
     }
     if (pathname === ROUTE_PATHS.aiTools) {
-      return getTabValue('ai-tools', 'selected');
+      return getTabValue("ai-tools", "selected");
     }
     return null;
   }, [pathname, uiState]);
@@ -540,7 +534,7 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
     const contextId = currentTab ? `${pathname}:${currentTab}` : pathname;
     patchVestaShellUI({
       activeThreadContext: {
-        contextType: currentTab ? 'route-tab' : 'route',
+        contextType: currentTab ? "route-tab" : "route",
         contextId,
       },
     });
@@ -562,7 +556,7 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
       action.onClick?.();
       void invokeCopilotQuickAction(dispatch, pathname, action);
     },
-    [dispatch, pathname, primeSpeechSynthesis]
+    [dispatch, pathname, primeSpeechSynthesis],
   );
 
   const handleSuggestionClick = useCallback(
@@ -570,13 +564,17 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
       primeSpeechSynthesis();
       void invokeCopilotSuggestion(dispatch, suggestion);
     },
-    [dispatch, primeSpeechSynthesis]
+    [dispatch, primeSpeechSynthesis],
   );
 
   const handleToggleTts = useCallback(() => {
     const nextEnabled = !resolvedVestaShellUI.ttsEnabled;
 
-    if (typeof window !== 'undefined' && !nextEnabled && 'speechSynthesis' in window) {
+    if (
+      typeof window !== "undefined" &&
+      !nextEnabled &&
+      "speechSynthesis" in window
+    ) {
       try {
         window.speechSynthesis.cancel();
       } catch {
@@ -586,7 +584,9 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
 
     if (nextEnabled) {
       // Do not replay older assistant responses when unmuting.
-      const latestAiMessage = [...messages].reverse().find((message) => message.type === 'ai');
+      const latestAiMessage = [...messages]
+        .reverse()
+        .find((message) => message.type === "ai");
       if (latestAiMessage) {
         lastSpokenMessageIdRef.current = latestAiMessage.id;
       }
@@ -602,14 +602,56 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
   ]);
 
   const handleMessageSpeech = useCallback(
-    (content: string, type: 'user' | 'ai') => {
-      if (type !== 'ai') return;
-      const trimmed = content.trim();
-      if (!trimmed) return;
-      primeSpeechSynthesis();
-      speakAssistantReply(trimmed);
+    (message: { id: string; content: string; type: "user" | "ai" }) => {
+      const speechRequest = getManualSpeechRequest({
+        content: message.content,
+        type: message.type,
+        messages,
+        ttsEnabled: resolvedVestaShellUI.ttsEnabled,
+      });
+      if (!speechRequest) return;
+
+      if (speechRequest.suppressReplayMessageId) {
+        lastSpokenMessageIdRef.current = speechRequest.suppressReplayMessageId;
+      }
+
+      speakAssistantReply(speechRequest.playbackContent);
+
+      if (speechRequest.shouldEnableTts) {
+        // Persist future spoken replies only after this gesture-driven playback starts.
+        patchVestaShellUI({ ttsEnabled: true });
+      }
     },
-    [primeSpeechSynthesis, speakAssistantReply]
+    [
+      messages,
+      patchVestaShellUI,
+      resolvedVestaShellUI.ttsEnabled,
+      speakAssistantReply,
+    ],
+  );
+
+  const handleMessagePointerDown = useCallback(
+    (
+      message: { id: string; content: string; type: "user" | "ai" },
+      event: ReactPointerEvent<HTMLButtonElement>,
+    ) => {
+      if (event.button !== 0) return;
+      pointerSpokenMessageIdRef.current = message.id;
+      handleMessageSpeech(message);
+    },
+    [handleMessageSpeech],
+  );
+
+  const handleMessageClick = useCallback(
+    (message: { id: string; content: string; type: "user" | "ai" }) => {
+      if (pointerSpokenMessageIdRef.current === message.id) {
+        pointerSpokenMessageIdRef.current = null;
+        return;
+      }
+
+      handleMessageSpeech(message);
+    },
+    [handleMessageSpeech],
   );
 
   const startVoiceCapture = useCallback(() => {
@@ -626,11 +668,11 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
       recognition.lang = DEFAULT_LOCALE;
 
       recognition.onresult = (event: SpeechRecognitionEventLike) => {
-        let finalTranscript = '';
-        let interimTranscript = '';
+        let finalTranscript = "";
+        let interimTranscript = "";
 
         for (let i = event.resultIndex; i < event.results.length; i += 1) {
-          const transcript = event.results[i]?.[0]?.transcript ?? '';
+          const transcript = event.results[i]?.[0]?.transcript ?? "";
           if (event.results[i]?.isFinal) {
             finalTranscript += transcript;
           } else {
@@ -638,8 +680,10 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
           }
         }
 
-        transcriptBufferRef.current = `${transcriptBufferRef.current} ${finalTranscript}`.trim();
-        const combinedTranscript = `${transcriptBufferRef.current} ${interimTranscript}`.trim();
+        transcriptBufferRef.current =
+          `${transcriptBufferRef.current} ${finalTranscript}`.trim();
+        const combinedTranscript =
+          `${transcriptBufferRef.current} ${interimTranscript}`.trim();
         dispatch(setInputValue(combinedTranscript));
       };
 
@@ -650,7 +694,7 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
       recognition.onend = () => {
         setIsRecording(false);
         const transcript = transcriptBufferRef.current.trim();
-        transcriptBufferRef.current = '';
+        transcriptBufferRef.current = "";
         if (!transcript) return;
         void sendCopilotMessage(dispatch, pathname, transcript);
       };
@@ -658,7 +702,7 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
       speechRef.current = recognition;
     }
 
-    transcriptBufferRef.current = '';
+    transcriptBufferRef.current = "";
     setIsRecording(true);
     try {
       speechRef.current.start();
@@ -677,32 +721,37 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
   }, [isRecording]);
 
   const handleMicClick = useCallback(() => {
-    if (resolvedVestaShellUI.voiceCaptureMode !== 'tap') return;
+    if (resolvedVestaShellUI.voiceCaptureMode !== "tap") return;
     if (isRecording) {
       stopVoiceCapture();
       return;
     }
     startVoiceCapture();
-  }, [isRecording, resolvedVestaShellUI.voiceCaptureMode, startVoiceCapture, stopVoiceCapture]);
+  }, [
+    isRecording,
+    resolvedVestaShellUI.voiceCaptureMode,
+    startVoiceCapture,
+    stopVoiceCapture,
+  ]);
 
   const handleMicPressStart = useCallback(() => {
-    if (resolvedVestaShellUI.voiceCaptureMode !== 'hold') return;
+    if (resolvedVestaShellUI.voiceCaptureMode !== "hold") return;
     startVoiceCapture();
   }, [resolvedVestaShellUI.voiceCaptureMode, startVoiceCapture]);
 
   const handleMicPressEnd = useCallback(() => {
-    if (resolvedVestaShellUI.voiceCaptureMode !== 'hold') return;
+    if (resolvedVestaShellUI.voiceCaptureMode !== "hold") return;
     stopVoiceCapture();
   }, [resolvedVestaShellUI.voiceCaptureMode, stopVoiceCapture]);
 
   const handleListeningOverlayClick = useCallback(() => {
-    if (resolvedVestaShellUI.voiceCaptureMode !== 'tap') return;
+    if (resolvedVestaShellUI.voiceCaptureMode !== "tap") return;
     stopVoiceCapture();
   }, [resolvedVestaShellUI.voiceCaptureMode, stopVoiceCapture]);
 
   useEffect(() => {
     const requestNonce =
-      typeof resolvedVestaShellUI.voiceCaptureRequestNonce === 'number'
+      typeof resolvedVestaShellUI.voiceCaptureRequestNonce === "number"
         ? resolvedVestaShellUI.voiceCaptureRequestNonce
         : 0;
 
@@ -712,15 +761,19 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
     lastVoiceCaptureRequestRef.current = requestNonce;
     startVoiceCapture();
     patchVestaShellUI({ voiceCaptureRequestNonce: 0 });
-  }, [patchVestaShellUI, resolvedVestaShellUI.voiceCaptureRequestNonce, startVoiceCapture]);
+  }, [
+    patchVestaShellUI,
+    resolvedVestaShellUI.voiceCaptureRequestNonce,
+    startVoiceCapture,
+  ]);
 
   const handleOpenFromBubble = useCallback(() => {
-    patchVestaShellUI({ vestaViewMode: 'sidebar' });
+    patchVestaShellUI({ vestaViewMode: "sidebar" });
     toggleRightSidebar();
   }, [patchVestaShellUI, toggleRightSidebar]);
 
   const handleMinimize = useCallback(() => {
-    patchVestaShellUI({ vestaViewMode: 'collapsed' });
+    patchVestaShellUI({ vestaViewMode: "collapsed" });
     toggleRightSidebar();
   }, [patchVestaShellUI, toggleRightSidebar]);
 
@@ -728,16 +781,17 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
     if (sidebarState.rightCollapsed) {
       toggleRightSidebar();
     }
-    patchVestaShellUI({ vestaViewMode: 'fullscreen' });
+    patchVestaShellUI({ vestaViewMode: "fullscreen" });
   }, [patchVestaShellUI, sidebarState.rightCollapsed, toggleRightSidebar]);
 
   const handleExitFullscreen = useCallback(() => {
-    patchVestaShellUI({ vestaViewMode: 'sidebar' });
+    patchVestaShellUI({ vestaViewMode: "sidebar" });
   }, [patchVestaShellUI]);
 
-  const copilotHeaderPaddingClass = density.mode === 'compact' ? 'px-3' : 'px-4';
-  const canShowMinimize = mode === 'panel';
-  const canShowFullscreenToggle = mode !== 'standalone';
+  const copilotHeaderPaddingClass =
+    density.mode === "compact" ? "px-3" : "px-4";
+  const canShowMinimize = mode === "panel";
+  const canShowFullscreenToggle = mode !== "standalone";
 
   if (isCollapsed) {
     return <AICopilotBubble onClick={handleOpenFromBubble} />;
@@ -753,14 +807,24 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--app-primary)] to-transparent flex items-center justify-center">
             <Bot className="w-4 h-4 text-white" />
           </div>
-          <h2 className="text-sm font-semibold text-[var(--app-text)]">Vesta</h2>
+          <h2 className="text-sm font-semibold text-[var(--app-text)]">
+            Vesta
+          </h2>
         </div>
         <div className="flex items-center gap-1">
           <button
             onClick={handleToggleTts}
             className="p-1.5 rounded-lg hover:bg-[var(--app-surface-hover)] transition-colors"
-            aria-label={resolvedVestaShellUI.ttsEnabled ? 'Disable spoken replies' : 'Enable spoken replies'}
-            title={resolvedVestaShellUI.ttsEnabled ? 'Disable spoken replies' : 'Enable spoken replies'}
+            aria-label={
+              resolvedVestaShellUI.ttsEnabled
+                ? "Disable spoken replies"
+                : "Enable spoken replies"
+            }
+            title={
+              resolvedVestaShellUI.ttsEnabled
+                ? "Disable spoken replies"
+                : "Enable spoken replies"
+            }
             type="button"
           >
             {resolvedVestaShellUI.ttsEnabled ? (
@@ -771,12 +835,24 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
           </button>
           {canShowFullscreenToggle && (
             <button
-              onClick={mode === 'fullscreen' ? handleExitFullscreen : handleEnterFullscreen}
+              onClick={
+                mode === "fullscreen"
+                  ? handleExitFullscreen
+                  : handleEnterFullscreen
+              }
               className="p-1.5 rounded-lg hover:bg-[var(--app-surface-hover)] transition-colors"
-              aria-label={mode === 'fullscreen' ? 'Exit full width Vesta mode' : 'Expand Vesta to full width'}
-              title={mode === 'fullscreen' ? 'Exit full width' : 'Expand to full width'}
+              aria-label={
+                mode === "fullscreen"
+                  ? "Exit full width Vesta mode"
+                  : "Expand Vesta to full width"
+              }
+              title={
+                mode === "fullscreen"
+                  ? "Exit full width"
+                  : "Expand to full width"
+              }
             >
-              {mode === 'fullscreen' ? (
+              {mode === "fullscreen" ? (
                 <Minimize2 className="w-4 h-4 text-[var(--app-text-muted)]" />
               ) : (
                 <Maximize2 className="w-4 h-4 text-[var(--app-text-muted)]" />
@@ -796,11 +872,15 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
       </div>
 
       {suggestions.length > 0 && (
-        <div className={`${density.shell.copilotSectionPaddingClass} border-b border-[var(--app-border)] space-y-2`}>
+        <div
+          className={`${density.shell.copilotSectionPaddingClass} border-b border-[var(--app-border)] space-y-2`}
+        >
           <div className="flex items-center justify-between gap-2 mb-2">
             <div className="flex items-center gap-2">
               <Lightbulb className="w-4 h-4 text-[var(--app-warning)]" />
-              <span className="text-xs font-semibold text-[var(--app-text-muted)]">SUGGESTIONS</span>
+              <span className="text-xs font-semibold text-[var(--app-text-muted)]">
+                SUGGESTIONS
+              </span>
             </div>
             <button
               onClick={() => dispatch(setShowSuggestions(!showSuggestions))}
@@ -808,7 +888,7 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
               aria-label="Toggle suggestions visibility"
             >
               <ChevronDown
-                className={`w-4 h-4 text-[var(--app-text-muted)] transition-transform ${showSuggestions ? '' : '-rotate-90'}`}
+                className={`w-4 h-4 text-[var(--app-text-muted)] transition-transform ${showSuggestions ? "" : "-rotate-90"}`}
               />
             </button>
           </div>
@@ -819,19 +899,27 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
                 onClick={() => handleSuggestionClick(suggestion)}
                 className="w-full text-left p-2 rounded-lg bg-[var(--app-surface-hover)] hover:bg-[var(--app-border)] transition-colors"
               >
-                <p className="text-sm text-[var(--app-text)] mb-1">{suggestion.text}</p>
+                <p className="text-sm text-[var(--app-text)] mb-1">
+                  {suggestion.text}
+                </p>
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-[var(--app-text-subtle)]">{suggestion.reasoning}</p>
+                  <p className="text-xs text-[var(--app-text-subtle)]">
+                    {suggestion.reasoning}
+                  </p>
                 </div>
               </button>
             ))}
         </div>
       )}
 
-      <div className={`${density.shell.copilotSectionPaddingClass} border-b border-[var(--app-border)]`}>
+      <div
+        className={`${density.shell.copilotSectionPaddingClass} border-b border-[var(--app-border)]`}
+      >
         <div className="flex items-center gap-2 mb-2">
           <Zap className="w-4 h-4 text-[var(--app-primary)]" />
-          <span className="text-xs font-semibold text-[var(--app-text-muted)]">QUICK ACTIONS</span>
+          <span className="text-xs font-semibold text-[var(--app-text-muted)]">
+            QUICK ACTIONS
+          </span>
         </div>
         <div className="flex flex-wrap gap-2">
           {normalizedQuickActions.map((action) => (
@@ -841,7 +929,7 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
               variant="flat"
               onPress={() => handleQuickAction(action)}
               title={action.description || action.action}
-              className={`text-xs ${action.aiSuggested ? 'bg-[var(--app-primary-bg)]' : ''}`}
+              className={`text-xs ${action.aiSuggested ? "bg-[var(--app-primary-bg)]" : ""}`}
             >
               <action.icon className="w-3 h-3 mr-1" />
               {action.label}
@@ -850,19 +938,24 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
         </div>
       </div>
 
-      <div className={`flex-1 overflow-y-auto ${density.shell.copilotSectionPaddingClass} space-y-4`}>
+      <div
+        className={`flex-1 overflow-y-auto ${density.shell.copilotSectionPaddingClass} space-y-4`}
+      >
         {messages.map((message) => (
           <motion.div
             key={message.id}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.2 }}
-            className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+            className={`flex ${message.type === "user" ? "justify-end" : "justify-start"}`}
           >
-            {message.type === 'ai' ? (
+            {message.type === "ai" ? (
               <button
                 type="button"
-                onClick={() => handleMessageSpeech(message.content, message.type)}
+                onPointerDown={(event) =>
+                  handleMessagePointerDown(message, event)
+                }
+                onClick={() => handleMessageClick(message)}
                 title="Tap to hear this response"
                 className="max-w-[85%] rounded-lg bg-[var(--app-surface-hover)] px-3 py-2 text-left text-[var(--app-text)] transition-colors hover:bg-[var(--app-border)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--app-primary)]"
               >
@@ -913,22 +1006,30 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
             className="text-xs font-medium text-[var(--app-text-muted)] hover:text-[var(--app-text)] transition-colors"
             onClick={() =>
               patchVestaShellUI({
-                voiceCaptureMode: resolvedVestaShellUI.voiceCaptureMode === 'tap' ? 'hold' : 'tap',
+                voiceCaptureMode:
+                  resolvedVestaShellUI.voiceCaptureMode === "tap"
+                    ? "hold"
+                    : "tap",
               })
             }
             type="button"
           >
-            Voice Mode: {resolvedVestaShellUI.voiceCaptureMode === 'tap' ? 'Tap-to-talk' : 'Hold-to-talk'}
+            Voice Mode:{" "}
+            {resolvedVestaShellUI.voiceCaptureMode === "tap"
+              ? "Tap-to-talk"
+              : "Hold-to-talk"}
           </button>
           {!speechSupported && (
-            <span className="text-xs text-[var(--app-danger)]">Voice unavailable</span>
+            <span className="text-xs text-[var(--app-danger)]">
+              Voice unavailable
+            </span>
           )}
         </div>
         <div className="flex gap-2">
           <Input
             value={inputValue}
             onChange={(e) => dispatch(setInputValue(e.target.value))}
-            onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+            onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
             placeholder="Ask me anything..."
             size="sm"
             className="flex-1"
@@ -943,11 +1044,13 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
             onTouchStart={handleMicPressStart}
             onTouchEnd={handleMicPressEnd}
             disabled={!speechSupported || isTyping}
-            aria-label={isRecording ? 'Stop voice capture' : 'Start voice capture'}
-            className={`px-3 ${isRecording ? 'bg-[var(--app-primary)] text-white' : ''}`}
+            aria-label={
+              isRecording ? "Stop voice capture" : "Start voice capture"
+            }
+            className={`px-3 ${isRecording ? "bg-[var(--app-primary)] text-white" : ""}`}
             type="button"
           >
-            <Mic className={`w-4 h-4 ${isRecording ? 'animate-pulse' : ''}`} />
+            <Mic className={`w-4 h-4 ${isRecording ? "animate-pulse" : ""}`} />
           </Button>
           <Button
             size="sm"
@@ -967,22 +1070,35 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           onClick={handleListeningOverlayClick}
-          aria-label={resolvedVestaShellUI.voiceCaptureMode === 'tap' ? 'Stop voice capture' : undefined}
+          aria-label={
+            resolvedVestaShellUI.voiceCaptureMode === "tap"
+              ? "Stop voice capture"
+              : undefined
+          }
           className={`absolute inset-0 z-30 flex items-center justify-center backdrop-blur-sm ${
-            resolvedVestaShellUI.voiceCaptureMode === 'tap' ? 'cursor-pointer' : 'pointer-events-none cursor-default'
+            resolvedVestaShellUI.voiceCaptureMode === "tap"
+              ? "cursor-pointer"
+              : "pointer-events-none cursor-default"
           }`}
           style={{
             background:
-              'radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.20) 0%, rgba(15, 23, 42, 0.62) 72%)',
+              "radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.20) 0%, rgba(15, 23, 42, 0.62) 72%)",
           }}
         >
           <div className="flex flex-col items-center">
             <div className="relative mb-3">
               <motion.div
                 className="absolute inset-0 rounded-full blur-xl"
-                animate={{ opacity: [0.25, 0.5, 0.25], scale: [0.95, 1.08, 0.95] }}
-                transition={{ duration: 1.4, ease: 'easeInOut', repeat: Infinity }}
-                style={{ backgroundColor: 'var(--app-primary)' }}
+                animate={{
+                  opacity: [0.25, 0.5, 0.25],
+                  scale: [0.95, 1.08, 0.95],
+                }}
+                transition={{
+                  duration: 1.4,
+                  ease: "easeInOut",
+                  repeat: Infinity,
+                }}
+                style={{ backgroundColor: "var(--app-primary)" }}
               />
               <ListeningVestaIcon
                 containerClassName="h-40 w-40"
@@ -990,7 +1106,9 @@ export function AICopilotSidebar({ mode = 'panel' }: AICopilotSidebarProps) {
                 className="h-10 w-10"
               />
             </div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/85">Listening</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/85">
+              Listening
+            </p>
           </div>
         </motion.button>
       )}
