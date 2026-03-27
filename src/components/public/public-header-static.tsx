@@ -29,9 +29,6 @@ export function PublicHeaderStatic() {
                 >
                   VestLedger
                 </span>
-                <span className="text-xs uppercase tracking-[0.22em] text-[var(--app-text-subtle)]">
-                  Vesta OS
-                </span>
               </span>
             </Link>
             <PublicMobileMenu />
