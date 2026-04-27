@@ -1,25 +1,25 @@
-'use client';
+"use client";
 
-import { useUIKey } from '@/store/ui';
-import { Card, Button, Badge, Select } from '@/ui';
-import { DollarSign, Plus, PieChart, Download } from 'lucide-react';
-import { formatCurrency, formatDate } from '@/utils/formatting';
-import { SearchToolbar, SectionHeader, StatusBadge } from '@/ui/composites';
+import { useUIKey } from "@/store/ui";
+import { Card, Button, Badge, Select } from "@/ui";
+import { DollarSign, Plus, PieChart, Download } from "lucide-react";
+import { formatCurrency, formatDate } from "@/utils/formatting";
+import { SearchToolbar, SectionHeader, StatusBadge } from "@/ui/composites";
 import {
   EXPENSE_DATE_RANGE_OPTIONS,
   EXPENSE_STATUS_FILTER_OPTIONS,
   EXPENSE_TYPE_FILTER_OPTIONS,
-} from '@/config/fund-options';
+} from "@/config/fund-options";
 
 export type ExpenseType =
-  | 'management-fee'
-  | 'monitoring-fee'
-  | 'transaction-fee'
-  | 'legal'
-  | 'audit'
-  | 'administrative'
-  | 'marketing'
-  | 'other';
+  | "management-fee"
+  | "monitoring-fee"
+  | "transaction-fee"
+  | "legal"
+  | "audit"
+  | "administrative"
+  | "marketing"
+  | "other";
 
 export interface FundExpense {
   id: string;
@@ -31,11 +31,11 @@ export interface FundExpense {
   amount: number;
   date: Date;
   payee: string;
-  status: 'pending' | 'approved' | 'paid' | 'rejected';
+  status: "pending" | "approved" | "paid" | "rejected";
   approvedBy?: string;
   paidDate?: Date;
   isRecurring: boolean;
-  recurringFrequency?: 'monthly' | 'quarterly' | 'annually';
+  recurringFrequency?: "monthly" | "quarterly" | "annually";
   allocatedToLPs: boolean;
   invoiceNumber?: string;
   tags?: string[];
@@ -48,7 +48,7 @@ interface ExpenseTrackerProps {
   onApproveExpense?: (expenseId: string) => void;
   onRejectExpense?: (expenseId: string) => void;
   onMarkPaid?: (expenseId: string) => void;
-  onExport?: (format: 'csv' | 'pdf') => void;
+  onExport?: (format: "csv" | "pdf") => void;
 }
 
 export function ExpenseTracker({
@@ -62,35 +62,67 @@ export function ExpenseTracker({
 }: ExpenseTrackerProps) {
   const { value: ui, patch: patchUI } = useUIKey<{
     searchQuery: string;
-    filterType: ExpenseType | 'all';
+    filterType: ExpenseType | "all";
     filterStatus: string;
-    dateRange: 'month' | 'quarter' | 'year';
-  }>(`expense-tracker:${fundId ?? 'all'}`, {
-    searchQuery: '',
-    filterType: 'all',
-    filterStatus: 'all',
-    dateRange: 'month',
+    dateRange: "month" | "quarter" | "year";
+  }>(`expense-tracker:${fundId ?? "all"}`, {
+    searchQuery: "",
+    filterType: "all",
+    filterStatus: "all",
+    dateRange: "month",
   });
   const { searchQuery, filterType, filterStatus, dateRange } = ui;
 
   const getExpenseTypeConfig = (type: ExpenseType) => {
     switch (type) {
-      case 'management-fee':
-        return { label: 'Management Fee', color: 'text-[var(--app-primary)]', bgColor: 'bg-[var(--app-primary-bg)]' };
-      case 'monitoring-fee':
-        return { label: 'Monitoring Fee', color: 'text-[var(--app-info)]', bgColor: 'bg-[var(--app-info-bg)]' };
-      case 'transaction-fee':
-        return { label: 'Transaction Fee', color: 'text-[var(--app-success)]', bgColor: 'bg-[var(--app-success-bg)]' };
-      case 'legal':
-        return { label: 'Legal', color: 'text-[var(--app-warning)]', bgColor: 'bg-[var(--app-warning-bg)]' };
-      case 'audit':
-        return { label: 'Audit', color: 'text-[var(--app-danger)]', bgColor: 'bg-[var(--app-danger-bg)]' };
-      case 'administrative':
-        return { label: 'Administrative', color: 'text-[var(--app-text-muted)]', bgColor: 'bg-[var(--app-surface-hover)]' };
-      case 'marketing':
-        return { label: 'Marketing', color: 'text-[var(--app-secondary)]', bgColor: 'bg-[var(--app-secondary)]/10' };
-      case 'other':
-        return { label: 'Other', color: 'text-[var(--app-text-subtle)]', bgColor: 'bg-[var(--app-surface-hover)]' };
+      case "management-fee":
+        return {
+          label: "Management Fee",
+          color: "text-[var(--app-primary)]",
+          bgColor: "bg-[var(--app-primary-bg)]",
+        };
+      case "monitoring-fee":
+        return {
+          label: "Monitoring Fee",
+          color: "text-[var(--app-info)]",
+          bgColor: "bg-[var(--app-info-bg)]",
+        };
+      case "transaction-fee":
+        return {
+          label: "Transaction Fee",
+          color: "text-[var(--app-success)]",
+          bgColor: "bg-[var(--app-success-bg)]",
+        };
+      case "legal":
+        return {
+          label: "Legal",
+          color: "text-[var(--app-warning)]",
+          bgColor: "bg-[var(--app-warning-bg)]",
+        };
+      case "audit":
+        return {
+          label: "Audit",
+          color: "text-[var(--app-danger)]",
+          bgColor: "bg-[var(--app-danger-bg)]",
+        };
+      case "administrative":
+        return {
+          label: "Administrative",
+          color: "text-[var(--app-text-muted)]",
+          bgColor: "bg-[var(--app-surface-hover)]",
+        };
+      case "marketing":
+        return {
+          label: "Marketing",
+          color: "text-[var(--app-secondary)]",
+          bgColor: "bg-[var(--app-secondary)]/10",
+        };
+      case "other":
+        return {
+          label: "Other",
+          color: "text-[var(--app-text-subtle)]",
+          bgColor: "bg-[var(--app-surface-hover)]",
+        };
     }
   };
 
@@ -99,16 +131,19 @@ export function ExpenseTracker({
     const expenseDate = new Date(expense.date);
 
     switch (dateRange) {
-      case 'month':
+      case "month":
         return (
           expenseDate.getMonth() === now.getMonth() &&
           expenseDate.getFullYear() === now.getFullYear()
         );
-      case 'quarter':
+      case "quarter":
         const currentQuarter = Math.floor(now.getMonth() / 3);
         const expenseQuarter = Math.floor(expenseDate.getMonth() / 3);
-        return currentQuarter === expenseQuarter && expenseDate.getFullYear() === now.getFullYear();
-      case 'year':
+        return (
+          currentQuarter === expenseQuarter &&
+          expenseDate.getFullYear() === now.getFullYear()
+        );
+      case "year":
         return expenseDate.getFullYear() === now.getFullYear();
       default:
         return true;
@@ -116,40 +151,53 @@ export function ExpenseTracker({
   };
 
   const filteredExpenses = expenses
-    .filter(expense => {
+    .filter((expense) => {
       const matchesSearch =
         expense.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         expense.payee.toLowerCase().includes(searchQuery.toLowerCase()) ||
         expense.fundName.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesType = filterType === 'all' || expense.type === filterType;
-      const matchesStatus = filterStatus === 'all' || expense.status === filterStatus;
+      const matchesType = filterType === "all" || expense.type === filterType;
+      const matchesStatus =
+        filterStatus === "all" || expense.status === filterStatus;
       const matchesDateRange = filterByDateRange(expense);
       const matchesFund = !fundId || expense.fundId === fundId;
 
-      return matchesSearch && matchesType && matchesStatus && matchesDateRange && matchesFund;
+      return (
+        matchesSearch &&
+        matchesType &&
+        matchesStatus &&
+        matchesDateRange &&
+        matchesFund
+      );
     })
-    .sort((a, b) => b.date.getTime() - a.date.getTime());
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   // Calculate totals
   const totals = filteredExpenses.reduce(
     (acc, expense) => {
       acc.total += expense.amount;
-      acc.byStatus[expense.status] = (acc.byStatus[expense.status] || 0) + expense.amount;
-      acc.byType[expense.type] = (acc.byType[expense.type] || 0) + expense.amount;
+      acc.byStatus[expense.status] =
+        (acc.byStatus[expense.status] || 0) + expense.amount;
+      acc.byType[expense.type] =
+        (acc.byType[expense.type] || 0) + expense.amount;
       return acc;
     },
-    { total: 0, byStatus: {} as Record<string, number>, byType: {} as Record<string, number> }
+    {
+      total: 0,
+      byStatus: {} as Record<string, number>,
+      byType: {} as Record<string, number>,
+    },
   );
 
   const expenseTypes: ExpenseType[] = [
-    'management-fee',
-    'monitoring-fee',
-    'transaction-fee',
-    'legal',
-    'audit',
-    'administrative',
-    'marketing',
-    'other',
+    "management-fee",
+    "monitoring-fee",
+    "transaction-fee",
+    "legal",
+    "audit",
+    "administrative",
+    "marketing",
+    "other",
   ];
 
   return (
@@ -157,21 +205,21 @@ export function ExpenseTracker({
       <div className="space-y-4">
         {/* Header */}
         <SectionHeader
-          title={(
+          title={
             <span className="flex items-center gap-2">
               <DollarSign className="w-5 h-5 text-[var(--app-primary)]" />
               <span>Fund Expense Tracking</span>
             </span>
-          )}
+          }
           description={`${filteredExpenses.length} expenses • ${formatCurrency(totals.total, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} total`}
-          action={(
+          action={
             <>
               {onExport && (
                 <Button
                   size="sm"
                   variant="flat"
                   startContent={<Download className="w-3 h-3" />}
-                  onPress={() => onExport('csv')}
+                  onPress={() => onExport("csv")}
                 >
                   Export
                 </Button>
@@ -187,44 +235,68 @@ export function ExpenseTracker({
                 </Button>
               )}
             </>
-          )}
+          }
           descriptionClassName="text-xs"
         />
 
         {/* Summary Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <div className="p-3 rounded-lg bg-[var(--app-surface-hover)]">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Total Expenses</p>
-            <p className="text-lg font-bold">{formatCurrency(totals.total, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+            <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">
+              Total Expenses
+            </p>
+            <p className="text-lg font-bold">
+              {formatCurrency(totals.total, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </p>
             <p className="text-xs text-[var(--app-text-subtle)] mt-1">
               {filteredExpenses.length} transactions
             </p>
           </div>
           <div className="p-3 rounded-lg bg-[var(--app-warning-bg)]">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Pending</p>
+            <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">
+              Pending
+            </p>
             <p className="text-lg font-bold text-[var(--app-warning)]">
-              {formatCurrency(totals.byStatus['pending'] || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {formatCurrency(totals.byStatus["pending"] || 0, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
             </p>
             <p className="text-xs text-[var(--app-text-subtle)] mt-1">
-              {filteredExpenses.filter(e => e.status === 'pending').length} items
+              {filteredExpenses.filter((e) => e.status === "pending").length}{" "}
+              items
             </p>
           </div>
           <div className="p-3 rounded-lg bg-[var(--app-info-bg)]">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Approved</p>
+            <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">
+              Approved
+            </p>
             <p className="text-lg font-bold text-[var(--app-info)]">
-              {formatCurrency(totals.byStatus['approved'] || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {formatCurrency(totals.byStatus["approved"] || 0, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
             </p>
             <p className="text-xs text-[var(--app-text-subtle)] mt-1">
-              {filteredExpenses.filter(e => e.status === 'approved').length} items
+              {filteredExpenses.filter((e) => e.status === "approved").length}{" "}
+              items
             </p>
           </div>
           <div className="p-3 rounded-lg bg-[var(--app-success-bg)]">
-            <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">Paid</p>
+            <p className="text-xs font-medium text-[var(--app-text-muted)] mb-1">
+              Paid
+            </p>
             <p className="text-lg font-bold text-[var(--app-success)]">
-              {formatCurrency(totals.byStatus['paid'] || 0, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {formatCurrency(totals.byStatus["paid"] || 0, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
             </p>
             <p className="text-xs text-[var(--app-text-subtle)] mt-1">
-              {filteredExpenses.filter(e => e.status === 'paid').length} items
+              {filteredExpenses.filter((e) => e.status === "paid").length} items
             </p>
           </div>
         </div>
@@ -236,17 +308,27 @@ export function ExpenseTracker({
             <h4 className="text-sm font-semibold">Expense Breakdown</h4>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-            {expenseTypes.map(type => {
+            {expenseTypes.map((type) => {
               const config = getExpenseTypeConfig(type);
               const amount = totals.byType[type] || 0;
-              const percentage = totals.total > 0 ? (amount / totals.total) * 100 : 0;
+              const percentage =
+                totals.total > 0 ? (amount / totals.total) * 100 : 0;
 
               return (
                 <div key={type} className={`p-2 rounded-lg ${config.bgColor}`}>
-                  <p className="text-xs text-[var(--app-text-muted)]">{config.label}</p>
-                  <p className={`text-sm font-bold ${config.color}`}>{formatCurrency(amount, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                  <p className="text-xs text-[var(--app-text-muted)]">
+                    {config.label}
+                  </p>
+                  <p className={`text-sm font-bold ${config.color}`}>
+                    {formatCurrency(amount, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </p>
                   {percentage > 0 && (
-                    <p className="text-xs text-[var(--app-text-subtle)]">{percentage.toFixed(1)}%</p>
+                    <p className="text-xs text-[var(--app-text-subtle)]">
+                      {percentage.toFixed(1)}%
+                    </p>
                   )}
                 </div>
               );
@@ -259,14 +341,16 @@ export function ExpenseTracker({
           searchValue={searchQuery}
           onSearchChange={(value) => patchUI({ searchQuery: value })}
           searchPlaceholder="Search expenses..."
-          rightActions={(
+          rightActions={
             <div className="flex flex-wrap items-center gap-2">
               <Select
                 aria-label="Expense type filter"
                 size="sm"
                 className="min-w-[170px]"
                 selectedKeys={[filterType]}
-                onChange={(e) => patchUI({ filterType: e.target.value as ExpenseType | 'all' })}
+                onChange={(e) =>
+                  patchUI({ filterType: e.target.value as ExpenseType | "all" })
+                }
                 options={EXPENSE_TYPE_FILTER_OPTIONS}
               />
               <Select
@@ -282,11 +366,13 @@ export function ExpenseTracker({
                 size="sm"
                 className="min-w-[140px]"
                 selectedKeys={[dateRange]}
-                onChange={(e) => patchUI({ dateRange: e.target.value as typeof dateRange })}
+                onChange={(e) =>
+                  patchUI({ dateRange: e.target.value as typeof dateRange })
+                }
                 options={EXPENSE_DATE_RANGE_OPTIONS}
               />
             </div>
-          )}
+          }
         />
 
         {/* Expense List */}
@@ -311,7 +397,7 @@ export function ExpenseTracker({
                 <p>No expenses found</p>
               </div>
             ) : (
-              filteredExpenses.map(expense => {
+              filteredExpenses.map((expense) => {
                 const typeConfig = getExpenseTypeConfig(expense.type);
 
                 return (
@@ -321,10 +407,18 @@ export function ExpenseTracker({
                   >
                     <div className="col-span-2">
                       <div className="text-[var(--app-text-muted)]">
-                        {formatDate(expense.date, { month: 'short', day: 'numeric', year: 'numeric' })}
+                        {formatDate(expense.date, {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
                       </div>
                       {expense.isRecurring && (
-                        <Badge size="sm" variant="flat" className="bg-[var(--app-info-bg)] text-[var(--app-info)] mt-1">
+                        <Badge
+                          size="sm"
+                          variant="flat"
+                          className="bg-[var(--app-info-bg)] text-[var(--app-info)] mt-1"
+                        >
                           Recurring
                         </Badge>
                       )}
@@ -332,7 +426,9 @@ export function ExpenseTracker({
 
                     <div className="col-span-3">
                       <div className="font-medium">{expense.description}</div>
-                      <div className="text-xs text-[var(--app-text-muted)]">{expense.payee}</div>
+                      <div className="text-xs text-[var(--app-text-muted)]">
+                        {expense.payee}
+                      </div>
                       {expense.invoiceNumber && (
                         <div className="text-xs text-[var(--app-text-subtle)] mt-1">
                           Invoice: {expense.invoiceNumber}
@@ -341,24 +437,37 @@ export function ExpenseTracker({
                     </div>
 
                     <div className="col-span-2">
-                      <Badge size="sm" variant="flat" className={`${typeConfig.bgColor} ${typeConfig.color}`}>
+                      <Badge
+                        size="sm"
+                        variant="flat"
+                        className={`${typeConfig.bgColor} ${typeConfig.color}`}
+                      >
                         {typeConfig.label}
                       </Badge>
                       {expense.allocatedToLPs && (
-                        <div className="text-xs text-[var(--app-text-subtle)] mt-1">LP Allocated</div>
+                        <div className="text-xs text-[var(--app-text-subtle)] mt-1">
+                          LP Allocated
+                        </div>
                       )}
                     </div>
 
                     <div className="col-span-1 text-right font-medium">
-                      {formatCurrency(expense.amount, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      {formatCurrency(expense.amount, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
                     </div>
 
                     <div className="col-span-1">
-                      <StatusBadge status={expense.status} domain="fund-admin" size="sm" />
+                      <StatusBadge
+                        status={expense.status}
+                        domain="fund-admin"
+                        size="sm"
+                      />
                     </div>
 
                     <div className="col-span-3 flex items-center justify-end gap-1">
-                      {expense.status === 'pending' && onApproveExpense && (
+                      {expense.status === "pending" && onApproveExpense && (
                         <Button
                           size="sm"
                           variant="flat"
@@ -368,7 +477,7 @@ export function ExpenseTracker({
                           Approve
                         </Button>
                       )}
-                      {expense.status === 'pending' && onRejectExpense && (
+                      {expense.status === "pending" && onRejectExpense && (
                         <Button
                           size="sm"
                           variant="light"
@@ -378,7 +487,7 @@ export function ExpenseTracker({
                           Reject
                         </Button>
                       )}
-                      {expense.status === 'approved' && onMarkPaid && (
+                      {expense.status === "approved" && onMarkPaid && (
                         <Button
                           size="sm"
                           variant="flat"

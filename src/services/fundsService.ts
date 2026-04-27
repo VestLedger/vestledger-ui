@@ -18,6 +18,9 @@ type ApiFund = components["schemas"]["CreateFundDto"] & {
   id: string;
   createdAt: string;
   updatedAt: string;
+  portfolioCount?: number;
+  activeDeals?: number;
+  totalInvestments?: number;
 };
 
 const clone = <T>(value: T): T => structuredClone(value);
@@ -37,9 +40,9 @@ function mapApiFundToFund(apiFund: ApiFund): Fund {
     startDate: apiFund.startDate,
     endDate: apiFund.endDate,
     fundTerm: apiFund.fundTerm,
-    portfolioCount: 0,
-    activeDeals: 0,
-    totalInvestments: 0,
+    portfolioCount: apiFund.portfolioCount ?? 0,
+    activeDeals: apiFund.activeDeals ?? 0,
+    totalInvestments: apiFund.totalInvestments ?? 0,
     portfolioValue: apiFund.portfolioValue,
     irr: apiFund.irr ?? 0,
     tvpi: apiFund.tvpi ?? 1.0,

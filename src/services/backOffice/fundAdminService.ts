@@ -22,6 +22,9 @@ interface ApiCapitalCall {
   purpose?: string;
   createdAt: string;
   updatedAt: string;
+  totalLPs?: number;
+  respondedLPs?: number;
+  overdueLPs?: number;
 }
 
 export interface CreateCapitalCallParams {
@@ -59,8 +62,8 @@ function mapApiToCapitalCall(
     dueDate: api.dueDate.split("T")[0],
     totalAmount: api.amount,
     amountReceived: api.collected,
-    lpCount: 0,
-    lpsResponded: 0,
+    lpCount: api.totalLPs ?? 0,
+    lpsResponded: api.respondedLPs ?? 0,
     status: statusMap[api.status] ?? "draft",
     purpose: api.purpose ?? "",
   };

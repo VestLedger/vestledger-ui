@@ -88,19 +88,22 @@ type ApiJCurvePoint = {
 
 type ApiCohortPoint = {
   name?: string;
-  companyCount?: number;
+  vintage?: number;
+  count?: number;
   totalInvested?: number;
   totalCurrentValue?: number;
   totalExitValue?: number;
-  unrealizedMultiple?: number;
-  realizedMultiple?: number;
-  avgHealth?: number;
+  tvpi?: number;
+  dpi?: number;
+  irr?: number;
 };
 
 type ApiConcentrationEntry = {
   name?: string;
+  sector?: string;
+  stage?: string;
   value?: number;
-  percentage?: number;
+  concentration?: number;
   count?: number;
 };
 
@@ -133,6 +136,7 @@ type ApiValuationTrendsResponse = {
   totalCurrentValue?: number;
   totalExitValue?: number;
   trends?: ApiValuationTrendPoint[];
+  series?: ApiValuationTrendPoint[];
 };
 
 type ConcentrationRiskSnapshot = {
@@ -343,23 +347,25 @@ function mapCohortsResponse(points: ApiCohortPoint[]): CohortPerformance[] {
   return points.map((point) => {
     const totalInvested = Math.max(point.totalInvested ?? 0, 0);
     const currentValue = Math.max(point.totalCurrentValue ?? 0, 0);
-    const unrealizedMultiple =
-      point.unrealizedMultiple ??
-      (totalInvested > 0 ? currentValue / totalInvested : 0);
-    const realizedMultiple = point.realizedMultiple ?? 0;
-    const tvpi = unrealizedMultiple + realizedMultiple;
-    const estimatedIrr = (tvpi - 1) * 18 + (point.avgHealth ?? 70) * 0.15;
-    const percentageExited = tvpi > 0 ? (realizedMultiple / tvpi) * 100 : 0;
+    const exitValue = Math.max(point.totalExitValue ?? 0, 0);
+    const tvpi =
+      point.tvpi ??
+      (totalInvested > 0 ? (currentValue + exitValue) / totalInvested : 0);
+    const dpi =
+      point.dpi ?? (totalInvested > 0 ? exitValue / totalInvested : 0);
+    const moic = totalInvested > 0 ? currentValue / totalInvested : 0;
+    const irr = point.irr ?? 0;
+    const percentageExited = tvpi > 0 ? (dpi / tvpi) * 100 : 0;
 
     return {
-      cohort: point.name ?? "Uncategorized",
-      count: point.companyCount ?? 0,
+      cohort: point.name ?? String(point.vintage ?? "Uncategorized"),
+      count: point.count ?? 0,
       totalInvested,
       currentValue,
-      moic: Number(unrealizedMultiple.toFixed(2)),
-      irr: Number(Math.max(-100, Math.min(estimatedIrr, 180)).toFixed(1)),
+      moic: Number(moic.toFixed(2)),
+      irr: Number(Math.max(-100, Math.min(irr, 180)).toFixed(1)),
       tvpi: Number(tvpi.toFixed(2)),
-      dpi: Number(realizedMultiple.toFixed(2)),
+      dpi: Number(dpi.toFixed(2)),
       percentageExited: Number(
         Math.max(0, Math.min(percentageExited, 100)).toFixed(1),
       ),
@@ -374,10 +380,10 @@ function mapConcentrationEntries(
   if (!points || points.length === 0) return [];
 
   return points.map((point) => ({
-    category: point.name ?? "Other",
+    category: point.name ?? point.sector ?? point.stage ?? "Other",
     dimension,
     value: point.value ?? 0,
-    percentage: point.percentage ?? 0,
+    percentage: point.concentration ?? 0,
     count: point.count,
   }));
 }
@@ -421,13 +427,14 @@ function mapDeploymentResponse(
 function mapValuationTrendsResponse(
   response: ApiValuationTrendsResponse,
 ): ValuationTrend[] {
-  if (!response.trends || response.trends.length === 0) return [];
+  const points = response.series ?? response.trends ?? [];
+  if (points.length === 0) return [];
 
   const realizedTotal = Math.max(response.totalExitValue ?? 0, 0);
   const deployedTotal = Math.max(response.totalInvested ?? 0, 0);
-  const lastIndex = Math.max(response.trends.length - 1, 1);
+  const lastIndex = Math.max(points.length - 1, 1);
 
-  return response.trends.map((entry, index) => {
+  return points.map((entry, index) => {
     const progress = index / lastIndex;
     const realizedValue = Math.round(realizedTotal * progress);
     const portfolioValue = Math.max(entry.nav ?? 0, 0);

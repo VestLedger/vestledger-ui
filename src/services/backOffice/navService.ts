@@ -161,14 +161,19 @@ export async function exportNAV(
     return { calculationId, format, exportedAt: new Date().toISOString() };
   }
 
+  const apiFormat = format === "excel" ? "xlsx" : format;
   const payload = await requestJson<{
     calculationId: string;
-    format: "pdf" | "excel";
+    format: "pdf" | "xlsx" | "csv";
     exportedAt: string;
   }>(`/nav/${calculationId}/export`, {
     method: "POST",
-    body: { format },
+    body: { format: apiFormat },
     fallbackMessage: "Failed to export NAV",
   });
-  return payload;
+  return {
+    calculationId: payload.calculationId,
+    format,
+    exportedAt: payload.exportedAt,
+  };
 }
