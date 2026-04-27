@@ -61,7 +61,7 @@ export async function getCarryAccruals(
 
 export async function calculateCarryAccrual(
   fundId: string,
-  fundName: string,
+  _fundName: string,
 ): Promise<CarryAccrual> {
   if (isMockMode("backOffice")) {
     const latest = accrualStore
@@ -110,7 +110,7 @@ export async function calculateCarryAccrual(
     `/funds/${fundId}/carry/accruals/calculate`,
     {
       method: "POST",
-      body: { fundName },
+      body: { fundId },
       fallbackMessage: "Failed to calculate carry accrual",
     },
   );

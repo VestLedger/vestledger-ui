@@ -148,14 +148,10 @@ function toDateOnly(value: unknown): string {
 }
 
 function asDistributionStatus(value: unknown): DistributionStatus {
-  const normalized = String(value).replace(/_/g, "-");
+  const normalized = String(value);
   return DISTRIBUTION_STATUSES.includes(normalized as DistributionStatus)
     ? (normalized as DistributionStatus)
     : "draft";
-}
-
-function toApiDistributionStatus(value: DistributionStatus): string {
-  return value.replace(/-/g, "_");
 }
 
 function asDistributionEventType(value: unknown): DistributionEventType {
@@ -525,10 +521,7 @@ export async function fetchDistributions(
   const query = {
     fromDate: filters?.dateFrom,
     toDate: filters?.dateTo,
-    status:
-      filters?.status?.length === 1
-        ? toApiDistributionStatus(filters.status[0])
-        : undefined,
+    status: filters?.status?.length === 1 ? filters.status[0] : undefined,
     eventType:
       filters?.eventType?.length === 1 ? filters.eventType[0] : undefined,
   };
@@ -853,7 +846,7 @@ export async function submitForApproval(
     `/distributions/${params.distributionId}/submit`,
     {
       method: "POST",
-      body: { approverIds: [] },
+      body: { comment: params.comment },
       fallbackMessage: "Failed to submit distribution for approval",
     },
   );
@@ -936,7 +929,7 @@ export async function approveDistribution(
     `/distributions/${params.distributionId}/approve`,
     {
       method: "POST",
-      body: { status: "approved", comments: params.comment },
+      body: { decision: "approve", comment: params.comment },
       fallbackMessage: "Failed to approve distribution",
     },
   );
