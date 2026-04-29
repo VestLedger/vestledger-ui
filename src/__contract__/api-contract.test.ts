@@ -156,4 +156,37 @@ describe.skipIf(skip)("API contract: mutation endpoint shapes", () => {
     const result = await calculateCarryAccrual(fundId, allFunds[0].name);
     expect(result).toBeDefined();
   });
+
+  it("PATCH /tax/documents/:id accepts ready / sent / amended status", async () => {
+    const { updateTaxDocumentStatus } =
+      await import("@/services/backOffice/taxCenterService");
+
+    // Always POST a fresh K-1 so the lifecycle tasks exist and the assertion
+    // is deterministic (older seed docs predate the tasks table).
+    const token = globalThis.localStorage.getItem(STORAGE_TOKEN_KEY);
+    const created = await fetch(`${API_URL}/tax/documents`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        documentType: "Schedule K-1",
+        taxYear: new Date().getFullYear() - 1,
+        recipientType: "LP",
+        recipientName: "Contract Test LP",
+        fundId,
+      }),
+    });
+    expect(created.ok).toBe(true);
+    const createdBody = (await created.json()) as { id: string };
+
+    // Walk the full lifecycle the FE buttons drive: approve → send → amend.
+    const ready = await updateTaxDocumentStatus(createdBody.id, "ready");
+    expect(ready.status).toBe("ready");
+    const sent = await updateTaxDocumentStatus(createdBody.id, "sent");
+    expect(sent.status).toBe("sent");
+    const amended = await updateTaxDocumentStatus(createdBody.id, "amended");
+    expect(amended.status).toBe("amended");
+  });
 });

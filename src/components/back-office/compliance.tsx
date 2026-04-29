@@ -1,23 +1,49 @@
-'use client'
+"use client";
 
-import { useEffect } from 'react';
-import { Card, Button, Badge, useToast } from '@/ui';
-import { Shield, FileText, AlertTriangle, CheckCircle, Clock, Download, Calendar, Users, Building2, Scale } from 'lucide-react';
-import { AMLKYCWorkflow } from '../compliance/aml-kyc-workflow';
-import { useUIKey } from '@/store/ui';
-import { COMPLIANCE_TAB_IDS, DEFAULT_COMPLIANCE_TAB_ID } from '@/config/compliance-tabs';
-import { complianceSelectors } from '@/store/slices/backOfficeSlice';
-import { AsyncStateRenderer } from '@/ui/async-states';
-import { PageScaffold, SectionHeader, StatusBadge, MetricsGrid } from '@/ui/composites';
-import { useAsyncData } from '@/hooks/useAsyncData';
-import { ROUTE_PATHS } from '@/config/routes';
-import { loadComplianceOperation } from '@/store/async/backOfficeOperations';
-import { formatDate } from '@/utils/formatting';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Card, Button, Badge, useToast } from "@/ui";
+import {
+  Shield,
+  FileText,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  Download,
+  Calendar,
+  Users,
+  Building2,
+  Scale,
+} from "lucide-react";
+import { AMLKYCWorkflow } from "../compliance/aml-kyc-workflow";
+import { useUIKey } from "@/store/ui";
+import {
+  COMPLIANCE_TAB_IDS,
+  DEFAULT_COMPLIANCE_TAB_ID,
+} from "@/config/compliance-tabs";
+import { complianceSelectors } from "@/store/slices/backOfficeSlice";
+import { AsyncStateRenderer } from "@/ui/async-states";
+import {
+  PageScaffold,
+  SectionHeader,
+  StatusBadge,
+  MetricsGrid,
+} from "@/ui/composites";
+import { useAsyncData } from "@/hooks/useAsyncData";
+import { ROUTE_PATHS } from "@/config/routes";
+import { loadComplianceOperation } from "@/store/async/backOfficeOperations";
+import { formatDate } from "@/utils/formatting";
 
 export function Compliance() {
   const toast = useToast();
-  const { data, isLoading, error, refetch } = useAsyncData(loadComplianceOperation, complianceSelectors.selectState);
-  const { value: ui, patch: patchUI } = useUIKey('back-office-compliance', { selectedTab: DEFAULT_COMPLIANCE_TAB_ID });
+  const router = useRouter();
+  const { data, isLoading, error, refetch } = useAsyncData(
+    loadComplianceOperation,
+    complianceSelectors.selectState,
+  );
+  const { value: ui, patch: patchUI } = useUIKey("back-office-compliance", {
+    selectedTab: DEFAULT_COMPLIANCE_TAB_ID,
+  });
   const { selectedTab } = ui;
 
   useEffect(() => {
@@ -31,116 +57,149 @@ export function Compliance() {
   const auditSchedule = data?.auditSchedule || [];
 
   // Calculate AI insights
-  const overdueItems = complianceItems.filter(item => item.status === 'overdue').length;
-  const inProgressItems = complianceItems.filter(item => item.status === 'in-progress').length;
+  const overdueItems = complianceItems.filter(
+    (item) => item.status === "overdue",
+  ).length;
+  const inProgressItems = complianceItems.filter(
+    (item) => item.status === "in-progress",
+  ).length;
   const upcomingHighPriority = complianceItems.filter(
-    item => item.status === 'upcoming' && item.priority === 'high'
+    (item) => item.status === "upcoming" && item.priority === "high",
   ).length;
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high':
-        return 'text-[var(--app-danger)]';
-      case 'medium':
-        return 'text-[var(--app-warning)]';
-      case 'low':
-        return 'text-[var(--app-info)]';
+      case "high":
+        return "text-[var(--app-danger)]";
+      case "medium":
+        return "text-[var(--app-warning)]";
+      case "low":
+        return "text-[var(--app-info)]";
       default:
-        return 'text-[var(--app-text-muted)]';
+        return "text-[var(--app-text-muted)]";
     }
   };
 
   const handleUploadDocument = () => {
-    toast.info(
-      'Use the Documents workspace to upload compliance evidence. API upload wiring is ready for integration.',
-      'Upload Document'
-    );
+    router.push(ROUTE_PATHS.documents);
   };
 
   const handleExportReport = () => {
-    toast.success('Compliance report export has been queued for generation.', 'Export Started');
+    toast.success(
+      "Compliance report export has been queued for generation.",
+      "Export Started",
+    );
   };
 
   const handleInitiateWorkflow = (entityId: string) => {
-    const target = entityId.trim() || 'new entity';
-    toast.success(`AML/KYC workflow initiated for ${target}.`, 'Workflow Started');
+    const target = entityId.trim() || "new entity";
+    toast.success(
+      `AML/KYC workflow initiated for ${target}.`,
+      "Workflow Started",
+    );
   };
 
   const handleUpdateWorkflowStep = (_workflowId: string, _stepId: string) => {
-    toast.info('Workflow step updates are captured in demo mode and ready for API integration.');
+    toast.info(
+      "Workflow step updates are captured in demo mode and ready for API integration.",
+    );
   };
 
-  const handleUploadWorkflowDocument = (_workflowId: string, documentType: string) => {
-    toast.success(`Document upload recorded for ${documentType}.`, 'Document Captured');
+  const handleUploadWorkflowDocument = (
+    _workflowId: string,
+    documentType: string,
+  ) => {
+    toast.success(
+      `Document upload recorded for ${documentType}.`,
+      "Document Captured",
+    );
   };
 
   const handleRunScreening = (_workflowId: string, screeningType: string) => {
-    toast.success(`${screeningType.toUpperCase()} screening has been queued.`, 'Screening Started');
+    toast.success(
+      `${screeningType.toUpperCase()} screening has been queued.`,
+      "Screening Started",
+    );
   };
 
-  const handleReviewMatch = (_workflowId: string, _matchId: string, decision: string) => {
-    toast.success(`Match review marked as ${decision}.`, 'Review Saved');
+  const handleReviewMatch = (
+    _workflowId: string,
+    _matchId: string,
+    decision: string,
+  ) => {
+    toast.success(`Match review marked as ${decision}.`, "Review Saved");
   };
 
   const handleApproveWorkflow = (workflowId: string) => {
-    toast.success(`Workflow ${workflowId} has been approved.`, 'Workflow Approved');
+    toast.success(
+      `Workflow ${workflowId} has been approved.`,
+      "Workflow Approved",
+    );
   };
 
   const handleRejectWorkflow = (workflowId: string, reason: string) => {
     toast.warning(
-      `Workflow ${workflowId} marked as rejected${reason ? `: ${reason}` : '.'}`,
-      'Workflow Rejected'
+      `Workflow ${workflowId} marked as rejected${reason ? `: ${reason}` : "."}`,
+      "Workflow Rejected",
     );
   };
 
   const handleRequestEDD = (workflowId: string) => {
-    toast.info(`Enhanced due diligence requested for workflow ${workflowId}.`, 'EDD Requested');
+    toast.info(
+      `Enhanced due diligence requested for workflow ${workflowId}.`,
+      "EDD Requested",
+    );
   };
 
   const handleExportWorkflowReport = (workflowId: string) => {
-    toast.success(`Workflow report export started for ${workflowId}.`, 'Export Started');
+    toast.success(
+      `Workflow report export started for ${workflowId}.`,
+      "Export Started",
+    );
   };
 
   const summaryCards = [
     {
-      type: 'stats' as const,
+      type: "stats" as const,
       props: {
-        title: 'Overdue Items',
-        value: complianceItems.filter(i => i.status === 'overdue').length,
+        title: "Overdue Items",
+        value: complianceItems.filter((i) => i.status === "overdue").length,
         icon: AlertTriangle,
-        variant: 'danger' as const,
+        variant: "danger" as const,
       },
     },
     {
-      type: 'stats' as const,
+      type: "stats" as const,
       props: {
-        title: 'In Progress',
-        value: complianceItems.filter(i => i.status === 'in-progress').length,
+        title: "In Progress",
+        value: complianceItems.filter((i) => i.status === "in-progress").length,
         icon: Clock,
-        variant: 'warning' as const,
+        variant: "warning" as const,
       },
     },
     {
-      type: 'stats' as const,
+      type: "stats" as const,
       props: {
-        title: 'Due This Month',
-        value: complianceItems.filter(i => {
+        title: "Due This Month",
+        value: complianceItems.filter((i) => {
           const dueDate = new Date(i.dueDate);
           const today = new Date();
-          return dueDate.getMonth() === today.getMonth() &&
-                 dueDate.getFullYear() === today.getFullYear();
+          return (
+            dueDate.getMonth() === today.getMonth() &&
+            dueDate.getFullYear() === today.getFullYear()
+          );
         }).length,
         icon: Calendar,
-        variant: 'primary' as const,
+        variant: "primary" as const,
       },
     },
     {
-      type: 'stats' as const,
+      type: "stats" as const,
       props: {
-        title: 'Completed',
-        value: complianceItems.filter(i => i.status === 'completed').length,
+        title: "Completed",
+        value: complianceItems.filter((i) => i.status === "completed").length,
         icon: CheckCircle,
-        variant: 'success' as const,
+        variant: "success" as const,
       },
     },
   ];
@@ -159,279 +218,425 @@ export function Compliance() {
         <PageScaffold
           routePath={ROUTE_PATHS.compliance}
           header={{
-            title: 'Compliance & Regulatory',
-            description: 'Track regulatory filings, audits, and compliance requirements',
+            title: "Compliance & Regulatory",
+            description:
+              "Track regulatory filings, audits, and compliance requirements",
             icon: Shield,
             aiSummary: {
               text: `${overdueItems} overdue items require immediate attention. ${inProgressItems} items in progress. ${upcomingHighPriority} high-priority deadlines approaching. AI recommends prioritizing Form ADV and annual certification.`,
             },
             primaryAction: {
-              label: 'Upload Document',
+              label: "Upload Document",
               onClick: handleUploadDocument,
               aiSuggested: false,
             },
-	            secondaryActions: [
-	              {
-	                label: 'Export Report',
-	                onClick: handleExportReport,
-	              },
-	            ],
-	          }}
-	        >
-      {/* Summary Cards */}
-      <MetricsGrid
-        items={summaryCards}
-        columns={{ base: 1, md: 2, lg: 4 }}
-        className="mt-4"
-      />
+            secondaryActions: [
+              {
+                label: "Export Report",
+                onClick: handleExportReport,
+              },
+            ],
+          }}
+        >
+          {/* Summary Cards */}
+          <MetricsGrid
+            items={summaryCards}
+            columns={{ base: 1, md: 2, lg: 4 }}
+            className="mt-4"
+          />
 
-        {/* Overview Tab */}
-        {selectedTab === 'overview' && (
-        <div className="space-y-3 mt-4">
-            {[...complianceItems]
-              .sort((a, b) => {
-                // Sort by priority and status
-                const priorityOrder = { high: 0, medium: 1, low: 2 };
-                const statusOrder = { overdue: 0, 'in-progress': 1, upcoming: 2, completed: 3 };
-                return (
-                  statusOrder[a.status as keyof typeof statusOrder] - statusOrder[b.status as keyof typeof statusOrder] ||
-                  priorityOrder[a.priority as keyof typeof priorityOrder] - priorityOrder[b.priority as keyof typeof priorityOrder]
-                );
-              })
-              .map((item) => (
-                <Card key={item.id} padding="lg">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-4 flex-1">
-                      <div className={`p-3 rounded-lg ${
-                        item.status === 'overdue' ? 'bg-[var(--app-danger-bg)]' :
-                        item.status === 'in-progress' ? 'bg-[var(--app-warning-bg)]' :
-                        item.status === 'completed' ? 'bg-[var(--app-success-bg)]' :
-                        'bg-[var(--app-info-bg)]'
-                      }`}>
-                        {item.type === 'filing' && <FileText className={`w-6 h-6 ${
-                          item.status === 'overdue' ? 'text-[var(--app-danger)]' :
-                          item.status === 'in-progress' ? 'text-[var(--app-warning)]' :
-                          item.status === 'completed' ? 'text-[var(--app-success)]' :
-                          'text-[var(--app-info)]'
-                        }`} />}
-                        {item.type === 'report' && <FileText className={`w-6 h-6 ${
-                          item.status === 'overdue' ? 'text-[var(--app-danger)]' :
-                          item.status === 'in-progress' ? 'text-[var(--app-warning)]' :
-                          item.status === 'completed' ? 'text-[var(--app-success)]' :
-                          'text-[var(--app-info)]'
-                        }`} />}
-                        {item.type === 'certification' && <Shield className={`w-6 h-6 ${
-                          item.status === 'overdue' ? 'text-[var(--app-danger)]' :
-                          item.status === 'in-progress' ? 'text-[var(--app-warning)]' :
-                          item.status === 'completed' ? 'text-[var(--app-success)]' :
-                          'text-[var(--app-info)]'
-                        }`} />}
-                        {item.type === 'audit' && <Scale className={`w-6 h-6 ${
-                          item.status === 'overdue' ? 'text-[var(--app-danger)]' :
-                          item.status === 'in-progress' ? 'text-[var(--app-warning)]' :
-                          item.status === 'completed' ? 'text-[var(--app-success)]' :
-                          'text-[var(--app-info)]'
-                        }`} />}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h3 className="font-semibold text-lg">{item.title}</h3>
-                          <StatusBadge status={item.status} domain="compliance" showIcon size="sm" />
-                          <Badge size="sm" className={`${getPriorityColor(item.priority)} bg-opacity-10`}>
-                            {item.priority.toUpperCase()}
-                          </Badge>
-                        </div>
-
-                        <p className="text-sm text-[var(--app-text-muted)] mb-3">{item.description}</p>
-
-                        <div className="flex items-center gap-4 text-sm text-[var(--app-text-subtle)]">
-                          <div className="flex items-center gap-1">
-                            <Calendar className="w-4 h-4" />
-                            <span>Due: {formatDate(item.dueDate)}</span>
-                          </div>
-                          <span>•</span>
-                          <div className="flex items-center gap-1">
-                            <Users className="w-4 h-4" />
-                            <span>{item.assignedTo}</span>
-                          </div>
-                          {item.relatedFund && (
-                            <>
-                              <span>•</span>
-                              <div className="flex items-center gap-1">
-                                <Building2 className="w-4 h-4" />
-                                <span>{item.relatedFund}</span>
-                              </div>
-                            </>
+          {/* Overview Tab */}
+          {selectedTab === "overview" && (
+            <div className="space-y-3 mt-4">
+              {[...complianceItems]
+                .sort((a, b) => {
+                  // Sort by priority and status
+                  const priorityOrder = { high: 0, medium: 1, low: 2 };
+                  const statusOrder = {
+                    overdue: 0,
+                    "in-progress": 1,
+                    upcoming: 2,
+                    completed: 3,
+                  };
+                  return (
+                    statusOrder[a.status as keyof typeof statusOrder] -
+                      statusOrder[b.status as keyof typeof statusOrder] ||
+                    priorityOrder[a.priority as keyof typeof priorityOrder] -
+                      priorityOrder[b.priority as keyof typeof priorityOrder]
+                  );
+                })
+                .map((item) => (
+                  <Card key={item.id} padding="lg">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-4 flex-1">
+                        <div
+                          className={`p-3 rounded-lg ${
+                            item.status === "overdue"
+                              ? "bg-[var(--app-danger-bg)]"
+                              : item.status === "in-progress"
+                                ? "bg-[var(--app-warning-bg)]"
+                                : item.status === "completed"
+                                  ? "bg-[var(--app-success-bg)]"
+                                  : "bg-[var(--app-info-bg)]"
+                          }`}
+                        >
+                          {item.type === "filing" && (
+                            <FileText
+                              className={`w-6 h-6 ${
+                                item.status === "overdue"
+                                  ? "text-[var(--app-danger)]"
+                                  : item.status === "in-progress"
+                                    ? "text-[var(--app-warning)]"
+                                    : item.status === "completed"
+                                      ? "text-[var(--app-success)]"
+                                      : "text-[var(--app-info)]"
+                              }`}
+                            />
+                          )}
+                          {item.type === "report" && (
+                            <FileText
+                              className={`w-6 h-6 ${
+                                item.status === "overdue"
+                                  ? "text-[var(--app-danger)]"
+                                  : item.status === "in-progress"
+                                    ? "text-[var(--app-warning)]"
+                                    : item.status === "completed"
+                                      ? "text-[var(--app-success)]"
+                                      : "text-[var(--app-info)]"
+                              }`}
+                            />
+                          )}
+                          {item.type === "certification" && (
+                            <Shield
+                              className={`w-6 h-6 ${
+                                item.status === "overdue"
+                                  ? "text-[var(--app-danger)]"
+                                  : item.status === "in-progress"
+                                    ? "text-[var(--app-warning)]"
+                                    : item.status === "completed"
+                                      ? "text-[var(--app-success)]"
+                                      : "text-[var(--app-info)]"
+                              }`}
+                            />
+                          )}
+                          {item.type === "audit" && (
+                            <Scale
+                              className={`w-6 h-6 ${
+                                item.status === "overdue"
+                                  ? "text-[var(--app-danger)]"
+                                  : item.status === "in-progress"
+                                    ? "text-[var(--app-warning)]"
+                                    : item.status === "completed"
+                                      ? "text-[var(--app-success)]"
+                                      : "text-[var(--app-info)]"
+                              }`}
+                            />
                           )}
                         </div>
-                      </div>
-                    </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h3 className="font-semibold text-lg">
+                              {item.title}
+                            </h3>
+                            <StatusBadge
+                              status={item.status}
+                              domain="compliance"
+                              showIcon
+                              size="sm"
+                            />
+                            <Badge
+                              size="sm"
+                              className={`${getPriorityColor(item.priority)} bg-opacity-10`}
+                            >
+                              {item.priority.toUpperCase()}
+                            </Badge>
+                          </div>
 
-                    <Button variant="flat" size="sm">
-                      View Details
-                    </Button>
-                  </div>
-                </Card>
-              ))}
-          </div>
-        )}
+                          <p className="text-sm text-[var(--app-text-muted)] mb-3">
+                            {item.description}
+                          </p>
 
-        {/* Regulatory Filings Tab */}
-        {selectedTab === 'filings' && (
-          <div>
-            <Card padding="lg">
-              <SectionHeader title="Required Filings" titleClassName="font-semibold" className="mb-4" />
-              <div className="space-y-3">
-                {regulatoryFilings.map((filing) => (
-                  <div key={filing.id} className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h4 className="font-semibold">{filing.filingType}</h4>
-                          <StatusBadge status={filing.status} domain="compliance" showIcon size="sm" />
-                        </div>
-
-                        <div className="grid grid-cols-5 gap-4 text-sm">
-                          <div>
-                            <p className="text-[var(--app-text-muted)]">Regulator</p>
-                            <p className="font-medium">{filing.regulator}</p>
-                          </div>
-                          <div>
-                            <p className="text-[var(--app-text-muted)]">Frequency</p>
-                            <p className="font-medium">{filing.frequency}</p>
-                          </div>
-                          <div>
-                            <p className="text-[var(--app-text-muted)]">Last Filed</p>
-                            <p className="font-medium">{formatDate(filing.lastFiled)}</p>
-                          </div>
-                          <div>
-                            <p className="text-[var(--app-text-muted)]">Next Due</p>
-                            <p className="font-medium">{filing.nextDue !== 'N/A' ? formatDate(filing.nextDue) : 'N/A'}</p>
-                          </div>
-                          <div>
-                            <p className="text-[var(--app-text-muted)]">Fund</p>
-                            <p className="font-medium">{filing.fundName}</p>
+                          <div className="flex items-center gap-4 text-sm text-[var(--app-text-subtle)]">
+                            <div className="flex items-center gap-1">
+                              <Calendar className="w-4 h-4" />
+                              <span>Due: {formatDate(item.dueDate)}</span>
+                            </div>
+                            <span>•</span>
+                            <div className="flex items-center gap-1">
+                              <Users className="w-4 h-4" />
+                              <span>{item.assignedTo}</span>
+                            </div>
+                            {item.relatedFund && (
+                              <>
+                                <span>•</span>
+                                <div className="flex items-center gap-1">
+                                  <Building2 className="w-4 h-4" />
+                                  <span>{item.relatedFund}</span>
+                                </div>
+                              </>
+                            )}
                           </div>
                         </div>
                       </div>
 
-                      <Button variant="flat" size="sm" startContent={<Download className="w-4 h-4" />}>
-                        Download
+                      <Button variant="flat" size="sm">
+                        View Details
                       </Button>
                     </div>
-                  </div>
+                  </Card>
                 ))}
-              </div>
-            </Card>
-          </div>
-        )}
+            </div>
+          )}
 
-        {/* Audit Schedule Tab */}
-        {selectedTab === 'audits' && (
-          <div>
-            <Card padding="lg">
-              <SectionHeader title="Audit Schedule" titleClassName="font-semibold" className="mb-4" />
-              <div className="space-y-3">
-                {auditSchedule.map((audit) => (
-                  <div key={audit.id} className="p-4 rounded-lg bg-[var(--app-surface-hover)]">
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-semibold">{audit.auditType} - {audit.year}</h4>
-                          <StatusBadge status={audit.status} domain="compliance" showIcon size="sm" />
+          {/* Regulatory Filings Tab */}
+          {selectedTab === "filings" && (
+            <div>
+              <Card padding="lg">
+                <SectionHeader
+                  title="Required Filings"
+                  titleClassName="font-semibold"
+                  className="mb-4"
+                />
+                <div className="space-y-3">
+                  {regulatoryFilings.map((filing) => (
+                    <div
+                      key={filing.id}
+                      className="p-4 rounded-lg bg-[var(--app-surface-hover)]"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h4 className="font-semibold">
+                              {filing.filingType}
+                            </h4>
+                            <StatusBadge
+                              status={filing.status}
+                              domain="compliance"
+                              showIcon
+                              size="sm"
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-5 gap-4 text-sm">
+                            <div>
+                              <p className="text-[var(--app-text-muted)]">
+                                Regulator
+                              </p>
+                              <p className="font-medium">{filing.regulator}</p>
+                            </div>
+                            <div>
+                              <p className="text-[var(--app-text-muted)]">
+                                Frequency
+                              </p>
+                              <p className="font-medium">{filing.frequency}</p>
+                            </div>
+                            <div>
+                              <p className="text-[var(--app-text-muted)]">
+                                Last Filed
+                              </p>
+                              <p className="font-medium">
+                                {formatDate(filing.lastFiled)}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-[var(--app-text-muted)]">
+                                Next Due
+                              </p>
+                              <p className="font-medium">
+                                {filing.nextDue !== "N/A"
+                                  ? formatDate(filing.nextDue)
+                                  : "N/A"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-[var(--app-text-muted)]">
+                                Fund
+                              </p>
+                              <p className="font-medium">{filing.fundName}</p>
+                            </div>
+                          </div>
                         </div>
-                        <p className="text-sm text-[var(--app-text-muted)]">
-                          Auditor: {audit.auditor} • Fund: {audit.fundName}
-                        </p>
+
+                        <Button
+                          variant="flat"
+                          size="sm"
+                          startContent={<Download className="w-4 h-4" />}
+                        >
+                          Download
+                        </Button>
                       </div>
                     </div>
-
-                    <div className="grid grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <p className="text-[var(--app-text-muted)]">Start Date</p>
-                        <p className="font-medium">{formatDate(audit.startDate)}</p>
-                      </div>
-                      <div>
-                        <p className="text-[var(--app-text-muted)]">Completion Date</p>
-                        <p className="font-medium">
-                          {audit.completionDate ? formatDate(audit.completionDate) : 'In Progress'}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-[var(--app-text-muted)]">Duration</p>
-                        <p className="font-medium">
-                          {audit.completionDate
-                            ? `${Math.ceil((new Date(audit.completionDate).getTime() - new Date(audit.startDate).getTime()) / (1000 * 60 * 60 * 24))} days`
-                            : 'Ongoing'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </div>
-        )}
-
-        {/* AML/KYC Tab */}
-        {selectedTab === 'aml-kyc' && (
-          <div>
-            <AMLKYCWorkflow
-              workflows={[]}
-              onInitiateWorkflow={handleInitiateWorkflow}
-              onUpdateStep={handleUpdateWorkflowStep}
-              onUploadDocument={handleUploadWorkflowDocument}
-              onRunScreening={handleRunScreening}
-              onReviewMatch={handleReviewMatch}
-              onApproveWorkflow={handleApproveWorkflow}
-              onRejectWorkflow={handleRejectWorkflow}
-              onRequestEDD={handleRequestEDD}
-              onExportReport={handleExportWorkflowReport}
-            />
-          </div>
-        )}
-
-        {/* Resources Tab */}
-        {selectedTab === 'resources' && (
-          <div className="space-y-4">
-            <Card padding="lg">
-              <SectionHeader title="Compliance Documents" titleClassName="font-semibold" className="mb-4" />
-              <div className="grid grid-cols-2 gap-3">
-                <Button variant="bordered" className="justify-start" startContent={<FileText className="w-4 h-4" />}>
-                  Code of Ethics
-                </Button>
-                <Button variant="bordered" className="justify-start" startContent={<FileText className="w-4 h-4" />}>
-                  Compliance Manual
-                </Button>
-                <Button variant="bordered" className="justify-start" startContent={<FileText className="w-4 h-4" />}>
-                  Privacy Policy
-                </Button>
-                <Button variant="bordered" className="justify-start" startContent={<FileText className="w-4 h-4" />}>
-                  AML/KYC Procedures
-                </Button>
-                <Button variant="bordered" className="justify-start" startContent={<FileText className="w-4 h-4" />}>
-                  Cybersecurity Policy
-                </Button>
-                <Button variant="bordered" className="justify-start" startContent={<FileText className="w-4 h-4" />}>
-                  Business Continuity Plan
-                </Button>
-              </div>
-            </Card>
-
-            <Card padding="md" className="bg-[var(--app-info-bg)] border-[var(--app-info)]/20">
-              <div className="flex items-start gap-3">
-                <Shield className="w-5 h-5 text-[var(--app-info)] flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-[var(--app-info)] mb-1">Compliance Reminders</p>
-                  <p className="text-xs text-[var(--app-text-muted)]">
-                    Stay up-to-date with regulatory requirements. Set up automated reminders for recurring
-                    filings and certifications. Contact the compliance team for any questions or concerns.
-                  </p>
+                  ))}
                 </div>
-              </div>
-            </Card>
-          </div>
-        )}
+              </Card>
+            </div>
+          )}
+
+          {/* Audit Schedule Tab */}
+          {selectedTab === "audits" && (
+            <div>
+              <Card padding="lg">
+                <SectionHeader
+                  title="Audit Schedule"
+                  titleClassName="font-semibold"
+                  className="mb-4"
+                />
+                <div className="space-y-3">
+                  {auditSchedule.map((audit) => (
+                    <div
+                      key={audit.id}
+                      className="p-4 rounded-lg bg-[var(--app-surface-hover)]"
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="font-semibold">
+                              {audit.auditType} - {audit.year}
+                            </h4>
+                            <StatusBadge
+                              status={audit.status}
+                              domain="compliance"
+                              showIcon
+                              size="sm"
+                            />
+                          </div>
+                          <p className="text-sm text-[var(--app-text-muted)]">
+                            Auditor: {audit.auditor} • Fund: {audit.fundName}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <p className="text-[var(--app-text-muted)]">
+                            Start Date
+                          </p>
+                          <p className="font-medium">
+                            {formatDate(audit.startDate)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[var(--app-text-muted)]">
+                            Completion Date
+                          </p>
+                          <p className="font-medium">
+                            {audit.completionDate
+                              ? formatDate(audit.completionDate)
+                              : "In Progress"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[var(--app-text-muted)]">
+                            Duration
+                          </p>
+                          <p className="font-medium">
+                            {audit.completionDate
+                              ? `${Math.ceil((new Date(audit.completionDate).getTime() - new Date(audit.startDate).getTime()) / (1000 * 60 * 60 * 24))} days`
+                              : "Ongoing"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </div>
+          )}
+
+          {/* AML/KYC Tab */}
+          {selectedTab === "aml-kyc" && (
+            <div>
+              <AMLKYCWorkflow
+                workflows={[]}
+                onInitiateWorkflow={handleInitiateWorkflow}
+                onUpdateStep={handleUpdateWorkflowStep}
+                onUploadDocument={handleUploadWorkflowDocument}
+                onRunScreening={handleRunScreening}
+                onReviewMatch={handleReviewMatch}
+                onApproveWorkflow={handleApproveWorkflow}
+                onRejectWorkflow={handleRejectWorkflow}
+                onRequestEDD={handleRequestEDD}
+                onExportReport={handleExportWorkflowReport}
+              />
+            </div>
+          )}
+
+          {/* Resources Tab */}
+          {selectedTab === "resources" && (
+            <div className="space-y-4">
+              <Card padding="lg">
+                <SectionHeader
+                  title="Compliance Documents"
+                  titleClassName="font-semibold"
+                  className="mb-4"
+                />
+                <div className="grid grid-cols-2 gap-3">
+                  <Button
+                    variant="bordered"
+                    className="justify-start"
+                    startContent={<FileText className="w-4 h-4" />}
+                  >
+                    Code of Ethics
+                  </Button>
+                  <Button
+                    variant="bordered"
+                    className="justify-start"
+                    startContent={<FileText className="w-4 h-4" />}
+                  >
+                    Compliance Manual
+                  </Button>
+                  <Button
+                    variant="bordered"
+                    className="justify-start"
+                    startContent={<FileText className="w-4 h-4" />}
+                  >
+                    Privacy Policy
+                  </Button>
+                  <Button
+                    variant="bordered"
+                    className="justify-start"
+                    startContent={<FileText className="w-4 h-4" />}
+                  >
+                    AML/KYC Procedures
+                  </Button>
+                  <Button
+                    variant="bordered"
+                    className="justify-start"
+                    startContent={<FileText className="w-4 h-4" />}
+                  >
+                    Cybersecurity Policy
+                  </Button>
+                  <Button
+                    variant="bordered"
+                    className="justify-start"
+                    startContent={<FileText className="w-4 h-4" />}
+                  >
+                    Business Continuity Plan
+                  </Button>
+                </div>
+              </Card>
+
+              <Card
+                padding="md"
+                className="bg-[var(--app-info-bg)] border-[var(--app-info)]/20"
+              >
+                <div className="flex items-start gap-3">
+                  <Shield className="w-5 h-5 text-[var(--app-info)] flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-[var(--app-info)] mb-1">
+                      Compliance Reminders
+                    </p>
+                    <p className="text-xs text-[var(--app-text-muted)]">
+                      Stay up-to-date with regulatory requirements. Set up
+                      automated reminders for recurring filings and
+                      certifications. Contact the compliance team for any
+                      questions or concerns.
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          )}
         </PageScaffold>
       )}
     </AsyncStateRenderer>

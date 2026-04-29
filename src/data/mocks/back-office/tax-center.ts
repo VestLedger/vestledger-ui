@@ -4,7 +4,7 @@ export interface TaxDocument {
   taxYear: number;
   recipientType: "LP" | "GP" | "Portfolio Company";
   recipientName: string;
-  status: "draft" | "ready" | "sent" | "filed";
+  status: "draft" | "ready" | "sent" | "filed" | "amended";
   generatedDate: string | null;
   sentDate: string | null;
   amount?: number;

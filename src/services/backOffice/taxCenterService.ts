@@ -125,6 +125,7 @@ function asDateValue(value?: string | null, fallback = new Date()): Date {
 
 function normalizeTaxDocumentStatus(rawStatus?: string): TaxDocument["status"] {
   const normalized = rawStatus?.toLowerCase() ?? "";
+  if (normalized === "amended" || normalized === "revised") return "amended";
   if (normalized === "sent" || normalized === "delivered") return "sent";
   if (normalized === "filed" || normalized === "submitted") return "filed";
   if (normalized === "ready" || normalized === "generated") return "ready";
@@ -351,4 +352,44 @@ export async function getPortfolioTax(): Promise<PortfolioCompanyTax[]> {
 
 export function clearTaxCenterSnapshotCache(): void {
   apiTaxCenterSnapshotCache = null;
+}
+
+export async function getTaxDocument(documentId: string): Promise<TaxDocument> {
+  if (isMockMode("backOffice")) {
+    const target = mockTaxDocuments.find((doc) => doc.id === documentId);
+    if (!target) throw new Error(`Tax document not found: ${documentId}`);
+    return clone(target);
+  }
+
+  // Fall back to listing + filtering — backend has no GET /tax/documents/:id.
+  const documents = await getTaxDocuments();
+  const target = documents.find((doc) => doc.id === documentId);
+  if (!target) throw new Error(`Tax document not found: ${documentId}`);
+  return target;
+}
+
+export async function updateTaxDocumentStatus(
+  documentId: string,
+  status: TaxDocument["status"],
+): Promise<TaxDocument> {
+  if (isMockMode("backOffice")) {
+    const target = mockTaxDocuments.find((doc) => doc.id === documentId);
+    if (!target) throw new Error(`Tax document not found: ${documentId}`);
+    target.status = status;
+    if (status === "sent") target.sentDate = nowIsoDate();
+    apiTaxCenterSnapshotCache = null;
+    return clone(target);
+  }
+
+  const response = await requestJson<ApiTaxDocumentRecord>(
+    `/tax/documents/${documentId}`,
+    {
+      method: "PATCH",
+      body: { status },
+      fallbackMessage: "Failed to update tax document status",
+    },
+  );
+
+  apiTaxCenterSnapshotCache = null;
+  return mapApiTaxDocument(response, 0);
 }

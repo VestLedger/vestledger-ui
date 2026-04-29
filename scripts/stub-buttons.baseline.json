@@ -1,0 +1,16 @@
+[
+  "src/components/back-office/compliance.tsx:handleApproveWorkflow",
+  "src/components/back-office/compliance.tsx:handleExportReport",
+  "src/components/back-office/compliance.tsx:handleExportWorkflowReport",
+  "src/components/back-office/compliance.tsx:handleInitiateWorkflow",
+  "src/components/back-office/compliance.tsx:handleRejectWorkflow",
+  "src/components/back-office/compliance.tsx:handleRequestEDD",
+  "src/components/back-office/compliance.tsx:handleReviewMatch",
+  "src/components/back-office/compliance.tsx:handleRunScreening",
+  "src/components/back-office/compliance.tsx:handleUpdateWorkflowStep",
+  "src/components/back-office/compliance.tsx:handleUploadWorkflowDocument",
+  "src/components/back-office/tax-center.tsx:handleExportAllK1",
+  "src/components/back-office/tax-center.tsx:handleGenerateK1Batch",
+  "src/components/back-office/tax-center.tsx:handleGenerateK1s",
+  "src/components/integrations/index.tsx:152:onPress"
+]
