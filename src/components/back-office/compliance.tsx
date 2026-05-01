@@ -15,7 +15,6 @@ import {
   Building2,
   Scale,
 } from "lucide-react";
-import { AMLKYCWorkflow } from "../compliance/aml-kyc-workflow";
 import { useUIKey } from "@/store/ui";
 import {
   COMPLIANCE_TAB_IDS,
@@ -32,6 +31,7 @@ import {
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { ROUTE_PATHS } from "@/config/routes";
 import { loadComplianceOperation } from "@/store/async/backOfficeOperations";
+import { exportComplianceReport } from "@/services/backOffice/complianceService";
 import { formatDate } from "@/utils/formatting";
 
 export function Compliance() {
@@ -84,78 +84,21 @@ export function Compliance() {
     router.push(ROUTE_PATHS.documents);
   };
 
-  const handleExportReport = () => {
-    toast.success(
-      "Compliance report export has been queued for generation.",
-      "Export Started",
-    );
-  };
-
-  const handleInitiateWorkflow = (entityId: string) => {
-    const target = entityId.trim() || "new entity";
-    toast.success(
-      `AML/KYC workflow initiated for ${target}.`,
-      "Workflow Started",
-    );
-  };
-
-  const handleUpdateWorkflowStep = (_workflowId: string, _stepId: string) => {
-    toast.info(
-      "Workflow step updates are captured in demo mode and ready for API integration.",
-    );
-  };
-
-  const handleUploadWorkflowDocument = (
-    _workflowId: string,
-    documentType: string,
-  ) => {
-    toast.success(
-      `Document upload recorded for ${documentType}.`,
-      "Document Captured",
-    );
-  };
-
-  const handleRunScreening = (_workflowId: string, screeningType: string) => {
-    toast.success(
-      `${screeningType.toUpperCase()} screening has been queued.`,
-      "Screening Started",
-    );
-  };
-
-  const handleReviewMatch = (
-    _workflowId: string,
-    _matchId: string,
-    decision: string,
-  ) => {
-    toast.success(`Match review marked as ${decision}.`, "Review Saved");
-  };
-
-  const handleApproveWorkflow = (workflowId: string) => {
-    toast.success(
-      `Workflow ${workflowId} has been approved.`,
-      "Workflow Approved",
-    );
-  };
-
-  const handleRejectWorkflow = (workflowId: string, reason: string) => {
-    toast.warning(
-      `Workflow ${workflowId} marked as rejected${reason ? `: ${reason}` : "."}`,
-      "Workflow Rejected",
-    );
-  };
-
-  const handleRequestEDD = (workflowId: string) => {
-    toast.info(
-      `Enhanced due diligence requested for workflow ${workflowId}.`,
-      "EDD Requested",
-    );
-  };
-
-  const handleExportWorkflowReport = (workflowId: string) => {
-    toast.success(
-      `Workflow report export started for ${workflowId}.`,
-      "Export Started",
-    );
+  const handleExportReport = async () => {
+    try {
+      const job = await exportComplianceReport({
+        format: "pdf",
+        section: "all",
+      });
+      toast.success(
+        `Compliance report export queued — job ${job.jobId}.`,
+        "Export Queued",
+      );
+    } catch (cause) {
+      const message =
+        cause instanceof Error ? cause.message : "Failed to queue export.";
+      toast.error(message, "Export Failed");
+    }
   };
 
   const summaryCards = [
@@ -540,24 +483,6 @@ export function Compliance() {
                   ))}
                 </div>
               </Card>
-            </div>
-          )}
-
-          {/* AML/KYC Tab */}
-          {selectedTab === "aml-kyc" && (
-            <div>
-              <AMLKYCWorkflow
-                workflows={[]}
-                onInitiateWorkflow={handleInitiateWorkflow}
-                onUpdateStep={handleUpdateWorkflowStep}
-                onUploadDocument={handleUploadWorkflowDocument}
-                onRunScreening={handleRunScreening}
-                onReviewMatch={handleReviewMatch}
-                onApproveWorkflow={handleApproveWorkflow}
-                onRejectWorkflow={handleRejectWorkflow}
-                onRequestEDD={handleRequestEDD}
-                onExportReport={handleExportWorkflowReport}
-              />
             </div>
           )}
 

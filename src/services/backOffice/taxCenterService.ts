@@ -393,3 +393,71 @@ export async function updateTaxDocumentStatus(
   apiTaxCenterSnapshotCache = null;
   return mapApiTaxDocument(response, 0);
 }
+
+export type GenerateK1sParams = {
+  fundIds: string[];
+  taxYear: number;
+  recipientType?: "LP" | "GP" | "Portfolio Company";
+};
+
+export type GenerateK1sResult = {
+  generated: number;
+  skippedFunds: number;
+  created: { fundId: string; documentId: string; recipientName: string }[];
+  skipped: { fundId: string; reason: string }[];
+};
+
+export async function generateK1s(
+  params: GenerateK1sParams,
+): Promise<GenerateK1sResult> {
+  if (isMockMode("backOffice")) {
+    return { generated: 0, skippedFunds: 0, created: [], skipped: [] };
+  }
+
+  const result = await requestJson<GenerateK1sResult>("/tax/k1/generate", {
+    method: "POST",
+    body: params,
+    fallbackMessage: "Failed to generate K-1 documents",
+  });
+
+  apiTaxCenterSnapshotCache = null;
+  return result;
+}
+
+export type ExportK1sParams = {
+  taxYear: number;
+  format: "pdf" | "csv" | "xlsx" | "excel";
+  fundId?: string;
+};
+
+export type ExportJob = {
+  jobId: string;
+  status: string;
+  format: string;
+  taxYear?: number;
+  fundId?: string | null;
+  downloadUrl: string | null;
+  filename: string;
+  requestedAt: string;
+};
+
+export async function exportK1s(params: ExportK1sParams): Promise<ExportJob> {
+  if (isMockMode("backOffice")) {
+    return {
+      jobId: `mock-${Date.now()}`,
+      status: "queued",
+      format: params.format,
+      taxYear: params.taxYear,
+      fundId: params.fundId ?? null,
+      downloadUrl: null,
+      filename: `k1-export-${params.fundId ?? "all-funds"}-${params.taxYear}.${params.format}`,
+      requestedAt: new Date().toISOString(),
+    };
+  }
+
+  return requestJson<ExportJob>("/tax/k1/export", {
+    method: "POST",
+    body: params,
+    fallbackMessage: "Failed to queue K-1 export",
+  });
+}

@@ -37,7 +37,10 @@ import {
 import type { MetricsGridItem } from "@/ui/composites";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { loadTaxCenterOperation } from "@/store/async/backOfficeOperations";
+import { useFund } from "@/contexts/fund-context";
 import {
+  exportK1s,
+  generateK1s,
   getTaxDocument,
   updateTaxDocumentStatus,
 } from "@/services/backOffice/taxCenterService";
@@ -48,6 +51,7 @@ export function TaxCenter() {
   const { user } = useAuth();
   const toast = useToast();
   const router = useRouter();
+  const { funds } = useFund();
   const { data, isLoading, error, refetch } = useAsyncData(
     loadTaxCenterOperation,
     taxCenterSelectors.selectState,
@@ -146,11 +150,32 @@ export function TaxCenter() {
     },
   ];
 
-  const handleGenerateK1Batch = () => {
-    toast.success(
-      "K-1 generation batch has been queued for all configured funds.",
-      "Generation Started",
-    );
+  const handleGenerateK1Batch = async () => {
+    const fundIds = funds.map((fund) => fund.id);
+    if (fundIds.length === 0) {
+      toast.warning("No funds available to generate K-1s for.");
+      return;
+    }
+    const taxYear = new Date().getFullYear() - 1;
+    try {
+      const result = await generateK1s({ fundIds, taxYear });
+      if (result.generated === 0) {
+        toast.info(
+          `No new K-1s generated for ${taxYear} — every commitment already has one on file.`,
+          "Up to date",
+        );
+      } else {
+        toast.success(
+          `Created ${result.generated} K-1 draft${result.generated === 1 ? "" : "s"} for ${taxYear} across ${fundIds.length - result.skippedFunds} fund${fundIds.length - result.skippedFunds === 1 ? "" : "s"}.`,
+          "Generation Complete",
+        );
+      }
+      await refetch();
+    } catch (cause) {
+      const message =
+        cause instanceof Error ? cause.message : "Failed to generate K-1s.";
+      toast.error(message, "Generation Failed");
+    }
   };
 
   const handleUploadTaxDocuments = () => {
@@ -161,11 +186,26 @@ export function TaxCenter() {
     setConfigState({ open: true, fundId });
   };
 
-  const handleGenerateK1s = (fundId: string, taxYear: number) => {
-    toast.success(
-      `K-1 generation started for ${fundId} (${taxYear}).`,
-      "Generation Started",
-    );
+  const handleGenerateK1s = async (fundId: string, taxYear: number) => {
+    try {
+      const result = await generateK1s({ fundIds: [fundId], taxYear });
+      if (result.generated === 0) {
+        toast.info(
+          `No new K-1s for ${taxYear} — every commitment already has one on file.`,
+          "Up to date",
+        );
+      } else {
+        toast.success(
+          `Created ${result.generated} K-1 draft${result.generated === 1 ? "" : "s"} for ${taxYear}.`,
+          "Generation Complete",
+        );
+      }
+      await refetch();
+    } catch (cause) {
+      const message =
+        cause instanceof Error ? cause.message : "Failed to generate K-1s.";
+      toast.error(message, "Generation Failed");
+    }
   };
 
   const handlePreviewK1 = async (documentId: string) => {
@@ -225,15 +265,22 @@ export function TaxCenter() {
     }
   };
 
-  const handleExportAllK1 = (
+  const handleExportAllK1 = async (
     fundId: string,
     taxYear: number,
     format: "pdf" | "csv",
   ) => {
-    toast.success(
-      `Export started for ${fundId} (${taxYear}) in ${format.toUpperCase()} format.`,
-      "Export Started",
-    );
+    try {
+      const job = await exportK1s({ fundId, taxYear, format });
+      toast.success(
+        `Queued ${format.toUpperCase()} export of ${taxYear} K-1s — job ${job.jobId}.`,
+        "Export Queued",
+      );
+    } catch (cause) {
+      const message =
+        cause instanceof Error ? cause.message : "Failed to queue export.";
+      toast.error(message, "Export Failed");
+    }
   };
 
   return (

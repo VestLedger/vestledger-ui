@@ -313,3 +313,44 @@ export async function getAuditSchedule(): Promise<AuditSchedule[]> {
 export function clearComplianceSnapshotCache(): void {
   apiComplianceSnapshotCache = null;
 }
+
+export type ExportComplianceReportParams = {
+  format: "pdf" | "csv" | "xlsx" | "excel";
+  section?: "items" | "filings" | "audits" | "all";
+  fundId?: string;
+};
+
+export type ComplianceExportJob = {
+  jobId: string;
+  status: string;
+  format: string;
+  section: string;
+  fundId: string | null;
+  downloadUrl: string | null;
+  filename: string;
+  requestedAt: string;
+};
+
+export async function exportComplianceReport(
+  params: ExportComplianceReportParams,
+): Promise<ComplianceExportJob> {
+  if (isMockMode("backOffice")) {
+    const section = params.section ?? "all";
+    return {
+      jobId: `mock-${Date.now()}`,
+      status: "queued",
+      format: params.format,
+      section,
+      fundId: params.fundId ?? null,
+      downloadUrl: null,
+      filename: `compliance-report-${section}-${params.fundId ?? "all-funds"}.${params.format}`,
+      requestedAt: new Date().toISOString(),
+    };
+  }
+
+  return requestJson<ComplianceExportJob>("/compliance/reports/export", {
+    method: "POST",
+    body: params,
+    fallbackMessage: "Failed to queue compliance report export",
+  });
+}

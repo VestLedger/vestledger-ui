@@ -8,7 +8,6 @@ export type StatusDomain =
   | "documents"
   | "reports"
   | "deal-intel"
-  | "aml-kyc"
   | "general";
 
 export interface StatusColorConfig {
@@ -199,16 +198,6 @@ const STATUS_COLOR_MAP: Record<
     "dd-in-progress": STATUS_PRESETS.warning,
     "docs-overdue": STATUS_PRESETS.danger,
     blocked: STATUS_PRESETS.danger,
-  },
-  "aml-kyc": {
-    "not-started": STATUS_PRESETS.muted,
-    "information-gathering": STATUS_PRESETS.info,
-    "document-collection": STATUS_PRESETS.info,
-    "verification-in-progress": STATUS_PRESETS.warning,
-    "review-required": STATUS_PRESETS.warning,
-    approved: STATUS_PRESETS.success,
-    rejected: STATUS_PRESETS.danger,
-    expired: STATUS_PRESETS.danger,
   },
 };
 

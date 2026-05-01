@@ -661,20 +661,6 @@ export const getMockCopilotPageSuggestions = (
         confidence: 0.85,
       },
     ],
-    "/compliance:aml-kyc": [
-      {
-        id: "pending-kyc",
-        text: "Complete KYC for 2 new LPs",
-        reasoning: "Recent subscriptions require verification",
-        confidence: 0.94,
-      },
-      {
-        id: "refresh-kyc",
-        text: "Refresh KYC for high-risk LPs",
-        reasoning: "Annual refresh required for 3 entities",
-        confidence: 0.88,
-      },
-    ],
     "/compliance:resources": [
       {
         id: "policy-update",
@@ -1580,20 +1566,6 @@ export const getMockCopilotQuickActions = (
         label: "Review Findings",
         icon: Zap,
         action: "Show previous findings",
-      },
-    ],
-    "/compliance:aml-kyc": [
-      {
-        id: "complete-kyc",
-        label: "Complete KYC",
-        icon: Sparkles,
-        action: "Open pending KYC",
-      },
-      {
-        id: "refresh-kyc",
-        label: "Refresh KYC",
-        icon: Zap,
-        action: "Start annual refresh",
       },
     ],
     "/compliance:resources": [

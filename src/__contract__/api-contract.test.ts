@@ -157,6 +157,38 @@ describe.skipIf(skip)("API contract: mutation endpoint shapes", () => {
     expect(result).toBeDefined();
   });
 
+  it("POST /tax/k1/generate creates draft K-1s and is idempotent", async () => {
+    const { generateK1s } =
+      await import("@/services/backOffice/taxCenterService");
+    const taxYear = new Date().getFullYear() - 1;
+    const first = await generateK1s({ fundIds: [fundId], taxYear });
+    expect(first.generated).toBeGreaterThanOrEqual(0);
+    expect(Array.isArray(first.created)).toBe(true);
+    // Second call should not create duplicates for the same fund/year.
+    const second = await generateK1s({ fundIds: [fundId], taxYear });
+    expect(second.generated).toBe(0);
+  });
+
+  it("POST /tax/k1/export queues an export job", async () => {
+    const { exportK1s } =
+      await import("@/services/backOffice/taxCenterService");
+    const job = await exportK1s({
+      taxYear: new Date().getFullYear() - 1,
+      format: "pdf",
+      fundId,
+    });
+    expect(job.jobId).toBeTypeOf("string");
+    expect(job.status).toBe("queued");
+  });
+
+  it("POST /compliance/reports/export queues a compliance report", async () => {
+    const { exportComplianceReport } =
+      await import("@/services/backOffice/complianceService");
+    const job = await exportComplianceReport({ format: "pdf", section: "all" });
+    expect(job.jobId).toBeTypeOf("string");
+    expect(job.status).toBe("queued");
+  });
+
   it("PATCH /tax/documents/:id accepts ready / sent / amended status", async () => {
     const { updateTaxDocumentStatus } =
       await import("@/services/backOffice/taxCenterService");
