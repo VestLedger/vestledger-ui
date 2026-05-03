@@ -45,7 +45,8 @@ import {
   updateTaxDocumentStatus,
 } from "@/services/backOffice/taxCenterService";
 import type { TaxDocument } from "@/data/mocks/back-office/tax-center";
-import { useState } from "react";
+import type { K1Document, K1Configuration } from "../tax/k1-generator";
+import { useMemo, useState } from "react";
 
 export function TaxCenter() {
   const { user } = useAuth();
@@ -84,6 +85,112 @@ export function TaxCenter() {
   const taxSummaries = data?.taxSummaries || [];
   const portfolioTax = data?.portfolioTax || [];
   const filingDeadline = data?.filingDeadline || new Date();
+
+  // Map backend tax documents → K1Document for the K-1 Generator tab.
+  // Backend statuses (draft/ready/sent/filed/amended) collapse onto the
+  // generator's lifecycle (draft/review/approved/sent/amended) so the
+  // conditional buttons (Approve / Send / Amend) light up correctly.
+  const k1Documents = useMemo<K1Document[]>(() => {
+    const fundNameById = new Map(funds.map((fund) => [fund.id, fund.name]));
+    const mapBackendStatus = (
+      status: TaxDocument["status"],
+    ): K1Document["status"] => {
+      switch (status) {
+        case "ready":
+          return "approved";
+        case "sent":
+          return "sent";
+        case "filed":
+          return "sent";
+        case "amended":
+          return "amended";
+        default:
+          return "review"; // backend "draft" → awaiting approval in the generator UI
+      }
+    };
+
+    return taxDocuments
+      .filter((doc) => doc.documentType.toLowerCase().includes("k-1"))
+      .map((doc) => {
+        const fundId = (doc as TaxDocument & { fundId?: string }).fundId ?? "";
+        const generated = doc.generatedDate
+          ? new Date(doc.generatedDate)
+          : new Date();
+        return {
+          id: doc.id,
+          partnerId: doc.id,
+          partnerName: doc.recipientName,
+          partnerSSN: "****",
+          fundId,
+          fundName: fundNameById.get(fundId) ?? "—",
+          taxYear: doc.taxYear,
+          generatedDate: generated,
+          status: mapBackendStatus(doc.status),
+          partnerType:
+            doc.recipientType === "Portfolio Company" ? "entity" : "individual",
+          isGeneralPartner: doc.recipientType === "GP",
+          isDomestic: true,
+          beginningCapital: 0,
+          endingCapital: doc.amount ?? 0,
+          beginningProfitShare: 0,
+          endingProfitShare: 0,
+          beginningLossShare: 0,
+          endingLossShare: 0,
+          incomeItems: [],
+          deductions: [],
+          credits: [],
+          amtItems: [],
+          capitalAccountAnalysis: {
+            beginningBalance: 0,
+            capitalContributed: 0,
+            currentYearIncrease: 0,
+            currentYearDecrease: 0,
+            withdrawalsDistributions: 0,
+            endingBalance: doc.amount ?? 0,
+            method: "tax-basis" as const,
+          },
+          stateK1s: [],
+        };
+      });
+  }, [taxDocuments, funds]);
+
+  // One placeholder configuration per fund/year so the generator's per-fund
+  // controls (Configure, Generate, Export) have a target. Real per-fund
+  // configuration is loaded by the Configure drawer on demand.
+  const k1Configurations = useMemo<K1Configuration[]>(() => {
+    const taxYear = new Date().getFullYear() - 1;
+    return funds.map((fund) => ({
+      id: `cfg-${fund.id}-${taxYear}`,
+      fundId: fund.id,
+      fundName: fund.name,
+      taxYear,
+      entityType: "partnership" as const,
+      ein: "",
+      principalBusinessActivity: "",
+      naicsCode: "",
+      allocationMethod: "pro-rata" as const,
+      useFiscalYear: false,
+      includeOrdinaryIncome: true,
+      includeRentalIncome: false,
+      includeInterestIncome: true,
+      includeDividendIncome: true,
+      includeCapitalGains: true,
+      includeSection1231: false,
+      customFields: [],
+      preparerInfo: {
+        firmName: "",
+        address: "",
+        phone: "",
+        ein: "",
+        preparerName: "",
+        preparerPTIN: "",
+        isSelfPrepared: true,
+      },
+      stateFilings: [],
+      status: "active" as const,
+      lastModified: new Date(),
+    }));
+  }, [funds]);
 
   // Calculate AI insights
   const k1sIssued = taxSummaries.reduce((sum, s) => sum + s.k1sIssued, 0);
@@ -463,8 +570,8 @@ export function TaxCenter() {
               {selectedTab === "k1-generator" && (
                 <div className="mt-4">
                   <K1Generator
-                    configurations={[]}
-                    documents={[]}
+                    configurations={k1Configurations}
+                    documents={k1Documents}
                     onConfigureK1={handleConfigureK1}
                     onGenerateK1s={handleGenerateK1s}
                     onPreviewK1={handlePreviewK1}
