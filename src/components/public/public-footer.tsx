@@ -140,12 +140,20 @@ export function PublicFooter() {
           </div>
           <div className="md:text-right">
             <h5 className="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-[color:var(--marketing-footer-subtle)]">
-              Footing
+              Legal
             </h5>
-            <p className="text-sm leading-6 text-[color:var(--marketing-footer-muted)]">
-              Built for venture, private equity, and modern capital teams that
-              expect better operating leverage from software.
-            </p>
+            <div className="space-y-2 text-sm">
+              <div>
+                <Link href="/privacy" className="public-marketing-footer-link">
+                  Privacy Policy
+                </Link>
+              </div>
+              <div>
+                <Link href="/terms" className="public-marketing-footer-link">
+                  Terms of Service
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
 
