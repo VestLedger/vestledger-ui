@@ -1,270 +1,274 @@
-'use client';
-
-import { Card, Button } from '@/ui';
+import Link from "next/link";
 import {
-  Target,
-  Users,
-  TrendingUp,
+  ArrowRight,
+  Building2,
+  Heart,
+  Rocket,
   Shield,
   Sparkles,
-  ArrowRight,
-  Linkedin,
-  Twitter,
-  Mail,
-  Building2,
-  Rocket,
-  Heart,
-  Globe
-} from 'lucide-react';
-import Link from 'next/link';
+  Target,
+  TrendingUp,
+  Users,
+} from "lucide-react";
+
+const values = [
+  {
+    icon: Shield,
+    title: "Trust & Transparency",
+    description:
+      "Your Vesta is sovereign to you. Her intelligence stays with your fund — never shared, never averaged.",
+  },
+  {
+    icon: Sparkles,
+    title: "AI-Native Thinking",
+    description:
+      "We don't add AI to old tools. We build from the ground up around what intelligent systems make possible.",
+  },
+  {
+    icon: Users,
+    title: "Partner Success",
+    description:
+      "Our success is measured by how much time Vesta gives back to fund professionals.",
+  },
+  {
+    icon: Rocket,
+    title: "Continuous Learning",
+    description:
+      "Vesta gets smarter every day. The longer you work together, the more valuable she becomes.",
+  },
+];
+
+const timeline = [
+  {
+    year: "2022",
+    title: "Founded",
+    description:
+      "VestLedger was founded to bring modern AI-native technology to venture capital operations.",
+    accent: "blue",
+  },
+  {
+    year: "2023",
+    title: "First Pilot",
+    description:
+      "Launched pilot program with 5 early-stage VC firms managing $500M in AUM.",
+    accent: "gold",
+  },
+  {
+    year: "2024",
+    title: "Series A",
+    description:
+      "Raised $15M Series A to accelerate product development and expand the Vesta intelligence platform.",
+    accent: "cyan",
+  },
+  {
+    year: "2025",
+    title: "Vesta Launch",
+    description:
+      "Introduced Vesta — an AI-native fund intelligence system that learns, remembers, and acts alongside every fund professional.",
+    accent: "blue",
+  },
+];
+
+const stats = [
+  { value: "$2.5B+", label: "Assets Under Intelligence" },
+  { value: "50+", label: "Funds with Vesta" },
+  { value: "1,000+", label: "Portfolio Companies Tracked" },
+  { value: "99.9%", label: "Vesta Uptime" },
+];
+
+function getTimelineDot(accent: string) {
+  if (accent === "gold")
+    return "bg-amber-400 dark:bg-amber-300 shadow-[0_0_14px_rgba(251,191,36,0.4)]";
+  if (accent === "cyan")
+    return "bg-cyan-400 dark:bg-cyan-300 shadow-[0_0_14px_rgba(34,211,238,0.4)]";
+  return "bg-blue-400 dark:bg-blue-300 shadow-[0_0_14px_rgba(59,130,246,0.4)]";
+}
 
 export default function AboutPage() {
-  const values = [
-    {
-      icon: Shield,
-      title: 'Trust & Transparency',
-      description: 'Your Vesta is sovereign to you. Her intelligence stays with your fund—never shared, never averaged.'
-    },
-    {
-      icon: Sparkles,
-      title: 'AI-Native Thinking',
-      description: 'We don\'t add AI to old tools. We build from the ground up around what intelligent systems make possible.'
-    },
-    {
-      icon: Users,
-      title: 'Partner Success',
-      description: 'Our success is measured by how much time Vesta gives back to fund professionals.'
-    },
-    {
-      icon: Rocket,
-      title: 'Continuous Learning',
-      description: 'Vesta gets smarter every day. The longer you work together, the more valuable she becomes.'
-    }
-  ];
-
-  const team = [
-    {
-      name: 'Alex Thompson',
-      role: 'Co-Founder & CEO',
-      bio: 'Former VP at Sequoia Capital. 15 years in venture capital and fund operations.',
-      image: 'AT'
-    },
-    {
-      name: 'Sarah Chen',
-      role: 'Co-Founder & CTO',
-      bio: 'Ex-Principal Engineer at Coinbase. Built crypto infrastructure at scale.',
-      image: 'SC'
-    },
-    {
-      name: 'Michael Rodriguez',
-      role: 'VP of Product',
-      bio: 'Led product at AngelList Stack. Deep expertise in fund admin workflows.',
-      image: 'MR'
-    },
-    {
-      name: 'Emily Park',
-      role: 'Head of Compliance',
-      bio: 'Former SEC counsel. 10 years ensuring regulatory compliance in fintech.',
-      image: 'EP'
-    }
-  ];
-
-  const timeline = [
-    {
-      year: '2022',
-      title: 'Founded',
-      description: 'VestLedger was founded to bring modern technology to venture capital operations.'
-    },
-    {
-      year: '2023',
-      title: 'First Pilot',
-      description: 'Launched pilot program with 5 early-stage VC firms managing $500M in AUM.'
-    },
-    {
-      year: '2024',
-      title: 'Series A',
-      description: 'Raised $15M Series A led by Andreessen Horowitz to accelerate product development.'
-    },
-    {
-      year: '2025',
-      title: 'Vesta Launch',
-      description: 'Introduced Vesta—an AI-native fund intelligence system that learns, remembers, and acts alongside every fund professional.'
-    }
-  ];
-
-  const stats = [
-    { value: '$2.5B+', label: 'Assets Under Intelligence' },
-    { value: '50+', label: 'Funds with Vesta' },
-    { value: '1000+', label: 'Portfolio Companies Tracked' },
-    { value: '99.9%', label: 'Vesta Uptime' }
-  ];
-
   return (
-    <div className="bg-[var(--app-bg)]">
-      {/* Hero Section */}
-      <section className="hero-bg py-20 text-center px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--app-primary-bg)] text-[var(--app-primary)] text-sm font-medium mb-6">
-            <Building2 className="w-4 h-4" />
-            <span>About VestLedger</span>
+    <div className="relative overflow-hidden">
+      {/* Hero */}
+      <section
+        id="about-hero"
+        data-testid="about-hero"
+        className="relative isolate overflow-hidden border-b border-[var(--app-border)]"
+      >
+        <div className="absolute left-[8%] top-24 h-60 w-60 rounded-full bg-[var(--marketing-glow-blue)] blur-3xl public-marketing-glow" />
+        <div className="absolute right-[14%] top-32 h-48 w-48 rounded-full bg-[var(--marketing-glow-gold)] blur-3xl public-marketing-drift" />
+        <div className="absolute bottom-16 left-[24%] h-44 w-44 rounded-full bg-[var(--marketing-glow-cyan)] blur-3xl public-marketing-pulse" />
+
+        <div className="relative mx-auto max-w-7xl px-4 pb-20 pt-28 text-center sm:px-6 sm:pb-24 sm:pt-32">
+          <div className="mx-auto max-w-4xl">
+            <div className="flex justify-center">
+              <div className="public-marketing-kicker">
+                <Building2 className="h-4 w-4" />
+                About VestLedger
+              </div>
+            </div>
+            <h1
+              data-public-display="true"
+              className="mt-7 text-4xl font-semibold leading-tight text-slate-950 sm:text-5xl lg:text-6xl dark:text-white"
+            >
+              Building the future of{" "}
+              <span className="text-brand">fund intelligence.</span>
+            </h1>
+            <p className="mx-auto mt-6 max-w-3xl text-lg leading-8 text-[var(--app-text-muted)] sm:text-xl">
+              We believe every fund professional deserves an intelligent
+              counterpart — an AI that thinks, remembers, and acts alongside
+              them. That&apos;s why we built Vesta.
+            </p>
           </div>
-          <h1 className="text-4xl sm:text-5xl font-bold mb-6">
-            Building the Future of <span className="text-vesta">Fund Intelligence</span>
-          </h1>
-          <p className="text-xl text-[var(--app-text-muted)] max-w-3xl mx-auto mb-10">
-            We believe every fund professional deserves an intelligent counterpart—an AI that thinks, remembers, and acts alongside them. That&apos;s why we built Vesta.
-          </p>
         </div>
       </section>
 
-      {/* Mission Section */}
-      <section className="py-16 bg-[var(--app-surface)] border-y border-[var(--app-border)]">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+      {/* Mission + Stats */}
+      <section
+        id="mission"
+        data-testid="about-mission"
+        className="public-marketing-stage relative overflow-hidden border-b px-4 py-20 sm:px-6 sm:py-24"
+      >
+        <div className="public-marketing-grid absolute inset-0" />
+        <div className="relative mx-auto max-w-6xl">
+          <div className="grid items-center gap-10 lg:grid-cols-2">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--app-secondary-bg)] text-[var(--app-secondary)] text-sm font-medium mb-4">
-                <Target className="w-4 h-4" />
-                <span>Our Mission</span>
+              <div className="public-marketing-kicker inline-flex">
+                <Target className="h-4 w-4" />
+                Our mission
               </div>
-              <h2 className="text-3xl font-bold mb-4">
-                The Vesta Vision
+              <h2
+                data-public-display="true"
+                className="public-marketing-contrast-heading mt-6 text-3xl font-semibold leading-tight sm:text-4xl"
+              >
+                The Vesta vision.
               </h2>
-              <p className="text-lg text-[var(--app-text-muted)] mb-6">
-                Traditional fund operations demand too much of the wrong things—data entry, manual tracking, context switching. We asked: what if every fund professional had their own AI?
+              <p className="public-marketing-contrast-copy mt-4 text-base leading-8 sm:text-lg">
+                Traditional fund operations demand too much of the wrong things
+                — data entry, manual tracking, context switching. We asked: what
+                if every fund professional had their own AI?
               </p>
-              <p className="text-lg text-[var(--app-text-muted)]">
-                One that understood their fund, their relationships, their rhythm. One that got smarter over time. Vesta is that vision, realized.
+              <p className="public-marketing-contrast-copy mt-4 text-base leading-8 sm:text-lg">
+                One that understood their fund, their relationships, their
+                rhythm. One that got smarter over time. Vesta is that vision,
+                realized.
               </p>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              {stats.map((stat, idx) => (
-                <Card key={idx} padding="lg" className="text-center card-elevated">
-                  <div className="text-3xl font-bold text-gold mb-2">{stat.value}</div>
-                  <div className="text-sm text-[var(--app-text-muted)]">{stat.label}</div>
-                </Card>
+              {stats.map((stat) => (
+                <div key={stat.label} className="public-marketing-stat">
+                  <p
+                    data-public-display="true"
+                    className="public-marketing-contrast-heading text-2xl font-semibold sm:text-3xl"
+                  >
+                    <span className="text-brand-gold">{stat.value}</span>
+                  </p>
+                  <p className="public-marketing-contrast-copy mt-2 text-xs uppercase tracking-[0.18em]">
+                    {stat.label}
+                  </p>
+                </div>
               ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Values Section */}
-      <section className="py-20 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--app-accent-bg)] text-[var(--app-accent)] text-sm font-medium mb-4">
-              <Heart className="w-4 h-4" />
-              <span>Our Values</span>
+      {/* Values */}
+      <section
+        id="values"
+        data-testid="about-values"
+        className="relative px-4 py-20 sm:px-6 sm:py-24"
+      >
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.1),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(34,211,238,0.06),transparent_22%)]" />
+        <div className="relative mx-auto max-w-7xl">
+          <div className="text-center">
+            <div className="flex justify-center">
+              <div className="public-marketing-kicker">
+                <Heart className="h-4 w-4" />
+                Our values
+              </div>
             </div>
-            <h2 className="text-3xl font-bold mb-4">What Drives Us</h2>
-            <p className="text-lg text-[var(--app-text-muted)] max-w-2xl mx-auto">
-              Our values guide every decision we make and every feature we build.
+            <h2
+              data-public-display="true"
+              className="mt-6 text-3xl font-semibold text-[var(--app-text)] sm:text-4xl"
+            >
+              What drives us.
+            </h2>
+            <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-[var(--app-text-muted)]">
+              Our values guide every decision we make and every feature we
+              build.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {values.map((value, idx) => {
+
+          <div className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+            {values.map((value) => {
               const Icon = value.icon;
               return (
-                <Card key={idx} padding="lg" className="text-center card-elevated">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-app-primary to-app-accent dark:from-app-dark-primary dark:to-app-dark-accent flex items-center justify-center mx-auto mb-4 shadow-lg">
-                    <Icon className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="text-lg font-bold mb-2">{value.title}</h3>
-                  <p className="text-[var(--app-text-muted)] text-sm">{value.description}</p>
-                </Card>
+                <article
+                  key={value.title}
+                  className="public-marketing-panel public-marketing-panel-contrast rounded-[22px] p-6 text-center"
+                >
+                  <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-blue-300/35 bg-blue-100/85 text-blue-700 dark:border-blue-300/25 dark:bg-blue-300/10 dark:text-blue-200">
+                    <Icon className="h-6 w-6" />
+                  </span>
+                  <h3
+                    data-public-display="true"
+                    className="public-marketing-contrast-heading mt-5 text-lg font-semibold"
+                  >
+                    {value.title}
+                  </h3>
+                  <p className="public-marketing-contrast-copy mt-3 text-sm leading-7">
+                    {value.description}
+                  </p>
+                </article>
               );
             })}
           </div>
         </div>
       </section>
 
-      {/* Timeline Section */}
-      <section className="py-20 bg-[var(--app-surface)] border-y border-[var(--app-border)]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--app-secondary-bg)] text-[var(--app-secondary)] text-sm font-medium mb-4">
-              <TrendingUp className="w-4 h-4" />
-              <span>Our Journey</span>
-            </div>
-            <h2 className="text-3xl font-bold mb-4">Building the Future of Fund Operations</h2>
-          </div>
-          <div className="space-y-8">
-            {timeline.map((milestone, idx) => (
-              <div key={idx} className="flex gap-6">
-                <div className="flex flex-col items-center">
-                  <div className="w-12 h-12 rounded-full icon-gold text-white flex items-center justify-center font-bold shrink-0" role="img" aria-label={milestone.year}>
-                    {milestone.year.slice(2)}
-                  </div>
-                  {idx < timeline.length - 1 && (
-                    <div className="w-0.5 h-full bg-[var(--app-border)] mt-2" aria-hidden="true" />
-                  )}
-                </div>
-                <div className="pb-8">
-                  <time className="text-sm text-gold font-semibold mb-1 block">{milestone.year}</time>
-                  <h3 className="text-xl font-bold mb-2">{milestone.title}</h3>
-                  <p className="text-[var(--app-text-muted)]">{milestone.description}</p>
+      {/* CTA */}
+      <section
+        id="about-cta"
+        data-testid="about-cta"
+        className="relative overflow-hidden px-4 py-20 sm:px-6 sm:py-24"
+      >
+        <div className="mx-auto max-w-6xl">
+          <div className="public-marketing-panel public-marketing-panel-dark relative overflow-hidden rounded-[28px] px-6 py-8 sm:px-8 sm:py-10 lg:px-10 lg:py-12">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(59,130,246,0.18),transparent_40%),radial-gradient(circle_at_80%_70%,rgba(251,191,36,0.12),transparent_40%)]" />
+            <div className="relative text-center">
+              <div className="flex justify-center">
+                <div className="public-marketing-kicker">
+                  <Sparkles className="h-4 w-4" />
+                  Join the movement
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Team Section */}
-      <section className="py-20 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--app-primary-bg)] text-[var(--app-primary)] text-sm font-medium mb-4">
-              <Users className="w-4 h-4" />
-              <span>Our Team</span>
+              <h2
+                data-public-display="true"
+                className="mt-6 text-3xl font-semibold leading-tight text-white sm:text-4xl"
+              >
+                Join the Vesta movement.
+              </h2>
+              <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-slate-300">
+                We&apos;re building the future of fund intelligence. Whether
+                you&apos;re a fund manager ready for an AI counterpart or a
+                talented builder who wants to shape the future of finance,
+                we&apos;d love to hear from you.
+              </p>
+              <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
+                <Link
+                  href="/eoi"
+                  className="btn-primary btn-lg rounded-full px-7"
+                >
+                  Meet Your Vesta
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link
+                  href="/features"
+                  className="btn-secondary btn-lg rounded-full border-white/15 bg-white/[0.06] px-7 text-white hover:text-white"
+                >
+                  Explore capabilities
+                </Link>
+              </div>
             </div>
-            <h2 className="text-3xl font-bold mb-4">Meet the Team</h2>
-            <p className="text-lg text-[var(--app-text-muted)] max-w-2xl mx-auto">
-              We&apos;re a team of builders, operators, and technologists with deep expertise in venture capital,
-              blockchain, and enterprise software.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {team.map((member, idx) => (
-              <Card key={idx} padding="lg" className="text-center hover:border-[var(--app-primary)] transition-colors">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[var(--app-primary)] to-transparent flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4" role="img" aria-label={`${member.name} profile picture`}>
-                  {member.image}
-                </div>
-                <h3 className="text-lg font-bold mb-1">{member.name}</h3>
-                <p className="text-sm text-[var(--app-primary)] mb-3">{member.role}</p>
-                <p className="text-sm text-[var(--app-text-muted)] mb-4">{member.bio}</p>
-                <div className="flex items-center justify-center gap-2">
-                  <button className="p-2 rounded-lg hover:bg-[var(--app-surface-hover)] transition-colors" aria-label={`View ${member.name}'s LinkedIn profile`}>
-                    <Linkedin className="w-4 h-4" />
-                  </button>
-                  <button className="p-2 rounded-lg hover:bg-[var(--app-surface-hover)] transition-colors" aria-label={`View ${member.name}'s Twitter profile`}>
-                    <Twitter className="w-4 h-4" />
-                  </button>
-                  <button className="p-2 rounded-lg hover:bg-[var(--app-surface-hover)] transition-colors" aria-label={`Email ${member.name}`}>
-                    <Mail className="w-4 h-4" />
-                  </button>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-24 text-center px-4 bg-[var(--app-surface)] border-t border-[var(--app-border)]">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold mb-4">Join the Vesta Movement</h2>
-          <p className="text-lg text-[var(--app-text-muted)] mb-8">
-            We&apos;re building the future of fund intelligence. Whether you&apos;re a fund manager ready for an AI counterpart
-            or a talented builder who wants to shape the future of finance, we&apos;d love to hear from you.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button as={Link} href="/eoi" className="btn-primary" size="lg" endContent={<ArrowRight className="w-4 h-4" />}>
-              Meet Your Vesta
-            </Button>
-            <Button as={Link} href="/careers" variant="bordered" size="lg" endContent={<Globe className="w-4 h-4" />}>
-              View Careers
-            </Button>
           </div>
         </div>
       </section>
