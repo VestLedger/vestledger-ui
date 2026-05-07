@@ -150,6 +150,10 @@ const PRIMARY_NAV: readonly PrimaryNavItem[] = [
     href: ROUTE_PATHS.portfolio,
     label: "Portfolio",
     icon: Briefcase,
+    // /portfolio/valuations and /portfolio/analytics are nested children
+    // and activate via the prefix match on `href` automatically.
+    // Legacy /409a-valuations is redirected by next.config.js but kept
+    // here so direct hits before the redirect still highlight Portfolio.
     aliasPaths: [ROUTE_PATHS.valuations409a],
   },
   {
@@ -157,10 +161,14 @@ const PRIMARY_NAV: readonly PrimaryNavItem[] = [
     href: ROUTE_PATHS.deals,
     label: "Deals",
     icon: GitBranch,
+    // /deals/pipeline, /deals/intelligence, /deals/review, /deals/ai-tools
+    // activate via prefix match on `href`. Legacy paths are redirected by
+    // next.config.js; entries here keep highlighting correct in flight.
     aliasPaths: [
       ROUTE_PATHS.pipeline,
       ROUTE_PATHS.dealIntelligence,
       ROUTE_PATHS.dealflowReview,
+      ROUTE_PATHS.aiTools,
     ],
     allowedRoles: [
       "gp",

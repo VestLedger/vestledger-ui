@@ -63,7 +63,8 @@ export const routes: Record<string, RouteConfig> = {
     description: "AI-powered fund operations overview",
   },
 
-  // New canonical top-level Deals route (Phase 1 nav anchor; Phase 2 redesigns interior).
+  // Phase 2: Deals becomes a unified workbench. The `/deals` index renders
+  // Pipeline by default; sub-routes own each workflow phase.
   deals: {
     path: "/deals",
     label: "Deals",
@@ -76,6 +77,79 @@ export const routes: Record<string, RouteConfig> = {
         "Return to the dashboard to see how deal activity affects the daily brief.",
     },
     description: "Deal intake, intelligence, and decisioning",
+  },
+
+  dealsPipeline: {
+    path: "/deals/pipeline",
+    label: "Pipeline",
+    icon: GitBranch,
+    breadcrumbs: [
+      { label: "Dashboard", href: "/home" },
+      { label: "Deals", href: "/deals" },
+      { label: "Pipeline" },
+    ],
+    aiSuggestion: {
+      label: "Deal Intelligence",
+      href: "/deals/intelligence",
+      reasoning:
+        "Review AI-extracted insights after triaging the pipeline board.",
+    },
+    description: "Active deal pipeline and sourcing",
+  },
+
+  dealsIntelligence: {
+    path: "/deals/intelligence",
+    label: "Deal Intelligence",
+    icon: Search,
+    breadcrumbs: [
+      { label: "Dashboard", href: "/home" },
+      { label: "Deals", href: "/deals" },
+      { label: "Deal Intelligence" },
+    ],
+    aiSuggestion: {
+      label: "Pipeline",
+      href: "/deals/pipeline",
+      reasoning:
+        "Reprioritize the pipeline based on the latest intelligence signals.",
+    },
+    description: "AI-powered deal sourcing, deck reading, and DD",
+  },
+
+  dealsReview: {
+    path: "/deals/review",
+    label: "Dealflow Review",
+    icon: Vote,
+    breadcrumbs: [
+      { label: "Dashboard", href: "/home" },
+      { label: "Deals", href: "/deals" },
+      { label: "Dealflow Review" },
+    ],
+    aiSuggestion: {
+      label: "Deal Intelligence",
+      href: "/deals/intelligence",
+      reasoning:
+        "Surface diligence evidence before final decisions in IC review.",
+    },
+    description: "Team consensus, voting, and IC review",
+  },
+
+  dealsAITools: {
+    path: "/deals/ai-tools",
+    label: "AI Tools",
+    icon: Sparkles,
+    breadcrumbs: [
+      { label: "Dashboard", href: "/home" },
+      { label: "Deals", href: "/deals" },
+      { label: "AI Tools" },
+    ],
+    aiSuggestion: {
+      label: "Pipeline",
+      href: "/deals/pipeline",
+      reasoning:
+        "Apply AI tooling outputs back to active deals in the pipeline.",
+    },
+    description:
+      "AI Decision Writer, Pitch Deck Reader, and DD Assistant inside the Deals workflow",
   },
 
   pipeline: {
@@ -111,6 +185,46 @@ export const routes: Record<string, RouteConfig> = {
         "After portfolio review, drill into fund-level performance for deeper insights.",
     },
     description: "Portfolio company health and metrics",
+  },
+
+  // Phase 2: 409A valuations rehome to /portfolio/valuations.
+  portfolioValuations: {
+    path: "/portfolio/valuations",
+    label: "Valuations",
+    icon: Receipt,
+    breadcrumbs: [
+      { label: "Dashboard", href: "/home" },
+      { label: "Portfolio", href: "/portfolio" },
+      { label: "Valuations" },
+    ],
+    aiSuggestion: {
+      label: "Tax & Reporting",
+      href: "/tax-center",
+      reasoning:
+        "409A valuations often impact tax calculations. Review tax implications after valuation updates.",
+    },
+    description: "Fair market value (409A) assessments under Portfolio",
+  },
+
+  // Phase 2: Portfolio-level analytics tabs (Valuation Trends, Cohorts, Risk,
+  // Portfolio Performance) live here. Fund-level cuts (J-Curve, Deployment)
+  // remain under /funds/analytics — splitting tab-by-tab is interior follow-up.
+  portfolioAnalytics: {
+    path: "/portfolio/analytics",
+    label: "Portfolio Analytics",
+    icon: TrendingUp,
+    breadcrumbs: [
+      { label: "Dashboard", href: "/home" },
+      { label: "Portfolio", href: "/portfolio" },
+      { label: "Analytics" },
+    ],
+    aiSuggestion: {
+      label: "Portfolio",
+      href: "/portfolio",
+      reasoning:
+        "Return to portfolio overview to track companies flagged in analytics.",
+    },
+    description: "Company-level analytics: valuation trends, cohorts, risk",
   },
 
   dealIntelligence: {
@@ -340,6 +454,9 @@ export const routes: Record<string, RouteConfig> = {
     description: "Regulatory compliance and deadlines",
   },
 
+  // Phase 2: legacy /409a-valuations is redirected to /portfolio/valuations
+  // by next.config.js. This entry is retained so getRouteConfig still
+  // resolves the old path during transitional internal navigation.
   valuations409a: {
     path: "/409a-valuations",
     label: "Valuations",
@@ -355,7 +472,8 @@ export const routes: Record<string, RouteConfig> = {
       reasoning:
         "409A valuations often impact tax calculations. Review tax implications after valuation updates.",
     },
-    description: "Fair market value assessments",
+    description:
+      "Fair market value assessments (legacy route — redirected to /portfolio/valuations)",
   },
 
   taxCenter: {
@@ -443,24 +561,27 @@ export const routes: Record<string, RouteConfig> = {
     description: "Generate and export reports",
   },
 
-  // AI Tools is rehomed under Settings/Platform Admin per Phase 1; the route stays accessible.
+  // Phase 2: AI Tools rehome under Deals (per implementation_rules.md —
+  // Decision Writer / Pitch Deck Reader / DD Assistant belong inside Deals).
+  // The /ai-tools route is preserved for legacy bookmarks; the canonical
+  // path is /deals/ai-tools. Vesta remains the contextual copilot.
   aiTools: {
     path: "/ai-tools",
     label: "AI Tools",
     icon: Sparkles,
     breadcrumbs: [
       { label: "Dashboard", href: "/home" },
-      { label: "Settings", href: "/settings" },
+      { label: "Deals", href: "/deals" },
       { label: "AI Tools" },
     ],
     aiSuggestion: {
-      label: "Settings",
-      href: "/settings",
+      label: "Deals",
+      href: "/deals",
       reasoning:
-        "AI Tools live under Settings/Platform Admin. Vesta is the contextual copilot for in-product AI.",
+        "AI Tools embed inside the Deals workflow. Vesta remains the contextual copilot for in-product AI.",
     },
     description:
-      "AI-powered workflows (rehomed under Settings; contextual AI runs through Vesta)",
+      "AI-powered workflows (rehomed under Deals; contextual AI runs through Vesta)",
   },
 
   waterfall: {

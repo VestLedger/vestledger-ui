@@ -80,6 +80,56 @@ const nextConfig = {
         : false,
   },
   productionBrowserSourceMaps: false,
+  // Phase 2 legacy → canonical redirects (UX transformation Module 2A/2B).
+  // Old URLs remain reachable; the redirect lands users on the new
+  // canonical path under /deals or /portfolio. Query strings are
+  // preserved by Next.js automatically.
+  async redirects() {
+    return [
+      // Module 2A — Deals
+      {
+        source: "/pipeline",
+        destination: "/deals/pipeline",
+        permanent: true,
+      },
+      {
+        source: "/pipeline/:path*",
+        destination: "/deals/pipeline/:path*",
+        permanent: true,
+      },
+      {
+        source: "/deal-intelligence",
+        destination: "/deals/intelligence",
+        permanent: true,
+      },
+      {
+        source: "/deal-intelligence/:path*",
+        destination: "/deals/intelligence/:path*",
+        permanent: true,
+      },
+      {
+        source: "/dealflow-review",
+        destination: "/deals/review",
+        permanent: true,
+      },
+      {
+        source: "/dealflow-review/:path*",
+        destination: "/deals/review/:path*",
+        permanent: true,
+      },
+      // Module 2B — Portfolio
+      {
+        source: "/409a-valuations",
+        destination: "/portfolio/valuations",
+        permanent: true,
+      },
+      {
+        source: "/409a-valuations/:path*",
+        destination: "/portfolio/valuations/:path*",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     // Long-lived caching is desirable in production, but it can break local dev because
     // Next dev chunk URLs are not content-hashed and the browser may keep stale JS.
