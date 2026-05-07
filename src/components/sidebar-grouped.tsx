@@ -60,6 +60,10 @@ import {
   DEFAULT_DEAL_INTELLIGENCE_TAB_ID,
 } from "@/config/deal-intelligence-tabs";
 import {
+  DEFAULT_FUNDS_MODULE_TAB_ID,
+  FUNDS_MODULE_TAB_IDS,
+} from "@/config/funds-module-tabs";
+import {
   DEFAULT_LP_MANAGEMENT_TAB_ID,
   LP_MANAGEMENT_TAB_IDS,
 } from "@/config/lp-management-tabs";
@@ -109,11 +113,8 @@ type CollaborationSidebarUIState = {
 
 const CONTEXTUAL_MENU_BY_NAV_ID: Record<string, ContextualMenuId> = {
   portfolio: "portfolio",
-  // Other contextual menus (analytics, fund-admin, lp-management, compliance,
-  // 409a-valuations, tax-center, deal-intelligence, ai-tools, collaboration)
-  // remain wired through the legacy routes; they will be reattached when
-  // Phase 2-4 redesigns bring proper nested sub-routes under the new
-  // /deals, /funds, /lps, and /workflows landings.
+  funds: "funds",
+  lps: "lp-management",
 };
 
 /**
@@ -291,6 +292,11 @@ export function SidebarGrouped() {
   }>("analytics", {
     selected: DEFAULT_ANALYTICS_TAB_ID,
   });
+  const { value: fundsModuleUI, patch: patchFundsModuleUI } = useUIKey<{
+    selectedTab: string;
+  }>("funds-module", {
+    selectedTab: DEFAULT_FUNDS_MODULE_TAB_ID,
+  });
   const { value: aiToolsUI, patch: patchAIToolsUI } = useUIKey<{
     selected: string;
   }>("ai-tools", {
@@ -363,6 +369,11 @@ export function SidebarGrouped() {
   const selectedAnalyticsTab = ANALYTICS_TAB_IDS.has(analyticsUI.selected)
     ? analyticsUI.selected
     : DEFAULT_ANALYTICS_TAB_ID;
+  const selectedFundsModuleTab = FUNDS_MODULE_TAB_IDS.has(
+    fundsModuleUI.selectedTab,
+  )
+    ? fundsModuleUI.selectedTab
+    : DEFAULT_FUNDS_MODULE_TAB_ID;
   const selectedAIToolsTab = AI_TOOLS_TAB_IDS.has(aiToolsUI.selected)
     ? aiToolsUI.selected
     : DEFAULT_AI_TOOLS_TAB_ID;
@@ -453,6 +464,9 @@ export function SidebarGrouped() {
       case "analytics":
         patchAnalyticsUI({ selected: DEFAULT_ANALYTICS_TAB_ID });
         return;
+      case "funds":
+        patchFundsModuleUI({ selectedTab: DEFAULT_FUNDS_MODULE_TAB_ID });
+        return;
       case "ai-tools":
         patchAIToolsUI({ selected: DEFAULT_AI_TOOLS_TAB_ID });
         return;
@@ -525,6 +539,9 @@ export function SidebarGrouped() {
       case "analytics":
         patchAnalyticsUI({ selected: tabId });
         return;
+      case "funds":
+        patchFundsModuleUI({ selectedTab: tabId });
+        return;
       case "ai-tools":
         patchAIToolsUI({ selected: tabId });
         return;
@@ -574,6 +591,8 @@ export function SidebarGrouped() {
         return selectedPortfolioTab;
       case "analytics":
         return selectedAnalyticsTab;
+      case "funds":
+        return selectedFundsModuleTab;
       case "ai-tools":
         return selectedAIToolsTab;
       case "lp-management":

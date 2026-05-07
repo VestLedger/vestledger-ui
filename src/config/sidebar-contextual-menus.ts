@@ -14,9 +14,14 @@ import {
 } from "./deal-intelligence-tabs";
 import { DEFAULT_FUND_ADMIN_TAB_ID, FUND_ADMIN_TABS } from "./fund-admin-tabs";
 import {
+  DEFAULT_FUNDS_MODULE_TAB_ID,
+  FUNDS_MODULE_TABS,
+} from "./funds-module-tabs";
+import {
   DEFAULT_LP_MANAGEMENT_TAB_ID,
   LP_MANAGEMENT_TABS,
 } from "./lp-management-tabs";
+import { DEFAULT_LPS_MODULE_TAB_ID, LPS_MODULE_TABS } from "./lps-module-tabs";
 import { DEFAULT_LP_PORTAL_TAB_ID, LP_PORTAL_TABS } from "./lp-portal-tabs";
 import { DEFAULT_PORTFOLIO_TAB_ID, PORTFOLIO_TABS } from "./portfolio-tabs";
 import { DEFAULT_TAX_CENTER_TAB_ID, TAX_CENTER_TABS } from "./tax-center-tabs";
@@ -28,6 +33,7 @@ import {
 export type ContextualMenuId =
   | "portfolio"
   | "analytics"
+  | "funds"
   | "fund-admin"
   | "lp-management"
   | "compliance"
@@ -67,6 +73,14 @@ export const SIDEBAR_CONTEXTUAL_MENUS: Record<
     tabs: ANALYTICS_TABS,
     defaultTabId: DEFAULT_ANALYTICS_TAB_ID,
   },
+  funds: {
+    id: "funds",
+    routePath: ROUTE_PATHS.funds,
+    label: routes.funds.label,
+    icon: routes.funds.icon,
+    tabs: FUNDS_MODULE_TABS,
+    defaultTabId: DEFAULT_FUNDS_MODULE_TAB_ID,
+  },
   "fund-admin": {
     id: "fund-admin",
     routePath: ROUTE_PATHS.fundAdmin,
@@ -77,11 +91,11 @@ export const SIDEBAR_CONTEXTUAL_MENUS: Record<
   },
   "lp-management": {
     id: "lp-management",
-    routePath: ROUTE_PATHS.lpManagement,
-    label: routes.lpManagement.label,
-    icon: routes.lpManagement.icon,
-    tabs: LP_MANAGEMENT_TABS,
-    defaultTabId: DEFAULT_LP_MANAGEMENT_TAB_ID,
+    routePath: ROUTE_PATHS.lps,
+    label: routes.lps.label,
+    icon: routes.lps.icon,
+    tabs: LPS_MODULE_TABS,
+    defaultTabId: DEFAULT_LPS_MODULE_TAB_ID,
   },
   compliance: {
     id: "compliance",

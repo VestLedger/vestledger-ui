@@ -128,6 +128,28 @@ const nextConfig = {
         destination: "/portfolio/valuations/:path*",
         permanent: true,
       },
+      // Module 3A — Funds
+      {
+        source: "/waterfall",
+        destination: "/funds",
+        permanent: true,
+      },
+      {
+        source: "/analytics",
+        destination: "/funds",
+        permanent: true,
+      },
+      // Module 3B — LPs
+      {
+        source: "/lp-management",
+        destination: "/lps",
+        permanent: true,
+      },
+      {
+        source: "/contacts",
+        destination: "/lps",
+        permanent: true,
+      },
     ];
   },
   async headers() {

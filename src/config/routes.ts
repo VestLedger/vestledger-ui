@@ -263,7 +263,6 @@ export const routes: Record<string, RouteConfig> = {
     description: "Team consensus and voting on deals (legacy route)",
   },
 
-  // New canonical top-level Funds route (Phase 1 nav anchor; Phase 3 redesigns interior).
   funds: {
     path: "/funds",
     label: "Funds",
@@ -275,7 +274,96 @@ export const routes: Record<string, RouteConfig> = {
       reasoning:
         "Fund performance often informs LP communication. Move to LPs after reviewing fund metrics.",
     },
-    description: "Fund-level performance and economics",
+    description:
+      "Fund-level performance, economics, waterfall modeling, and setup",
+  },
+
+  fundsAnalytics: {
+    path: "/funds/analytics",
+    label: "Fund Analytics",
+    icon: TrendingUp,
+    breadcrumbs: [
+      { label: "Dashboard", href: "/home" },
+      { label: "Funds", href: "/funds" },
+      { label: "Analytics" },
+    ],
+    aiSuggestion: {
+      label: "Waterfall",
+      href: "/funds/waterfall",
+      reasoning:
+        "Run waterfall scenarios after reviewing fund-level analytics.",
+    },
+    description:
+      "Fund-level performance, J-curve, cohorts, deployment, concentration",
+  },
+
+  fundsWaterfall: {
+    path: "/funds/waterfall",
+    label: "Waterfall Modeling",
+    icon: TrendingDown,
+    breadcrumbs: [
+      { label: "Dashboard", href: "/home" },
+      { label: "Funds", href: "/funds" },
+      { label: "Waterfall" },
+    ],
+    aiSuggestion: {
+      label: "Carried Interest",
+      href: "/funds/carried-interest",
+      reasoning: "Review carried interest terms after modeling exit scenarios.",
+    },
+    description: "Model exit scenarios and distribution waterfalls",
+  },
+
+  fundsFundSetup: {
+    path: "/funds/fund-setup",
+    label: "Fund Setup",
+    icon: Briefcase,
+    breadcrumbs: [
+      { label: "Dashboard", href: "/home" },
+      { label: "Funds", href: "/funds" },
+      { label: "Fund Setup" },
+    ],
+    aiSuggestion: {
+      label: "NAV Calculator",
+      href: "/funds/nav-calculator",
+      reasoning:
+        "After configuring fund terms, compute NAV to establish baseline.",
+    },
+    description: "Fund creation, configuration, and lifecycle management",
+  },
+
+  fundsNAVCalculator: {
+    path: "/funds/nav-calculator",
+    label: "NAV Calculator",
+    icon: Building2,
+    breadcrumbs: [
+      { label: "Dashboard", href: "/home" },
+      { label: "Funds", href: "/funds" },
+      { label: "NAV Calculator" },
+    ],
+    aiSuggestion: {
+      label: "Fund Analytics",
+      href: "/funds/analytics",
+      reasoning: "Review fund analytics to contextualize NAV movements.",
+    },
+    description: "Net asset value calculation, review, and publication",
+  },
+
+  fundsCarriedInterest: {
+    path: "/funds/carried-interest",
+    label: "Carried Interest",
+    icon: TrendingUp,
+    breadcrumbs: [
+      { label: "Dashboard", href: "/home" },
+      { label: "Funds", href: "/funds" },
+      { label: "Carried Interest" },
+    ],
+    aiSuggestion: {
+      label: "Waterfall",
+      href: "/funds/waterfall",
+      reasoning: "Model waterfall scenarios to verify carry calculations.",
+    },
+    description: "Carry structure, accruals, and distribution tracking",
   },
 
   analytics: {
@@ -387,7 +475,6 @@ export const routes: Record<string, RouteConfig> = {
     description: "Review approvals, allocations, and statements",
   },
 
-  // New canonical top-level LPs route (Phase 1 nav anchor; Phase 3 redesigns interior).
   lps: {
     path: "/lps",
     label: "LPs",
@@ -399,7 +486,27 @@ export const routes: Record<string, RouteConfig> = {
       reasoning:
         "Generate investor reports after reviewing LP data. Common workflow for quarterly updates.",
     },
-    description: "Limited partner relationships and reporting",
+    description:
+      "LP relationships, capital activity, performance, and reporting",
+  },
+
+  lpsContacts: {
+    path: "/lps/contacts",
+    label: "Contacts",
+    icon: Users,
+    breadcrumbs: [
+      { label: "Dashboard", href: "/home" },
+      { label: "LPs", href: "/lps" },
+      { label: "Contacts" },
+    ],
+    aiSuggestion: {
+      label: "LP Overview",
+      href: "/lps",
+      reasoning:
+        "Return to LP overview after reviewing relationship intelligence.",
+    },
+    description:
+      "Founders, LPs, and network contacts under LP relationship context",
   },
 
   lpManagement: {
@@ -558,7 +665,8 @@ export const routes: Record<string, RouteConfig> = {
       reasoning:
         "Return to dashboard overview after generating reports to see updated metrics.",
     },
-    description: "Generate and export reports",
+    description:
+      "Narrative output layer: generate, preview, approve, and archive fund reports",
   },
 
   // Phase 2: AI Tools rehome under Deals (per implementation_rules.md —

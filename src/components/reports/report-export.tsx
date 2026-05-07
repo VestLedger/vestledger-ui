@@ -1,43 +1,63 @@
-'use client'
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
-import { Card, Button, Badge, Progress, Input, Select, Switch } from '@/ui';
-import { Download, FileText, File, Table, Image as ImageIcon, Calendar, Filter, Check, Mail, Clock, Repeat , FileDown} from 'lucide-react';
-import { getInitialExportJobs, getReportTemplates, type ExportJob, type ReportTemplate } from '@/services/reports/reportExportService';
-import { useUIKey } from '@/store/ui';
-import { PageScaffold, SectionHeader, StatusBadge } from '@/ui/composites';
-import { ROUTE_PATHS } from '@/config/routes';
-import { REPORT_SCHEDULE_FREQUENCY_OPTIONS } from '@/config/report-options';
-import { formatDateTime } from '@/utils/formatting';
+import { useEffect, useRef, useState } from "react";
+import { Card, Button, Badge, Progress, Input, Select, Switch } from "@/ui";
+import {
+  Download,
+  FileText,
+  File,
+  Table,
+  Image as ImageIcon,
+  Calendar,
+  Filter,
+  Check,
+  Mail,
+  Clock,
+  Repeat,
+  FileDown,
+} from "lucide-react";
+import {
+  getInitialExportJobs,
+  getReportTemplates,
+  type ExportJob,
+  type ReportTemplate,
+} from "@/services/reports/reportExportService";
+import { useUIKey } from "@/store/ui";
+import { PageScaffold, SectionHeader, StatusBadge } from "@/ui/composites";
+import { ROUTE_PATHS } from "@/config/routes";
+import { REPORT_SCHEDULE_FREQUENCY_OPTIONS } from "@/config/report-options";
+import { formatDateTime } from "@/utils/formatting";
 
 const currentYear = new Date().getFullYear();
 
 const defaultReportExportState: {
   selectedTemplate: ReportTemplate | null;
-  exportFormat: 'pdf' | 'excel' | 'csv' | 'ppt';
+  exportFormat: "pdf" | "excel" | "csv" | "ppt";
   dateRange: { start: string; end: string };
   selectedSections: string[];
   exportJobs: ExportJob[];
   scheduleEnabled: boolean;
-  scheduleFrequency: 'weekly' | 'monthly' | 'quarterly';
+  scheduleFrequency: "weekly" | "monthly" | "quarterly";
 } = {
   selectedTemplate: null,
-  exportFormat: 'pdf',
+  exportFormat: "pdf",
   dateRange: { start: `${currentYear}-01-01`, end: `${currentYear}-12-31` },
   selectedSections: [],
   exportJobs: [],
   scheduleEnabled: false,
-  scheduleFrequency: 'weekly',
+  scheduleFrequency: "weekly",
 };
 
-const VALID_EXPORT_FORMATS = ['pdf', 'excel', 'csv', 'ppt'] as const;
+const VALID_EXPORT_FORMATS = ["pdf", "excel", "csv", "ppt"] as const;
 
-function normalizeFormat(format: unknown): (typeof VALID_EXPORT_FORMATS)[number] {
-  if (typeof format !== 'string') return 'pdf';
+function normalizeFormat(
+  format: unknown,
+): (typeof VALID_EXPORT_FORMATS)[number] {
+  if (typeof format !== "string") return "pdf";
   const normalized = format.trim().toLowerCase();
   return (VALID_EXPORT_FORMATS as readonly string[]).includes(normalized)
     ? (normalized as (typeof VALID_EXPORT_FORMATS)[number])
-    : 'pdf';
+    : "pdf";
 }
 
 function formatDisplayLabel(format: unknown): string {
@@ -45,15 +65,33 @@ function formatDisplayLabel(format: unknown): string {
 }
 
 export function ReportExport() {
-  const { value: ui, patch: patchUI } = useUIKey('report-export', defaultReportExportState);
-  const { selectedTemplate, exportFormat, dateRange, selectedSections, exportJobs, scheduleEnabled, scheduleFrequency } = ui;
+  const { value: ui, patch: patchUI } = useUIKey(
+    "report-export",
+    defaultReportExportState,
+  );
+  const {
+    selectedTemplate,
+    exportFormat,
+    dateRange,
+    selectedSections,
+    exportJobs,
+    scheduleEnabled,
+    scheduleFrequency,
+  } = ui;
   const [reportTemplates, setReportTemplates] = useState<ReportTemplate[]>([]);
   const exportJobsRef = useRef(exportJobs);
   const timeoutIdsRef = useRef<number[]>([]);
-  const formatOptions: ReportTemplate['format'][] = ['pdf', 'excel', 'csv', 'ppt'];
-  const safeSelectedSections = Array.isArray(selectedSections) ? selectedSections : [];
+  const formatOptions: ReportTemplate["format"][] = [
+    "pdf",
+    "excel",
+    "csv",
+    "ppt",
+  ];
+  const safeSelectedSections = Array.isArray(selectedSections)
+    ? selectedSections
+    : [];
   const selectedTemplateSections = Array.isArray(selectedTemplate?.sections)
-    ? selectedTemplate.sections.filter((section) => typeof section === 'string')
+    ? selectedTemplate.sections.filter((section) => typeof section === "string")
     : [];
 
   useEffect(() => {
@@ -62,18 +100,24 @@ export function ReportExport() {
 
   useEffect(() => {
     let active = true;
-    Promise.all([getReportTemplates(), getInitialExportJobs()]).then(([templates, jobs]) => {
-      if (!active) return;
-      setReportTemplates(templates);
-      if (ui.exportJobs.length === 0) patchUI({ exportJobs: jobs });
-    });
-    return () => { active = false; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    Promise.all([getReportTemplates(), getInitialExportJobs()]).then(
+      ([templates, jobs]) => {
+        if (!active) return;
+        setReportTemplates(templates);
+        if (ui.exportJobs.length === 0) patchUI({ exportJobs: jobs });
+      },
+    );
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     return () => {
-      timeoutIdsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
+      timeoutIdsRef.current.forEach((timeoutId) =>
+        window.clearTimeout(timeoutId),
+      );
       timeoutIdsRef.current = [];
     };
   }, []);
@@ -84,7 +128,7 @@ export function ReportExport() {
       id: Date.now().toString(),
       reportName: selectedTemplate.name,
       format: normalizeFormat(exportFormat).toUpperCase(),
-      status: 'processing',
+      status: "processing",
       progress: 0,
       createdAt: new Date().toISOString(),
     };
@@ -102,7 +146,7 @@ export function ReportExport() {
           if (nextProgress >= 100) {
             return {
               ...job,
-              status: 'completed' as const,
+              status: "completed" as const,
               progress: 100,
               downloadUrl: undefined,
             };
@@ -138,27 +182,37 @@ export function ReportExport() {
 
   const getFormatIcon = (format: unknown) => {
     switch (normalizeFormat(format)) {
-      case 'pdf': return <FileText className="w-4 h-4" />;
-      case 'excel': return <Table className="w-4 h-4" />;
-      case 'csv': return <File className="w-4 h-4" />;
-      case 'ppt': return <ImageIcon className="w-4 h-4" />;
-      default: return <FileText className="w-4 h-4" />;
+      case "pdf":
+        return <FileText className="w-4 h-4" />;
+      case "excel":
+        return <Table className="w-4 h-4" />;
+      case "csv":
+        return <File className="w-4 h-4" />;
+      case "ppt":
+        return <ImageIcon className="w-4 h-4" />;
+      default:
+        return <FileText className="w-4 h-4" />;
     }
   };
+
+  const completedReports = exportJobs.filter((j) => j.status === "completed");
+  const processingReports = exportJobs.filter((j) => j.status === "processing");
+  const failedReports = exportJobs.filter((j) => j.status === "failed");
 
   return (
     <PageScaffold
       routePath={ROUTE_PATHS.reports}
       header={{
-        title: 'Reports',
-        description: 'Manage and export fund reports',
+        title: "Reports",
+        description:
+          "Generate, preview, approve, and archive fund narratives from live data.",
         icon: FileDown,
         aiSummary: {
-          text: `${reportTemplates.length} report templates available. ${exportJobs.filter(j => j.status === 'completed').length} reports completed, ${exportJobs.filter(j => j.status === 'processing').length} currently processing.`,
+          text: `${reportTemplates.length} templates available. ${completedReports.length} reports ready for review, ${processingReports.length} generating${failedReports.length > 0 ? `, ${failedReports.length} failed` : ""}.`,
         },
         secondaryActions: [
           {
-            label: 'Report Settings',
+            label: "Report Settings",
             onClick: () => {},
           },
         ],
@@ -177,14 +231,16 @@ export function ReportExport() {
                 isPressable
                 className={`cursor-pointer transition-all ${
                   selectedTemplate?.id === template.id
-                    ? 'border-2 border-[var(--app-primary)] bg-[var(--app-primary-bg)]'
-                    : 'hover:border-[var(--app-primary)]'
+                    ? "border-2 border-[var(--app-primary)] bg-[var(--app-primary-bg)]"
+                    : "hover:border-[var(--app-primary)]"
                 }`}
                 onPress={() => {
                   patchUI({
                     selectedTemplate: template,
                     exportFormat: normalizeFormat(template.format),
-                    selectedSections: Array.isArray(template.sections) ? template.sections : [],
+                    selectedSections: Array.isArray(template.sections)
+                      ? template.sections
+                      : [],
                   });
                 }}
               >
@@ -192,12 +248,22 @@ export function ReportExport() {
                   <div>
                     <h4 className="font-semibold mb-1">{template.name}</h4>
                     <div className="flex items-center gap-2">
-                      <Badge size="sm" variant="flat" className="bg-[var(--app-surface-hover)]">
+                      <Badge
+                        size="sm"
+                        variant="flat"
+                        className="bg-[var(--app-surface-hover)]"
+                      >
                         {template.type}
                       </Badge>
-                      <Badge size="sm" variant="flat" className="bg-[var(--app-surface-hover)]">
+                      <Badge
+                        size="sm"
+                        variant="flat"
+                        className="bg-[var(--app-surface-hover)]"
+                      >
                         {getFormatIcon(template.format)}
-                        <span className="ml-1">{formatDisplayLabel(template.format)}</span>
+                        <span className="ml-1">
+                          {formatDisplayLabel(template.format)}
+                        </span>
                       </Badge>
                     </div>
                   </div>
@@ -212,7 +278,9 @@ export function ReportExport() {
 
                 <div className="flex items-center justify-between text-xs text-[var(--app-text-subtle)]">
                   <span>{template.sections.length} sections</span>
-                  {template.estimatedPages && <span>~{template.estimatedPages} pages</span>}
+                  {template.estimatedPages && (
+                    <span>~{template.estimatedPages} pages</span>
+                  )}
                 </div>
               </Card>
             ))}
@@ -238,17 +306,31 @@ export function ReportExport() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <StatusBadge status={job.status} domain="reports" size="sm" showIcon />
-                        {job.status === 'completed' && job.downloadUrl && (
-                          <Button size="sm" variant="flat" startContent={<Download className="w-3 h-3" />}>
+                        <StatusBadge
+                          status={job.status}
+                          domain="reports"
+                          size="sm"
+                          showIcon
+                        />
+                        {job.status === "completed" && job.downloadUrl && (
+                          <Button
+                            size="sm"
+                            variant="flat"
+                            startContent={<Download className="w-3 h-3" />}
+                          >
                             Download
                           </Button>
                         )}
                       </div>
                     </div>
-                    {job.status === 'processing' && (
+                    {job.status === "processing" && (
                       <div className="mt-2">
-                        <Progress value={job.progress} maxValue={100} className="h-2" aria-label={`Export job progress ${job.progress}%`} />
+                        <Progress
+                          value={job.progress}
+                          maxValue={100}
+                          className="h-2"
+                          aria-label={`Export job progress ${job.progress}%`}
+                        />
                         <p className="text-xs text-[var(--app-text-subtle)] mt-1">
                           {job.progress}% complete
                         </p>
@@ -270,7 +352,9 @@ export function ReportExport() {
               <div className="space-y-4">
                 {/* Format Selection */}
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Export Format</label>
+                  <label className="text-sm font-medium mb-2 block">
+                    Export Format
+                  </label>
                   <div className="grid grid-cols-2 gap-2">
                     {formatOptions.map((format) => (
                       <button
@@ -278,13 +362,15 @@ export function ReportExport() {
                         onClick={() => patchUI({ exportFormat: format })}
                         className={`p-3 rounded-lg border-2 transition-all ${
                           exportFormat === format
-                            ? 'border-[var(--app-primary)] bg-[var(--app-primary-bg)]'
-                            : 'border-[var(--app-border)] hover:border-[var(--app-primary)]'
+                            ? "border-[var(--app-primary)] bg-[var(--app-primary-bg)]"
+                            : "border-[var(--app-border)] hover:border-[var(--app-primary)]"
                         }`}
                       >
                         <div className="flex flex-col items-center gap-1">
                           {getFormatIcon(format)}
-                          <span className="text-xs font-medium uppercase">{format}</span>
+                          <span className="text-xs font-medium uppercase">
+                            {format}
+                          </span>
                         </div>
                       </button>
                     ))}
@@ -299,20 +385,32 @@ export function ReportExport() {
                   </label>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <label className="text-xs text-[var(--app-text-muted)] mb-1 block">From</label>
+                      <label className="text-xs text-[var(--app-text-muted)] mb-1 block">
+                        From
+                      </label>
                       <Input
                         type="date"
                         value={dateRange.start}
-                        onChange={(e) => patchUI({ dateRange: { ...dateRange, start: e.target.value } })}
+                        onChange={(e) =>
+                          patchUI({
+                            dateRange: { ...dateRange, start: e.target.value },
+                          })
+                        }
                         size="sm"
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-[var(--app-text-muted)] mb-1 block">To</label>
+                      <label className="text-xs text-[var(--app-text-muted)] mb-1 block">
+                        To
+                      </label>
                       <Input
                         type="date"
                         value={dateRange.end}
-                        onChange={(e) => patchUI({ dateRange: { ...dateRange, end: e.target.value } })}
+                        onChange={(e) =>
+                          patchUI({
+                            dateRange: { ...dateRange, end: e.target.value },
+                          })
+                        }
                         size="sm"
                       />
                     </div>
@@ -332,8 +430,8 @@ export function ReportExport() {
                         onClick={() => toggleSection(section)}
                         className={`w-full text-left p-2 rounded-lg border transition-all ${
                           safeSelectedSections.includes(section)
-                            ? 'border-[var(--app-primary)] bg-[var(--app-primary-bg)]'
-                            : 'border-[var(--app-border)] hover:border-[var(--app-primary)]'
+                            ? "border-[var(--app-primary)] bg-[var(--app-primary-bg)]"
+                            : "border-[var(--app-border)] hover:border-[var(--app-primary)]"
                         }`}
                       >
                         <div className="flex items-center justify-between">
@@ -357,7 +455,9 @@ export function ReportExport() {
                     <Switch
                       aria-label="Schedule report"
                       isSelected={scheduleEnabled}
-                      onValueChange={(value) => patchUI({ scheduleEnabled: value })}
+                      onValueChange={(value) =>
+                        patchUI({ scheduleEnabled: value })
+                      }
                       size="sm"
                     />
                   </div>
@@ -365,9 +465,16 @@ export function ReportExport() {
                     <div className="space-y-2">
                       <Select
                         aria-label="Schedule frequency"
-                    options={REPORT_SCHEDULE_FREQUENCY_OPTIONS}
+                        options={REPORT_SCHEDULE_FREQUENCY_OPTIONS}
                         selectedKeys={[scheduleFrequency]}
-                        onChange={(event) => patchUI({ scheduleFrequency: event.target.value as 'weekly' | 'monthly' | 'quarterly' })}
+                        onChange={(event) =>
+                          patchUI({
+                            scheduleFrequency: event.target.value as
+                              | "weekly"
+                              | "monthly"
+                              | "quarterly",
+                          })
+                        }
                         size="sm"
                       />
                       <div className="p-2 rounded-lg bg-[var(--app-info-bg)] text-xs text-[var(--app-info)]">
