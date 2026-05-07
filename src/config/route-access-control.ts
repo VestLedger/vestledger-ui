@@ -23,24 +23,52 @@ const ALL_APP_ROLES: readonly UserRole[] = ROLE_VALUES.filter(
   (role) => role !== "superadmin",
 );
 
+// Role-based default landings, aligned with the Phase 1 target navigation.
+// Legacy paths remain reachable; routing analyst/ops/ir/auditor/strategic_partner
+// to the new top-level pages keeps the post-login experience consistent with
+// the sidebar.
 export const DEFAULT_APP_PATH_BY_ROLE: Record<UserRole, string> = Object.freeze(
   {
     superadmin: "/superadmin",
     gp: "/home",
-    analyst: "/pipeline",
-    ops: "/fund-admin",
-    ir: "/lp-management",
+    analyst: "/deals",
+    ops: "/workflows",
+    ir: "/lps",
     researcher: "/reports",
     lp: "/lp-portal",
-    auditor: "/compliance",
+    auditor: "/workflows",
     service_provider: "/home",
-    strategic_partner: "/dealflow-review",
+    strategic_partner: "/deals",
   },
 );
 
 export const ROUTE_ACCESS_RULES: readonly RouteAccessRule[] = Object.freeze([
   { pathPrefix: "/superadmin", allowedRoles: ["superadmin"] },
   { pathPrefix: "/lp-portal", allowedRoles: ["lp"] },
+  // New Phase 1 canonical top-level routes mirror the access of their phase-aliased predecessors.
+  {
+    pathPrefix: "/deals",
+    allowedRoles: ["gp", "analyst", "strategic_partner"],
+  },
+  {
+    pathPrefix: "/funds",
+    allowedRoles: [
+      "gp",
+      "analyst",
+      "ops",
+      "ir",
+      "researcher",
+      "auditor",
+      "service_provider",
+    ],
+  },
+  {
+    pathPrefix: "/lps",
+    allowedRoles: ["gp", "ops", "ir", "auditor", "service_provider"],
+  },
+  // /signals and /workflows are broadly available; specific operations remain gated by their legacy prefixes below.
+  { pathPrefix: "/signals", allowedRoles: ALL_APP_ROLES },
+  { pathPrefix: "/workflows", allowedRoles: ALL_APP_ROLES },
   {
     pathPrefix: "/deal-intelligence",
     allowedRoles: ["gp", "analyst", "strategic_partner"],

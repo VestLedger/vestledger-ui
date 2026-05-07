@@ -18,6 +18,13 @@ export const PUBLIC_MARKETING_ROUTES = Object.freeze([
 export const DASHBOARD_ROUTE_PREFIXES = Object.freeze([
   ACCESS_ROUTE_PATHS.appHome,
   ACCESS_ROUTE_PATHS.vesta,
+  // Phase 1 target navigation prefixes (canonical top-level paths).
+  "/deals",
+  "/funds",
+  "/lps",
+  "/signals",
+  "/workflows",
+  // Existing canonical paths and legacy/compat paths preserved for Phase 1.
   "/portfolio",
   "/analytics",
   "/pipeline",

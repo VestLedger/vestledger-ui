@@ -22,6 +22,9 @@ import {
   Bell,
   CalendarDays,
   MessageSquare,
+  Activity,
+  Building2,
+  ListChecks,
 } from "lucide-react";
 import type { BreadcrumbItem, AISuggestion } from "@/ui";
 
@@ -50,14 +53,29 @@ export const routes: Record<string, RouteConfig> = {
     path: "/home",
     label: "Dashboard",
     icon: LayoutDashboard,
-    breadcrumbs: [{ label: "Home", href: "/home" }, { label: "Dashboard" }],
+    breadcrumbs: [{ label: "Dashboard" }],
     aiSuggestion: {
-      label: "Pipeline",
-      href: "/pipeline",
+      label: "Deals",
+      href: "/deals",
       reasoning:
-        "Start your day by reviewing active deals in the pipeline. Most users navigate here first.",
+        "Start your day by reviewing active deals. Most users navigate here first.",
     },
     description: "AI-powered fund operations overview",
+  },
+
+  // New canonical top-level Deals route (Phase 1 nav anchor; Phase 2 redesigns interior).
+  deals: {
+    path: "/deals",
+    label: "Deals",
+    icon: GitBranch,
+    breadcrumbs: [{ label: "Dashboard", href: "/home" }, { label: "Deals" }],
+    aiSuggestion: {
+      label: "Dashboard",
+      href: "/home",
+      reasoning:
+        "Return to the dashboard to see how deal activity affects the daily brief.",
+    },
+    description: "Deal intake, intelligence, and decisioning",
   },
 
   pipeline: {
@@ -65,8 +83,8 @@ export const routes: Record<string, RouteConfig> = {
     label: "Pipeline",
     icon: GitBranch,
     breadcrumbs: [
-      { label: "Home", href: "/home" },
-      { label: "Core Operations", href: "/home" },
+      { label: "Dashboard", href: "/home" },
+      { label: "Deals", href: "/deals" },
       { label: "Pipeline" },
     ],
     aiSuggestion: {
@@ -75,7 +93,7 @@ export const routes: Record<string, RouteConfig> = {
       reasoning:
         "You typically review deal intelligence after viewing pipeline. AI detected this pattern from your navigation history.",
     },
-    description: "Active deal pipeline and sourcing",
+    description: "Active deal pipeline and sourcing (legacy route)",
   },
 
   portfolio: {
@@ -83,15 +101,14 @@ export const routes: Record<string, RouteConfig> = {
     label: "Portfolio",
     icon: Briefcase,
     breadcrumbs: [
-      { label: "Home", href: "/home" },
-      { label: "Core Operations", href: "/home" },
+      { label: "Dashboard", href: "/home" },
       { label: "Portfolio" },
     ],
     aiSuggestion: {
-      label: "Analytics",
-      href: "/analytics",
+      label: "Funds",
+      href: "/funds",
       reasoning:
-        "After portfolio review, you frequently access analytics for deeper insights.",
+        "After portfolio review, drill into fund-level performance for deeper insights.",
     },
     description: "Portfolio company health and metrics",
   },
@@ -101,8 +118,8 @@ export const routes: Record<string, RouteConfig> = {
     label: "Deal Intelligence",
     icon: Search,
     breadcrumbs: [
-      { label: "Home", href: "/home" },
-      { label: "Deal Management", href: "/home" },
+      { label: "Dashboard", href: "/home" },
+      { label: "Deals", href: "/deals" },
       { label: "Deal Intelligence" },
     ],
     aiSuggestion: {
@@ -111,7 +128,7 @@ export const routes: Record<string, RouteConfig> = {
       reasoning:
         "AI suggests viewing pipeline to assess deal prioritization based on intelligence insights.",
     },
-    description: "AI-powered deal sourcing and analysis",
+    description: "AI-powered deal sourcing and analysis (legacy route)",
   },
 
   dealflowReview: {
@@ -119,8 +136,8 @@ export const routes: Record<string, RouteConfig> = {
     label: "Dealflow Review",
     icon: Vote,
     breadcrumbs: [
-      { label: "Home", href: "/home" },
-      { label: "Deal Management", href: "/home" },
+      { label: "Dashboard", href: "/home" },
+      { label: "Deals", href: "/deals" },
       { label: "Dealflow Review" },
     ],
     aiSuggestion: {
@@ -129,15 +146,31 @@ export const routes: Record<string, RouteConfig> = {
       reasoning:
         "After team voting, check deal intelligence for additional insights before final decisions.",
     },
-    description: "Team consensus and voting on deals",
+    description: "Team consensus and voting on deals (legacy route)",
   },
+
+  // New canonical top-level Funds route (Phase 1 nav anchor; Phase 3 redesigns interior).
+  funds: {
+    path: "/funds",
+    label: "Funds",
+    icon: Building2,
+    breadcrumbs: [{ label: "Dashboard", href: "/home" }, { label: "Funds" }],
+    aiSuggestion: {
+      label: "LPs",
+      href: "/lps",
+      reasoning:
+        "Fund performance often informs LP communication. Move to LPs after reviewing fund metrics.",
+    },
+    description: "Fund-level performance and economics",
+  },
+
   analytics: {
     path: "/analytics",
     label: "Analytics",
     icon: TrendingUp,
     breadcrumbs: [
-      { label: "Home", href: "/home" },
-      { label: "Portfolio Management", href: "/home" },
+      { label: "Dashboard", href: "/home" },
+      { label: "Funds", href: "/funds" },
       { label: "Analytics" },
     ],
     aiSuggestion: {
@@ -146,7 +179,26 @@ export const routes: Record<string, RouteConfig> = {
       reasoning:
         "Return to portfolio overview to track companies flagged in analytics.",
     },
-    description: "Advanced portfolio analytics and forecasting",
+    description: "Advanced portfolio analytics and forecasting (legacy route)",
+  },
+
+  // New canonical top-level Workflows route (Phase 1 nav anchor; Phase 4 redesigns interior).
+  workflows: {
+    path: "/workflows",
+    label: "Workflows",
+    icon: ListChecks,
+    breadcrumbs: [
+      { label: "Dashboard", href: "/home" },
+      { label: "Workflows" },
+    ],
+    aiSuggestion: {
+      label: "Dashboard",
+      href: "/home",
+      reasoning:
+        "Return to the dashboard to track which workflow signals need attention.",
+    },
+    description:
+      "Operational queues: capital calls, distributions, compliance, audit",
   },
 
   fundAdmin: {
@@ -154,8 +206,8 @@ export const routes: Record<string, RouteConfig> = {
     label: "Fund Admin",
     icon: DollarSign,
     breadcrumbs: [
-      { label: "Home", href: "/home" },
-      { label: "Back Office", href: "/home" },
+      { label: "Dashboard", href: "/home" },
+      { label: "Workflows", href: "/workflows" },
       { label: "Fund Admin" },
     ],
     aiSuggestion: {
@@ -164,7 +216,7 @@ export const routes: Record<string, RouteConfig> = {
       reasoning:
         "Capital call operations often require LP communication, so LP data is usually needed next.",
     },
-    description: "Capital calls and fund operations",
+    description: "Capital calls and fund operations (legacy route)",
   },
 
   fundAdminDistributionsNew: {
@@ -172,8 +224,8 @@ export const routes: Record<string, RouteConfig> = {
     label: "New Distribution",
     icon: Receipt,
     breadcrumbs: [
-      { label: "Home", href: "/home" },
-      { label: "Back Office", href: "/home" },
+      { label: "Dashboard", href: "/home" },
+      { label: "Workflows", href: "/workflows" },
       { label: "Fund Admin", href: "/fund-admin" },
       { label: "New Distribution" },
     ],
@@ -190,8 +242,8 @@ export const routes: Record<string, RouteConfig> = {
     label: "Distribution Calendar",
     icon: CalendarDays,
     breadcrumbs: [
-      { label: "Home", href: "/home" },
-      { label: "Back Office", href: "/home" },
+      { label: "Dashboard", href: "/home" },
+      { label: "Workflows", href: "/workflows" },
       { label: "Fund Admin", href: "/fund-admin" },
       { label: "Distribution Calendar" },
     ],
@@ -208,8 +260,8 @@ export const routes: Record<string, RouteConfig> = {
     label: "Distribution Detail",
     icon: Receipt,
     breadcrumbs: [
-      { label: "Home", href: "/home" },
-      { label: "Back Office", href: "/home" },
+      { label: "Dashboard", href: "/home" },
+      { label: "Workflows", href: "/workflows" },
       { label: "Fund Admin", href: "/fund-admin" },
       { label: "Distribution Detail" },
     ],
@@ -221,15 +273,12 @@ export const routes: Record<string, RouteConfig> = {
     description: "Review approvals, allocations, and statements",
   },
 
-  lpManagement: {
-    path: "/lp-management",
-    label: "LP Management",
+  // New canonical top-level LPs route (Phase 1 nav anchor; Phase 3 redesigns interior).
+  lps: {
+    path: "/lps",
+    label: "LPs",
     icon: UserCheck,
-    breadcrumbs: [
-      { label: "Home", href: "/home" },
-      { label: "Back Office", href: "/home" },
-      { label: "LP Management" },
-    ],
+    breadcrumbs: [{ label: "Dashboard", href: "/home" }, { label: "LPs" }],
     aiSuggestion: {
       label: "Reports",
       href: "/reports",
@@ -239,11 +288,32 @@ export const routes: Record<string, RouteConfig> = {
     description: "Limited partner relationships and reporting",
   },
 
+  lpManagement: {
+    path: "/lp-management",
+    label: "LP Management",
+    icon: UserCheck,
+    breadcrumbs: [
+      { label: "Dashboard", href: "/home" },
+      { label: "LPs", href: "/lps" },
+      { label: "LP Management" },
+    ],
+    aiSuggestion: {
+      label: "Reports",
+      href: "/reports",
+      reasoning:
+        "Generate investor reports after reviewing LP data. Common workflow for quarterly updates.",
+    },
+    description: "Limited partner relationships and reporting (legacy route)",
+  },
+
   lpPortal: {
     path: "/lp-portal",
     label: "LP Portal",
     icon: Users,
-    breadcrumbs: [{ label: "Home", href: "/home" }, { label: "LP Portal" }],
+    breadcrumbs: [
+      { label: "Dashboard", href: "/home" },
+      { label: "LP Portal" },
+    ],
     aiSuggestion: {
       label: "Distributions",
       href: "/fund-admin/distributions/calendar",
@@ -257,8 +327,8 @@ export const routes: Record<string, RouteConfig> = {
     label: "Compliance",
     icon: Shield,
     breadcrumbs: [
-      { label: "Home", href: "/home" },
-      { label: "Back Office", href: "/home" },
+      { label: "Dashboard", href: "/home" },
+      { label: "Workflows", href: "/workflows" },
       { label: "Compliance" },
     ],
     aiSuggestion: {
@@ -275,8 +345,8 @@ export const routes: Record<string, RouteConfig> = {
     label: "Valuations",
     icon: Receipt,
     breadcrumbs: [
-      { label: "Home", href: "/home" },
-      { label: "Back Office", href: "/home" },
+      { label: "Dashboard", href: "/home" },
+      { label: "Portfolio", href: "/portfolio" },
       { label: "Valuations" },
     ],
     aiSuggestion: {
@@ -293,8 +363,8 @@ export const routes: Record<string, RouteConfig> = {
     label: "Tax & Reporting",
     icon: Scale,
     breadcrumbs: [
-      { label: "Home", href: "/home" },
-      { label: "Back Office", href: "/home" },
+      { label: "Dashboard", href: "/home" },
+      { label: "Workflows", href: "/workflows" },
       { label: "Tax & Reporting" },
     ],
     aiSuggestion: {
@@ -311,8 +381,8 @@ export const routes: Record<string, RouteConfig> = {
     label: "Contacts",
     icon: Users,
     breadcrumbs: [
-      { label: "Home", href: "/home" },
-      { label: "Utilities", href: "/home" },
+      { label: "Dashboard", href: "/home" },
+      { label: "LPs", href: "/lps" },
       { label: "Contacts" },
     ],
     aiSuggestion: {
@@ -324,33 +394,46 @@ export const routes: Record<string, RouteConfig> = {
     description: "Founders, LPs, and network contacts",
   },
 
+  // New canonical top-level Signals route (first-class Phase 1 nav item).
+  signals: {
+    path: "/signals",
+    label: "Signals",
+    icon: Activity,
+    breadcrumbs: [{ label: "Dashboard", href: "/home" }, { label: "Signals" }],
+    aiSuggestion: {
+      label: "Dashboard",
+      href: "/home",
+      reasoning:
+        "After reviewing signals, return to the dashboard to prioritize today's work.",
+    },
+    description:
+      "Cross-platform intelligence feed: risks, anomalies, blockers, missing updates",
+  },
+
   notifications: {
     path: "/notifications",
     label: "Notifications",
     icon: Bell,
     breadcrumbs: [
-      { label: "Home", href: "/home" },
-      { label: "Utilities", href: "/home" },
+      { label: "Dashboard", href: "/home" },
+      { label: "Signals", href: "/signals" },
       { label: "Notifications" },
     ],
     aiSuggestion: {
-      label: "Dashboard",
-      href: "/home",
+      label: "Signals",
+      href: "/signals",
       reasoning:
-        "After reviewing notifications, return to the dashboard to prioritize today’s work.",
+        "Notifications are now part of the Signals feed. Open Signals to see context, evidence, and recommended actions.",
     },
-    description: "Alerts, reminders, and system updates",
+    description:
+      "Alerts, reminders, and system updates (legacy route; now under Signals)",
   },
 
   reports: {
     path: "/reports",
     label: "Reports",
     icon: FileDown,
-    breadcrumbs: [
-      { label: "Home", href: "/home" },
-      { label: "Utilities", href: "/home" },
-      { label: "Reports" },
-    ],
+    breadcrumbs: [{ label: "Dashboard", href: "/home" }, { label: "Reports" }],
     aiSuggestion: {
       label: "Dashboard",
       href: "/home",
@@ -360,22 +443,24 @@ export const routes: Record<string, RouteConfig> = {
     description: "Generate and export reports",
   },
 
+  // AI Tools is rehomed under Settings/Platform Admin per Phase 1; the route stays accessible.
   aiTools: {
     path: "/ai-tools",
     label: "AI Tools",
     icon: Sparkles,
     breadcrumbs: [
-      { label: "Home", href: "/home" },
-      { label: "Utilities", href: "/home" },
+      { label: "Dashboard", href: "/home" },
+      { label: "Settings", href: "/settings" },
       { label: "AI Tools" },
     ],
     aiSuggestion: {
-      label: "Deal Intelligence",
-      href: "/deal-intelligence",
+      label: "Settings",
+      href: "/settings",
       reasoning:
-        "Apply AI tools to analyze deals. Enhanced insights available in deal intelligence.",
+        "AI Tools live under Settings/Platform Admin. Vesta is the contextual copilot for in-product AI.",
     },
-    description: "AI-powered workflows and automation",
+    description:
+      "AI-powered workflows (rehomed under Settings; contextual AI runs through Vesta)",
   },
 
   waterfall: {
@@ -383,8 +468,8 @@ export const routes: Record<string, RouteConfig> = {
     label: "Waterfall Modeling",
     icon: TrendingDown,
     breadcrumbs: [
-      { label: "Home", href: "/home" },
-      { label: "Portfolio Management", href: "/home" },
+      { label: "Dashboard", href: "/home" },
+      { label: "Funds", href: "/funds" },
       { label: "Waterfall Modeling" },
     ],
     aiSuggestion: {
@@ -401,8 +486,8 @@ export const routes: Record<string, RouteConfig> = {
     label: "Audit Trail",
     icon: Database,
     breadcrumbs: [
-      { label: "Home", href: "/home" },
-      { label: "Back Office", href: "/home" },
+      { label: "Dashboard", href: "/home" },
+      { label: "Workflows", href: "/workflows" },
       { label: "Audit Trail" },
     ],
     aiSuggestion: {
@@ -419,15 +504,14 @@ export const routes: Record<string, RouteConfig> = {
     label: "Documents",
     icon: FileText,
     breadcrumbs: [
-      { label: "Home", href: "/home" },
-      { label: "Utilities", href: "/home" },
+      { label: "Dashboard", href: "/home" },
       { label: "Documents" },
     ],
     aiSuggestion: {
-      label: "Compliance",
-      href: "/compliance",
+      label: "Reports",
+      href: "/reports",
       reasoning:
-        "Verify document compliance and track regulatory filing deadlines.",
+        "Documents are institutional memory; Reports turn them into narratives.",
     },
     description: "Document management and storage",
   },
@@ -437,8 +521,8 @@ export const routes: Record<string, RouteConfig> = {
     label: "Integrations",
     icon: Plug,
     breadcrumbs: [
-      { label: "Home", href: "/home" },
-      { label: "Utilities", href: "/home" },
+      { label: "Dashboard", href: "/home" },
+      { label: "Settings", href: "/settings" },
       { label: "Integrations" },
     ],
     aiSuggestion: {
@@ -454,8 +538,8 @@ export const routes: Record<string, RouteConfig> = {
     label: "Collaboration",
     icon: MessageSquare,
     breadcrumbs: [
-      { label: "Home", href: "/home" },
-      { label: "Utilities", href: "/home" },
+      { label: "Dashboard", href: "/home" },
+      { label: "Workflows", href: "/workflows" },
       { label: "Collaboration" },
     ],
     aiSuggestion: {
@@ -471,7 +555,7 @@ export const routes: Record<string, RouteConfig> = {
     path: "/settings",
     label: "Settings",
     icon: Settings,
-    breadcrumbs: [{ label: "Home", href: "/home" }, { label: "Settings" }],
+    breadcrumbs: [{ label: "Dashboard", href: "/home" }, { label: "Settings" }],
     aiSuggestion: {
       label: "Dashboard",
       href: "/home",

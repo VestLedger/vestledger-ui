@@ -38,7 +38,9 @@ describe("route-access-control", () => {
 
   it("returns default paths by role and sane fallback", () => {
     expect(getDefaultPathForRole("gp")).toBe("/home");
-    expect(getDefaultPathForRole("ir")).toBe("/lp-management");
+    // Phase 1: ir lands on the new top-level /lps (legacy /lp-management
+    // remains reachable for direct navigation and bookmarks).
+    expect(getDefaultPathForRole("ir")).toBe("/lps");
     expect(getDefaultPathForRole("not-a-role")).toBe("/home");
   });
 });
