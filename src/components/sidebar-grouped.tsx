@@ -56,6 +56,10 @@ import {
   DEFAULT_COMPLIANCE_TAB_ID,
 } from "@/config/compliance-tabs";
 import {
+  DEFAULT_WORKFLOWS_MODULE_TAB_ID,
+  WORKFLOWS_MODULE_TAB_IDS,
+} from "@/config/workflows-module-tabs";
+import {
   DEAL_INTELLIGENCE_TAB_IDS,
   DEFAULT_DEAL_INTELLIGENCE_TAB_ID,
 } from "@/config/deal-intelligence-tabs";
@@ -115,6 +119,7 @@ const CONTEXTUAL_MENU_BY_NAV_ID: Record<string, ContextualMenuId> = {
   portfolio: "portfolio",
   funds: "funds",
   lps: "lp-management",
+  workflows: "workflows",
 };
 
 /**
@@ -345,6 +350,11 @@ export function SidebarGrouped() {
       activeTab:
         DEFAULT_COLLABORATION_TAB_ID as CollaborationSidebarUIState["activeTab"],
     });
+  const { value: workflowsModuleUI, patch: patchWorkflowsModuleUI } = useUIKey<{
+    selectedTab: string;
+  }>("workflows-module", {
+    selectedTab: DEFAULT_WORKFLOWS_MODULE_TAB_ID,
+  });
 
   const isHovered = sidebarUI.isHovered;
   const menuMode = sidebarUI.menuMode === "contextual" ? "contextual" : "main";
@@ -406,6 +416,11 @@ export function SidebarGrouped() {
   )
     ? collaborationUI.activeTab
     : DEFAULT_COLLABORATION_TAB_ID;
+  const selectedWorkflowsModuleTab = WORKFLOWS_MODULE_TAB_IDS.has(
+    workflowsModuleUI.selectedTab,
+  )
+    ? workflowsModuleUI.selectedTab
+    : DEFAULT_WORKFLOWS_MODULE_TAB_ID;
   const pendingOpenRef = useRef<ContextualMenuId | null>(null);
 
   // Helper to check if a group is accessible
@@ -496,6 +511,11 @@ export function SidebarGrouped() {
       case "collaboration":
         patchCollaborationUI({ activeTab: DEFAULT_COLLABORATION_TAB_ID });
         return;
+      case "workflows":
+        patchWorkflowsModuleUI({
+          selectedTab: DEFAULT_WORKFLOWS_MODULE_TAB_ID,
+        });
+        return;
       default: {
         const exhaustiveCheck: never = targetMenuId;
         void exhaustiveCheck;
@@ -575,6 +595,9 @@ export function SidebarGrouped() {
           viewMode: "per-deal",
         });
         return;
+      case "workflows":
+        patchWorkflowsModuleUI({ selectedTab: tabId });
+        return;
       default: {
         const exhaustiveCheck: never = targetMenuId;
         void exhaustiveCheck;
@@ -611,6 +634,8 @@ export function SidebarGrouped() {
         return selectedDealIntelligenceTab;
       case "collaboration":
         return selectedCollaborationTab;
+      case "workflows":
+        return selectedWorkflowsModuleTab;
       default: {
         const exhaustiveCheck: never = targetMenuId;
         return exhaustiveCheck;

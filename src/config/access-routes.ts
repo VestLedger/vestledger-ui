@@ -24,6 +24,11 @@ export const DASHBOARD_ROUTE_PREFIXES = Object.freeze([
   "/lps",
   "/signals",
   "/workflows",
+  "/workflows/fund-ops",
+  "/workflows/tax",
+  "/workflows/compliance",
+  "/workflows/audit",
+  "/workflows/collaboration",
   // Existing canonical paths and legacy/compat paths preserved for Phase 1.
   "/portfolio",
   "/analytics",

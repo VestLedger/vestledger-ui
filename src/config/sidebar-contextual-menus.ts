@@ -29,6 +29,10 @@ import {
   DEFAULT_VALUATION_409A_TAB_ID,
   VALUATION_409A_TABS,
 } from "./valuation-409a-tabs";
+import {
+  DEFAULT_WORKFLOWS_MODULE_TAB_ID,
+  WORKFLOWS_MODULE_TABS,
+} from "./workflows-module-tabs";
 
 export type ContextualMenuId =
   | "portfolio"
@@ -42,7 +46,8 @@ export type ContextualMenuId =
   | "lp-portal"
   | "deal-intelligence"
   | "collaboration"
-  | "ai-tools";
+  | "ai-tools"
+  | "workflows";
 
 export type ContextualMenuConfig = {
   id: ContextualMenuId;
@@ -152,5 +157,13 @@ export const SIDEBAR_CONTEXTUAL_MENUS: Record<
     icon: routes.aiTools.icon,
     tabs: AI_TOOLS_TABS,
     defaultTabId: DEFAULT_AI_TOOLS_TAB_ID,
+  },
+  workflows: {
+    id: "workflows",
+    routePath: ROUTE_PATHS.workflows,
+    label: routes.workflows.label,
+    icon: routes.workflows.icon,
+    tabs: WORKFLOWS_MODULE_TABS,
+    defaultTabId: DEFAULT_WORKFLOWS_MODULE_TAB_ID,
   },
 };

@@ -66,8 +66,29 @@ export const ROUTE_ACCESS_RULES: readonly RouteAccessRule[] = Object.freeze([
     pathPrefix: "/lps",
     allowedRoles: ["gp", "ops", "ir", "auditor", "service_provider"],
   },
-  // /signals and /workflows are broadly available; specific operations remain gated by their legacy prefixes below.
+  // /signals is broadly available.
   { pathPrefix: "/signals", allowedRoles: ALL_APP_ROLES },
+  // Phase 4: Workflow sub-routes inherit permissions from legacy counterparts.
+  {
+    pathPrefix: "/workflows/fund-ops",
+    allowedRoles: ["gp", "ops", "service_provider"],
+  },
+  {
+    pathPrefix: "/workflows/tax",
+    allowedRoles: ["gp", "ops", "service_provider"],
+  },
+  {
+    pathPrefix: "/workflows/compliance",
+    allowedRoles: ["gp", "ops", "auditor", "service_provider"],
+  },
+  {
+    pathPrefix: "/workflows/audit",
+    allowedRoles: ["gp", "ops", "auditor", "service_provider"],
+  },
+  {
+    pathPrefix: "/workflows/collaboration",
+    allowedRoles: ALL_APP_ROLES,
+  },
   { pathPrefix: "/workflows", allowedRoles: ALL_APP_ROLES },
   {
     pathPrefix: "/deal-intelligence",

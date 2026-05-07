@@ -150,6 +150,43 @@ const nextConfig = {
         destination: "/lps",
         permanent: true,
       },
+      // Module 4A — Fund Operations Workflows
+      {
+        source: "/fund-admin",
+        destination: "/workflows/fund-ops",
+        permanent: true,
+      },
+      {
+        source: "/fund-admin/distributions/new",
+        destination: "/workflows/fund-ops",
+        permanent: false,
+      },
+      {
+        source: "/fund-admin/distributions/calendar",
+        destination: "/workflows/fund-ops",
+        permanent: false,
+      },
+      {
+        source: "/tax-center",
+        destination: "/workflows/tax",
+        permanent: true,
+      },
+      // Module 4B — Compliance & Audit Workflows
+      {
+        source: "/compliance",
+        destination: "/workflows/compliance",
+        permanent: true,
+      },
+      {
+        source: "/audit-trail",
+        destination: "/workflows/audit",
+        permanent: true,
+      },
+      {
+        source: "/collaboration",
+        destination: "/workflows/collaboration",
+        permanent: true,
+      },
     ];
   },
   async headers() {

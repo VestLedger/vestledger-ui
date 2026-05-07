@@ -384,7 +384,7 @@ export const routes: Record<string, RouteConfig> = {
     description: "Advanced portfolio analytics and forecasting (legacy route)",
   },
 
-  // New canonical top-level Workflows route (Phase 1 nav anchor; Phase 4 redesigns interior).
+  // Phase 4: Workflows becomes a unified operational queue shell.
   workflows: {
     path: "/workflows",
     label: "Workflows",
@@ -400,7 +400,98 @@ export const routes: Record<string, RouteConfig> = {
         "Return to the dashboard to track which workflow signals need attention.",
     },
     description:
-      "Operational queues: capital calls, distributions, compliance, audit",
+      "Operational queues: capital calls, distributions, compliance, audit, and tax workflows",
+  },
+
+  workflowsFundOps: {
+    path: "/workflows/fund-ops",
+    label: "Fund Operations",
+    icon: DollarSign,
+    breadcrumbs: [
+      { label: "Dashboard", href: "/home" },
+      { label: "Workflows", href: "/workflows" },
+      { label: "Fund Operations" },
+    ],
+    aiSuggestion: {
+      label: "Compliance",
+      href: "/workflows/compliance",
+      reasoning:
+        "After processing capital calls or distributions, verify compliance status.",
+    },
+    description:
+      "Capital calls, distributions, expenses, and secondary transfers",
+  },
+
+  workflowsTax: {
+    path: "/workflows/tax",
+    label: "Tax & Reporting",
+    icon: Scale,
+    breadcrumbs: [
+      { label: "Dashboard", href: "/home" },
+      { label: "Workflows", href: "/workflows" },
+      { label: "Tax & Reporting" },
+    ],
+    aiSuggestion: {
+      label: "Reports",
+      href: "/reports",
+      reasoning:
+        "Export tax reports after K-1 generation for distribution to partners.",
+    },
+    description: "Tax planning, K-1 generation, and fund tax summaries",
+  },
+
+  workflowsCompliance: {
+    path: "/workflows/compliance",
+    label: "Compliance",
+    icon: Shield,
+    breadcrumbs: [
+      { label: "Dashboard", href: "/home" },
+      { label: "Workflows", href: "/workflows" },
+      { label: "Compliance" },
+    ],
+    aiSuggestion: {
+      label: "Audit Trail",
+      href: "/workflows/audit",
+      reasoning:
+        "Cross-reference audit records with compliance requirements to ensure regulatory adherence.",
+    },
+    description: "Regulatory filings, deadlines, and compliance status",
+  },
+
+  workflowsAudit: {
+    path: "/workflows/audit",
+    label: "Audit Trail",
+    icon: Database,
+    breadcrumbs: [
+      { label: "Dashboard", href: "/home" },
+      { label: "Workflows", href: "/workflows" },
+      { label: "Audit Trail" },
+    ],
+    aiSuggestion: {
+      label: "Compliance",
+      href: "/workflows/compliance",
+      reasoning:
+        "Cross-reference compliance items after reviewing the audit trail.",
+    },
+    description: "Immutable, cryptographically verified transaction history",
+  },
+
+  workflowsCollaboration: {
+    path: "/workflows/collaboration",
+    label: "Collaboration",
+    icon: MessageSquare,
+    breadcrumbs: [
+      { label: "Dashboard", href: "/home" },
+      { label: "Workflows", href: "/workflows" },
+      { label: "Collaboration" },
+    ],
+    aiSuggestion: {
+      label: "Dashboard",
+      href: "/home",
+      reasoning:
+        "Return to dashboard after clearing collaboration blockers to reprioritize work.",
+    },
+    description: "Cross-persona threads, comments, and task handoffs",
   },
 
   fundAdmin: {
@@ -410,15 +501,16 @@ export const routes: Record<string, RouteConfig> = {
     breadcrumbs: [
       { label: "Dashboard", href: "/home" },
       { label: "Workflows", href: "/workflows" },
-      { label: "Fund Admin" },
+      { label: "Fund Operations" },
     ],
     aiSuggestion: {
-      label: "LP Management",
-      href: "/lp-management",
+      label: "Compliance",
+      href: "/workflows/compliance",
       reasoning:
-        "Capital call operations often require LP communication, so LP data is usually needed next.",
+        "After processing capital calls or distributions, verify compliance status.",
     },
-    description: "Capital calls and fund operations (legacy route)",
+    description:
+      "Capital calls and fund operations (legacy route — redirected to /workflows/fund-ops)",
   },
 
   fundAdminDistributionsNew: {
@@ -554,11 +646,12 @@ export const routes: Record<string, RouteConfig> = {
     ],
     aiSuggestion: {
       label: "Audit Trail",
-      href: "/audit-trail",
+      href: "/workflows/audit",
       reasoning:
-        "Review audit trail for compliance verification. Recommended after checking compliance status.",
+        "Cross-reference audit records with compliance requirements to ensure regulatory adherence.",
     },
-    description: "Regulatory compliance and deadlines",
+    description:
+      "Regulatory compliance and deadlines (legacy route — redirected to /workflows/compliance)",
   },
 
   // Phase 2: legacy /409a-valuations is redirected to /portfolio/valuations
@@ -598,7 +691,8 @@ export const routes: Record<string, RouteConfig> = {
       reasoning:
         "Export tax reports after K-1 generation for distribution to partners.",
     },
-    description: "Tax planning and K-1 generation",
+    description:
+      "Tax planning and K-1 generation (legacy route — redirected to /workflows/tax)",
   },
 
   contacts: {
@@ -721,11 +815,12 @@ export const routes: Record<string, RouteConfig> = {
     ],
     aiSuggestion: {
       label: "Compliance",
-      href: "/compliance",
+      href: "/workflows/compliance",
       reasoning:
-        "Cross-reference audit records with compliance requirements to ensure regulatory adherence.",
+        "Cross-reference compliance items after reviewing the audit trail.",
     },
-    description: "Immutable, cryptographically verified transaction history",
+    description:
+      "Immutable, cryptographically verified transaction history (legacy route — redirected to /workflows/audit)",
   },
 
   documents: {
@@ -777,7 +872,8 @@ export const routes: Record<string, RouteConfig> = {
       reasoning:
         "Return to dashboard after clearing collaboration blockers to reprioritize work.",
     },
-    description: "Cross-persona threads, comments, and task handoffs",
+    description:
+      "Cross-persona threads, comments, and task handoffs (legacy route — redirected to /workflows/collaboration)",
   },
 
   settings: {

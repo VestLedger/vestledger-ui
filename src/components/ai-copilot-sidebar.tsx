@@ -504,13 +504,23 @@ export function AICopilotSidebar({ mode = "panel" }: AICopilotSidebarProps) {
       }
       return "fund-level";
     }
-    if (pathname === ROUTE_PATHS.fundAdmin) {
+    if (
+      pathname === ROUTE_PATHS.fundAdmin ||
+      pathname === ROUTE_PATHS.workflows ||
+      pathname === ROUTE_PATHS.workflowsFundOps
+    ) {
       return getTabValue("back-office-fund-admin", "selectedTab");
     }
-    if (pathname === ROUTE_PATHS.compliance) {
+    if (
+      pathname === ROUTE_PATHS.compliance ||
+      pathname === ROUTE_PATHS.workflowsCompliance
+    ) {
       return getTabValue("back-office-compliance", "selectedTab");
     }
-    if (pathname === ROUTE_PATHS.taxCenter) {
+    if (
+      pathname === ROUTE_PATHS.taxCenter ||
+      pathname === ROUTE_PATHS.workflowsTax
+    ) {
       return getTabValue("back-office-tax-center", "selectedTab");
     }
     if (pathname === ROUTE_PATHS.valuations409a) {
