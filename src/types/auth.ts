@@ -1,4 +1,5 @@
 import { ROUTE_PATHS } from "@/config/routes";
+import type { SegmentKey } from "@/types/segments";
 import type { OperatingRegion } from "@/types/regulatory";
 
 export type UserRole =
@@ -106,6 +107,7 @@ export interface User {
   avatar?: string;
   tenantId?: string;
   isAdmin?: boolean;
+  segment?: SegmentKey;
   operatingRegion?: OperatingRegion | null;
   organizationConfigured?: boolean;
 }

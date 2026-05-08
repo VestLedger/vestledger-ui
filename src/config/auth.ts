@@ -1,4 +1,5 @@
 import type { OperatingRegion } from "@/types/regulatory";
+import { DEFAULT_SEGMENT_KEY, normalizeSegmentKey } from "@/types/segments";
 
 const ONE_DAY_IN_SECONDS = 24 * 60 * 60;
 const FIVE_SECONDS_IN_MS = 5 * 1000;
@@ -67,6 +68,9 @@ export const MOCK_DEMO_PROFILE = Object.freeze({
     process.env.NEXT_PUBLIC_DEMO_TENANT_ID,
     "org_summit_vc",
   ),
+  segment:
+    normalizeSegmentKey(process.env.NEXT_PUBLIC_DEMO_SEGMENT) ??
+    DEFAULT_SEGMENT_KEY,
   accessToken: normalizeValue(
     process.env.NEXT_PUBLIC_DEMO_ACCESS_TOKEN,
     "mock-token",

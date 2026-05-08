@@ -6,6 +6,7 @@ import { createMockUser } from "@/data/mocks/auth";
 import type { User, UserRole } from "@/types/auth";
 import { MOCK_DEMO_PROFILE } from "@/config/auth";
 import type { OperatingRegion } from "@/types/regulatory";
+import { normalizeSegmentKey } from "@/types/segments";
 
 type AuthResponse = {
   access_token: string;
@@ -15,6 +16,7 @@ type AuthResponse = {
     isAdmin?: boolean;
     operatingRegion?: OperatingRegion | null;
     organizationConfigured?: boolean;
+    segment?: string | null;
   };
 };
 
@@ -35,6 +37,7 @@ type JwtPayload = {
   isAdmin?: boolean;
   operatingRegion?: OperatingRegion | null;
   organizationConfigured?: boolean;
+  segment?: string | null;
 };
 
 const DEMO_EMAIL = getDemoEmail();
@@ -95,6 +98,7 @@ function decodeJwt(token: string): JwtPayload {
 
 function userFromJwt(token: string, responseUser?: AuthResponse["user"]): User {
   const payload = decodeJwt(token);
+  const segment = normalizeSegmentKey(payload.segment ?? responseUser?.segment);
   return {
     id: payload.sub,
     name: payload.name ?? payload.email,
@@ -107,6 +111,7 @@ function userFromJwt(token: string, responseUser?: AuthResponse["user"]): User {
       responseUser?.orgId ??
       undefined,
     isAdmin: payload.isAdmin ?? responseUser?.isAdmin ?? false,
+    ...(segment ? { segment } : {}),
     operatingRegion:
       payload.operatingRegion ?? responseUser?.operatingRegion ?? null,
     organizationConfigured:
@@ -166,6 +171,7 @@ export async function authenticateUser(
         id: MOCK_DEMO_PROFILE.id,
         tenantId: MOCK_DEMO_PROFILE.tenantId,
         isAdmin: false,
+        segment: MOCK_DEMO_PROFILE.segment,
         operatingRegion: MOCK_DEMO_PROFILE.operatingRegion,
         organizationConfigured: MOCK_DEMO_PROFILE.organizationConfigured,
       }),

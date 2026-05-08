@@ -8,6 +8,7 @@ import { type LucideIcon } from "lucide-react";
 import { useNavigation } from "@/contexts/navigation-context";
 import { Badge } from "@/ui";
 import { useDashboardDensity } from "@/contexts/dashboard-density-context";
+import type { ModuleProminence } from "@/types/segments";
 
 interface NavigationItemProps {
   id: string;
@@ -17,6 +18,7 @@ interface NavigationItemProps {
   isCollapsed?: boolean;
   isActiveOverride?: boolean;
   onClick?: MouseEventHandler<HTMLAnchorElement>;
+  prominence?: ModuleProminence;
   /**
    * Extra path prefixes that should mark this nav item active.
    *
@@ -39,6 +41,7 @@ export function NavigationItem({
   isCollapsed = false,
   isActiveOverride,
   onClick,
+  prominence = "high",
   additionalActivePaths,
 }: NavigationItemProps) {
   const pathname = usePathname();
@@ -57,6 +60,12 @@ export function NavigationItem({
   const rowDimensionClass =
     density.mode === "compact" ? "px-2.5 h-9" : "px-3 h-10";
   const labelTextClass = density.mode === "compact" ? "text-[13px]" : "text-sm";
+  const inactiveProminenceClass =
+    !isActive && prominence === "low"
+      ? "opacity-60"
+      : !isActive && prominence === "low_medium"
+        ? "opacity-80"
+        : "";
 
   const getBadgeColor = (variant: "danger" | "warning" | "info") => {
     switch (variant) {
@@ -76,9 +85,10 @@ export function NavigationItem({
       <motion.div
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
+        data-prominence={prominence}
         className={`
           group relative flex items-center ${isCollapsed ? "justify-center" : "justify-between gap-3"} ${rowDimensionClass} rounded-lg
-          transition-all duration-150
+          transition-all duration-150 ${inactiveProminenceClass}
           ${
             isActive
               ? "bg-app-surface-hover dark:bg-app-dark-surface-hover border-l-2 border-app-primary dark:border-app-dark-primary shadow-[0_0_12px_rgba(4,120,87,0.3)] dark:shadow-[0_0_12px_rgba(16,185,129,0.3)]"

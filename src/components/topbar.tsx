@@ -1,31 +1,45 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useRef } from 'react';
-import { Search, ChevronDown, LogOut, Sparkles, Moon, Sun, Mic } from 'lucide-react';
-import { useAuth } from '@/contexts/auth-context';
-import { Button, Card, Input } from '@/ui';
-import { useRouter } from 'next/navigation';
-import { useAICopilot } from './ai-copilot-sidebar';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { alertsSelectors, markAlertRead } from '@/store/slices/alertsSlice';
-import { searchSelectors } from '@/store/slices/searchSlice';
-import { NotificationCenter } from '@/components/notification-center';
-import type { Notification } from '@/types/notification';
-import { useTheme } from 'next-themes';
-import { searchTopbar } from '@/services/topbarSearchService';
-import type { TopbarSearchResult } from '@/services/topbarSearchService';
-import { useUIKey } from '@/store/ui';
-import { UI_STATE_KEYS, UI_STATE_DEFAULTS } from '@/store/constants/uiStateKeys';
-import { useDashboardDensity } from '@/contexts/dashboard-density-context';
-import { buildPublicWebUrl } from '@/config/env';
-import { ROUTE_PATHS } from '@/config/routes';
-import { logger } from '@/lib/logger';
-import { useNavigation } from '@/contexts/navigation-context';
-import { fetchAlertsOperation } from '@/store/async/dataOperations';
-import { createTopbarSearchController } from '@/components/topbar-search-controller';
+import { useEffect, useMemo, useRef } from "react";
+import {
+  Search,
+  ChevronDown,
+  LogOut,
+  Sparkles,
+  Moon,
+  Sun,
+  Mic,
+} from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
+import { Button, Card, Input } from "@/ui";
+import { useRouter } from "next/navigation";
+import { useAICopilot } from "./ai-copilot-sidebar";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { alertsSelectors, markAlertRead } from "@/store/slices/alertsSlice";
+import { searchSelectors } from "@/store/slices/searchSlice";
+import { NotificationCenter } from "@/components/notification-center";
+import type { Notification } from "@/types/notification";
+import { useTheme } from "next-themes";
+import { searchTopbar } from "@/services/topbarSearchService";
+import type { TopbarSearchResult } from "@/services/topbarSearchService";
+import { useUIKey } from "@/store/ui";
+import {
+  UI_STATE_KEYS,
+  UI_STATE_DEFAULTS,
+} from "@/store/constants/uiStateKeys";
+import { useDashboardDensity } from "@/contexts/dashboard-density-context";
+import { buildPublicWebUrl } from "@/config/env";
+import { ROUTE_PATHS } from "@/config/routes";
+import { logger } from "@/lib/logger";
+import { useNavigation } from "@/contexts/navigation-context";
+import { fetchAlertsOperation } from "@/store/async/dataOperations";
+import { createTopbarSearchController } from "@/components/topbar-search-controller";
+import { getSegmentTopbarPlaceholder } from "@/config/segment-config";
+import { useSegmentConfig } from "@/hooks/use-segment-config";
 
 export function Topbar() {
   const { user, logout } = useAuth();
+  const { segmentKey } = useSegmentConfig(user);
   const router = useRouter();
   const { openWithQuery } = useAICopilot();
   const density = useDashboardDensity();
@@ -38,11 +52,11 @@ export function Topbar() {
   // Use centralized UI state defaults
   const { value: topbarUI, patch: patchTopbarUI } = useUIKey(
     UI_STATE_KEYS.TOPBAR,
-    UI_STATE_DEFAULTS.topbar
+    UI_STATE_DEFAULTS.topbar,
   );
   const { value: vestaShellUI, patch: patchVestaShellUI } = useUIKey(
     UI_STATE_KEYS.VESTA_SHELL,
-    UI_STATE_DEFAULTS.vestaShell
+    UI_STATE_DEFAULTS.vestaShell,
   );
 
   // Use centralized selectors for search
@@ -56,20 +70,20 @@ export function Topbar() {
         dispatch,
         search: searchTopbar,
       }),
-    [dispatch]
+    [dispatch],
   );
 
   const handleLogout = () => {
     // Set flag in sessionStorage to indicate logout in progress
-    sessionStorage.setItem('isLoggingOut', 'true');
+    sessionStorage.setItem("isLoggingOut", "true");
 
     // Clear auth state
     logout();
 
     // Redirect to public domain.
     const redirectUrl = buildPublicWebUrl(window.location.hostname);
-    logger.info('Logging out user and redirecting to public website.', {
-      component: 'topbar',
+    logger.info("Logging out user and redirecting to public website.", {
+      component: "topbar",
       redirectUrl,
     });
     window.location.href = redirectUrl;
@@ -82,8 +96,13 @@ export function Topbar() {
   // Convert Redux alerts to Notification format
   const notifications: Notification[] = reduxNotifications.map((alert) => ({
     id: alert.id,
-    type: alert.type === 'alert' ? 'warning' : 'info',
-    category: alert.type === 'deal' ? 'deal' : alert.type === 'report' ? 'document' : 'alert',
+    type: alert.type === "alert" ? "warning" : "info",
+    category:
+      alert.type === "deal"
+        ? "deal"
+        : alert.type === "report"
+          ? "document"
+          : "alert",
     title: alert.title,
     message: alert.message,
     timestamp: new Date(alert.time || Date.now()),
@@ -113,13 +132,16 @@ export function Topbar() {
   // Close search dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
         patchTopbarUI({ isSearchFocused: false });
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [patchTopbarUI]);
 
   const getResultIcon = (result: TopbarSearchResult) => {
@@ -131,7 +153,7 @@ export function Topbar() {
     if (result.href) {
       router.push(result.href);
     }
-    patchTopbarUI({ searchQuery: '', isSearchFocused: false });
+    patchTopbarUI({ searchQuery: "", isSearchFocused: false });
   };
 
   const handleStartVoiceCapture = () => {
@@ -140,13 +162,13 @@ export function Topbar() {
     }
 
     const currentNonce =
-      typeof vestaShellUI.voiceCaptureRequestNonce === 'number'
+      typeof vestaShellUI.voiceCaptureRequestNonce === "number"
         ? vestaShellUI.voiceCaptureRequestNonce
         : 0;
 
     patchVestaShellUI({
-      vestaViewMode: 'sidebar',
-      voiceCaptureMode: 'tap',
+      vestaViewMode: "sidebar",
+      voiceCaptureMode: "tap",
       voiceCaptureRequestNonce: currentNonce + 1,
     });
   };
@@ -159,22 +181,26 @@ export function Topbar() {
       }}
     >
       {/* Left: AI-Powered Search */}
-      <div className="flex items-center flex-1 max-w-xl relative" ref={searchRef}>
+      <div
+        className="flex items-center flex-1 max-w-xl relative"
+        ref={searchRef}
+      >
         <div className="relative w-full">
           <Input
             type="text"
-            placeholder="Ask Vesta anything... (e.g., 'show me active deals', 'find Quantum AI')"
+            placeholder={getSegmentTopbarPlaceholder(segmentKey)}
             value={topbarUI.searchQuery}
             onChange={(e) => patchTopbarUI({ searchQuery: e.target.value })}
             onFocus={() => patchTopbarUI({ isSearchFocused: true })}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && topbarUI.searchQuery.trim()) {
+              if (e.key === "Enter" && topbarUI.searchQuery.trim()) {
                 openWithQuery(topbarUI.searchQuery);
-                patchTopbarUI({ searchQuery: '', isSearchFocused: false });
+                patchTopbarUI({ searchQuery: "", isSearchFocused: false });
               }
             }}
             startContent={
-              topbarUI.searchQuery && searchResults.some(r => r.type === 'ai-suggestion') ? (
+              topbarUI.searchQuery &&
+              searchResults.some((r) => r.type === "ai-suggestion") ? (
                 <Sparkles className="w-4 h-4 text-app-primary dark:text-app-dark-primary" />
               ) : (
                 <button
@@ -191,9 +217,10 @@ export function Topbar() {
             }
             className="w-full"
             classNames={{
-              inputWrapper: searchResults.length > 0 && topbarUI.isSearchFocused
-                ? "bg-app-surface-hover dark:bg-app-dark-surface-hover ring-2 ring-app-primary dark:ring-app-dark-primary"
-                : "bg-app-surface-hover dark:bg-app-dark-surface-hover"
+              inputWrapper:
+                searchResults.length > 0 && topbarUI.isSearchFocused
+                  ? "bg-app-surface-hover dark:bg-app-dark-surface-hover ring-2 ring-app-primary dark:ring-app-dark-primary"
+                  : "bg-app-surface-hover dark:bg-app-dark-surface-hover",
             }}
           />
 
@@ -208,18 +235,26 @@ export function Topbar() {
                       onClick={() => handleResultClick(result)}
                       className="w-full px-4 py-3 text-left hover:bg-app-surface-hover dark:hover:bg-app-dark-surface-hover transition-colors border-b border-app-border dark:border-app-dark-border last:border-0 flex items-start gap-3"
                     >
-                      <div className={`mt-0.5 ${result.type === 'ai-suggestion' ? 'text-app-primary dark:text-app-dark-primary' : 'text-app-text-muted dark:text-app-dark-text-muted'}`}>
+                      <div
+                        className={`mt-0.5 ${result.type === "ai-suggestion" ? "text-app-primary dark:text-app-dark-primary" : "text-app-text-muted dark:text-app-dark-text-muted"}`}
+                      >
                         {getResultIcon(result)}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-medium truncate">{result.title}</span>
+                          <span className="text-sm font-medium truncate">
+                            {result.title}
+                          </span>
                         </div>
                         {result.description && (
-                          <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted truncate">{result.description}</p>
+                          <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted truncate">
+                            {result.description}
+                          </p>
                         )}
                         {result.category && (
-                          <span className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle">{result.category}</span>
+                          <span className="text-xs text-app-text-subtle dark:text-app-dark-text-subtle">
+                            {result.category}
+                          </span>
                         )}
                       </div>
                     </button>
@@ -236,17 +271,21 @@ export function Topbar() {
           )}
 
           {/* No results message */}
-          {topbarUI.isSearchFocused && topbarUI.searchQuery && searchResults.length === 0 && (
-            <div className="absolute top-full left-0 right-0 mt-2 z-50">
-              <Card padding="md" className="shadow-lg">
-                <div className="text-center py-4 text-app-text-muted dark:text-app-dark-text-muted">
-                  <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">No quick results found</p>
-                  <p className="text-xs mt-1">Press Enter to ask Vesta for help</p>
-                </div>
-              </Card>
-            </div>
-          )}
+          {topbarUI.isSearchFocused &&
+            topbarUI.searchQuery &&
+            searchResults.length === 0 && (
+              <div className="absolute top-full left-0 right-0 mt-2 z-50">
+                <Card padding="md" className="shadow-lg">
+                  <div className="text-center py-4 text-app-text-muted dark:text-app-dark-text-muted">
+                    <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">No quick results found</p>
+                    <p className="text-xs mt-1">
+                      Press Enter to ask Vesta for help
+                    </p>
+                  </div>
+                </Card>
+              </div>
+            )}
         </div>
       </div>
 
@@ -257,11 +296,11 @@ export function Topbar() {
           variant="light"
           color="default"
           isIconOnly
-          onPress={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          onPress={() => setTheme(theme === "dark" ? "light" : "dark")}
           aria-label="Toggle theme"
           className="text-app-text-muted dark:text-app-dark-text-muted hover:text-app-text dark:hover:text-app-dark-text"
         >
-          {theme === 'dark' ? (
+          {theme === "dark" ? (
             <Sun className="w-5 h-5" />
           ) : (
             <Moon className="w-5 h-5" />
@@ -281,14 +320,22 @@ export function Topbar() {
             variant="light"
             color="default"
             className="gap-2"
-            endContent={<ChevronDown className={`w-4 h-4 transition-transform ${topbarUI.isProfileOpen ? 'rotate-180' : ''}`} />}
-            onPress={() => patchTopbarUI({ isProfileOpen: !topbarUI.isProfileOpen })}
+            endContent={
+              <ChevronDown
+                className={`w-4 h-4 transition-transform ${topbarUI.isProfileOpen ? "rotate-180" : ""}`}
+              />
+            }
+            onPress={() =>
+              patchTopbarUI({ isProfileOpen: !topbarUI.isProfileOpen })
+            }
           >
             <div className="w-7 h-7 rounded-full bg-app-primary dark:bg-app-dark-primary flex items-center justify-center text-white text-sm font-medium">
-              {user?.name?.charAt(0) || 'U'}
+              {user?.name?.charAt(0) || "U"}
             </div>
             <div className="hidden sm:flex flex-col items-start">
-              <span className="text-xs font-medium">{user?.name || 'User'}</span>
+              <span className="text-xs font-medium">
+                {user?.name || "User"}
+              </span>
             </div>
           </Button>
 
@@ -307,26 +354,33 @@ export function Topbar() {
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-app-primary dark:bg-app-dark-primary flex items-center justify-center text-white font-medium">
-                        {user?.name?.charAt(0) || 'U'}
+                        {user?.name?.charAt(0) || "U"}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="font-medium text-sm truncate">{user?.name || 'User'}</div>
-                        <div className="text-xs text-app-text-muted dark:text-app-dark-text-muted truncate">{user?.email || 'user@example.com'}</div>
+                        <div className="font-medium text-sm truncate">
+                          {user?.name || "User"}
+                        </div>
+                        <div className="text-xs text-app-text-muted dark:text-app-dark-text-muted truncate">
+                          {user?.email || "user@example.com"}
+                        </div>
                       </div>
                     </div>
                   </button>
 
                   {/* Menu Items */}
                   <button
-                      onClick={handleLogout}
-                      className="w-full px-3 py-2 rounded-lg text-left text-sm hover:bg-app-danger/10 dark:hover:bg-app-dark-danger/15 text-app-danger dark:text-app-dark-danger transition-colors flex items-center gap-2"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span>Sign Out</span>
+                    onClick={handleLogout}
+                    className="w-full px-3 py-2 rounded-lg text-left text-sm hover:bg-app-danger/10 dark:hover:bg-app-dark-danger/15 text-app-danger dark:text-app-dark-danger transition-colors flex items-center gap-2"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Sign Out</span>
                   </button>
                 </Card>
               </div>
-              <div className="fixed inset-0 z-40" onClick={() => patchTopbarUI({ isProfileOpen: false })} />
+              <div
+                className="fixed inset-0 z-40"
+                onClick={() => patchTopbarUI({ isProfileOpen: false })}
+              />
             </>
           )}
         </div>

@@ -11,6 +11,7 @@ import type {
   GetCopilotSuggestionsParams,
   CopilotSuggestionsData,
 } from "@/store/slices/copilotSlice";
+import { normalizeSegmentKey } from "@/types/segments";
 
 export type { QuickAction, Suggestion };
 
@@ -72,21 +73,31 @@ export async function getCopilotContextualResponse(
 export async function getCopilotSuggestionsAndActions(
   params: GetCopilotSuggestionsParams,
 ): Promise<CopilotSuggestionsData> {
+  const segment = normalizeSegmentKey(params.context?.segment);
+
   if (isMockMode("ai")) {
     return {
-      suggestions: getMockCopilotPageSuggestions(params.pathname, params.tab),
-      quickActions: getMockCopilotQuickActions(params.pathname, params.tab),
+      suggestions: getMockCopilotPageSuggestions(
+        params.pathname,
+        params.tab,
+        segment,
+      ),
+      quickActions: getMockCopilotQuickActions(
+        params.pathname,
+        params.tab,
+        segment,
+      ),
     };
   }
 
   try {
     const [suggestions, quickActions] = await Promise.all([
       requestJson<Suggestion[]>("/ai/copilot/suggestions", {
-        query: { pathname: params.pathname, tab: params.tab },
+        query: { pathname: params.pathname, tab: params.tab, segment },
         fallbackMessage: "Failed to load copilot suggestions",
       }),
       requestJson<QuickAction[]>("/ai/copilot/quick-actions", {
-        query: { pathname: params.pathname, tab: params.tab },
+        query: { pathname: params.pathname, tab: params.tab, segment },
         fallbackMessage: "Failed to load copilot quick actions",
       }),
     ]);

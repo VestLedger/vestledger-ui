@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type MouseEvent } from "react";
+import { useEffect, useMemo, useRef, type MouseEvent } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -93,6 +93,11 @@ import {
 } from "@/config/sidebar-contextual-menus";
 import { buildAdminSuperadminUrl } from "@/config/env";
 import { isSuperadminUser } from "@/utils/auth/internal-access";
+import {
+  getSegmentModuleConfig,
+  sortItemsBySegmentNavigation,
+} from "@/config/segment-config";
+import { useSegmentConfig } from "@/hooks/use-segment-config";
 
 type FundAdminSidebarUIState = {
   selectedTab: string;
@@ -252,6 +257,11 @@ export function SidebarGrouped() {
   const { user } = useAuth();
   const isSuperadmin = isSuperadminUser(user);
   const density = useDashboardDensity();
+  const { segmentKey, config: segmentConfig } = useSegmentConfig(user);
+  const segmentPrimaryNav = useMemo(
+    () => sortItemsBySegmentNavigation(segmentKey, PRIMARY_NAV),
+    [segmentKey],
+  );
   const { value: sidebarUI, patch: patchSidebarUI } =
     useUIKey<SidebarGroupedUIState>("sidebar-grouped", {
       isHovered: false,
@@ -431,13 +441,16 @@ export function SidebarGrouped() {
   };
 
   const getNavLabel = (itemId: string, fallback: string) => {
+    const segmentModule = getSegmentModuleConfig(segmentKey, itemId);
+    const segmentLabel = segmentModule?.label ?? fallback;
+
     switch (itemId) {
       case "409a-valuations":
         return getValuationsLabel(user?.operatingRegion);
       case "tax-center":
         return getTaxCenterLabel(user?.operatingRegion);
       default:
-        return fallback;
+        return segmentLabel;
     }
   };
 
@@ -678,8 +691,8 @@ export function SidebarGrouped() {
               <h1 className="text-sm font-bold text-app-text dark:text-app-dark-text">
                 VestLedger
               </h1>
-              <p className="text-xs text-app-text-muted dark:text-app-dark-text-muted">
-                AI-Powered VC
+              <p className="max-w-[150px] truncate text-xs text-app-text-muted dark:text-app-dark-text-muted">
+                {segmentConfig.skuLabel}
               </p>
             </div>
           </div>
@@ -832,9 +845,14 @@ export function SidebarGrouped() {
         ) : (
           <div className="space-y-1">
             {/* Phase 1 target navigation: flat 10-item primary nav. */}
-            {PRIMARY_NAV.filter((item) => isAccessible(item.allowedRoles)).map(
-              (item) => {
+            {segmentPrimaryNav
+              .filter((item) => isAccessible(item.allowedRoles))
+              .map((item) => {
                 const contextualTarget = CONTEXTUAL_MENU_BY_NAV_ID[item.id];
+                const segmentModule = getSegmentModuleConfig(
+                  segmentKey,
+                  item.id,
+                );
                 return (
                   <NavigationItem
                     key={item.id}
@@ -843,6 +861,7 @@ export function SidebarGrouped() {
                     label={getNavLabel(item.id, item.label)}
                     icon={item.icon}
                     isCollapsed={effectivelyCollapsed}
+                    prominence={segmentModule?.prominence}
                     additionalActivePaths={item.aliasPaths}
                     onClick={
                       contextualTarget
@@ -851,8 +870,7 @@ export function SidebarGrouped() {
                     }
                   />
                 );
-              },
-            )}
+              })}
 
             {/* LP Portal entry kept for LP users alongside the primary nav. */}
             {user?.role === "lp" && (

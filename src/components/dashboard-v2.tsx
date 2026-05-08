@@ -17,7 +17,9 @@ import { HomeRevenueDistribution } from "./dashboard/home-revenue-distribution";
 import { HomeARRTrend } from "./dashboard/home-arr-trend";
 import { HomeExecutiveOverview } from "./dashboard/home-executive-overview";
 import { HomeActionCenter } from "./dashboard/home-action-center";
+import { SegmentDashboardComposition } from "./dashboard/segment-dashboard-composition";
 import { useDashboardData } from "@/hooks/use-dashboard-data";
+import { useSegmentConfig } from "@/hooks/use-segment-config";
 import { useAuth } from "@/contexts/auth-context";
 import { useFund, TabFundScope } from "@/contexts/fund-context";
 import { MetricsGrid, PageScaffold } from "@/ui/composites";
@@ -129,6 +131,11 @@ export function DashboardV2() {
 
 function DashboardV2Content() {
   const { user } = useAuth();
+  const {
+    segmentKey,
+    config: segmentConfig,
+    isDefaulted: isDefaultSegment,
+  } = useSegmentConfig(user);
   const router = useRouter();
   const density = useDashboardDensity();
   const sectionTopSpacingClass = density.mode === "compact" ? "mt-3" : "mt-4";
@@ -287,11 +294,13 @@ function DashboardV2Content() {
         breadcrumbs={routeConfig?.breadcrumbs || [{ label: "Dashboard" }]}
         aiSuggestion={routeConfig?.aiSuggestion}
         header={{
-          title: "GP Command Center",
-          description: `Executive health across ${totalFundLabel}`,
+          title: "Dashboard",
+          description: `${segmentConfig.dashboardTitle} across ${totalFundLabel}`,
           icon: LayoutDashboard,
           aiSummary: {
-            text: morningBrief.summary,
+            text:
+              morningBrief.summary ||
+              segmentConfig.dashboardEmptyState.description,
           },
           actionContent: (
             <HomeBlockerBeacon
@@ -312,6 +321,12 @@ function DashboardV2Content() {
             blockers={blockers}
             opportunities={opportunities}
             portfolioRevenueTrend={portfolioRevenueTrend}
+          />
+
+          <SegmentDashboardComposition
+            segmentKey={segmentKey}
+            config={segmentConfig}
+            isDefaulted={isDefaultSegment}
           />
 
           <div

@@ -54,6 +54,7 @@ import {
   pickPreferredSpeechVoice,
   waitForSpeechVoices,
 } from "./ai-copilot-voice";
+import { useSegmentConfig } from "@/hooks/use-segment-config";
 
 type UITabState = {
   activeTab?: string;
@@ -231,6 +232,7 @@ export function AICopilotSidebar({ mode = "panel" }: AICopilotSidebarProps) {
   const dispatch = useAppDispatch();
   const pathname = usePathname();
   const { sidebarState, toggleRightSidebar } = useNavigation();
+  const { segmentKey } = useSegmentConfig();
   const density = useDashboardDensity();
   const isPanelMode = mode === "panel";
   const isCollapsed = isPanelMode ? sidebarState.rightCollapsed : false;
@@ -551,9 +553,15 @@ export function AICopilotSidebar({ mode = "panel" }: AICopilotSidebarProps) {
   }, [currentTab, patchVestaShellUI, pathname]);
 
   useEffect(() => {
-    dispatch(loadCopilotSuggestionsOperation({ pathname, tab: currentTab }));
+    dispatch(
+      loadCopilotSuggestionsOperation({
+        pathname,
+        tab: currentTab,
+        context: { segment: segmentKey },
+      }),
+    );
     dispatch(setShowSuggestions(true));
-  }, [dispatch, pathname, currentTab]);
+  }, [dispatch, pathname, currentTab, segmentKey]);
 
   const handleSendMessage = useCallback(() => {
     primeSpeechSynthesis();

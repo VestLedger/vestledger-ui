@@ -1,5 +1,10 @@
 import { Lightbulb, Sparkles, Zap } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import {
+  getSegmentConfig,
+  getSegmentVestaSuggestions,
+} from "@/config/segment-config";
+import type { SegmentKey } from "@/types/segments";
 
 export interface QuickAction {
   id: string;
@@ -17,6 +22,59 @@ export interface Suggestion {
   text: string;
   reasoning: string;
   confidence: number;
+}
+
+const SEGMENT_DEFAULT_PATHS = new Set(["/home", "/vesta"]);
+const SEGMENT_QUICK_ACTION_ICONS = [Sparkles, Zap, Lightbulb] as const;
+
+function getSegmentSuggestionDefaults(
+  pathname: string,
+  segment?: SegmentKey | null,
+): Suggestion[] | null {
+  if (!segment || !SEGMENT_DEFAULT_PATHS.has(pathname)) {
+    return null;
+  }
+
+  const config = getSegmentConfig(segment);
+  return getSegmentVestaSuggestions(segment)
+    .slice(0, 3)
+    .map((text, index) => ({
+      id: `${segment}-default-${index + 1}`,
+      text,
+      reasoning: `${config.label} default Vesta suggestion`,
+      confidence: 0.9 - index * 0.03,
+    }));
+}
+
+function formatSegmentQuickActionLabel(text: string): string {
+  const words = text
+    .replace(/[?!.,:;]+$/g, "")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 4);
+  return words.length > 0 ? words.join(" ") : "Open Brief";
+}
+
+function getSegmentQuickActionDefaults(
+  pathname: string,
+  segment?: SegmentKey | null,
+): QuickAction[] | null {
+  if (!segment || !SEGMENT_DEFAULT_PATHS.has(pathname)) {
+    return null;
+  }
+
+  return getSegmentVestaSuggestions(segment)
+    .slice(0, 3)
+    .map((suggestion, index) => ({
+      id: `${segment}-quick-action-${index + 1}`,
+      label: formatSegmentQuickActionLabel(suggestion),
+      icon: SEGMENT_QUICK_ACTION_ICONS[
+        index % SEGMENT_QUICK_ACTION_ICONS.length
+      ],
+      action: suggestion,
+      aiSuggested: true,
+      confidence: 0.9 - index * 0.03,
+    }));
 }
 
 export const getMockCopilotContextualResponse = (
@@ -66,7 +124,13 @@ export const getMockCopilotContextualResponse = (
 export const getMockCopilotPageSuggestions = (
   pathname: string,
   tab?: string | null,
+  segment?: SegmentKey | null,
 ): Suggestion[] => {
+  const segmentDefaults = getSegmentSuggestionDefaults(pathname, segment);
+  if (segmentDefaults) {
+    return segmentDefaults;
+  }
+
   // Create a composite key from pathname and tab for context-specific suggestions
   const contextKey = tab ? `${pathname}:${tab}` : pathname;
 
@@ -997,7 +1061,13 @@ export const getMockCopilotPageSuggestions = (
 export const getMockCopilotQuickActions = (
   pathname: string,
   tab?: string | null,
+  segment?: SegmentKey | null,
 ): QuickAction[] => {
+  const segmentDefaults = getSegmentQuickActionDefaults(pathname, segment);
+  if (segmentDefaults) {
+    return segmentDefaults;
+  }
+
   // Create a composite key from pathname and tab for context-specific actions
   const contextKey = tab ? `${pathname}:${tab}` : pathname;
 
