@@ -763,27 +763,25 @@ export const routes: Record<string, RouteConfig> = {
       "Narrative output layer: generate, preview, approve, and archive fund reports",
   },
 
-  // Phase 2: AI Tools rehome under Deals (per implementation_rules.md —
-  // Decision Writer / Pitch Deck Reader / DD Assistant belong inside Deals).
-  // The /ai-tools route is preserved for legacy bookmarks; the canonical
-  // path is /deals/ai-tools. Vesta remains the contextual copilot.
+  // Phase 1: the legacy /ai-tools route is preserved for bookmarks and
+  // surfaced from Settings. Phase 2 embeds the individual tools inside Deals
+  // via /deals/ai-tools while Vesta remains the contextual copilot.
   aiTools: {
     path: "/ai-tools",
     label: "AI Tools",
     icon: Sparkles,
     breadcrumbs: [
       { label: "Dashboard", href: "/home" },
-      { label: "Deals", href: "/deals" },
+      { label: "Settings", href: "/settings" },
       { label: "AI Tools" },
     ],
     aiSuggestion: {
-      label: "Deals",
-      href: "/deals",
-      reasoning:
-        "AI Tools embed inside the Deals workflow. Vesta remains the contextual copilot for in-product AI.",
+      label: "Settings",
+      href: "/settings",
+      reasoning: "Manage AI tool access and Vesta preferences from Settings.",
     },
     description:
-      "AI-powered workflows (rehomed under Deals; contextual AI runs through Vesta)",
+      "AI-powered workflows (legacy route preserved; access is rehoused under Settings)",
   },
 
   waterfall: {
