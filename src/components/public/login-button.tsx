@@ -13,7 +13,7 @@ interface LoginButtonProps {
  */
 export function LoginButton({ children = 'Login', className }: LoginButtonProps) {
   const handleLogin = () => {
-    window.location.href = buildAppLoginUrl(window.location.hostname);
+    window.location.href = buildAppLoginUrl(window.location.host);
   };
 
   // Uses btn-secondary from the design system (globals.css)

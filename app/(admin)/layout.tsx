@@ -26,19 +26,19 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
 
     if (!isAuthenticated) {
       setIsRedirecting(true);
-      window.location.href = buildAppLoginUrl(window.location.hostname);
+      window.location.href = buildAppLoginUrl(window.location.host);
       return;
     }
 
     if (!user) {
       setIsRedirecting(true);
-      window.location.href = buildAppLoginUrl(window.location.hostname);
+      window.location.href = buildAppLoginUrl(window.location.host);
       return;
     }
 
     if (resolveUserDomainTarget(user) !== 'admin' || !isSuperadminUser(user)) {
       setIsRedirecting(true);
-      window.location.href = `${buildAppWebUrl(window.location.hostname)}/home`;
+      window.location.href = `${buildAppWebUrl(window.location.host)}/home`;
     }
   }, [hydrated, isAuthenticated, user]);
 

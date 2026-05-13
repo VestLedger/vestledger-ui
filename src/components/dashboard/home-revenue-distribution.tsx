@@ -34,8 +34,8 @@ export function HomeRevenueDistribution({ slices }: HomeRevenueDistributionProps
                 paddingAngle={2}
                 dataKey="value"
               >
-                {slices.map((slice) => (
-                  <Cell key={slice.id} fill={slice.color} />
+                {slices.map((slice, index) => (
+                  <Cell key={`${slice.id}-${index}`} fill={slice.color} />
                 ))}
               </Pie>
               <Tooltip
@@ -52,10 +52,10 @@ export function HomeRevenueDistribution({ slices }: HomeRevenueDistributionProps
         </div>
 
         <div className="space-y-2">
-          {slices.map((slice) => {
+          {slices.map((slice, index) => {
             const share = total > 0 ? (slice.value / total) * 100 : 0;
             return (
-              <div key={slice.id} className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-2">
+              <div key={`${slice.id}-${index}`} className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-2">
                 <div className="mb-1 flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
                     <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: slice.color }} />

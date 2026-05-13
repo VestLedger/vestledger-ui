@@ -67,7 +67,7 @@ export function Topbar() {
     logout();
 
     // Redirect to public domain.
-    const redirectUrl = buildPublicWebUrl(window.location.hostname);
+    const redirectUrl = buildPublicWebUrl(window.location.host);
     logger.info('Logging out user and redirecting to public website.', {
       component: 'topbar',
       redirectUrl,

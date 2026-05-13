@@ -179,7 +179,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
       sessionStorage.setItem('isLoggingOut', 'true')
       logout()
       setIsRedirecting(true)
-      window.location.href = `${buildAppLoginUrl(window.location.hostname)}?reason=session-expired`
+      window.location.href = `${buildAppLoginUrl(window.location.host)}?reason=session-expired`
     },
   })
 
@@ -190,7 +190,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     if (!isLoginPage && hydrated && isAuthenticated && user) {
       if (resolveUserDomainTarget(user) === 'admin') {
         setIsRedirecting(true)
-        window.location.href = buildAdminSuperadminUrl(window.location.hostname)
+        window.location.href = buildAdminSuperadminUrl(window.location.host)
         return
       }
 
@@ -210,7 +210,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
       setIsRedirecting(true)
 
       // Redirect to app subdomain login page (cross-domain requires full page navigation)
-      window.location.href = buildAppLoginUrl(window.location.hostname);
+      window.location.href = buildAppLoginUrl(window.location.host);
     }
   }, [isLoginPage, hydrated, isAuthenticated, pathname, user])
 

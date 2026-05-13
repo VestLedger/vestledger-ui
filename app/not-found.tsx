@@ -10,7 +10,7 @@ export default function NotFound() {
   const router = useRouter();
   const publicHomepageUrl =
     typeof window !== 'undefined'
-      ? buildPublicWebUrl(window.location.hostname)
+      ? buildPublicWebUrl(window.location.host)
       : PUBLIC_WEB_URL;
 
   useEffect(() => {

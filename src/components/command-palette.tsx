@@ -77,7 +77,7 @@ export function CommandPalette() {
     patchCommandUI({ open: false, search: '' });
 
     if (typeof window !== 'undefined') {
-      window.location.href = buildAdminSuperadminUrl(window.location.hostname);
+      window.location.href = buildAdminSuperadminUrl(window.location.host);
     }
   }, [patchCommandUI]);
 

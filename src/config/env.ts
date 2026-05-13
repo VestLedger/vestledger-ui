@@ -10,18 +10,33 @@ const normalizeValue = (value?: string) => {
   return normalized && normalized.length > 0 ? normalized : null;
 };
 
+const getBrowserPortForHost = (host: string) => {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  return window.location.hostname.toLowerCase() === host
+    ? window.location.port
+    : "";
+};
+
 const splitHostAndPort = (hostname?: string) => {
   if (!hostname) {
     return { host: "", port: "" };
   }
 
   const normalized = hostname.replace(/^https?:\/\//, "").replace(/\/+$/, "");
-  const [host, port = ""] = normalized.split(":");
-  return { host: host.toLowerCase(), port };
+  const [rawHost, rawPort = ""] = normalized.split(":");
+  const host = rawHost.toLowerCase();
+  const port = rawPort || getBrowserPortForHost(host);
+  return { host, port };
 };
 
 const isLocalHost = (host: string) =>
   host === "localhost" || host === "127.0.0.1" || host.endsWith(".localhost");
+
+const toHostWithPort = ({ host, port }: { host: string; port: string }) =>
+  port ? `${host}:${port}` : host;
 
 const resolveBaseDomainFromHost = (hostname?: string) => {
   const { host, port } = splitHostAndPort(hostname);
@@ -67,8 +82,8 @@ const resolveDomainFromCurrentHost = (
   currentHostname: string | undefined,
   target: "public" | "app" | "admin",
 ) => {
-  if (!currentHostname) return null;
-  const normalizedCurrent = normalizeDomain(currentHostname);
+  const currentHost = splitHostAndPort(currentHostname);
+  const normalizedCurrent = toHostWithPort(currentHost);
   if (!normalizedCurrent) return null;
 
   const resolvedBase = resolveBaseDomainFromHost(currentHostname);
@@ -117,10 +132,39 @@ const configuredAdminDomain =
   fallbackAdminDomain ??
   toSubdomainDomain(configuredPublicDomain, "admin");
 
-export const API_BASE_URL =
+const configuredApiBaseUrl =
   normalizeValue(process.env.NEXT_PUBLIC_API_BASE_URL) ??
   normalizeValue(process.env.NEXT_PUBLIC_DEFAULT_API_BASE_URL) ??
   "";
+
+const LOCAL_DOCKER_API_BASE_URL =
+  normalizeValue(process.env.NEXT_PUBLIC_LOCAL_API_BASE_URL) ??
+  "http://localhost:3000";
+
+const getUrlHostname = (value: string) => {
+  try {
+    return new URL(value, "http://local.invalid").hostname.toLowerCase();
+  } catch {
+    return "";
+  }
+};
+
+export const resolveApiBaseUrl = (currentHostname?: string) => {
+  const { host } = splitHostAndPort(currentHostname);
+  if (
+    host &&
+    isLocalHost(host) &&
+    getUrlHostname(configuredApiBaseUrl) === "api.vestledger.local"
+  ) {
+    return LOCAL_DOCKER_API_BASE_URL;
+  }
+
+  return configuredApiBaseUrl;
+};
+
+export const API_BASE_URL = resolveApiBaseUrl(
+  typeof window === "undefined" ? undefined : window.location.hostname,
+);
 
 const explicitCanonicalPublicUrl = normalizeValue(
   process.env.NEXT_PUBLIC_CANONICAL_PUBLIC_URL,
@@ -129,21 +173,44 @@ const explicitCanonicalPublicUrl = normalizeValue(
 const buildUrlForDomain = (
   domain: string | null,
   protocol = resolveProtocol(),
-) => (domain ? `${protocol}://${domain}` : "");
+) => {
+  if (!domain) return "";
+
+  const { host } = splitHostAndPort(domain);
+  const resolvedProtocol = host && isLocalHost(host) ? "http" : protocol;
+  return `${resolvedProtocol}://${domain}`;
+};
+
+const resolveDomain = (
+  currentHostname: string | undefined,
+  target: "public" | "app" | "admin",
+  configuredDomain: string | null,
+) => {
+  const { host } = splitHostAndPort(currentHostname);
+  if (host && isLocalHost(host)) {
+    return (
+      resolveDomainFromCurrentHost(currentHostname, target) ??
+      configuredDomain ??
+      ""
+    );
+  }
+
+  return (
+    configuredDomain ??
+    resolveDomainFromCurrentHost(currentHostname, target) ??
+    ""
+  );
+};
 
 export const resolvePublicDomain = (currentHostname?: string) =>
-  configuredPublicDomain ??
-  resolveDomainFromCurrentHost(currentHostname, "public") ??
-  "";
+  resolveDomain(currentHostname, "public", configuredPublicDomain);
 
 export const resolveAppDomain = (currentHostname?: string) =>
-  configuredAppDomain ??
-  resolveDomainFromCurrentHost(currentHostname, "app") ??
+  resolveDomain(currentHostname, "app", configuredAppDomain) ??
   resolvePublicDomain(currentHostname);
 
 export const resolveAdminDomain = (currentHostname?: string) =>
-  configuredAdminDomain ??
-  resolveDomainFromCurrentHost(currentHostname, "admin") ??
+  resolveDomain(currentHostname, "admin", configuredAdminDomain) ??
   resolvePublicDomain(currentHostname);
 
 export const buildPublicWebUrl = (currentHostname?: string) =>

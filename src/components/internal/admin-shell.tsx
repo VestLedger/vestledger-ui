@@ -15,7 +15,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const handleLogout = () => {
     sessionStorage.setItem('isLoggingOut', 'true');
     logout();
-    window.location.href = buildPublicWebUrl(window.location.hostname);
+    window.location.href = buildPublicWebUrl(window.location.host);
   };
 
   return (

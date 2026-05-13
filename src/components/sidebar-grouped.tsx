@@ -537,7 +537,7 @@ export function SidebarGrouped() {
 
                 if (!window.location.hostname.startsWith('admin.')) {
                   event.preventDefault();
-                  window.location.href = buildAdminSuperadminUrl(window.location.hostname);
+                  window.location.href = buildAdminSuperadminUrl(window.location.host);
                 }
               }}
 	            />

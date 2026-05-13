@@ -67,8 +67,8 @@ export function LoginModal({
     const domainTarget = resolveUserDomainTarget(user);
     const nextUrl =
       domainTarget === 'admin'
-        ? buildAdminSuperadminUrl(window.location.hostname)
-        : `${buildAppWebUrl(window.location.hostname)}${resolvedRedirectTo}`;
+        ? buildAdminSuperadminUrl(window.location.host)
+        : `${buildAppWebUrl(window.location.host)}${resolvedRedirectTo}`;
 
     if (window.location.href !== nextUrl) {
       setIsSubmitting(false);

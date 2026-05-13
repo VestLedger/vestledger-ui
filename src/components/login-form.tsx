@@ -60,8 +60,8 @@ export function LoginForm() {
     const domainTarget = resolveUserDomainTarget(user);
     const nextUrl =
       domainTarget === 'admin'
-        ? buildAdminSuperadminUrl(window.location.hostname)
-        : `${buildAppWebUrl(window.location.hostname)}${redirectTo}`;
+        ? buildAdminSuperadminUrl(window.location.host)
+        : `${buildAppWebUrl(window.location.host)}${redirectTo}`;
 
     if (window.location.href !== nextUrl) {
       window.location.href = nextUrl;

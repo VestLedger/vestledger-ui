@@ -268,6 +268,20 @@ function normalizePortfolioCompanies(
     });
 }
 
+function dedupePortfolioCompanies(
+  companies: DashboardData["portfolioCompanies"],
+): DashboardData["portfolioCompanies"] {
+  const seen = new Set<string>();
+  return companies.filter((company) => {
+    if (seen.has(company.id)) {
+      return false;
+    }
+
+    seen.add(company.id);
+    return true;
+  });
+}
+
 function normalizeAlerts(value: unknown): DashboardData["alerts"] {
   return ensureArray<unknown>(value)
     .filter(isRecord)
@@ -826,8 +840,8 @@ function normalizeDashboardPayload(
   const morningBrief = isRecord(root.morningBrief) ? root.morningBrief : {};
 
   const capitalCalls = normalizeCapitalCalls(root.capitalCalls);
-  const portfolioCompanies = normalizePortfolioCompanies(
-    root.portfolioCompanies,
+  const portfolioCompanies = dedupePortfolioCompanies(
+    normalizePortfolioCompanies(root.portfolioCompanies),
   );
   const alerts = normalizeAlerts(root.alerts);
   const tasks = normalizeTasks(root.tasks);

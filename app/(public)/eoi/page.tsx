@@ -11,7 +11,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import Link from "next/link";
-import { API_BASE_URL } from "@/config/env";
+import { getApiBaseUrl } from "@/api/config";
 
 export default function EOIPage() {
   const [submitted, setSubmitted] = useState(false);
@@ -38,7 +38,7 @@ export default function EOIPage() {
     };
 
     try {
-      const res = await fetch(`${API_BASE_URL}/public/eoi`, {
+      const res = await fetch(`${getApiBaseUrl()}/public/eoi`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

@@ -1,5 +1,7 @@
-import { API_BASE_URL } from "@/config/env";
+import { resolveApiBaseUrl } from "@/config/env";
 
 export function getApiBaseUrl(): string {
-  return API_BASE_URL;
+  return resolveApiBaseUrl(
+    typeof window === "undefined" ? undefined : window.location.hostname,
+  );
 }
