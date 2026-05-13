@@ -1,15 +1,64 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import { createApiStorageState, getTestUser } from "../helpers/auth-helpers";
 import {
-  DASHBOARD_ROUTES,
   GP_ACCESSIBLE_ROUTES,
   GP_DENIED_ROUTES,
+  LEGACY_DASHBOARD_REDIRECT_ROUTES,
+  PROTECTED_DASHBOARD_ROUTES,
 } from "../constants/routes";
+
+const LOCAL_GP_USER = {
+  id: "route-guard-gp",
+  name: "Route Guard GP",
+  email: "route-guard-gp@example.test",
+  role: "gp",
+  tenantId: "route-guard-tenant",
+};
+
+async function seedLocalGpCookieSession(
+  page: Page,
+  baseURL: string | undefined,
+) {
+  const appOrigin = new URL(baseURL || "http://localhost:3000").origin;
+  const expires = Math.floor(Date.now() / 1000) + 86400;
+  const encodedUser = encodeURIComponent(JSON.stringify(LOCAL_GP_USER));
+
+  await page.context().addCookies([
+    {
+      name: "isAuthenticated",
+      value: "true",
+      url: appOrigin,
+      expires,
+      sameSite: "Lax",
+    },
+    {
+      name: "user",
+      value: encodedUser,
+      url: appOrigin,
+      expires,
+      sameSite: "Lax",
+    },
+    {
+      name: "accessToken",
+      value: "route-guard-local-token",
+      url: appOrigin,
+      expires,
+      sameSite: "Lax",
+    },
+    {
+      name: "dataModeOverride",
+      value: "api",
+      url: appOrigin,
+      expires,
+      sameSite: "Lax",
+    },
+  ]);
+}
 
 test.use({ storageState: { cookies: [], origins: [] } });
 
 test.describe("Route Guards - Unauthenticated Redirect", () => {
-  for (const route of DASHBOARD_ROUTES) {
+  for (const route of PROTECTED_DASHBOARD_ROUTES) {
     test(`unauthenticated visit to ${route} should redirect to /login`, async ({
       page,
     }) => {
@@ -52,6 +101,24 @@ test.describe("Route Guards - Authenticated Access (gp)", () => {
       ).toBe(true);
     }
   });
+
+  for (const { route, target } of LEGACY_DASHBOARD_REDIRECT_ROUTES) {
+    test(`authenticated gp visit to ${route} should redirect to ${target}`, async ({
+      page,
+      baseURL,
+    }) => {
+      await seedLocalGpCookieSession(page, baseURL);
+
+      await page.goto(route, { waitUntil: "domcontentloaded" });
+      await expect(page).toHaveURL(new RegExp(`${target}(?:[?#]|$)`));
+
+      const currentPath = new URL(page.url()).pathname;
+      expect(
+        currentPath,
+        `Expected legacy route ${route} to redirect to ${target}`,
+      ).toBe(target);
+    });
+  }
 });
 
 test.describe("Route Guards - Role-Denied Routes (gp)", () => {

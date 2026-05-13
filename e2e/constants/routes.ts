@@ -5,12 +5,12 @@
  *   src/config/access-routes.ts  (DASHBOARD_ROUTE_PREFIXES)
  *   src/config/route-access-control.ts  (ROUTE_ACCESS_RULES)
  *
- * Keep in sync when routes change in the source config.
+ * Keep in sync when routes change in the source config. Legacy redirect
+ * aliases are tested separately because they should not land on themselves.
  */
 
 export const DASHBOARD_ROUTES = [
   "/home",
-  "/vesta",
   "/portfolio",
   "/analytics",
   "/pipeline",
@@ -32,6 +32,15 @@ export const DASHBOARD_ROUTES = [
   "/dealflow-review",
   "/contacts",
   "/lp-portal",
+] as const;
+
+export const LEGACY_DASHBOARD_REDIRECT_ROUTES = [
+  { route: "/vesta", target: "/home" },
+] as const;
+
+export const PROTECTED_DASHBOARD_ROUTES = [
+  ...DASHBOARD_ROUTES,
+  ...LEGACY_DASHBOARD_REDIRECT_ROUTES.map(({ route }) => route),
 ] as const;
 
 /** Routes the default `gp` test user cannot access (role-restricted to other roles). */

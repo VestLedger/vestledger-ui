@@ -20,6 +20,7 @@ import {
 
 const ADMIN_DEFAULT_PATH = ACCESS_ROUTE_PATHS.adminHome;
 const APP_DEFAULT_PATH = ACCESS_ROUTE_PATHS.appHome;
+const PHONE_PROTECTED_DEFAULT_PATH = ACCESS_ROUTE_PATHS.appHome;
 
 type HostType = "public" | "app" | "admin" | "localhost";
 
@@ -309,16 +310,21 @@ export function middleware(request: NextRequest) {
 
   if (isPhone && matchesProtectedRoute) {
     if (!isAuthenticated) {
-      return redirectToLoginForHost(url, appHost, ACCESS_ROUTE_PATHS.vesta);
+      return redirectToLoginForHost(url, appHost, PHONE_PROTECTED_DEFAULT_PATH);
     }
 
     const isOnAppHost =
       hostType === "app" || (hostType === "localhost" && rawHost === appHost);
-    if (!isOnAppHost || !isVestaRoute) {
-      return redirectToHost(url, appHost, ACCESS_ROUTE_PATHS.vesta);
+    if (!isOnAppHost || normalizedPathname !== PHONE_PROTECTED_DEFAULT_PATH) {
+      return redirectToHost(url, appHost, PHONE_PROTECTED_DEFAULT_PATH);
     }
 
     return nextWithDataMode(request);
+  }
+
+  if (isAuthenticated && isVestaRoute) {
+    const targetHost = hostType === "localhost" ? rawHost : appHost;
+    return redirectToHost(url, targetHost, APP_DEFAULT_PATH);
   }
 
   if (hostType === "localhost") {
