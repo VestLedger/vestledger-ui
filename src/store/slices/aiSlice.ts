@@ -3,16 +3,22 @@ import type { AsyncState, NormalizedError } from "@/store/types/AsyncState";
 import { createInitialAsyncState } from "@/store/types/AsyncState";
 import type { PitchDeckAnalysis } from "@/services/ai/pitchDeckService";
 import type { Message } from "@/services/ai/ddChatService";
+import type { DataModeUnavailableResult } from "@/config/data-mode";
 import type { StandardQueryParams } from "@/types/serviceParams";
 import type { RootState } from "../rootReducer";
 
 // Data types
 export interface PitchDeckData {
   analyses: PitchDeckAnalysis[];
+  unavailable?: DataModeUnavailableResult;
 }
 
 export interface DDChatData {
   conversations: Record<string, Message[]>;
+  unavailableByConversation?: Record<
+    string,
+    DataModeUnavailableResult | undefined
+  >;
 }
 
 // Param types
@@ -72,10 +78,17 @@ const aiSlice = createSlice({
     },
     ddChatConversationLoaded: (
       state,
-      action: PayloadAction<{ dealId: number; messages: Message[] }>,
+      action: PayloadAction<{
+        dealId: number;
+        messages: Message[];
+        unavailable?: DataModeUnavailableResult;
+      }>,
     ) => {
       if (!state.ddChatState.data) {
-        state.ddChatState.data = { conversations: {} };
+        state.ddChatState.data = {
+          conversations: {},
+          unavailableByConversation: {},
+        };
       }
       const conversationKey = action.payload.dealId.toString();
       const existingMessages =
@@ -89,18 +102,45 @@ const aiSlice = createSlice({
           (message) => !loadedMessageIds.has(message.id),
         ),
       ];
+      if (!state.ddChatState.data.unavailableByConversation) {
+        state.ddChatState.data.unavailableByConversation = {};
+      }
+      if (action.payload.unavailable) {
+        state.ddChatState.data.unavailableByConversation[conversationKey] =
+          action.payload.unavailable;
+      } else {
+        delete state.ddChatState.data.unavailableByConversation[
+          conversationKey
+        ];
+      }
       state.ddChatState.status = "succeeded";
       state.ddChatState.error = undefined;
     },
     ddChatConversationSet: (
       state,
-      action: PayloadAction<{ conversationKey: string; messages: Message[] }>,
+      action: PayloadAction<{
+        conversationKey: string;
+        messages: Message[];
+        unavailable?: DataModeUnavailableResult;
+      }>,
     ) => {
       if (!state.ddChatState.data) {
         state.ddChatState.data = { conversations: {} };
       }
       state.ddChatState.data.conversations[action.payload.conversationKey] =
         action.payload.messages;
+      if (!state.ddChatState.data.unavailableByConversation) {
+        state.ddChatState.data.unavailableByConversation = {};
+      }
+      if (action.payload.unavailable) {
+        state.ddChatState.data.unavailableByConversation[
+          action.payload.conversationKey
+        ] = action.payload.unavailable;
+      } else {
+        delete state.ddChatState.data.unavailableByConversation[
+          action.payload.conversationKey
+        ];
+      }
       state.ddChatState.status = "succeeded";
       state.ddChatState.error = undefined;
     },
@@ -150,6 +190,8 @@ export const ddChatSelectors = {
   selectState: (state: RootState) => state.ai.ddChatState,
   selectConversation: (dealId: string) => (state: RootState) =>
     state.ai.ddChatState.data?.conversations[dealId] ?? EMPTY_MESSAGES,
+  selectUnavailable: (dealId: string) => (state: RootState) =>
+    state.ai.ddChatState.data?.unavailableByConversation?.[dealId],
 };
 
 export const aiReducer = aiSlice.reducer;

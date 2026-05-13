@@ -3,6 +3,7 @@ import type { AsyncState, NormalizedError } from "@/store/types/AsyncState";
 import { createInitialAsyncState } from "@/store/types/AsyncState";
 import type { QuickAction, Suggestion } from "@/services/ai/copilotService";
 import type { StandardQueryParams } from "@/types/serviceParams";
+import type { DataModeUnavailableResult } from "@/config/data-mode";
 
 export interface CopilotMessage {
   id: string;
@@ -27,6 +28,7 @@ export type CopilotContextValue =
 export interface CopilotSuggestionsData {
   suggestions: Suggestion[];
   quickActions: QuickAction[];
+  unavailable?: DataModeUnavailableResult;
 }
 
 export interface GetCopilotSuggestionsParams extends Partial<StandardQueryParams> {

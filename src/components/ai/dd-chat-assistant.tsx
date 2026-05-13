@@ -1,51 +1,86 @@
-'use client'
+"use client";
 
-import { useEffect, useMemo, useRef } from 'react';
-import { isMockMode } from '@/config/data-mode';
-import { Card, Button, Input, Badge } from '@/ui';
-import { Send, Sparkles, User, Bot, Lightbulb, TrendingUp, AlertCircle, FileText } from 'lucide-react';
-import { DocumentPreviewModal, useDocumentPreview, getMockDocumentUrl } from '@/components/documents/preview';
-import { useUIKey } from '@/store/ui';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { useEffect, useMemo, useRef } from "react";
+import { isMockMode } from "@/config/data-mode";
+import { Card, Button, Input, Badge } from "@/ui";
 import {
-  ddChatConversationSet,
-  ddChatSelectors,
-} from '@/store/slices/aiSlice';
+  Send,
+  Sparkles,
+  User,
+  Bot,
+  Lightbulb,
+  TrendingUp,
+  AlertCircle,
+  FileText,
+} from "lucide-react";
+import {
+  DocumentPreviewModal,
+  useDocumentPreview,
+  getMockDocumentUrl,
+} from "@/components/documents/preview";
+import { useUIKey } from "@/store/ui";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { ddChatConversationSet, ddChatSelectors } from "@/store/slices/aiSlice";
 import {
   getDDChatAssistantResponse,
   type Message,
-} from '@/services/ai/ddChatService';
-import { loadDDChatConversationOperation } from '@/store/async/dataOperations';
-import { formatTime } from '@/utils/formatting';
+} from "@/services/ai/ddChatService";
+import { loadDDChatConversationOperation } from "@/store/async/dataOperations";
+import { formatTime } from "@/utils/formatting";
 
 const defaultDDChatAssistantState = {
-  inputValue: '',
+  inputValue: "",
   isTyping: false,
 };
 
-export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealName?: string }) {
+export function DDChatAssistant({
+  dealId,
+  dealName,
+}: {
+  dealId?: number;
+  dealName?: string;
+}) {
   const dispatch = useAppDispatch();
-  const stateKey = `dd-chat-assistant:${dealId ?? dealName ?? 'default'}`;
-  const conversationKey = (dealId ?? dealName ?? 'default').toString();
+  const stateKey = `dd-chat-assistant:${dealId ?? dealName ?? "default"}`;
+  const conversationKey = (dealId ?? dealName ?? "default").toString();
 
   // Load conversation from Redux using selectors
   const selectConversation = useMemo(
     () => ddChatSelectors.selectConversation(conversationKey),
-    [conversationKey]
+    [conversationKey],
+  );
+  const selectUnavailable = useMemo(
+    () => ddChatSelectors.selectUnavailable(conversationKey),
+    [conversationKey],
   );
   const conversation = useAppSelector(selectConversation);
+  const unavailable = useAppSelector(selectUnavailable);
 
   // Load conversation on mount if not already loaded
   useEffect(() => {
-    if (!conversation.length && dealId) {
-      dispatch(loadDDChatConversationOperation({ dealId }));
-    }
-  }, [dispatch, dealId, conversation.length]);
+    if (conversation.length) return;
 
-  const { value: ui, patch: patchUI } = useUIKey<{ inputValue: string; isTyping: boolean }>(
-    stateKey,
-    defaultDDChatAssistantState
-  );
+    if (dealId) {
+      dispatch(loadDDChatConversationOperation({ dealId }));
+      return;
+    }
+
+    const initialUnavailableMessage = getDDChatAssistantResponse("", dealName);
+    if (initialUnavailableMessage.unavailable) {
+      dispatch(
+        ddChatConversationSet({
+          conversationKey,
+          messages: [initialUnavailableMessage],
+          unavailable: initialUnavailableMessage.unavailable,
+        }),
+      );
+    }
+  }, [conversation.length, conversationKey, dealId, dealName, dispatch]);
+
+  const { value: ui, patch: patchUI } = useUIKey<{
+    inputValue: string;
+    isTyping: boolean;
+  }>(stateKey, defaultDDChatAssistantState);
   const { inputValue, isTyping } = ui;
   const messages = useMemo(() => conversation ?? [], [conversation]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -59,7 +94,7 @@ export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealNam
   }, [messages]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
@@ -76,19 +111,22 @@ export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealNam
   }, []);
 
   const handleSend = () => {
+    if (unavailable) return;
     if (isTyping) return;
     const trimmed = inputValue.trim();
     if (!trimmed) return;
 
     const userMessage: Message = {
       id: `${Date.now()}-user`,
-      role: 'user',
+      role: "user",
       content: trimmed,
       timestamp: new Date(),
     };
     const nextMessages = [...messagesRef.current, userMessage];
-    dispatch(ddChatConversationSet({ conversationKey, messages: nextMessages }));
-    patchUI({ inputValue: '', isTyping: true });
+    dispatch(
+      ddChatConversationSet({ conversationKey, messages: nextMessages }),
+    );
+    patchUI({ inputValue: "", isTyping: true });
 
     const requestId = sendRequestIdRef.current + 1;
     sendRequestIdRef.current = requestId;
@@ -102,7 +140,8 @@ export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealNam
         ddChatConversationSet({
           conversationKey,
           messages: [...messagesRef.current, aiResponse],
-        })
+          unavailable: aiResponse.unavailable,
+        }),
       );
       patchUI({ isTyping: false });
     }, 1500);
@@ -120,40 +159,69 @@ export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealNam
           <Sparkles className="w-5 h-5 text-[var(--app-primary)]" />
           <h3 className="font-semibold">AI Due Diligence Assistant</h3>
           {dealName && (
-            <Badge size="sm" variant="flat" className="bg-[var(--app-surface-hover)]">
+            <Badge
+              size="sm"
+              variant="flat"
+              className="bg-[var(--app-surface-hover)]"
+            >
               {dealName}
             </Badge>
           )}
         </div>
         <p className="text-xs text-[var(--app-text-muted)]">
-          Ask questions about deals, analyze metrics, and get AI-powered insights
+          {unavailable
+            ? "Backend retrieval and source citations are not available in API mode"
+            : "Ask questions about deals, analyze metrics, and get AI-powered insights"}
         </p>
       </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((message) => (
-          <div key={message.id} className={`flex gap-3 ${message.role === 'user' ? 'flex-row-reverse' : ''}`}>
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-              message.role === 'user'
-                ? 'bg-[var(--app-primary)]'
-              : 'bg-gradient-to-br from-[var(--app-primary)] to-transparent'
-            }`}>
-              {message.role === 'user' ? (
+          <div
+            key={message.id}
+            className={`flex gap-3 ${message.role === "user" ? "flex-row-reverse" : ""}`}
+          >
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                message.role === "user"
+                  ? "bg-[var(--app-primary)]"
+                  : "bg-gradient-to-br from-[var(--app-primary)] to-transparent"
+              }`}
+            >
+              {message.role === "user" ? (
                 <User className="w-4 h-4 text-white" />
               ) : (
                 <Bot className="w-4 h-4 text-white" />
               )}
             </div>
 
-            <div className={`flex-1 ${message.role === 'user' ? 'flex justify-end' : ''}`}>
-              <div className={`max-w-[85%] ${message.role === 'user' ? 'text-right' : ''}`}>
-                <div className={`rounded-lg p-3 ${
-                  message.role === 'user'
-                    ? 'bg-[var(--app-primary)] text-white'
-                    : 'bg-[var(--app-surface-hover)] text-[var(--app-text)]'
-                }`}>
-                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+            <div
+              className={`flex-1 ${message.role === "user" ? "flex justify-end" : ""}`}
+            >
+              <div
+                className={`max-w-[85%] ${message.role === "user" ? "text-right" : ""}`}
+              >
+                <div
+                  className={`rounded-lg p-3 ${
+                    message.role === "user"
+                      ? "bg-[var(--app-primary)] text-white"
+                      : message.unavailable
+                        ? "bg-[var(--app-warning-bg)] text-[var(--app-text)] border border-[var(--app-warning)]/30"
+                        : "bg-[var(--app-surface-hover)] text-[var(--app-text)]"
+                  }`}
+                >
+                  {message.unavailable && (
+                    <div className="flex items-center gap-2 mb-2 text-[var(--app-warning)]">
+                      <AlertCircle className="w-4 h-4" />
+                      <span className="text-xs font-semibold">
+                        AI unavailable
+                      </span>
+                    </div>
+                  )}
+                  <p className="text-sm whitespace-pre-wrap">
+                    {message.content}
+                  </p>
                 </div>
 
                 {/* Insights */}
@@ -163,19 +231,31 @@ export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealNam
                       <div
                         key={idx}
                         className={`flex items-start gap-2 p-2 rounded-lg text-xs ${
-                          insight.type === 'positive' ? 'bg-[var(--app-success-bg)]' :
-                          insight.type === 'negative' ? 'bg-[var(--app-danger-bg)]' :
-                          'bg-[var(--app-info-bg)]'
+                          insight.type === "positive"
+                            ? "bg-[var(--app-success-bg)]"
+                            : insight.type === "negative"
+                              ? "bg-[var(--app-danger-bg)]"
+                              : "bg-[var(--app-info-bg)]"
                         }`}
                       >
-                        {insight.type === 'positive' ? <TrendingUp className="w-3 h-3 text-[var(--app-success)] mt-0.5" /> :
-                         insight.type === 'negative' ? <AlertCircle className="w-3 h-3 text-[var(--app-danger)] mt-0.5" /> :
-                         <Lightbulb className="w-3 h-3 text-[var(--app-info)] mt-0.5" />}
-                        <span className={
-                          insight.type === 'positive' ? 'text-[var(--app-success)]' :
-                          insight.type === 'negative' ? 'text-[var(--app-danger)]' :
-                          'text-[var(--app-info)]'
-                        }>{insight.text}</span>
+                        {insight.type === "positive" ? (
+                          <TrendingUp className="w-3 h-3 text-[var(--app-success)] mt-0.5" />
+                        ) : insight.type === "negative" ? (
+                          <AlertCircle className="w-3 h-3 text-[var(--app-danger)] mt-0.5" />
+                        ) : (
+                          <Lightbulb className="w-3 h-3 text-[var(--app-info)] mt-0.5" />
+                        )}
+                        <span
+                          className={
+                            insight.type === "positive"
+                              ? "text-[var(--app-success)]"
+                              : insight.type === "negative"
+                                ? "text-[var(--app-danger)]"
+                                : "text-[var(--app-info)]"
+                          }
+                        >
+                          {insight.text}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -184,7 +264,9 @@ export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealNam
                 {/* Related Documents */}
                 {message.relatedDocs && message.relatedDocs.length > 0 && (
                   <div className="mt-3">
-                    <p className="text-xs text-[var(--app-text-muted)] mb-2">📎 Related Documents:</p>
+                    <p className="text-xs text-[var(--app-text-muted)] mb-2">
+                      📎 Related Documents:
+                    </p>
                     <div className="flex flex-wrap gap-2">
                       {message.relatedDocs.map((doc, idx) => (
                         <Badge
@@ -196,8 +278,10 @@ export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealNam
                             preview.openPreview({
                               id: doc.name,
                               name: doc.name,
-                              type: isMockMode('ai') ? 'pdf' : 'other',
-                              url: isMockMode('ai') ? getMockDocumentUrl('pdf') : '',
+                              type: isMockMode("ai") ? "pdf" : "other",
+                              url: isMockMode("ai")
+                                ? getMockDocumentUrl("pdf")
+                                : "",
                               category: doc.category,
                             });
                           }}
@@ -211,25 +295,31 @@ export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealNam
                 )}
 
                 {/* Suggested Questions */}
-                {message.suggestedQuestions && message.suggestedQuestions.length > 0 && (
-                  <div className="mt-3">
-                    <p className="text-xs text-[var(--app-text-muted)] mb-2">💡 Suggested questions:</p>
-                    <div className="space-y-1">
-                      {message.suggestedQuestions.map((question, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => handleSuggestedQuestion(question)}
-                          className="block w-full text-left text-xs p-2 rounded-lg bg-[var(--app-surface)] hover:bg-[var(--app-surface-hover)] text-[var(--app-text-muted)] hover:text-[var(--app-primary)] transition-colors"
-                        >
-                          {question}
-                        </button>
-                      ))}
+                {message.suggestedQuestions &&
+                  message.suggestedQuestions.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-xs text-[var(--app-text-muted)] mb-2">
+                        💡 Suggested questions:
+                      </p>
+                      <div className="space-y-1">
+                        {message.suggestedQuestions.map((question, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => handleSuggestedQuestion(question)}
+                            className="block w-full text-left text-xs p-2 rounded-lg bg-[var(--app-surface)] hover:bg-[var(--app-surface-hover)] text-[var(--app-text-muted)] hover:text-[var(--app-primary)] transition-colors"
+                          >
+                            {question}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 <p className="text-xs text-[var(--app-text-subtle)] mt-1">
-                  {formatTime(message.timestamp, { hour: '2-digit', minute: '2-digit' })}
+                  {formatTime(message.timestamp, {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </p>
               </div>
             </div>
@@ -244,9 +334,18 @@ export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealNam
             <div className="flex-1">
               <div className="bg-[var(--app-surface-hover)] rounded-lg p-3 max-w-[100px]">
                 <div className="flex gap-1">
-                  <div className="w-2 h-2 rounded-full bg-[var(--app-text-muted)] animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                  <div className="w-2 h-2 rounded-full bg-[var(--app-text-muted)] animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                  <div className="w-2 h-2 rounded-full bg-[var(--app-text-muted)] animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                  <div
+                    className="w-2 h-2 rounded-full bg-[var(--app-text-muted)] animate-bounce"
+                    style={{ animationDelay: "0ms" }}
+                  ></div>
+                  <div
+                    className="w-2 h-2 rounded-full bg-[var(--app-text-muted)] animate-bounce"
+                    style={{ animationDelay: "150ms" }}
+                  ></div>
+                  <div
+                    className="w-2 h-2 rounded-full bg-[var(--app-text-muted)] animate-bounce"
+                    style={{ animationDelay: "300ms" }}
+                  ></div>
                 </div>
               </div>
             </div>
@@ -264,22 +363,25 @@ export function DDChatAssistant({ dealId, dealName }: { dealId?: number; dealNam
             placeholder="Ask about financials, risks, team, market sizing..."
             value={inputValue}
             onChange={(e) => patchUI({ inputValue: e.target.value })}
-            onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+            onKeyPress={(e) => e.key === "Enter" && handleSend()}
             size="md"
             className="flex-1"
+            disabled={Boolean(unavailable)}
           />
           <Button
             color="primary"
             isIconOnly
             onPress={handleSend}
-            isDisabled={!inputValue.trim()}
+            isDisabled={!inputValue.trim() || Boolean(unavailable)}
             aria-label="Send message"
           >
             <Send className="w-4 h-4" />
           </Button>
         </div>
         <p className="text-xs text-[var(--app-text-subtle)] mt-2">
-          AI assistant analyzes uploaded documents, financial data, and market research
+          {unavailable
+            ? unavailable.message
+            : "AI assistant analyzes uploaded documents, financial data, and market research"}
         </p>
       </div>
 

@@ -1,17 +1,29 @@
-'use client'
+"use client";
 
-import { useEffect, useRef } from 'react';
-import { isMockMode } from '@/config/data-mode';
-import { Card, Button, Badge, Progress } from '@/ui';
-import { Upload, FileText, Sparkles, CheckCircle2, Clock, Download, Eye } from 'lucide-react';
-import { DocumentPreviewModal, useDocumentPreview, getMockDocumentUrl } from '@/components/documents/preview';
-import { useUIKey } from '@/store/ui';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { pitchDeckSelectors } from '@/store/slices/aiSlice';
-import { EmptyState, ErrorState, LoadingState } from '@/ui/async-states';
-import { SectionHeader, StatusBadge } from '@/ui/composites';
-import { loadPitchDeckAnalysesOperation } from '@/store/async/dataOperations';
-import { formatDate } from '@/utils/formatting';
+import { useEffect, useRef } from "react";
+import { isMockMode } from "@/config/data-mode";
+import { Card, Button, Badge, Progress } from "@/ui";
+import {
+  Upload,
+  FileText,
+  Sparkles,
+  CheckCircle2,
+  Clock,
+  Download,
+  Eye,
+} from "lucide-react";
+import {
+  DocumentPreviewModal,
+  useDocumentPreview,
+  getMockDocumentUrl,
+} from "@/components/documents/preview";
+import { useUIKey } from "@/store/ui";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { pitchDeckSelectors } from "@/store/slices/aiSlice";
+import { EmptyState, ErrorState, LoadingState } from "@/ui/async-states";
+import { SectionHeader, StatusBadge } from "@/ui/composites";
+import { loadPitchDeckAnalysesOperation } from "@/store/async/dataOperations";
+import { formatDate } from "@/utils/formatting";
 
 const defaultPitchDeckReaderState = {
   selectedAnalysisId: null as string | null,
@@ -26,17 +38,19 @@ export function PitchDeckReader() {
   const error = useAppSelector(pitchDeckSelectors.selectError);
 
   const analyses = data?.analyses || [];
+  const unavailable = data?.unavailable;
 
   // Load pitch deck analyses on mount
   useEffect(() => {
     dispatch(loadPitchDeckAnalysesOperation({}));
   }, [dispatch]);
-  const { value: ui, patch: patchUI } = useUIKey<{ selectedAnalysisId: string | null; isUploading: boolean }>(
-    'pitch-deck-reader',
-    defaultPitchDeckReaderState
-  );
+  const { value: ui, patch: patchUI } = useUIKey<{
+    selectedAnalysisId: string | null;
+    isUploading: boolean;
+  }>("pitch-deck-reader", defaultPitchDeckReaderState);
   const { selectedAnalysisId, isUploading } = ui;
-  const selectedAnalysis = analyses.find((analysis) => analysis.id === selectedAnalysisId) ?? null;
+  const selectedAnalysis =
+    analyses.find((analysis) => analysis.id === selectedAnalysisId) ?? null;
   const preview = useDocumentPreview();
 
   useEffect(() => {
@@ -48,6 +62,7 @@ export function PitchDeckReader() {
   }, []);
 
   const handleFileUpload = () => {
+    if (unavailable) return;
     if (isUploading) return;
     patchUI({ isUploading: true });
     if (uploadTimeoutRef.current !== null) {
@@ -58,8 +73,9 @@ export function PitchDeckReader() {
     }, 2000);
   };
 
-  if (status === 'idle' || status === 'loading') return <LoadingState message="Loading pitch deck analyses…" />;
-  if (status === 'failed' && error) {
+  if (status === "idle" || status === "loading")
+    return <LoadingState message="Loading pitch deck analyses…" />;
+  if (status === "failed" && error) {
     return (
       <ErrorState
         error={error}
@@ -68,7 +84,17 @@ export function PitchDeckReader() {
       />
     );
   }
-  if (status === 'succeeded' && analyses.length === 0) {
+  if (status === "succeeded" && analyses.length === 0) {
+    if (unavailable) {
+      return (
+        <EmptyState
+          icon={Sparkles}
+          title="Pitch deck AI unavailable"
+          message={unavailable.message}
+        />
+      );
+    }
+
     return (
       <EmptyState
         icon={Upload}
@@ -99,13 +125,26 @@ export function PitchDeckReader() {
             >
               ← Back to All Decks
             </Button>
-            <h3 className="text-xl font-semibold mb-2">{selectedAnalysis.summary?.companyName}</h3>
-            <p className="text-[var(--app-text-muted)] mb-2">{selectedAnalysis.summary?.tagline}</p>
+            <h3 className="text-xl font-semibold mb-2">
+              {selectedAnalysis.summary?.companyName}
+            </h3>
+            <p className="text-[var(--app-text-muted)] mb-2">
+              {selectedAnalysis.summary?.tagline}
+            </p>
             <div className="flex items-center gap-2">
-              <Badge size="sm" variant="flat" className="bg-[var(--app-surface-hover)]">
+              <Badge
+                size="sm"
+                variant="flat"
+                className="bg-[var(--app-surface-hover)]"
+              >
                 {selectedAnalysis.extractedData?.slides} slides
               </Badge>
-              <StatusBadge status={selectedAnalysis.status} domain="general" size="sm" showIcon />
+              <StatusBadge
+                status={selectedAnalysis.status}
+                domain="general"
+                size="sm"
+                showIcon
+              />
               <span className="text-xs text-[var(--app-text-muted)]">
                 Analyzed on {formatDate(selectedAnalysis.uploadDate)}
               </span>
@@ -121,8 +160,8 @@ export function PitchDeckReader() {
                   preview.openPreview({
                     id: selectedAnalysis.id,
                     name: selectedAnalysis.fileName,
-                    type: isMockMode('ai') ? 'pdf' : 'other',
-                    url: isMockMode('ai') ? getMockDocumentUrl('pdf') : '',
+                    type: isMockMode("ai") ? "pdf" : "other",
+                    url: isMockMode("ai") ? getMockDocumentUrl("pdf") : "",
                     metadata: {
                       aiInsights: selectedAnalysis.aiInsights ?? [],
                       summary: selectedAnalysis.summary ?? null,
@@ -134,7 +173,11 @@ export function PitchDeckReader() {
             >
               View Deck
             </Button>
-            <Button variant="flat" size="sm" startContent={<Download className="w-4 h-4" />}>
+            <Button
+              variant="flat"
+              size="sm"
+              startContent={<Download className="w-4 h-4" />}
+            >
               Export Analysis
             </Button>
           </div>
@@ -143,26 +186,38 @@ export function PitchDeckReader() {
         {/* AI Insights Summary */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <Card padding="md" className="border-[var(--app-success)]">
-            <h4 className="text-sm font-medium text-[var(--app-success)] mb-2">Strengths</h4>
+            <h4 className="text-sm font-medium text-[var(--app-success)] mb-2">
+              Strengths
+            </h4>
             <ul className="space-y-1">
               {selectedAnalysis.strengths?.map((strength, idx) => (
-                <li key={idx} className="text-xs text-[var(--app-text)]">• {strength}</li>
+                <li key={idx} className="text-xs text-[var(--app-text)]">
+                  • {strength}
+                </li>
               ))}
             </ul>
           </Card>
           <Card padding="md" className="border-[var(--app-warning)]">
-            <h4 className="text-sm font-medium text-[var(--app-warning)] mb-2">Red Flags</h4>
+            <h4 className="text-sm font-medium text-[var(--app-warning)] mb-2">
+              Red Flags
+            </h4>
             <ul className="space-y-1">
               {selectedAnalysis.redFlags?.map((flag, idx) => (
-                <li key={idx} className="text-xs text-[var(--app-text)]">• {flag}</li>
+                <li key={idx} className="text-xs text-[var(--app-text)]">
+                  • {flag}
+                </li>
               ))}
             </ul>
           </Card>
           <Card padding="md" className="border-[var(--app-info)]">
-            <h4 className="text-sm font-medium text-[var(--app-info)] mb-2">AI Insights</h4>
+            <h4 className="text-sm font-medium text-[var(--app-info)] mb-2">
+              AI Insights
+            </h4>
             <ul className="space-y-1">
               {selectedAnalysis.aiInsights?.slice(0, 3).map((insight, idx) => (
-                <li key={idx} className="text-xs text-[var(--app-text)]">• {insight}</li>
+                <li key={idx} className="text-xs text-[var(--app-text)]">
+                  • {insight}
+                </li>
               ))}
             </ul>
           </Card>
@@ -175,11 +230,15 @@ export function PitchDeckReader() {
             <h4 className="font-medium mb-3">Problem & Solution</h4>
             <div className="space-y-3">
               <div>
-                <p className="text-xs text-[var(--app-text-muted)] mb-1">Problem</p>
+                <p className="text-xs text-[var(--app-text-muted)] mb-1">
+                  Problem
+                </p>
                 <p className="text-sm">{selectedAnalysis.summary?.problem}</p>
               </div>
               <div>
-                <p className="text-xs text-[var(--app-text-muted)] mb-1">Solution</p>
+                <p className="text-xs text-[var(--app-text-muted)] mb-1">
+                  Solution
+                </p>
                 <p className="text-sm">{selectedAnalysis.summary?.solution}</p>
               </div>
             </div>
@@ -190,18 +249,28 @@ export function PitchDeckReader() {
             <h4 className="font-medium mb-3">Market Opportunity</h4>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-[var(--app-text-muted)]">TAM</span>
+                <span className="text-sm text-[var(--app-text-muted)]">
+                  TAM
+                </span>
                 <span className="text-lg font-semibold text-[var(--app-primary)]">
                   {selectedAnalysis.summary?.marketSize.tam}
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-[var(--app-text-muted)]">SAM</span>
-                <span className="text-lg font-semibold">{selectedAnalysis.summary?.marketSize.sam}</span>
+                <span className="text-sm text-[var(--app-text-muted)]">
+                  SAM
+                </span>
+                <span className="text-lg font-semibold">
+                  {selectedAnalysis.summary?.marketSize.sam}
+                </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-[var(--app-text-muted)]">SOM (3-year)</span>
-                <span className="text-lg font-semibold">{selectedAnalysis.summary?.marketSize.som}</span>
+                <span className="text-sm text-[var(--app-text-muted)]">
+                  SOM (3-year)
+                </span>
+                <span className="text-lg font-semibold">
+                  {selectedAnalysis.summary?.marketSize.som}
+                </span>
               </div>
             </div>
           </Card>
@@ -224,19 +293,29 @@ export function PitchDeckReader() {
             <h4 className="font-medium mb-3">Team</h4>
             <div className="space-y-3">
               <div>
-                <p className="text-xs text-[var(--app-text-muted)] mb-2">Founders</p>
+                <p className="text-xs text-[var(--app-text-muted)] mb-2">
+                  Founders
+                </p>
                 <ul className="space-y-1">
-                  {selectedAnalysis.summary?.team.founders.map((founder, idx) => (
-                    <li key={idx} className="text-sm">• {founder}</li>
-                  ))}
+                  {selectedAnalysis.summary?.team.founders.map(
+                    (founder, idx) => (
+                      <li key={idx} className="text-sm">
+                        • {founder}
+                      </li>
+                    ),
+                  )}
                 </ul>
               </div>
               {keyHires.length > 0 && (
                 <div>
-                  <p className="text-xs text-[var(--app-text-muted)] mb-2">Key Hires</p>
+                  <p className="text-xs text-[var(--app-text-muted)] mb-2">
+                    Key Hires
+                  </p>
                   <ul className="space-y-1">
                     {keyHires.map((hire, idx) => (
-                      <li key={idx} className="text-sm">• {hire}</li>
+                      <li key={idx} className="text-sm">
+                        • {hire}
+                      </li>
                     ))}
                   </ul>
                 </div>
@@ -250,9 +329,16 @@ export function PitchDeckReader() {
           <h4 className="font-medium mb-4">Key Metrics Extracted</h4>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {selectedAnalysis.extractedData?.keyMetrics.map((metric, idx) => (
-              <div key={idx} className="text-center p-3 rounded-lg bg-[var(--app-surface-hover)]">
-                <p className="text-xs text-[var(--app-text-muted)] mb-1">{metric.label}</p>
-                <p className="text-lg font-semibold text-[var(--app-primary)]">{metric.value}</p>
+              <div
+                key={idx}
+                className="text-center p-3 rounded-lg bg-[var(--app-surface-hover)]"
+              >
+                <p className="text-xs text-[var(--app-text-muted)] mb-1">
+                  {metric.label}
+                </p>
+                <p className="text-lg font-semibold text-[var(--app-primary)]">
+                  {metric.value}
+                </p>
               </div>
             ))}
           </div>
@@ -263,15 +349,25 @@ export function PitchDeckReader() {
           <h4 className="font-medium mb-4">Financials & Ask</h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <p className="text-xs text-[var(--app-text-muted)] mb-1">Current Revenue</p>
-              <p className="text-xl font-semibold">{selectedAnalysis.summary?.financials.revenue}</p>
+              <p className="text-xs text-[var(--app-text-muted)] mb-1">
+                Current Revenue
+              </p>
+              <p className="text-xl font-semibold">
+                {selectedAnalysis.summary?.financials.revenue}
+              </p>
             </div>
             <div>
-              <p className="text-xs text-[var(--app-text-muted)] mb-1">Runway</p>
-              <p className="text-xl font-semibold">{selectedAnalysis.summary?.financials.runway}</p>
+              <p className="text-xs text-[var(--app-text-muted)] mb-1">
+                Runway
+              </p>
+              <p className="text-xl font-semibold">
+                {selectedAnalysis.summary?.financials.runway}
+              </p>
             </div>
             <div>
-              <p className="text-xs text-[var(--app-text-muted)] mb-1">Ask Amount</p>
+              <p className="text-xs text-[var(--app-text-muted)] mb-1">
+                Ask Amount
+              </p>
               <p className="text-xl font-semibold text-[var(--app-primary)]">
                 {selectedAnalysis.summary?.financials.askAmount}
               </p>
@@ -289,7 +385,12 @@ export function PitchDeckReader() {
             <h4 className="font-medium mb-3">Competition</h4>
             <div className="flex flex-wrap gap-2">
               {selectedAnalysis.summary?.competition.map((competitor, idx) => (
-                <Badge key={idx} size="sm" variant="flat" className="bg-[var(--app-surface-hover)]">
+                <Badge
+                  key={idx}
+                  size="sm"
+                  variant="flat"
+                  className="bg-[var(--app-surface-hover)]"
+                >
                   {competitor}
                 </Badge>
               ))}
@@ -305,13 +406,13 @@ export function PitchDeckReader() {
       <div className="mb-6">
         <SectionHeader
           className="mb-4"
-          title={(
+          title={
             <span className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-[var(--app-primary)]" />
               <span>AI Pitch Deck Reader</span>
             </span>
-          )}
-          action={(
+          }
+          action={
             <Button
               color="primary"
               startContent={<Upload className="w-4 h-4" />}
@@ -320,10 +421,11 @@ export function PitchDeckReader() {
             >
               Upload Deck
             </Button>
-          )}
+          }
         />
         <p className="text-sm text-[var(--app-text-muted)]">
-          AI-powered analysis extracts key information, metrics, and insights from pitch decks
+          AI-powered analysis extracts key information, metrics, and insights
+          from pitch decks
         </p>
       </div>
 
@@ -334,7 +436,12 @@ export function PitchDeckReader() {
             <Clock className="w-5 h-5 text-[var(--app-primary)] animate-spin" />
             <span className="font-medium">Analyzing pitch deck...</span>
           </div>
-          <Progress value={45} maxValue={100} className="mb-2" aria-label="Analyzing pitch deck 45%" />
+          <Progress
+            value={45}
+            maxValue={100}
+            className="mb-2"
+            aria-label="Analyzing pitch deck 45%"
+          />
           <p className="text-xs text-[var(--app-text-muted)]">
             Extracting slides, identifying key metrics, and generating insights
           </p>
@@ -348,37 +455,62 @@ export function PitchDeckReader() {
             key={analysis.id}
             padding="md"
             isPressable
-            onPress={() => analysis.status === 'completed' && patchUI({ selectedAnalysisId: analysis.id })}
+            onPress={() =>
+              analysis.status === "completed" &&
+              patchUI({ selectedAnalysisId: analysis.id })
+            }
             className={`cursor-pointer transition-all ${
-              analysis.status === 'completed' ? 'hover:border-[var(--app-primary)]' : ''
+              analysis.status === "completed"
+                ? "hover:border-[var(--app-primary)]"
+                : ""
             }`}
           >
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-3 flex-1">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <h4 className="font-medium truncate">{analysis.fileName}</h4>
-                    <StatusBadge status={analysis.status} domain="general" size="sm" showIcon />
+                    <h4 className="font-medium truncate">
+                      {analysis.fileName}
+                    </h4>
+                    <StatusBadge
+                      status={analysis.status}
+                      domain="general"
+                      size="sm"
+                      showIcon
+                    />
                   </div>
-                  {analysis.status === 'completed' && analysis.summary && (
+                  {analysis.status === "completed" && analysis.summary && (
                     <>
                       <p className="text-sm text-[var(--app-text-muted)] mb-2">
-                        {analysis.summary.companyName} - {analysis.summary.tagline}
+                        {analysis.summary.companyName} -{" "}
+                        {analysis.summary.tagline}
                       </p>
                       <div className="flex flex-wrap gap-2">
-                        <Badge size="sm" variant="flat" className="bg-[var(--app-surface-hover)]">
+                        <Badge
+                          size="sm"
+                          variant="flat"
+                          className="bg-[var(--app-surface-hover)]"
+                        >
                           {analysis.extractedData?.slides} slides
                         </Badge>
-                        <Badge size="sm" variant="flat" className="bg-[var(--app-success-bg)] text-[var(--app-success)]">
+                        <Badge
+                          size="sm"
+                          variant="flat"
+                          className="bg-[var(--app-success-bg)] text-[var(--app-success)]"
+                        >
                           {analysis.strengths?.length} strengths
                         </Badge>
-                        <Badge size="sm" variant="flat" className="bg-[var(--app-warning-bg)] text-[var(--app-warning)]">
+                        <Badge
+                          size="sm"
+                          variant="flat"
+                          className="bg-[var(--app-warning-bg)] text-[var(--app-warning)]"
+                        >
                           {analysis.redFlags?.length} red flags
                         </Badge>
                       </div>
                     </>
                   )}
-                  {analysis.status === 'processing' && (
+                  {analysis.status === "processing" && (
                     <p className="text-sm text-[var(--app-text-muted)]">
                       AI analysis in progress...
                     </p>
@@ -398,7 +530,9 @@ export function PitchDeckReader() {
       {analyses.length === 0 && (
         <div className="text-center py-12">
           <FileText className="w-12 h-12 mx-auto mb-4 text-[var(--app-text-subtle)] opacity-50" />
-          <p className="text-[var(--app-text-muted)] mb-4">No pitch decks analyzed yet</p>
+          <p className="text-[var(--app-text-muted)] mb-4">
+            No pitch decks analyzed yet
+          </p>
           <Button
             color="primary"
             startContent={<Upload className="w-4 h-4" />}

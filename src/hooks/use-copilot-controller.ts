@@ -12,8 +12,10 @@ import {
 import {
   type QuickAction,
   type Suggestion,
+  type CopilotResponseResult,
   getCopilotContextualResponse,
 } from "@/services/ai/copilotService";
+import { isAIUnavailableResult } from "@/services/ai/aiDegradedMode";
 import { normalizeError } from "@/store/utils/normalizeError";
 import { errorTracking } from "@/lib/errorTracking";
 
@@ -46,9 +48,17 @@ type CopilotInteractionConfig = {
   userContent: string;
   clearInput?: boolean;
   delayMs: number;
-  buildResponse: () => Promise<string>;
+  buildResponse: () => Promise<string | CopilotResponseResult>;
   trackingContext: Record<string, unknown>;
 };
+
+function resolveCopilotResponseContent(
+  response: string | CopilotResponseResult,
+): string {
+  if (typeof response === "string") return response;
+  if (isAIUnavailableResult(response)) return response.message;
+  return response.data;
+}
 
 async function runCopilotInteraction({
   dispatch,
@@ -71,7 +81,9 @@ async function runCopilotInteraction({
 
   try {
     await wait(delayMs);
-    const response = (await buildResponse()).trim();
+    const response = resolveCopilotResponseContent(
+      await buildResponse(),
+    ).trim();
 
     if (interactionId !== latestCopilotInteractionId) {
       return;

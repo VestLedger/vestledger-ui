@@ -11,6 +11,7 @@ import {
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import {
+  AlertCircle,
   Bot,
   ChevronDown,
   ChevronRight,
@@ -270,6 +271,7 @@ export function AICopilotSidebar({ mode = "panel" }: AICopilotSidebarProps) {
   const suggestionsData = useAppSelector(
     copilotSuggestionsSelectors.selectData,
   );
+  const copilotUnavailable = suggestionsData?.unavailable;
 
   const suggestions = useMemo(() => {
     return suggestionsOverride && suggestionsOverride.length > 0
@@ -870,6 +872,24 @@ export function AICopilotSidebar({ mode = "panel" }: AICopilotSidebarProps) {
           )}
         </div>
       </div>
+
+      {copilotUnavailable && (
+        <div
+          className={`${density.shell.copilotSectionPaddingClass} border-b border-[var(--app-border)] bg-[var(--app-warning-bg)]`}
+        >
+          <div className="flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 text-[var(--app-warning)] mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-xs font-semibold text-[var(--app-warning)]">
+                Vesta unavailable
+              </p>
+              <p className="text-xs text-[var(--app-text)]">
+                {copilotUnavailable.message}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {suggestions.length > 0 && (
         <div

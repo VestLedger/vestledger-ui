@@ -79,9 +79,14 @@ import {
   type GetPortfolioUpdatesParams,
 } from "@/store/slices/portfolioSlice";
 import { fetchAlerts as fetchAlertsService } from "@/services/alertsService";
-import { getInitialDDChatConversation } from "@/services/ai/ddChatService";
+import {
+  createDDChatUnavailableMessage,
+  getInitialDDChatConversation,
+  type Message,
+} from "@/services/ai/ddChatService";
 import { getPitchDeckAnalyses } from "@/services/ai/pitchDeckService";
 import { getCopilotSuggestionsAndActions } from "@/services/ai/copilotService";
+import type { DataModeUnavailableResult } from "@/config/data-mode";
 import { getAuditEvents } from "@/services/blockchain/auditTrailService";
 import { getCollaborationSnapshot } from "@/services/collaboration/collaborationService";
 import {
@@ -372,13 +377,15 @@ export const loadCollaborationOperation = createLatestOperation<
 
 export const loadPitchDeckAnalysesOperation = createLatestOperation<
   GetPitchDeckAnalysesParams,
-  { analyses: Awaited<ReturnType<typeof getPitchDeckAnalyses>> }
+  ReturnType<typeof pitchDeckAnalysesLoaded>["payload"]
 >({
   typePrefix: "ai/pitchDeck/load",
   requestType: "ai/pitchDeckAnalysesRequested",
   run: async ({ arg }) => {
-    const analyses = await getPitchDeckAnalyses(arg);
-    return { analyses };
+    const result = await getPitchDeckAnalyses(arg);
+    return result.ok
+      ? { analyses: result.data }
+      : { analyses: [], unavailable: result };
   },
   onSuccess: (result) => pitchDeckAnalysesLoaded(result),
   onFailure: (error) => pitchDeckAnalysesFailed(error),
@@ -388,14 +395,21 @@ export const loadDDChatConversationOperation = createLatestOperation<
   GetDDChatConversationParams,
   {
     dealId: number;
-    messages: Awaited<ReturnType<typeof getInitialDDChatConversation>>;
+    messages: Message[];
+    unavailable?: DataModeUnavailableResult;
   }
 >({
   typePrefix: "ai/ddChat/load",
   requestType: "ai/ddChatConversationRequested",
   run: async ({ arg }) => {
-    const messages = await getInitialDDChatConversation(arg);
-    return { dealId: arg.dealId, messages };
+    const result = await getInitialDDChatConversation(arg);
+    return result.ok
+      ? { dealId: arg.dealId, messages: result.data }
+      : {
+          dealId: arg.dealId,
+          messages: [createDDChatUnavailableMessage(result)],
+          unavailable: result,
+        };
   },
   onSuccess: (result) => ddChatConversationLoaded(result),
   onFailure: (error) => ddChatConversationFailed(error),

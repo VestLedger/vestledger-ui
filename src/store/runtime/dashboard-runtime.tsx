@@ -279,9 +279,24 @@ export function DashboardRuntime() {
     let active = true;
 
     const refreshBadges = async () => {
-      const badges = await calculateBadges();
+      const result = await calculateBadges();
+      const badges = result.ok
+        ? result.data
+        : {
+            "ai-tools": {
+              count: 1,
+              variant: "warning" as const,
+              tooltip: result.message,
+            },
+          };
       if (!active) return;
       dispatch(setUIState({ key: "ai-badges", value: badges }));
+      dispatch(
+        setUIState({
+          key: "ai-badges-unavailable",
+          value: result.ok ? null : result,
+        }),
+      );
     };
 
     void refreshBadges();

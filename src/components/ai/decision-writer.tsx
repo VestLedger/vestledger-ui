@@ -1,26 +1,41 @@
-'use client'
+"use client";
 
-import { useEffect, useMemo, useRef } from 'react';
-import { Card, Button, Input, Textarea } from '@/ui';
-import { Sparkles, Send, Copy, Download, ThumbsDown, AlertCircle, Check, FileText, Edit3, RefreshCw, Wand2, MessageSquare } from 'lucide-react';
-import { useUIKey } from '@/store/ui';
-import { SectionHeader } from '@/ui/composites';
+import { useEffect, useMemo, useRef } from "react";
+import { Card, Button, Input, Textarea } from "@/ui";
+import {
+  Sparkles,
+  Send,
+  Copy,
+  Download,
+  ThumbsDown,
+  AlertCircle,
+  Check,
+  FileText,
+  Edit3,
+  RefreshCw,
+  Wand2,
+  MessageSquare,
+} from "lucide-react";
+import { useUIKey } from "@/store/ui";
+import { SectionHeader } from "@/ui/composites";
 import {
   generateRejectionLetter,
   getDecisionWriterRejectionReasons,
   getDecisionWriterSeedDealInfo,
   getDecisionWriterToneOptions,
+  getDecisionWriterUnavailableState,
   type DealInfo,
   type DecisionWriterTone,
   type RejectionReason,
-} from '@/services/ai/decisionWriterService';
-import { writeToClipboard } from '@/utils/clipboard';
+} from "@/services/ai/decisionWriterService";
+import { writeToClipboard } from "@/utils/clipboard";
+import type { DataModeUnavailableResult } from "@/config/data-mode";
 
 const emptyDealInfo: DealInfo = {
-  companyName: '',
-  founderName: '',
-  sector: '',
-  stage: '',
+  companyName: "",
+  founderName: "",
+  sector: "",
+  stage: "",
 };
 
 const buildDefaultDecisionWriterState = (): {
@@ -29,11 +44,13 @@ const buildDefaultDecisionWriterState = (): {
   customReason: string;
   tone: DecisionWriterTone;
   generatedLetter: string;
+  unavailable: DataModeUnavailableResult | null;
   isGenerating: boolean;
   letterCopied: boolean;
 } => {
   let dealInfo = emptyDealInfo;
   let reasons: RejectionReason[] = [];
+  let unavailable: DataModeUnavailableResult | null = null;
 
   try {
     dealInfo = getDecisionWriterSeedDealInfo();
@@ -47,12 +64,19 @@ const buildDefaultDecisionWriterState = (): {
     reasons = [];
   }
 
+  try {
+    unavailable = getDecisionWriterUnavailableState();
+  } catch {
+    unavailable = null;
+  }
+
   return {
     dealInfo,
     reasons,
-    customReason: '',
-    tone: 'warm',
-    generatedLetter: '',
+    customReason: "",
+    tone: "warm",
+    generatedLetter: "",
+    unavailable,
     isGenerating: false,
     letterCopied: false,
   };
@@ -62,8 +86,27 @@ export function DecisionWriter() {
   const defaultState = useMemo(buildDefaultDecisionWriterState, []);
   const generateTimeoutRef = useRef<number | null>(null);
   const copyTimeoutRef = useRef<number | null>(null);
-  const { value: ui, patch: patchUI } = useUIKey('decision-writer', defaultState);
-  const { dealInfo, reasons, customReason, tone, generatedLetter, isGenerating, letterCopied } = ui;
+  const { value: ui, patch: patchUI } = useUIKey(
+    "decision-writer",
+    defaultState,
+  );
+  const runtimeUnavailable = useMemo(() => {
+    try {
+      return getDecisionWriterUnavailableState();
+    } catch {
+      return null;
+    }
+  }, []);
+  const {
+    dealInfo,
+    reasons,
+    customReason,
+    tone,
+    generatedLetter,
+    isGenerating,
+    letterCopied,
+  } = ui;
+  const unavailable = ui.unavailable ?? runtimeUnavailable;
   const toneOptions = getDecisionWriterToneOptions();
 
   useEffect(() => {
@@ -80,12 +123,15 @@ export function DecisionWriter() {
   const toggleReason = (reasonId: string) => {
     patchUI({
       reasons: reasons.map((reason) =>
-        reason.id === reasonId ? { ...reason, selected: !reason.selected } : reason
+        reason.id === reasonId
+          ? { ...reason, selected: !reason.selected }
+          : reason,
       ),
     });
   };
 
   const generateLetter = () => {
+    if (unavailable) return;
     if (isGenerating) return;
 
     patchUI({ isGenerating: true });
@@ -94,8 +140,26 @@ export function DecisionWriter() {
     }
     generateTimeoutRef.current = window.setTimeout(() => {
       const selectedReasons = reasons.filter((reason) => reason.selected);
-      const letter = generateRejectionLetter(dealInfo, selectedReasons, customReason, tone);
-      patchUI({ generatedLetter: letter, isGenerating: false });
+      const result = generateRejectionLetter(
+        dealInfo,
+        selectedReasons,
+        customReason,
+        tone,
+      );
+      if (result.ok) {
+        patchUI({
+          generatedLetter: result.data,
+          unavailable: null,
+          isGenerating: false,
+        });
+        return;
+      }
+
+      patchUI({
+        generatedLetter: "",
+        unavailable: result,
+        isGenerating: false,
+      });
     }, 2000);
   };
 
@@ -122,48 +186,72 @@ export function DecisionWriter() {
           <Card padding="lg">
             <SectionHeader
               className="mb-4"
-              title={(
+              title={
                 <span className="flex items-center gap-2">
                   <FileText className="w-4 h-4 text-[var(--app-primary)]" />
                   <span>Deal Information</span>
                 </span>
-              )}
+              }
               titleClassName="font-semibold text-base"
             />
 
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">Company Name</label>
+                <label className="text-sm font-medium mb-2 block">
+                  Company Name
+                </label>
                 <Input
                   value={dealInfo.companyName}
-                  onChange={(e) => patchUI({ dealInfo: { ...dealInfo, companyName: e.target.value } })}
+                  onChange={(e) =>
+                    patchUI({
+                      dealInfo: { ...dealInfo, companyName: e.target.value },
+                    })
+                  }
                   placeholder="Acme Inc."
                 />
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-2 block">Founder Name</label>
+                <label className="text-sm font-medium mb-2 block">
+                  Founder Name
+                </label>
                 <Input
                   value={dealInfo.founderName}
-                  onChange={(e) => patchUI({ dealInfo: { ...dealInfo, founderName: e.target.value } })}
+                  onChange={(e) =>
+                    patchUI({
+                      dealInfo: { ...dealInfo, founderName: e.target.value },
+                    })
+                  }
                   placeholder="John Doe"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Sector</label>
+                  <label className="text-sm font-medium mb-2 block">
+                    Sector
+                  </label>
                   <Input
                     value={dealInfo.sector}
-                    onChange={(e) => patchUI({ dealInfo: { ...dealInfo, sector: e.target.value } })}
+                    onChange={(e) =>
+                      patchUI({
+                        dealInfo: { ...dealInfo, sector: e.target.value },
+                      })
+                    }
                     placeholder="AI/ML"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Stage</label>
+                  <label className="text-sm font-medium mb-2 block">
+                    Stage
+                  </label>
                   <Input
                     value={dealInfo.stage}
-                    onChange={(e) => patchUI({ dealInfo: { ...dealInfo, stage: e.target.value } })}
+                    onChange={(e) =>
+                      patchUI({
+                        dealInfo: { ...dealInfo, stage: e.target.value },
+                      })
+                    }
                     placeholder="Series A"
                   />
                 </div>
@@ -175,18 +263,28 @@ export function DecisionWriter() {
           <Card padding="lg">
             <SectionHeader
               className="mb-4"
-              title={(
+              title={
                 <span className="flex items-center gap-2">
                   <ThumbsDown className="w-4 h-4 text-[var(--app-primary)]" />
                   <span>Rejection Reasons</span>
                 </span>
-              )}
+              }
               titleClassName="font-semibold text-base"
             />
 
             <div className="space-y-4">
-              {['market', 'team', 'product', 'financials', 'fit', 'timing', 'other'].map(category => {
-                const categoryReasons = reasons.filter(r => r.category === category);
+              {[
+                "market",
+                "team",
+                "product",
+                "financials",
+                "fit",
+                "timing",
+                "other",
+              ].map((category) => {
+                const categoryReasons = reasons.filter(
+                  (r) => r.category === category,
+                );
                 if (categoryReasons.length === 0) return null;
 
                 return (
@@ -195,14 +293,14 @@ export function DecisionWriter() {
                       {category}
                     </p>
                     <div className="space-y-2">
-                      {categoryReasons.map(reason => (
+                      {categoryReasons.map((reason) => (
                         <button
                           key={reason.id}
                           onClick={() => toggleReason(reason.id)}
                           className={`w-full text-left p-3 rounded-lg border-2 transition-all ${
                             reason.selected
-                              ? 'border-[var(--app-primary)] bg-[var(--app-primary-bg)]'
-                              : 'border-[var(--app-border)] hover:border-[var(--app-primary)] hover:bg-[var(--app-surface-hover)]'
+                              ? "border-[var(--app-primary)] bg-[var(--app-primary-bg)]"
+                              : "border-[var(--app-border)] hover:border-[var(--app-primary)] hover:bg-[var(--app-surface-hover)]"
                           }`}
                         >
                           <div className="flex items-center justify-between">
@@ -219,7 +317,9 @@ export function DecisionWriter() {
               })}
 
               <div>
-                <label className="text-sm font-medium mb-2 block">Custom Reason (Optional)</label>
+                <label className="text-sm font-medium mb-2 block">
+                  Custom Reason (Optional)
+                </label>
                 <Textarea
                   placeholder="Add a custom reason specific to this deal..."
                   value={customReason}
@@ -234,30 +334,32 @@ export function DecisionWriter() {
           <Card padding="lg">
             <SectionHeader
               className="mb-4"
-              title={(
+              title={
                 <span className="flex items-center gap-2">
                   <MessageSquare className="w-4 h-4 text-[var(--app-primary)]" />
                   <span>Letter Tone</span>
                 </span>
-              )}
+              }
               titleClassName="font-semibold text-base"
             />
 
             <div className="space-y-2">
-              {toneOptions.map(option => (
+              {toneOptions.map((option) => (
                 <button
                   key={option.value}
                   onClick={() => patchUI({ tone: option.value })}
                   className={`w-full text-left p-3 rounded-lg border-2 transition-all ${
                     tone === option.value
-                      ? 'border-[var(--app-primary)] bg-[var(--app-primary-bg)]'
-                      : 'border-[var(--app-border)] hover:border-[var(--app-primary)] hover:bg-[var(--app-surface-hover)]'
+                      ? "border-[var(--app-primary)] bg-[var(--app-primary-bg)]"
+                      : "border-[var(--app-border)] hover:border-[var(--app-primary)] hover:bg-[var(--app-surface-hover)]"
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium text-sm">{option.label}</p>
-                      <p className="text-xs text-[var(--app-text-muted)]">{option.description}</p>
+                      <p className="text-xs text-[var(--app-text-muted)]">
+                        {option.description}
+                      </p>
                     </div>
                     {tone === option.value && (
                       <Check className="w-4 h-4 text-[var(--app-primary)]" />
@@ -276,9 +378,13 @@ export function DecisionWriter() {
             startContent={<Wand2 className="w-5 h-5" />}
             onPress={generateLetter}
             isLoading={isGenerating}
-            isDisabled={!dealInfo.companyName || !dealInfo.founderName}
+            isDisabled={
+              !dealInfo.companyName ||
+              !dealInfo.founderName ||
+              Boolean(unavailable)
+            }
           >
-            {isGenerating ? 'Generating...' : 'Generate Letter'}
+            {isGenerating ? "Generating..." : "Generate Letter"}
           </Button>
         </div>
 
@@ -287,12 +393,12 @@ export function DecisionWriter() {
           <Card padding="lg" className="sticky top-6">
             <SectionHeader
               className="mb-4"
-              title={(
+              title={
                 <span className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-[var(--app-primary)]" />
                   <span>Generated Letter</span>
                 </span>
-              )}
+              }
               titleClassName="font-semibold text-base"
               action={
                 generatedLetter ? (
@@ -315,10 +421,16 @@ export function DecisionWriter() {
                     <Button
                       size="sm"
                       variant="flat"
-                      startContent={letterCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                      startContent={
+                        letterCopied ? (
+                          <Check className="w-3 h-3" />
+                        ) : (
+                          <Copy className="w-3 h-3" />
+                        )
+                      }
                       onPress={copyToClipboard}
                     >
-                      {letterCopied ? 'Copied!' : 'Copy'}
+                      {letterCopied ? "Copied!" : "Copy"}
                     </Button>
                     <Button
                       size="sm"
@@ -332,7 +444,21 @@ export function DecisionWriter() {
               }
             />
 
-            {generatedLetter ? (
+            {unavailable ? (
+              <div className="p-4 rounded-lg bg-[var(--app-warning-bg)] border border-[var(--app-warning)]/30">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-[var(--app-warning)] mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium text-[var(--app-warning)] mb-1">
+                      Decision writer unavailable
+                    </p>
+                    <p className="text-sm text-[var(--app-text)]">
+                      {unavailable.message}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : generatedLetter ? (
               <div className="space-y-4">
                 <div className="p-4 rounded-lg bg-[var(--app-surface-hover)] border border-[var(--app-border)]">
                   <pre className="whitespace-pre-wrap font-sans text-sm text-[var(--app-text)]">
@@ -348,10 +474,7 @@ export function DecisionWriter() {
                   >
                     Send Email
                   </Button>
-                  <Button
-                    variant="flat"
-                    className="flex-1"
-                  >
+                  <Button variant="flat" className="flex-1">
                     Save as Draft
                   </Button>
                 </div>
@@ -364,7 +487,8 @@ export function DecisionWriter() {
                         Letter Ready
                       </p>
                       <p className="text-xs text-[var(--app-text-muted)]">
-                        Your personalized rejection letter has been generated. Review and edit as needed before sending.
+                        Your personalized rejection letter has been generated.
+                        Review and edit as needed before sending.
                       </p>
                     </div>
                   </div>
@@ -379,14 +503,18 @@ export function DecisionWriter() {
                   No letter generated yet
                 </p>
                 <p className="text-center text-sm text-[var(--app-text-subtle)]">
-                  Fill in the deal information and select reasons to generate a personalized rejection letter
+                  Fill in the deal information and select reasons to generate a
+                  personalized rejection letter
                 </p>
               </div>
             )}
           </Card>
 
           {/* Tips */}
-          <Card padding="md" className="mt-4 bg-[var(--app-info-bg)] border-[var(--app-info)]/20">
+          <Card
+            padding="md"
+            className="mt-4 bg-[var(--app-info-bg)] border-[var(--app-info)]/20"
+          >
             <div className="flex items-start gap-2">
               <AlertCircle className="w-4 h-4 text-[var(--app-info)] mt-0.5 flex-shrink-0" />
               <div>
@@ -395,7 +523,10 @@ export function DecisionWriter() {
                 </p>
                 <ul className="text-xs text-[var(--app-text-muted)] space-y-1 list-disc list-inside">
                   <li>Select 2-4 specific reasons for authenticity</li>
-                  <li>Warm tone helps maintain relationships for future opportunities</li>
+                  <li>
+                    Warm tone helps maintain relationships for future
+                    opportunities
+                  </li>
                   <li>Always review and personalize before sending</li>
                   <li>Consider offering specific feedback when appropriate</li>
                 </ul>
