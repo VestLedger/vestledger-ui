@@ -24,6 +24,8 @@ import { useAsyncData } from "@/hooks/useAsyncData";
 import { dealOutcomeClasses } from "@/utils/styling";
 import { PIPELINE_STAGE_DISPLAY_NAMES } from "@/config/pipeline-options";
 import { PageShell } from "@/ui/composites";
+import { DataStateBadge, SyncStateIndicator } from "@/ui/data-states";
+import { isMockMode } from "@/config/data-mode";
 import { loadPipelineDataOperation } from "@/store/async/dataOperations";
 import {
   createPipelineDealOperation,
@@ -231,6 +233,20 @@ export function Pipeline() {
         testId: "pipeline-add-deal",
       }}
     >
+      <div
+        className="mt-2 flex items-center gap-3"
+        data-testid="pipeline-data-state-row"
+      >
+        <DataStateBadge
+          state={isMockMode("pipeline") ? "demo" : "live"}
+          testId="pipeline-data-mode-badge"
+        />
+        <SyncStateIndicator
+          state={isLoading ? "syncing" : error ? "error" : "live"}
+          testId="pipeline-sync-state"
+        />
+      </div>
+
       {isLoading && (
         <LoadingState message="Loading pipeline…" fullHeight={false} />
       )}

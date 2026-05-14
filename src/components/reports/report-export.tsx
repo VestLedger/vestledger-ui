@@ -15,7 +15,6 @@ import {
   Clock,
   Repeat,
   FileDown,
-  AlertCircle,
 } from "lucide-react";
 import {
   createExportJob,
@@ -28,6 +27,7 @@ import { isMockMode } from "@/config/data-mode";
 import { logger } from "@/lib/logger";
 import { useUIKey } from "@/store/ui";
 import { PageShell, SectionHeader, StatusBadge } from "@/ui/composites";
+import { DataStateBadge, UnavailableState } from "@/ui/data-states";
 import { REPORT_SCHEDULE_FREQUENCY_OPTIONS } from "@/config/report-options";
 import { formatDateTime } from "@/utils/formatting";
 
@@ -288,7 +288,13 @@ export function ReportExport() {
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Report Templates */}
         <div className="lg:col-span-2 space-y-4">
-          <SectionHeader title="Report Templates" />
+          <div className="flex items-center justify-between">
+            <SectionHeader title="Report Templates" />
+            <DataStateBadge
+              state={isMockMode("reports") ? "demo" : "live"}
+              testId="reports-data-mode-badge"
+            />
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {reportTemplates.map((template) => (
@@ -422,16 +428,13 @@ export function ReportExport() {
                         </div>
                       )}
                       {job.status === "completed_no_artifact" && (
-                        <div
-                          className="mt-2 flex items-start gap-2 rounded-lg bg-[var(--app-surface-hover)] p-2 text-xs text-[var(--app-text-muted)]"
-                          data-testid="report-no-artifact"
-                        >
-                          <AlertCircle className="mt-0.5 h-3.5 w-3.5 flex-none" />
-                          <span>
-                            Finished without producing a downloadable file. Full
-                            artifact generation is not yet available — this run
-                            recorded the request but produced no export.
-                          </span>
+                        <div className="mt-2" data-testid="report-no-artifact">
+                          <UnavailableState
+                            reason="no_artifact"
+                            title="No file produced"
+                            message="The job finished but no downloadable artifact was generated. Full artifact generation is not yet implemented."
+                            testId={`report-no-artifact-${job.id}`}
+                          />
                         </div>
                       )}
                       {job.status === "failed" && (
