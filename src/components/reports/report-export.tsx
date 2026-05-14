@@ -27,8 +27,7 @@ import {
 import { isMockMode } from "@/config/data-mode";
 import { logger } from "@/lib/logger";
 import { useUIKey } from "@/store/ui";
-import { PageScaffold, SectionHeader, StatusBadge } from "@/ui/composites";
-import { ROUTE_PATHS } from "@/config/routes";
+import { PageShell, SectionHeader, StatusBadge } from "@/ui/composites";
 import { REPORT_SCHEDULE_FREQUENCY_OPTIONS } from "@/config/report-options";
 import { formatDateTime } from "@/utils/formatting";
 
@@ -243,23 +242,48 @@ export function ReportExport() {
     }
   };
 
+  const readyCount = exportJobs.filter(
+    (j) => j.status === "completed" && Boolean(j.downloadUrl),
+  ).length;
+  const noArtifactCount = exportJobs.filter(
+    (j) => j.status === "completed_no_artifact",
+  ).length;
+  const inProgressCount = exportJobs.filter(
+    (j) => j.status === "processing" || j.status === "queued",
+  ).length;
+
   return (
-    <PageScaffold
-      routePath={ROUTE_PATHS.reports}
-      header={{
-        title: "Reports",
-        description: "Manage and export fund reports",
-        icon: FileDown,
-        aiSummary: {
-          text: `${reportTemplates.length} report templates available. ${exportJobs.filter((j) => j.status === "completed" && Boolean(j.downloadUrl)).length} reports ready to download, ${exportJobs.filter((j) => j.status === "completed_no_artifact").length} finished without a file, ${exportJobs.filter((j) => j.status === "processing" || j.status === "queued").length} in progress.`,
+    <PageShell
+      title="Reports"
+      subtitle="Manage and export fund reports"
+      icon={FileDown}
+      contextBadges={[
+        {
+          id: "ready",
+          label: `${readyCount} ready`,
+          tone: "success",
+          testId: "reports-ready-count",
         },
-        secondaryActions: [
-          {
-            label: "Report Settings",
-            onClick: () => {},
-          },
-        ],
-      }}
+        {
+          id: "no-artifact",
+          label: `${noArtifactCount} finished, no file`,
+          tone: "neutral",
+          testId: "reports-no-artifact-count",
+        },
+        {
+          id: "in-progress",
+          label: `${inProgressCount} in progress`,
+          tone: "info",
+          testId: "reports-in-progress-count",
+        },
+      ]}
+      secondaryActions={[
+        {
+          label: "Report settings",
+          onClick: () => {},
+          testId: "reports-settings",
+        },
+      ]}
     >
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Report Templates */}
@@ -601,6 +625,6 @@ export function ReportExport() {
           </Card>
         </div>
       </div>
-    </PageScaffold>
+    </PageShell>
   );
 }

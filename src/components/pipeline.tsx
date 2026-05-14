@@ -1,27 +1,34 @@
-'use client'
+"use client";
 
-import { useEffect } from 'react';
-import { Filter, Grid, List, GitBranch } from 'lucide-react';
-import { DealCard } from '@/components/deal-card';
-import { Button, Card, Badge, Progress, ToggleButtonGroup, Modal, Input, Select, useToast } from '@/ui';
-import { KanbanBoard } from '@/components/kanban-board';
-import { useAppDispatch } from '@/store/hooks';
-import { setSuggestionsOverride } from '@/store/slices/copilotSlice';
-import { pipelineSelectors } from '@/store/slices/pipelineSlice';
-import { useUIKey } from '@/store/ui';
-import { ErrorState, LoadingState } from '@/ui/async-states';
-import { useAsyncData } from '@/hooks/useAsyncData';
-import { dealOutcomeClasses } from '@/utils/styling';
-import { PIPELINE_STAGE_DISPLAY_NAMES } from '@/config/pipeline-options';
-import { PageScaffold } from '@/ui/composites';
-import { ROUTE_PATHS } from '@/config/routes';
+import { useEffect } from "react";
+import { Filter, Grid, List, GitBranch } from "lucide-react";
+import { DealCard } from "@/components/deal-card";
 import {
-  loadPipelineDataOperation,
-} from '@/store/async/dataOperations';
+  Button,
+  Card,
+  Badge,
+  Progress,
+  ToggleButtonGroup,
+  Modal,
+  Input,
+  Select,
+  useToast,
+} from "@/ui";
+import { KanbanBoard } from "@/components/kanban-board";
+import { useAppDispatch } from "@/store/hooks";
+import { setSuggestionsOverride } from "@/store/slices/copilotSlice";
+import { pipelineSelectors } from "@/store/slices/pipelineSlice";
+import { useUIKey } from "@/store/ui";
+import { ErrorState, LoadingState } from "@/ui/async-states";
+import { useAsyncData } from "@/hooks/useAsyncData";
+import { dealOutcomeClasses } from "@/utils/styling";
+import { PIPELINE_STAGE_DISPLAY_NAMES } from "@/config/pipeline-options";
+import { PageShell } from "@/ui/composites";
+import { loadPipelineDataOperation } from "@/store/async/dataOperations";
 import {
   createPipelineDealOperation,
   updatePipelineDealStageOperation,
-} from '@/store/async/pipelineMutationOperations';
+} from "@/store/async/pipelineMutationOperations";
 
 type CreateDealDraft = {
   name: string;
@@ -34,11 +41,11 @@ type CreateDealDraft = {
 
 function getInitialCreateDealDraft(defaultStage: string): CreateDealDraft {
   return {
-    name: '',
-    sector: '',
-    founder: '',
-    amountMillions: '',
-    probability: '50',
+    name: "",
+    sector: "",
+    founder: "",
+    amountMillions: "",
+    probability: "50",
     stage: defaultStage,
   };
 }
@@ -46,21 +53,25 @@ function getInitialCreateDealDraft(defaultStage: string): CreateDealDraft {
 export function Pipeline() {
   const dispatch = useAppDispatch();
   const toast = useToast();
-  const { data, isLoading, error, refetch } = useAsyncData(loadPipelineDataOperation, pipelineSelectors.selectState, { params: {} });
+  const { data, isLoading, error, refetch } = useAsyncData(
+    loadPipelineDataOperation,
+    pipelineSelectors.selectState,
+    { params: {} },
+  );
 
   const pipelineStages = data?.stages || [];
   const pipelineDeals = data?.deals || [];
-  const defaultStage = pipelineStages[0] ?? 'sourced';
+  const defaultStage = pipelineStages[0] ?? "sourced";
 
-  const { value: pipelineUI, patch: patchPipelineUI } = useUIKey('pipeline', {
-    viewMode: 'kanban' as 'kanban' | 'list',
+  const { value: pipelineUI, patch: patchPipelineUI } = useUIKey("pipeline", {
+    viewMode: "kanban" as "kanban" | "list",
     showClosedDeals: false,
   });
 
   const { value: createDealUI, patch: patchCreateDealUI } = useUIKey<{
     isOpen: boolean;
     draft: CreateDealDraft;
-  }>('pipeline-create-deal', {
+  }>("pipeline-create-deal", {
     isOpen: false,
     draft: getInitialCreateDealDraft(defaultStage),
   });
@@ -69,25 +80,39 @@ export function Pipeline() {
   const viewMode = pipelineUI.viewMode;
   const showClosedDeals = pipelineUI.showClosedDeals;
 
-  const filteredDeals = showClosedDeals ? pipelineDealsAll : pipelineDealsAll.filter(d => d.outcome === 'active');
-  const activeDealsCount = pipelineDealsAll.filter(d => d.outcome === 'active').length;
-  const closedDealsCount = pipelineDealsAll.filter(d => d.outcome !== 'active').length;
+  const filteredDeals = showClosedDeals
+    ? pipelineDealsAll
+    : pipelineDealsAll.filter((d) => d.outcome === "active");
+  const activeDealsCount = pipelineDealsAll.filter(
+    (d) => d.outcome === "active",
+  ).length;
+  const closedDealsCount = pipelineDealsAll.filter(
+    (d) => d.outcome !== "active",
+  ).length;
   const viewModeSelection = new Set([viewMode]);
 
   const handleItemMove = async (itemId: number | string, newStage: string) => {
     try {
-      await dispatch(updatePipelineDealStageOperation({ dealId: itemId, newStage })).unwrap();
+      await dispatch(
+        updatePipelineDealStageOperation({ dealId: itemId, newStage }),
+      ).unwrap();
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unable to update stage';
-      toast.error(message, 'Stage Update Failed');
+      const message =
+        error instanceof Error ? error.message : "Unable to update stage";
+      toast.error(message, "Stage Update Failed");
     }
   };
 
   // Calculate AI insights
-  const highProbabilityDeals = filteredDeals.filter(d => d.probability >= 70 && d.outcome === 'active');
-  const stalledDeals = filteredDeals.filter(d => {
+  const highProbabilityDeals = filteredDeals.filter(
+    (d) => d.probability >= 70 && d.outcome === "active",
+  );
+  const stalledDeals = filteredDeals.filter((d) => {
     const lastContact = d.lastContact;
-    return d.outcome === 'active' && (lastContact.includes('week') || lastContact.includes('month'));
+    return (
+      d.outcome === "active" &&
+      (lastContact.includes("week") || lastContact.includes("month"))
+    );
   });
 
   // Surface the inbound deal-flow suggestion inside the Copilot suggestions panel when on this page
@@ -129,17 +154,26 @@ export function Pipeline() {
     const probability = Number(createDealUI.draft.probability);
 
     if (!name || !sector || !founder) {
-      toast.warning('Enter company, sector, and founder to create a deal.', 'Missing Fields');
+      toast.warning(
+        "Enter company, sector, and founder to create a deal.",
+        "Missing Fields",
+      );
       return;
     }
 
     if (!Number.isFinite(amountMillions) || amountMillions <= 0) {
-      toast.warning('Investment amount must be greater than 0.', 'Invalid Amount');
+      toast.warning(
+        "Investment amount must be greater than 0.",
+        "Invalid Amount",
+      );
       return;
     }
 
     if (!Number.isFinite(probability) || probability < 0 || probability > 100) {
-      toast.warning('Probability must be between 0 and 100.', 'Invalid Probability');
+      toast.warning(
+        "Probability must be between 0 and 100.",
+        "Invalid Probability",
+      );
       return;
     }
 
@@ -148,56 +182,58 @@ export function Pipeline() {
       : defaultStage;
 
     try {
-      const createdDeal = await dispatch(createPipelineDealOperation({
-        name,
-        stage,
-        sector,
-        founder,
-        amount: amountMillions * 1_000_000,
-        probability,
-      })).unwrap();
+      const createdDeal = await dispatch(
+        createPipelineDealOperation({
+          name,
+          stage,
+          sector,
+          founder,
+          amount: amountMillions * 1_000_000,
+          probability,
+        }),
+      ).unwrap();
 
       patchCreateDealUI({
         isOpen: false,
         draft: getInitialCreateDealDraft(defaultStage),
       });
 
-      toast.success(`${createdDeal.name} added to ${stage}.`, 'Deal Created');
+      toast.success(`${createdDeal.name} added to ${stage}.`, "Deal Created");
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unable to create deal';
-      toast.error(message, 'Create Deal Failed');
+      const message =
+        error instanceof Error ? error.message : "Unable to create deal";
+      toast.error(message, "Create Deal Failed");
     }
   };
 
   return (
-    <PageScaffold
-      routePath={ROUTE_PATHS.pipeline}
-      header={{
-        title: 'Deal Pipeline',
-        description: 'Track and manage your investment opportunities',
-        icon: GitBranch,
-        aiSummary: {
-          text: `${highProbabilityDeals.length} high-probability deals (≥70%) detected. ${stalledDeals.length} deals need follow-up (inactive >1 week). Total pipeline value: $${(filteredDeals.reduce((sum, d) => sum + parseFloat(d.amount.replace(/[$M]/g, '')), 0)).toFixed(1)}M.`,
+    <PageShell
+      title="Deal Pipeline"
+      subtitle="Track and manage your investment opportunities"
+      icon={GitBranch}
+      contextBadges={[
+        {
+          id: "active",
+          label: `${activeDealsCount} active`,
+          tone: "info",
+          testId: "pipeline-active-count",
         },
-        primaryAction: {
-          label: 'Add Deal',
-          onClick: openCreateDealModal,
-          aiSuggested: true,
+        {
+          id: "closed",
+          label: `${closedDealsCount} closed`,
+          tone: "neutral",
+          testId: "pipeline-closed-count",
         },
-        children: (
-          <div className="flex flex-wrap items-center gap-3 mt-4">
-            <Badge size="md" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">
-              {activeDealsCount} Active Deals
-            </Badge>
-            <Badge size="md" variant="bordered" className="text-[var(--app-text-muted)] border-[var(--app-border)]">
-              {closedDealsCount} Closed Deals
-            </Badge>
-          </div>
-        ),
+      ]}
+      primaryAction={{
+        label: "Add Deal",
+        onClick: openCreateDealModal,
+        testId: "pipeline-add-deal",
       }}
     >
-
-      {isLoading && <LoadingState message="Loading pipeline…" fullHeight={false} />}
+      {isLoading && (
+        <LoadingState message="Loading pipeline…" fullHeight={false} />
+      )}
       {error && (
         <ErrorState
           error={error}
@@ -210,7 +246,7 @@ export function Pipeline() {
         title="Add Deal"
         isOpen={createDealUI.isOpen}
         onOpenChange={(open) => patchCreateDealUI({ isOpen: open })}
-        footer={(
+        footer={
           <div className="flex items-center justify-end gap-2">
             <Button variant="light" onPress={closeCreateDealModal}>
               Cancel
@@ -219,32 +255,45 @@ export function Pipeline() {
               Create Deal
             </Button>
           </div>
-        )}
+        }
       >
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <Input
             label="Company"
             placeholder="Acme AI"
             value={createDealUI.draft.name}
-            onChange={(event) => updateCreateDealDraft({ name: event.target.value })}
+            onChange={(event) =>
+              updateCreateDealDraft({ name: event.target.value })
+            }
           />
           <Select
             label="Stage"
-            selectedKeys={createDealUI.draft.stage ? [createDealUI.draft.stage] : []}
-            onChange={(event) => updateCreateDealDraft({ stage: event.target.value })}
-            options={pipelineStages.map((stage) => ({ value: stage, label: PIPELINE_STAGE_DISPLAY_NAMES[stage] ?? stage }))}
+            selectedKeys={
+              createDealUI.draft.stage ? [createDealUI.draft.stage] : []
+            }
+            onChange={(event) =>
+              updateCreateDealDraft({ stage: event.target.value })
+            }
+            options={pipelineStages.map((stage) => ({
+              value: stage,
+              label: PIPELINE_STAGE_DISPLAY_NAMES[stage] ?? stage,
+            }))}
           />
           <Input
             label="Sector"
             placeholder="Enterprise SaaS"
             value={createDealUI.draft.sector}
-            onChange={(event) => updateCreateDealDraft({ sector: event.target.value })}
+            onChange={(event) =>
+              updateCreateDealDraft({ sector: event.target.value })
+            }
           />
           <Input
             label="Founder"
             placeholder="Jane Doe"
             value={createDealUI.draft.founder}
-            onChange={(event) => updateCreateDealDraft({ founder: event.target.value })}
+            onChange={(event) =>
+              updateCreateDealDraft({ founder: event.target.value })
+            }
           />
           <Input
             label="Investment Amount (M)"
@@ -252,7 +301,9 @@ export function Pipeline() {
             min={0}
             step="0.1"
             value={createDealUI.draft.amountMillions}
-            onChange={(event) => updateCreateDealDraft({ amountMillions: event.target.value })}
+            onChange={(event) =>
+              updateCreateDealDraft({ amountMillions: event.target.value })
+            }
           />
           <Input
             label="Win Probability (%)"
@@ -260,7 +311,9 @@ export function Pipeline() {
             min={0}
             max={100}
             value={createDealUI.draft.probability}
-            onChange={(event) => updateCreateDealDraft({ probability: event.target.value })}
+            onChange={(event) =>
+              updateCreateDealDraft({ probability: event.target.value })
+            }
           />
         </div>
       </Modal>
@@ -278,13 +331,23 @@ export function Pipeline() {
         <ToggleButtonGroup
           aria-label="Pipeline view mode"
           options={[
-            { key: 'kanban', label: null, icon: <Grid className="w-4 h-4" />, 'aria-label': 'Kanban view' },
-            { key: 'list', label: null, icon: <List className="w-4 h-4" />, 'aria-label': 'List view' },
+            {
+              key: "kanban",
+              label: null,
+              icon: <Grid className="w-4 h-4" />,
+              "aria-label": "Kanban view",
+            },
+            {
+              key: "list",
+              label: null,
+              icon: <List className="w-4 h-4" />,
+              "aria-label": "List view",
+            },
           ]}
           selectedKeys={viewModeSelection}
           onSelectionChange={(keys) => {
             const nextView = Array.from(keys)[0];
-            if (nextView === 'kanban' || nextView === 'list') {
+            if (nextView === "kanban" || nextView === "list") {
               patchPipelineUI({ viewMode: nextView });
             }
           }}
@@ -294,17 +357,15 @@ export function Pipeline() {
         />
       </div>
 
-      {viewMode === 'kanban' ? (
+      {viewMode === "kanban" ? (
         <KanbanBoard
-          columns={pipelineStages.map(stage => ({
+          columns={pipelineStages.map((stage) => ({
             id: stage,
             title: PIPELINE_STAGE_DISPLAY_NAMES[stage] ?? stage,
-            items: filteredDeals.filter(deal => deal.stage === stage)
+            items: filteredDeals.filter((deal) => deal.stage === stage),
           }))}
           onItemMove={handleItemMove}
-          renderItem={(item) => (
-            <DealCard deal={item} outcome={item.outcome} />
-          )}
+          renderItem={(item) => <DealCard deal={item} outcome={item.outcome} />}
         />
       ) : (
         <Card>
@@ -312,18 +373,56 @@ export function Pipeline() {
             <table className="min-w-full text-sm" aria-label="Deals table">
               <thead className="border-b border-[var(--app-border)]">
                 <tr>
-                  <th scope="col" className="px-4 py-3 text-left font-medium text-[var(--app-text-muted)]">Company</th>
-                  <th scope="col" className="px-4 py-3 text-left font-medium text-[var(--app-text-muted)]">Stage</th>
-                  <th scope="col" className="px-4 py-3 text-left font-medium text-[var(--app-text-muted)] hidden md:table-cell">Sector</th>
-                  <th scope="col" className="px-4 py-3 text-right font-medium text-[var(--app-text-muted)]">Amount</th>
-                  <th scope="col" className="px-4 py-3 text-right font-medium text-[var(--app-text-muted)] hidden lg:table-cell">Probability</th>
-                  <th scope="col" className="px-4 py-3 text-left font-medium text-[var(--app-text-muted)] hidden xl:table-cell">Founder</th>
-                  <th scope="col" className="px-4 py-3 text-left font-medium text-[var(--app-text-muted)] hidden xl:table-cell">Last Contact</th>
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-left font-medium text-[var(--app-text-muted)]"
+                  >
+                    Company
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-left font-medium text-[var(--app-text-muted)]"
+                  >
+                    Stage
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-left font-medium text-[var(--app-text-muted)] hidden md:table-cell"
+                  >
+                    Sector
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-right font-medium text-[var(--app-text-muted)]"
+                  >
+                    Amount
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-right font-medium text-[var(--app-text-muted)] hidden lg:table-cell"
+                  >
+                    Probability
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-left font-medium text-[var(--app-text-muted)] hidden xl:table-cell"
+                  >
+                    Founder
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-left font-medium text-[var(--app-text-muted)] hidden xl:table-cell"
+                  >
+                    Last Contact
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--app-border)]">
                 {filteredDeals.map((deal) => (
-                  <tr key={deal.id} className="hover:bg-[var(--app-surface-hover)]">
+                  <tr
+                    key={deal.id}
+                    className="hover:bg-[var(--app-surface-hover)]"
+                  >
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--app-primary)] to-[var(--app-accent)] flex items-center justify-center text-xs flex-shrink-0 text-white">
@@ -331,8 +430,12 @@ export function Pipeline() {
                         </div>
                         <div className="flex flex-col">
                           <span>{deal.name}</span>
-                          {deal.outcome !== 'active' && (
-                            <Badge size="sm" variant="flat" className={`${dealOutcomeClasses[deal.outcome as keyof typeof dealOutcomeClasses] || ''} mt-1 w-fit`}>
+                          {deal.outcome !== "active" && (
+                            <Badge
+                              size="sm"
+                              variant="flat"
+                              className={`${dealOutcomeClasses[deal.outcome as keyof typeof dealOutcomeClasses] || ""} mt-1 w-fit`}
+                            >
                               {deal.outcome}
                             </Badge>
                           )}
@@ -340,12 +443,20 @@ export function Pipeline() {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <Badge size="sm" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">
+                      <Badge
+                        size="sm"
+                        variant="flat"
+                        className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]"
+                      >
                         {PIPELINE_STAGE_DISPLAY_NAMES[deal.stage] ?? deal.stage}
                       </Badge>
                     </td>
-                    <td className="px-4 py-3 text-[var(--app-text-muted)] hidden md:table-cell">{deal.sector}</td>
-                    <td className="px-4 py-3 text-right whitespace-nowrap">{deal.amount}</td>
+                    <td className="px-4 py-3 text-[var(--app-text-muted)] hidden md:table-cell">
+                      {deal.sector}
+                    </td>
+                    <td className="px-4 py-3 text-right whitespace-nowrap">
+                      {deal.amount}
+                    </td>
                     <td className="px-4 py-3 text-right hidden lg:table-cell">
                       <div className="flex items-center justify-end gap-2">
                         <Progress
@@ -355,11 +466,17 @@ export function Pipeline() {
                           className="w-16"
                           aria-label={`${deal.name} probability ${deal.probability}%`}
                         />
-                        <span className="text-sm text-[var(--app-text-muted)] w-8">{deal.probability}%</span>
+                        <span className="text-sm text-[var(--app-text-muted)] w-8">
+                          {deal.probability}%
+                        </span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 hidden xl:table-cell">{deal.founder}</td>
-                    <td className="px-4 py-3 text-[var(--app-text-muted)] hidden xl:table-cell">{deal.lastContact}</td>
+                    <td className="px-4 py-3 hidden xl:table-cell">
+                      {deal.founder}
+                    </td>
+                    <td className="px-4 py-3 text-[var(--app-text-muted)] hidden xl:table-cell">
+                      {deal.lastContact}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -367,6 +484,6 @@ export function Pipeline() {
           </div>
         </Card>
       )}
-    </PageScaffold>
+    </PageShell>
   );
 }

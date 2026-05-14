@@ -1,20 +1,24 @@
-'use client';
+"use client";
 
-import { isMockMode } from '@/config/data-mode';
-import { PageScaffold } from '@/ui/composites';
-import { DocumentManager, type AccessLevel } from './document-manager';
-import { DocumentPreviewModal, useDocumentPreview, getMockDocumentUrl, type PreviewDocument } from './preview';
-import { useFund } from '@/contexts/fund-context';
-import { useAppDispatch } from '@/store/hooks';
+import { isMockMode } from "@/config/data-mode";
+import { PageShell } from "@/ui/composites";
+import { DocumentManager, type AccessLevel } from "./document-manager";
+import {
+  DocumentPreviewModal,
+  useDocumentPreview,
+  getMockDocumentUrl,
+  type PreviewDocument,
+} from "./preview";
+import { useFund } from "@/contexts/fund-context";
+import { useAppDispatch } from "@/store/hooks";
 import {
   documentFavoriteToggled,
   documentsSelectors,
-} from '@/store/slices/documentsSlice';
-import { useUIKey } from '@/store/ui';
-import { useAsyncData } from '@/hooks/useAsyncData';
-import { ROUTE_PATHS } from '@/config/routes';
-import { useToast } from '@/ui';
-import { loadDocumentsOperation } from '@/store/async/dataOperations';
+} from "@/store/slices/documentsSlice";
+import { useUIKey } from "@/store/ui";
+import { useAsyncData } from "@/hooks/useAsyncData";
+import { useToast } from "@/ui";
+import { loadDocumentsOperation } from "@/store/async/dataOperations";
 import {
   createDocumentFolderOperation,
   deleteDocumentOperation,
@@ -23,27 +27,26 @@ import {
   shareDocumentOperation,
   updateDocumentAccessOperation,
   uploadDocumentOperation,
-} from '@/store/async/documentsOperations';
+} from "@/store/async/documentsOperations";
 
-function toPreviewDocument(
-  doc: {
-    id: string;
-    name: string;
-    type: PreviewDocument['type'];
-    url?: string;
-    size?: number;
-    uploadedBy?: string;
-    uploadedDate?: Date;
-    category?: string;
-    tags?: string[];
-  },
-): PreviewDocument {
-  const resolvedUrl = doc.url || (isMockMode('documents') ? getMockDocumentUrl(doc.type) : '');
+function toPreviewDocument(doc: {
+  id: string;
+  name: string;
+  type: PreviewDocument["type"];
+  url?: string;
+  size?: number;
+  uploadedBy?: string;
+  uploadedDate?: Date;
+  category?: string;
+  tags?: string[];
+}): PreviewDocument {
+  const resolvedUrl =
+    doc.url || (isMockMode("documents") ? getMockDocumentUrl(doc.type) : "");
 
   return {
     id: doc.id,
     name: doc.name,
-    type: resolvedUrl ? doc.type : 'other',
+    type: resolvedUrl ? doc.type : "other",
     url: resolvedUrl,
     size: doc.size,
     uploadedBy: doc.uploadedBy,
@@ -57,20 +60,28 @@ export function Documents() {
   const dispatch = useAppDispatch();
   const toast = useToast();
   const { selectedFund, viewMode } = useFund();
-  const selectedFundId = viewMode === 'individual' ? selectedFund?.id ?? null : null;
+  const selectedFundId =
+    viewMode === "individual" ? (selectedFund?.id ?? null) : null;
 
-  const { data } = useAsyncData(loadDocumentsOperation, documentsSelectors.selectState, {
-    params: {
-      fundId: selectedFundId,
+  const { data } = useAsyncData(
+    loadDocumentsOperation,
+    documentsSelectors.selectState,
+    {
+      params: {
+        fundId: selectedFundId,
+      },
+      dependencies: [selectedFundId],
     },
-    dependencies: [selectedFundId],
-  });
+  );
 
   const documents = data?.documents || [];
   const folders = data?.folders || [];
-  const { value: ui } = useUIKey<{ currentFolderId: string | null }>('documents-page', {
-    currentFolderId: null,
-  });
+  const { value: ui } = useUIKey<{ currentFolderId: string | null }>(
+    "documents-page",
+    {
+      currentFolderId: null,
+    },
+  );
   const { currentFolderId } = ui;
   const preview = useDocumentPreview();
 
@@ -79,19 +90,27 @@ export function Documents() {
 
   const handleUpload = async (folderId?: string | null) => {
     try {
-      await dispatch(uploadDocumentOperation({ folderId, fundId: selectedFundId })).unwrap();
-      toast.success('Document uploaded.', 'Upload Complete');
+      await dispatch(
+        uploadDocumentOperation({ folderId, fundId: selectedFundId }),
+      ).unwrap();
+      toast.success("Document uploaded.", "Upload Complete");
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Unable to upload document.'), 'Upload Failed');
+      toast.error(
+        getErrorMessage(error, "Unable to upload document."),
+        "Upload Failed",
+      );
     }
   };
 
   const handleCreateFolder = async (parentId?: string | null) => {
     try {
       await dispatch(createDocumentFolderOperation({ parentId })).unwrap();
-      toast.success('Folder created.', 'Folder Added');
+      toast.success("Folder created.", "Folder Added");
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Unable to create folder.'), 'Create Folder Failed');
+      toast.error(
+        getErrorMessage(error, "Unable to create folder."),
+        "Create Folder Failed",
+      );
     }
   };
 
@@ -101,7 +120,9 @@ export function Documents() {
       const previewDoc = toPreviewDocument(doc);
 
       // Map all documents for navigation
-      const allPreviewDocs: PreviewDocument[] = documents.map((d) => toPreviewDocument(d));
+      const allPreviewDocs: PreviewDocument[] = documents.map((d) =>
+        toPreviewDocument(d),
+      );
 
       preview.openPreview(previewDoc, allPreviewDocs);
     }
@@ -109,40 +130,53 @@ export function Documents() {
 
   const handleDownloadDocument = async (documentId: string) => {
     try {
-      const url = await dispatch(downloadDocumentOperation(documentId)).unwrap();
+      const url = await dispatch(
+        downloadDocumentOperation(documentId),
+      ).unwrap();
       if (!url) {
-        toast.warning('Download link unavailable for this document.');
+        toast.warning("Download link unavailable for this document.");
         return;
       }
 
-      const targetDocument = documents.find((document) => document.id === documentId);
-      const anchor = window.document.createElement('a');
+      const targetDocument = documents.find(
+        (document) => document.id === documentId,
+      );
+      const anchor = window.document.createElement("a");
       anchor.href = url;
-      anchor.download = targetDocument?.name ?? 'document';
-      anchor.target = '_blank';
-      anchor.rel = 'noopener noreferrer';
+      anchor.download = targetDocument?.name ?? "document";
+      anchor.target = "_blank";
+      anchor.rel = "noopener noreferrer";
       anchor.click();
-      toast.success('Download started.');
+      toast.success("Download started.");
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Unable to download document.'), 'Download Failed');
+      toast.error(
+        getErrorMessage(error, "Unable to download document."),
+        "Download Failed",
+      );
     }
   };
 
   const handleShareDocument = async (documentId: string) => {
     try {
       await dispatch(shareDocumentOperation(documentId)).unwrap();
-      toast.success('Document shared with investor access.');
+      toast.success("Document shared with investor access.");
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Unable to share document.'), 'Share Failed');
+      toast.error(
+        getErrorMessage(error, "Unable to share document."),
+        "Share Failed",
+      );
     }
   };
 
   const handleDeleteDocument = async (documentId: string) => {
     try {
       await dispatch(deleteDocumentOperation(documentId)).unwrap();
-      toast.success('Document deleted.');
+      toast.success("Document deleted.");
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Unable to delete document.'), 'Delete Failed');
+      toast.error(
+        getErrorMessage(error, "Unable to delete document."),
+        "Delete Failed",
+      );
     }
   };
 
@@ -150,31 +184,44 @@ export function Documents() {
     dispatch(documentFavoriteToggled(documentId));
   };
 
-  const handleMoveDocument = async (documentId: string, newFolderId: string | null) => {
+  const handleMoveDocument = async (
+    documentId: string,
+    newFolderId: string | null,
+  ) => {
     try {
-      await dispatch(moveDocumentOperation({ documentId, newFolderId })).unwrap();
-      toast.success('Document moved.');
+      await dispatch(
+        moveDocumentOperation({ documentId, newFolderId }),
+      ).unwrap();
+      toast.success("Document moved.");
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Unable to move document.'), 'Move Failed');
+      toast.error(
+        getErrorMessage(error, "Unable to move document."),
+        "Move Failed",
+      );
     }
   };
 
-  const handleUpdateAccess = async (documentId: string, accessLevel: AccessLevel) => {
+  const handleUpdateAccess = async (
+    documentId: string,
+    accessLevel: AccessLevel,
+  ) => {
     try {
-      await dispatch(updateDocumentAccessOperation({ documentId, accessLevel })).unwrap();
-      toast.success('Document access updated.');
+      await dispatch(
+        updateDocumentAccessOperation({ documentId, accessLevel }),
+      ).unwrap();
+      toast.success("Document access updated.");
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Unable to update access.'), 'Access Update Failed');
+      toast.error(
+        getErrorMessage(error, "Unable to update access."),
+        "Access Update Failed",
+      );
     }
   };
 
   return (
-    <PageScaffold
-      routePath={ROUTE_PATHS.documents}
-      header={{
-        title: 'Documents',
-        description: 'Manage and organize all your fund documents in one secure location',
-      }}
+    <PageShell
+      title="Documents"
+      subtitle="Manage and organize all your fund documents in one secure location"
     >
       <DocumentManager
         documents={documents}
@@ -222,6 +269,6 @@ export function Documents() {
           }}
         />
       )}
-    </PageScaffold>
+    </PageShell>
   );
 }
