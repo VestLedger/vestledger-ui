@@ -85,6 +85,40 @@ function normalizeJobStatus(value: unknown): ExportJob["status"] {
     : "queued";
 }
 
+/**
+ * Returns the downloadUrl only when it is a real artifact reference, not an
+ * empty string or a `#` placeholder. P1-014 — UI must not render a download
+ * button against a placeholder URL.
+ */
+function normalizeDownloadUrl(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const trimmed = value.trim();
+  if (trimmed.length === 0 || trimmed === "#") return undefined;
+  return trimmed;
+}
+
+/**
+ * Apply the P1-014 truth-state contract on the client. A job reporting
+ * `completed` without a usable downloadUrl is reclassified as
+ * `completed_no_artifact` so downstream UI cannot mistakenly advertise a
+ * download. `artifactAvailable` is the authoritative boolean for UI gating.
+ */
+export function applyReportJobTruthState(
+  job: Pick<ExportJob, "status" | "downloadUrl"> & Partial<ExportJob>,
+): {
+  status: ExportJob["status"];
+  downloadUrl?: string;
+  artifactAvailable: boolean;
+} {
+  const downloadUrl = normalizeDownloadUrl(job.downloadUrl);
+  let status: ExportJob["status"] = job.status;
+  if (status === "completed" && !downloadUrl) {
+    status = "completed_no_artifact";
+  }
+  const artifactAvailable = status === "completed" && downloadUrl !== undefined;
+  return { status, downloadUrl, artifactAvailable };
+}
+
 function normalizeExportJob(raw: unknown, index: number): ExportJob {
   if (!isRecord(raw)) {
     return {
@@ -94,6 +128,7 @@ function normalizeExportJob(raw: unknown, index: number): ExportJob {
       status: "queued",
       progress: 0,
       createdAt: new Date().toISOString(),
+      artifactAvailable: false,
     };
   }
 
@@ -102,9 +137,15 @@ function normalizeExportJob(raw: unknown, index: number): ExportJob {
       ? Math.min(100, Math.max(0, raw.progress))
       : 0;
   const normalizedFormat = normalizeReportFormat(raw.format).toUpperCase();
+  const truth = applyReportJobTruthState({
+    status: normalizeJobStatus(raw.status),
+    downloadUrl:
+      typeof raw.downloadUrl === "string" ? raw.downloadUrl : undefined,
+  });
 
   return {
     id: typeof raw.id === "string" ? raw.id : `export-job-${index + 1}`,
+    templateId: typeof raw.templateId === "string" ? raw.templateId : undefined,
     reportName:
       typeof raw.reportName === "string"
         ? raw.reportName
@@ -112,14 +153,17 @@ function normalizeExportJob(raw: unknown, index: number): ExportJob {
           ? raw.templateId
           : "Report Export",
     format: normalizedFormat,
-    status: normalizeJobStatus(raw.status),
+    status: truth.status,
     progress,
     createdAt:
       typeof raw.createdAt === "string"
         ? raw.createdAt
         : new Date().toISOString(),
-    downloadUrl:
-      typeof raw.downloadUrl === "string" ? raw.downloadUrl : undefined,
+    downloadUrl: truth.downloadUrl,
+    artifactAvailable:
+      typeof raw.artifactAvailable === "boolean"
+        ? raw.artifactAvailable && truth.artifactAvailable
+        : truth.artifactAvailable,
   };
 }
 
@@ -155,7 +199,8 @@ export async function createExportJob(
       status: "queued",
       progress: 0,
       createdAt: new Date().toISOString(),
-    } as ExportJob;
+      artifactAvailable: false,
+    } satisfies ExportJob;
   }
 
   try {

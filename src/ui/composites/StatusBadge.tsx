@@ -1,11 +1,14 @@
-import React from 'react';
-import { getStatusColor, type StatusDomain } from '@/utils/styling/statusColors';
-import { getStatusIcon } from '@/utils/styling/statusIcons';
+import React from "react";
+import {
+  getStatusColor,
+  type StatusDomain,
+} from "@/utils/styling/statusColors";
+import { getStatusIcon } from "@/utils/styling/statusIcons";
 
 /**
  * Size types for StatusBadge component
  */
-export type StatusBadgeSize = 'sm' | 'md' | 'lg';
+export type StatusBadgeSize = "sm" | "md" | "lg";
 
 /**
  * Props for the StatusBadge component
@@ -26,20 +29,23 @@ export interface StatusBadgeProps {
 /**
  * Size configuration mapping
  */
-const SIZE_CONFIG: Record<StatusBadgeSize, { padding: string; text: string; icon: number }> = {
+const SIZE_CONFIG: Record<
+  StatusBadgeSize,
+  { padding: string; text: string; icon: number }
+> = {
   sm: {
-    padding: 'px-2 py-0.5',
-    text: 'text-xs',
+    padding: "px-2 py-0.5",
+    text: "text-xs",
     icon: 12,
   },
   md: {
-    padding: 'px-2.5 py-1',
-    text: 'text-sm',
+    padding: "px-2.5 py-1",
+    text: "text-sm",
     icon: 14,
   },
   lg: {
-    padding: 'px-3 py-1.5',
-    text: 'text-base',
+    padding: "px-3 py-1.5",
+    text: "text-base",
     icon: 16,
   },
 };
@@ -75,20 +81,21 @@ const SIZE_CONFIG: Record<StatusBadgeSize, { padding: string; text: string; icon
  */
 export const StatusBadge: React.FC<StatusBadgeProps> = ({
   status,
-  domain = 'general',
+  domain = "general",
   showIcon = false,
-  size = 'md',
-  className = '',
+  size = "md",
+  className = "",
 }) => {
   const sizeConfig = SIZE_CONFIG[size];
   const colorClasses = getStatusColor(status, domain);
   const Icon = showIcon ? getStatusIcon(status, domain) : null;
 
-  // Capitalize the status for display
+  // Capitalize the status for display. Tokens may be separated by `-` or
+  // `_` (e.g. `completed_no_artifact` — P1-014).
   const displayStatus = status
-    .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+    .split(/[-_]/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 
   return (
     <span
@@ -102,7 +109,9 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
         rounded-full
         font-medium
         ${className}
-      `.trim().replace(/\s+/g, ' ')}
+      `
+        .trim()
+        .replace(/\s+/g, " ")}
     >
       {Icon && <Icon size={sizeConfig.icon} />}
       {displayStatus}
@@ -143,18 +152,19 @@ export const StatusBadgeWithCustomColors: React.FC<{
   bgColor,
   textColor,
   showIcon = false,
-  size = 'md',
-  domain = 'general',
-  className = '',
+  size = "md",
+  domain = "general",
+  className = "",
 }) => {
   const sizeConfig = SIZE_CONFIG[size];
   const Icon = showIcon ? getStatusIcon(status, domain) : null;
 
-  // Capitalize the status for display
+  // Capitalize the status for display. Tokens may be separated by `-` or
+  // `_` (e.g. `completed_no_artifact` — P1-014).
   const displayStatus = status
-    .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+    .split(/[-_]/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 
   return (
     <span
@@ -169,7 +179,9 @@ export const StatusBadgeWithCustomColors: React.FC<{
         rounded-full
         font-medium
         ${className}
-      `.trim().replace(/\s+/g, ' ')}
+      `
+        .trim()
+        .replace(/\s+/g, " ")}
     >
       {Icon && <Icon size={sizeConfig.icon} />}
       {displayStatus}

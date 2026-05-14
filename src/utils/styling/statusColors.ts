@@ -185,6 +185,10 @@ const STATUS_COLOR_MAP: Record<
     queued: STATUS_PRESETS.info,
     processing: STATUS_PRESETS.warning,
     completed: STATUS_PRESETS.success,
+    // P1-014: finished work with no downloadable artifact — muted to signal
+    // that the user cannot act on this state by downloading.
+    completed_no_artifact: STATUS_PRESETS.muted,
+    "completed-no-artifact": STATUS_PRESETS.muted,
     failed: STATUS_PRESETS.danger,
     published: STATUS_PRESETS.success,
     draft: STATUS_PRESETS.warning,
