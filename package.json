@@ -45,6 +45,7 @@
     "audit:release-readiness:enforce": "node scripts/release-readiness-audit.mjs",
     "audit:placeholders": "node scripts/placeholder-regression-audit.mjs",
     "audit:placeholders:enforce": "node scripts/placeholder-regression-audit.mjs --enforce",
+    "audit:legacy-retirement": "node scripts/legacy-retirement-audit.mjs",
     "audit:service-implementation": "node scripts/service-implementation-audit.mjs",
     "audit:service-implementation:enforce": "node scripts/service-implementation-audit.mjs --enforce",
     "audit:observability": "node scripts/observability-audit.mjs",
