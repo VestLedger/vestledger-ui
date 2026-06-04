@@ -16,46 +16,7 @@
    Keep in sync with config/colors.cjs
    ============================================ */
 :root {
-  /* Foundation colors */
-  --app-bg: #fafaf9;
-  --app-surface: #ffffff;
-  --app-surface-2: #f5f5f4;
-  --app-surface-hover: #e7e5e4;
-
-  /* Border colors */
-  --app-border: #d6d3d1;
-  --app-border-subtle: #e7e5e4;
-  --app-border-strong: #a8a29e;
-
-  /* Text colors */
-  --app-text: #1c1917;
-  --app-text-muted: #57534e;
-  --app-text-subtle: #78716c;
-
-  /* Brand - Blue & Gold */
-  --app-primary: #1e40af;
-  --app-primary-hover: #1d4ed8;
-  --app-primary-bg: rgba(30, 64, 175, 0.1);
-  --app-secondary: #d4a332;
-  --app-secondary-bg: rgba(212, 163, 50, 0.1);
-
-  /* Status colors */
-  --app-success: #16a34a;
-  --app-success-bg: rgba(22, 163, 74, 0.1);
-  --app-warning: #d97706;
-  --app-warning-bg: rgba(217, 119, 6, 0.1);
-  --app-danger: #dc2626;
-  --app-danger-bg: rgba(220, 38, 38, 0.1);
-  --app-info: #0891b2;
-  --app-info-bg: rgba(8, 145, 178, 0.1);
-  --app-neutral: #6b7280;
-  --app-neutral-bg: rgba(107, 114, 128, 0.1);
-
-  /* Accent */
-  --app-accent: #2563eb;
-  --app-accent-bg: rgba(37, 99, 235, 0.1);
-
-  /* Shadows */
+  /* Shadows and depth — not generated from colors.cjs */
   --app-shadow-1:
     0 1px 3px rgba(28, 25, 23, 0.1), 0 4px 12px rgba(28, 25, 23, 0.08);
   --app-shadow-2:
@@ -84,46 +45,7 @@
 }
 
 .dark {
-  /* Foundation colors */
-  --app-bg: #0c0a09;
-  --app-surface: #1c1917;
-  --app-surface-2: #292524;
-  --app-surface-hover: #44403c;
-
-  /* Border colors */
-  --app-border: #44403c;
-  --app-border-subtle: #292524;
-  --app-border-strong: #57534e;
-
-  /* Text colors */
-  --app-text: #fafaf9;
-  --app-text-muted: #a8a29e;
-  --app-text-subtle: #78716c;
-
-  /* Brand - Blue & Gold */
-  --app-primary: #3b82f6;
-  --app-primary-hover: #60a5fa;
-  --app-primary-bg: rgba(59, 130, 246, 0.15);
-  --app-secondary: #fbbf24;
-  --app-secondary-bg: rgba(251, 191, 36, 0.15);
-
-  /* Status colors */
-  --app-success: #22c55e;
-  --app-success-bg: rgba(34, 197, 94, 0.15);
-  --app-warning: #f59e0b;
-  --app-warning-bg: rgba(245, 158, 11, 0.15);
-  --app-danger: #ef4444;
-  --app-danger-bg: rgba(239, 68, 68, 0.15);
-  --app-info: #06b6d4;
-  --app-info-bg: rgba(6, 182, 212, 0.15);
-  --app-neutral: #9ca3af;
-  --app-neutral-bg: rgba(156, 163, 175, 0.15);
-
-  /* Accent */
-  --app-accent: #60a5fa;
-  --app-accent-bg: rgba(96, 165, 250, 0.15);
-
-  /* Shadows */
+  /* Shadows and depth — not generated from colors.cjs */
   --app-shadow-1: 0 1px 3px rgba(0, 0, 0, 0.35), 0 6px 16px rgba(0, 0, 0, 0.3);
   --app-shadow-2: 0 4px 8px rgba(0, 0, 0, 0.4), 0 16px 40px rgba(0, 0, 0, 0.35);
 
