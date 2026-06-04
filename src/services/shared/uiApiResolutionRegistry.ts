@@ -751,8 +751,8 @@ export const uiApiResolutionRegistry: Record<string, UiApiResolutionRecord> = {
     gapType: "hardcoded",
     currentBehavior:
       "Metric deltas are static constants rather than API-backed.",
-    file: "/Users/thunderstruck/Code Playground/vestledger-platform/apps/vestledger-ui/src/components/dashboard-v2.tsx",
-    line: 32,
+    file: "/Users/thunderstruck/Code Playground/vestledger-platform/apps/vestledger-ui/src/components/dashboards/gp-dashboard.tsx",
+    line: 26,
     status: "guarded_todo_api",
   },
   "ui-api-071": {

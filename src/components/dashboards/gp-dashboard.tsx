@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
 import {
   DollarSign,
   Users,
@@ -10,15 +8,8 @@ import {
   Clock,
   LayoutDashboard,
 } from "lucide-react";
-import { HomeFundHealthList } from "./dashboard/home-fund-health-list";
-import { HomePortfolioHealthList } from "./dashboard/home-portfolio-health-list";
-import { HomeBlockerBeacon } from "./dashboard/home-blocker-beacon";
-import { HomeRevenueDistribution } from "./dashboard/home-revenue-distribution";
-import { HomeARRTrend } from "./dashboard/home-arr-trend";
-import { HomeExecutiveOverview } from "./dashboard/home-executive-overview";
-import { HomeActionCenter } from "./dashboard/home-action-center";
+import { HomeCommandCenterPrototype } from "@/components/dashboard/home-command-center-prototype";
 import { useDashboardData } from "@/hooks/use-dashboard-data";
-import { useAuth } from "@/contexts/auth-context";
 import { useFund, TabFundScope } from "@/contexts/fund-context";
 import { MetricsGrid, PageScaffold } from "@/ui/composites";
 import type { MetricsGridItem } from "@/ui/composites";
@@ -27,12 +18,6 @@ import { FundSelector } from "@/components/fund-selector";
 import { getRouteConfig, ROUTE_PATHS } from "@/config/routes";
 import { useAppDispatch } from "@/store/hooks";
 import { setQuickActionsOverride } from "@/store/slices/copilotSlice";
-import { patchUIState } from "@/store/slices/uiSlice";
-import type {
-  DailyBriefItem,
-  HomeBlocker,
-  HomeOpportunity,
-} from "@/data/seeds/hooks/dashboard-data";
 import { useDashboardDensity } from "@/contexts/dashboard-density-context";
 
 const DASHBOARD_PERCENT_SCALE = 100;
@@ -63,75 +48,16 @@ const formatCountLabel = (count: number, singular: string, plural?: string) => {
   return `${count} ${count === 1 ? singular : resolvedPlural}`;
 };
 
-const DashboardLoading = () => (
-  <div className="p-4 space-y-4 animate-pulse">
-    <div className="h-6 w-48 rounded bg-[var(--app-surface-hover)]" />
-    <div className="h-4 w-72 rounded bg-[var(--app-surface-hover)]" />
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div className="h-32 rounded bg-[var(--app-surface-hover)]" />
-      <div className="h-32 rounded bg-[var(--app-surface-hover)]" />
-      <div className="h-32 rounded bg-[var(--app-surface-hover)]" />
-      <div className="h-32 rounded bg-[var(--app-surface-hover)]" />
-    </div>
-  </div>
-);
-
-const AnalystDashboard = dynamic(
-  () =>
-    import("@/components/dashboards/analyst-dashboard").then(
-      (mod) => mod.AnalystDashboard,
-    ),
-  { loading: () => <DashboardLoading /> },
-);
-const OpsDashboard = dynamic(
-  () =>
-    import("@/components/dashboards/ops-dashboard").then(
-      (mod) => mod.OpsDashboard,
-    ),
-  { loading: () => <DashboardLoading /> },
-);
-const IRDashboard = dynamic(
-  () =>
-    import("@/components/dashboards/ir-dashboard").then(
-      (mod) => mod.IRDashboard,
-    ),
-  { loading: () => <DashboardLoading /> },
-);
-const ResearcherDashboard = dynamic(
-  () =>
-    import("@/components/dashboards/researcher-dashboard").then(
-      (mod) => mod.ResearcherDashboard,
-    ),
-  { loading: () => <DashboardLoading /> },
-);
-const LPDashboard = dynamic(
-  () =>
-    import("@/components/dashboards/lp-dashboard").then(
-      (mod) => mod.LPDashboard,
-    ),
-  { loading: () => <DashboardLoading /> },
-);
-const AuditorDashboard = dynamic(
-  () =>
-    import("@/components/dashboards/auditor-dashboard").then(
-      (mod) => mod.AuditorDashboard,
-    ),
-  { loading: () => <DashboardLoading /> },
-);
-
-export function DashboardV2() {
+export function GpDashboard() {
   return (
     <TabFundScope tabKey="dashboard">
-      <DashboardV2Content />
+      <GpDashboardContent />
     </TabFundScope>
   );
 }
 
-function DashboardV2Content() {
-  const { user } = useAuth();
-  const router = useRouter();
+function GpDashboardContent() {
   const density = useDashboardDensity();
-  const sectionTopSpacingClass = density.mode === "compact" ? "mt-3" : "mt-4";
   const fundHeaderBadgeSpacingClass =
     density.mode === "compact"
       ? "flex flex-wrap items-center gap-2 mt-3"
@@ -142,20 +68,9 @@ function DashboardV2Content() {
     density.mode === "compact" ? "gap-3" : "gap-4";
   const metricsBottomSpacingClass =
     density.mode === "compact" ? "mb-4" : "mb-4";
-  const { selectedFund, viewMode, funds, getFundSummary, setSelectedFund } =
-    useFund();
+  const { selectedFund, viewMode } = useFund();
   const dispatch = useAppDispatch();
-  const {
-    quickActions,
-    morningBrief,
-    dailyBriefItems,
-    fundTrustRows,
-    portfolioRevenueRows,
-    blockers,
-    opportunities,
-    revenueDistribution,
-    portfolioRevenueTrend,
-  } = useDashboardData();
+  const { quickActions } = useDashboardData();
 
   // Surface dashboard quick actions inside the AI Copilot sidebar
   useEffect(() => {
@@ -171,186 +86,11 @@ function DashboardV2Content() {
     };
   }, [dispatch, quickActions]);
 
-  const summary = getFundSummary();
-
-  // Role-based view switching (non-GP roles get their own dashboards)
-  switch (user?.role) {
-    case "analyst":
-      return <AnalystDashboard />;
-    case "ops":
-      return <OpsDashboard />;
-    case "ir":
-      return <IRDashboard />;
-    case "researcher":
-      return <ResearcherDashboard />;
-    case "lp":
-      return <LPDashboard />;
-    case "auditor":
-      return <AuditorDashboard />;
-    case "service_provider":
-    case "strategic_partner":
-    default:
-      // GP and default fall through to fund-aware dashboard below
-      break;
-  }
-
-  type RouteTarget = {
-    route: string;
-    tabTarget?: string;
-    fundId?: string;
-    searchHint?: string;
-  };
-
-  const navigateWithContext = (target: RouteTarget) => {
-    if (target.route === ROUTE_PATHS.fundAdmin) {
-      dispatch(
-        patchUIState({
-          key: "back-office-fund-admin",
-          patch: {
-            selectedTab: target.tabTarget ?? "capital-calls",
-            lpStatusFilter: "all",
-          },
-        }),
-      );
-    }
-
-    if (target.fundId) {
-      const fund = funds.find((entry) => entry.id === target.fundId);
-      if (fund) {
-        setSelectedFund(fund);
-      }
-      dispatch(
-        patchUIState({
-          key: "fund-setup",
-          patch: {
-            selectedFundId: target.fundId,
-            searchQuery: "",
-            statusFilter: "all",
-          },
-        }),
-      );
-    }
-
-    if (target.route === ROUTE_PATHS.portfolio) {
-      dispatch(
-        patchUIState({ key: "portfolio", patch: { selected: "overview" } }),
-      );
-      if (target.searchHint) {
-        dispatch(
-          patchUIState({
-            key: "advanced-table:portfolio-dashboard:companies",
-            patch: { searchQuery: target.searchHint, currentPage: 1 },
-          }),
-        );
-      }
-    }
-
-    router.push(target.route);
-  };
-
-  const openFundSetupDetails = (fundId: string) => {
-    navigateWithContext({
-      route: ROUTE_PATHS.fundAdmin,
-      tabTarget: "fund-setup",
-      fundId,
-    });
-  };
-
-  const openPortfolioDetails = (companyName: string) => {
-    navigateWithContext({
-      route: ROUTE_PATHS.portfolio,
-      searchHint: companyName,
-    });
-  };
-
-  const openBriefItem = (item: DailyBriefItem) => {
-    navigateWithContext(item);
-  };
-
-  const openBlocker = (blocker: HomeBlocker) => {
-    navigateWithContext(blocker);
-  };
-
-  const openOpportunity = (opportunity: HomeOpportunity) => {
-    navigateWithContext(opportunity);
-  };
-
   // ─────────────────────────────────────────────────────────────────────────────
   // CONSOLIDATED VIEW (No fund selected or consolidated mode)
   // ─────────────────────────────────────────────────────────────────────────────
   if (viewMode === "consolidated" || !selectedFund) {
-    const routeConfig = getRouteConfig(ROUTE_PATHS.dashboard);
-    const totalFundLabel = formatCountLabel(summary.totalFunds, "fund");
-
-    return (
-      <PageScaffold
-        breadcrumbs={routeConfig?.breadcrumbs || [{ label: "Dashboard" }]}
-        aiSuggestion={routeConfig?.aiSuggestion}
-        header={{
-          title: "GP Command Center",
-          description: `Executive health across ${totalFundLabel}`,
-          icon: LayoutDashboard,
-          aiSummary: {
-            text: morningBrief.summary,
-          },
-          actionContent: (
-            <HomeBlockerBeacon
-              blockers={blockers}
-              onBlockerClick={openBlocker}
-            />
-          ),
-        }}
-      >
-        <div
-          className={`gp-home-content ${sectionTopSpacingClass} ${density.page.sectionStackClass}`}
-        >
-          <HomeExecutiveOverview
-            brief={morningBrief}
-            dailyBriefItems={dailyBriefItems}
-            fundTrustRows={fundTrustRows}
-            portfolioRevenueRows={portfolioRevenueRows}
-            blockers={blockers}
-            opportunities={opportunities}
-            portfolioRevenueTrend={portfolioRevenueTrend}
-          />
-
-          <div
-            className={`grid grid-cols-1 ${density.page.blockGapClass} xl:grid-cols-[minmax(0,1.38fr)_minmax(0,1fr)]`}
-            data-testid="gp-home-portfolio-lane"
-          >
-            <HomePortfolioHealthList
-              rows={portfolioRevenueRows}
-              onRowClick={openPortfolioDetails}
-              previewRows={5}
-            />
-            <div className={`grid grid-cols-1 ${density.page.blockGapClass}`}>
-              <HomeRevenueDistribution slices={revenueDistribution} />
-              <HomeARRTrend points={portfolioRevenueTrend} />
-            </div>
-          </div>
-
-          <div data-testid="gp-home-fund-lane">
-            <HomeFundHealthList
-              rows={fundTrustRows}
-              onRowClick={openFundSetupDetails}
-              previewRows={5}
-            />
-          </div>
-
-          <HomeActionCenter
-            items={dailyBriefItems}
-            blockers={blockers}
-            opportunities={opportunities}
-            onItemClick={openBriefItem}
-            onBlockerClick={openBlocker}
-            onOpportunityClick={openOpportunity}
-            blockGapClass={density.page.blockGapClass}
-          />
-        </div>
-
-        <div className={density.spacer.pageBottomClass} />
-      </PageScaffold>
-    );
+    return <HomeCommandCenterPrototype />;
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
