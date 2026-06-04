@@ -1,12 +1,16 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { DashboardProviders } from '../providers-dashboard';
-import { useAuth } from '@/contexts/auth-context';
-import { AdminShell } from '@/components/internal/admin-shell';
-import { LoadingState } from '@/ui/async-states';
-import { buildAppLoginUrl, buildAppWebUrl } from '@/config/env';
-import { isSuperadminUser, resolveUserDomainTarget } from '@/utils/auth/internal-access';
+import { useEffect, useState } from "react";
+import { DashboardProviders } from "../providers-dashboard";
+import { useAuth } from "@/contexts/auth-context";
+import { AdminShell } from "@/components/internal/admin-shell";
+import { LoadingState } from "@/ui/async-states";
+import { buildAppLoginUrl, buildAppWebUrl } from "@/config/env";
+import {
+  isSuperadminUser,
+  resolveUserDomainTarget,
+} from "@/utils/auth/internal-access";
+import { InternalThemeBoundary } from "@/components/internal-theme-boundary";
 
 function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const { hydrated, isAuthenticated, user } = useAuth();
@@ -18,7 +22,9 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const isLoggingOut = typeof window !== 'undefined' && sessionStorage.getItem('isLoggingOut') === 'true';
+    const isLoggingOut =
+      typeof window !== "undefined" &&
+      sessionStorage.getItem("isLoggingOut") === "true";
 
     if (!hydrated || isLoggingOut) {
       return;
@@ -36,13 +42,19 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    if (resolveUserDomainTarget(user) !== 'admin' || !isSuperadminUser(user)) {
+    if (resolveUserDomainTarget(user) !== "admin" || !isSuperadminUser(user)) {
       setIsRedirecting(true);
       window.location.href = `${buildAppWebUrl(window.location.host)}/home`;
     }
   }, [hydrated, isAuthenticated, user]);
 
-  if (!isClientReady || !hydrated || !isAuthenticated || !user || isRedirecting) {
+  if (
+    !isClientReady ||
+    !hydrated ||
+    !isAuthenticated ||
+    !user ||
+    isRedirecting
+  ) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <LoadingState fullHeight={false} message="Loading admin console..." />
@@ -53,9 +65,14 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   return <AdminShell>{children}</AdminShell>;
 }
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <DashboardProviders runtime="admin">
+      <InternalThemeBoundary />
       <AdminLayoutContent>{children}</AdminLayoutContent>
     </DashboardProviders>
   );

@@ -13,6 +13,7 @@ import {
 import { SidebarGrouped } from "@/components/sidebar-grouped";
 import { Topbar } from "@/components/topbar";
 import { CommandPalette } from "@/components/command-palette";
+import { InternalThemeBoundary } from "@/components/internal-theme-boundary";
 import { useKeyboardShortcut } from "@/hooks/use-keyboard-shortcut";
 import { useToast } from "@/ui";
 import { LoadingState } from "@/ui/async-states";
@@ -290,6 +291,7 @@ export default function DashboardLayout({
 }) {
   return (
     <DashboardProviders>
+      <InternalThemeBoundary />
       <DashboardLayoutContent>{children}</DashboardLayoutContent>
     </DashboardProviders>
   );
