@@ -1,6 +1,15 @@
 const { nextui } = require("@nextui-org/react");
 const path = require("path");
 const { colors } = require("./config/colors.cjs");
+const themePlugin = require("./config/tailwind-theme-plugin.cjs");
+
+function appColor(name) {
+  return `rgb(var(--app-${name}-rgb) / <alpha-value>)`;
+}
+
+function appColorVar(name) {
+  return `var(--app-${name})`;
+}
 
 /**
  * THEMING CONFIGURATION
@@ -27,80 +36,60 @@ module.exports = {
   ],
   theme: {
     extend: {
-      colors: {
-        // Light mode colors (default)
-        app: {
-          bg: colors.light.bg,
-          surface: colors.light.surface,
-          "surface-2": colors.light["surface-2"],
-          "surface-hover": colors.light["surface-hover"],
-          border: colors.light.border,
-          "border-subtle": colors.light["border-subtle"],
-          "border-strong": colors.light["border-strong"],
-          text: colors.light.text,
-          "text-muted": colors.light["text-muted"],
-          "text-subtle": colors.light["text-subtle"],
-          primary: colors.light.primary,
-          "primary-hover": colors.light["primary-hover"],
-          "primary-light": colors.light["primary-light"],
-          secondary: colors.light.secondary,
-          "secondary-hover": colors.light["secondary-hover"],
-          "secondary-light": colors.light["secondary-light"],
-          success: colors.light.success,
-          "success-light": colors.light["success-light"],
-          warning: colors.light.warning,
-          "warning-light": colors.light["warning-light"],
-          danger: colors.light.danger,
-          "danger-light": colors.light["danger-light"],
-          info: colors.light.info,
-          "info-light": colors.light["info-light"],
-          neutral: colors.light.neutral,
-          "neutral-light": colors.light["neutral-light"],
-          accent: colors.light.accent,
-          "accent-hover": colors.light["accent-hover"],
-          "accent-light": colors.light["accent-light"],
-          link: colors.light.link,
-          "link-hover": colors.light["link-hover"],
-        },
-        // Dark mode colors (accessed via dark: prefix)
-        "app-dark": {
-          bg: colors.dark.bg,
-          surface: colors.dark.surface,
-          "surface-2": colors.dark["surface-2"],
-          "surface-hover": colors.dark["surface-hover"],
-          border: colors.dark.border,
-          "border-subtle": colors.dark["border-subtle"],
-          "border-strong": colors.dark["border-strong"],
-          text: colors.dark.text,
-          "text-muted": colors.dark["text-muted"],
-          "text-subtle": colors.dark["text-subtle"],
-          primary: colors.dark.primary,
-          "primary-hover": colors.dark["primary-hover"],
-          "primary-light": colors.dark["primary-light"],
-          secondary: colors.dark.secondary,
-          "secondary-hover": colors.dark["secondary-hover"],
-          "secondary-light": colors.dark["secondary-light"],
-          success: colors.dark.success,
-          "success-light": colors.dark["success-light"],
-          warning: colors.dark.warning,
-          "warning-light": colors.dark["warning-light"],
-          danger: colors.dark.danger,
-          "danger-light": colors.dark["danger-light"],
-          info: colors.dark.info,
-          "info-light": colors.dark["info-light"],
-          neutral: colors.dark.neutral,
-          "neutral-light": colors.dark["neutral-light"],
-          accent: colors.dark.accent,
-          "accent-hover": colors.dark["accent-hover"],
-          "accent-light": colors.dark["accent-light"],
-          link: colors.dark.link,
-          "link-hover": colors.dark["link-hover"],
-        },
-      },
+      colors: (function () {
+        const appColors = {
+          bg: appColor("bg"),
+          surface: appColor("surface"),
+          "surface-2": appColor("surface-2"),
+          "surface-hover": appColor("surface-hover"),
+          border: appColor("border"),
+          "border-subtle": appColor("border-subtle"),
+          "border-strong": appColor("border-strong"),
+          text: appColor("text"),
+          "text-muted": appColor("text-muted"),
+          "text-subtle": appColor("text-subtle"),
+          primary: appColor("primary"),
+          "primary-hover": appColor("primary-hover"),
+          "primary-light": appColorVar("primary-light"),
+          secondary: appColor("secondary"),
+          "secondary-hover": appColor("secondary-hover"),
+          "secondary-light": appColorVar("secondary-light"),
+          success: appColor("success"),
+          "success-light": appColorVar("success-light"),
+          warning: appColor("warning"),
+          "warning-light": appColorVar("warning-light"),
+          danger: appColor("danger"),
+          "danger-light": appColorVar("danger-light"),
+          info: appColor("info"),
+          "info-light": appColorVar("info-light"),
+          neutral: appColor("neutral"),
+          "neutral-light": appColorVar("neutral-light"),
+          accent: appColor("accent"),
+          "accent-hover": appColor("accent-hover"),
+          "accent-light": appColorVar("accent-light"),
+          link: appColor("link"),
+          "link-hover": appColor("link-hover"),
+          sidebar: appColor("sidebar"),
+          overlay: appColorVar("overlay"),
+          vesta: appColor("vesta"),
+          "vesta-hover": appColor("vesta-hover"),
+          "vesta-light": appColorVar("vesta-light"),
+          "chart-1": appColor("chart-1"),
+          "chart-2": appColor("chart-2"),
+          "chart-3": appColor("chart-3"),
+          "chart-4": appColor("chart-4"),
+          "chart-5": appColor("chart-5"),
+        };
+        return {
+          app: appColors,
+          "app-dark": appColors,
+        };
+      })(),
     },
   },
   darkMode: "class",
   plugins: [
+    themePlugin,
     nextui({
       themes: {
         light: {
@@ -164,6 +153,70 @@ module.exports = {
               foreground: colors.dark.text,
             },
             focus: colors.dark.primary,
+          },
+          extend: "dark",
+        },
+        "internal-light": {
+          colors: {
+            background: colors.internal.light.bg,
+            foreground: colors.internal.light.text,
+            primary: {
+              DEFAULT: colors.internal.light.primary,
+              foreground: "#FFFFFF",
+            },
+            secondary: {
+              DEFAULT: colors.internal.light.secondary,
+              foreground: "#FFFFFF",
+            },
+            success: {
+              DEFAULT: colors.internal.light.success,
+              foreground: "#FFFFFF",
+            },
+            warning: {
+              DEFAULT: colors.internal.light.warning,
+              foreground: "#FFFFFF",
+            },
+            danger: {
+              DEFAULT: colors.internal.light.danger,
+              foreground: "#FFFFFF",
+            },
+            default: {
+              DEFAULT: colors.internal.light.surface,
+              foreground: colors.internal.light.text,
+            },
+            focus: colors.internal.light.primary,
+          },
+          extend: "light",
+        },
+        "internal-dark": {
+          colors: {
+            background: colors.internal.dark.bg,
+            foreground: colors.internal.dark.text,
+            primary: {
+              DEFAULT: colors.internal.dark.primary,
+              foreground: "#FFFFFF",
+            },
+            secondary: {
+              DEFAULT: colors.internal.dark.secondary,
+              foreground: colors.internal.dark.bg,
+            },
+            success: {
+              DEFAULT: colors.internal.dark.success,
+              foreground: colors.internal.dark.bg,
+            },
+            warning: {
+              DEFAULT: colors.internal.dark.warning,
+              foreground: colors.internal.dark.bg,
+            },
+            danger: {
+              DEFAULT: colors.internal.dark.danger,
+              foreground: colors.internal.dark.bg,
+            },
+            default: {
+              DEFAULT: colors.internal.dark.surface,
+              foreground: colors.internal.dark.text,
+            },
+            focus: colors.internal.dark.primary,
           },
           extend: "dark",
         },
