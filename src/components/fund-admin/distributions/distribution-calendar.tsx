@@ -2,9 +2,24 @@
 
 import { useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Badge, Button, Card, Checkbox, Input, Select, Switch, Tabs, Tab } from "@/ui";
-import { ListItemCard, PageScaffold, SectionHeader, StatusBadge } from '@/ui/composites';
-import { AsyncStateRenderer } from '@/ui/async-states';
+import {
+  Badge,
+  Button,
+  Card,
+  Checkbox,
+  Input,
+  Select,
+  Switch,
+  Tabs,
+  Tab,
+} from "@/ui";
+import {
+  ListItemCard,
+  PageScaffold,
+  SectionHeader,
+  StatusBadge,
+} from "@/ui/composites";
+import { AsyncStateRenderer } from "@/ui/async-states";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { useUIKey } from "@/store/ui";
 import {
@@ -12,9 +27,15 @@ import {
   distributionsSelectors,
 } from "@/store/slices/distributionSlice";
 import { useFund } from "@/contexts/fund-context";
-import type { Distribution, DistributionCalendarEvent } from "@/types/distribution";
+import type {
+  Distribution,
+  DistributionCalendarEvent,
+} from "@/types/distribution";
 import { formatCurrencyCompact, formatDate } from "@/utils/formatting";
-import { distributionEventTypeLabels, getLabelForType } from "@/utils/styling/typeMappers";
+import {
+  distributionEventTypeLabels,
+  getLabelForType,
+} from "@/utils/styling/typeMappers";
 import { getStatusColorVars } from "@/utils/styling/statusColors";
 import { ROUTE_PATHS, withRouteParams } from "@/config/routes";
 import {
@@ -33,19 +54,16 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import type { EventClickArg, EventContentArg, EventInput } from "@fullcalendar/core";
-import {
-  Bell,
-  CalendarDays,
-  Clock,
-  List,
-  Plus,
-  Repeat,
-} from "lucide-react";
+import type {
+  EventClickArg,
+  EventContentArg,
+  EventInput,
+} from "@fullcalendar/core";
+import { Bell, CalendarDays, Clock, List, Plus, Repeat } from "lucide-react";
 import {
   loadDistributionCalendarEventsOperation,
   loadDistributionsOperation,
-} from '@/store/async/distributionOperations';
+} from "@/store/async/distributionOperations";
 
 type CalendarView = "calendar" | "list" | "timeline";
 type ListFilter = "upcoming" | "past" | "recurring";
@@ -87,10 +105,18 @@ type TimelineSegment = {
   className: string;
 };
 
-const resolveDate = (value?: string, fallback?: Date) => (value ? parseISO(value) : fallback);
+const resolveDate = (value?: string, fallback?: Date) =>
+  value ? parseISO(value) : fallback;
 
-const buildTimelineSegments = (distribution: Distribution, today: Date): TimelineSegment[] => {
-  const created = resolveDate(distribution.createdAt, resolveDate(distribution.eventDate, today)) ?? today;
+const buildTimelineSegments = (
+  distribution: Distribution,
+  today: Date,
+): TimelineSegment[] => {
+  const created =
+    resolveDate(
+      distribution.createdAt,
+      resolveDate(distribution.eventDate, today),
+    ) ?? today;
   const submitted = resolveDate(distribution.submittedForApprovalAt);
   const approved = resolveDate(distribution.approvedAt);
   const completed = resolveDate(distribution.completedAt);
@@ -159,17 +185,17 @@ export function DistributionCalendar() {
       },
       scheduledDrafts: [],
     }),
-    [defaultFundId, todayKey]
+    [defaultFundId, todayKey],
   );
 
   const { value: ui, patch: patchUI } = useUIKey<DistributionCalendarUIState>(
     "distribution-calendar",
-    initialUIState
+    initialUIState,
   );
 
   const { data, isLoading, error, refetch } = useAsyncData(
     loadDistributionCalendarEventsOperation,
-    calendarEventsSelectors.selectState
+    calendarEventsSelectors.selectState,
   );
 
   const {
@@ -177,14 +203,18 @@ export function DistributionCalendar() {
     isLoading: distributionsLoading,
     error: distributionsError,
     refetch: refetchDistributions,
-  } = useAsyncData(loadDistributionsOperation, distributionsSelectors.selectState, {
-    fetchOnMount: ui.view === "timeline",
-    dependencies: [ui.view],
-  });
+  } = useAsyncData(
+    loadDistributionsOperation,
+    distributionsSelectors.selectState,
+    {
+      fetchOnMount: ui.view === "timeline",
+      dependencies: [ui.view],
+    },
+  );
 
   const allEvents = useMemo<DistributionCalendarEvent[]>(
     () => [...(data?.events ?? []), ...(ui.scheduledDrafts ?? [])],
-    [data?.events, ui.scheduledDrafts]
+    [data?.events, ui.scheduledDrafts],
   );
 
   const filteredEvents = useMemo(() => {
@@ -229,7 +259,9 @@ export function DistributionCalendar() {
       });
     });
 
-    return alerts.sort((a, b) => compareAsc(a.reminderDate, b.reminderDate)).slice(0, 4);
+    return alerts
+      .sort((a, b) => compareAsc(a.reminderDate, b.reminderDate))
+      .slice(0, 4);
   }, [allEvents, today]);
 
   const fundOptions = useMemo(
@@ -237,12 +269,15 @@ export function DistributionCalendar() {
       funds.length > 0
         ? funds.map((fund) => ({ value: fund.id, label: fund.displayName }))
         : [{ value: "all-funds", label: "All Funds" }],
-    [funds]
+    [funds],
   );
 
   const handleScheduleSubmit = () => {
     const fund = funds.find((item) => item.id === ui.scheduleForm.fundId);
-    const reminderDaysBefore = [ui.scheduleForm.remind7 ? 7 : null, ui.scheduleForm.remind1 ? 1 : null]
+    const reminderDaysBefore = [
+      ui.scheduleForm.remind7 ? 7 : null,
+      ui.scheduleForm.remind1 ? 1 : null,
+    ]
       .filter((value): value is number => value !== null)
       .sort((a, b) => b - a);
     const newEvent: DistributionCalendarEvent = {
@@ -251,17 +286,20 @@ export function DistributionCalendar() {
       date: ui.scheduleForm.date || todayKey,
       eventType: "scheduled",
       status: "upcoming",
-      amount: ui.scheduleForm.amount ? Number(ui.scheduleForm.amount) : undefined,
+      amount: ui.scheduleForm.amount
+        ? Number(ui.scheduleForm.amount)
+        : undefined,
       fundId: fund?.id ?? ui.scheduleForm.fundId,
       fundName: fund?.displayName ?? selectedFund?.displayName ?? "All Funds",
       description: ui.scheduleForm.isRecurring
         ? `Recurring ${ui.scheduleForm.frequency} distribution`
         : ui.scheduleForm.remind7 || ui.scheduleForm.remind1
-        ? "Email reminders enabled"
-        : undefined,
+          ? "Email reminders enabled"
+          : undefined,
       isRecurring: ui.scheduleForm.isRecurring,
-      reminderDaysBefore: reminderDaysBefore.length > 0 ? reminderDaysBefore : undefined,
-      color: "#6b7280",
+      reminderDaysBefore:
+        reminderDaysBefore.length > 0 ? reminderDaysBefore : undefined,
+      color: "var(--app-chart-5)",
     };
 
     patchUI({
@@ -283,7 +321,7 @@ export function DistributionCalendar() {
       const statusColors = getStatusColorVars(event.status, "fund-admin");
       const backgroundColor = event.color ?? statusColors.bg;
       const borderColor = event.color ?? statusColors.text;
-      const textColor = event.color ? "#ffffff" : statusColors.text;
+      const textColor = event.color ? "var(--app-surface)" : statusColors.text;
       return {
         id: event.id,
         title: event.title,
@@ -316,15 +354,19 @@ export function DistributionCalendar() {
         },
       });
     },
-    [patchUI, ui.scheduleForm]
+    [patchUI, ui.scheduleForm],
   );
 
   const handleEventClick = useCallback(
     (arg: EventClickArg) => {
-      const distributionId = arg.event.extendedProps?.distributionId as string | undefined;
+      const distributionId = arg.event.extendedProps?.distributionId as
+        | string
+        | undefined;
       if (distributionId) {
         router.push(
-          withRouteParams(ROUTE_PATHS.fundAdminDistributionDetail, { id: distributionId })
+          withRouteParams(ROUTE_PATHS.fundAdminDistributionDetail, {
+            id: distributionId,
+          }),
         );
         return;
       }
@@ -339,41 +381,43 @@ export function DistributionCalendar() {
         },
       });
     },
-    [patchUI, router, todayKey, ui.scheduleForm]
+    [patchUI, router, todayKey, ui.scheduleForm],
   );
 
-  const renderEventContent = useCallback(
-    (content: EventContentArg) => {
-      const amount = content.event.extendedProps?.amount as number | undefined;
-      const fundName = content.event.extendedProps?.fundName as string | undefined;
-      return (
-        <div className="space-y-0.5 leading-tight">
-          <div className="truncate text-[10px] font-semibold">
-            {content.event.title}
-          </div>
-          {fundName && (
-            <div className="truncate text-[9px] text-[var(--app-text-subtle)]">
-              {fundName}
-            </div>
-          )}
-          {typeof amount === "number" && (
-            <div className="text-[9px]">{formatCurrencyCompact(amount)}</div>
-          )}
+  const renderEventContent = useCallback((content: EventContentArg) => {
+    const amount = content.event.extendedProps?.amount as number | undefined;
+    const fundName = content.event.extendedProps?.fundName as
+      | string
+      | undefined;
+    return (
+      <div className="space-y-0.5 leading-tight">
+        <div className="truncate text-[10px] font-semibold">
+          {content.event.title}
         </div>
-      );
-    },
-    []
-  );
+        {fundName && (
+          <div className="truncate text-[9px] text-[var(--app-text-subtle)]">
+            {fundName}
+          </div>
+        )}
+        {typeof amount === "number" && (
+          <div className="text-[9px]">{formatCurrencyCompact(amount)}</div>
+        )}
+      </div>
+    );
+  }, []);
 
   return (
     <PageScaffold
       routePath={ROUTE_PATHS.fundAdminDistributionsCalendar}
       header={{
         title: "Distribution Calendar",
-        description: "Schedule upcoming distributions and track approval timelines.",
+        description:
+          "Schedule upcoming distributions and track approval timelines.",
         icon: CalendarDays,
         primaryAction: {
-          label: ui.showScheduleForm ? "Close Scheduler" : "Schedule Distribution",
+          label: ui.showScheduleForm
+            ? "Close Scheduler"
+            : "Schedule Distribution",
           onClick: () => patchUI({ showScheduleForm: !ui.showScheduleForm }),
         },
         secondaryActions: [
@@ -407,25 +451,41 @@ export function DistributionCalendar() {
           <SectionHeader
             title="Schedule Distribution"
             description="Add future distribution dates with reminder preferences."
-            action={(
-              <Badge size="sm" variant="flat" className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]">
+            action={
+              <Badge
+                size="sm"
+                variant="flat"
+                className="bg-[var(--app-primary-bg)] text-[var(--app-primary)]"
+              >
                 Planner
               </Badge>
-            )}
+            }
           />
 
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <Input
               label="Distribution title"
               value={ui.scheduleForm.title}
-              onChange={(event) => patchUI({ scheduleForm: { ...ui.scheduleForm, title: event.target.value } })}
+              onChange={(event) =>
+                patchUI({
+                  scheduleForm: {
+                    ...ui.scheduleForm,
+                    title: event.target.value,
+                  },
+                })
+              }
               placeholder="Q2 dividend distribution"
             />
             <Select
               label="Fund"
               selectedKeys={[ui.scheduleForm.fundId]}
               onChange={(event) =>
-                patchUI({ scheduleForm: { ...ui.scheduleForm, fundId: event.target.value } })
+                patchUI({
+                  scheduleForm: {
+                    ...ui.scheduleForm,
+                    fundId: event.target.value,
+                  },
+                })
               }
               options={fundOptions}
             />
@@ -434,13 +494,27 @@ export function DistributionCalendar() {
               label="Scheduled date"
               value={ui.scheduleForm.date}
               min={todayKey}
-              onChange={(event) => patchUI({ scheduleForm: { ...ui.scheduleForm, date: event.target.value } })}
+              onChange={(event) =>
+                patchUI({
+                  scheduleForm: {
+                    ...ui.scheduleForm,
+                    date: event.target.value,
+                  },
+                })
+              }
             />
             <Input
               type="number"
               label="Estimated amount"
               value={ui.scheduleForm.amount}
-              onChange={(event) => patchUI({ scheduleForm: { ...ui.scheduleForm, amount: event.target.value } })}
+              onChange={(event) =>
+                patchUI({
+                  scheduleForm: {
+                    ...ui.scheduleForm,
+                    amount: event.target.value,
+                  },
+                })
+              }
               placeholder="2500000"
             />
           </div>
@@ -449,7 +523,9 @@ export function DistributionCalendar() {
             <Switch
               isSelected={ui.scheduleForm.isRecurring}
               onValueChange={(value) =>
-                patchUI({ scheduleForm: { ...ui.scheduleForm, isRecurring: value } })
+                patchUI({
+                  scheduleForm: { ...ui.scheduleForm, isRecurring: value },
+                })
               }
             >
               Recurring distribution
@@ -462,7 +538,8 @@ export function DistributionCalendar() {
                   patchUI({
                     scheduleForm: {
                       ...ui.scheduleForm,
-                      frequency: event.target.value as ScheduleFormState["frequency"],
+                      frequency: event.target
+                        .value as ScheduleFormState["frequency"],
                     },
                   })
                 }
@@ -484,7 +561,9 @@ export function DistributionCalendar() {
               <Checkbox
                 isSelected={ui.scheduleForm.remind7}
                 onValueChange={(value) =>
-                  patchUI({ scheduleForm: { ...ui.scheduleForm, remind7: value } })
+                  patchUI({
+                    scheduleForm: { ...ui.scheduleForm, remind7: value },
+                  })
                 }
               >
                 7 days before
@@ -492,7 +571,9 @@ export function DistributionCalendar() {
               <Checkbox
                 isSelected={ui.scheduleForm.remind1}
                 onValueChange={(value) =>
-                  patchUI({ scheduleForm: { ...ui.scheduleForm, remind1: value } })
+                  patchUI({
+                    scheduleForm: { ...ui.scheduleForm, remind1: value },
+                  })
                 }
               >
                 1 day before
@@ -508,7 +589,10 @@ export function DistributionCalendar() {
             >
               Schedule
             </Button>
-            <Button variant="bordered" onPress={() => patchUI({ showScheduleForm: false })}>
+            <Button
+              variant="bordered"
+              onPress={() => patchUI({ showScheduleForm: false })}
+            >
               Cancel
             </Button>
           </div>
@@ -531,11 +615,11 @@ export function DistributionCalendar() {
                 <SectionHeader
                   title="Distribution Calendar"
                   description="Month, week, and day views for scheduled distributions."
-                  action={(
+                  action={
                     <Badge size="sm" variant="flat">
                       {allEvents.length} events
                     </Badge>
-                  )}
+                  }
                   className="mb-4"
                 />
 
@@ -565,29 +649,39 @@ export function DistributionCalendar() {
                   <SectionHeader
                     title="Distribution Events"
                     description="Filter distributions by timing and recurrence."
-                    action={(
+                    action={
                       <div className="flex items-center gap-2 text-xs text-[var(--app-text-muted)]">
                         <List className="h-4 w-4" />
                         {filteredEvents.length} events
                       </div>
-                    )}
+                    }
                   />
 
                   <div className="mt-4 flex flex-wrap items-center gap-2">
-                    {(["upcoming", "past", "recurring"] as ListFilter[]).map((filter) => (
-                      <Button
-                        key={filter}
-                        size="sm"
-                        variant={ui.listFilter === filter ? "solid" : "flat"}
-                        color={ui.listFilter === filter ? "primary" : "default"}
-                        onPress={() => patchUI({ listFilter: filter })}
-                      >
-                        {filter === "upcoming" ? "Upcoming" : filter === "past" ? "Past" : "Recurring"}
-                      </Button>
-                    ))}
+                    {(["upcoming", "past", "recurring"] as ListFilter[]).map(
+                      (filter) => (
+                        <Button
+                          key={filter}
+                          size="sm"
+                          variant={ui.listFilter === filter ? "solid" : "flat"}
+                          color={
+                            ui.listFilter === filter ? "primary" : "default"
+                          }
+                          onPress={() => patchUI({ listFilter: filter })}
+                        >
+                          {filter === "upcoming"
+                            ? "Upcoming"
+                            : filter === "past"
+                              ? "Past"
+                              : "Recurring"}
+                        </Button>
+                      ),
+                    )}
                     <Input
                       value={ui.searchQuery}
-                      onChange={(event) => patchUI({ searchQuery: event.target.value })}
+                      onChange={(event) =>
+                        patchUI({ searchQuery: event.target.value })
+                      }
                       placeholder="Search events..."
                       className="max-w-xs"
                     />
@@ -608,9 +702,13 @@ export function DistributionCalendar() {
                         title={event.title}
                         description={`${event.fundName} - ${getLabelForType(distributionEventTypeLabels, event.eventType)}`}
                         meta={`${formatDate(event.date)}${event.amount ? ` - ${formatCurrencyCompact(event.amount)}` : ""}`}
-                        badges={(
+                        badges={
                           <div className="flex items-center gap-2">
-                            <StatusBadge status={event.status} domain="fund-admin" size="sm" />
+                            <StatusBadge
+                              status={event.status}
+                              domain="fund-admin"
+                              size="sm"
+                            />
                             {event.isRecurring && (
                               <Badge
                                 size="sm"
@@ -622,17 +720,20 @@ export function DistributionCalendar() {
                               </Badge>
                             )}
                           </div>
-                        )}
-                        actions={(
+                        }
+                        actions={
                           <Button
                             size="sm"
                             variant="flat"
                             onPress={() => {
                               if (event.distributionId) {
                                 router.push(
-                                  withRouteParams(ROUTE_PATHS.fundAdminDistributionDetail, {
-                                    id: event.distributionId,
-                                  })
+                                  withRouteParams(
+                                    ROUTE_PATHS.fundAdminDistributionDetail,
+                                    {
+                                      id: event.distributionId,
+                                    },
+                                  ),
                                 );
                               } else {
                                 patchUI({ showScheduleForm: true });
@@ -641,7 +742,7 @@ export function DistributionCalendar() {
                           >
                             View
                           </Button>
-                        )}
+                        }
                       />
                     ))}
                   </div>
@@ -669,12 +770,21 @@ export function DistributionCalendar() {
                     row.segments.flatMap((segment) => [
                       segment.start.getTime(),
                       segment.end.getTime(),
-                    ])
+                    ]),
                   );
 
-                  const minTime = timestamps.length > 0 ? Math.min(...timestamps) : today.getTime();
-                  const maxTime = timestamps.length > 0 ? Math.max(...timestamps) : today.getTime();
-                  const rangeEnd = maxTime === minTime ? addDays(new Date(minTime), 1).getTime() : maxTime;
+                  const minTime =
+                    timestamps.length > 0
+                      ? Math.min(...timestamps)
+                      : today.getTime();
+                  const maxTime =
+                    timestamps.length > 0
+                      ? Math.max(...timestamps)
+                      : today.getTime();
+                  const rangeEnd =
+                    maxTime === minTime
+                      ? addDays(new Date(minTime), 1).getTime()
+                      : maxTime;
                   const rangeMs = rangeEnd - minTime || 1;
                   const rangeStartDate = new Date(minTime);
                   const rangeEndDate = new Date(rangeEnd);
@@ -688,7 +798,7 @@ export function DistributionCalendar() {
                       <SectionHeader
                         title="Lifecycle Timeline"
                         description="Draft to approval to executed progression mapped across actual dates."
-                        action={(
+                        action={
                           <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--app-text-muted)]">
                             <div className="flex items-center gap-1">
                               <span className="h-2 w-2 rounded-full bg-[var(--app-warning-bg)]" />
@@ -703,7 +813,7 @@ export function DistributionCalendar() {
                               Executed
                             </div>
                           </div>
-                        )}
+                        }
                       />
 
                       <div className="mt-4 flex justify-between text-xs text-[var(--app-text-muted)]">
@@ -719,26 +829,41 @@ export function DistributionCalendar() {
                             className="grid gap-3 md:grid-cols-[240px_1fr]"
                           >
                             <div>
-                              <div className="text-sm font-semibold">{distribution.name}</div>
+                              <div className="text-sm font-semibold">
+                                {distribution.name}
+                              </div>
                               <div className="text-xs text-[var(--app-text-muted)]">
-                                {distribution.fundName} - {formatDate(distribution.eventDate)}
+                                {distribution.fundName} -{" "}
+                                {formatDate(distribution.eventDate)}
                               </div>
                               <div className="mt-1 text-[10px] text-[var(--app-text-subtle)]">
-                                Draft {formatDate(distribution.createdAt)} - Approved{" "}
-                                {distribution.approvedAt ? formatDate(distribution.approvedAt) : "Pending"} - Executed{" "}
-                                {distribution.completedAt ? formatDate(distribution.completedAt) : "Pending"}
+                                Draft {formatDate(distribution.createdAt)} -
+                                Approved{" "}
+                                {distribution.approvedAt
+                                  ? formatDate(distribution.approvedAt)
+                                  : "Pending"}{" "}
+                                - Executed{" "}
+                                {distribution.completedAt
+                                  ? formatDate(distribution.completedAt)
+                                  : "Pending"}
                               </div>
                             </div>
                             <div className="relative h-8 rounded-full bg-[var(--app-surface-hover)]">
                               {segments.map((segment) => {
                                 const left = getPosition(segment.start);
-                                const width = Math.max(2, getPosition(segment.end) - left);
+                                const width = Math.max(
+                                  2,
+                                  getPosition(segment.end) - left,
+                                );
                                 const showLabel = width > 12;
                                 return (
                                   <div
                                     key={`${distribution.id}-${segment.id}`}
                                     className={`absolute top-1 h-6 rounded-full ${segment.className}`}
-                                    style={{ left: `${left}%`, width: `${width}%` }}
+                                    style={{
+                                      left: `${left}%`,
+                                      width: `${width}%`,
+                                    }}
                                   >
                                     {showLabel && (
                                       <span className="px-2 text-[10px] font-semibold">
@@ -765,11 +890,11 @@ export function DistributionCalendar() {
         <SectionHeader
           title="Upcoming Alerts"
           description="Reminders are generated based on your scheduling preferences."
-          action={(
+          action={
             <Badge size="sm" variant="flat">
               {upcomingAlerts.length} alerts
             </Badge>
-          )}
+          }
         />
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           {upcomingAlerts.length === 0 ? (
@@ -777,26 +902,28 @@ export function DistributionCalendar() {
               No upcoming alerts configured yet.
             </div>
           ) : (
-            upcomingAlerts.map(({ event, daysAway, daysBefore, reminderDate }) => (
-              <ListItemCard
-                key={`${event.id}-${daysBefore}`}
-                title={event.title}
-                description={`${event.fundName} - Reminder ${daysBefore}d before - ${formatDate(reminderDate)}`}
-                meta={(
-                  <span className="flex items-center gap-2">
-                    <Clock className="h-3 w-3" />
-                    Distribution date {formatDate(event.date)}
-                  </span>
-                )}
-                badges={(
-                  <Badge size="sm" variant="flat">
-                    {daysAway <= 0 ? "Today" : `${daysAway}d`}
-                  </Badge>
-                )}
-                padding="sm"
-                className="h-full"
-              />
-            ))
+            upcomingAlerts.map(
+              ({ event, daysAway, daysBefore, reminderDate }) => (
+                <ListItemCard
+                  key={`${event.id}-${daysBefore}`}
+                  title={event.title}
+                  description={`${event.fundName} - Reminder ${daysBefore}d before - ${formatDate(reminderDate)}`}
+                  meta={
+                    <span className="flex items-center gap-2">
+                      <Clock className="h-3 w-3" />
+                      Distribution date {formatDate(event.date)}
+                    </span>
+                  }
+                  badges={
+                    <Badge size="sm" variant="flat">
+                      {daysAway <= 0 ? "Today" : `${daysAway}d`}
+                    </Badge>
+                  }
+                  padding="sm"
+                  className="h-full"
+                />
+              ),
+            )
           )}
         </div>
       </Card>

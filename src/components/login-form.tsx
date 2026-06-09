@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useRef } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { Button, Input, Card } from '@/ui';
-import { LoadingState } from '@/ui/async-states';
-import { useAuth } from '@/contexts/auth-context';
-import { BrandLogo } from './brand-logo';
-import { getAuthErrorMessage } from '@/utils/auth-error-message';
-import { ROUTE_PATHS } from '@/config/routes';
-import { buildAdminSuperadminUrl, buildAppWebUrl } from '@/config/env';
-import { resolveUserDomainTarget } from '@/utils/auth/internal-access';
-import { useToast } from '@/ui';
-import { extractFieldErrors } from '@/utils/errors/fieldErrors';
-import { findFirstMissingRequiredField } from '@/utils/forms/required';
+import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
+import { Button, Input, Card } from "@/ui";
+import { LoadingState } from "@/ui/async-states";
+import { useAuth } from "@/contexts/auth-context";
+import { BrandLogo } from "./brand-logo";
+import { getAuthErrorMessage } from "@/utils/auth-error-message";
+import { ROUTE_PATHS } from "@/config/routes";
+import { buildAdminSuperadminUrl, buildAppWebUrl } from "@/config/env";
+import { resolveUserDomainTarget } from "@/utils/auth/internal-access";
+import { useToast } from "@/ui";
+import { extractFieldErrors } from "@/utils/errors/fieldErrors";
+import { findFirstMissingRequiredField } from "@/utils/forms/required";
 
-const LEGACY_DASHBOARD_PATH = '/dashboard';
+const LEGACY_DASHBOARD_PATH = "/dashboard";
 
 const normalizeRedirectPath = (redirectPath: string | null) => {
   if (!redirectPath) {
@@ -36,11 +36,12 @@ const normalizeRedirectPath = (redirectPath: string | null) => {
 };
 
 export function LoginForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { login, isAuthenticated, hydrated, status, error, clearError, user } = useAuth();
+  const { login, isAuthenticated, hydrated, status, error, clearError, user } =
+    useAuth();
   const toast = useToast();
   const searchParams = useSearchParams();
   const hasAttemptedLogin = useRef(false);
@@ -49,17 +50,22 @@ export function LoginForm() {
   const passwordError = fieldErrors.password?.[0];
 
   // Normalize legacy dashboard redirects to the new app home path
-  const redirectTo = normalizeRedirectPath(searchParams.get('redirect'));
+  const redirectTo = normalizeRedirectPath(searchParams.get("redirect"));
 
   // Handle successful authentication - redirect to intended page
   useEffect(() => {
-    if (!hydrated || !isAuthenticated || !user || typeof window === 'undefined') {
+    if (
+      !hydrated ||
+      !isAuthenticated ||
+      !user ||
+      typeof window === "undefined"
+    ) {
       return;
     }
 
     const domainTarget = resolveUserDomainTarget(user);
     const nextUrl =
-      domainTarget === 'admin'
+      domainTarget === "admin"
         ? buildAdminSuperadminUrl(window.location.host)
         : `${buildAppWebUrl(window.location.host)}${redirectTo}`;
 
@@ -70,7 +76,7 @@ export function LoginForm() {
 
   // Handle login failure - stop spinner and show error
   useEffect(() => {
-    if (status === 'failed' && hasAttemptedLogin.current) {
+    if (status === "failed" && hasAttemptedLogin.current) {
       setIsSubmitting(false);
     }
   }, [status]);
@@ -87,12 +93,15 @@ export function LoginForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const missingField = findFirstMissingRequiredField([
-      { key: 'email', label: 'Email', value: email },
-      { key: 'password', label: 'Password', value: password },
+      { key: "email", label: "Email", value: email },
+      { key: "password", label: "Password", value: password },
     ]);
 
     if (missingField) {
-      toast.warning(`${missingField.label} is required.`, 'Missing information');
+      toast.warning(
+        `${missingField.label} is required.`,
+        "Missing information",
+      );
       setIsSubmitting(false);
       return;
     }
@@ -102,7 +111,7 @@ export function LoginForm() {
     login(email.trim(), password);
   };
 
-  const isLoading = isSubmitting && status === 'loading';
+  const isLoading = isSubmitting && status === "loading";
 
   // Show loading state while auth is hydrating
   if (!hydrated) {
@@ -152,7 +161,7 @@ export function LoginForm() {
         />
 
         {error && (
-          <div className="p-3 rounded-md bg-[var(--app-danger-bg)] border border-[var(--app-danger-bg)] text-[var(--app-danger)] text-sm">
+          <div className="p-3 rounded-md border border-app-danger dark:border-app-dark-danger bg-app-danger-light dark:bg-app-dark-danger-light text-app-text dark:text-app-dark-text text-sm">
             {getAuthErrorMessage(error)}
           </div>
         )}
@@ -168,7 +177,7 @@ export function LoginForm() {
         </Button>
 
         <div className="text-center text-sm text-app-text-muted dark:text-app-dark-text-muted">
-          Don&apos;t have an account?{' '}
+          Don&apos;t have an account?{" "}
           <a
             href="/eoi"
             className="text-app-primary dark:text-app-dark-primary hover:underline"

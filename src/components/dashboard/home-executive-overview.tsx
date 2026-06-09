@@ -11,6 +11,7 @@ import {
 import { Area, AreaChart, Line, ResponsiveContainer } from "recharts";
 import { Badge, Card } from "@/ui";
 import { KpiChip, SectionHeader } from "@/ui/composites";
+import { CHART_SERIES_COLORS } from "@/ui/visualization/chart-series";
 import type {
   DailyBriefItem,
   FundTrustRow,
@@ -256,12 +257,12 @@ export function HomeExecutiveOverview({
                 >
                   <stop
                     offset="5%"
-                    stopColor="var(--app-success)"
+                    stopColor={CHART_SERIES_COLORS[0]}
                     stopOpacity={0.3}
                   />
                   <stop
                     offset="95%"
-                    stopColor="var(--app-success)"
+                    stopColor={CHART_SERIES_COLORS[0]}
                     stopOpacity={0.04}
                   />
                 </linearGradient>
@@ -275,7 +276,7 @@ export function HomeExecutiveOverview({
               <Line
                 type="monotone"
                 dataKey="arr"
-                stroke="var(--app-success)"
+                stroke={CHART_SERIES_COLORS[0]}
                 strokeWidth={2.5}
                 dot={false}
               />

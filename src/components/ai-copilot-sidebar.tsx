@@ -21,6 +21,7 @@ import {
   Send,
   Volume2,
   VolumeX,
+  X,
   Zap,
   type LucideIcon,
 } from "lucide-react";
@@ -67,6 +68,7 @@ type AICopilotSidebarMode = "panel" | "fullscreen" | "standalone";
 
 type AICopilotSidebarProps = {
   mode?: AICopilotSidebarMode;
+  onClose?: () => void;
 };
 
 type VestaShellState = typeof UI_STATE_DEFAULTS.vestaShell;
@@ -227,7 +229,10 @@ export function useAICopilot() {
   return { openWithQuery };
 }
 
-export function AICopilotSidebar({ mode = "panel" }: AICopilotSidebarProps) {
+export function AICopilotSidebar({
+  mode = "panel",
+  onClose,
+}: AICopilotSidebarProps) {
   const dispatch = useAppDispatch();
   const pathname = usePathname();
   const { sidebarState, toggleRightSidebar } = useNavigation();
@@ -866,6 +871,16 @@ export function AICopilotSidebar({ mode = "panel" }: AICopilotSidebarProps) {
               aria-label="Minimize Vesta"
             >
               <ChevronRight className="w-4 h-4 text-[var(--app-text-muted)]" />
+            </button>
+          )}
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-lg hover:bg-[var(--app-surface-hover)] transition-colors"
+              aria-label="Close Vesta"
+              type="button"
+            >
+              <X className="w-4 h-4 text-[var(--app-text-muted)]" />
             </button>
           )}
         </div>

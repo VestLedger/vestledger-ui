@@ -8,7 +8,7 @@ import {
   Clock,
   LayoutDashboard,
 } from "lucide-react";
-import { HomeCommandCenterPrototype } from "@/components/dashboard/home-command-center-prototype";
+import { HomeCommandCenter } from "@/components/dashboard/home-command-center";
 import { useDashboardData } from "@/hooks/use-dashboard-data";
 import { useFund, TabFundScope } from "@/contexts/fund-context";
 import { MetricsGrid, PageScaffold } from "@/ui/composites";
@@ -90,7 +90,7 @@ function GpDashboardContent() {
   // CONSOLIDATED VIEW (No fund selected or consolidated mode)
   // ─────────────────────────────────────────────────────────────────────────────
   if (viewMode === "consolidated" || !selectedFund) {
-    return <HomeCommandCenterPrototype />;
+    return <HomeCommandCenter />;
   }
 
   // ─────────────────────────────────────────────────────────────────────────────

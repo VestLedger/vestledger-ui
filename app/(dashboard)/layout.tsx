@@ -102,7 +102,7 @@ function DashboardLayoutInner({
     return (
       <DashboardDensityProvider mode={densityMode}>
         <div
-          className="gp-home-skin h-screen bg-[var(--app-bg)] text-[var(--app-text)]"
+          className="h-screen bg-[var(--app-bg)] text-[var(--app-text)]"
           data-dashboard-density={densityMode}
         >
           <AICopilotSidebar mode="standalone" />
@@ -116,7 +116,7 @@ function DashboardLayoutInner({
     return (
       <DashboardDensityProvider mode={densityMode}>
         <div
-          className="min-h-screen bg-[#020713] text-white"
+          className="min-h-screen bg-[var(--app-bg)] text-[var(--app-text)]"
           data-dashboard-density={densityMode}
         >
           {children}
@@ -128,7 +128,7 @@ function DashboardLayoutInner({
   return (
     <DashboardDensityProvider mode={densityMode}>
       <div
-        className="gp-home-skin relative flex h-screen bg-[var(--app-bg)] text-[var(--app-text)]"
+        className="relative flex h-screen bg-[var(--app-bg)] text-[var(--app-text)]"
         data-dashboard-density={densityMode}
       >
         <SidebarGrouped />

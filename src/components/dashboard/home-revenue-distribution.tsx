@@ -1,19 +1,25 @@
-'use client';
+"use client";
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import type { RevenueDistributionSlice } from '@/data/mocks/hooks/dashboard-data';
-import { CompactLaneHeader } from '@/ui/composites';
-import { formatCurrencyCompact } from '@/utils/formatting';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import type { RevenueDistributionSlice } from "@/data/mocks/hooks/dashboard-data";
+import { CompactLaneHeader } from "@/ui/composites";
+import { getChartSeriesColor } from "@/ui/visualization/chart-series";
+import { formatCurrencyCompact } from "@/utils/formatting";
 
 interface HomeRevenueDistributionProps {
   slices: RevenueDistributionSlice[];
 }
 
-export function HomeRevenueDistribution({ slices }: HomeRevenueDistributionProps) {
+export function HomeRevenueDistribution({
+  slices,
+}: HomeRevenueDistributionProps) {
   const total = slices.reduce((sum, item) => sum + item.value, 0);
 
   return (
-    <section data-testid="gp-home-revenue-distribution" className="overflow-hidden rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)]">
+    <section
+      data-testid="gp-home-revenue-distribution"
+      className="overflow-hidden rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)]"
+    >
       <CompactLaneHeader
         title="Revenue Distribution"
         subtitle="Which portfolio companies drive the most ARR"
@@ -35,16 +41,19 @@ export function HomeRevenueDistribution({ slices }: HomeRevenueDistributionProps
                 dataKey="value"
               >
                 {slices.map((slice, index) => (
-                  <Cell key={`${slice.id}-${index}`} fill={slice.color} />
+                  <Cell
+                    key={`${slice.id}-${index}`}
+                    fill={getChartSeriesColor(index)}
+                  />
                 ))}
               </Pie>
               <Tooltip
-                formatter={(value: number) => [`$${value.toFixed(1)}M`, 'ARR']}
+                formatter={(value: number) => [`$${value.toFixed(1)}M`, "ARR"]}
                 contentStyle={{
-                  borderRadius: '12px',
-                  borderColor: 'var(--app-border)',
-                  backgroundColor: 'var(--app-surface)',
-                  color: 'var(--app-text)',
+                  borderRadius: "12px",
+                  borderColor: "var(--app-border)",
+                  backgroundColor: "var(--app-surface)",
+                  color: "var(--app-text)",
                 }}
               />
             </PieChart>
@@ -55,13 +64,24 @@ export function HomeRevenueDistribution({ slices }: HomeRevenueDistributionProps
           {slices.map((slice, index) => {
             const share = total > 0 ? (slice.value / total) * 100 : 0;
             return (
-              <div key={`${slice.id}-${index}`} className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-2">
+              <div
+                key={`${slice.id}-${index}`}
+                className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-2"
+              >
                 <div className="mb-1 flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
-                    <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: slice.color }} />
-                    <span className="font-semibold text-[var(--app-text)]">{slice.name}</span>
+                    <span
+                      data-testid="revenue-series-marker"
+                      className="inline-block h-2.5 w-2.5 rounded-full"
+                      style={{ backgroundColor: getChartSeriesColor(index) }}
+                    />
+                    <span className="font-semibold text-[var(--app-text)]">
+                      {slice.name}
+                    </span>
                   </div>
-                  <span className="text-[var(--app-text-subtle)]">{share.toFixed(0)}%</span>
+                  <span className="text-[var(--app-text-subtle)]">
+                    {share.toFixed(0)}%
+                  </span>
                 </div>
                 <p className="text-sm font-semibold text-[var(--app-text)]">{`$${slice.value.toFixed(1)}M`}</p>
               </div>
