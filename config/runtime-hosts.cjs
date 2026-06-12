@@ -1,51 +1,52 @@
-const DEFAULT_APP_BASE_URL = 'http://localhost:3000';
-const DEFAULT_PLAYWRIGHT_DEV_SERVER_URL = 'http://127.0.0.1:3000';
+const DEFAULT_APP_BASE_URL = "http://localhost:3000";
+const DEFAULT_PUBLIC_BASE_URL = "http://vestledger.localhost:3000";
+const DEFAULT_PLAYWRIGHT_DEV_SERVER_URL = "http://127.0.0.1:3000";
 
 const AUTH_LIGHTHOUSE_PATHS = [
-  '/home',
-  '/pipeline',
-  '/portfolio',
-  '/contacts',
-  '/analytics',
-  '/audit-trail',
-  '/compliance',
-  '/deal-intelligence',
-  '/dealflow-review',
-  '/documents',
-  '/fund-admin',
-  '/integrations',
-  '/lp-management',
-  '/notifications',
-  '/reports',
-  '/settings',
-  '/tax-center',
-  '/waterfall',
-  '/ai-tools',
-  '/409a-valuations',
-  '/collaboration',
+  "/home",
+  "/pipeline",
+  "/portfolio",
+  "/contacts",
+  "/analytics",
+  "/audit-trail",
+  "/compliance",
+  "/deal-intelligence",
+  "/dealflow-review",
+  "/documents",
+  "/fund-admin",
+  "/integrations",
+  "/lp-management",
+  "/notifications",
+  "/reports",
+  "/settings",
+  "/tax-center",
+  "/waterfall",
+  "/ai-tools",
+  "/409a-valuations",
+  "/collaboration",
 ];
 
 const PUBLIC_LIGHTHOUSE_PATHS = [
-  '/',
-  '/about',
-  '/features',
-  '/how-it-works',
-  '/security',
-  '/eoi',
+  "/",
+  "/about",
+  "/features",
+  "/how-it-works",
+  "/security",
+  "/eoi",
 ];
 
 function normalizeUrl(value, fallback) {
-  const candidate = (value || fallback || '').trim();
+  const candidate = (value || fallback || "").trim();
   if (!candidate) {
-    return '';
+    return "";
   }
 
-  return candidate.replace(/\/+$/, '');
+  return candidate.replace(/\/+$/, "");
 }
 
 function joinUrl(baseUrl, pathname) {
-  const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-  return new URL(pathname.replace(/^\//, ''), normalizedBase).toString();
+  const normalizedBase = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+  return new URL(pathname.replace(/^\//, ""), normalizedBase).toString();
 }
 
 const appBaseUrl = normalizeUrl(
@@ -55,7 +56,7 @@ const appBaseUrl = normalizeUrl(
 
 const publicBaseUrl = normalizeUrl(
   process.env.PUBLIC_BASE_URL,
-  appBaseUrl,
+  DEFAULT_PUBLIC_BASE_URL,
 );
 
 const lhciAuthBaseUrl = normalizeUrl(

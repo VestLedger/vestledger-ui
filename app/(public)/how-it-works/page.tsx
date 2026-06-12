@@ -113,7 +113,7 @@ export default function HowItWorksPage() {
         <div className="absolute left-[8%] top-24 h-60 w-60 rounded-full bg-[var(--marketing-glow-blue)] blur-3xl public-marketing-glow" />
         <div className="absolute right-[12%] top-28 h-48 w-48 rounded-full bg-[var(--marketing-glow-gold)] blur-3xl public-marketing-drift" />
 
-        <div className="relative mx-auto max-w-7xl px-4 pb-20 pt-28 text-center sm:px-6 sm:pb-24 sm:pt-32">
+        <div className="public-marketing-hero relative mx-auto max-w-7xl px-4 pb-20 pt-28 text-center sm:px-6 sm:pb-24 sm:pt-32">
           <div className="mx-auto max-w-4xl">
             <div className="flex justify-center">
               <div className="public-marketing-kicker">
@@ -225,7 +225,8 @@ export default function HowItWorksPage() {
       <section
         id="behind-scenes"
         data-testid="hiw-infrastructure"
-        className="public-marketing-stage relative overflow-hidden border-y px-4 py-20 sm:px-6 sm:py-24"
+        data-mobile-secondary="true"
+        className="public-mobile-secondary public-marketing-stage relative overflow-hidden border-y px-4 py-20 sm:px-6 sm:py-24"
       >
         <div className="public-marketing-grid absolute inset-0" />
         <div className="absolute left-[12%] top-10 h-56 w-56 rounded-full bg-blue-400/20 blur-3xl public-marketing-glow" />

@@ -213,7 +213,10 @@ function ProductScene({ module }: { module: (typeof productModules)[number] }) {
   const accent = getAccentClasses(module.accent);
 
   return (
-    <div className="public-marketing-panel public-marketing-panel-contrast relative overflow-hidden rounded-[24px] p-6 sm:p-7">
+    <div
+      data-mobile-secondary="true"
+      className="public-mobile-secondary public-marketing-panel public-marketing-panel-contrast relative overflow-hidden rounded-[24px] p-6 sm:p-7"
+    >
       <div
         className={`public-marketing-glow absolute inset-x-12 top-0 h-40 rounded-full bg-gradient-to-b blur-3xl ${accent.glow}`}
       />
@@ -338,7 +341,7 @@ export function HomepageStatic() {
         <div className="absolute right-[10%] top-36 h-52 w-52 rounded-full bg-[var(--marketing-glow-cyan)] blur-3xl public-marketing-drift" />
         <div className="absolute bottom-24 right-[18%] h-48 w-48 rounded-full bg-[var(--marketing-glow-gold)] blur-3xl public-marketing-pulse" />
 
-        <div className="relative mx-auto max-w-7xl px-4 pb-20 pt-16 sm:px-6 sm:pb-24 sm:pt-20 lg:pb-28 lg:pt-24">
+        <div className="public-marketing-hero relative mx-auto max-w-7xl px-4 pb-20 pt-16 sm:px-6 sm:pb-24 sm:pt-20 lg:pb-28 lg:pt-24">
           <div className="grid items-center gap-14 lg:grid-cols-[1.02fr_0.98fr]">
             <div className="max-w-2xl">
               <div className="public-marketing-kicker">
@@ -388,7 +391,10 @@ export function HomepageStatic() {
               </div>
             </div>
 
-            <div className="relative">
+            <div
+              data-mobile-secondary="true"
+              className="public-mobile-secondary relative"
+            >
               <div className="absolute -left-6 top-16 hidden h-24 w-24 rounded-full border border-slate-200/60 bg-white/60 blur-2xl dark:border-white/15 dark:bg-white/10 lg:block" />
               <div className="absolute -right-4 bottom-6 hidden h-28 w-28 rounded-full border border-blue-200/60 bg-[var(--marketing-glow-blue)] blur-3xl dark:border-white/10 lg:block" />
               <div className="public-marketing-panel public-marketing-panel-contrast relative overflow-hidden rounded-[28px] p-5 sm:p-6">
@@ -707,7 +713,10 @@ export function HomepageStatic() {
             })}
           </div>
 
-          <div className="public-marketing-panel public-marketing-panel-contrast mt-8 rounded-[26px] p-6 sm:p-7">
+          <div
+            data-mobile-secondary="true"
+            className="public-mobile-secondary public-marketing-panel public-marketing-panel-contrast mt-8 rounded-[26px] p-6 sm:p-7"
+          >
             <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
               <div>
                 <p className="public-marketing-contrast-label text-xs font-semibold uppercase tracking-[0.24em]">

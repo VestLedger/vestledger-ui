@@ -113,7 +113,7 @@ export default function SecurityPage() {
         <div className="absolute right-[10%] top-36 h-52 w-52 rounded-full bg-[var(--marketing-glow-blue)] blur-3xl public-marketing-drift" />
         <div className="absolute bottom-20 left-[20%] h-44 w-44 rounded-full bg-[var(--marketing-glow-gold)] blur-3xl public-marketing-pulse" />
 
-        <div className="relative mx-auto max-w-7xl px-4 pb-20 pt-28 text-center sm:px-6 sm:pb-24 sm:pt-32">
+        <div className="public-marketing-hero relative mx-auto max-w-7xl px-4 pb-20 pt-28 text-center sm:px-6 sm:pb-24 sm:pt-32">
           <div className="mx-auto max-w-4xl">
             <div className="flex justify-center">
               <div className="public-marketing-kicker">
@@ -219,7 +219,10 @@ export default function SecurityPage() {
                 ))}
               </div>
             </div>
-            <div className="public-marketing-panel public-marketing-panel-contrast rounded-[24px] p-6 text-center sm:p-8">
+            <div
+              data-mobile-secondary="true"
+              className="public-mobile-secondary public-marketing-panel public-marketing-panel-contrast rounded-[24px] p-6 text-center sm:p-8"
+            >
               <span className="mx-auto flex h-20 w-20 items-center justify-center rounded-full border border-amber-300/35 bg-amber-100/85 shadow-[0_0_40px_rgba(212,163,50,0.2)] dark:border-amber-300/25 dark:bg-amber-300/10">
                 <Database className="h-10 w-10 text-amber-600 dark:text-amber-300" />
               </span>
@@ -262,7 +265,8 @@ export default function SecurityPage() {
       <section
         id="compliance"
         data-testid="security-compliance"
-        className="relative px-4 py-20 sm:px-6 sm:py-24"
+        data-mobile-secondary="true"
+        className="public-mobile-secondary relative px-4 py-20 sm:px-6 sm:py-24"
       >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.06),transparent_50%)]" />
         <div className="relative mx-auto max-w-7xl text-center">
@@ -310,7 +314,8 @@ export default function SecurityPage() {
       <section
         id="private-network"
         data-testid="security-network"
-        className="public-marketing-stage relative overflow-hidden border-y px-4 py-20 sm:px-6 sm:py-24"
+        data-mobile-secondary="true"
+        className="public-mobile-secondary public-marketing-stage relative overflow-hidden border-y px-4 py-20 sm:px-6 sm:py-24"
       >
         <div className="public-marketing-grid absolute inset-0" />
         <div className="relative mx-auto max-w-6xl">

@@ -94,7 +94,7 @@ export default function EOIPage() {
       <div className="absolute right-[10%] top-60 h-52 w-52 rounded-full bg-[var(--marketing-glow-gold)] blur-3xl public-marketing-drift" />
       <div className="absolute bottom-40 left-[20%] h-48 w-48 rounded-full bg-[var(--marketing-glow-cyan)] blur-3xl public-marketing-pulse" />
 
-      <div className="relative mx-auto max-w-4xl px-4 pb-20 pt-28 sm:px-6 sm:pb-24 sm:pt-32">
+      <div className="public-marketing-hero relative mx-auto max-w-4xl px-4 pb-20 pt-28 sm:px-6 sm:pb-24 sm:pt-32">
         <Link
           href="/"
           className="inline-flex items-center gap-2 text-[var(--app-text-muted)] hover:text-[var(--app-primary)] mb-8 transition-colors"

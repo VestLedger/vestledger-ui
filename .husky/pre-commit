@@ -1,2 +1,5 @@
 #!/usr/bin/env sh
+PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+export PATH
+
 node scripts/prettier-staged.mjs

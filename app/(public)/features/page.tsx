@@ -226,7 +226,10 @@ function CapabilityScene({
   const accent = getAccentClasses(capability.accent);
 
   return (
-    <div className="public-marketing-panel public-marketing-panel-contrast relative overflow-hidden rounded-[24px] p-6 sm:p-7">
+    <div
+      data-mobile-secondary="true"
+      className="public-mobile-secondary public-marketing-panel public-marketing-panel-contrast relative overflow-hidden rounded-[24px] p-6 sm:p-7"
+    >
       <div
         className={`public-marketing-glow absolute inset-x-12 top-0 h-40 rounded-full bg-gradient-to-b blur-3xl ${accent.glow}`}
       />
@@ -342,7 +345,7 @@ export default function FeaturesPage() {
         <div className="absolute right-[8%] top-32 h-52 w-52 rounded-full bg-[var(--marketing-glow-cyan)] blur-3xl public-marketing-drift" />
         <div className="absolute bottom-20 right-[22%] h-44 w-44 rounded-full bg-[var(--marketing-glow-gold)] blur-3xl public-marketing-pulse" />
 
-        <div className="relative mx-auto max-w-7xl px-4 pb-20 pt-28 text-center sm:px-6 sm:pb-24 sm:pt-32">
+        <div className="public-marketing-hero relative mx-auto max-w-7xl px-4 pb-20 pt-28 text-center sm:px-6 sm:pb-24 sm:pt-32">
           <div className="mx-auto max-w-4xl">
             <div className="flex justify-center">
               <div className="public-marketing-kicker">
@@ -444,7 +447,8 @@ export default function FeaturesPage() {
       <section
         id="infrastructure"
         data-testid="features-infrastructure"
-        className="public-marketing-stage relative overflow-hidden border-y px-4 py-20 sm:px-6 sm:py-24"
+        data-mobile-secondary="true"
+        className="public-mobile-secondary public-marketing-stage relative overflow-hidden border-y px-4 py-20 sm:px-6 sm:py-24"
       >
         <div className="public-marketing-grid absolute inset-0" />
         <div className="absolute left-[14%] top-10 h-56 w-56 rounded-full bg-blue-400/20 blur-3xl public-marketing-glow" />
@@ -507,7 +511,10 @@ export default function FeaturesPage() {
                 </div>
               </div>
 
-              <div className="rounded-[24px] border border-white/10 bg-white/[0.06] p-6 shadow-[0_20px_60px_rgba(2,6,17,0.36)] backdrop-blur-2xl">
+              <div
+                data-mobile-secondary="true"
+                className="public-mobile-secondary rounded-[24px] border border-white/10 bg-white/[0.06] p-6 shadow-[0_20px_60px_rgba(2,6,17,0.36)] backdrop-blur-2xl"
+              >
                 <div className="flex items-center gap-3">
                   <span className="flex h-11 w-11 items-center justify-center rounded-2xl border border-blue-300/25 bg-blue-300/10 text-blue-50">
                     <Bot className="h-5 w-5" />

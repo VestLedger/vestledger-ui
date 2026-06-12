@@ -1,30 +1,36 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 
 test.use({ storageState: { cookies: [], origins: [] } });
 
-async function isLocalhostLoginFallback(page: Page) {
-  return page
-    .getByRole("heading", { name: /welcome back/i })
-    .isVisible()
-    .catch(() => false);
-}
+const publicRoutes = [
+  "/",
+  "/about",
+  "/features",
+  "/how-it-works",
+  "/security",
+  "/eoi",
+  "/privacy",
+  "/terms",
+];
 
 test.describe("Public Pages", () => {
   test.describe("Home Page", () => {
-    test("should load home page", async ({ page }) => {
+    test("should load the public homepage without redirecting to login", async ({
+      page,
+      baseURL,
+    }) => {
       await page.goto("/");
       await page.waitForLoadState("networkidle");
 
+      expect(new URL(page.url()).host).toBe(new URL(baseURL!).host);
+      expect(new URL(page.url()).pathname).toBe("/");
       await expect(page).toHaveTitle(/VestLedger/i);
+      await expect(page.getByTestId("home-hero")).toBeVisible();
     });
 
     test("should display hero section", async ({ page }) => {
       await page.goto("/");
       await page.waitForLoadState("networkidle");
-      test.skip(
-        await isLocalhostLoginFallback(page),
-        "Localhost middleware routes / to login unless a dedicated public host is configured.",
-      );
 
       const hero = page.getByTestId("home-hero");
       await expect(hero).toBeVisible();
@@ -36,10 +42,6 @@ test.describe("Public Pages", () => {
     test("should expose the new homepage story sections", async ({ page }) => {
       await page.goto("/");
       await page.waitForLoadState("networkidle");
-      test.skip(
-        await isLocalhostLoginFallback(page),
-        "Localhost middleware routes / to login unless a dedicated public host is configured.",
-      );
       await expect(page.getByTestId("workflow-rail")).toBeVisible();
       await expect(page.getByTestId("product-proof")).toBeVisible();
       await expect(page.getByTestId("trust-layer")).toBeVisible();
@@ -151,15 +153,6 @@ test.describe("Public Pages", () => {
 
 test.describe("Public Navigation", () => {
   test("should navigate between public pages", async ({ page }) => {
-    const publicRoutes = [
-      "/",
-      "/about",
-      "/features",
-      "/how-it-works",
-      "/security",
-      "/eoi",
-    ];
-
     for (const route of publicRoutes) {
       await page.goto(route);
       await page.waitForLoadState("networkidle");
@@ -190,5 +183,106 @@ test.describe("Public Navigation", () => {
     if (await footer.isVisible()) {
       await expect(footer).toBeVisible();
     }
+  });
+});
+
+test.describe("Public Responsive Layout", () => {
+  test("keeps the wordmark outside interactive topbar controls", async ({
+    page,
+  }) => {
+    await page.goto("/features", { waitUntil: "domcontentloaded" });
+
+    const wordmark = page
+      .locator('[data-public-brand-wordmark="true"]:visible')
+      .first();
+    await expect(wordmark).toHaveText("VestLedger");
+    expect(
+      await wordmark.evaluate(
+        (element) => element.closest("a, button") === null,
+      ),
+    ).toBe(true);
+
+    if ((page.viewportSize()?.width ?? 1280) < 768) {
+      const logoMenuButton = page.locator(
+        'button[aria-controls="public-mobile-navigation"]',
+      );
+      await expect(
+        logoMenuButton.locator('svg[aria-label="VestLedger Logo"]'),
+      ).toBeVisible();
+      await expect(
+        page.locator('header a[aria-label="VestLedger Logo"]:visible'),
+      ).toHaveCount(0);
+    } else {
+      await expect(
+        page.getByRole("link", { name: "VestLedger Logo" }).first(),
+      ).toHaveAttribute("href", "/");
+    }
+  });
+
+  for (const route of publicRoutes) {
+    test(`should not overflow horizontally on ${route}`, async ({ page }) => {
+      await page.goto(route, { waitUntil: "domcontentloaded" });
+
+      const dimensions = await page.evaluate(() => ({
+        scrollWidth: document.documentElement.scrollWidth,
+        viewportWidth: window.innerWidth,
+      }));
+
+      expect(
+        dimensions.scrollWidth,
+        `${route} should fit within the viewport`,
+      ).toBeLessThanOrEqual(dimensions.viewportWidth);
+    });
+  }
+
+  test("should simplify secondary scenes on mobile without removing them on desktop", async ({
+    page,
+  }) => {
+    await page.goto("/features", { waitUntil: "domcontentloaded" });
+
+    const secondaryScenes = page.locator('[data-mobile-secondary="true"]');
+    expect(await secondaryScenes.count()).toBeGreaterThan(0);
+
+    if ((page.viewportSize()?.width ?? 1280) < 640) {
+      await expect(secondaryScenes.first()).toBeHidden();
+    } else {
+      await expect(secondaryScenes.first()).toBeVisible();
+    }
+  });
+
+  test("should expose all primary actions from the mobile menu", async ({
+    page,
+  }) => {
+    test.skip(
+      (page.viewportSize()?.width ?? 1280) >= 768,
+      "Mobile navigation only renders below the md breakpoint.",
+    );
+
+    await page.goto("/features", { waitUntil: "domcontentloaded" });
+    const menuButton = page.locator(
+      'button[aria-controls="public-mobile-navigation"]',
+    );
+    await page.waitForFunction(() => {
+      const button = document.querySelector(
+        'button[aria-controls="public-mobile-navigation"]',
+      );
+      return (
+        button &&
+        Object.keys(button).some((key) => key.startsWith("__reactProps$"))
+      );
+    });
+    await menuButton.click();
+    await expect(menuButton).toHaveAttribute("aria-expanded", "true");
+
+    await expect(page.getByRole("link", { name: "Home" })).toBeVisible();
+    await expect(
+      page
+        .getByRole("link", { name: /login|sign in/i })
+        .or(page.getByRole("button", { name: /login|sign in/i }))
+        .first(),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: /meet vesta/i }).first(),
+    ).toBeVisible();
   });
 });

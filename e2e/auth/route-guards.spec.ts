@@ -9,6 +9,11 @@ import {
 test.use({ storageState: { cookies: [], origins: [] } });
 
 test.describe("Route Guards - Unauthenticated Redirect", () => {
+  test("app host root should redirect to login", async ({ page }) => {
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await expect(page).toHaveURL(/\/login/);
+  });
+
   for (const route of DASHBOARD_ROUTES) {
     test(`unauthenticated visit to ${route} should redirect to /login`, async ({
       page,

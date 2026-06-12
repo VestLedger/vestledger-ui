@@ -1,7 +1,7 @@
 # Node / Next build artifacts
 node_modules
 .next
-.next-playwright
+.next-*
 out
 .vercel
 coverage
