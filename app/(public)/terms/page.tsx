@@ -21,7 +21,7 @@ export default function TermsPage() {
         <div className="absolute left-[12%] top-24 h-56 w-56 rounded-full bg-[var(--marketing-glow-blue)] blur-3xl public-marketing-glow" />
         <div className="absolute right-[10%] top-36 h-44 w-44 rounded-full bg-[var(--marketing-glow-gold)] blur-3xl public-marketing-drift" />
 
-        <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-28 text-center sm:px-6 sm:pb-20 sm:pt-32">
+        <div className="public-marketing-hero relative mx-auto max-w-7xl px-4 pb-16 pt-28 text-center sm:px-6 sm:pb-20 sm:pt-32">
           <div className="mx-auto max-w-3xl">
             <div className="flex justify-center">
               <div className="public-marketing-kicker">

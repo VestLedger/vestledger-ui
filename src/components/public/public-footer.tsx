@@ -9,8 +9,8 @@ export function PublicFooter() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.14),transparent_28%),radial-gradient(circle_at_top_right,rgba(34,211,238,0.08),transparent_24%)] dark:bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.22),transparent_28%),radial-gradient(circle_at_top_right,rgba(34,211,238,0.14),transparent_24%)]" />
       <div className="public-marketing-grid absolute inset-0 opacity-0 dark:opacity-20" />
       <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
-        <div className="grid gap-8 border-t border-[color:var(--marketing-footer-border)] pt-8 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
-          <div>
+        <div className="grid grid-cols-2 gap-x-5 gap-y-8 border-t border-[color:var(--marketing-footer-border)] pt-8 md:grid-cols-[1.5fr_1fr_1fr_1fr] md:gap-8">
+          <div className="col-span-2 md:col-span-1">
             <Link
               href="/"
               className="inline-flex items-center gap-3 text-[color:var(--marketing-footer-text)]"

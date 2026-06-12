@@ -97,7 +97,7 @@ export default function AboutPage() {
         <div className="absolute right-[14%] top-32 h-48 w-48 rounded-full bg-[var(--marketing-glow-gold)] blur-3xl public-marketing-drift" />
         <div className="absolute bottom-16 left-[24%] h-44 w-44 rounded-full bg-[var(--marketing-glow-cyan)] blur-3xl public-marketing-pulse" />
 
-        <div className="relative mx-auto max-w-7xl px-4 pb-20 pt-28 text-center sm:px-6 sm:pb-24 sm:pt-32">
+        <div className="public-marketing-hero relative mx-auto max-w-7xl px-4 pb-20 pt-28 text-center sm:px-6 sm:pb-24 sm:pt-32">
           <div className="mx-auto max-w-4xl">
             <div className="flex justify-center">
               <div className="public-marketing-kicker">
@@ -152,7 +152,10 @@ export default function AboutPage() {
                 realized.
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div
+              data-mobile-secondary="true"
+              className="public-mobile-secondary grid grid-cols-2 gap-4"
+            >
               {stats.map((stat) => (
                 <div key={stat.label} className="public-marketing-stat">
                   <p

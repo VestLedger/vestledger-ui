@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { PublicNavLinks } from "./public-nav-links";
 import { LoginButton } from "./login-button";
 import { BrandLogo } from "../brand-logo";
+import { Menu, X } from "lucide-react";
 
 export function PublicMobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,25 +17,29 @@ export function PublicMobileMenu() {
   }, [pathname]);
 
   return (
-    <div className="md:hidden">
+    <div className="flex items-center gap-2 md:hidden">
+      <Link
+        href="/"
+        className="public-marketing-shell-control inline-flex h-10 w-10 items-center justify-center rounded-xl text-[var(--app-primary)] shadow-[0_14px_32px_rgba(7,16,32,0.14)] transition-colors sm:rounded-2xl"
+      >
+        <BrandLogo className="h-5 w-5" />
+      </Link>
+      <span
+        data-public-brand-wordmark="true"
+        data-public-display="true"
+        className="text-base font-semibold tracking-tight text-[var(--app-text)]"
+      >
+        VestLedger
+      </span>
       <button
         type="button"
         onClick={() => setIsOpen((open) => !open)}
         aria-label={isOpen ? "Close menu" : "Open menu"}
         aria-expanded={isOpen}
-        className="public-marketing-shell-control inline-flex items-center rounded-2xl px-3 py-2 text-[var(--app-text-muted)] shadow-[0_14px_32px_rgba(7,16,32,0.14)] transition-colors"
+        aria-controls="public-mobile-navigation"
+        className="public-marketing-shell-control inline-flex h-10 w-10 items-center justify-center rounded-xl text-[var(--app-text-muted)] shadow-[0_14px_32px_rgba(7,16,32,0.14)] transition-colors sm:rounded-2xl"
       >
-        <span className="inline-flex items-center gap-3 text-[var(--app-text)]">
-          <BrandLogo
-            className={`h-5 w-5 text-[var(--app-primary)] transition-transform duration-200 ${isOpen ? "rotate-90" : "rotate-0"}`}
-          />
-          <span
-            data-public-display="true"
-            className="text-base font-semibold tracking-tight"
-          >
-            VestLedger
-          </span>
-        </span>
+        {isOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
       </button>
 
       {isOpen && (
@@ -46,8 +51,11 @@ export function PublicMobileMenu() {
             className="fixed inset-0 z-40 bg-transparent"
           />
           <div className="absolute left-0 right-0 top-full z-[60] mt-2">
-            <div className="w-full border-y border-[var(--app-border)] bg-[var(--app-bg)] shadow-xl">
-              <div className="mx-auto max-w-7xl px-4 py-4">
+            <div
+              id="public-mobile-navigation"
+              className="mx-2 rounded-[18px] border border-[var(--app-border)] bg-[var(--app-bg)] shadow-xl sm:mx-0"
+            >
+              <div className="mx-auto max-w-7xl px-3 py-3 sm:px-4 sm:py-4">
                 <div className="mx-auto w-full max-w-sm">
                   <PublicNavLinks
                     orientation="vertical"
