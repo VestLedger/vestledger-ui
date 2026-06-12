@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 
 test.use({ storageState: { cookies: [], origins: [] } });
 
@@ -13,29 +13,24 @@ const publicRoutes = [
   "/terms",
 ];
 
-async function isLocalhostLoginFallback(page: Page) {
-  return page
-    .getByRole("heading", { name: /welcome back/i })
-    .isVisible()
-    .catch(() => false);
-}
-
 test.describe("Public Pages", () => {
   test.describe("Home Page", () => {
-    test("should load home page", async ({ page }) => {
+    test("should load the public homepage without redirecting to login", async ({
+      page,
+      baseURL,
+    }) => {
       await page.goto("/");
       await page.waitForLoadState("networkidle");
 
+      expect(new URL(page.url()).host).toBe(new URL(baseURL!).host);
+      expect(new URL(page.url()).pathname).toBe("/");
       await expect(page).toHaveTitle(/VestLedger/i);
+      await expect(page.getByTestId("home-hero")).toBeVisible();
     });
 
     test("should display hero section", async ({ page }) => {
       await page.goto("/");
       await page.waitForLoadState("networkidle");
-      test.skip(
-        await isLocalhostLoginFallback(page),
-        "Localhost middleware routes / to login unless a dedicated public host is configured.",
-      );
 
       const hero = page.getByTestId("home-hero");
       await expect(hero).toBeVisible();
@@ -47,10 +42,6 @@ test.describe("Public Pages", () => {
     test("should expose the new homepage story sections", async ({ page }) => {
       await page.goto("/");
       await page.waitForLoadState("networkidle");
-      test.skip(
-        await isLocalhostLoginFallback(page),
-        "Localhost middleware routes / to login unless a dedicated public host is configured.",
-      );
       await expect(page.getByTestId("workflow-rail")).toBeVisible();
       await expect(page.getByTestId("product-proof")).toBeVisible();
       await expect(page.getByTestId("trust-layer")).toBeVisible();
@@ -211,9 +202,21 @@ test.describe("Public Responsive Layout", () => {
       ),
     ).toBe(true);
 
-    await expect(
-      page.getByRole("link", { name: "VestLedger Logo" }).first(),
-    ).toHaveAttribute("href", "/");
+    if ((page.viewportSize()?.width ?? 1280) < 768) {
+      const logoMenuButton = page.locator(
+        'button[aria-controls="public-mobile-navigation"]',
+      );
+      await expect(
+        logoMenuButton.locator('svg[aria-label="VestLedger Logo"]'),
+      ).toBeVisible();
+      await expect(
+        page.locator('header a[aria-label="VestLedger Logo"]:visible'),
+      ).toHaveCount(0);
+    } else {
+      await expect(
+        page.getByRole("link", { name: "VestLedger Logo" }).first(),
+      ).toHaveAttribute("href", "/");
+    }
   });
 
   for (const route of publicRoutes) {

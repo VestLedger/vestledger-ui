@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { PublicNavLinks } from "./public-nav-links";
 import { LoginButton } from "./login-button";
 import { BrandLogo } from "../brand-logo";
-import { Menu, X } from "lucide-react";
 
 export function PublicMobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,12 +17,16 @@ export function PublicMobileMenu() {
 
   return (
     <div className="flex items-center gap-2 md:hidden">
-      <Link
-        href="/"
+      <button
+        type="button"
+        onClick={() => setIsOpen((open) => !open)}
+        aria-label={isOpen ? "Close menu" : "Open menu"}
+        aria-expanded={isOpen}
+        aria-controls="public-mobile-navigation"
         className="public-marketing-shell-control inline-flex h-10 w-10 items-center justify-center rounded-xl text-[var(--app-primary)] shadow-[0_14px_32px_rgba(7,16,32,0.14)] transition-colors sm:rounded-2xl"
       >
         <BrandLogo className="h-5 w-5" />
-      </Link>
+      </button>
       <span
         data-public-brand-wordmark="true"
         data-public-display="true"
@@ -31,16 +34,6 @@ export function PublicMobileMenu() {
       >
         VestLedger
       </span>
-      <button
-        type="button"
-        onClick={() => setIsOpen((open) => !open)}
-        aria-label={isOpen ? "Close menu" : "Open menu"}
-        aria-expanded={isOpen}
-        aria-controls="public-mobile-navigation"
-        className="public-marketing-shell-control inline-flex h-10 w-10 items-center justify-center rounded-xl text-[var(--app-text-muted)] shadow-[0_14px_32px_rgba(7,16,32,0.14)] transition-colors sm:rounded-2xl"
-      >
-        {isOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-      </button>
 
       {isOpen && (
         <>
