@@ -28,20 +28,25 @@ import {
   Sparkles,
   Sun,
   TrendingUp,
+  Volume2,
   Zap,
 } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useRouter, useSearchParams } from "next/navigation";
-import {
-  AICopilotSidebar,
-  useAICopilot,
-} from "@/components/ai-copilot-sidebar";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { BrandLogo } from "@/components/brand-logo";
 import { useAuth } from "@/contexts/auth-context";
 import { useFund } from "@/contexts/fund-context";
 import { ROUTE_PATHS } from "@/config/routes";
 import { safeLocalStorage } from "@/lib/storage/safeLocalStorage";
 import { AskVestaComposer } from "@/components/dashboard/ask-vesta-composer";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import type { CopilotMessage } from "@/store/slices/copilotSlice";
+import { openCopilotWithQuery } from "@/hooks/use-copilot-controller";
+import { useUIKey } from "@/store/ui";
+import {
+  UI_STATE_DEFAULTS,
+  UI_STATE_KEYS,
+} from "@/store/constants/uiStateKeys";
 import {
   fundHealth,
   pipeline,
@@ -293,6 +298,12 @@ function LeftRail({
   onVestaQueryChange,
   onVestaSubmit,
   vestaPrompts,
+  vestaMessages,
+  vestaIsTyping,
+  vestaError,
+  vestaVoiceCaptureMode,
+  onVestaVoiceCaptureModeChange,
+  onSpeakVestaMessage,
 }: {
   smartActions: Array<MockRailItem & { onClick: () => void }>;
   vestaSuggestions: Array<MockRailItem & { onClick: () => void }>;
@@ -300,6 +311,12 @@ function LeftRail({
   onVestaQueryChange: (query: string) => void;
   onVestaSubmit: (query: string) => void;
   vestaPrompts: string[];
+  vestaMessages: CopilotMessage[];
+  vestaIsTyping: boolean;
+  vestaError: string | null;
+  vestaVoiceCaptureMode: "tap" | "hold";
+  onVestaVoiceCaptureModeChange: (mode: "tap" | "hold") => void;
+  onSpeakVestaMessage: (message: CopilotMessage) => void;
 }) {
   const [isQueryMultiline, setIsQueryMultiline] = useState(false);
   const [smartActionsOpen, setSmartActionsOpen] = useState(true);
@@ -325,86 +342,30 @@ function LeftRail({
         </div>
       </div>
 
-      <div className="mt-8 min-h-0 flex-1 overflow-y-auto">
-        <div className="border-t border-app-border pt-6 dark:border-app-dark-border">
-          <button
-            type="button"
-            onClick={() => setSmartActionsOpen((open) => !open)}
-            aria-expanded={smartActionsOpen}
-            className="flex w-full items-start gap-3 text-left"
-          >
-            <Sparkles className="mt-0.5 h-6 w-6 shrink-0 text-app-vesta dark:text-app-dark-vesta" />
-            <div className="min-w-0 flex-1">
-              <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-app-text dark:text-app-dark-text">
-                Smart Actions
-              </h2>
-              <p className="mt-1 text-xs text-app-text-muted dark:text-app-dark-text-muted">
-                High-level workflows to move your day forward.
-              </p>
-            </div>
-            <ChevronDown
-              className={cx(
-                "mt-0.5 h-5 w-5 shrink-0 text-app-text-muted transition-transform duration-300 dark:text-app-dark-text-muted",
-                smartActionsOpen ? "rotate-180" : "rotate-0",
-              )}
-            />
-          </button>
-          <div
-            className={cx(
-              "grid transition-[grid-template-rows,opacity] duration-300 ease-out",
-              smartActionsOpen
-                ? "grid-rows-[1fr] opacity-100"
-                : "grid-rows-[0fr] opacity-0",
-            )}
-            aria-hidden={!smartActionsOpen}
-          >
-            <div
-              className={cx(
-                "min-h-0 overflow-hidden",
-                !smartActionsOpen && "pointer-events-none",
-              )}
-            >
-              <div className="mt-4 space-y-2">
-                {smartActions.map((item, index) => (
-                  <RailAction
-                    key={`smart-${index}-${item.title}`}
-                    item={item}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-5 border-t border-app-border pt-5 dark:border-app-dark-border">
-          <RailHeading
-            icon={Zap}
-            title="Vesta Suggests"
-            description="Insights tailored to your context."
-          />
-          <div className="mt-4 space-y-2">
-            {vestaSuggestions.map((item, index) => (
-              <RailAction key={`vesta-${index}-${item.title}`} item={item} />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-5 shrink-0 border-t border-app-border pt-5 dark:border-app-dark-border">
+      <div className="mt-5 flex min-h-0 flex-1 flex-col border-t border-app-border pt-5 dark:border-app-dark-border">
         <RailHeading
           icon={Sparkles}
           title="Ask Vesta"
           description="Get instant clarity across your fund."
         />
-        <div className="mt-4">
+        <div className="mt-4 flex min-h-0 flex-1 flex-col">
+          <HomeVestaThread
+            messages={vestaMessages}
+            isTyping={vestaIsTyping}
+            error={vestaError}
+            onSpeakMessage={onSpeakVestaMessage}
+          />
           <AskVestaComposer
             query={vestaQuery}
             onQueryChange={onVestaQueryChange}
             onSubmit={onVestaSubmit}
             onMultilineChange={setIsQueryMultiline}
+            isTyping={vestaIsTyping}
+            voiceCaptureMode={vestaVoiceCaptureMode}
+            onVoiceCaptureModeChange={onVestaVoiceCaptureModeChange}
           />
         </div>
-        <div className="mt-3 grid grid-cols-3 gap-2">
+        <div className="mt-3 grid shrink-0 grid-cols-3 gap-2">
           {vestaPrompts.map((prompt) => (
             <button
               key={prompt}
@@ -418,6 +379,74 @@ function LeftRail({
         </div>
       </div>
     </aside>
+  );
+}
+
+function HomeVestaThread({
+  messages,
+  isTyping,
+  error,
+  onSpeakMessage,
+}: {
+  messages: CopilotMessage[];
+  isTyping: boolean;
+  error: string | null;
+  onSpeakMessage: (message: CopilotMessage) => void;
+}) {
+  return (
+    <div
+      data-testid="home-vesta-thread"
+      className="mb-3 min-h-[220px] flex-1 space-y-2 overflow-y-auto rounded-xl border border-app-border bg-app-surface px-3 py-3 dark:border-app-dark-border dark:bg-app-dark-surface"
+      aria-live="polite"
+      role="log"
+    >
+      {messages.map((message) => {
+        const isUser = message.type === "user";
+
+        return (
+          <div
+            key={message.id}
+            className={cx("flex", isUser ? "justify-end" : "justify-start")}
+          >
+            <div
+              className={cx(
+                "group flex max-w-[88%] items-start gap-1.5 rounded-lg px-3 py-2 text-xs leading-5",
+                isUser
+                  ? "bg-app-vesta text-app-surface dark:bg-app-dark-vesta dark:text-app-dark-bg"
+                  : "bg-app-surface-2 text-app-text dark:bg-app-dark-surface-2 dark:text-app-dark-text",
+              )}
+            >
+              <p>{message.content}</p>
+              {!isUser ? (
+                <button
+                  type="button"
+                  aria-label="Play Vesta response"
+                  title="Play Vesta response"
+                  onClick={() => onSpeakMessage(message)}
+                  className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded text-app-text-muted opacity-0 transition hover:bg-app-surface-hover hover:text-app-text group-hover:opacity-100 focus-visible:opacity-100 dark:text-app-dark-text-muted dark:hover:bg-app-dark-surface-hover dark:hover:text-app-dark-text"
+                >
+                  <Volume2 className="h-3.5 w-3.5" />
+                </button>
+              ) : null}
+            </div>
+          </div>
+        );
+      })}
+
+      {isTyping ? (
+        <div className="flex justify-start">
+          <div className="rounded-lg bg-app-surface-2 px-3 py-2 text-xs text-app-text-muted dark:bg-app-dark-surface-2 dark:text-app-dark-text-muted">
+            Vesta is thinking
+          </div>
+        </div>
+      ) : null}
+
+      {error ? (
+        <div className="rounded-lg border border-app-danger bg-app-danger-light px-3 py-2 text-xs text-app-danger dark:border-app-dark-danger dark:bg-app-dark-danger-light dark:text-app-dark-danger">
+          {error}
+        </div>
+      ) : null}
+    </div>
   );
 }
 
@@ -851,66 +880,29 @@ function RightRail({
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Vesta overlay
-// ─────────────────────────────────────────────────────────────────────────────
-
-function HomeVestaOverlay({ onClose }: { onClose: () => void }) {
-  useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
-
-    document.body.style.overflow = "hidden";
-
-    const handleEscape = (event: globalThis.KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
-
-    document.addEventListener("keydown", handleEscape);
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      document.removeEventListener("keydown", handleEscape);
-    };
-  }, [onClose]);
-
-  return (
-    <div className="fixed inset-0 z-50">
-      <button
-        type="button"
-        aria-label="Close Vesta backdrop"
-        className="absolute inset-0 bg-[var(--app-overlay)]"
-        onClick={onClose}
-      />
-      <section
-        role="dialog"
-        aria-modal="true"
-        aria-label="Vesta copilot"
-        className="absolute inset-y-0 right-0 z-10 w-full max-w-[420px] border-l border-app-border bg-app-surface shadow-2xl dark:border-app-dark-border dark:bg-app-dark-surface"
-      >
-        <AICopilotSidebar mode="standalone" onClose={onClose} />
-      </section>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
 // Root
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function HomeCommandCenter() {
+  const dispatch = useAppDispatch();
+  const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuth();
   const { selectedFund } = useFund();
-  const { openWithQuery } = useAICopilot();
+  const vestaMessages = useAppSelector((state) => state.copilot.messages);
+  const vestaIsTyping = useAppSelector((state) => state.copilot.isTyping);
+  const vestaError = useAppSelector((state) => state.copilot.error);
+  const { value: vestaShellUI, patch: patchVestaShellUI } = useUIKey(
+    UI_STATE_KEYS.VESTA_SHELL,
+    UI_STATE_DEFAULTS.vestaShell,
+  );
 
   const queueSize = resolveQueueSize(searchParams?.get("queue"));
   const scenario = queueScenarios[queueSize];
 
   const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
   const [isResizingSidebar, setIsResizingSidebar] = useState(false);
-  const [isVestaOpen, setIsVestaOpen] = useState(false);
   const [vestaQuery, setVestaQuery] = useState("");
   const dragStartRef = useRef<{ clientX: number; width: number } | null>(null);
 
@@ -929,16 +921,34 @@ export function HomeCommandCenter() {
         return;
       }
 
-      setIsVestaOpen(true);
-      openWithQuery(trimmedQuery);
+      void openCopilotWithQuery(dispatch, pathname, trimmedQuery);
       setVestaQuery("");
     },
-    [openWithQuery],
+    [dispatch, pathname],
   );
 
-  const closeVesta = useCallback(() => {
-    setIsVestaOpen(false);
+  const speakVestaMessage = useCallback((message: CopilotMessage) => {
+    if (
+      message.type !== "ai" ||
+      typeof window === "undefined" ||
+      !("speechSynthesis" in window)
+    ) {
+      return;
+    }
+
+    const text = message.content.trim();
+    if (!text) return;
+
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
   }, []);
+
+  const setVestaVoiceCaptureMode = useCallback(
+    (mode: "tap" | "hold") => {
+      patchVestaShellUI({ voiceCaptureMode: mode });
+    },
+    [patchVestaShellUI],
+  );
 
   const smartActions = useMemo(
     () =>
@@ -1099,6 +1109,12 @@ export function HomeCommandCenter() {
             onVestaQueryChange={setVestaQuery}
             onVestaSubmit={submitVestaQuery}
             vestaPrompts={vestaPrompts}
+            vestaMessages={vestaMessages}
+            vestaIsTyping={vestaIsTyping}
+            vestaError={vestaError}
+            vestaVoiceCaptureMode={vestaShellUI.voiceCaptureMode}
+            onVestaVoiceCaptureModeChange={setVestaVoiceCaptureMode}
+            onSpeakVestaMessage={speakVestaMessage}
           />
           <button
             type="button"
@@ -1147,7 +1163,6 @@ export function HomeCommandCenter() {
           </div>
         </div>
       </div>
-      {isVestaOpen && <HomeVestaOverlay onClose={closeVesta} />}
     </div>
   );
 }

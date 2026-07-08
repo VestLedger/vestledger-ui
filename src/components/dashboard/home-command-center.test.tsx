@@ -4,13 +4,45 @@ import { HomeCommandCenter } from "./home-command-center";
 
 const mocks = vi.hoisted(() => {
   const push = vi.fn();
-  const openWithQuery = vi.fn();
+  const dispatch = vi.fn();
+  const openCopilotWithQuery = vi.fn();
   const setTheme = vi.fn();
+  const state = {
+    copilot: {
+      messages: [
+        {
+          id: "welcome",
+          type: "ai" as const,
+          content:
+            "Hi! I'm Vesta, your AI assistant. I'm here to help you navigate VestLedger, analyze data, and automate tasks. What would you like to do today?",
+          timestamp: new Date("2026-01-01T00:00:00.000Z"),
+        },
+      ],
+      isTyping: false,
+      error: null,
+    },
+    ui: {
+      byKey: {
+        "vesta-shell": {
+          vestaViewMode: "sidebar" as const,
+          voiceCaptureMode: "tap" as const,
+          voiceCaptureRequestNonce: 0,
+          activeThreadContext: {
+            contextType: "route" as const,
+            contextId: "/home",
+          },
+          ttsEnabled: true,
+        },
+      },
+    },
+  };
 
   return {
     push,
-    openWithQuery,
+    dispatch,
+    openCopilotWithQuery,
     setTheme,
+    state,
     queueParam: null as string | null,
   };
 });
@@ -21,6 +53,7 @@ vi.mock("next-themes", () => ({
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: mocks.push }),
+  usePathname: () => "/home",
   useSearchParams: () =>
     new URLSearchParams(mocks.queueParam ? `queue=${mocks.queueParam}` : ""),
 }));
@@ -32,7 +65,17 @@ vi.mock("@/components/ai-copilot-sidebar", () => ({
       <button type="button" aria-label="Close Vesta" onClick={onClose} />
     </div>
   ),
-  useAICopilot: () => ({ openWithQuery: mocks.openWithQuery }),
+  useAICopilot: () => ({ openWithQuery: mocks.openCopilotWithQuery }),
+}));
+
+vi.mock("@/hooks/use-copilot-controller", () => ({
+  openCopilotWithQuery: mocks.openCopilotWithQuery,
+}));
+
+vi.mock("@/store/hooks", () => ({
+  useAppDispatch: () => mocks.dispatch,
+  useAppSelector: (selector: (state: typeof mocks.state) => unknown) =>
+    selector(mocks.state),
 }));
 
 vi.mock("@/contexts/auth-context", () => ({
@@ -47,9 +90,22 @@ describe("HomeCommandCenter", () => {
   beforeEach(() => {
     localStorage.clear();
     mocks.push.mockClear();
-    mocks.openWithQuery.mockClear();
+    mocks.dispatch.mockClear();
+    mocks.openCopilotWithQuery.mockClear();
     mocks.setTheme.mockClear();
     mocks.queueParam = null;
+    mocks.state.copilot.messages = [
+      {
+        id: "welcome",
+        type: "ai",
+        content:
+          "Hi! I'm Vesta, your AI assistant. I'm here to help you navigate VestLedger, analyze data, and automate tasks. What would you like to do today?",
+        timestamp: new Date("2026-01-01T00:00:00.000Z"),
+      },
+    ];
+    mocks.state.copilot.isTyping = false;
+    mocks.state.copilot.error = null;
+    mocks.state.ui.byKey["vesta-shell"].voiceCaptureMode = "tap";
   });
 
   afterEach(() => {
@@ -169,7 +225,7 @@ describe("HomeCommandCenter", () => {
     expect(mocks.push).toHaveBeenCalledWith("/fund-admin");
   });
 
-  it("opens the AI copilot when an Ask Vesta query is submitted", () => {
+  it("submits Ask Vesta queries through the inline home rail instead of opening the right copilot", () => {
     render(<HomeCommandCenter />);
 
     expect(screen.queryByTestId("home-vesta-copilot")).not.toBeInTheDocument();
@@ -179,14 +235,63 @@ describe("HomeCommandCenter", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Send Vesta prompt" }));
 
-    expect(mocks.openWithQuery).toHaveBeenCalledWith(
+    expect(mocks.openCopilotWithQuery).toHaveBeenCalledWith(
+      mocks.dispatch,
+      "/home",
       "Summarize the funding updates",
     );
-    expect(screen.getByTestId("home-vesta-copilot")).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: "Close Vesta" }));
-
     expect(screen.queryByTestId("home-vesta-copilot")).not.toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "Ask Vesta" })).toHaveValue("");
+  });
+
+  it("renders Vesta conversation state inside the bottom-left home rail", () => {
+    mocks.state.copilot.messages = [
+      ...mocks.state.copilot.messages,
+      {
+        id: "user-1",
+        type: "user",
+        content: "Summarize the funding updates",
+        timestamp: new Date("2026-01-01T00:01:00.000Z"),
+      },
+      {
+        id: "ai-1",
+        type: "ai",
+        content: "Three portfolio companies submitted updates overnight.",
+        timestamp: new Date("2026-01-01T00:01:01.000Z"),
+      },
+    ];
+    mocks.state.copilot.isTyping = true;
+
+    render(<HomeCommandCenter />);
+
+    expect(screen.getByTestId("home-vesta-thread")).toBeInTheDocument();
+    expect(
+      screen.getByText("Summarize the funding updates"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Three portfolio companies submitted updates overnight.",
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Vesta is thinking")).toBeInTheDocument();
+  });
+
+  it("keeps the full inline Vesta conversation history available", () => {
+    mocks.state.copilot.messages = Array.from({ length: 8 }, (_, index) => ({
+      id: `message-${index + 1}`,
+      type: index % 2 === 0 ? "user" : "ai",
+      content: `Vesta history message ${index + 1}`,
+      timestamp: new Date(`2026-01-01T00:0${index}:00.000Z`),
+    }));
+
+    render(<HomeCommandCenter />);
+
+    const thread = screen.getByTestId("home-vesta-thread");
+    expect(thread).toBeInTheDocument();
+    expect(thread).toHaveClass("flex-1");
+    expect(thread.className).not.toContain("max-h-48");
+    expect(screen.getByText("Vesta history message 1")).toBeInTheDocument();
+    expect(screen.getByText("Vesta history message 8")).toBeInTheDocument();
   });
 
   it("resizes the sidebar with the keyboard and persists the chosen width", () => {

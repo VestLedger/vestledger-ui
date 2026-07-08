@@ -1,13 +1,7 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type ChangeEvent,
-} from "react";
-import { ArrowUp, Mic, Paperclip, X } from "lucide-react";
+import { useCallback, useRef, useState, type ChangeEvent } from "react";
+import { ArrowUp, Bot, Mic, Paperclip, X } from "lucide-react";
 import { Input, Textarea } from "@/ui";
 import { useSpeechDictation } from "@/hooks/use-speech-dictation";
 
@@ -17,22 +11,22 @@ const cx = (...classes: Array<string | false | null | undefined>) =>
 const MIN_ROWS = 1;
 const MAX_ROWS = 4;
 
+type VoiceCaptureMode = "tap" | "hold";
+
 type AttachedFile = {
   id: string;
   name: string;
   size: number;
 };
 
-function appendTranscript(current: string, transcript: string) {
-  if (!current.trim()) {
-    return transcript;
-  }
-  return `${current.trimEnd()} ${transcript}`;
-}
-
 function ComposerIconButton({
   label,
   onClick,
+  onMouseDown,
+  onMouseUp,
+  onMouseLeave,
+  onTouchStart,
+  onTouchEnd,
   type = "button",
   disabled = false,
   active = false,
@@ -41,6 +35,11 @@ function ComposerIconButton({
 }: {
   label: string;
   onClick?: () => void;
+  onMouseDown?: () => void;
+  onMouseUp?: () => void;
+  onMouseLeave?: () => void;
+  onTouchStart?: () => void;
+  onTouchEnd?: () => void;
   type?: "button" | "submit";
   disabled?: boolean;
   active?: boolean;
@@ -53,6 +52,11 @@ function ComposerIconButton({
       aria-label={label}
       title={label}
       onClick={onClick}
+      onMouseDown={onMouseDown}
+      onMouseUp={onMouseUp}
+      onMouseLeave={onMouseLeave}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
       disabled={disabled}
       className={cx(
         "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-app-text-muted transition hover:bg-app-surface-hover hover:text-app-text disabled:cursor-not-allowed disabled:opacity-40 dark:text-app-dark-text-muted dark:hover:bg-app-dark-surface-hover dark:hover:text-app-dark-text",
@@ -71,30 +75,52 @@ export function AskVestaComposer({
   onQueryChange,
   onSubmit,
   onMultilineChange,
+  isTyping = false,
+  voiceCaptureMode = "tap",
+  onVoiceCaptureModeChange,
 }: {
   query: string;
   onQueryChange: (query: string) => void;
   onSubmit: (query: string) => void;
   onMultilineChange?: (multiline: boolean) => void;
+  isTyping?: boolean;
+  voiceCaptureMode?: VoiceCaptureMode;
+  onVoiceCaptureModeChange?: (mode: VoiceCaptureMode) => void;
 }) {
   const [attachments, setAttachments] = useState<AttachedFile[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const queryRef = useRef(query);
+  const skipNextVoiceSubmitRef = useRef(false);
   const attachmentIdRef = useRef(0);
-
-  useEffect(() => {
-    queryRef.current = query;
-  }, [query]);
 
   const handleTranscript = useCallback(
     (text: string) => {
-      onQueryChange(appendTranscript(queryRef.current, text));
+      onQueryChange(text);
     },
     [onQueryChange],
   );
 
-  const { isSupported, isRecording, toggle, stop } = useSpeechDictation({
+  const handleVoiceEnd = useCallback(
+    (text: string) => {
+      if (skipNextVoiceSubmitRef.current) {
+        skipNextVoiceSubmitRef.current = false;
+        return;
+      }
+
+      const trimmedText = text.trim();
+      if (!trimmedText) return;
+
+      onSubmit(trimmedText);
+      onQueryChange("");
+      setAttachments([]);
+    },
+    [onQueryChange, onSubmit],
+  );
+
+  const { isSupported, isRecording, start, stop } = useSpeechDictation({
     onTranscript: handleTranscript,
+    onEnd: handleVoiceEnd,
+    interimResults: true,
+    disabled: isTyping,
   });
 
   const canSend = query.trim().length > 0 || attachments.length > 0;
@@ -103,10 +129,36 @@ export function AskVestaComposer({
     if (!canSend) {
       return;
     }
+    if (isRecording) {
+      skipNextVoiceSubmitRef.current = true;
+    }
     stop();
     onSubmit(query);
     setAttachments([]);
-  }, [canSend, onSubmit, query, stop]);
+  }, [canSend, isRecording, onSubmit, query, stop]);
+
+  const handleMicClick = useCallback(() => {
+    if (voiceCaptureMode !== "tap" || isTyping) return;
+    if (isRecording) {
+      stop();
+      return;
+    }
+    start();
+  }, [isRecording, isTyping, start, stop, voiceCaptureMode]);
+
+  const handleMicPressStart = useCallback(() => {
+    if (voiceCaptureMode !== "hold" || isTyping) return;
+    start();
+  }, [isTyping, start, voiceCaptureMode]);
+
+  const handleMicPressEnd = useCallback(() => {
+    if (voiceCaptureMode !== "hold") return;
+    stop();
+  }, [stop, voiceCaptureMode]);
+
+  const toggleVoiceCaptureMode = useCallback(() => {
+    onVoiceCaptureModeChange?.(voiceCaptureMode === "tap" ? "hold" : "tap");
+  }, [onVoiceCaptureModeChange, voiceCaptureMode]);
 
   const handleFilesSelected = (event: ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -135,12 +187,28 @@ export function AskVestaComposer({
 
   return (
     <form
-      className="rounded-xl border border-app-border-strong bg-app-surface-2 p-2 dark:border-app-dark-border-strong dark:bg-app-dark-surface-2"
+      className="relative overflow-hidden rounded-xl border border-app-border-strong bg-app-surface-2 p-2 dark:border-app-dark-border-strong dark:bg-app-dark-surface-2"
       onSubmit={(event) => {
         event.preventDefault();
         handleSubmit();
       }}
     >
+      <div className="mb-1 flex items-center justify-between gap-2 px-1">
+        <button
+          type="button"
+          onClick={toggleVoiceCaptureMode}
+          className="text-xs font-medium text-app-text-muted transition hover:text-app-text dark:text-app-dark-text-muted dark:hover:text-app-dark-text"
+        >
+          Voice Mode:{" "}
+          {voiceCaptureMode === "tap" ? "Tap-to-talk" : "Hold-to-talk"}
+        </button>
+        {!isSupported ? (
+          <span className="text-xs text-app-danger dark:text-app-dark-danger">
+            Voice unavailable
+          </span>
+        ) : null}
+      </div>
+
       {attachments.length > 0 ? (
         <ul className="mb-2 flex flex-wrap gap-2" aria-label="Attachments">
           {attachments.map((file) => (
@@ -206,11 +274,16 @@ export function AskVestaComposer({
               !isSupported
                 ? "Voice input not supported in this browser"
                 : isRecording
-                  ? "Stop voice input"
-                  : "Start voice input"
+                  ? "Stop voice capture"
+                  : "Start voice capture"
             }
-            onClick={toggle}
-            disabled={!isSupported}
+            onClick={handleMicClick}
+            onMouseDown={handleMicPressStart}
+            onMouseUp={handleMicPressEnd}
+            onMouseLeave={handleMicPressEnd}
+            onTouchStart={handleMicPressStart}
+            onTouchEnd={handleMicPressEnd}
+            disabled={!isSupported || isTyping}
             active={isRecording}
           >
             <Mic className={cx("h-4 w-4", isRecording && "animate-pulse")} />
@@ -236,6 +309,34 @@ export function AskVestaComposer({
         onChange={handleFilesSelected}
         classNames={{ base: "hidden" }}
       />
+
+      {isRecording ? (
+        <button
+          type="button"
+          aria-label="Stop voice capture"
+          onClick={voiceCaptureMode === "tap" ? stop : undefined}
+          className={cx(
+            "absolute inset-0 z-30 flex flex-col items-center justify-center bg-slate-950/65 text-white backdrop-blur-sm",
+            voiceCaptureMode === "tap"
+              ? "cursor-pointer"
+              : "pointer-events-none cursor-default",
+          )}
+        >
+          <span className="relative mb-3 flex h-24 w-24 items-center justify-center">
+            <span className="absolute h-24 w-24 animate-pulse rounded-full bg-app-vesta/25 blur-lg dark:bg-app-dark-vesta/25" />
+            <span className="absolute h-20 w-20 animate-ping rounded-full border border-white/35" />
+            <span className="relative flex h-14 w-14 items-center justify-center rounded-full bg-app-vesta text-white shadow-2xl dark:bg-app-dark-vesta">
+              <Bot className="h-7 w-7" />
+            </span>
+          </span>
+          <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/85">
+            Listening
+          </span>
+          <span className="mt-1 text-xs text-white/70">
+            {voiceCaptureMode === "tap" ? "Tap to stop" : "Release to send"}
+          </span>
+        </button>
+      ) : null}
     </form>
   );
 }

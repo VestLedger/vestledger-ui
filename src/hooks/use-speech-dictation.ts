@@ -8,7 +8,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 type SpeechRecognitionAlternativeLike = { transcript: string };
 
-type SpeechRecognitionResultLike = ArrayLike<SpeechRecognitionAlternativeLike>;
+type SpeechRecognitionResultLike =
+  ArrayLike<SpeechRecognitionAlternativeLike> & {
+    isFinal?: boolean;
+  };
 
 type SpeechRecognitionEventLike = {
   resultIndex: number;
@@ -44,41 +47,69 @@ function getSpeechRecognitionCtor(): BrowserSpeechRecognitionCtor | null {
   );
 }
 
-function extractTranscript(event: SpeechRecognitionEventLike): string {
-  let transcript = "";
+function joinTranscript(...parts: string[]) {
+  return parts
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .join(" ");
+}
+
+function extractTranscript(event: SpeechRecognitionEventLike) {
+  let finalTranscript = "";
+  let interimTranscript = "";
 
   for (let i = event.resultIndex; i < event.results.length; i += 1) {
     const result = event.results[i];
     const alternative = result?.[0];
 
     if (alternative?.transcript) {
-      transcript += alternative.transcript;
+      if (result?.isFinal === false) {
+        interimTranscript += alternative.transcript;
+      } else {
+        finalTranscript += alternative.transcript;
+      }
     }
   }
 
-  return transcript.trim();
+  return {
+    finalTranscript: finalTranscript.trim(),
+    interimTranscript: interimTranscript.trim(),
+  };
 }
 
 export interface UseSpeechDictationResult {
   isSupported: boolean;
   isRecording: boolean;
+  start: () => void;
   toggle: () => void;
   stop: () => void;
 }
 
 export function useSpeechDictation({
   onTranscript,
+  onEnd,
+  interimResults = false,
+  disabled = false,
 }: {
   onTranscript: (text: string) => void;
+  onEnd?: (text: string) => void;
+  interimResults?: boolean;
+  disabled?: boolean;
 }): UseSpeechDictationResult {
   const [isSupported, setIsSupported] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef<BrowserSpeechRecognition | null>(null);
   const onTranscriptRef = useRef(onTranscript);
+  const onEndRef = useRef(onEnd);
+  const transcriptBufferRef = useRef("");
 
   useEffect(() => {
     onTranscriptRef.current = onTranscript;
   }, [onTranscript]);
+
+  useEffect(() => {
+    onEndRef.current = onEnd;
+  }, [onEnd]);
 
   useEffect(() => {
     setIsSupported(getSpeechRecognitionCtor() !== null);
@@ -92,29 +123,46 @@ export function useSpeechDictation({
   const start = useCallback(() => {
     const Ctor = getSpeechRecognitionCtor();
 
-    if (!Ctor) {
+    if (!Ctor || disabled) {
       return;
     }
 
     const recognition = new Ctor();
     recognition.lang = "en-US";
-    recognition.interimResults = false;
+    recognition.interimResults = interimResults;
     recognition.continuous = false;
 
     recognition.onresult = (event) => {
-      const transcript = extractTranscript(event);
+      const { finalTranscript, interimTranscript } = extractTranscript(event);
+
+      transcriptBufferRef.current = joinTranscript(
+        transcriptBufferRef.current,
+        finalTranscript,
+      );
+      const transcript = joinTranscript(
+        transcriptBufferRef.current,
+        interimTranscript,
+      );
 
       if (transcript) {
         onTranscriptRef.current(transcript);
       }
     };
     recognition.onerror = () => setIsRecording(false);
-    recognition.onend = () => setIsRecording(false);
+    recognition.onend = () => {
+      setIsRecording(false);
+      const finalTranscript = transcriptBufferRef.current.trim();
+      transcriptBufferRef.current = "";
+      if (finalTranscript) {
+        onEndRef.current?.(finalTranscript);
+      }
+    };
 
     recognitionRef.current = recognition;
+    transcriptBufferRef.current = "";
     recognition.start();
     setIsRecording(true);
-  }, []);
+  }, [disabled, interimResults]);
 
   const toggle = useCallback(() => {
     if (isRecording) {
@@ -130,5 +178,5 @@ export function useSpeechDictation({
     };
   }, []);
 
-  return { isSupported, isRecording, toggle, stop };
+  return { isSupported, isRecording, start, toggle, stop };
 }
