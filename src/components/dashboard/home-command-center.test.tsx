@@ -136,18 +136,30 @@ describe("HomeCommandCenter", () => {
     expect(mocks.setTheme).toHaveBeenCalledWith("dark");
   });
 
-  it("toggles the Smart Actions accordion from its header", () => {
+  it("renders the Ask Vesta rail without legacy Smart Actions sections", () => {
     render(<HomeCommandCenter />);
 
-    const header = screen.getByRole("button", { name: /Smart Actions/ });
-    expect(header).toHaveAttribute("aria-expanded", "true");
-    expect(screen.getByText("IC Meeting")).toBeInTheDocument();
-
-    fireEvent.click(header);
-
-    expect(header).toHaveAttribute("aria-expanded", "false");
-    // Items remain mounted (accordion collapse), header stays visible.
-    expect(screen.getByText("IC Meeting")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Ask Vesta" }),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("home-vesta-thread")).toBeInTheDocument();
+    expect(
+      screen.getByRole("textbox", { name: "Ask Vesta" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "How is Fund I performing?" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Summarize recent updates" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "What needs my attention?" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /Smart Actions/ }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText("Vesta Suggests")).not.toBeInTheDocument();
+    expect(screen.queryByText("IC Meeting")).not.toBeInTheDocument();
   });
 
   it("shows the caught-up state for a light queue (?queue=1)", () => {
