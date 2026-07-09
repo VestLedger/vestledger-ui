@@ -23,3 +23,5 @@ export {
   useRedesignedFrameVesta,
 } from "./redesigned-frame-shell";
 export type { RedesignedFrameShellProps } from "./redesigned-frame-shell";
+export { REDESIGNED_FRAME_ROUTES, resolveShellMode } from "./shell-mode";
+export type { ShellMode } from "./shell-mode";
