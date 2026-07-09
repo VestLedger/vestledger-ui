@@ -32,6 +32,7 @@ const LOGIN_PATH = "/login";
 
 export const REDESIGNED_FRAME_ROUTES: ReadonlySet<string> = new Set<string>([
   ROUTE_PATHS.dashboard,
+  ROUTE_PATHS.pipeline,
 ]);
 
 export function resolveShellMode(pathname: string): ShellMode {

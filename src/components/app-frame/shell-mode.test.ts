@@ -14,8 +14,8 @@ describe("resolveShellMode", () => {
     expect(resolveShellMode("/home")).toBe("redesign");
   });
 
-  it("keeps /pipeline on the legacy frame until opted in", () => {
-    expect(resolveShellMode("/pipeline")).toBe("legacy");
+  it("routes /pipeline to the redesigned frame (Phase 4 pilot)", () => {
+    expect(resolveShellMode("/pipeline")).toBe("redesign");
   });
 
   it("keeps every other dashboard route on the legacy frame (no page accidentally changes frame)", () => {
@@ -52,7 +52,7 @@ describe("resolveShellMode", () => {
     }
   });
 
-  it("starts with /home as the only redesigned route", () => {
-    expect([...REDESIGNED_FRAME_ROUTES]).toEqual(["/home"]);
+  it("allowlists exactly /home and /pipeline", () => {
+    expect([...REDESIGNED_FRAME_ROUTES]).toEqual(["/home", "/pipeline"]);
   });
 });
