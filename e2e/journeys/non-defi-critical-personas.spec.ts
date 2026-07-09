@@ -89,4 +89,31 @@ test.describe("Non-DeFi Critical Persona Journeys @critical", () => {
     });
     await expect.poll(() => new URL(page.url()).pathname).toBe("/compliance");
   });
+
+  test("gp moves from home into pipeline inside the redesigned frame", async ({
+    page,
+  }) => {
+    test.skip(
+      !hasRoleCredentials("gp"),
+      `Missing ${Object.values(getRoleCredentialEnvNames("gp")).join(" / ")}`,
+    );
+
+    await loginViaRedirect(page, "/home", {
+      role: "gp",
+      waitForLoadState: "domcontentloaded",
+    });
+    await expect(page.getByTestId("redesigned-app-frame")).toBeVisible();
+
+    // "Helios Robotics" is the first Pipeline Watch row (home mock data);
+    // its route is ROUTE_PATHS.pipeline.
+    await page.getByRole("button", { name: /Helios Robotics/ }).click();
+
+    await expect.poll(() => new URL(page.url()).pathname).toBe("/pipeline");
+    // Same frame on both sides of the navigation — no shell shock.
+    await expect(page.getByTestId("redesigned-app-frame")).toBeVisible();
+    await expect(page.locator("main")).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Ask Vesta" }),
+    ).toBeVisible();
+  });
 });
