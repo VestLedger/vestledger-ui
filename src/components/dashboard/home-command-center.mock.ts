@@ -11,7 +11,6 @@ import {
   Mail,
   PenSquare,
   ShieldCheck,
-  Sparkles,
   Users,
 } from "lucide-react";
 import { ROUTE_PATHS } from "@/config/routes";
@@ -26,14 +25,6 @@ import { ROUTE_PATHS } from "@/config/routes";
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type HomeTone = "violet" | "cyan" | "orange" | "green" | "blue";
-
-export type MockRailItem = {
-  title: string;
-  description: string;
-  icon: LucideIcon;
-  tone: HomeTone;
-  route: string;
-};
 
 export type MockPriorityAction = {
   id: string;
@@ -81,56 +72,6 @@ export type MockQueueScenario = {
 export const HOME_QUEUE_SIZES = [1, 3, 7] as const;
 export type HomeQueueSize = (typeof HOME_QUEUE_SIZES)[number];
 export const DEFAULT_HOME_QUEUE_SIZE: HomeQueueSize = 3;
-
-// ── Left rail ────────────────────────────────────────────────────────────────
-
-export const smartActions: MockRailItem[] = [
-  {
-    title: "IC Meeting",
-    description: "Deck, memo, and talking points",
-    icon: Users,
-    tone: "blue",
-    route: ROUTE_PATHS.analytics,
-  },
-  {
-    title: "Portfolio Performance",
-    description: "KPIs and attribution summary",
-    icon: BarChart3,
-    tone: "blue",
-    route: ROUTE_PATHS.analytics,
-  },
-  {
-    title: "LP Updates",
-    description: "Draft, review, and send updates",
-    icon: Mail,
-    tone: "blue",
-    route: ROUTE_PATHS.lpManagement,
-  },
-  {
-    title: "Research Briefing",
-    description: "Market and sector intelligence",
-    icon: FileText,
-    tone: "blue",
-    route: ROUTE_PATHS.reports,
-  },
-];
-
-export const vestaSuggestions: MockRailItem[] = [
-  {
-    title: "LP update draft ready for review",
-    description: "22 results overview",
-    icon: Sparkles,
-    tone: "violet",
-    route: ROUTE_PATHS.lpManagement,
-  },
-  {
-    title: "3 investments approaching key milestones",
-    description: "Review timeline and risks",
-    icon: Users,
-    tone: "violet",
-    route: ROUTE_PATHS.portfolio,
-  },
-];
 
 export const vestaPrompts: string[] = [
   "How is Fund I performing?",

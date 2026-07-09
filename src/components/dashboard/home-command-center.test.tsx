@@ -142,7 +142,7 @@ describe("HomeCommandCenter", () => {
     expect(
       screen.getByRole("heading", { name: "Ask Vesta" }),
     ).toBeInTheDocument();
-    expect(screen.getByTestId("home-vesta-thread")).toBeInTheDocument();
+    expect(screen.getByTestId("vesta-thread-panel")).toBeInTheDocument();
     expect(
       screen.getByRole("textbox", { name: "Ask Vesta" }),
     ).toBeInTheDocument();
@@ -276,7 +276,7 @@ describe("HomeCommandCenter", () => {
 
     render(<HomeCommandCenter />);
 
-    expect(screen.getByTestId("home-vesta-thread")).toBeInTheDocument();
+    expect(screen.getByTestId("vesta-thread-panel")).toBeInTheDocument();
     expect(
       screen.getByText("Summarize the funding updates"),
     ).toBeInTheDocument();
@@ -298,7 +298,7 @@ describe("HomeCommandCenter", () => {
 
     render(<HomeCommandCenter />);
 
-    const thread = screen.getByTestId("home-vesta-thread");
+    const thread = screen.getByTestId("vesta-thread-panel");
     expect(thread).toBeInTheDocument();
     expect(thread).toHaveClass("flex-1");
     expect(thread.className).not.toContain("max-h-48");
@@ -309,7 +309,7 @@ describe("HomeCommandCenter", () => {
   it("resizes the sidebar with the keyboard and persists the chosen width", () => {
     render(<HomeCommandCenter />);
 
-    const dashboard = screen.getByTestId("gp-home-command-center");
+    const dashboard = screen.getByTestId("redesigned-app-frame");
     const resizeHandle = screen.getByRole("separator", {
       name: "Resize sidebar",
     });
@@ -319,16 +319,18 @@ describe("HomeCommandCenter", () => {
     fireEvent.keyDown(resizeHandle, { key: "ArrowRight" });
 
     expect(resizeHandle).toHaveAttribute("aria-valuenow", "527");
-    expect(dashboard.style.getPropertyValue("--home-sidebar-width")).toBe(
+    expect(dashboard.style.getPropertyValue("--app-frame-rail-width")).toBe(
       "527px",
     );
-    expect(localStorage.getItem("vestledger-home-sidebar-width")).toBe("527");
+    expect(
+      localStorage.getItem("vestledger-redesigned-app-frame-left-rail-width"),
+    ).toBe("527");
   });
 
   it("resizes the sidebar by dragging its divider", () => {
     render(<HomeCommandCenter />);
 
-    const dashboard = screen.getByTestId("gp-home-command-center");
+    const dashboard = screen.getByTestId("redesigned-app-frame");
     const resizeHandle = screen.getByRole("separator", {
       name: "Resize sidebar",
     });
@@ -348,7 +350,7 @@ describe("HomeCommandCenter", () => {
     fireEvent(window, new MouseEvent("pointerup", { bubbles: true }));
 
     expect(resizeHandle).toHaveAttribute("aria-valuenow", "575");
-    expect(dashboard.style.getPropertyValue("--home-sidebar-width")).toBe(
+    expect(dashboard.style.getPropertyValue("--app-frame-rail-width")).toBe(
       "575px",
     );
   });
