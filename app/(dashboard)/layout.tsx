@@ -27,8 +27,11 @@ import {
   DASHBOARD_DENSITY,
   resolveDashboardDensityMode,
 } from "@/config/dashboard-density";
-import { ROUTE_PATHS } from "@/config/routes";
 import { buildAdminSuperadminUrl, buildAppLoginUrl } from "@/config/env";
+import {
+  resolveShellMode,
+  type ShellMode,
+} from "@/components/app-frame/shell-mode";
 import { resolveUserDomainTarget } from "@/utils/auth/internal-access";
 import {
   canRoleAccessPath,
@@ -52,14 +55,12 @@ const AICopilotSidebar = dynamic(
   },
 );
 
-function DashboardLayoutInner({
+function DashboardShellRouter({
   children,
-  isVestaRoute,
-  isDashboardHomeRoute,
+  shellMode,
 }: {
   children: React.ReactNode;
-  isVestaRoute: boolean;
-  isDashboardHomeRoute: boolean;
+  shellMode: ShellMode;
 }) {
   const { sidebarState, toggleLeftSidebar, toggleRightSidebar } =
     useNavigation();
@@ -76,7 +77,7 @@ function DashboardLayoutInner({
   const densityMode = resolveDashboardDensityMode(dashboardDensityUI.mode);
   const density = DASHBOARD_DENSITY[densityMode];
   const isVestaFullscreen =
-    !isVestaRoute &&
+    shellMode !== "vesta-standalone" &&
     vestaShellUI.vestaViewMode === "fullscreen" &&
     !sidebarState.rightCollapsed;
 
@@ -98,7 +99,7 @@ function DashboardLayoutInner({
 
   const shouldRenderCopilot = sidebarState.rightCollapsed || copilotReady;
 
-  if (isVestaRoute) {
+  if (shellMode === "vesta-standalone") {
     return (
       <DashboardDensityProvider mode={densityMode}>
         <div
@@ -112,7 +113,7 @@ function DashboardLayoutInner({
     );
   }
 
-  if (isDashboardHomeRoute) {
+  if (shellMode === "redesign") {
     return (
       <DashboardDensityProvider mode={densityMode}>
         <div
@@ -120,6 +121,7 @@ function DashboardLayoutInner({
           data-dashboard-density={densityMode}
         >
           {children}
+          <CommandPalette />
         </div>
       </DashboardDensityProvider>
     );
@@ -180,11 +182,9 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [isClientReady, setIsClientReady] = useState(false);
-  const isVestaRoute = pathname === ROUTE_PATHS.vesta;
-  const isDashboardHomeRoute = pathname === ROUTE_PATHS.dashboard;
-
+  const shellMode = resolveShellMode(pathname);
   // Login page is in the (dashboard) route group but should NOT be protected
-  const isLoginPage = pathname === "/login";
+  const isLoginPage = shellMode === "login";
 
   // Always call hooks (rules of hooks) - but only use auth for protected pages
   const { hydrated, isAuthenticated, user, logout } = useAuth();
@@ -274,12 +274,9 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
   return (
     <NavigationProvider>
-      <DashboardLayoutInner
-        isVestaRoute={isVestaRoute}
-        isDashboardHomeRoute={isDashboardHomeRoute}
-      >
+      <DashboardShellRouter shellMode={shellMode}>
         {children}
-      </DashboardLayoutInner>
+      </DashboardShellRouter>
     </NavigationProvider>
   );
 }
