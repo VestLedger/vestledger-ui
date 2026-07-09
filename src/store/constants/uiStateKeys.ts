@@ -20,6 +20,8 @@ export const UI_STATE_KEYS = {
 
   // Component-specific UI state
   TOPBAR: "topbar",
+  REDESIGNED_TOPBAR: "redesigned-topbar",
+  COMMAND_PALETTE: "command-palette",
   DASHBOARD_DENSITY: "dashboard-density",
   VESTA_SHELL: "vesta-shell",
   DEAL_INTELLIGENCE: "deal-intelligence",
@@ -37,6 +39,15 @@ export const UI_STATE_DEFAULTS = {
     isProfileOpen: false,
     searchQuery: "",
     isSearchFocused: false,
+  },
+
+  redesignedTopbar: {
+    isProfileOpen: false,
+  },
+
+  commandPalette: {
+    open: false,
+    search: "",
   },
 
   dashboardDensity: {

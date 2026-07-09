@@ -12,7 +12,11 @@ export {
 export type { FrameRailSeparatorProps } from "./resizable-frame-rail";
 export { RedesignedAppFrame } from "./redesigned-app-frame";
 export type { RedesignedAppFrameProps } from "./redesigned-app-frame";
-export { getInitials, RedesignedTopbar } from "./redesigned-topbar";
+export {
+  getInitials,
+  RedesignedTopbar,
+  VESTA_HELP_PROMPT,
+} from "./redesigned-topbar";
 export type { RedesignedTopbarProps } from "./redesigned-topbar";
 export { VestaCommandRail } from "./vesta-command-rail";
 export type { VestaCommandRailProps } from "./vesta-command-rail";
