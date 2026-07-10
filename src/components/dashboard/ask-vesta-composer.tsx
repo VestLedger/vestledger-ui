@@ -12,6 +12,7 @@ const MIN_ROWS = 1;
 const MAX_ROWS = 4;
 
 type VoiceCaptureMode = "tap" | "hold";
+type VoiceOverlayPlacement = "composer" | "container";
 
 type AttachedFile = {
   id: string;
@@ -78,6 +79,7 @@ export function AskVestaComposer({
   isTyping = false,
   voiceCaptureMode = "tap",
   onVoiceCaptureModeChange,
+  voiceOverlayPlacement = "composer",
 }: {
   query: string;
   onQueryChange: (query: string) => void;
@@ -86,6 +88,7 @@ export function AskVestaComposer({
   isTyping?: boolean;
   voiceCaptureMode?: VoiceCaptureMode;
   onVoiceCaptureModeChange?: (mode: VoiceCaptureMode) => void;
+  voiceOverlayPlacement?: VoiceOverlayPlacement;
 }) {
   const [attachments, setAttachments] = useState<AttachedFile[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -185,158 +188,167 @@ export function AskVestaComposer({
     setAttachments((current) => current.filter((file) => file.id !== id));
   };
 
-  return (
-    <form
-      className="relative overflow-hidden rounded-xl border border-app-border-strong bg-app-surface-2 p-2 dark:border-app-dark-border-strong dark:bg-app-dark-surface-2"
-      onSubmit={(event) => {
-        event.preventDefault();
-        handleSubmit();
-      }}
+  const renderOverlayInsideComposer = voiceOverlayPlacement === "composer";
+  const voiceOverlay = isRecording ? (
+    <button
+      type="button"
+      aria-label="Stop voice capture"
+      onClick={voiceCaptureMode === "tap" ? stop : undefined}
+      className={cx(
+        "absolute inset-0 z-30 flex flex-col items-center justify-center bg-slate-950/65 text-white backdrop-blur-sm",
+        voiceCaptureMode === "tap"
+          ? "cursor-pointer"
+          : "pointer-events-none cursor-default",
+      )}
     >
-      <div className="mb-1 flex items-center justify-between gap-2 px-1">
-        <button
-          type="button"
-          onClick={toggleVoiceCaptureMode}
-          className="text-xs font-medium text-app-text-muted transition hover:text-app-text dark:text-app-dark-text-muted dark:hover:text-app-dark-text"
-        >
-          Voice Mode:{" "}
-          {voiceCaptureMode === "tap" ? "Tap-to-talk" : "Hold-to-talk"}
-        </button>
-        {!isSupported ? (
-          <span className="text-xs text-app-danger dark:text-app-dark-danger">
-            Voice unavailable
-          </span>
-        ) : null}
-      </div>
+      <span className="relative mb-3 flex h-24 w-24 items-center justify-center">
+        <span className="absolute h-24 w-24 animate-pulse rounded-full bg-app-vesta/25 blur-lg dark:bg-app-dark-vesta/25" />
+        <span className="absolute h-20 w-20 animate-ping rounded-full border border-white/35" />
+        <span className="relative flex h-14 w-14 items-center justify-center rounded-full bg-app-vesta text-white shadow-2xl dark:bg-app-dark-vesta">
+          <Bot className="h-7 w-7" />
+        </span>
+      </span>
+      <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/85">
+        Listening
+      </span>
+      <span className="mt-1 text-xs text-white/70">
+        {voiceCaptureMode === "tap" ? "Tap to stop" : "Release to send"}
+      </span>
+    </button>
+  ) : null;
 
-      {attachments.length > 0 ? (
-        <ul className="mb-2 flex flex-wrap gap-2" aria-label="Attachments">
-          {attachments.map((file) => (
-            <li
-              key={file.id}
-              className="flex max-w-full items-center gap-1.5 rounded-lg border border-app-border bg-app-surface px-2 py-1 text-xs text-app-text dark:border-app-dark-border dark:bg-app-dark-surface dark:text-app-dark-text"
-            >
-              <Paperclip className="h-3.5 w-3.5 shrink-0 text-app-text-muted dark:text-app-dark-text-muted" />
-              <span className="max-w-[160px] truncate">{file.name}</span>
-              <button
-                type="button"
-                aria-label={`Remove ${file.name}`}
-                title={`Remove ${file.name}`}
-                onClick={() => removeAttachment(file.id)}
-                className="flex h-4 w-4 shrink-0 items-center justify-center rounded text-app-text-muted transition hover:text-app-text dark:text-app-dark-text-muted dark:hover:text-app-dark-text"
+  return (
+    <>
+      <form
+        className={cx(
+          "rounded-xl border border-app-border-strong bg-app-surface-2 p-2 dark:border-app-dark-border-strong dark:bg-app-dark-surface-2",
+          renderOverlayInsideComposer && "relative overflow-hidden",
+        )}
+        onSubmit={(event) => {
+          event.preventDefault();
+          handleSubmit();
+        }}
+      >
+        <div className="mb-1 flex items-center justify-between gap-2 px-1">
+          <button
+            type="button"
+            onClick={toggleVoiceCaptureMode}
+            className="text-xs font-medium text-app-text-muted transition hover:text-app-text dark:text-app-dark-text-muted dark:hover:text-app-dark-text"
+          >
+            Voice Mode:{" "}
+            {voiceCaptureMode === "tap" ? "Tap-to-talk" : "Hold-to-talk"}
+          </button>
+          {!isSupported ? (
+            <span className="text-xs text-app-danger dark:text-app-dark-danger">
+              Voice unavailable
+            </span>
+          ) : null}
+        </div>
+
+        {attachments.length > 0 ? (
+          <ul className="mb-2 flex flex-wrap gap-2" aria-label="Attachments">
+            {attachments.map((file) => (
+              <li
+                key={file.id}
+                className="flex max-w-full items-center gap-1.5 rounded-lg border border-app-border bg-app-surface px-2 py-1 text-xs text-app-text dark:border-app-dark-border dark:bg-app-dark-surface dark:text-app-dark-text"
               >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : null}
+                <Paperclip className="h-3.5 w-3.5 shrink-0 text-app-text-muted dark:text-app-dark-text-muted" />
+                <span className="max-w-[160px] truncate">{file.name}</span>
+                <button
+                  type="button"
+                  aria-label={`Remove ${file.name}`}
+                  title={`Remove ${file.name}`}
+                  onClick={() => removeAttachment(file.id)}
+                  className="flex h-4 w-4 shrink-0 items-center justify-center rounded text-app-text-muted transition hover:text-app-text dark:text-app-dark-text-muted dark:hover:text-app-dark-text"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : null}
 
-      <Textarea
-        aria-label="Ask Vesta"
-        placeholder="Ask Vesta anything..."
-        size="sm"
-        minRows={MIN_ROWS}
-        maxRows={MAX_ROWS}
-        value={query}
-        onValueChange={onQueryChange}
-        onHeightChange={(height, meta) => {
-          const rowHeight = meta?.rowHeight || height;
-          const rows = rowHeight > 0 ? Math.round(height / rowHeight) : 1;
-          onMultilineChange?.(rows > 1);
-        }}
-        onKeyDown={(event) => {
-          if (event.key === "Enter" && !event.shiftKey) {
-            event.preventDefault();
-            handleSubmit();
-          }
-        }}
-        className="min-w-0"
-        classNames={{
-          base: "min-w-0",
-          inputWrapper:
-            "min-h-9 border-0 bg-transparent px-1 py-1 shadow-none data-[hover=true]:bg-transparent group-data-[focus=true]:bg-transparent",
-          input:
-            "resize-none text-sm leading-5 text-app-text placeholder:text-app-text-muted dark:text-app-dark-text dark:placeholder:text-app-dark-text-muted",
-        }}
-      />
-
-      <div className="mt-1 flex items-center justify-between">
-        <div className="flex items-center gap-1">
-          <ComposerIconButton
-            label="Attach files"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <Paperclip className="h-4 w-4" />
-          </ComposerIconButton>
-          <ComposerIconButton
-            label={
-              !isSupported
-                ? "Voice input not supported in this browser"
-                : isRecording
-                  ? "Stop voice capture"
-                  : "Start voice capture"
+        <Textarea
+          aria-label="Ask Vesta"
+          placeholder="Ask Vesta anything..."
+          size="sm"
+          minRows={MIN_ROWS}
+          maxRows={MAX_ROWS}
+          value={query}
+          onValueChange={onQueryChange}
+          onHeightChange={(height, meta) => {
+            const rowHeight = meta?.rowHeight || height;
+            const rows = rowHeight > 0 ? Math.round(height / rowHeight) : 1;
+            onMultilineChange?.(rows > 1);
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" && !event.shiftKey) {
+              event.preventDefault();
+              handleSubmit();
             }
-            onClick={handleMicClick}
-            onMouseDown={handleMicPressStart}
-            onMouseUp={handleMicPressEnd}
-            onMouseLeave={handleMicPressEnd}
-            onTouchStart={handleMicPressStart}
-            onTouchEnd={handleMicPressEnd}
-            disabled={!isSupported || isTyping}
-            active={isRecording}
+          }}
+          className="min-w-0"
+          classNames={{
+            base: "min-w-0",
+            inputWrapper:
+              "min-h-9 border-0 bg-transparent px-1 py-1 shadow-none data-[hover=true]:bg-transparent group-data-[focus=true]:bg-transparent",
+            input:
+              "resize-none text-sm leading-5 text-app-text placeholder:text-app-text-muted dark:text-app-dark-text dark:placeholder:text-app-dark-text-muted",
+          }}
+        />
+
+        <div className="mt-1 flex items-center justify-between">
+          <div className="flex items-center gap-1">
+            <ComposerIconButton
+              label="Attach files"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Paperclip className="h-4 w-4" />
+            </ComposerIconButton>
+            <ComposerIconButton
+              label={
+                !isSupported
+                  ? "Voice input not supported in this browser"
+                  : isRecording
+                    ? "Stop voice capture"
+                    : "Start voice capture"
+              }
+              onClick={handleMicClick}
+              onMouseDown={handleMicPressStart}
+              onMouseUp={handleMicPressEnd}
+              onMouseLeave={handleMicPressEnd}
+              onTouchStart={handleMicPressStart}
+              onTouchEnd={handleMicPressEnd}
+              disabled={!isSupported || isTyping}
+              active={isRecording}
+            >
+              <Mic className={cx("h-4 w-4", isRecording && "animate-pulse")} />
+            </ComposerIconButton>
+          </div>
+
+          <ComposerIconButton
+            label="Send Vesta prompt"
+            type="submit"
+            disabled={!canSend}
+            className="rounded-full bg-app-vesta text-app-surface hover:bg-app-vesta-hover hover:text-app-surface disabled:bg-app-surface-hover disabled:text-app-text-muted dark:bg-app-dark-vesta dark:text-app-dark-bg dark:hover:bg-app-dark-vesta-hover dark:disabled:bg-app-dark-surface-hover dark:disabled:text-app-dark-text-muted"
           >
-            <Mic className={cx("h-4 w-4", isRecording && "animate-pulse")} />
+            <ArrowUp className="h-4 w-4" />
           </ComposerIconButton>
         </div>
 
-        <ComposerIconButton
-          label="Send Vesta prompt"
-          type="submit"
-          disabled={!canSend}
-          className="rounded-full bg-app-vesta text-app-surface hover:bg-app-vesta-hover hover:text-app-surface disabled:bg-app-surface-hover disabled:text-app-text-muted dark:bg-app-dark-vesta dark:text-app-dark-bg dark:hover:bg-app-dark-vesta-hover dark:disabled:bg-app-dark-surface-hover dark:disabled:text-app-dark-text-muted"
-        >
-          <ArrowUp className="h-4 w-4" />
-        </ComposerIconButton>
-      </div>
+        <Input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          aria-label="Attach files input"
+          tabIndex={-1}
+          onChange={handleFilesSelected}
+          classNames={{ base: "hidden" }}
+        />
 
-      <Input
-        ref={fileInputRef}
-        type="file"
-        multiple
-        aria-label="Attach files input"
-        tabIndex={-1}
-        onChange={handleFilesSelected}
-        classNames={{ base: "hidden" }}
-      />
-
-      {isRecording ? (
-        <button
-          type="button"
-          aria-label="Stop voice capture"
-          onClick={voiceCaptureMode === "tap" ? stop : undefined}
-          className={cx(
-            "absolute inset-0 z-30 flex flex-col items-center justify-center bg-slate-950/65 text-white backdrop-blur-sm",
-            voiceCaptureMode === "tap"
-              ? "cursor-pointer"
-              : "pointer-events-none cursor-default",
-          )}
-        >
-          <span className="relative mb-3 flex h-24 w-24 items-center justify-center">
-            <span className="absolute h-24 w-24 animate-pulse rounded-full bg-app-vesta/25 blur-lg dark:bg-app-dark-vesta/25" />
-            <span className="absolute h-20 w-20 animate-ping rounded-full border border-white/35" />
-            <span className="relative flex h-14 w-14 items-center justify-center rounded-full bg-app-vesta text-white shadow-2xl dark:bg-app-dark-vesta">
-              <Bot className="h-7 w-7" />
-            </span>
-          </span>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/85">
-            Listening
-          </span>
-          <span className="mt-1 text-xs text-white/70">
-            {voiceCaptureMode === "tap" ? "Tap to stop" : "Release to send"}
-          </span>
-        </button>
-      ) : null}
-    </form>
+        {renderOverlayInsideComposer ? voiceOverlay : null}
+      </form>
+      {renderOverlayInsideComposer ? null : voiceOverlay}
+    </>
   );
 }

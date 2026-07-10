@@ -60,10 +60,10 @@ export function VestaCommandRail({
   return (
     <aside
       aria-label="Vesta command rail"
-      className="flex h-full min-w-0 flex-col border-r border-app-border bg-app-sidebar px-5 py-7 dark:border-app-dark-border dark:bg-app-dark-sidebar lg:px-7"
+      className="relative flex h-full min-w-0 flex-col overflow-hidden border-r border-app-border bg-app-sidebar px-5 py-7 dark:border-app-dark-border dark:bg-app-dark-sidebar lg:px-7"
     >
       <div className="flex shrink-0 items-center gap-4">
-        <BrandLogo className="h-14 w-14 text-app-vesta dark:text-app-dark-vesta" />
+        <BrandLogo className="h-14 w-14 text-app-primary dark:text-app-dark-primary" />
         <div className="text-2xl font-semibold tracking-[0.16em] text-app-text dark:text-app-dark-text">
           VESTLEDGER
         </div>
@@ -89,6 +89,7 @@ export function VestaCommandRail({
             isTyping={isTyping}
             voiceCaptureMode={voiceCaptureMode}
             onVoiceCaptureModeChange={onVoiceCaptureModeChange}
+            voiceOverlayPlacement="container"
           />
         </div>
         <div className="mt-3 grid shrink-0 grid-cols-3 gap-2">
