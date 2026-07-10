@@ -212,3 +212,26 @@
 .command-palette-list::-webkit-scrollbar-thumb:hover {
   background: var(--app-text-subtle);
 }
+
+/* Coverage badges */
+.command-palette-badge {
+  margin-left: auto;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  padding: 1px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.command-palette-badge-planned {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  opacity: 0.75;
+}
+
+.command-palette-badge-future {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  opacity: 0.6;
+  font-style: italic;
+}

@@ -1,0 +1,817 @@
+{
+  "patterns": {
+    "AML, KYC, cyber, privacy, records, and pay-to-play visibility": {
+      "primaryStage": "compliance",
+      "secondaryStages": [],
+      "workflowIds": [
+        "V2-REG-USAML-006",
+        "V2-REG-USSEC-034",
+        "V2-REG-USSEC-040"
+      ]
+    },
+    "Add-on pipeline cultivation": {
+      "primaryStage": "pipeline",
+      "secondaryStages": ["portfolio"],
+      "workflowIds": ["V2-INDSPONSOR-026"]
+    },
+    "Adviser registration, core compliance, and exam readiness": {
+      "primaryStage": "compliance",
+      "secondaryStages": [],
+      "workflowIds": [
+        "V2-REG-USSEC-002",
+        "V2-REG-USSEC-003",
+        "V2-REG-USSEC-005",
+        "V2-REG-USSEC-008",
+        "V2-REG-USSEC-028",
+        "V2-REG-USSEC-029",
+        "V2-REG-USSEC-037"
+      ]
+    },
+    "Audit, valuation, tax, and financial evidence packs": {
+      "primaryStage": "compliance",
+      "secondaryStages": ["tax", "analytics"],
+      "workflowIds": [
+        "V2-REG-CROSSBORDER-005",
+        "V2-REG-HK-005",
+        "V2-REG-USSEC-026",
+        "V2-REG-USTAX-002",
+        "V2-REG-USTAX-003",
+        "V2-REG-USTAX-004",
+        "V2-REG-USTAX-005",
+        "V2-REG-USTAX-010",
+        "V2-REG-USTAX-011",
+        "V2-SPINE-059",
+        "V2-SPINE-111",
+        "V2-SVCP-AUDIT-003",
+        "V2-SVCP-AUDIT-005",
+        "V2-SVCP-VAL-004",
+        "V2-SVCP-VAL-005",
+        "V2-SYNSPV-010"
+      ]
+    },
+    "Closing, signature, funds-flow, and document execution trails": {
+      "primaryStage": "deal-execution",
+      "secondaryStages": ["fund-admin", "deal-intelligence"],
+      "workflowIds": ["V2-SPINE-010", "V2-SPINE-034", "V2-SPINE-035"]
+    },
+    "Communication, money movement, valuation, legal action, and conflict gates": {
+      "primaryStage": "fund-admin",
+      "secondaryStages": ["compliance", "analytics"],
+      "workflowIds": [
+        "V2-SPINE-123",
+        "V2-SPINE-125",
+        "V2-SPINE-126",
+        "V2-SPINE-129"
+      ]
+    },
+    "Cross-border, treaty, ESG, and portfolio data evidence": {
+      "primaryStage": "tax",
+      "secondaryStages": ["compliance"],
+      "workflowIds": [
+        "V2-REG-CROSSBORDER-001",
+        "V2-REG-CROSSBORDER-002",
+        "V2-REG-ESG-001"
+      ]
+    },
+    "DDQ and questionnaire responses": {
+      "primaryStage": "raise",
+      "secondaryStages": [],
+      "workflowIds": [
+        "V2-INDSPONSOR-010",
+        "V2-SPINE-083",
+        "V2-SPINE-084",
+        "V2-SPINE-085"
+      ]
+    },
+    "Deal closing and transaction checklist orchestration": {
+      "primaryStage": "deal-execution",
+      "secondaryStages": [],
+      "workflowIds": [
+        "V2-INDSPONSOR-006",
+        "V2-INDSPONSOR-011",
+        "V2-INDSPONSOR-017",
+        "V2-INDSPONSOR-020",
+        "V2-SPINE-029",
+        "V2-SPINE-030",
+        "V2-SPINE-033"
+      ]
+    },
+    "Deal diligence evidence packs": {
+      "primaryStage": "deal-intelligence",
+      "secondaryStages": ["network"],
+      "workflowIds": [
+        "V2-FO-DIRECT-032",
+        "V2-SPINE-011",
+        "V2-SPINE-012",
+        "V2-SPINE-013",
+        "V2-SPINE-014",
+        "V2-SPINE-015",
+        "V2-SPINE-016",
+        "V2-SPINE-017",
+        "V2-SPINE-018",
+        "V2-SPINE-020",
+        "V2-SVCP-DDCOMM-004",
+        "V2-SVCP-DDFIN-003",
+        "V2-SVCP-DDTECH-003"
+      ]
+    },
+    "Deal intake and source capture": {
+      "primaryStage": "pipeline",
+      "secondaryStages": [],
+      "workflowIds": [
+        "V2-FO-DIRECT-015",
+        "V2-SPINE-001",
+        "V2-SPINE-002",
+        "V2-SPINE-003",
+        "V2-SPINE-004",
+        "V2-SPINE-005",
+        "V2-SPINE-007"
+      ]
+    },
+    "Deal triage, mandate fit, and IC decisioning": {
+      "primaryStage": "deal-review",
+      "secondaryStages": ["pipeline", "deal-intelligence", "overview"],
+      "workflowIds": [
+        "V2-FO-DIRECT-002",
+        "V2-FO-DIRECT-016",
+        "V2-FO-DIRECT-017",
+        "V2-FO-DIRECT-018",
+        "V2-SPINE-008",
+        "V2-SPINE-009",
+        "V2-SPINE-021",
+        "V2-SPINE-022",
+        "V2-SPINE-118",
+        "V2-SPINE-141"
+      ]
+    },
+    "Debt, acquisition-entity, and strategic-commercial context": {
+      "primaryStage": "deal-execution",
+      "secondaryStages": ["tax"],
+      "workflowIds": [
+        "V2-INDSPONSOR-015",
+        "V2-INDSPONSOR-016",
+        "V2-INDSPONSOR-022",
+        "V2-INDSPONSOR-029"
+      ]
+    },
+    "Diligence and IC reasoning memory": {
+      "primaryStage": "deal-intelligence",
+      "secondaryStages": [],
+      "workflowIds": ["V2-SPINE-019", "V2-SPINE-024"]
+    },
+    "ESG, sustainability, compliance, cyber, and insurance reporting": {
+      "primaryStage": "compliance",
+      "secondaryStages": ["reporting-lps", "network"],
+      "workflowIds": [
+        "V2-REG-ESG-003",
+        "V2-REG-ESG-006",
+        "V2-REG-SFDR-002",
+        "V2-REG-SFDR-003",
+        "V2-REG-SFDR-005",
+        "V2-SVCP-COMP-005",
+        "V2-SVCP-CYBER-004",
+        "V2-SVCP-INS-004"
+      ]
+    },
+    "EU, UK, and offshore authorization and marketing visibility": {
+      "primaryStage": "compliance",
+      "secondaryStages": [],
+      "workflowIds": ["V2-REG-AIFMD-001"]
+    },
+    "Economics, fee, carry, and cost-allocation reporting": {
+      "primaryStage": "fund-admin",
+      "secondaryStages": ["reporting-lps"],
+      "workflowIds": ["V2-INDSPONSOR-025", "V2-INDSPONSOR-031"]
+    },
+    "Entity graph, document intelligence, and ingestion foundation": {
+      "primaryStage": "data-integrations",
+      "secondaryStages": [],
+      "workflowIds": [
+        "V2-SPINE-006",
+        "V2-SPINE-119",
+        "V2-SPINE-120",
+        "V2-SPINE-121",
+        "V2-SVCP-DATA-001"
+      ]
+    },
+    "Evidence provenance and confidence tagging": {
+      "primaryStage": "data-integrations",
+      "secondaryStages": [],
+      "workflowIds": ["V2-SPINE-127"]
+    },
+    "Exit, IPO, and post-close process management": {
+      "primaryStage": "portfolio",
+      "secondaryStages": [],
+      "workflowIds": ["V2-SPINE-070"]
+    },
+    "Exit, distribution, realization, and IPO decisions": {
+      "primaryStage": "portfolio",
+      "secondaryStages": ["analytics", "fund-admin"],
+      "workflowIds": [
+        "V2-INDSPONSOR-030",
+        "V2-SPINE-067",
+        "V2-SPINE-073",
+        "V2-SPINE-074"
+      ]
+    },
+    "Exposure aggregation and vehicle roster": {
+      "primaryStage": "analytics",
+      "secondaryStages": [],
+      "workflowIds": ["V2-SPV-028"]
+    },
+    "Family governance and next-generation continuity": {
+      "primaryStage": "family-office",
+      "secondaryStages": [],
+      "workflowIds": ["V2-FO-DIRECT-035"]
+    },
+    "Family, principal, corporate-board, and stakeholder reporting": {
+      "primaryStage": "reporting-lps",
+      "secondaryStages": [],
+      "workflowIds": [
+        "V2-FO-DIRECT-003",
+        "V2-FO-DIRECT-005",
+        "V2-FO-DIRECT-008",
+        "V2-FO-DIRECT-010",
+        "V2-FO-DIRECT-031",
+        "V2-MFO-004"
+      ]
+    },
+    "Family-office entity, residency, estate, and custodian context": {
+      "primaryStage": "family-office",
+      "secondaryStages": ["portfolio"],
+      "workflowIds": [
+        "V2-FO-DIRECT-007",
+        "V2-FO-DIRECT-020",
+        "V2-FO-DIRECT-034"
+      ]
+    },
+    "Family-office tax, estate, mandate, and access-route decisions": {
+      "primaryStage": "family-office",
+      "secondaryStages": ["tax"],
+      "workflowIds": [
+        "V2-FO-DIRECT-011",
+        "V2-FO-DIRECT-021",
+        "V2-FO-DIRECT-022",
+        "V2-FO-DIRECT-024"
+      ]
+    },
+    "Founder, management, and portfolio-support relationships": {
+      "primaryStage": "network",
+      "secondaryStages": [],
+      "workflowIds": [
+        "V2-SPINE-063",
+        "V2-SPINE-064",
+        "V2-SPINE-113",
+        "V2-SVCP-RECR-003"
+      ]
+    },
+    "Fund admin, tax, lender, and accounting handoffs": {
+      "primaryStage": "fund-admin",
+      "secondaryStages": ["tax", "network"],
+      "workflowIds": [
+        "V2-REG-LUX-002",
+        "V2-REG-USTAX-001",
+        "V2-SPINE-109",
+        "V2-SPINE-110",
+        "V2-SPINE-112",
+        "V2-SVCP-FUNDADMIN-008",
+        "V2-SVCP-LEND-003"
+      ]
+    },
+    "Fund finance, insurance, and exit-process approvals": {
+      "primaryStage": "fund-admin",
+      "secondaryStages": ["compliance"],
+      "workflowIds": ["V2-SVCP-INS-005", "V2-SVCP-LEND-004", "V2-SVCP-LEND-005"]
+    },
+    "Fund finance, lender, and fund-admin tasking": {
+      "primaryStage": "fund-admin",
+      "secondaryStages": ["network"],
+      "workflowIds": [
+        "V2-SVCP-FUNDADMIN-001",
+        "V2-SVCP-FUNDADMIN-002",
+        "V2-SVCP-FUNDADMIN-003",
+        "V2-SVCP-FUNDADMIN-004",
+        "V2-SVCP-LEND-001"
+      ]
+    },
+    "Fund finance, tax, audit, and admin report ingestion": {
+      "primaryStage": "data-integrations",
+      "secondaryStages": ["fund-admin"],
+      "workflowIds": [
+        "V2-SVCP-AUDIT-006",
+        "V2-SVCP-FUNDADMIN-006",
+        "V2-SVCP-TAX-005"
+      ]
+    },
+    "Fund-life calendar and client-family request routing": {
+      "primaryStage": "compliance",
+      "secondaryStages": ["network"],
+      "workflowIds": ["V2-SPINE-142"]
+    },
+    "Fundraising pipeline and capital-provider outreach": {
+      "primaryStage": "raise",
+      "secondaryStages": [],
+      "workflowIds": [
+        "V2-INDSPONSOR-002",
+        "V2-INDSPONSOR-008",
+        "V2-SPINE-082",
+        "V2-SPINE-136",
+        "V2-SPV-009"
+      ]
+    },
+    "Fundraising, LP, external-share, and ESG context": {
+      "primaryStage": "raise",
+      "secondaryStages": ["data-integrations"],
+      "workflowIds": ["V2-REG-ESG-004", "V2-SPINE-087", "V2-SPINE-140"]
+    },
+    "Insurance and R&W claim context": {
+      "primaryStage": "compliance",
+      "secondaryStages": [],
+      "workflowIds": ["V2-SPINE-131", "V2-SPINE-132", "V2-SPINE-133"]
+    },
+    "Investment decision and IC approval trails": {
+      "primaryStage": "deal-review",
+      "secondaryStages": ["analytics", "fund-admin", "compliance"],
+      "workflowIds": [
+        "V2-SPINE-023",
+        "V2-SPINE-025",
+        "V2-SPINE-028",
+        "V2-SPINE-061",
+        "V2-SPINE-130",
+        "V2-SPINE-138"
+      ]
+    },
+    "Investment governance and outcome memory": {
+      "primaryStage": "reporting-lps",
+      "secondaryStages": ["overview"],
+      "workflowIds": [
+        "V2-FO-DIRECT-001",
+        "V2-SPINE-096",
+        "V2-SPINE-117",
+        "V2-SPINE-143",
+        "V2-SYN-008"
+      ]
+    },
+    "Investor qualification, KYC, AML, and eligibility evidence": {
+      "primaryStage": "compliance",
+      "secondaryStages": ["raise"],
+      "workflowIds": [
+        "V2-FO-DIRECT-026",
+        "V2-INDSPONSOR-035",
+        "V2-REG-CROSSBORDER-006",
+        "V2-REG-CROSSBORDER-007",
+        "V2-REG-HK-004",
+        "V2-REG-LUX-003",
+        "V2-REG-SG-005",
+        "V2-REG-USAML-002",
+        "V2-REG-USAML-003",
+        "V2-REG-USAML-004",
+        "V2-REG-USAML-005",
+        "V2-REG-USERISA-001",
+        "V2-REG-USERISA-002",
+        "V2-REG-USERISA-003",
+        "V2-REG-USSEC-016",
+        "V2-REG-USSEC-017",
+        "V2-REG-USSEC-019",
+        "V2-SPINE-031",
+        "V2-SPINE-032",
+        "V2-SPINE-089",
+        "V2-SYNSPV-003"
+      ]
+    },
+    "KPI monitoring and risk signals": {
+      "primaryStage": "portfolio",
+      "secondaryStages": [],
+      "workflowIds": [
+        "V2-FO-DIRECT-030",
+        "V2-SPINE-043",
+        "V2-SPINE-044",
+        "V2-SPINE-045",
+        "V2-SPINE-065"
+      ]
+    },
+    "LP and fund performance reporting": {
+      "primaryStage": "reporting-lps",
+      "secondaryStages": ["analytics"],
+      "workflowIds": [
+        "V2-SPINE-099",
+        "V2-SPINE-100",
+        "V2-SPINE-101",
+        "V2-SPINE-102"
+      ]
+    },
+    "LP governance, side-letter, LPAC, and reporting approvals": {
+      "primaryStage": "reporting-lps",
+      "secondaryStages": ["raise"],
+      "workflowIds": [
+        "V2-FO-DIRECT-004",
+        "V2-SPINE-090",
+        "V2-SPINE-092",
+        "V2-SPINE-093",
+        "V2-SPINE-094",
+        "V2-SPINE-095",
+        "V2-SPINE-103",
+        "V2-SPINE-107",
+        "V2-SPINE-124"
+      ]
+    },
+    "LP, GP, sponsor, and capital-provider relationship continuity": {
+      "primaryStage": "network",
+      "secondaryStages": ["raise"],
+      "workflowIds": [
+        "V2-FO-DIRECT-036",
+        "V2-INDSPONSOR-001",
+        "V2-INDSPONSOR-009",
+        "V2-INDSPONSOR-032",
+        "V2-SPINE-106",
+        "V2-SPINE-108",
+        "V2-SPINE-114",
+        "V2-SVCP-PLACE-004"
+      ]
+    },
+    "Mandate, confidentiality-wall, and information-barrier controls": {
+      "primaryStage": "compliance",
+      "secondaryStages": [],
+      "workflowIds": ["V2-MFO-001"]
+    },
+    "Negotiation and document-position memory": {
+      "primaryStage": "deal-execution",
+      "secondaryStages": [],
+      "workflowIds": ["V2-INDSPONSOR-012", "V2-SPINE-027", "V2-SVCP-LAW-006"]
+    },
+    "Offering, private-fund exemption, and fundraising compliance": {
+      "primaryStage": "compliance",
+      "secondaryStages": ["raise"],
+      "workflowIds": [
+        "V2-REG-USSEC-014",
+        "V2-REG-USSEC-018",
+        "V2-REG-USSTATE-003"
+      ]
+    },
+    "Onboarding, capital calls, distributions, and financing disclosures": {
+      "primaryStage": "fund-admin",
+      "secondaryStages": ["raise"],
+      "workflowIds": [
+        "V2-INDSPONSOR-027",
+        "V2-SPINE-081",
+        "V2-SPINE-088",
+        "V2-SPINE-091",
+        "V2-SPINE-097"
+      ]
+    },
+    "Ongoing LP, capital-provider, and family Q&A": {
+      "primaryStage": "reporting-lps",
+      "secondaryStages": [],
+      "workflowIds": ["V2-SPINE-104", "V2-SPINE-105"]
+    },
+    "Ownership and instrument lifecycle": {
+      "primaryStage": "portfolio",
+      "secondaryStages": [],
+      "workflowIds": ["V2-FO-DIRECT-009", "V2-SPINE-046", "V2-SPINE-052"]
+    },
+    "Portfolio board and valuation memory": {
+      "primaryStage": "portfolio",
+      "secondaryStages": [],
+      "workflowIds": ["V2-FO-DIRECT-029", "V2-SPINE-055", "V2-SPINE-060"]
+    },
+    "Portfolio onboarding and update collection": {
+      "primaryStage": "portfolio",
+      "secondaryStages": [],
+      "workflowIds": [
+        "V2-SPINE-037",
+        "V2-SPINE-038",
+        "V2-SPINE-039",
+        "V2-SPINE-040",
+        "V2-SPINE-041",
+        "V2-SPINE-042"
+      ]
+    },
+    "Portfolio rights, board, and value-creation tasking": {
+      "primaryStage": "portfolio",
+      "secondaryStages": [],
+      "workflowIds": [
+        "V2-SPINE-048",
+        "V2-SPINE-049",
+        "V2-SPINE-056",
+        "V2-SPINE-062",
+        "V2-SVCP-RECR-001"
+      ]
+    },
+    "Portfolio rights, reserves, board, and valuation decisions": {
+      "primaryStage": "portfolio",
+      "secondaryStages": ["analytics"],
+      "workflowIds": [
+        "V2-SPINE-036",
+        "V2-SPINE-047",
+        "V2-SPINE-050",
+        "V2-SPINE-051",
+        "V2-SPINE-054",
+        "V2-SPINE-058"
+      ]
+    },
+    "Recurring audit, tax, compliance, valuation, cyber, insurance, and ESG workstreams": {
+      "primaryStage": "network",
+      "secondaryStages": ["compliance"],
+      "workflowIds": [
+        "V2-SVCP-AUDIT-001",
+        "V2-SVCP-AUDIT-002",
+        "V2-SVCP-COMP-001",
+        "V2-SVCP-COMP-002",
+        "V2-SVCP-COMP-003",
+        "V2-SVCP-CYBER-003",
+        "V2-SVCP-INS-001",
+        "V2-SVCP-TAX-001",
+        "V2-SVCP-TAX-002",
+        "V2-SVCP-TAX-003",
+        "V2-SVCP-VAL-001",
+        "V2-SVCP-VAL-002"
+      ]
+    },
+    "Regulatory and compliance approval trails": {
+      "primaryStage": "compliance",
+      "secondaryStages": ["tax"],
+      "workflowIds": [
+        "V2-INDSPONSOR-033",
+        "V2-INDSPONSOR-034",
+        "V2-INDSPONSOR-036",
+        "V2-REG-CAY-007",
+        "V2-REG-SFDR-001",
+        "V2-REG-UKFCA-003",
+        "V2-REG-USERISA-004",
+        "V2-REG-USSEC-022",
+        "V2-REG-USSEC-023",
+        "V2-REG-USSEC-036",
+        "V2-REG-USSEC-039",
+        "V2-REG-USTAX-008",
+        "V2-REG-USTAX-009",
+        "V2-REG-USTAX-016",
+        "V2-SPV-006",
+        "V2-SPV-015",
+        "V2-SPV-016",
+        "V2-SPV-017",
+        "V2-SPV-018"
+      ]
+    },
+    "Regulatory filing and jurisdiction reporting": {
+      "primaryStage": "compliance",
+      "secondaryStages": [],
+      "workflowIds": [
+        "V2-REG-AIFMD-002",
+        "V2-REG-AIFMD-004",
+        "V2-REG-AIFMD-006",
+        "V2-REG-AUS-005",
+        "V2-REG-BVI-001",
+        "V2-REG-BVI-002",
+        "V2-REG-CAY-001",
+        "V2-REG-CAY-002",
+        "V2-REG-CAY-004",
+        "V2-REG-CAY-005",
+        "V2-REG-CAY-006",
+        "V2-REG-CAY-008",
+        "V2-REG-HK-001",
+        "V2-REG-HK-002",
+        "V2-REG-IRE-001",
+        "V2-REG-SG-001",
+        "V2-REG-SG-002",
+        "V2-REG-UKFCA-001",
+        "V2-REG-UKFCA-002",
+        "V2-REG-USAML-007",
+        "V2-REG-USAML-008",
+        "V2-REG-USSEC-001",
+        "V2-REG-USSEC-004",
+        "V2-REG-USSEC-006",
+        "V2-REG-USSEC-007",
+        "V2-REG-USSEC-009",
+        "V2-REG-USSEC-012",
+        "V2-REG-USSEC-013",
+        "V2-REG-USSEC-020",
+        "V2-REG-USSEC-021",
+        "V2-REG-USTAX-006",
+        "V2-REG-USTAX-014",
+        "V2-REG-USTAX-015"
+      ]
+    },
+    "Regulatory program and books-and-records evidence": {
+      "primaryStage": "compliance",
+      "secondaryStages": [],
+      "workflowIds": [
+        "V2-REG-UKFCA-004",
+        "V2-REG-USAML-001",
+        "V2-REG-USSEC-015",
+        "V2-REG-USSEC-024",
+        "V2-REG-USSEC-025",
+        "V2-REG-USSEC-027",
+        "V2-REG-USSEC-030",
+        "V2-REG-USSEC-031",
+        "V2-REG-USSEC-032",
+        "V2-REG-USSEC-033",
+        "V2-REG-USSEC-038",
+        "V2-REG-USSTATE-001",
+        "V2-REG-USSTATE-002"
+      ]
+    },
+    "Regulatory, accounting, and policy decision support": {
+      "primaryStage": "compliance",
+      "secondaryStages": ["fund-admin", "network"],
+      "workflowIds": [
+        "V2-IFRS-001",
+        "V2-IFRS-007",
+        "V2-SPINE-098",
+        "V2-SVCP-COMP-006",
+        "V2-SVCP-LAW-007",
+        "V2-SVCP-TAX-006"
+      ]
+    },
+    "Relationship graph, warm-intro, advisor, and open-loop follow-up": {
+      "primaryStage": "network",
+      "secondaryStages": [],
+      "workflowIds": ["V2-SPINE-135", "V2-SPINE-137"]
+    },
+    "SPV and syndicate backer communications": {
+      "primaryStage": "reporting-lps",
+      "secondaryStages": ["raise"],
+      "workflowIds": [
+        "V2-SPV-020",
+        "V2-SYN-006",
+        "V2-SYN-010",
+        "V2-SYN-011",
+        "V2-SYNSPV-002",
+        "V2-SYNSPV-007"
+      ]
+    },
+    "SPV and syndicate platform, wire, tax, and expense state": {
+      "primaryStage": "fund-admin",
+      "secondaryStages": ["tax", "data-integrations"],
+      "workflowIds": [
+        "V2-SPV-005",
+        "V2-SPV-011",
+        "V2-SPV-025",
+        "V2-SPV-030",
+        "V2-SPV-031",
+        "V2-SYN-001"
+      ]
+    },
+    "SPV and syndicate vehicle tasking": {
+      "primaryStage": "fund-admin",
+      "secondaryStages": ["raise", "compliance"],
+      "workflowIds": [
+        "V2-SPV-003",
+        "V2-SPV-004",
+        "V2-SPV-026",
+        "V2-SPV-027",
+        "V2-SPV-029",
+        "V2-SYNSPV-004"
+      ]
+    },
+    "SPV, syndicate, allocation, and waterfall decisions": {
+      "primaryStage": "fund-admin",
+      "secondaryStages": ["analytics"],
+      "workflowIds": [
+        "V2-SPV-001",
+        "V2-SPV-002",
+        "V2-SPV-007",
+        "V2-SPV-008",
+        "V2-SPV-012",
+        "V2-SPV-013",
+        "V2-SPV-014",
+        "V2-SPV-022",
+        "V2-SPV-023",
+        "V2-SPV-024",
+        "V2-SYN-007",
+        "V2-SYN-015",
+        "V2-SYNSPV-005",
+        "V2-SYNSPV-008",
+        "V2-SYNSPV-009"
+      ]
+    },
+    "SPV, syndicate, and deal-by-deal reporting": {
+      "primaryStage": "reporting-lps",
+      "secondaryStages": ["tax"],
+      "workflowIds": [
+        "V2-INDSPONSOR-028",
+        "V2-SPV-019",
+        "V2-SPV-021",
+        "V2-SYN-012",
+        "V2-SYN-013",
+        "V2-SYNSPV-011"
+      ]
+    },
+    "SPV, syndicate, and deal-by-deal vehicle approvals": {
+      "primaryStage": "fund-admin",
+      "secondaryStages": ["raise", "deal-execution"],
+      "workflowIds": [
+        "V2-INDSPONSOR-003",
+        "V2-INDSPONSOR-004",
+        "V2-INDSPONSOR-021",
+        "V2-INDSPONSOR-023",
+        "V2-INDSPONSOR-024",
+        "V2-INDSPONSOR-037",
+        "V2-INDSPONSOR-038",
+        "V2-MFO-002",
+        "V2-SPV-010",
+        "V2-SYN-003",
+        "V2-SYN-009",
+        "V2-SYN-014"
+      ]
+    },
+    "Service-provider context access and output approval trails": {
+      "primaryStage": "network",
+      "secondaryStages": ["fund-admin", "compliance"],
+      "workflowIds": [
+        "V2-SVCP-AUDIT-004",
+        "V2-SVCP-AUDIT-007",
+        "V2-SVCP-COMP-004",
+        "V2-SVCP-COMP-007",
+        "V2-SVCP-CYBER-005",
+        "V2-SVCP-DATA-004",
+        "V2-SVCP-DDCOMM-002",
+        "V2-SVCP-DDCOMM-003",
+        "V2-SVCP-DDCOMM-005",
+        "V2-SVCP-DDFIN-002",
+        "V2-SVCP-DDTECH-002",
+        "V2-SVCP-FUNDADMIN-005",
+        "V2-SVCP-FUNDADMIN-007",
+        "V2-SVCP-FUNDADMIN-009",
+        "V2-SVCP-FUNDADMIN-010",
+        "V2-SVCP-INS-003",
+        "V2-SVCP-LAW-005",
+        "V2-SVCP-LAW-008",
+        "V2-SVCP-PLACE-002",
+        "V2-SVCP-PLACE-003",
+        "V2-SVCP-PLACE-005",
+        "V2-SVCP-RECR-004",
+        "V2-SVCP-TAX-004",
+        "V2-SVCP-TAX-007",
+        "V2-SVCP-TAX-008",
+        "V2-SVCP-VAL-006"
+      ]
+    },
+    "Service-provider engagement intake and routing": {
+      "primaryStage": "network",
+      "secondaryStages": [],
+      "workflowIds": [
+        "V2-SVCP-DDCOMM-001",
+        "V2-SVCP-DDFIN-001",
+        "V2-SVCP-DDTECH-001",
+        "V2-SVCP-LAW-001",
+        "V2-SVCP-LAW-002",
+        "V2-SVCP-LAW-003",
+        "V2-SVCP-LAW-004",
+        "V2-SVCP-PLACE-001"
+      ]
+    },
+    "Special overlays and post-close position monitoring": {
+      "primaryStage": "portfolio",
+      "secondaryStages": ["tax"],
+      "workflowIds": [
+        "V2-FO-DIRECT-023",
+        "V2-FO-DIRECT-025",
+        "V2-FO-DIRECT-027",
+        "V2-FO-DIRECT-028"
+      ]
+    },
+    "Syndicate, SPV, and co-investor network continuity": {
+      "primaryStage": "network",
+      "secondaryStages": ["raise"],
+      "workflowIds": [
+        "V2-SPINE-115",
+        "V2-SPV-032",
+        "V2-SYN-002",
+        "V2-SYN-004",
+        "V2-SYN-005",
+        "V2-SYNSPV-001"
+      ]
+    },
+    "Tax, accounting, and fund-structure compliance visibility": {
+      "primaryStage": "tax",
+      "secondaryStages": ["analytics"],
+      "workflowIds": ["V2-IFRS-002", "V2-REG-USTAX-007"]
+    },
+    "Term-sheet, structuring, and capital-stack decisions": {
+      "primaryStage": "deal-execution",
+      "secondaryStages": ["raise"],
+      "workflowIds": [
+        "V2-FO-DIRECT-013",
+        "V2-FO-DIRECT-014",
+        "V2-INDSPONSOR-005",
+        "V2-INDSPONSOR-007",
+        "V2-INDSPONSOR-013",
+        "V2-INDSPONSOR-014",
+        "V2-INDSPONSOR-018",
+        "V2-INDSPONSOR-019",
+        "V2-SPINE-026"
+      ]
+    },
+    "Valuation and accounting-policy reporting": {
+      "primaryStage": "analytics",
+      "secondaryStages": ["compliance"],
+      "workflowIds": [
+        "V2-IFRS-003",
+        "V2-IFRS-004",
+        "V2-IFRS-008",
+        "V2-SPINE-057"
+      ]
+    }
+  },
+  "totalRows": 445
+}

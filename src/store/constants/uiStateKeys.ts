@@ -48,6 +48,7 @@ export const UI_STATE_DEFAULTS = {
   commandPalette: {
     open: false,
     search: "",
+    stageFilter: null as string | null,
   },
 
   dashboardDensity: {
