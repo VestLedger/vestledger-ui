@@ -7,14 +7,14 @@ import {
 } from "../workflow-index";
 
 describe("workflow index", () => {
-  it("covers all 445 MVP rows across 71 patterns", () => {
-    expect(WORKFLOW_INDEX.totalRows).toBe(445);
-    expect(ALL_WORKFLOW_PATTERNS).toHaveLength(71);
+  it("covers all 467 MVP rows across 72 patterns", () => {
+    expect(WORKFLOW_INDEX.totalRows).toBe(467);
+    expect(ALL_WORKFLOW_PATTERNS).toHaveLength(72);
     const idCount = Object.values(WORKFLOW_INDEX.patterns).reduce(
       (sum, p) => sum + p.workflowIds.length,
       0,
     );
-    expect(idCount).toBe(445);
+    expect(idCount).toBe(467);
   });
 
   it("only references known stage/group ids", () => {

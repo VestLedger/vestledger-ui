@@ -93,7 +93,7 @@ describe("navigation destinations — exhaustive coverage", () => {
     expect(missing).toEqual([]);
   });
 
-  it("therefore claims every workflow id (445/445)", () => {
+  it("therefore claims every workflow id (467/467)", () => {
     const claimedPatterns = new Set(
       NAV_DESTINATIONS.flatMap((d) => [...d.workflowPatterns]),
     );
@@ -103,7 +103,7 @@ describe("navigation destinations — exhaustive coverage", () => {
         for (const id of entry.workflowIds) claimedIds.add(id);
       }
     }
-    expect(claimedIds.size).toBe(445);
+    expect(claimedIds.size).toBe(467);
   });
 
   it("does not claim unknown patterns", () => {

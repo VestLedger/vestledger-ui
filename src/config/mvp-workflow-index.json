@@ -9,6 +9,18 @@
         "V2-REG-USSEC-040"
       ]
     },
+    "APAC and India regulatory visibility": {
+      "primaryStage": "compliance",
+      "secondaryStages": [],
+      "workflowIds": [
+        "V2-REG-IFSCA-001",
+        "V2-REG-IFSCA-002",
+        "V2-REG-IFSCA-003",
+        "V2-REG-INDANGEL-001",
+        "V2-REG-INDIA-001",
+        "V2-REG-INDIA-002"
+      ]
+    },
     "Add-on pipeline cultivation": {
       "primaryStage": "pipeline",
       "secondaryStages": ["portfolio"],
@@ -18,6 +30,7 @@
       "primaryStage": "compliance",
       "secondaryStages": [],
       "workflowIds": [
+        "V2-REG-INDIA-005",
         "V2-REG-USSEC-002",
         "V2-REG-USSEC-003",
         "V2-REG-USSEC-005",
@@ -361,6 +374,9 @@
         "V2-REG-CROSSBORDER-006",
         "V2-REG-CROSSBORDER-007",
         "V2-REG-HK-004",
+        "V2-REG-INDAML-002",
+        "V2-REG-INDAML-005",
+        "V2-REG-INDANGEL-003",
         "V2-REG-LUX-003",
         "V2-REG-SG-005",
         "V2-REG-USAML-002",
@@ -535,6 +551,8 @@
         "V2-INDSPONSOR-034",
         "V2-INDSPONSOR-036",
         "V2-REG-CAY-007",
+        "V2-REG-INDANGEL-004",
+        "V2-REG-INDIA-007",
         "V2-REG-SFDR-001",
         "V2-REG-UKFCA-003",
         "V2-REG-USERISA-004",
@@ -570,6 +588,9 @@
         "V2-REG-CAY-008",
         "V2-REG-HK-001",
         "V2-REG-HK-002",
+        "V2-REG-INDAML-003",
+        "V2-REG-INDIA-003",
+        "V2-REG-INDIA-011",
         "V2-REG-IRE-001",
         "V2-REG-SG-001",
         "V2-REG-SG-002",
@@ -595,6 +616,8 @@
       "primaryStage": "compliance",
       "secondaryStages": [],
       "workflowIds": [
+        "V2-REG-INDAML-001",
+        "V2-REG-INDAML-004",
         "V2-REG-UKFCA-004",
         "V2-REG-USAML-001",
         "V2-REG-USSEC-015",
@@ -708,6 +731,8 @@
         "V2-INDSPONSOR-037",
         "V2-INDSPONSOR-038",
         "V2-MFO-002",
+        "V2-REG-INDANGEL-002",
+        "V2-REG-INDIA-006",
         "V2-SPV-010",
         "V2-SYN-003",
         "V2-SYN-009",
@@ -718,6 +743,7 @@
       "primaryStage": "network",
       "secondaryStages": ["fund-admin", "compliance"],
       "workflowIds": [
+        "V2-REG-INDIA-012",
         "V2-SVCP-AUDIT-004",
         "V2-SVCP-AUDIT-007",
         "V2-SVCP-COMP-004",
@@ -785,7 +811,7 @@
     "Tax, accounting, and fund-structure compliance visibility": {
       "primaryStage": "tax",
       "secondaryStages": ["analytics"],
-      "workflowIds": ["V2-IFRS-002", "V2-REG-USTAX-007"]
+      "workflowIds": ["V2-IFRS-002", "V2-REG-INDIA-008", "V2-REG-USTAX-007"]
     },
     "Term-sheet, structuring, and capital-stack decisions": {
       "primaryStage": "deal-execution",
@@ -809,9 +835,10 @@
         "V2-IFRS-003",
         "V2-IFRS-004",
         "V2-IFRS-008",
+        "V2-REG-INDIA-004",
         "V2-SPINE-057"
       ]
     }
   },
-  "totalRows": 445
+  "totalRows": 467
 }
