@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import { Button, Input, Card } from "@/ui";
+import { ArrowRight } from "lucide-react";
+import { Button, Input } from "@/ui";
 import { LoadingState } from "@/ui/async-states";
 import { useAuth } from "@/contexts/auth-context";
-import { BrandLogo } from "./brand-logo";
 import { getAuthErrorMessage } from "@/utils/auth-error-message";
 import { ROUTE_PATHS } from "@/config/routes";
 import { buildAdminSuperadminUrl, buildAppWebUrl } from "@/config/env";
@@ -15,6 +16,7 @@ import { extractFieldErrors } from "@/utils/errors/fieldErrors";
 import { findFirstMissingRequiredField } from "@/utils/forms/required";
 
 const LEGACY_DASHBOARD_PATH = "/dashboard";
+const LOGO_SRC = "/logo/Print_Transparent.svg";
 
 const normalizeRedirectPath = (redirectPath: string | null) => {
   if (!redirectPath) {
@@ -116,49 +118,83 @@ export function LoginForm() {
   // Show loading state while auth is hydrating
   if (!hydrated) {
     return (
-      <Card padding="lg">
+      <div className="login-glass-card flex min-h-64 items-center justify-center">
         <LoadingState fullHeight={false} message="Loading..." />
-      </Card>
+      </div>
     );
   }
 
   return (
-    <Card padding="lg">
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-center gap-3 mb-4 text-2xl text-app-primary dark:text-app-dark-primary">
-          <BrandLogo className="h-[1em] w-[1em]" />
-          <span className="font-bold">VestLedger</span>
-        </div>
-        <h1 className="text-2xl font-semibold mb-2">Welcome back</h1>
-        <p className="text-sm text-app-text-muted dark:text-app-dark-text-muted">
-          Sign in to your VestLedger account
+    <section
+      aria-labelledby="login-heading"
+      className="login-glass-card"
+      data-testid="login-card"
+    >
+      <div className="mb-1 text-center">
+        <Image
+          alt="VestLedger logo"
+          className="mx-auto mb-5 h-24 w-24 object-contain"
+          data-testid="login-card-logo"
+          height={96}
+          priority
+          src={LOGO_SRC}
+          width={96}
+        />
+        <h1
+          className="mb-2 text-2xl font-semibold tracking-tight text-[var(--app-text)]"
+          id="login-heading"
+        >
+          Welcome back to Vesta
+        </h1>
+        <p className="text-sm text-[var(--app-text-muted)]">
+          Enter your credentials to continue.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <Input
-          label="Email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@company.com"
-          isRequired
-          autoComplete="email"
-          isInvalid={Boolean(emailError)}
-          errorMessage={emailError}
-        />
+      <form onSubmit={handleSubmit}>
+        <div className="login-field-group">
+          <Input
+            autoComplete="email"
+            classNames={{
+              errorMessage: "text-xs text-[var(--app-danger)]",
+              input:
+                "text-sm text-[var(--app-text)] placeholder:text-[var(--app-text-subtle)]",
+              inputWrapper: "login-input-wrapper",
+              label: "text-sm font-medium text-[var(--app-text)]",
+            }}
+            errorMessage={emailError}
+            isInvalid={Boolean(emailError)}
+            isRequired
+            label="Work email"
+            labelPlacement="outside"
+            onChange={(event) => setEmail(event.target.value)}
+            placeholder="jane@acme.vc"
+            type="email"
+            value={email}
+          />
+        </div>
 
-        <Input
-          label="Password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="••••••••"
-          isRequired
-          autoComplete="current-password"
-          isInvalid={Boolean(passwordError)}
-          errorMessage={passwordError}
-        />
+        <div className="login-field-group">
+          <Input
+            autoComplete="current-password"
+            classNames={{
+              errorMessage: "text-xs text-[var(--app-danger)]",
+              input:
+                "text-sm text-[var(--app-text)] placeholder:text-[var(--app-text-subtle)]",
+              inputWrapper: "login-input-wrapper",
+              label: "text-sm font-medium text-[var(--app-text)]",
+            }}
+            errorMessage={passwordError}
+            isInvalid={Boolean(passwordError)}
+            isRequired
+            label="Password"
+            labelPlacement="outside"
+            onChange={(event) => setPassword(event.target.value)}
+            placeholder="Enter your password"
+            type="password"
+            value={password}
+          />
+        </div>
 
         {error && (
           <div className="p-3 rounded-md border border-app-danger dark:border-app-dark-danger bg-app-danger-light dark:bg-app-dark-danger-light text-app-text dark:text-app-dark-text text-sm">
@@ -169,14 +205,19 @@ export function LoginForm() {
         <Button
           type="submit"
           color="primary"
-          className="w-full"
+          className="login-submit-button mt-4 w-full"
+          endContent={
+            isLoading ? null : (
+              <ArrowRight aria-hidden="true" className="h-4 w-4" />
+            )
+          }
           isLoading={isLoading}
           disabled={isLoading}
         >
-          Sign In
+          Sign in
         </Button>
 
-        <div className="text-center text-sm text-app-text-muted dark:text-app-dark-text-muted">
+        <div className="mt-5 text-center text-sm text-app-text-muted dark:text-app-dark-text-muted">
           Don&apos;t have an account?{" "}
           <a
             href="/eoi"
@@ -186,6 +227,6 @@ export function LoginForm() {
           </a>
         </div>
       </form>
-    </Card>
+    </section>
   );
 }

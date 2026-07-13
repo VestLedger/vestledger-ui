@@ -30,9 +30,7 @@ export class LoginPage {
     this.requestAccessLink = page.getByRole("link", {
       name: /request access/i,
     });
-    this.brandLogo = page
-      .locator(".text-2xl")
-      .filter({ hasText: "VestLedger" });
+    this.brandLogo = page.getByTestId("login-card-logo");
   }
 
   async goto() {

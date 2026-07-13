@@ -39,9 +39,34 @@ test.describe("Authentication", () => {
 
     test("should show welcome message", async ({ page }) => {
       await page.goto("/login");
-      await expect(page.getByText("Welcome back")).toBeVisible();
       await expect(
-        page.getByText("Sign in to your VestLedger account"),
+        page.getByRole("heading", { name: "Welcome back to Vesta" }),
+      ).toBeVisible();
+      await expect(
+        page.getByText("Enter your credentials to continue."),
+      ).toBeVisible();
+      await expect(page.getByPlaceholder("jane@acme.vc")).toBeVisible();
+      await expect(page.getByPlaceholder("Enter your password")).toBeVisible();
+      await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();
+      await expect(
+        page.getByRole("button", { name: /forgot password/i }),
+      ).toHaveCount(0);
+      await expect(
+        page.getByRole("link", { name: /create account|sign up/i }),
+      ).toHaveCount(0);
+    });
+
+    test("should render the efficient branded shell and theme controls", async ({
+      page,
+    }) => {
+      await page.goto("/login");
+
+      await expect(page.getByTestId("login-logo-field")).toHaveCount(1);
+      await expect(
+        page.getByRole("button", { name: "Toggle theme" }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("link", { name: "VestLedger" }),
       ).toBeVisible();
     });
 
@@ -126,6 +151,18 @@ test.describe("Authentication", () => {
       await expect
         .poll(() => new URL(page.url()).pathname, { timeout: 15000 })
         .toBe("/home");
+    });
+  });
+
+  test.describe("Reduced motion", () => {
+    test("should stop the branded background animation", async ({ page }) => {
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await page.goto("/login");
+
+      await expect(page.getByTestId("login-logo-field")).toHaveCSS(
+        "animation-name",
+        "none",
+      );
     });
   });
 
